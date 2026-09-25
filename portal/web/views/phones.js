@@ -18,6 +18,7 @@ export function phonesView({ setActions, setBanner }) {
   const selected = new Set();
   let selecting = false;
   let phones = [];
+  let lastResults = null; // reopenable, so Retry is still available after taking control
 
   selectToggle.addEventListener('click', () => {
     selecting = !selecting;
@@ -82,6 +83,7 @@ export function phonesView({ setActions, setBanner }) {
       btn('Swipe ↑', () => groupSwipe('up')), btn('Swipe ↓', () => groupSwipe('down')),
       btn('Type text…', groupType),
       btn('Release', () => groupCall('/api/groups/release', 'Release')),
+      lastResults ? h('button', { class: 'btn btn-sm btn-ghost', type: 'button', onclick: () => showResults(...lastResults) }, 'Last results') : null,
       h('span', { class: 'spacer' }),
       btn('Stop selected', () => groupCall('/api/groups/stop', 'Stop'), 'btn-stop'),
       h('button', { class: 'btn btn-sm btn-ghost', type: 'button', onclick: () => { selected.clear(); render(); } }, 'Clear'));
@@ -127,6 +129,7 @@ export function phonesView({ setActions, setBanner }) {
   }
 
   function showResults(label, results, retry) {
+    if (retry) { lastResults = [label, results, retry]; renderBar(); } // only actions can be retried
     const count = st => results.filter(r => r.status === st).length;
     const retryable = results.filter(r => r.status === 'not_sent' && r.retrySafe !== false);
     const rows = results.map(r => h('tr', {}, h('td', {}, r.name), h('td', { class: `st st-${r.status}` }, OUTCOME_WORDS[r.status] ?? r.status),
