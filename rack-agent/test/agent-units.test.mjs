@@ -97,7 +97,10 @@ test('Stop bypasses the queue, cancels pending work and nothing runs afterwards'
   const stop = await lane.stop('user pressed stop');
   assert.equal(stop.ok, true);
   const results = await Promise.all(pending);
-  assert.deepEqual(results.map(r => r.status), ['cancelled', 'cancelled', 'cancelled']);
+  // In flight when Stop arrived: may have run partly. Still queued: confirmed not sent.
+  assert.deepEqual(results.map(r => r.status), ['uncertain', 'not_sent', 'not_sent']);
+  assert.deepEqual(results.map(r => r.retrySafe), [false, true, true]);
+  assert.equal(results[0].reason, 'cancelled_during');
   assert.equal(sim.delivered(ID, stoppedAt).filter(e => e.fun.startsWith('/mouse/')).length, 0, 'no input after Stop');
   assert.equal(events.at(-1).reason, 'stopped');
   const status = (await kernel.inputStatus()).phones.find(p => p.id === ID);
@@ -109,7 +112,7 @@ test('an unconfirmed command is never retried and stops the phone', () => withSi
   const lane = new PhoneLane(ID, kernel);
   await lane.acquire({ sessionId: 's' });
   const r = await lane.enqueue({ sessionId: 's' }, 'c1', validateAction({ type: 'tap', x: 5, y: 5 }, size));
-  assert.equal(r.status, 'unknown');
+  assert.deepEqual([r.status, r.reason, r.retrySafe], ['uncertain', 'no_reply', false]);
   sim.faults(ID).hangMs = 0;
   await sleep(1600);
   assert.equal(sim.delivered(ID).filter(e => e.fun === '/mouse/click').length, 1, 'executed exactly once');
@@ -123,7 +126,7 @@ test('a failed command drops control (kernel latched Stop) and reports it', () =
   await lane.acquire({ sessionId: 's' });
   sim.faults(ID).failNext = 1;
   const r = await lane.enqueue({ sessionId: 's' }, 'c1', validateAction({ type: 'key', key: 'Home' }, size));
-  assert.equal(r.status, 'failed');
+  assert.deepEqual([r.status, r.reason, r.retrySafe], ['uncertain', 'kernel_failed', false], 'a failure during execution may have been partial');
   assert.equal(lane.hasControl, false);
   assert.equal(events[0].reason, 'stopped');
 }));
@@ -188,3 +191,115 @@ test('previews: watches expire, stopping capture', () => withSim(async (_sim, ke
   pm.close();
   await encoder.close();
 }));
+
+// ---- outcome classification and long text ------------------------------------------
+
+test('a kernel refusal before execution is "not sent" and safe to retry; nothing reached HID', () => withSim(async (sim, kernel) => {
+  const lane = new PhoneLane(ID, kernel);
+  await lane.acquire({ sessionId: 's' });
+  await kernel.command('/input/stop', { id: ID }); // operator stops it; the lane has not noticed yet
+  const before = sim.log.length;
+  const r = await lane.enqueue({ sessionId: 's' }, 'c1', validateAction({ type: 'tap', x: 5, y: 5 }, size));
+  assert.deepEqual([r.status, r.reason, r.retrySafe, r.kernelCode], ['not_sent', 'kernel_refused', true, 409]);
+  assert.equal(sim.log.length, before, 'no input reached the simulated phone');
+  assert.equal(lane.hasControl, false, 'the lost lease is noticed and control handed back');
+}));
+
+test('long text: chunks run back to back in one queued operation; other input waits, never interleaves', () => withSim(async (sim, kernel) => {
+  const lane = new PhoneLane(ID, kernel);
+  await lane.acquire({ sessionId: 's' });
+  const text = 'abcdefghij'.repeat(10); // 100 chars -> 4 chunks
+  const typing = lane.enqueue({ sessionId: 's' }, 't', validateAction({ type: 'text', text }, size));
+  await sleep(10);
+  const tap = lane.enqueue({ sessionId: 's' }, 'tap', validateAction({ type: 'tap', x: 9, y: 9 }, size));
+  const [t, p] = await Promise.all([typing, tap]);
+  assert.equal(t.status, 'succeeded');
+  assert.deepEqual(t.text, { total: 100, confirmed: 100, uncertain: 0, notSent: 0 });
+  assert.equal(p.status, 'succeeded');
+  const order = sim.delivered(ID).map(e => e.fun);
+  assert.deepEqual(order, ['/key/sendkey', '/key/sendkey', '/key/sendkey', '/key/sendkey', '/mouse/click']);
+  assert.equal(sim.delivered(ID).filter(e => e.fun === '/key/sendkey').map(e => e.data.key).join(''), text, 'chunks in order, nothing lost or repeated');
+}));
+
+test('long text: lease renewal keeps running during a send longer than the lease', () => withSim(async (sim, kernel) => {
+  const lane = new PhoneLane(ID, kernel, { leaseMs: 1000, renewMs: 300 });
+  await lane.acquire({ sessionId: 's' });
+  const started = Date.now();
+  const r = await lane.enqueue({ sessionId: 's' }, 't', validateAction({ type: 'text', text: 'x'.repeat(200) }, size)); // ~2.8 s at speed 0.1
+  assert.ok(Date.now() - started > 1500, 'the send outlived the 1 s lease');
+  assert.equal(r.status, 'succeeded', r.detail);
+  const st = (await kernel.inputStatus()).phones.find(p => p.id === ID);
+  assert.deepEqual([st.owned, st.stopped], [true, false], 'still owned, never expired');
+  await lane.release({ sessionId: 's' });
+}, { speed: 0.1 }));
+
+test('long text: Stop interrupts immediately; confirmed chunks, the uncertain chunk and the unsent rest are reported', () => withSim(async (sim, kernel) => {
+  const lane = new PhoneLane(ID, kernel);
+  await lane.acquire({ sessionId: 's' });
+  const text = 'q'.repeat(128); // 4 chunks of 32, ~1 s each at speed 0.2
+  const typing = lane.enqueue({ sessionId: 's' }, 't', validateAction({ type: 'text', text }, size));
+  await waitForLog(sim, 2); // chunk 2 has started
+  await sleep(200);
+  const stopAt = Date.now();
+  const stop = await lane.stop('Stop pressed during typing');
+  const stoppedIn = Date.now() - stopAt;
+  const r = await typing;
+  assert.equal(stop.ok, true);
+  assert.ok(stoppedIn < 1000, `Stop returned in ${stoppedIn} ms, without waiting for the text`);
+  assert.deepEqual([r.status, r.reason, r.retrySafe], ['uncertain', 'cancelled_during', false]);
+  assert.deepEqual(r.text, { total: 128, confirmed: 32, uncertain: 32, notSent: 64 });
+  assert.equal(sim.delivered(ID, stopAt).filter(e => e.fun === '/key/sendkey').length, 0, 'no chunk started after Stop');
+}, { speed: 0.2 }));
+
+test('long text: a failure on chunk 2 stops there; chunk 1 is confirmed, chunk 2 uncertain, the rest never sent', () => withSim(async (sim, kernel) => {
+  const lane = new PhoneLane(ID, kernel);
+  await lane.acquire({ sessionId: 's' });
+  sim.faults(ID).failAfter = 1;
+  const r = await lane.enqueue({ sessionId: 's' }, 't', validateAction({ type: 'text', text: 'w'.repeat(100) }, size));
+  assert.deepEqual([r.status, r.reason], ['uncertain', 'kernel_failed']);
+  assert.deepEqual(r.text, { total: 100, confirmed: 32, uncertain: 32, notSent: 36 });
+  assert.equal(sim.delivered(ID).filter(e => e.fun === '/key/sendkey').length, 2);
+  assert.equal(lane.hasControl, false);
+}));
+
+test('long text: no reply on chunk 2 is uncertain, never retried, and stops the phone before chunk 3', () => withSim(async (sim, kernel) => {
+  const lane = new PhoneLane(ID, kernel);
+  await lane.acquire({ sessionId: 's' });
+  sim.faults(ID).hangAfter = { calls: 1, ms: 1500 };
+  const r = await lane.enqueue({ sessionId: 's' }, 't', validateAction({ type: 'text', text: 'e'.repeat(100) }, size));
+  assert.deepEqual([r.status, r.reason, r.retrySafe], ['uncertain', 'no_reply', false]);
+  assert.deepEqual(r.text, { total: 100, confirmed: 32, uncertain: 32, notSent: 36 });
+  await sleep(1600);
+  assert.equal(sim.delivered(ID).filter(e => e.fun === '/key/sendkey').length, 2, 'chunk 2 sent once; chunk 3 never');
+  assert.equal((await kernel.inputStatus()).phones.find(p => p.id === ID).stopped, true);
+}, { kernel: { commandTimeoutMs: 500 } }));
+
+test('long text: the whole text is validated before the first chunk is sent', () => withSim(async (sim, kernel) => {
+  const bad = 'a'.repeat(150) + 'é' + 'b'.repeat(20);
+  assert.throws(() => validateAction({ type: 'text', text: bad }, size), ActionError);
+  assert.throws(() => validateAction({ type: 'text', text: 'x'.repeat(201) }, size), ActionError);
+  assert.equal(sim.log.length, 0);
+}));
+
+async function waitForLog(sim, count) {
+  for (let i = 0; i < 400 && sim.log.filter(e => e.fun === '/key/sendkey').length < count; i++) await sleep(10);
+}
+
+test('only one rack agent per kernel: a live lock refuses a second agent; a stale lock is taken over', async () => {
+  const { acquireInstanceLock } = await import('../src/instance-lock.js');
+  const fs = await import('node:fs'), os = await import('node:os'), path = await import('node:path');
+  const { spawn } = await import('node:child_process');
+  const file = path.join(os.tmpdir(), `nt-lock-test-${process.pid}.lock`);
+  fs.rmSync(file, { force: true });
+  const release = acquireInstanceLock(file);
+  release();
+  const other = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 5000)']);
+  fs.writeFileSync(file, String(other.pid));
+  assert.throws(() => acquireInstanceLock(file), /already running/);
+  other.kill();
+  await new Promise(r => other.on('exit', r));
+  const again = acquireInstanceLock(file); // stale: the PID is gone
+  assert.equal(fs.readFileSync(file, 'utf8'), String(process.pid));
+  again();
+  assert.equal(fs.existsSync(file), false);
+});

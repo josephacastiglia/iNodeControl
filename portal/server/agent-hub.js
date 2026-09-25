@@ -110,6 +110,7 @@ export class AgentHub extends EventEmitter {
   #onInventory(conn, msg) {
     conn.kernel = msg.kernel ?? conn.kernel;
     conn.previewStats = msg.previewStats ?? null;
+    conn.agentProcess = msg.agentProcess ?? null;
     conn.inventoryAt = Date.now();
     const now = Date.now();
     const phones = new Map();

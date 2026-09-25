@@ -13,10 +13,12 @@ export function registerAdminRoutes(router, ctx) {
 
   router.add('GET', '/api/admin/summary', 'staff', ({ res }) => {
     const agents = db.prepare('SELECT id, name, created_at, revoked_at, last_connected_at, last_ip FROM agents ORDER BY created_at').all()
-      .map(a => { const c = hub.connection(a.id); return { ...a, online: !!c, version: c?.hello?.version ?? null, kernel: c?.kernel ?? null, phonesReported: c?.phones.size ?? 0, previewStats: c?.previewStats ?? null }; });
+      .map(a => { const c = hub.connection(a.id); return { ...a, online: !!c, version: c?.hello?.version ?? null, kernel: c?.kernel ?? null, phonesReported: c?.phones.size ?? 0, previewStats: c?.previewStats ?? null, agentProcess: c?.agentProcess ?? null }; });
     const phoneCounts = db.prepare(`SELECT p.service_state AS state, COUNT(*) AS n, SUM(CASE WHEN a.id IS NULL THEN 0 ELSE 1 END) AS allocated
       FROM phones p LEFT JOIN allocations a ON a.phone_id = p.id AND a.ended_at IS NULL GROUP BY p.service_state`).all();
-    sendJson(res, 200, { agents, phoneCounts, activeControl: control.sessions.size, previews: ctx.previews.stats() });
+    const mem = process.memoryUsage();
+    const portalProcess = { pid: process.pid, rssMB: Math.round(mem.rss / 1048576), heapMB: Math.round(mem.heapUsed / 1048576), uptimeS: Math.round(process.uptime()) };
+    sendJson(res, 200, { agents, phoneCounts, activeControl: control.sessions.size, previews: ctx.previews.stats(), portalProcess });
   });
 
   // ---- customers & users --------------------------------------------------------

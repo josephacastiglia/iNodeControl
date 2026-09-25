@@ -107,7 +107,19 @@ export class RackAgent {
     if (!force && json === this.lastInventoryJson && now - this.lastInventorySentAt < 5000) return;
     this.lastInventoryJson = json;
     this.lastInventorySentAt = now;
-    this.#send({ t: 'inventory', ...snap, previewStats: this.previews.stats });
+    this.#send({ t: 'inventory', ...snap, previewStats: this.previews.stats, agentProcess: this.#processStats() });
+  }
+
+  /** Own CPU (percent of one core since the last sample) and memory, for staff diagnostics. */
+  #processStats() {
+    const now = process.hrtime.bigint(), cpu = process.cpuUsage();
+    const prev = this.cpuSample;
+    this.cpuSample = { now, cpu };
+    const mem = process.memoryUsage();
+    const elapsedUs = prev ? Number(now - prev.now) / 1000 : 0;
+    const usedUs = prev ? (cpu.user - prev.cpu.user) + (cpu.system - prev.cpu.system) : 0;
+    return { pid: process.pid, cpuPercentOfOneCore: elapsedUs > 0 ? Math.round(usedUs / elapsedUs * 1000) / 10 : null,
+      rssMB: Math.round(mem.rss / 1048576), heapMB: Math.round(mem.heapUsed / 1048576), uptimeS: Math.round(process.uptime()) };
   }
 
   #connect(delay) {
@@ -209,15 +221,18 @@ export class RackAgent {
         this.#requireInput(phone);
         let action;
         try { action = validateAction(a.action, { width: phone.imgW, height: phone.imgH }); }
-        catch (err) { if (err instanceof ActionError) return { status: 'rejected', message: err.message }; throw err; }
+        catch (err) {
+          if (err instanceof ActionError) return { status: 'not_sent', retrySafe: false, reason: 'invalid_action', detail: err.message, progress: { total: 0, confirmed: 0, uncertain: 0, notSent: 0 } };
+          throw err;
+        }
         if (typeof a.commandId !== 'string' || !a.commandId) throw new AgentError('bad_request', 'Missing command id.');
         const lane = this.lanes.get(a.kernelId);
-        if (!lane) return { status: 'rejected', message: 'You no longer control this phone.' };
+        if (!lane) return { status: 'not_sent', retrySafe: true, reason: 'not_in_control', detail: 'No control session on this phone.', progress: { total: 0, confirmed: 0, uncertain: 0, notSent: 0 } };
         const started = Date.now();
         const r = await lane.enqueue({ sessionId: a.sessionId }, a.commandId, action);
-        this.log.info?.(`${a.kernelId.slice(-5)} ${describeAction(action)} -> ${r.status} (${Date.now() - started} ms)`);
-        // A failed, cancelled or uncertain command changes input state; report it before replying.
-        if (r.status !== 'succeeded' && r.status !== 'rejected') await this.#fresh();
+        this.log.info?.(`${a.kernelId.slice(-5)} ${describeAction(action)} -> ${r.status}/${r.reason} steps ${r.progress.confirmed}/${r.progress.total} (${Date.now() - started} ms)`);
+        // Anything but a clean success or a local refusal can change input state; report it first.
+        if (r.status === 'uncertain' || r.reason === 'kernel_refused' || r.reason === 'kernel_unreachable') await this.#fresh();
         return { ...r, elapsedMs: Date.now() - started };
       }
       case 'stop': {

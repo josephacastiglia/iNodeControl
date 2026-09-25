@@ -4,8 +4,8 @@ import { state } from '../lib/state.js';
 import { gridPreview } from '../lib/frames.js';
 import { presetSwipe, textProblem } from '../lib/coords.js';
 import { stopAllButton } from '../lib/stopall.js';
+import { OUTCOME_WORDS, progressNote } from '../lib/outcomes.js';
 
-const STATUS_WORDS = { succeeded: 'Done', failed: 'Failed', cancelled: 'Cancelled', unknown: 'Uncertain — check this phone', rejected: 'Not sent', skipped: 'Skipped' };
 
 export function phonesView({ setActions, setBanner }) {
   const selectToggle = h('button', { class: 'btn btn-ghost', type: 'button', 'aria-pressed': 'false' }, 'Select phones for a group action');
@@ -90,7 +90,8 @@ export function phonesView({ setActions, setBanner }) {
   async function groupCall(path, label) {
     try {
       const r = await post(path, { phoneIds: [...selected] });
-      if (r.results) showResults(label, r.results.map(x => ({ ...x, status: x.ok ? 'succeeded' : 'failed' })));
+      // Control requests that were refused changed nothing; a Stop that was not confirmed is uncertain.
+      if (r.results) showResults(label, r.results.map(x => ({ ...x, status: x.ok ? 'succeeded' : label === 'Stop' ? 'uncertain' : 'not_sent', retrySafe: false })));
       else toast(`${label}: done.`);
     } catch (err) { toast(err.message, 'bad'); }
     refresh();
@@ -126,19 +127,22 @@ export function phonesView({ setActions, setBanner }) {
   }
 
   function showResults(label, results, retry) {
-    const retryable = results.filter(r => ['failed', 'cancelled', 'rejected'].includes(r.status));
-    const ok = results.filter(r => r.status === 'succeeded').length;
-    const rows = results.map(r => h('tr', {}, h('td', {}, r.name), h('td', { class: `st st-${r.status}` }, STATUS_WORDS[r.status] ?? r.status), h('td', { class: 'muted small' }, r.message ?? '')));
+    const count = st => results.filter(r => r.status === st).length;
+    const retryable = results.filter(r => r.status === 'not_sent' && r.retrySafe !== false);
+    const rows = results.map(r => h('tr', {}, h('td', {}, r.name), h('td', { class: `st st-${r.status}` }, OUTCOME_WORDS[r.status] ?? r.status),
+      h('td', { class: 'muted small' }, [progressNote(r), r.message].filter(Boolean).join(' — '))));
+    const summary = [`${count('succeeded')} sent`, count('not_sent') ? `${count('not_sent')} not sent` : '', count('uncertain') ? `${count('uncertain')} uncertain` : '', count('skipped') ? `${count('skipped')} skipped` : ''].filter(Boolean).join(' · ');
     const content = [
-      h('p', {}, `${ok} of ${results.length} succeeded.`),
+      h('p', {}, summary),
       h('div', { class: 'table-wrap' }, h('table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'Phone'), h('th', {}, 'Result'), h('th', {}, 'Detail'))), h('tbody', {}, rows))),
+      h('p', { class: 'small muted' }, '“Sent” means the rack delivered the input; check each screen for the result.'),
     ];
-    if (results.some(r => r.status === 'unknown'))
-      content.push(h('p', { class: 'small muted' }, 'Uncertain results are never retried automatically: the action may already have happened. Check those phones first.'));
+    if (count('uncertain'))
+      content.push(h('p', { class: 'small', role: 'note' }, h('b', {}, 'Uncertain phones are never retried. '), 'The action may already have run on them, fully or partly. Check those phones before doing anything else.'));
     if (retry && retryable.length) {
-      const btn = h('button', { class: 'btn btn-primary', type: 'button' }, `Retry on the ${retryable.length} phone${retryable.length === 1 ? '' : 's'} that didn’t succeed`);
+      const btn = h('button', { class: 'btn btn-primary', type: 'button' }, `Retry on the ${retryable.length} phone${retryable.length === 1 ? '' : 's'} where nothing was sent`);
       btn.addEventListener('click', () => { dlg.close(); groupAction(retry.action, retry.groupId, retryable.map(r => r.phoneId)); });
-      content.push(h('p', { class: 'small muted' }, 'Phones that succeeded will not receive the action again.'), btn);
+      content.push(h('p', { class: 'small muted' }, 'Only phones that received nothing can be retried. Sent and uncertain phones are skipped.'), btn);
     }
     const dlg = showDialog(`${label}: results`, ...content);
   }

@@ -25,6 +25,19 @@ Customer browser ──HTTPS──> Portal ──WSS (agent credential)──< R
   - Grid tiles are 144 px at about 1 fps; the focused phone is 360 px at up to about 8 fps.
   - Frames are dropped, never queued, when the portal link is backed up.
 - **Safety on disconnect.** If the portal link drops, every phone the agent controls is released immediately. Nothing is resumed or replayed on reconnect.
+- **One agent per kernel.** A lock file (`%TEMP%\nodetheory-rack-agent-<kernel port>.lock`) refuses a second copy; a lock left by a dead process is taken over.
+
+## Action outcomes
+
+Every action ends in exactly one state:
+
+| State | Meaning | Retry |
+|---|---|---|
+| `succeeded` | The kernel confirmed every step (code 0). This proves the HID reports were written, not that iOS showed the expected result. | — |
+| `not_sent` | Confirmed nothing reached the phone. Examples: refused before execution (kernel 409/36/1/41 with no per-phone results), stopped while queued, kernel unreachable. | Safe for a person to retry |
+| `uncertain` | No reply (timeout or disconnect), a failure or cancellation during execution, or partly complete. | Never retried; the phone is stopped or handed back |
+
+Results carry `progress` (steps confirmed / uncertain / not sent). Text results also carry `text` (characters confirmed / uncertain / not sent). Text is validated in full before the first chunk. Chunks run back to back inside one queued operation under one lease, while renewal continues on its own timer, and Stop interrupts the chunk in flight.
 
 ## Why text is chunked
 
@@ -32,7 +45,7 @@ The kernel cancels any single command after 8 s (`InputSessions.ExecuteAsync`), 
 
 ## Install on the rack PC (Windows)
 
-1. Install Node.js 22.5 or newer, then run `node --version`.
+1. Install Node.js 22.13 or newer (a portable zip is enough), then run `node --version`.
 2. Copy this folder, then run `npm ci`.
 3. In the portal, go to **Staff → Racks → Create rack credential**. Save the credential, which is shown once, to a file only the service account can read:
    ```powershell
@@ -64,6 +77,12 @@ npm test             # unit/contract tests (simulator) + kernel conformance (nee
   - This checks the adapter against the real ownership logic.
   - It is **not** Windows integration and **not** phone validation.
   - On Windows, HttpListener may need `netsh http add urlacl` or an elevated shell. Set `NT_HARNESS_PORT` to a reserved port.
+
+## Measuring on the rack PC
+
+- **Staff → Racks** shows the agent's PID, its CPU (percent of one core), memory, and preview counters.
+- **Phone → Measurements** records displayed fps, receiver fps, frame age and click-to-visible latency, and exports JSON.
+- `scripts/sample-processes.ps1` samples CPU and memory of chosen PIDs to CSV (Windows PowerShell 5.1 or 7; read-only).
 
 ## Measured
 

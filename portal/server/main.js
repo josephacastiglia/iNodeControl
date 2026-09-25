@@ -22,6 +22,6 @@ const portal = createPortal({
   trustProxy: env.NT_TRUST_PROXY === '1',
 });
 const port = await portal.listen(Number(env.NT_PORT ?? 8080), env.NT_HOST ?? '127.0.0.1');
-console.log(`NodeTheory portal listening on ${env.NT_HOST ?? '127.0.0.1'}:${port}${insecure ? ' (INSECURE DEV MODE)' : ''}`);
+console.log(`NodeTheory portal PID ${process.pid} listening on ${env.NT_HOST ?? '127.0.0.1'}:${port}${insecure ? ' (INSECURE DEV MODE: plain HTTP, loopback only)' : ''}. Database ${env.NT_DB_PATH ?? 'data/portal.db'}.`);
 
-for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => { await portal.close(); process.exit(0); });
+for (const signal of ['SIGINT', 'SIGTERM', 'SIGBREAK']) process.on(signal, async () => { await portal.close(); process.exit(0); });

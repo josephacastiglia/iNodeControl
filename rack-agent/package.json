@@ -4,7 +4,9 @@
   "private": true,
   "description": "Runs on the rack PC. Connects outbound to the NodeTheory portal and drives the local iNodeControl kernel.",
   "type": "module",
-  "engines": { "node": ">=22.5" },
+  "engines": {
+    "node": ">=22.13"
+  },
   "scripts": {
     "start": "node src/main.js",
     "sim": "node sim/kernel-sim.js",

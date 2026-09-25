@@ -178,7 +178,7 @@ details.disclosure > div { padding: 0 16px 16px; display: grid; gap: 8px; font-s
 .unavailable li b { font-weight: 600; }
 .history .list-row { font-size: 13.5px; }
 .st { font-weight: 700; font-size: 12px; }
-.st-succeeded { color: var(--green-ink); } .st-failed, .st-rejected { color: var(--accent-ink); } .st-unknown, .st-cancelled { color: var(--amber-ink); }
+.st-succeeded { color: var(--green-ink); }
 
 /* ---- tables ---- */
 .table-wrap { overflow-x: auto; background: var(--white); border: 1px solid var(--line-light); border-radius: var(--radius); }
@@ -225,3 +225,6 @@ dialog::backdrop { background: rgba(17, 17, 19, .55); }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 .nav-soon a { opacity: .45; cursor: default; }
 .nav-soon a:hover { background: none; color: var(--muted); }
+.st-sending { color: var(--muted-light); }
+.st-not_sent, .st-skipped { color: var(--amber-ink); }
+.st-uncertain { color: var(--accent-ink); }

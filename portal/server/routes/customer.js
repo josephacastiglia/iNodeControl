@@ -2,7 +2,7 @@ import { HttpError, sendJson } from '../http.js';
 import { newId } from '../security.js';
 import { AuditLog } from '../audit.js';
 import { AgentNoAnswerError, AgentUnavailableError, AgentRequestError } from '../agent-hub.js';
-import { validateAction, ActionError, describeAction, commandTimeoutMs, isCoordinateAction } from '../actions.js';
+import { validateAction, ActionError, describeAction, commandTimeoutMs, isCoordinateAction, outcomeMessage, TEXT_CHUNK } from '../actions.js';
 import { phoneStatus, phoneDiagnostics } from '../phones.js';
 
 const MAX_GROUP = 20;
@@ -19,52 +19,70 @@ export function registerCustomerRoutes(router, ctx) {
   const { db, hub, control, previews, directory, audit } = ctx;
   const insertCommand = db.prepare(`INSERT INTO commands (id, customer_id, user_id, phone_id, group_id, kind, summary, status, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-  const finishCommand = db.prepare('UPDATE commands SET status = ?, message = ?, finished_at = ?, elapsed_ms = ? WHERE id = ?');
+  const finishCommand = db.prepare(`UPDATE commands SET status = ?, reason = ?, message = ?, steps_total = ?, steps_confirmed = ?, steps_uncertain = ?,
+    chars_total = ?, chars_confirmed = ?, chars_uncertain = ?, finished_at = ?, elapsed_ms = ? WHERE id = ?`);
   const status = (row, user) => phoneStatus(row, { hub, control, previews, user });
+
+  /** Outcome decided in the portal itself (nothing reached the rack, or no answer came back). */
+  function localOutcome(action, status, reason) {
+    const steps = action.type === 'text' ? Math.ceil(action.text.length / TEXT_CHUNK) : null;
+    const o = { status, retrySafe: status === 'not_sent', reason, progress: steps ? { total: steps, confirmed: 0, uncertain: 0, notSent: steps } : null };
+    if (action.type === 'text' && status === 'not_sent') o.text = { total: action.text.length, confirmed: 0, uncertain: 0, notSent: action.text.length };
+    return o;
+  }
+
+  /** Accepts only the agent's three states; anything else is treated as uncertain. */
+  function agentOutcome(res) {
+    if (!res || !['succeeded', 'not_sent', 'uncertain'].includes(res.status)) return { status: 'uncertain', retrySafe: false, reason: 'agent_error', progress: null };
+    return { status: res.status, retrySafe: res.status === 'not_sent', reason: String(res.reason ?? ''), progress: res.progress ?? null, text: res.text ?? undefined, detail: String(res.detail ?? '') };
+  }
 
   /**
    * Runs one validated action on one phone for its controller. Ownership and control are
    * checked again here, immediately before dispatch, and again by the agent when the
-   * command reaches the front of the phone's queue.
+   * command reaches the front of the phone's queue. Nothing is ever retried here.
    */
   async function runCommand(user, row, action, { groupId = null, ip } = {}) {
     const id = newId();
     const now = Date.now();
     const summary = describeAction(action);
-    const reject = message => {
-      insertCommand.run(id, user.customerId, user.id, row.id, groupId, action.type, summary, 'rejected', now);
-      finishCommand.run('rejected', message, Date.now(), 0, id);
-      return { id, status: 'rejected', message };
-    };
-    try { row = directory.owned(user.customerId, row.id); } catch { return reject('This phone is no longer assigned to your account.'); }
-    const session = control.get(row.id);
-    if (!session || session.userId !== user.id || session.allocationId !== row.allocation_id) return reject('Take control of this phone first.');
-    if (session.inflight >= MAX_INFLIGHT_PER_PHONE) return reject('This phone is still working through earlier actions.');
-    insertCommand.run(id, user.customerId, user.id, row.id, groupId, action.type, summary, 'sent', now);
-    session.inflight++;
-    session.heartbeatAt = Date.now();
-    let result;
-    try {
-      const res = await hub.request(row.agent_id, 'command', { kernelId: row.kernel_device_id, sessionId: session.sessionId, commandId: id, action }, commandTimeoutMs(action));
-      result = { status: ['succeeded', 'failed', 'cancelled', 'unknown', 'rejected'].includes(res?.status) ? res.status : 'unknown', message: String(res?.message ?? '') };
-    } catch (err) {
-      if (err instanceof AgentUnavailableError) result = { status: 'failed', message: 'The rack is offline; nothing was sent.' };
-      else if (err instanceof AgentRequestError) result = { status: 'rejected', message: err.message };
-      else {
-        result = { status: 'unknown', message: 'The rack did not confirm this action. It may have happened — check the screen before repeating it.' };
-        if (err instanceof AgentNoAnswerError && hub.isOnline(row.agent_id)) {
-          // Never retry. Stop the phone so nothing stale follows an uncertain action.
-          control.end(row.id, 'unknown', 'Control ended because an action was not confirmed.');
-          hub.request(row.agent_id, 'stop', { kernelIds: [row.kernel_device_id], reason: 'Action not confirmed by the rack.' }).catch(() => {});
-        }
-      }
-    } finally {
-      session.inflight--;
+    insertCommand.run(id, user.customerId, user.id, row.id, groupId, action.type, summary, 'sending', now);
+    let outcome;
+    let session = null;
+    try { row = directory.owned(user.customerId, row.id); } catch { outcome = localOutcome(action, 'not_sent', 'not_assigned'); }
+    if (!outcome) {
+      session = control.get(row.id);
+      if (!session || session.userId !== user.id || session.allocationId !== row.allocation_id) { session = null; outcome = localOutcome(action, 'not_sent', 'not_in_control'); }
+      else if (session.inflight >= MAX_INFLIGHT_PER_PHONE) { session = null; outcome = localOutcome(action, 'not_sent', 'queue_full'); }
     }
-    finishCommand.run(result.status, result.message.slice(0, 300), Date.now(), Date.now() - now, id);
-    audit.record({ actor: AuditLog.actorFor(user), customerId: user.customerId, phoneId: row.id, action: 'input.' + action.type,
-      outcome: result.status, detail: { summary, groupId, message: result.status === 'succeeded' ? undefined : result.message }, ip });
-    return { id, ...result, elapsedMs: Date.now() - now };
+    if (!outcome) {
+      session.inflight++;
+      session.heartbeatAt = Date.now();
+      try {
+        const res = await hub.request(row.agent_id, 'command', { kernelId: row.kernel_device_id, sessionId: session.sessionId, commandId: id, action }, commandTimeoutMs(action));
+        outcome = agentOutcome(res);
+      } catch (err) {
+        if (err instanceof AgentUnavailableError) outcome = localOutcome(action, 'not_sent', 'rack_offline');
+        else if (err instanceof AgentRequestError) outcome = localOutcome(action, 'not_sent', 'rack_refused');
+        else {
+          // Timeout or disconnect after sending: it may have run. Never retry; stop the phone.
+          outcome = localOutcome(action, 'uncertain', 'no_reply');
+          if (hub.isOnline(row.agent_id)) {
+            control.end(row.id, 'uncertain', 'Control ended because an action was not confirmed.');
+            hub.request(row.agent_id, 'stop', { kernelIds: [row.kernel_device_id], reason: 'Action not confirmed by the rack.' }).catch(() => {});
+          }
+        }
+      } finally {
+        session.inflight--;
+      }
+    }
+    const message = outcomeMessage(action, outcome);
+    const p = outcome.progress, t = outcome.text;
+    finishCommand.run(outcome.status, outcome.reason, message.slice(0, 500), p?.total ?? null, p?.confirmed ?? null, p?.uncertain ?? null,
+      t?.total ?? null, t?.confirmed ?? null, t?.uncertain ?? null, Date.now(), Date.now() - now, id);
+    audit.record({ actor: AuditLog.actorFor(user), customerId: user.customerId, phoneId: row.id, action: 'input.' + action.type, outcome: outcome.status,
+      detail: { summary, groupId, reason: outcome.reason, steps: p ? `${p.confirmed}/${p.total}` : undefined, chars: t ? `${t.confirmed}/${t.total}` : undefined }, ip });
+    return { id, status: outcome.status, retrySafe: outcome.retrySafe, reason: outcome.reason, message, progress: p ?? null, text: t ?? null, elapsedMs: Date.now() - now };
   }
 
   async function stopPhones(user, rows, reason, ip) {
@@ -104,7 +122,7 @@ export function registerCustomerRoutes(router, ctx) {
     const row = directory.owned(user.customerId, params.id);
     const d = phoneDiagnostics(row, hub);
     // Customers see their phone's technical detail, not other rack internals.
-    sendJson(res, 200, { diagnostics: { phone: d.phone, rack: { online: d.rack.online, simulated: !!d.rack.kernel?.simulated } } });
+    sendJson(res, 200, { diagnostics: { phone: d.phone, rack: { online: d.rack.online, simulated: !!d.rack.kernel?.simulated }, serverTime: Date.now() } });
   });
 
   router.add('POST', '/api/phones/:id/name', 'customer_admin', ({ res, user, params, body, ip }) => {
@@ -120,7 +138,8 @@ export function registerCustomerRoutes(router, ctx) {
 
   router.add('GET', '/api/phones/:id/commands', 'customer', ({ res, user, params }) => {
     const row = directory.owned(user.customerId, params.id);
-    const list = db.prepare(`SELECT c.id, c.kind, c.summary, c.status, c.message, c.created_at, c.elapsed_ms, c.group_id, u.name AS user_name
+    const list = db.prepare(`SELECT c.id, c.kind, c.summary, c.status, c.reason, c.message, c.steps_total, c.steps_confirmed, c.chars_total, c.chars_confirmed, c.chars_uncertain,
+      c.created_at, c.elapsed_ms, c.group_id, u.name AS user_name
       FROM commands c JOIN users u ON u.id = c.user_id WHERE c.phone_id = ? AND c.customer_id = ? ORDER BY c.created_at DESC LIMIT 50`).all(row.id, user.customerId);
     sendJson(res, 200, { commands: list });
   });
@@ -217,11 +236,16 @@ export function registerCustomerRoutes(router, ctx) {
       if (body.action?.type !== original.kind) throw new HttpError(400, 'bad_retry', 'A retry must repeat the same kind of action.');
       const outcomes = new Map(db.prepare('SELECT phone_id, status FROM commands WHERE group_id = ? AND customer_id = ?').all(original.id, user.customerId).map(c => [c.phone_id, c.status]));
       if (rows.some(r => !outcomes.has(r.id))) throw new HttpError(400, 'bad_retry', 'A retry can only include phones from the original action.');
-      // Phones that already succeeded, or whose outcome is uncertain, never receive it again.
+      // Only phones where nothing was sent may receive the action again. Succeeded and
+      // uncertain phones are skipped: an uncertain one may already have run it.
       rows = rows.filter(r => {
         const s = outcomes.get(r.id);
-        if (s === 'succeeded' || s === 'unknown' || s === 'sent') { skipped.push({ phoneId: r.id, name: r.friendly_name, status: 'skipped', message: s === 'succeeded' ? 'Already succeeded; not sent again.' : 'Outcome was uncertain; check this phone before repeating.' }); return false; }
-        return true;
+        if (s === 'not_sent') return true;
+        skipped.push({ phoneId: r.id, name: r.friendly_name, status: 'skipped', retrySafe: false, reason: `original_${s}`,
+          message: s === 'succeeded' ? 'Already sent in the original action; not sent again.'
+            : s === 'uncertain' ? 'The original outcome was uncertain; check this phone instead of repeating the action.'
+            : 'The original action is still in progress; not sent again.' });
+        return false;
       });
       retryOf = original.id;
     }
@@ -237,7 +261,9 @@ export function registerCustomerRoutes(router, ctx) {
     db.prepare('INSERT INTO group_actions (id, customer_id, user_id, kind, summary, retry_of, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
       .run(groupId, user.customerId, user.id, action.type, describeAction(action), retryOf, Date.now());
     const results = await Promise.all(rows.map(async row => ({ phoneId: row.id, name: row.friendly_name, ...(await runCommand(user, row, action, { groupId, ip })) })));
-    audit.record({ actor: AuditLog.actorFor(user), customerId: user.customerId, action: 'group.' + action.type, outcome: `${results.filter(r => r.status === 'succeeded').length}/${results.length} succeeded`,
+    const count = st => results.filter(r => r.status === st).length;
+    audit.record({ actor: AuditLog.actorFor(user), customerId: user.customerId, action: 'group.' + action.type,
+      outcome: `${count('succeeded')} sent, ${count('not_sent')} not sent, ${count('uncertain')} uncertain`,
       detail: { groupId, retryOf, summary: describeAction(action) }, ip });
     sendJson(res, 200, { groupId, results: [...results, ...skipped] });
   });
@@ -276,6 +302,8 @@ export function frameHandler(ctx, resolveRow) {
       if (frame === 'busy') throw new HttpError(429, 'busy', 'Too many viewers; slow down.');
     } else frame = previews.latest(row.id, tier);
     if (res.destroyed) return;
+    // The wait can last seconds: confirm the caller still owns the phone before replying.
+    resolveRow(user, params.id);
     if (!frame) { res.writeHead(204, { 'cache-control': 'no-store', 'x-frame-seq': String(Number.isFinite(after) ? after : 0) }); return res.end(); }
     const h = frame.header;
     res.writeHead(200, {

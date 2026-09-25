@@ -5,34 +5,60 @@ import net from 'node:net';
 import { startStack, Browser, waitFor, sleep } from './helpers/stack.mjs';
 import { PreviewCache } from '../server/previews.js';
 
-test('group partial failure: individual results, and a retry never repeats successful phones', async () => {
+test('group results keep sent / not sent / uncertain per phone; a retry goes only where nothing was sent', async () => {
   const s = await startStack();
   try {
     const a = new Browser(s.base); await a.login(s.users.a.email);
-    const phones = (await a.get('/api/phones')).data.phones;
-    const ids = phones.map(p => p.id);
-    const ctl = await a.post('/api/groups/control', { phoneIds: ids });
-    assert.deepEqual(ctl.data.results.map(r => r.ok), [true, true, true]);
+    const ids = (await a.get('/api/phones')).data.phones.map(p => p.id);
+    // Phone 1 and 3 under control; phone 2 deliberately not (nothing can be sent to it).
+    await a.post('/api/groups/control', { phoneIds: [ids[0], ids[2]] });
+    s.sim.faults(s.kernelIds[2]).failNext = 1; // phone 3 fails during execution
 
-    s.sim.faults(s.kernelIds[1]).failNext = 1;
     const g = await a.post('/api/groups/actions', { phoneIds: ids, action: { type: 'key', key: 'Home' } });
-    const byId = Object.fromEntries(g.data.results.map(r => [r.phoneId, r.status]));
-    assert.deepEqual([byId[ids[0]], byId[ids[1]], byId[ids[2]]], ['succeeded', 'failed', 'succeeded']);
+    const by = Object.fromEntries(g.data.results.map(r => [r.phoneId, r]));
+    assert.deepEqual([by[ids[0]].status, by[ids[1]].status, by[ids[2]].status], ['succeeded', 'not_sent', 'uncertain']);
+    assert.deepEqual([by[ids[0]].retrySafe, by[ids[1]].retrySafe, by[ids[2]].retrySafe], [false, true, false]);
+    assert.equal(by[ids[2]].reason, 'kernel_failed');
+    assert.match(by[ids[2]].message, /may have reached the phone/);
 
-    // The failed phone was stopped by the kernel; resume and retake it deliberately.
-    const failed = (await a.get(`/api/phones/${ids[1]}`)).data.phone;
-    assert.equal(failed.input.state, 'stopped');
-    assert.equal((await a.post(`/api/phones/${ids[1]}/resume`, { generation: failed.input.generation })).status, 200);
+    // Deliberately take control of phone 2, then retry the group.
     assert.equal((await a.post(`/api/phones/${ids[1]}/control`)).status, 200);
-
     const retry = await a.post('/api/groups/actions', { phoneIds: ids, action: { type: 'key', key: 'Home' }, retryOf: g.data.groupId });
-    const rby = Object.fromEntries(retry.data.results.map(r => [r.phoneId, r.status]));
-    assert.deepEqual([rby[ids[0]], rby[ids[1]], rby[ids[2]]], ['skipped', 'succeeded', 'skipped']);
+    const rb = Object.fromEntries(retry.data.results.map(r => [r.phoneId, r]));
+    assert.deepEqual([rb[ids[0]].status, rb[ids[1]].status, rb[ids[2]].status], ['skipped', 'succeeded', 'skipped']);
+    assert.equal(rb[ids[0]].reason, 'original_succeeded');
+    assert.equal(rb[ids[2]].reason, 'original_uncertain', 'an uncertain phone is never retried');
     const homes = i => s.sim.delivered(s.kernelIds[i]).filter(e => e.fun === '/key/sendkey' && e.data.fn_key === 'Home').length;
-    assert.deepEqual([homes(0), homes(1), homes(2)], [1, 2, 1], 'successful phones received Home exactly once');
+    assert.deepEqual([homes(0), homes(1), homes(2)], [1, 1, 1], 'every phone received Home at most once');
 
     const other = await a.post('/api/groups/actions', { phoneIds: ids, action: { type: 'tap', x: 5, y: 5 }, retryOf: g.data.groupId });
     assert.equal(other.status, 400, 'a retry must repeat the same kind of action');
+    const log = (await a.get('/api/activity')).data.entries.find(e => e.action === 'group.key');
+    assert.match(log.outcome, /sent, .*not sent, .*uncertain/);
+  } finally { await s.close(); }
+});
+
+test('group text: per-phone character progress is kept, and a partial phone is not retried', async () => {
+  const s = await startStack({ speed: 0.02 });
+  try {
+    const a = new Browser(s.base); await a.login(s.users.a.email);
+    const ids = (await a.get('/api/phones')).data.phones.map(p => p.id).slice(0, 2);
+    await a.post('/api/groups/control', { phoneIds: ids });
+    s.sim.faults(s.kernelIds[1]).failAfter = 2; // phone 2 fails on chunk 3
+    const text = 'n'.repeat(100);
+    const g = await a.post('/api/groups/actions', { phoneIds: ids, action: { type: 'text', text } });
+    const by = Object.fromEntries(g.data.results.map(r => [r.phoneId, r]));
+    assert.equal(by[ids[0]].status, 'succeeded');
+    assert.deepEqual(by[ids[0]].text, { total: 100, confirmed: 100, uncertain: 0, notSent: 0 });
+    assert.equal(by[ids[1]].status, 'uncertain');
+    assert.deepEqual(by[ids[1]].text, { total: 100, confirmed: 64, uncertain: 32, notSent: 4 });
+    assert.match(by[ids[1]].message, /64 of 100 characters were confirmed as keystrokes, the next 32 are uncertain, and 4 were not sent/);
+    const hist = (await a.get(`/api/phones/${ids[1]}/commands`)).data.commands[0];
+    assert.deepEqual([hist.status, hist.chars_total, hist.chars_confirmed, hist.chars_uncertain], ['uncertain', 100, 64, 32]);
+    const dump = JSON.stringify(s.portal.db.prepare('SELECT * FROM commands').all()) + JSON.stringify(s.portal.db.prepare('SELECT * FROM audit_log').all());
+    assert.ok(!dump.includes(text), 'typed text is never stored');
+    const retry = await a.post('/api/groups/actions', { phoneIds: ids, action: { type: 'text', text }, retryOf: g.data.groupId });
+    assert.deepEqual(retry.data.results.map(r => r.status).sort(), ['skipped', 'skipped']);
   } finally { await s.close(); }
 });
 
@@ -45,7 +71,7 @@ test('group action on phones not all under control: those are "not sent", others
     const g = await a.post('/api/groups/actions', { phoneIds: ids.slice(0, 2), action: { type: 'text', text: 'hi' } });
     const byId = Object.fromEntries(g.data.results.map(r => [r.phoneId, r.status]));
     assert.equal(byId[ids[0]], 'succeeded');
-    assert.equal(byId[ids[1]], 'rejected');
+    assert.equal(byId[ids[1]], 'not_sent');
     assert.equal(s.sim.delivered(s.kernelIds[1]).length, 0);
   } finally { await s.close(); }
 });

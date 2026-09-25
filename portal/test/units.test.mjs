@@ -81,13 +81,31 @@ test('passwords are scrypt-hashed; wrong and unknown passwords fail', async () =
   await assert.rejects(hashPassword('short'));
 });
 
-test('migrations apply once and are idempotent on reopen', () => {
+test('migrations apply once, are idempotent, and upgrade version-1 command rows to the three outcomes', async () => {
+  const { DatabaseSync } = await import('node:sqlite');
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'nt-migrate-'));
   const file = path.join(dir, 'p.db');
-  openDatabase(file).close();
+  // Build a milestone-1 database (migration 001 only) with old-style statuses.
+  const v1 = new DatabaseSync(file);
+  v1.exec(fs.readFileSync(new URL('../server/migrations/001_initial.sql', import.meta.url), 'utf8'));
+  v1.exec('CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, name TEXT NOT NULL, applied_at INTEGER NOT NULL)');
+  v1.prepare('INSERT INTO schema_migrations VALUES (1, ?, 0)').run('001_initial.sql');
+  v1.exec(`INSERT INTO customers (id, name, created_at) VALUES ('c', 'C', 0);
+    INSERT INTO users (id, customer_id, email, name, role, password_hash, created_at) VALUES ('u', 'c', 'u@x.test', 'U', 'customer_admin', 'x', 0);
+    INSERT INTO agents (id, name, secret_hash, created_at) VALUES ('rack_000000000000', 'R', 'x', 0);
+    INSERT INTO phones (id, agent_id, kernel_device_id, first_seen_at, last_seen_at) VALUES ('p', 'rack_000000000000', 'K', 0, 0);`);
+  for (const [id, st] of [['1', 'succeeded'], ['2', 'rejected'], ['3', 'failed'], ['4', 'cancelled'], ['5', 'unknown'], ['6', 'sent']])
+    v1.prepare("INSERT INTO commands (id, customer_id, user_id, phone_id, kind, summary, status, created_at) VALUES (?, 'c', 'u', 'p', 'tap', 'Tap', ?, 0)").run(id, st);
+  v1.close();
+
   const db = openDatabase(file);
-  assert.deepEqual(db.prepare('SELECT version FROM schema_migrations').all().map(r => r.version), [1]);
+  assert.deepEqual(db.prepare('SELECT version FROM schema_migrations ORDER BY version').all().map(r => r.version), [1, 2]);
+  const rows = Object.fromEntries(db.prepare('SELECT id, status FROM commands').all().map(r => [r.id, r.status]));
+  // Only rows that were refused before execution become retry-safe "not_sent"; everything else is uncertain.
+  assert.deepEqual(rows, { 1: 'succeeded', 2: 'not_sent', 3: 'uncertain', 4: 'uncertain', 5: 'uncertain', 6: 'uncertain' });
+  assert.throws(() => db.prepare("UPDATE commands SET status = 'failed' WHERE id = '1'").run(), /CHECK/);
   db.close();
+  openDatabase(file).close(); // reopen: nothing reapplied
   fs.rmSync(dir, { recursive: true });
 });
 
@@ -126,4 +144,71 @@ test('typed text is never stored in commands or the audit log', async () => {
     assert.ok(!dump.includes('SuperSecret'), 'typed text leaked');
     assert.ok(dump.includes('Typed 20 characters'));
   } finally { await s.close(); }
+});
+
+test('measurement: region/block differences, summaries, and the latency recorder', async () => {
+  const { regionMeanDiff, maxBlockDiff, summarize, LatencyRecorder, tapBox } = await import('../web/lib/measure.js');
+  const w = 36, h = 78;
+  const frame = (fill, patch) => { const d = new Uint8ClampedArray(w * h * 4).fill(fill); if (patch) for (let y = patch.y0; y < patch.y1; y++) for (let x = patch.x0; x < patch.x1; x++) d.set([250, 250, 250, 255], (y * w + x) * 4); return d; };
+  const a = frame(10), b = frame(10, { x0: 4, y0: 4, x1: 10, y1: 10 });
+  assert.equal(regionMeanDiff(a, a, w, h, { x0: 0, y0: 0, x1: w, y1: h }), 0);
+  assert.ok(regionMeanDiff(a, b, w, h, { x0: 4, y0: 4, x1: 10, y1: 10 }) > 200, 'change inside the box');
+  assert.equal(regionMeanDiff(a, b, w, h, { x0: 20, y0: 40, x1: 30, y1: 50 }), 0, 'no change elsewhere');
+  assert.ok(maxBlockDiff(a, b, w, h) > 50, 'a small change is found by the block scan');
+  assert.deepEqual(summarize([5, 1, 3, 2, 4]), { count: 5, median: 3, p95: 5, min: 1, max: 5 });
+  assert.deepEqual(tapBox({ x: 250, y: 540 }, { width: 500, height: 1080 }, { width: 360, height: 778 }, 24).x0.toFixed(2), '162.72');
+
+  let t = 1000;
+  const rec = new LatencyRecorder({ threshold: 8, timeoutMs: 5000, now: () => t });
+  rec.onFrame(a, w, h, t);                                     // baseline before the click
+  const m = rec.start({ label: 'Tap', point: { x: 100, y: 100 }, source: { width: 500, height: 1080 } });
+  t = 1150; rec.ack(m, 'succeeded');
+  t = 1200; rec.onFrame(a, w, h, t);                            // nothing changed yet
+  t = 1420; rec.onFrame(b, w, h, t);                            // tap box (100,100) → jpeg (7.2,7.2) changed
+  assert.equal(rec.results.length, 1);
+  assert.deepEqual([rec.results[0].ackMs, rec.results[0].visibleMs], [150, 420]);
+  const miss = rec.start({ label: 'Home' });
+  rec.ack(miss, 'succeeded');
+  t = 7000; rec.tick();
+  assert.equal(rec.results[1].visibleMs, null);
+  assert.match(rec.results[1].note, /no visible change/);
+  const notSent = rec.start({ label: 'Tap', point: { x: 1, y: 1 }, source: { width: 500, height: 1080 } });
+  rec.ack(notSent, 'not_sent');
+  assert.equal(rec.results[2].note, 'action not confirmed sent', 'unsent actions are not counted as latency misses');
+  assert.equal(rec.summary().noVisibleChange, 1);
+});
+
+test('bootstrap-validation creates accounts and a rack credential once, writing secrets only to files', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'nt-boot-'));
+  const run = () => spawnSync(process.execPath, ['--disable-warning=ExperimentalWarning', 'scripts/bootstrap-validation.mjs', '--out', path.join(dir, 'out')],
+    { cwd: new URL('..', import.meta.url), env: { ...process.env, NT_DB_PATH: path.join(dir, 'v.db') }, encoding: 'utf8' });
+  const first = run();
+  assert.equal(first.status, 0, first.stderr);
+  const cred = fs.readFileSync(path.join(dir, 'out', 'rack-credential.txt'), 'utf8');
+  const accounts = fs.readFileSync(path.join(dir, 'out', 'accounts.txt'), 'utf8');
+  assert.match(cred, /^rack_[a-f0-9]{12}\.[A-Za-z0-9_-]{40,}$/);
+  assert.ok(!first.stdout.includes(cred.split('.')[1]) && !first.stdout.includes(accounts.split('\n')[1].trim().split(/\s+/)[2]), 'no secret on the console');
+  const db = openDatabase(path.join(dir, 'v.db'));
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM users').get().n, 3);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM allocations').get().n, 0, 'phones are assigned by staff later');
+  db.close();
+  assert.equal(run().status, 2, 'refuses to run twice on one database');
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('measurement: a change seen before the rack confirms (text) keeps both times; status-bar changes are ignored', async () => {
+  const { LatencyRecorder, maxBlockDiff } = await import('../web/lib/measure.js');
+  const w = 36, h = 100;
+  const base = new Uint8ClampedArray(w * h * 4).fill(20);
+  const clock = base.slice(); for (let x = 0; x < w; x++) clock.set([255, 255, 255, 255], (2 * w + x) * 4); // row 2: status bar
+  assert.equal(maxBlockDiff(base, clock, w, h), 0, 'status bar change ignored');
+  const typed = base.slice(); for (let y = 50; y < 56; y++) for (let x = 5; x < 10; x++) typed.set([250, 250, 250, 255], (y * w + x) * 4);
+  let t = 0;
+  const rec = new LatencyRecorder({ now: () => t });
+  rec.setBaseline(base, w, h);
+  const m = rec.start({ label: 'Type text' });
+  t = 200; rec.onFrame(typed, w, h, t);
+  t = 900; rec.ack(m, 'succeeded');
+  assert.deepEqual([rec.results[0].visibleMs, rec.results[0].ackMs, rec.results[0].status], [200, 900, 'succeeded']);
 });

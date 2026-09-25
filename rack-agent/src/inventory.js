@@ -52,8 +52,16 @@ export class Inventory {
       const rec = receivers.get(id);
       const frames = Number(rec?.frames ?? 0);
       const track = this.frameTrack.get(id);
-      if (!track || frames !== track.frames) this.frameTrack.set(id, { frames, changedAt: track ? observedAt : 0 });
+      const samples = track?.samples ?? [];
+      samples.push([observedAt, frames]);
+      while (samples.length > 2 && observedAt - samples[0][0] > 5000) samples.shift();
+      if (!track || frames !== track.frames) this.frameTrack.set(id, { frames, changedAt: track ? observedAt : 0, samples });
+      else track.samples = samples;
       const lastFrameAt = this.frameTrack.get(id).changedAt;
+      // New frames per second received by the kernel from this phone (frame counter delta,
+      // last ~5 s). This is the receiver rate, independent of any viewer.
+      const [t0, f0] = samples[0];
+      const receiverFps = observedAt > t0 && frames >= f0 ? Math.round((frames - f0) / ((observedAt - t0) / 1000) * 10) / 10 : 0;
       const inp = inputById.get(id);
       const board = boardByPid?.get(pid);
       this.phones.set(id, {
@@ -69,6 +77,7 @@ export class Inventory {
           live: rec ? rec.live === true : Number(d.state) === 1,
           frames,
           lastFrameAt,          // 0 = not seen advancing since the agent started
+          receiverFps,
           receiverState: String(rec?.receiver_state ?? ''),
           receiverRestarts: Number(rec?.receiver_restarts ?? 0),
         },

@@ -143,7 +143,7 @@ t('lease expiry without renewal stops the phone and later input is refused', asy
   assert.equal(events[0]?.reason, 'stopped');
   const mark = hid.length;
   const r = await lane.enqueue({ sessionId: 's5' }, 'late', validateAction({ type: 'tap', x: 1, y: 1 }, size));
-  assert.equal(r.status, 'rejected');
+  assert.equal(r.status, 'not_sent');
   assert.equal(hidFor('C241', mark).filter(l => !l.endsWith('A100000000000000') && !l.endsWith('A200000000000000')).length, 0);
   await lane.resume(st.generation);
 });
@@ -164,4 +164,50 @@ t('real kernel timing: one 64-character sendkey exceeds the 8 s command deadline
   const r = await lane.enqueue({ sessionId: 's6' }, 'long-text', validateAction({ type: 'text', text }, size));
   assert.equal(r.status, 'succeeded', r.message);
   await lane.release({ sessionId: 's6' });
+});
+
+// A keystroke is one A2 report with a modifier/usage, between two all-zero A2 clear reports.
+const keyDowns = lines => lines.filter(l => { const hex = l.split(' ')[2] ?? ''; return hex.startsWith('A2') && hex !== 'A200000000000000'; });
+
+t('real kernel: a 64-character send outlives a 2 s lease because renewal keeps running; another controller cannot interleave', { timeout: 60_000 }, async () => {
+  const lane = new PhoneLane(P2, kernel, { leaseMs: 2000, renewMs: 500 });
+  assert.equal((await lane.acquire({ sessionId: 's7' })).ok, true);
+  const mark = hid.length;
+  const text = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?';
+  const started = Date.now();
+  const typing = lane.enqueue({ sessionId: 's7' }, 'long', validateAction({ type: 'text', text }, size));
+  await new Promise(r => setTimeout(r, 2500));
+  // A second controller (for example the desktop console) during the send:
+  assert.equal((await kernel.command('/input/acquire', { id: P2 })).code, 409, 'no second lease mid-send');
+  assert.equal((await kernel.command('/key/sendkey', { id: P2, key: 'Z' })).code, 409, 'no tokenless input mid-send');
+  const r = await typing;
+  assert.ok(Date.now() - started > 8000, 'the send took several lease periods');
+  assert.equal(r.status, 'succeeded', r.detail);
+  assert.deepEqual(r.text, { total: 64, confirmed: 64, uncertain: 0, notSent: 0 });
+  const st = (await kernel.inputStatus()).phones.find(p => p.id === P2);
+  assert.deepEqual([st.owned, st.stopped], [true, false], 'lease never expired');
+  assert.equal(keyDowns(hidFor('C241', mark)).length, 64, 'each character reached HID exactly once');
+  await lane.release({ sessionId: 's7' });
+});
+
+t('real kernel: Stop during typing returns promptly; confirmed, uncertain and unsent chunks are reported; no keystroke follows Stop', { timeout: 60_000 }, async () => {
+  const lane = new PhoneLane(P2, kernel);
+  assert.equal((await lane.acquire({ sessionId: 's8' })).ok, true);
+  const text = 'a'.repeat(96); // 3 chunks of 32, ~4.5 s each
+  const typing = lane.enqueue({ sessionId: 's8' }, 'stopme', validateAction({ type: 'text', text }, size));
+  await new Promise(r => setTimeout(r, 6000)); // inside chunk 2
+  const stopAt = Date.now();
+  const stop = await lane.stop('Stop during typing');
+  const stopMs = Date.now() - stopAt;
+  const afterStop = hid.length;
+  const r = await typing;
+  assert.equal(stop.ok, true);
+  assert.ok(stopMs < 1000, `Stop took ${stopMs} ms`);
+  assert.deepEqual([r.status, r.reason, r.retrySafe], ['uncertain', 'cancelled_during', false]);
+  assert.deepEqual(r.text, { total: 96, confirmed: 32, uncertain: 32, notSent: 32 });
+  await new Promise(r2 => setTimeout(r2, 1500));
+  assert.equal(keyDowns(hidFor('C241', afterStop)).length, 0, 'no key went down after Stop returned');
+  const st = (await kernel.inputStatus()).phones.find(p => p.id === P2);
+  assert.equal(st.stopped, true);
+  await lane.resume(st.generation);
 });

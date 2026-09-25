@@ -24,7 +24,7 @@ test('desktop console holds the phone: portal shows it and cannot take or use it
     assert.equal(r.status, 409);
     assert.equal(r.data.error, 'operator_control');
     const act = await a.post(`/api/phones/${phones[0].id}/actions`, { action: { type: 'key', key: 'Home' } });
-    assert.equal(act.data.command.status, 'rejected');
+    assert.equal(act.data.command.status, 'not_sent');
     await s.kernel.command('/input/release', { id: s.kernelIds[0], token: desktop.leases[0].token });
   } finally { await s.close(); }
 });
@@ -38,7 +38,7 @@ test('portal holds the phone: the desktop console is refused; a teammate is refu
     const r = await ben.post(`/api/phones/${phones[0].id}/control`);
     assert.equal(r.status, 409);
     assert.equal(r.data.holder, 'Ada');
-    assert.equal((await ben.post(`/api/phones/${phones[0].id}/actions`, { action: { type: 'key', key: 'Home' } })).data.command.status, 'rejected');
+    assert.equal((await ben.post(`/api/phones/${phones[0].id}/actions`, { action: { type: 'key', key: 'Home' } })).data.command.status, 'not_sent');
     assert.equal((await ben.get(`/api/phones/${phones[0].id}`)).data.phone.input.state, 'teammate');
   } finally { await s.close(); }
 });
@@ -51,7 +51,7 @@ test('the rack operator presses Stop: portal control ends and further input is r
     await waitFor(async () => (await a.get(`/api/phones/${phones[0].id}`)).data.phone.input.state === 'stopped', { message: 'stopped state' });
     const since = Date.now();
     const r = await a.post(`/api/phones/${phones[0].id}/actions`, { action: { type: 'tap', x: 1, y: 1 } });
-    assert.equal(r.data.command.status, 'rejected');
+    assert.equal(r.data.command.status, 'not_sent');
     assert.equal(inputCommands(s, 0, since).length, 0);
   } finally { await s.close(); }
 });
@@ -67,8 +67,10 @@ test('customer Stop cancels queued actions, releases input, and requires an expl
     const stoppedAt = Date.now();
     const stop = await a.post(`/api/phones/${id}/stop`);
     assert.equal(stop.data.result.ok, true);
-    const results = (await Promise.all(queued)).map(r => r.data.command.status);
-    assert.ok(results.every(r => r === 'cancelled'), results.join());
+    const results = (await Promise.all(queued)).map(r => r.data.command);
+    // The tap in flight may have run partly; the two still queued were never sent.
+    assert.deepEqual(results.map(r => r.status), ['uncertain', 'not_sent', 'not_sent']);
+    assert.deepEqual(results.map(r => r.retrySafe), [false, true, true]);
     assert.equal(inputCommands(s, 0, stoppedAt).length, 0, 'no input after Stop');
     const st = await inputOf(s, 0);
     assert.equal(st.stopped, true);
@@ -94,7 +96,7 @@ test('lease expiry (agent stops renewing) stops the phone; portal control ends; 
     await waitFor(async () => (await inputOf(s, 0)).stopped, { message: 'kernel lease expiry' });
     await waitFor(async () => (await a.get(`/api/phones/${phones[0].id}`)).data.phone.input.state === 'stopped', { message: 'portal sees stopped' });
     const since = Date.now();
-    assert.equal((await a.post(`/api/phones/${phones[0].id}/actions`, { action: { type: 'tap', x: 1, y: 1 } })).data.command.status, 'rejected');
+    assert.equal((await a.post(`/api/phones/${phones[0].id}/actions`, { action: { type: 'tap', x: 1, y: 1 } })).data.command.status, 'not_sent');
     assert.equal(inputCommands(s, 0, since).length, 0);
     const lost = (await a.get('/api/activity')).data.entries.find(e => e.action === 'control.lost');
     assert.ok(lost, 'control loss is audited');
@@ -111,7 +113,8 @@ test('portal–rack connection loss releases the phone; nothing is replayed afte
     await sleep(200);
     s.agent.simulateNetworkDrop();
     const r = await inFlight;
-    assert.equal(r.data.command.status, 'unknown', 'in-flight action is reported as uncertain, not retried');
+    assert.equal(r.data.command.status, 'uncertain', 'in-flight action is reported as uncertain, not retried');
+    assert.equal(r.data.command.retrySafe, false);
     await waitFor(async () => !(await inputOf(s, 0)).owned, { message: 'agent released the lease' });
     s.sim.faults(s.kernelIds[0]).commandDelayMs = 0;
     await waitFor(() => s.portal.hub.isOnline(s.credential.id), { message: 'agent reconnect' });
@@ -120,7 +123,7 @@ test('portal–rack connection loss releases the phone; nothing is replayed afte
     assert.equal(inputCommands(s, 0, since).length, 0, 'nothing replayed after reconnect');
     const phone = (await a.get(`/api/phones/${id}`)).data.phone;
     assert.notEqual(phone.input.state, 'yours', 'control is not silently restored');
-    assert.equal((await a.post(`/api/phones/${id}/actions`, { action: { type: 'tap', x: 1, y: 1 } })).data.command.status, 'rejected');
+    assert.equal((await a.post(`/api/phones/${id}/actions`, { action: { type: 'tap', x: 1, y: 1 } })).data.command.status, 'not_sent');
     const clicks = s.sim.delivered(s.kernelIds[0]).filter(e => e.fun === '/mouse/click');
     assert.equal(clicks.length, 1, 'the uncertain tap ran at most once');
   } finally { await s.close(); }
@@ -132,13 +135,13 @@ test('an action the rack cannot confirm is marked uncertain, stops the phone, an
     await a.post(`/api/phones/${phones[0].id}/control`);
     s.sim.faults(s.kernelIds[0]).hangMs = 1500;
     const r = await a.post(`/api/phones/${phones[0].id}/actions`, { action: { type: 'key', key: 'Home' } });
-    assert.equal(r.data.command.status, 'unknown');
+    assert.deepEqual([r.data.command.status, r.data.command.reason], ['uncertain', 'no_reply']);
     s.sim.faults(s.kernelIds[0]).hangMs = 0;
     await waitFor(async () => (await inputOf(s, 0)).stopped, { message: 'phone stopped after uncertain outcome' });
     await sleep(1600);
     assert.equal(s.sim.delivered(s.kernelIds[0]).filter(e => e.fun === '/key/sendkey').length, 1);
     const hist = (await a.get(`/api/phones/${phones[0].id}/commands`)).data.commands;
-    assert.equal(hist[0].status, 'unknown');
+    assert.equal(hist[0].status, 'uncertain');
   } finally { await s.close(); }
 });
 
@@ -174,4 +177,38 @@ test('staff emergency stop reaches every phone, including ones the operator cons
     for (let i = 0; i < 4; i++) assert.equal((await inputOf(s, i)).stopped, true, `phone ${i} stopped`);
     assert.equal((await a.get(`/api/phones/${phones[0].id}`)).data.phone.input.state, 'stopped');
   } finally { await s.close(); }
+});
+
+test('portal restart: the rack releases every phone, and after reconnect nothing is replayed or silently restored', async () => {
+  const net = await import('node:net');
+  const port = await new Promise(r => { const srv = net.createServer().listen(0, '127.0.0.1', () => { const p = srv.address().port; srv.close(() => r(p)); }); });
+  const os = await import('node:os'), path = await import('node:path'), fs = await import('node:fs');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'nt-restart-'));
+  const dbPath = path.join(dir, 'portal.db');
+  const secret = 'x'.repeat(48);
+  const { s, a, phones } = await setup({ port, dbPath, portalOptions: { serverSecret: secret } });
+  const { createPortal } = await import('../server/app.js');
+  let second = null;
+  try {
+    const id = phones[0].id;
+    await a.post(`/api/phones/${id}/control`);
+    assert.equal((await inputOf(s, 0)).owned, true);
+    await s.portal.close();
+    await waitFor(async () => !(await inputOf(s, 0)).owned, { message: 'agent released the lease when the portal went away' });
+    const since = Date.now();
+    second = createPortal({ dbPath, serverSecret: secret });
+    await second.listen(port);
+    await waitFor(() => second.hub.connection(s.credential.id)?.phones.size === 4, { timeoutMs: 10_000, message: 'agent reconnected to the new portal' });
+    await sleep(800);
+    assert.equal(inputCommands(s, 0, since).length, 0, 'nothing replayed');
+    const phone = (await a.get(`/api/phones/${id}`)).data.phone; // same browser session survives (stored hashed in the DB)
+    assert.equal(phone.input.state, 'ready', 'control is not silently restored');
+    assert.equal((await a.post(`/api/phones/${id}/actions`, { action: { type: 'tap', x: 1, y: 1 } })).data.command.reason, 'not_in_control');
+    assert.equal((await a.post(`/api/phones/${id}/control`)).status, 200, 'the customer takes control again explicitly');
+  } finally {
+    await second?.close().catch(() => {});
+    s.portal.close = async () => {};
+    await s.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });

@@ -42,7 +42,7 @@ test('complete path: login → phones → preview → control → action → rel
   const rel = await a.post(`/api/phones/${phone.id}/control/release`);
   assert.equal(rel.data.phone.input.state, 'ready');
   const after = await a.post(`/api/phones/${phone.id}/actions`, { action: { type: 'tap', x: 1, y: 1 } });
-  assert.equal(after.data.command.status, 'rejected');
+  assert.deepEqual([after.data.command.status, after.data.command.reason], ['not_sent', 'not_in_control']);
 
   const log = (await a.get('/api/activity')).data.entries.map(e => e.action);
   for (const action of ['auth.login', 'control.acquire', 'input.tap', 'control.release']) assert.ok(log.includes(action), action);
@@ -143,4 +143,32 @@ test('malformed and traversal paths are refused without crashing the server', as
     assert.ok(!reply.includes('createPortal'), 'server source never served');
   }
   assert.equal((await a.get('/api/phones')).status, 200, 'server still up');
+});
+
+test('a preview long-poll that outlives the allocation returns 404, not the next frame', async () => {
+  const phone = aPhones[2];
+  await a.get(`/api/phones/${phone.id}/frame?tier=focus`);
+  const first = await a.get(`/api/phones/${phone.id}/frame?tier=focus&after=0`);
+  const seq = Number(first.headers.get('x-frame-seq'));
+  const waiting = a.get(`/api/phones/${phone.id}/frame?tier=focus&after=${seq}`);
+  await new Promise(r => setTimeout(r, 100));
+  assert.equal((await staff.post(`/api/admin/phones/${phone.id}/unallocate`)).status, 200);
+  // Change the simulated screen so a new frame is produced while the request waits.
+  const sim = s.sim.phone(s.kernelIds[2]);
+  sim.screen.state.page = 2; sim.dirty = true;
+  const r = await waiting;
+  assert.equal(r.status, 404, 'no frame after the phone left this customer');
+  assert.equal((await staff.post(`/api/admin/phones/${phone.id}/allocate`, { customerId: s.customers.a, friendlyName: 'Studio phone 3' })).status, 201);
+});
+
+test('activity and audit records stay with the right customer', async () => {
+  const foreign = await b.get(`/api/activity?phone=${aPhones[0].id}`);
+  assert.equal(foreign.status, 200);
+  assert.equal(foreign.data.entries.length, 0, 'filtering by another customer’s phone returns nothing');
+  const aIds = aPhones.map(p => p.id);
+  const rows = s.portal.db.prepare('SELECT customer_id, phone_id FROM audit_log WHERE phone_id IS NOT NULL').all();
+  for (const row of rows.filter(r => aIds.includes(r.phone_id)))
+    assert.ok(row.customer_id === s.customers.a || row.customer_id === null, 'A’s phone events are never attributed to B');
+  const bRows = (await b.get('/api/activity')).data.entries;
+  assert.ok(bRows.every(e => !aIds.includes(e.phone_id)));
 });

@@ -16,9 +16,21 @@ const sleep = (ms, signal) => new Promise(resolve => {
   signal?.addEventListener('abort', onAbort, { once: true });
 });
 
-export const LaneOutcome = Object.freeze({
-  succeeded: 'succeeded', failed: 'failed', cancelled: 'cancelled', unknown: 'unknown', rejected: 'rejected',
-});
+/**
+ * Every action ends in exactly one of three states:
+ *  - succeeded: the kernel confirmed every step (code 0). This proves the HID reports were
+ *    written, not that iOS showed the expected result.
+ *  - not_sent:  confirmed that nothing reached the phone (refused before execution, stopped
+ *    while queued, kernel not reachable). Only this state is safe for a person to retry.
+ *  - uncertain: no reply, a failure or cancellation during execution, or a partly completed
+ *    multi-step action. Never retried automatically; the phone is stopped or handed back.
+ */
+export const Outcome = Object.freeze({ succeeded: 'succeeded', notSent: 'not_sent', uncertain: 'uncertain' });
+
+// Kernel codes returned at the top level (no per-phone `results`) before any HID output:
+// InputSessions.DispatchAsync rejects ownership/busy (409), arguments (36), unknown ids (1)
+// and unsupported functions (41) before ExecuteAsync. Anything else is treated as uncertain.
+const REFUSED_BEFORE_EXECUTION = new Set([409, 36, 1, 41]);
 
 export class PhoneLane {
   #kernel; #token = null; #renewTimer = null; #renewFailures = 0; #queue = []; #running = null;
@@ -48,7 +60,7 @@ export class PhoneLane {
 
   #cancelWork(message) {
     const pending = this.#queue.splice(0);
-    for (const job of pending) { job.cancelled = true; job.abort.abort(); job.resolve({ status: LaneOutcome.cancelled, message }); }
+    for (const job of pending) { job.cancelled = true; job.abort.abort(); job.resolve(this.#outcome(job, Outcome.notSent, 'stopped_before_start', message)); }
     if (this.#running) { this.#running.cancelled = true; this.#running.cancelMessage = message; this.#running.abort.abort(); }
   }
 
@@ -134,10 +146,10 @@ export class PhoneLane {
   }
 
   enqueue(owner, commandId, action) {
-    if (!this.#matches(owner)) return Promise.resolve({ status: LaneOutcome.rejected, message: 'You no longer control this phone.' });
-    if (this.#recent.has(commandId)) return Promise.resolve({ status: LaneOutcome.rejected, message: 'Duplicate command ignored.' });
+    if (!this.#matches(owner)) return Promise.resolve(this.#outcome({ plan: planFor(action) }, Outcome.notSent, 'not_in_control', 'This session does not control the phone.'));
+    if (this.#recent.has(commandId)) return Promise.resolve(this.#outcome({ plan: planFor(action) }, Outcome.notSent, 'duplicate', 'Duplicate command ignored.'));
     if (this.#queue.length + (this.#running ? 1 : 0) >= this.maxQueue)
-      return Promise.resolve({ status: LaneOutcome.rejected, message: 'This phone is still working through earlier actions.' });
+      return Promise.resolve(this.#outcome({ plan: planFor(action) }, Outcome.notSent, 'queue_full', 'Earlier actions are still running on this phone.'));
     this.#recent.add(commandId);
     if (this.#recent.size > 512) this.#recent.delete(this.#recent.values().next().value);
     const plan = planFor(action);
@@ -152,7 +164,7 @@ export class PhoneLane {
     const job = this.#queue.shift();
     this.#running = job;
     this.#execute(job)
-      .catch(err => ({ status: LaneOutcome.failed, message: err.message }))
+      .catch(err => this.#outcome(job, Outcome.uncertain, 'agent_error', err.message))
       .then(result => job.resolve(result))
       .finally(() => { this.#running = null; this.#pump(); });
   }
@@ -160,51 +172,105 @@ export class PhoneLane {
   async #send(step, token) {
     const data = await this.#kernel.command(step.fun, { ...step.data, id: this.kernelId, token });
     const own = Array.isArray(data.results) ? data.results.find(r => r.id === this.kernelId) : null;
-    const code = own ? own.code : data.code;
-    return { ok: code === 0, code, message: own?.message ?? data.message ?? '' };
+    // With per-phone results the command reached ExecuteAsync (HID may have been written).
+    return { executed: !!own, code: own ? own.code : data.code, message: own?.message ?? data.message ?? '' };
+  }
+
+  /**
+   * Builds a result with step-level progress. For text, `text` reports characters:
+   * confirmed (kernel code 0 for their chunk), uncertain (the chunk in flight when the
+   * outcome became unknown) and not sent. Confirmed keystrokes do not prove the text
+   * appeared on the phone (focus, Typing Mode or autocorrect decide that).
+   */
+  #outcome(job, status, reason, detail = '', track = null, kernelCode) {
+    const steps = [...job.plan.steps.filter(st => !st.sleep), ...(job.plan.finally ?? [])];
+    const confirmed = track?.confirmed ?? new Set();
+    const uncertain = track?.uncertain ?? null;
+    const progress = { total: steps.length, confirmed: confirmed.size, uncertain: uncertain === null ? 0 : 1, notSent: steps.length - confirmed.size - (uncertain === null ? 0 : 1) };
+    const out = { status, retrySafe: status === Outcome.notSent, reason, detail, progress };
+    if (kernelCode !== undefined) out.kernelCode = kernelCode;
+    const chunks = steps.map((st, i) => (st.fun === '/key/sendkey' && typeof st.data.key === 'string' ? [i, st.data.key.length] : null)).filter(Boolean);
+    if (chunks.length) {
+      const total = chunks.reduce((n, [, len]) => n + len, 0);
+      const ok = chunks.filter(([i]) => confirmed.has(i)).reduce((n, [, len]) => n + len, 0);
+      const unsure = chunks.filter(([i]) => i === uncertain).reduce((n, [, len]) => n + len, 0);
+      out.text = { total, confirmed: ok, uncertain: unsure, notSent: total - ok - unsure };
+    }
+    return out;
   }
 
   async #execute(job) {
     // Ownership is checked again at execution time, not only when the job was queued.
-    if (job.cancelled) return { status: LaneOutcome.cancelled, message: job.cancelMessage || 'Cancelled before it ran.' };
-    if (!this.#matches(job.owner)) return { status: LaneOutcome.rejected, message: 'Control ended before this action ran.' };
+    if (job.cancelled) return this.#outcome(job, Outcome.notSent, 'stopped_before_start', job.cancelMessage || 'Cancelled before it ran.');
+    if (!this.#matches(job.owner)) return this.#outcome(job, Outcome.notSent, 'not_in_control', 'Control ended before this action ran.');
     const token = this.#token;
     const { plan } = job;
-    let delivered = 0, outcome = null;
-    try {
-      for (const step of plan.steps) {
-        if (job.cancelled || this.#token !== token) { outcome = { status: LaneOutcome.cancelled, message: job.cancelMessage || 'Stopped.' }; break; }
-        if (step.sleep) { await sleep(step.sleep, job.abort.signal); continue; }
-        const r = await this.#send(step, token);
-        delivered++;
-        if (!r.ok) {
-          outcome = { status: r.code === 499 ? LaneOutcome.cancelled : LaneOutcome.failed, message: r.message || `Kernel code ${r.code}.`, kernelCode: r.code };
-          break;
-        }
+    const track = { confirmed: new Set(), uncertain: null };
+    let index = -1, verdict = null, buttonDown = false;
+    const settle = (status, reason, detail, code) => { verdict = { status, reason, detail, code }; };
+    const interrupted = reason => track.confirmed.size === 0
+      ? settle(Outcome.notSent, reason === 'kernel_unreachable' ? reason : 'stopped_before_start', job.cancelMessage || 'Nothing was sent.')
+      : settle(Outcome.uncertain, 'interrupted', job.cancelMessage || 'Stopped partway; the remaining steps were not sent.');
+
+    const run = async step => {
+      index++;
+      let r;
+      try { r = await this.#send(step, token); }
+      catch (err) {
+        if (err instanceof KernelUnreachableError) { interrupted('kernel_unreachable'); return false; }
+        track.uncertain = index;
+        settle(Outcome.uncertain, 'no_reply', err.message);
+        return false;
       }
-    } catch (err) {
-      if (err instanceof KernelAmbiguousError) outcome = { status: LaneOutcome.unknown, message: 'The rack did not confirm this action. It may have happened; check the screen before repeating it.' };
-      else if (err instanceof KernelUnreachableError) outcome = { status: delivered ? LaneOutcome.unknown : LaneOutcome.failed, message: 'The rack kernel is not reachable.' };
-      else outcome = { status: LaneOutcome.failed, message: err.message };
+      if (r.code === 0) {
+        track.confirmed.add(index);
+        if (step.fun === '/mouse/down') buttonDown = true;
+        if (step.fun === '/mouse/up') buttonDown = false;
+        return true;
+      }
+      if (!r.executed && REFUSED_BEFORE_EXECUTION.has(r.code)) {
+        if (track.confirmed.size === 0) settle(Outcome.notSent, 'kernel_refused', r.message, r.code);
+        else settle(Outcome.uncertain, 'interrupted', r.message, r.code);
+        return false;
+      }
+      track.uncertain = index;
+      if (step.fun === '/mouse/down') buttonDown = true; // may be down; Stop/release clears it
+      settle(Outcome.uncertain, r.code === 499 ? 'cancelled_during' : 'kernel_failed', r.message, r.code);
+      return false;
+    };
+
+    for (const step of plan.steps) {
+      if (job.cancelled || this.#token !== token) { interrupted('stopped'); break; }
+      if (step.sleep) { await sleep(step.sleep, job.abort.signal); continue; }
+      if (!(await run(step))) break;
     }
-    // Release a held button if the button went down and this lease is still ours.
-    if (plan.finally && delivered > (plan.finallyAfter ?? 0) && this.#token === token && outcome?.status !== LaneOutcome.unknown) {
+    // Stopped after every main step was confirmed: only a gesture still holding the button is unfinished.
+    if (!verdict && buttonDown && plan.finally && (job.cancelled || this.#token !== token)) interrupted('stopped');
+    // Finish a gesture that pressed the button, if this lease is still ours. After Stop,
+    // release or lease loss the kernel has already released every held input.
+    if (plan.finally && buttonDown && this.#token === token && verdict?.reason !== 'no_reply') {
+      index = plan.steps.filter(st => !st.sleep).length - 1;
       for (const step of plan.finally) {
-        try { const r = await this.#send(step, token); if (!r.ok && !outcome) outcome = { status: LaneOutcome.failed, message: r.message, kernelCode: r.code }; }
-        catch (err) { outcome = { status: LaneOutcome.unknown, message: 'The rack did not confirm the button release.' }; break; }
+        const before = verdict;
+        const ok = await run(step);
+        if (before && ok) verdict = before; // a successful release does not undo an earlier failure
+        if (!ok) break;
       }
     }
-    if (outcome && delivered < plan.steps.filter(s => !s.sleep).length && delivered > 0 && outcome.status !== LaneOutcome.unknown)
-      outcome.message += ` (${delivered} of ${plan.steps.filter(s => !s.sleep).length} steps ran)`;
-    if (outcome?.status === LaneOutcome.unknown) {
+
+    if (verdict?.reason === 'no_reply') {
       // Never replay; stop the phone so nothing stale can follow an uncertain action.
       await this.stop('Stopped automatically because an action was not confirmed.');
-    } else if (outcome && (outcome.status === LaneOutcome.failed || outcome.status === LaneOutcome.cancelled) && this.#token === token) {
-      // A failed or cancelled kernel command latches Stop in the kernel. Confirm and hand back.
+    } else if (verdict?.reason === 'kernel_unreachable') {
+      if (this.#token === token) this.#lost('kernel_unreachable', 'The rack kernel is not reachable; control ended.');
+    } else if (verdict && this.#token === token && (verdict.status === Outcome.uncertain || verdict.code === 409)) {
+      // A failed or cancelled command latches Stop in the kernel; 409 means the lease is gone.
       const status = await this.#reasonFromStatus();
       if (status.reason !== 'owned_elsewhere') this.#lost(status.reason === 'rejected' ? 'lease_lost' : status.reason, status.message);
     }
-    return outcome ?? { status: LaneOutcome.succeeded, message: 'Done.' };
+    return verdict
+      ? this.#outcome(job, verdict.status, verdict.reason, verdict.detail, track, verdict.code)
+      : this.#outcome(job, Outcome.succeeded, 'done', '', track);
   }
 
   /** Bypasses the queue. Cancels queued and running work, then latches the kernel's Stop. */

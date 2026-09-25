@@ -80,7 +80,8 @@ export function phoneStatus(row, { hub, control, previews, user, now = Date.now(
   else if (!kernel.compatible) input = { state: 'unavailable', label: 'Controls unavailable', detail: 'Remote control is not enabled on this rack yet.' };
   else if (!inv) input = { state: 'unavailable', label: 'Not detected' };
   else if (session && session.userId === user.id) input = { state: 'yours', label: 'You’re in control' };
-  else if (session) input = { state: 'teammate', label: `In use by ${session.userName}`, holder: session.userName };
+  else if (session && session.customerId === user.customerId) input = { state: 'teammate', label: `In use by ${session.userName}`, holder: session.userName };
+  else if (session) input = { state: 'recovering', label: 'Finishing up', detail: 'Handing control back.' };
   else if (!inv.input.enabled) input = { state: 'unavailable', label: 'Controls unavailable', detail: 'The control connection for this phone isn’t ready. Our team has been notified.' };
   else if (inv.input.releaseFailed) input = { state: 'unavailable', label: 'Needs support', detail: 'The rack could not confirm that input was released. Our team needs to check this phone.' };
   else if (inv.input.releasing) input = { state: 'recovering', label: 'Finishing up', detail: 'Finishing a previous action.' };
@@ -118,13 +119,13 @@ export function phoneDiagnostics(row, hub) {
   const conn = hub.connection(row.agent_id);
   const inv = conn?.phones.get(row.kernel_device_id) ?? null;
   return {
-    rack: { agentId: row.agent_id, online: !!conn, version: conn?.hello?.version ?? null, kernel: conn?.kernel ?? null, previewStats: conn?.previewStats ?? null },
+    rack: { agentId: row.agent_id, online: !!conn, version: conn?.hello?.version ?? null, kernel: conn?.kernel ?? null, previewStats: conn?.previewStats ?? null, agentProcess: conn?.agentProcess ?? null },
     phone: inv ? {
       deviceId: row.kernel_device_id, rackName: inv.name, os: inv.os, model: inv.model, image: `${inv.imgW}×${inv.imgH}`,
       board: inv.input.boardPid, boardPresent: inv.input.boardPresent, inputEnabled: inv.input.enabled,
       input: { owned: inv.input.owned, heldByAgent: inv.input.heldByAgent, active: inv.input.active, stopped: inv.input.stopped,
         releasing: inv.input.releasing, releaseFailed: inv.input.releaseFailed, message: inv.input.message, generation: inv.input.generation },
-      video: { state: inv.video.state, live: inv.video.live, frames: inv.video.frames, lastFrameAt: inv.video.lastFrameAt,
+      video: { state: inv.video.state, live: inv.video.live, frames: inv.video.frames, receiverFps: inv.video.receiverFps ?? null, lastFrameAt: inv.video.lastFrameAt,
         receiver: inv.receiverName, receiverState: inv.video.receiverState, receiverRestarts: inv.video.receiverRestarts },
     } : { deviceId: row.kernel_device_id, reported: false },
     videoReport: conn?.video.get(row.kernel_device_id) ?? null,

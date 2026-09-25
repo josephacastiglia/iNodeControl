@@ -5,13 +5,21 @@ import { focusPreview } from '../lib/frames.js';
 import { toSource, fromSource, classifyGesture, presetSwipe, textProblem } from '../lib/coords.js';
 import { stopAllButton } from '../lib/stopall.js';
 import { actionLabel } from './phones.js';
+import { OUTCOME_WORDS, OUTCOME_KIND, progressNote } from '../lib/outcomes.js';
+import { LatencyRecorder, summarize } from '../lib/measure.js';
 
-const RESULT_WORDS = { succeeded: 'Done', failed: 'Failed', cancelled: 'Cancelled', unknown: 'Uncertain', rejected: 'Not sent' };
 
 export function phoneView({ params: [phoneId], setTitle, setActions, setBanner }) {
   let phone = null;
   let destroyed = false;
   let inflight = 0;
+  // Measurement state (see measurePanel); declared first because the panel is built early.
+  const fpsNow = () => shown.length > 1 ? (shown.length - 1) / ((shown.at(-1) - shown[0]) / 1000) : 0;
+  const shown = [], frameLog = [], receiverFpsSamples = [];
+  const recorder = new LatencyRecorder();
+  const canvas = document.createElement('canvas');
+  const ctx2d = canvas.getContext('2d', { willReadFrequently: true });
+  let measuring = false, recordStart = null, measureRender = () => {};
 
   // ---- stage (live screen) ------------------------------------------------------------
   const img = h('img', { alt: '', draggable: 'false' });
@@ -34,8 +42,8 @@ export function phoneView({ params: [phoneId], setTitle, setActions, setBanner }
   const stopBtn = h('button', { class: 'btn btn-stop', type: 'button', onclick: stopPhone }, 'Stop this phone');
   const panel = h('div', { class: 'panel' },
     h('div', { class: 'status-grid' }, controlCard, videoCard), endedNote, controls,
-    h('section', { class: 'card' }, h('div', { class: 'card-head' }, h('h2', {}, 'Recent actions'), h('span', { class: 'muted small' }, 'Newest first')), history),
-    unavailableList(), diag);
+    h('section', { class: 'card' }, h('div', { class: 'card-head' }, h('h2', {}, 'Recent actions'), h('span', { class: 'muted small' }, '“Sent” means the rack delivered the input — check the screen for the result.')), history),
+    unavailableList(), diag, measurePanel());
   const el = h('div', { class: 'focus' }, stage, panel);
   setActions(stopBtn, stopAllButton());
 
@@ -47,10 +55,13 @@ export function phoneView({ params: [phoneId], setTitle, setActions, setBanner }
     inflight++; renderHint();
     let pending = null;
     if (feedbackAt) pending = marker(feedbackAt, 'pending-dot');
+    if (measuring && !recorder.baseline) captureBaseline();
+    const m = measuring ? recorder.start({ label: actionLabel(action), point: action.type === 'tap' || action.type === 'longPress' ? { x: action.x, y: action.y } : null, source: phone.screen }) : null;
     try {
       const r = await post(`/api/phones/${phoneId}/actions`, { action });
       const c = r.command;
-      if (c.status !== 'succeeded') toast(`${actionLabel(action)}: ${RESULT_WORDS[c.status] ?? c.status}. ${c.message}`, c.status === 'unknown' || c.status === 'rejected' ? 'warn' : 'bad', 7000);
+      if (m) recorder.ack(m, c.status);
+      if (c.status !== 'succeeded' || action.type === 'text') toast(`${actionLabel(action)}: ${OUTCOME_WORDS[c.status] ?? c.status}. ${c.message}`, OUTCOME_KIND[c.status] ?? 'bad', c.status === 'uncertain' ? 12000 : 7000);
       applyPhone(r.phone);
     } catch (err) {
       toast(err.message, 'bad');
@@ -223,8 +234,10 @@ export function phoneView({ params: [phoneId], setTitle, setActions, setBanner }
     try {
       const { commands } = await get(`/api/phones/${phoneId}/commands`);
       replace(history, commands.length ? commands.slice(0, 12).map(c => h('div', { class: 'list-row' },
-        h('div', { class: 'label-row' }, h('span', {}, c.summary), h('small', { class: 'muted' }, `${c.user_name} · ${formatTime(c.created_at)}${c.elapsed_ms ? ` · ${c.elapsed_ms} ms` : ''}${c.message && c.status !== 'succeeded' ? ` · ${c.message}` : ''}`)),
-        h('span', { class: `st st-${c.status}` }, RESULT_WORDS[c.status] ?? c.status))) : h('p', { class: 'empty' }, 'No actions yet.'));
+        h('div', { class: 'label-row' }, h('span', {}, c.summary),
+          h('small', { class: 'muted' }, [c.user_name, formatTime(c.created_at), c.elapsed_ms ? `${c.elapsed_ms} ms` : '', progressNote(c)].filter(Boolean).join(' · ')),
+          c.status !== 'succeeded' && c.message ? h('small', { class: 'muted' }, c.message) : null),
+        h('span', { class: `st st-${c.status}` }, OUTCOME_WORDS[c.status] ?? c.status))) : h('p', { class: 'empty' }, 'No actions yet.'));
     } catch { /* keep previous */ }
   }
 
@@ -243,6 +256,7 @@ export function phoneView({ params: [phoneId], setTitle, setActions, setBanner }
   }
 
   const preview = focusPreview(`/api/phones/${phoneId}/frame`, img, {
+    onDisplayed: (f, perf, wall) => onDisplayed(f, perf, wall),
     onFrame: (f, stats) => {
       placeholder.hidden = true;
       fpsText.textContent = `${stats.fps.toFixed(1)} fps`;
@@ -252,12 +266,93 @@ export function phoneView({ params: [phoneId], setTitle, setActions, setBanner }
     onIdle: stats => { fpsText.textContent = stats.fps ? `${stats.fps.toFixed(1)} fps` : 'Waiting for the screen to change'; },
   });
 
+  // ---- measurements (validation aid) -------------------------------------------------------
+  /** Pixels of the frame currently on screen, as the comparison point for the next action. */
+  function captureBaseline() {
+    try {
+      const w = img.naturalWidth, hgt = img.naturalHeight;
+      if (!w || !hgt) return;
+      if (canvas.width !== w || canvas.height !== hgt) { canvas.width = w; canvas.height = hgt; }
+      ctx2d.drawImage(img, 0, 0);
+      recorder.setBaseline(ctx2d.getImageData(0, 0, w, hgt).data, w, hgt);
+    } catch { /* image not decoded yet */ }
+  }
+
+  function onDisplayed(f, perf, wall) {
+    shown.push(perf);
+    while (shown.length && perf - shown[0] > 3000) shown.shift();
+    if (!measuring) return;
+    frameLog.push({ at: wall, seq: f.seq, captureToDisplayMs: f.capturedAt ? wall - f.capturedAt : null, portalHeldMs: f.ageMs });
+    if (frameLog.length > 5000) frameLog.shift();
+    try {
+      const w = img.naturalWidth, hgt = img.naturalHeight;
+      if (canvas.width !== w || canvas.height !== hgt) { canvas.width = w; canvas.height = hgt; }
+      ctx2d.drawImage(img, 0, 0);
+      recorder.onFrame(ctx2d.getImageData(0, 0, w, hgt).data, w, hgt, perf, { seq: f.seq });
+    } catch { /* decoding raced with navigation */ }
+  }
+
+  function measurePanel() {
+    const threshold = h('input', { type: 'number', min: 1, max: 60, step: 1, value: 8, 'aria-label': 'Change threshold', style: 'width:5.5em;min-height:32px' });
+    threshold.addEventListener('change', () => { recorder.threshold = Math.min(60, Math.max(1, Number(threshold.value) || 8)); });
+    const toggle = h('button', { class: 'btn btn-dark btn-sm', type: 'button' }, 'Start recording');
+    toggle.addEventListener('click', () => {
+      measuring = !measuring;
+      toggle.textContent = measuring ? 'Stop recording' : 'Start recording';
+      if (measuring && !recordStart) recordStart = Date.now();
+      if (measuring) captureBaseline();
+    });
+    const download = h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => {
+      const data = { phoneId, phoneName: phone?.name, recordedFrom: recordStart, exportedAt: Date.now(), userAgent: navigator.userAgent,
+        method: { latency: 'first displayed frame whose mean pixel difference (0-255) vs the last frame before the click reaches the threshold; tap/long press: box of ±24 source px around the point; other actions: largest 1/12 x 1/24 block', threshold: recorder.threshold, timeoutMs: recorder.timeoutMs,
+          captureToDisplay: 'browser Date.now() at image load minus rack agent capture time; valid only when both clocks are the same PC' },
+        summary: { latency: recorder.summary(), displayedFps: fpsNow(), receiverFpsSamples, captureToDisplayMs: summarize(frameLog.map(x => x.captureToDisplayMs)), portalHeldMs: summarize(frameLog.map(x => x.portalHeldMs)) },
+        latency: recorder.results, frames: frameLog };
+      const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })), download: `measurements-${(phone?.name ?? 'phone').replace(/\W+/g, '-')}-${new Date().toISOString().replace(/[:.]/g, '-')}.json` });
+      document.body.append(a); a.click(); a.remove();
+    } }, 'Download JSON');
+    const clear = h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => { recorder.results = []; recorder.pending = []; frameLog.length = 0; receiverFpsSamples.length = 0; recordStart = measuring ? Date.now() : null; render(); } }, 'Clear');
+    const live = h('div', { class: 'mono small', style: 'display:grid;gap:4px' });
+    const table = h('div', { class: 'table-wrap' });
+    const render = () => {
+      const lat = recorder.summary();
+      const cd = summarize(frameLog.map(x => x.captureToDisplayMs)), held = summarize(frameLog.map(x => x.portalHeldMs));
+      const fmt = s => s.count ? `median ${Math.round(s.median)} ms · p95 ${Math.round(s.p95)} ms (n=${s.count})` : '—';
+      replace(live,
+        h('div', {}, `Displayed: ${fpsNow().toFixed(1)} fps (last 3 s) · ${frameLog.length} frames recorded`),
+        h('div', {}, `Receiver (kernel frame counter): ${receiverFpsSamples.length ? receiverFpsSamples.at(-1).fps : '—'} new frames/s`),
+        h('div', {}, `Capture → display: ${fmt(cd)} [same-PC clocks only]`),
+        h('div', {}, `Waited in portal before sending: ${fmt(held)}`),
+        h('div', {}, `Action confirmed sent: ${fmt(lat.ack)}`),
+        h('div', {}, `Click → first visible change: ${fmt(lat.visible)} · no visible change: ${lat.noVisibleChange} of ${lat.attempts}`));
+      replace(table, h('table', {}, h('thead', {}, h('tr', {}, ['#', 'Action', 'Sent (ms)', 'Visible (ms)', 'Diff', 'Note'].map(t => h('th', {}, t)))),
+        h('tbody', {}, recorder.results.slice(-12).reverse().map(r => h('tr', {}, h('td', {}, String(r.id)), h('td', {}, r.label), h('td', {}, r.ackMs ?? '—'),
+          h('td', {}, r.visibleMs ?? '—'), h('td', {}, r.diff ?? '—'), h('td', { class: 'small muted' }, r.note ?? (r.status && r.status !== 'succeeded' ? r.status : '')))))));
+    };
+    measureRender = render;
+    return h('details', { class: 'disclosure' }, h('summary', {}, 'Measurements (for validation)'), h('div', {},
+      h('p', { class: 'muted small' }, 'Records what this browser displays. Start recording, then use the phone normally. Latency is measured from your click to the first displayed frame that visibly changes (see Download JSON for the exact method).'),
+      h('div', { class: 'control-row', style: 'align-items:center' }, toggle, download, clear, h('label', { class: 'small' }, 'Change threshold ', threshold)),
+      live, table));
+  }
+  const measureTimer = setInterval(async () => {
+    recorder.tick();
+    if (measuring) {
+      try {
+        const { diagnostics: d } = await get(`/api/phones/${phoneId}/diagnostics`);
+        if (d.phone?.video?.receiverFps !== undefined) receiverFpsSamples.push({ at: Date.now(), fps: d.phone.video.receiverFps, frames: d.phone.video.frames });
+        if (receiverFpsSamples.length > 2000) receiverFpsSamples.shift();
+      } catch { /* next tick */ }
+    }
+    measureRender();
+  }, 2000);
+
   refresh(); loadHistory();
   const timer = setInterval(refresh, 1500);
   const historyTimer = setInterval(loadHistory, 6000);
   const onRefresh = () => refresh();
   window.addEventListener('nt:refresh', onRefresh);
-  return { el, destroy() { destroyed = true; preview.stop(); clearInterval(timer); clearInterval(historyTimer); window.removeEventListener('nt:refresh', onRefresh); } };
+  return { el, destroy() { destroyed = true; preview.stop(); clearInterval(timer); clearInterval(historyTimer); clearInterval(measureTimer); window.removeEventListener('nt:refresh', onRefresh); } };
 }
 
 function unavailableList() {

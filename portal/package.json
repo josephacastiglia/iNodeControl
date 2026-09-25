@@ -4,12 +4,15 @@
   "private": true,
   "description": "NodeTheory customer portal: authenticated access to hosted phones through the rack agent.",
   "type": "module",
-  "engines": { "node": ">=22.5" },
+  "engines": {
+    "node": ">=22.13"
+  },
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server/main.js",
     "dev": "node --disable-warning=ExperimentalWarning scripts/dev.mjs",
     "create-staff": "node --disable-warning=ExperimentalWarning scripts/create-staff.mjs",
-    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 \"test/**/*.test.mjs\""
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 \"test/**/*.test.mjs\"",
+    "bootstrap-validation": "node --disable-warning=ExperimentalWarning scripts/bootstrap-validation.mjs"
   },
   "dependencies": {
     "ws": "8.21.3"

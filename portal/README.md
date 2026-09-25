@@ -8,7 +8,7 @@ The portal never talks to a kernel directly. Each rack PC runs the [rack agent](
 
 ```bash
 cd rack-agent && npm ci && cd ../portal && npm ci
-npm run dev        # portal + rack agent + SIMULATED kernel → http://127.0.0.1:8080
+npm run dev        # portal + rack agent + SIMULATED kernel → http://127.0.0.1:8080 (set NT_PORT to change)
 ```
 
 The console prints demo accounts:
@@ -41,6 +41,14 @@ Then:
 1. **Staff → Racks → Create rack credential**, and install it on the rack PC.
 2. **Staff → Phones:** reported phones appear as *Unverified*. Mark a phone *In service* only after checking it at the rack; only in-service phones can be assigned.
 3. **Staff → Customers:** add the customer (plan 1/10/20 phones) and its users, then assign phones.
+
+## Local rack validation
+
+`npm run bootstrap-validation -- --out data\validation` sets up validation accounts and a rack credential in a fresh `NT_DB_PATH`, writing the secrets to files. See `WINDOWS-VALIDATION-HANDOFF.md` at the repository root for the full procedure.
+
+## Action outcomes
+
+Every remote action is recorded as **Sent** (`succeeded`), **Not sent** (`not_sent`, the only state that may be retried) or **Uncertain** (`uncertain`), with step and character progress. Group retries go only to phones where nothing was sent. "Sent" means the rack delivered the input; it does not prove what the phone showed.
 
 ## Security model
 

@@ -46,6 +46,7 @@ export class ControlManager {
     const existing = this.sessions.get(phone.id);
     if (existing) {
       if (existing.userId === user.id && existing.allocationId === phone.allocation_id) { existing.heartbeatAt = Date.now(); return existing; }
+      if (existing.customerId !== user.customerId) throw new HttpError(409, 'in_use', 'This phone is being handed back. Try again in a moment.');
       throw new HttpError(409, 'in_use', `${existing.userName} is controlling this phone.`, { holder: existing.userName });
     }
     if (this.pending.has(phone.id)) throw new HttpError(409, 'in_use', 'Control of this phone is already being requested.');

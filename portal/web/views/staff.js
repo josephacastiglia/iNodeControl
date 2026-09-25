@@ -34,9 +34,12 @@ export function staffView({ params: [tab = 'racks'], setTitle, setActions, setBa
     el.append(h('section', { class: 'card' }, h('h2', {}, 'Rack agents'),
       h('p', { class: 'muted small' }, 'Each rack PC runs the NodeTheory rack agent, which connects out to this portal. Revoking a credential disconnects that rack immediately.'),
       h('div', { class: 'form-row' }, name, add)), list);
+    const portalLine = h('p', { class: 'muted small mono' });
+    el.append(portalLine);
     async function load() {
-      const { agents } = await get('/api/admin/summary');
-      replace(list, h('table', {}, h('thead', {}, h('tr', {}, ['Rack', 'Connection', 'Kernel', 'Phones reported', 'Previews', 'Last connected', ''].map(t => h('th', {}, t)))),
+      const { agents, portalProcess: pp, previews } = await get('/api/admin/summary');
+      portalLine.textContent = `Portal PID ${pp.pid} · ${pp.rssMB} MB resident · ${pp.heapMB} MB heap · preview cache ${previews.frames} frames / ${Math.round(previews.bytes / 1024)} KB · ${previews.waiters} waiting viewers`;
+      replace(list, h('table', {}, h('thead', {}, h('tr', {}, ['Rack', 'Connection', 'Kernel', 'Phones reported', 'Previews', 'Agent process', 'Last connected', ''].map(t => h('th', {}, t)))),
         h('tbody', {}, agents.length ? agents.map(a => h('tr', {},
           h('td', {}, h('b', {}, a.name), h('div', { class: 'mono muted' }, a.id)),
           h('td', {}, a.revoked_at ? pill('stopped', 'Revoked') : a.online ? pill('live', 'Connected') : pill('unknown', 'Offline')),
@@ -44,12 +47,13 @@ export function staffView({ params: [tab = 'racks'], setTitle, setActions, setBa
             a.kernel?.reason ? h('div', { class: 'muted small' }, a.kernel.reason) : null),
           h('td', {}, String(a.phonesReported)),
           h('td', { class: 'mono small' }, a.previewStats ? `sent ${a.previewStats.sent} · dropped ${a.previewStats.droppedBackpressure} · avg ${(a.previewStats.encodeMsTotal / Math.max(1, a.previewStats.encoded)).toFixed(0)} ms` : '—'),
+          h('td', { class: 'mono small' }, a.agentProcess ? `PID ${a.agentProcess.pid} · CPU ${a.agentProcess.cpuPercentOfOneCore ?? '—'}% of 1 core · ${a.agentProcess.rssMB} MB` : '—'),
           h('td', { class: 'small' }, a.last_connected_at ? formatTime(a.last_connected_at, { date: true }) : 'never'),
           h('td', {}, a.revoked_at ? '' : h('button', { class: 'btn btn-danger btn-sm', type: 'button', onclick: async () => {
             if (!(await confirmDialog({ title: `Revoke ${a.name}?`, body: 'The rack disconnects immediately and every phone on it stops accepting remote control until a new credential is installed.', confirmLabel: 'Revoke credential', danger: true }))) return;
             await post(`/api/admin/agents/${a.id}/revoke`); toast('Credential revoked.'); load();
           } }, 'Revoke'))))
-          : [h('tr', {}, h('td', { colspan: 7, class: 'empty' }, 'No racks yet. Create a credential to connect the first rack agent.'))])));
+          : [h('tr', {}, h('td', { colspan: 8, class: 'empty' }, 'No racks yet. Create a credential to connect the first rack agent.'))])));
     }
     load(); timer = setInterval(load, 4000);
   }

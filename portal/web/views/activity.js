@@ -12,8 +12,7 @@ const LABELS = {
   'customer.create': 'Account created', 'customer.status': 'Account status changed', 'user.create': 'User added', 'user.disable': 'User disabled',
 };
 const OUTCOMES = {
-  ok: '', succeeded: '', failed: 'failed', refused: 'refused', unconfirmed: 'not confirmed', unknown: 'outcome uncertain', cancelled: 'cancelled',
-  rejected: 'not sent', stopped: 'stopped', lease_lost: 'timed out', released: '', timeout: 'browser stopped responding', rack_disconnected: 'rack connection lost',
+  ok: '', succeeded: 'sent', not_sent: 'not sent', uncertain: 'UNCERTAIN — check phone', failed: 'failed', refused: 'refused', unconfirmed: 'not confirmed', stopped: 'stopped', lease_lost: 'timed out', released: '', timeout: 'browser stopped responding', rack_disconnected: 'rack connection lost',
 };
 
 export function describeEntry(e) {
@@ -39,7 +38,7 @@ export function activityView({ setActions }) {
       h('td', {}, e.actor_label || (e.actor_type === 'agent' ? 'Rack' : 'NodeTheory')),
       h('td', {}, e.phone_name ?? (e.phone_id ? 'Former phone' : '—')),
       h('td', {}, describeEntry(e)),
-      h('td', { class: 'muted small' }, e.detail?.message ?? '')));
+      h('td', { class: 'muted small' }, [e.detail?.chars ? `${e.detail.chars} characters confirmed` : e.detail?.steps && e.outcome !== 'succeeded' ? `${e.detail.steps} steps confirmed` : '', e.detail?.message ?? ''].filter(Boolean).join(' · '))));
     if (entries.length) oldest = entries.at(-1).id;
     more.hidden = entries.length < 100;
     if (!body.children.length) replace(body, h('tr', {}, h('td', { colspan: 5, class: 'empty' }, 'No activity yet.')));

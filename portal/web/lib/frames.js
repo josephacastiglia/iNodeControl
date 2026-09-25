@@ -15,13 +15,14 @@ async function fetchFrame(url, signal) {
     seq: Number(res.headers.get('x-frame-seq')),
     source: { width: Number(res.headers.get('x-source-width')), height: Number(res.headers.get('x-source-height')) },
     ageMs: Number(res.headers.get('x-frame-age-ms')),
+    capturedAt: Number(res.headers.get('x-captured-at')),
   };
 }
 
-function showBlob(img, blob) {
+function showBlob(img, blob, onShown) {
   const url = URL.createObjectURL(blob);
   const old = img.dataset.url;
-  img.onload = () => { if (old) URL.revokeObjectURL(old); };
+  img.onload = () => { if (old) URL.revokeObjectURL(old); onShown?.(performance.now(), Date.now()); };
   img.src = url;
   img.dataset.url = url;
 }
@@ -47,7 +48,7 @@ export function gridPreview(base, img, { intervalMs = 1500, onFrame = () => {} }
 }
 
 /** Responsive preview for the focused phone. */
-export function focusPreview(base, img, { onFrame = () => {}, onIdle = () => {} } = {}) {
+export function focusPreview(base, img, { onFrame = () => {}, onIdle = () => {}, onDisplayed = null } = {}) {
   let seq = -1, stopped = false;
   const abort = new AbortController();
   const arrivals = [];
@@ -59,7 +60,7 @@ export function focusPreview(base, img, { onFrame = () => {}, onIdle = () => {} 
         const f = await fetchFrame(`${base}?tier=focus&after=${Math.max(seq, 0)}`, abort.signal);
         if (f) {
           seq = f.seq;
-          showBlob(img, f.blob);
+          showBlob(img, f.blob, onDisplayed ? (perf, wall) => onDisplayed(f, perf, wall) : null);
           const now = performance.now();
           arrivals.push(now);
           while (arrivals.length && now - arrivals[0] > 3000) arrivals.shift();

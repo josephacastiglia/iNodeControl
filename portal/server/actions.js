@@ -80,3 +80,51 @@ export function describeAction(a) {
     default: return 'Action';
   }
 }
+
+// ---- outcomes -------------------------------------------------------------------------
+export const OUTCOMES = Object.freeze(['succeeded', 'not_sent', 'uncertain']);
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+/**
+ * Customer-facing explanation of an outcome. Success wording is deliberately "sent":
+ * the rack confirms the input was delivered, not what the phone did with it.
+ */
+export function outcomeMessage(action, o) {
+  const text = o.text;
+  if (o.status === 'succeeded') {
+    if (text) return `All ${plural(text.total, 'character')} were sent as keystrokes. Check the phone to confirm the text appeared where you expected.`;
+    return 'Sent to the phone. Check the screen for the result.';
+  }
+  if (o.status === 'not_sent') {
+    return {
+      not_in_control: 'Nothing was sent: you are not in control of this phone.',
+      not_assigned: 'Nothing was sent: this phone is no longer assigned to your account.',
+      queue_full: 'Nothing was sent: earlier actions are still running on this phone.',
+      duplicate: 'Nothing was sent: this action was already received.',
+      stopped_before_start: 'Nothing was sent: the phone was stopped or released before this action started.',
+      kernel_refused: 'Nothing was sent: the rack refused the action before sending any input.',
+      kernel_unreachable: 'Nothing was sent: the rack software is not responding.',
+      rack_offline: 'Nothing was sent: the rack is offline.',
+      rack_refused: 'Nothing was sent: the rack refused the request.',
+      invalid_action: 'Nothing was sent: the rack could not accept this action.',
+    }[o.reason] ?? 'Nothing was sent to the phone.';
+  }
+  // uncertain
+  const why = {
+    no_reply: 'The rack did not confirm this action, so it may have run fully, partly or not at all.',
+    kernel_failed: 'The rack reported a problem while sending, so part of it may have reached the phone.',
+    cancelled_during: 'It was stopped while being sent, so part of it may have reached the phone.',
+    interrupted: 'It was stopped partway through.',
+    release_failed: 'The final button release was not confirmed.',
+    agent_error: 'The rack agent hit an unexpected error while sending.',
+  }[o.reason] ?? 'The outcome is not confirmed.';
+  let progress = '';
+  if (text) {
+    progress = ` ${text.confirmed} of ${text.total} characters were confirmed as keystrokes`
+      + (text.uncertain ? `, the next ${text.uncertain} are uncertain` : '')
+      + (text.notSent ? `, and ${text.notSent} were not sent` : '') + '. Confirmed keystrokes do not prove the text appeared.';
+  } else if (o.progress?.total > 1) {
+    progress = ` ${o.progress.confirmed} of ${plural(o.progress.total, 'step')} confirmed` + (o.progress.uncertain ? ', 1 uncertain' : '') + (o.progress.notSent ? `, ${o.progress.notSent} not sent` : '') + '.';
+  }
+  return `${why}${progress} Check the phone before doing anything else. It will not be retried automatically.`;
+}

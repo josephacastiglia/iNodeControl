@@ -60,7 +60,9 @@ export class KernelSim {
         dirty: true, bmp: null, frames: 0, receiverPid: 4000 + this.phones.size,
         slot: { owner: null, active: null, cleaning: null, stopped: false, message: '', releaseFailed: false, generation: 0 },
         hid: { known: false, x: 0, y: 0, button: 0 },
-        faults: { failNext: 0, hangMs: 0, commandDelayMs: 0, releaseFail: false },
+        // failNext: fail the next N commands. failAfter: let N commands succeed, then fail one.
+        // hangAfter {calls, ms}: let N commands answer normally, then delay one reply by ms.
+        faults: { failNext: 0, failAfter: null, hangMs: 0, hangAfter: null, commandDelayMs: 0, releaseFail: false },
       });
     }
     this.keepalive = setInterval(() => {
@@ -312,7 +314,12 @@ export class KernelSim {
       if (code !== 0) await this.#beginClose(p, true, message);
       return { id: p.def.deviceid, code, message };
     }));
-    const hang = Math.max(...phones.map(p => p.faults.hangMs));
+    let hang = Math.max(...phones.map(p => p.faults.hangMs));
+    for (const p of phones) {
+      const h = p.faults.hangAfter;
+      if (!h) continue;
+      if (h.calls === 0) { hang = Math.max(hang, h.ms); p.faults.hangAfter = null; } else h.calls--;
+    }
     return { code: results.every(r => r.code === 0) ? 0 : 33, results, ...(hang > 0 ? { __hangMs: hang } : {}) };
   }
 
@@ -344,6 +351,10 @@ export class KernelSim {
     this.log.push({ at: Date.now(), id, fun, data: { ...safe, id } });
     if (p.faults.commandDelayMs) await this.#wait(p.faults.commandDelayMs / this.speed, signal);
     if (p.faults.failNext > 0) { p.faults.failNext--; throw new Error('Simulated HID transport failure.'); }
+    if (p.faults.failAfter !== null) {
+      if (p.faults.failAfter === 0) { p.faults.failAfter = null; throw new Error('Simulated HID transport failure.'); }
+      p.faults.failAfter--;
+    }
     const now = () => Date.now();
     switch (fun) {
       case '/mouse/reset': h.button = 0; await this.#wait(40, signal); h.known = true; h.x = 14; h.y = 14; break;

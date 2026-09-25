@@ -10,9 +10,12 @@
 // The credential is never logged. Revoking it in the portal disconnects this agent.
 
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { HttpKernel } from './kernel/http-kernel.js';
 import { EncoderPool } from './encoder-pool.js';
 import { RackAgent, AGENT_VERSION } from './agent.js';
+import { acquireInstanceLock } from './instance-lock.js';
 
 function loadConfig() {
   const i = process.argv.indexOf('--config');
@@ -39,11 +42,14 @@ const log = {
 
 const config = loadConfig();
 if (!config.portalUrl) throw new Error('Set NT_PORTAL_URL to the portal agent address (wss://.../agent).');
+const kernelPort = new URL(config.kernelUrl).port || '80';
+const releaseLock = acquireInstanceLock(process.env.NT_AGENT_LOCK_FILE ?? path.join(os.tmpdir(), `nodetheory-rack-agent-${kernelPort}.lock`));
+process.on('exit', releaseLock);
 const kernel = new HttpKernel({ baseUrl: config.kernelUrl });
 const encoder = new EncoderPool();
 const agent = new RackAgent({ kernel, encoder, portalUrl: config.portalUrl, agentId: config.agentId, secret: config.secret, log });
 
-log.info(`NodeTheory rack agent ${AGENT_VERSION}. Kernel ${config.kernelUrl}. Agent ${config.agentId}.`);
+log.info(`NodeTheory rack agent ${AGENT_VERSION}, PID ${process.pid}. Kernel ${config.kernelUrl}. Agent ${config.agentId}. Portal ${new URL(config.portalUrl).host}.`);
 const cap = await kernel.capability().catch(err => ({ compatible: false, reason: err.message, simulated: false }));
 if (cap.simulated) log.warn('The kernel reports itself as a SIMULATOR. No real phones are connected.');
 if (!cap.compatible) log.warn(`Input disabled until the kernel is compatible: ${cap.reason}`);
@@ -59,4 +65,5 @@ async function shutdown() {
   process.exit(0);
 }
 process.on('SIGINT', shutdown);
+process.on('SIGBREAK', shutdown); // Ctrl+Break in a Windows console
 process.on('SIGTERM', shutdown);
