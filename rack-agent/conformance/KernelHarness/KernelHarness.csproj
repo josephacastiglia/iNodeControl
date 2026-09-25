@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    CONFORMANCE HARNESS, NOT A KERNEL BUILD. Compiles the real kernel HTTP/ownership source
+    (src/iMouse.Kernel) for Linux/any OS with a logging fake instead of USB HID and synthetic
+    frames instead of AirPlay. Results do not count as Windows or hardware validation.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>IMouse2.KernelHarness</RootNamespace>
+    <NoWarn>CA1416;SYSLIB1054</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../src/iMouse.Kernel/*.cs"
+             Exclude="../../../src/iMouse.Kernel/Program.cs;../../../src/iMouse.Kernel/SelfTests.cs;../../../src/iMouse.Kernel/InputSessionTests.cs" />
+  </ItemGroup>
+</Project>

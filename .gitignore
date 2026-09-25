@@ -53,3 +53,6 @@
 __pycache__/
 .env
 .env.*
+
+# Node.js projects (portal/, rack-agent/)
+node_modules/

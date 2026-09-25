@@ -1,0 +1,17 @@
+{
+  "name": "nodetheory-portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NodeTheory customer portal: authenticated access to hosted phones through the rack agent.",
+  "type": "module",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/main.js",
+    "dev": "node --disable-warning=ExperimentalWarning scripts/dev.mjs",
+    "create-staff": "node --disable-warning=ExperimentalWarning scripts/create-staff.mjs",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 \"test/**/*.test.mjs\""
+  },
+  "dependencies": {
+    "ws": "8.21.3"
+  }
+}

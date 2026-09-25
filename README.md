@@ -9,6 +9,11 @@ clone needs the build dependencies and a new build before the launch scripts can
 **Definition of finished:** see [Completion criteria](FINISH-CRITERIA.md).
 The build and launch notes below describe earlier project stages.
 
+**Customer portal (in development):** the internet-facing NodeTheory portal and the rack
+agent that connects it to this kernel live in [`portal/`](portal/README.md) and
+[`rack-agent/`](rack-agent/README.md). Status, evidence level and the Windows validation
+checklist: [Portal milestone 1](PORTAL-MILESTONE-1.md).
+
 ## Working console: `console/`
 
 **Start it by double-clicking `console/Start iMouse 2.0.cmd`.** Live phone screen at 30 fps,

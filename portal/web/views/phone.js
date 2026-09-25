@@ -1,0 +1,272 @@
+import { h, replace, pill, toast, showDialog } from '../lib/dom.js';
+import { get, post, ApiError } from '../lib/api.js';
+import { state, formatTime, isCustomerAdmin } from '../lib/state.js';
+import { focusPreview } from '../lib/frames.js';
+import { toSource, fromSource, classifyGesture, presetSwipe, textProblem } from '../lib/coords.js';
+import { stopAllButton } from '../lib/stopall.js';
+import { actionLabel } from './phones.js';
+
+const RESULT_WORDS = { succeeded: 'Done', failed: 'Failed', cancelled: 'Cancelled', unknown: 'Uncertain', rejected: 'Not sent' };
+
+export function phoneView({ params: [phoneId], setTitle, setActions, setBanner }) {
+  let phone = null;
+  let destroyed = false;
+  let inflight = 0;
+
+  // ---- stage (live screen) ------------------------------------------------------------
+  const img = h('img', { alt: '', draggable: 'false' });
+  const placeholder = h('div', { class: 'placeholder' }, 'Connecting to the screen…');
+  const overlay = h('div', { class: 'touch-overlay', 'aria-hidden': 'true' });
+  const screen = h('div', { class: 'screen', role: 'application', tabindex: '0', 'aria-label': 'Phone screen. When you are in control: click to tap, drag to swipe, press and hold to long-press.' }, img, placeholder, overlay);
+  const fpsText = h('span', {}, '—');
+  const hint = h('span', {}, '');
+  const stage = h('div', { class: 'stage dark' }, screen, h('div', { class: 'stage-meta' }, fpsText, hint));
+
+  // ---- panel -------------------------------------------------------------------------
+  const controlCard = h('div', { class: 'status-card' });
+  const videoCard = h('div', { class: 'status-card' });
+  const endedNote = h('p', { class: 'small', role: 'status' });
+  const controls = h('div', { class: 'card' });
+  const history = h('div', { class: 'list history' });
+  const diagBody = h('div', {}, h('p', { class: 'muted small' }, 'Loading…'));
+  const diag = h('details', { class: 'disclosure' }, h('summary', {}, 'Diagnostics'), diagBody);
+  diag.addEventListener('toggle', () => { if (diag.open) loadDiagnostics(); });
+  const stopBtn = h('button', { class: 'btn btn-stop', type: 'button', onclick: stopPhone }, 'Stop this phone');
+  const panel = h('div', { class: 'panel' },
+    h('div', { class: 'status-grid' }, controlCard, videoCard), endedNote, controls,
+    h('section', { class: 'card' }, h('div', { class: 'card-head' }, h('h2', {}, 'Recent actions'), h('span', { class: 'muted small' }, 'Newest first')), history),
+    unavailableList(), diag);
+  const el = h('div', { class: 'focus' }, stage, panel);
+  setActions(stopBtn, stopAllButton());
+
+  const inControl = () => phone?.input.state === 'yours';
+
+  // ---- actions -------------------------------------------------------------------------
+  async function send(action, { feedbackAt } = {}) {
+    if (!inControl()) { toast('Take control of this phone first.', 'warn'); return; }
+    inflight++; renderHint();
+    let pending = null;
+    if (feedbackAt) pending = marker(feedbackAt, 'pending-dot');
+    try {
+      const r = await post(`/api/phones/${phoneId}/actions`, { action });
+      const c = r.command;
+      if (c.status !== 'succeeded') toast(`${actionLabel(action)}: ${RESULT_WORDS[c.status] ?? c.status}. ${c.message}`, c.status === 'unknown' || c.status === 'rejected' ? 'warn' : 'bad', 7000);
+      applyPhone(r.phone);
+    } catch (err) {
+      toast(err.message, 'bad');
+    } finally {
+      pending?.remove();
+      inflight--; renderHint();
+      loadHistory();
+    }
+  }
+
+  function marker(pt, cls) {
+    const box = screen.getBoundingClientRect();
+    const pos = fromSource(pt.x, pt.y, box, { width: img.naturalWidth || phone.screen.width, height: img.naturalHeight || phone.screen.height }, phone.screen);
+    if (!pos) return null;
+    const m = h('span', { class: cls, style: `left:${pos.x}px;top:${pos.y}px` });
+    overlay.append(m);
+    if (cls === 'ripple') setTimeout(() => m.remove(), 650);
+    return m;
+  }
+
+  // Pointer gestures become exactly one action when the pointer is released.
+  let gesture = null;
+  function mapPoint(e, clamp) {
+    const box = screen.getBoundingClientRect();
+    return toSource(e.clientX - box.left, e.clientY - box.top, box,
+      { width: img.naturalWidth || phone.screen.width, height: img.naturalHeight || phone.screen.height }, phone.screen, clamp);
+  }
+  screen.addEventListener('pointerdown', e => {
+    if (!inControl() || e.button !== 0 || !phone?.screen.width) return;
+    const p = mapPoint(e, false);
+    if (!p) return;
+    e.preventDefault();
+    screen.setPointerCapture(e.pointerId);
+    gesture = { id: e.pointerId, start: performance.now(), points: [[p.x, p.y]] };
+  });
+  screen.addEventListener('pointermove', e => {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    const p = mapPoint(e, true);
+    const last = gesture.points.at(-1);
+    if (p && (Math.abs(p.x - last[0]) > 2 || Math.abs(p.y - last[1]) > 2)) gesture.points.push([p.x, p.y]);
+  });
+  screen.addEventListener('pointerup', e => {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    const g = gesture; gesture = null;
+    const action = classifyGesture(g.points, performance.now() - g.start);
+    if (!action) return;
+    const at = action.type === 'drag' ? { x: action.points.at(-1)[0], y: action.points.at(-1)[1] } : { x: action.x, y: action.y };
+    marker(at, 'ripple');
+    send(action, { feedbackAt: at });
+  });
+  screen.addEventListener('pointercancel', () => { gesture = null; });
+  screen.addEventListener('contextmenu', e => e.preventDefault());
+
+  // ---- control lifecycle ------------------------------------------------------------------
+  async function takeControl() {
+    try { applyPhone((await post(`/api/phones/${phoneId}/control`)).phone); toast('You’re in control.'); }
+    catch (err) { toast(err.message, 'bad', 6000); refresh(); }
+  }
+  async function releaseControl() {
+    try { applyPhone((await post(`/api/phones/${phoneId}/control/release`)).phone); toast('Control released.'); }
+    catch (err) { toast(err.message, 'bad'); }
+  }
+  async function resume() {
+    try {
+      applyPhone((await post(`/api/phones/${phoneId}/resume`, { generation: phone.input.generation })).phone);
+      toast('Input resumed. Take control when you’re ready.');
+    } catch (err) { toast(err.message, 'bad', 7000); refresh(); }
+  }
+  async function stopPhone() {
+    try {
+      const r = await post(`/api/phones/${phoneId}/stop`);
+      toast(r.result.ok ? 'Stopped. Queued actions were cancelled. Resume when you’re ready.' : `Stop not confirmed: ${r.result.message}`, r.result.ok ? 'ok' : 'bad', 7000);
+      applyPhone(r.phone);
+    } catch (err) { toast(err.message, 'bad'); }
+  }
+  async function rename() {
+    const input = h('input', { type: 'text', maxlength: 40, value: phone.name, 'aria-label': 'Phone name' });
+    const save = h('button', { class: 'btn btn-dark', type: 'button' }, 'Save name');
+    const dlg = showDialog('Rename phone', input, save);
+    save.addEventListener('click', async () => {
+      try { await post(`/api/phones/${phoneId}/name`, { name: input.value }); dlg.close(); refresh(); }
+      catch (err) { toast(err.message, 'bad'); }
+    });
+  }
+
+  // ---- rendering ------------------------------------------------------------------------
+  function renderControlCard() {
+    const i = phone.input;
+    const buttons = [];
+    if (i.state === 'ready') buttons.push(h('button', { class: 'btn btn-dark', type: 'button', onclick: takeControl }, 'Take control'));
+    if (i.state === 'yours') buttons.push(h('button', { class: 'btn btn-ghost', type: 'button', onclick: releaseControl }, 'Release control'));
+    if (i.state === 'stopped') buttons.push(h('button', { class: 'btn btn-dark', type: 'button', onclick: resume }, 'Resume input'));
+    replace(controlCard, h('span', { class: 'eyebrow' }, 'Control'), h('div', {}, pill(i.state, i.label)),
+      i.detail ? h('p', {}, i.detail) : h('p', {}, i.state === 'yours' ? 'Only you can send input to this phone until you release it.' : i.state === 'ready' ? 'Take control to tap, swipe and type.' : ''),
+      buttons.length ? h('div', { class: 'control-row' }, buttons) : null);
+  }
+  function renderVideoCard(stats) {
+    const v = phone.video;
+    replace(videoCard, h('span', { class: 'eyebrow' }, 'Video'), h('div', {}, pill(v.state, v.label)),
+      h('p', {}, v.detail || (v.state === 'live' ? 'The picture updates whenever the screen changes.' : '')),
+      stats ? h('p', { class: 'mono' }, `${stats.fps.toFixed(1)} fps shown · frame ${(stats.ageMs / 1000).toFixed(1)} s old at arrival`) : null);
+  }
+  function renderHint() {
+    hint.textContent = inControl() ? (inflight ? `Sending… (${inflight})` : 'Click · drag · hold') : 'View only';
+    screen.classList.toggle('interactive', inControl());
+  }
+  function renderControls() {
+    const on = inControl();
+    const b = (label, action, extra = {}) => h('button', { class: 'btn btn-ghost btn-sm', type: 'button', disabled: !on, onclick: () => send(action), ...extra }, label);
+    const text = h('input', { type: 'text', maxlength: 200, placeholder: 'Text to type on the phone', disabled: !on, 'aria-label': 'Text to type', autocomplete: 'off' });
+    const counter = h('span', { class: 'counter' }, '0 / 200');
+    const textErr = h('p', { class: 'error-text' });
+    const sendText = h('button', { class: 'btn btn-dark', type: 'button', disabled: !on }, 'Type');
+    text.addEventListener('input', () => { counter.textContent = `${text.value.length} / 200`; textErr.textContent = text.value ? textProblem(text.value) ?? '' : ''; });
+    const submitText = () => {
+      const problem = textProblem(text.value);
+      if (problem) { textErr.textContent = problem; return; }
+      send({ type: 'text', text: text.value });
+      text.value = ''; counter.textContent = '0 / 200';
+    };
+    sendText.addEventListener('click', submitText);
+    text.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitText(); } });
+    const swipe = dir => presetSwipe(dir, phone.screen);
+    replace(controls,
+      h('div', { class: 'card-head' }, h('h2', {}, 'Controls'), on ? h('span', { class: 'muted small' }, 'Actions run one at a time, in order.') : h('span', { class: 'muted small' }, 'Take control to use these.')),
+      h('div', { class: 'control-row' }, b('Home', { type: 'key', key: 'Home' }), b('App switcher', { type: 'key', key: 'AppSwitch' }), b('Control Centre', { type: 'key', key: 'ControlBar' })),
+      h('div', { style: 'display:flex;gap:18px;align-items:center;flex-wrap:wrap' },
+        h('div', { class: 'pad', role: 'group', 'aria-label': 'Swipe' },
+          h('button', { class: 'up', type: 'button', disabled: !on, 'aria-label': 'Swipe up', onclick: () => send(swipe('up')) }, '↑'),
+          h('button', { class: 'left', type: 'button', disabled: !on, 'aria-label': 'Swipe left', onclick: () => send(swipe('left')) }, '←'),
+          h('button', { class: 'right', type: 'button', disabled: !on, 'aria-label': 'Swipe right', onclick: () => send(swipe('right')) }, '→'),
+          h('button', { class: 'down', type: 'button', disabled: !on, 'aria-label': 'Swipe down', onclick: () => send(swipe('down')) }, '↓')),
+        h('p', { class: 'muted small', style: 'max-width:26em' }, 'Swipes travel across the middle of the screen. For a precise swipe, drag on the screen itself.')),
+      h('div', { style: 'display:grid;gap:6px' },
+        h('div', { class: 'textbox' }, text, sendText),
+        h('div', { style: 'display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap' }, counter,
+          h('span', { class: 'counter' }, 'English (US) keyboard characters only · the phone needs a text field selected')),
+        textErr),
+      h('div', { class: 'control-row' }, b('Return', { type: 'key', key: 'Enter' }), b('Delete', { type: 'key', key: 'Backspace' }), b('Tab', { type: 'key', key: 'Tab' }), b('Esc', { type: 'key', key: 'Escape' }),
+        b('Reset pointer', { type: 'resetPointer' }, { title: 'Use this if taps stop registering.' })));
+  }
+
+  let lastRendered = '';
+  function applyPhone(p) {
+    if (!p || destroyed) return;
+    const firstLoad = !phone;
+    phone = p;
+    const i = state.phones.findIndex(x => x.id === p.id);
+    if (i >= 0) state.phones[i] = p; else state.phones.push(p);
+    setTitle(p.name);
+    setBanner(p.rack.simulated ? 'Simulated rack — for development and testing only. This is not a real phone.' : null);
+    const key = JSON.stringify([p.input, p.video.state, p.video.label, p.video.detail]);
+    if (key !== lastRendered || firstLoad) {
+      lastRendered = key;
+      renderControlCard(); renderVideoCard(preview?.stats.fps ? preview.stats : null); renderControls(); renderHint();
+    }
+    endedNote.textContent = p.lastEnded && p.input.state !== 'yours' ? `Control ended: ${p.lastEnded.message}` : '';
+    if (p.video.state !== 'live' && !img.dataset.url) { placeholder.hidden = false; placeholder.textContent = p.video.detail || p.video.label; }
+    if (firstLoad && isCustomerAdmin()) setActions(h('button', { class: 'btn btn-ghost', type: 'button', onclick: rename }, 'Rename'), stopBtn, stopAllButton());
+  }
+
+  async function refresh() {
+    try { applyPhone((await get(`/api/phones/${phoneId}`)).phone); }
+    catch (err) {
+      if (err instanceof ApiError && err.status === 404) replace(el, h('div', { class: 'card' }, h('h2', {}, 'Phone not found'), h('p', { class: 'muted' }, 'It may have been removed from your account.'), h('a', { href: '#/phones' }, '← Back to phones')));
+    }
+  }
+
+  async function loadHistory() {
+    try {
+      const { commands } = await get(`/api/phones/${phoneId}/commands`);
+      replace(history, commands.length ? commands.slice(0, 12).map(c => h('div', { class: 'list-row' },
+        h('div', { class: 'label-row' }, h('span', {}, c.summary), h('small', { class: 'muted' }, `${c.user_name} · ${formatTime(c.created_at)}${c.elapsed_ms ? ` · ${c.elapsed_ms} ms` : ''}${c.message && c.status !== 'succeeded' ? ` · ${c.message}` : ''}`)),
+        h('span', { class: `st st-${c.status}` }, RESULT_WORDS[c.status] ?? c.status))) : h('p', { class: 'empty' }, 'No actions yet.'));
+    } catch { /* keep previous */ }
+  }
+
+  async function loadDiagnostics() {
+    try {
+      const { diagnostics: d } = await get(`/api/phones/${phoneId}/diagnostics`);
+      const p = d.phone;
+      const rows = p.reported === false ? [['Device ID', p.deviceId], ['Reported by rack', 'No']] : [
+        ['Device ID', p.deviceId], ['Model / iOS', `${p.model} · ${p.os}`], ['Screen image', p.image], ['Control board', `${p.board} · ${p.boardPresent === null ? 'unknown' : p.boardPresent ? 'present' : 'missing'}`],
+        ['Input enabled', p.inputEnabled ? 'yes' : 'no'], ['Input state', `owned=${p.input.owned} stopped=${p.input.stopped} releasing=${p.input.releasing} generation=${p.input.generation}`],
+        ['Input message', p.input.message || '—'], ['Receiver', `${p.video.receiver} · ${p.video.receiverState} · restarts ${p.video.receiverRestarts}`],
+        ['Frames received', String(p.video.frames)], ['Last new frame', p.video.lastFrameAt ? formatTime(p.video.lastFrameAt) : 'not yet seen changing'], ['Simulated rack', d.rack.simulated ? 'yes' : 'no'],
+      ];
+      replace(diagBody, h('p', { class: 'muted small' }, 'Technical details for NodeTheory support.'), h('dl', { class: 'kv' }, rows.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)])));
+    } catch (err) { replace(diagBody, h('p', { class: 'error-text' }, err.message)); }
+  }
+
+  const preview = focusPreview(`/api/phones/${phoneId}/frame`, img, {
+    onFrame: (f, stats) => {
+      placeholder.hidden = true;
+      fpsText.textContent = `${stats.fps.toFixed(1)} fps`;
+      if (phone && (f.source.width !== phone.screen.width || f.source.height !== phone.screen.height)) phone.screen = f.source;
+      if (phone) renderVideoCard(stats);
+    },
+    onIdle: stats => { fpsText.textContent = stats.fps ? `${stats.fps.toFixed(1)} fps` : 'Waiting for the screen to change'; },
+  });
+
+  refresh(); loadHistory();
+  const timer = setInterval(refresh, 1500);
+  const historyTimer = setInterval(loadHistory, 6000);
+  const onRefresh = () => refresh();
+  window.addEventListener('nt:refresh', onRefresh);
+  return { el, destroy() { destroyed = true; preview.stop(); clearInterval(timer); clearInterval(historyTimer); window.removeEventListener('nt:refresh', onRefresh); } };
+}
+
+function unavailableList() {
+  return h('details', { class: 'disclosure' }, h('summary', {}, 'Not available remotely yet'), h('div', {},
+    h('ul', { class: 'unavailable', style: 'margin:0;padding-left:18px' },
+      h('li', {}, h('b', {}, 'Reconnecting screen mirroring.'), ' If video stops, our team reconnects it at the rack. Controls may still work meanwhile.'),
+      h('li', {}, h('b', {}, 'Restarting the phone’s USB connection or rebinding it.'), ' Our team handles this at the rack.'),
+      h('li', {}, h('b', {}, 'Right-click, scroll wheel, pinch and multi-finger gestures.')),
+      h('li', {}, h('b', {}, 'Emoji and non-English characters, copy and paste.'), ' Typing uses an English (US) keyboard.'),
+      h('li', {}, h('b', {}, 'Uploading videos to the phone, posting and account analytics.'), ' Coming in later releases.')),
+    h('p', { class: 'muted small' }, 'Some apps handle keyboard input differently — for example, the Search field can drop spaces.')));
+}
