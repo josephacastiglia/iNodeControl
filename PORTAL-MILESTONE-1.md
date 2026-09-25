@@ -1,5 +1,8 @@
 # NodeTheory customer portal — Milestone 1
 
+> **Status (25 September 2026): implemented and tested in simulation; waiting for Windows and physical-phone validation. Milestone 2 is paused.**
+> Codex runs the Windows validation from [WINDOWS-VALIDATION-HANDOFF.md](WINDOWS-VALIDATION-HANDOFF.md), against code commit `c945512b4cadd2d5d0732db2d942b11e1d31e778`.
+
 Written 25 September 2026. Built on `claude/focused-noether-s600e0` from base commit
 `ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a` ("Import iMouse 2.0 source and development records").
 Kernel integration was written against that commit's `src/iMouse.Kernel/ApiServer.cs`,
@@ -23,7 +26,7 @@ Kernel integration was written against that commit's `src/iMouse.Kernel/ApiServe
 | Level | Status |
 |---|---|
 | **Implemented and tested with the simulator** | **Yes.** Everything in this milestone. |
-| **Checked against the real kernel source** (compiled on Linux, fake HID, synthetic frames) | **Yes, for the ownership contract** (8 tests). This is not a Windows build and not Windows validation. |
+| **Checked against the real kernel source** (compiled on Linux, fake HID, synthetic frames) | **Yes, for the ownership contract and long-text handling** (10 tests). This is not a Windows build and not Windows validation. |
 | **Integrated with the actual Windows kernel** | **No.** Not run on Windows. See the checklist below. |
 | **Verified on physical phones** | **No.** |
 
@@ -55,8 +58,8 @@ No result here counts as Windows or hardware validation. Scratch runs with Windo
 - Migrations (`server/migrations/001_initial.sql`) cover customers, users, sessions (stored hashed), agents (secret stored hashed), phones, allocations, commands, group actions and the audit log.
 - Authentication and authorization are described in [portal/README.md](portal/README.md#security-model). Ownership is checked on every route, again before dispatch, and again by the agent when the command reaches the front of the phone's queue.
 - Control sessions: one portal controller per phone. A teammate sees "In use by <name>"; the desktop console shows as "In use by NodeTheory". The browser heartbeats; a session ends after 35 s without one, and the browser releases on page close.
-- Actions have individual results (`succeeded / failed / cancelled / unknown / rejected`). History and audit record them without typed text.
-- Groups: explicit selection mode with a visible warning bar and per-phone outcomes. **Retry** sends only to phones that failed. Phones that succeeded or whose outcome is uncertain are skipped server-side.
+- Actions have individual results: Sent (`succeeded`), Not sent (`not_sent`) or Uncertain (`uncertain`), with step and character progress (see the update below). History and audit record them without typed text.
+- Groups: explicit selection mode with a visible warning bar and per-phone outcomes. **Retry** sends only to phones where nothing was sent. Sent and uncertain phones are skipped server-side.
 - Customer **Stop all** covers only their own phones. Staff **Emergency stop** requires typing STOP and covers every enabled phone, including ones the console holds.
 - Staff console:
   - rack credentials, shown once and revocable;
@@ -72,14 +75,48 @@ No result here counts as Windows or hardware validation. Scratch runs with Windo
   - Strict CSP and no inline styles.
   - Accounts, Content and Automations appear as disabled "soon" items.
 
+## Validation-preparation update (25 September 2026)
+
+**Three action outcomes, used end to end** (agent, portal, database, UI, group results):
+
+| Outcome | Meaning | Retry |
+|---|---|---|
+| **Sent** (`succeeded`) | The kernel confirmed every step. HID was written; this is not proof of the screen result. | — |
+| **Not sent** (`not_sent`) | Confirmed that nothing reached the phone. | Only this state may be retried, and only by a person. Group retry sends only to these phones. |
+| **Uncertain** (`uncertain`) | No reply, a failure or cancellation during execution, or partly complete. | Never retried. The phone is stopped or handed back. |
+
+- Results carry step progress. Text results carry characters confirmed / uncertain / not sent.
+- Migration `002_command_outcomes.sql` rebuilds the commands table; old rows map `rejected → not_sent` and everything else unsuccessful to `uncertain`.
+
+**Long text**
+- The whole text is validated before the first chunk.
+- Chunks run back to back in one queued operation under one lease, so other input waits and never interleaves.
+- Lease renewal keeps running throughout. This was tested on the real kernel source: a roughly 9 s send on a 2 s lease.
+- Stop interrupts the chunk in flight. Real kernel source: Stop returned promptly with 32 characters confirmed, 32 uncertain and 32 not sent, and no key-down followed Stop.
+
+**Isolation review**
+- Preview long-polls re-check ownership after waiting.
+- A controlling user's name is shown only within their own customer.
+- New tests: activity scoping, audit attribution, and a portal restart with no replay and no silent restore of control.
+
+**Validation support**
+- Agent single-instance lock, PID logging and Ctrl+Break handling.
+- Receiver fps and process stats.
+- A browser measurement panel with JSON export.
+- A PowerShell process sampler, which ran under PowerShell 7 on Linux (not yet under Windows PowerShell 5.1).
+- `npm run bootstrap-validation`.
+- Node 22.13 or newer required.
+
+**Unchanged:** kernel, desktop console, launch scripts, `KEYBOARD-SPEC.md`.
+
 ## Tests actually run (Linux container)
 
 The container ran Ubuntu 24.04, Node 22.22.2 and the .NET SDK 8.0.131.
 
 | Command | Result |
 |---|---|
-| `cd rack-agent && npm test` | **23 passed, 0 failed.** 15 simulator/unit tests and 8 real-kernel-source conformance tests. Run 3 times. |
-| `cd portal && npm test` | **31 passed, 0 failed.** Run 3 times at 30 tests; rerun at 31 after adding the malformed-path test. |
+| `cd rack-agent && npm test` | **33 passed, 0 failed** (23 simulator/unit and 10 real-kernel-source conformance). Run 3 times on 25 Sep. The first build had 23. |
+| `cd portal && npm test` | **38 passed, 0 failed.** Run 3 times on 25 Sep, and again after the final UI change. The first build had 31. |
 | Headless Chromium UI run (Playwright) | Login, overview, grid, focus, take control, tap, text, Stop, Resume, group control, group Home, activity, and staff pages; widths 1440 and 390. No page errors (one expected 401 before sign-in), no horizontal overflow at 390 px. The tap at the Notes icon produced `Tap at 75, 159` and opened Notes on the simulated phone. |
 
 The five required acceptance areas:
@@ -88,8 +125,8 @@ The five required acceptance areas:
 |---|---|
 | Customer A cannot access Customer B's devices, images, files or jobs | `portal/test/isolation.test.mjs`: 13 cross-customer endpoints return 404 and nothing reaches any phone; group retry across customers is refused; Stop all is scoped; roles, CSRF and Origin. *Files: the content library is Milestone 2; its isolation tests come with it.* |
 | Portal and desktop ownership conflicts | `safety.test.mjs` (both directions, teammate conflict, operator Stop); `conformance.test.mjs` (real kernel source) |
-| Stop, lease expiry and connection loss prevent stale input | `safety.test.mjs`: Stop cancels queued actions with zero input afterwards; stale-generation Resume is refused; lease expiry; network drop mid-action → `unknown`, lease released, nothing replayed, control not restored; uncertain outcome runs exactly once; revocation. Also in `agent-units` and `conformance`. |
-| Group failures preserve individual outcomes | `groups-previews.test.mjs`: 3-phone Home with one failure gives succeeded / failed / succeeded. A retry sends only to the failed phone, so each successful phone received Home exactly once. |
+| Stop, lease expiry and connection loss prevent stale input | `safety.test.mjs`: Stop cancels queued actions with zero input afterwards; stale-generation Resume is refused; lease expiry; network drop mid-action → `uncertain`, lease released, nothing replayed, control not restored; an unconfirmed action runs exactly once; portal restart; revocation. Also in `agent-units` and `conformance`. |
+| Group failures preserve individual outcomes | `groups-previews.test.mjs`: a 3-phone Home gives Sent / Not sent / Uncertain. The retry reaches only the Not-sent phone, so every phone received Home at most once. Group text keeps per-phone character progress, and a partly typed phone is never retried. |
 | Slow previews do not create an unlimited backlog | `groups-previews.test.mjs` (stalled viewer, one frame per tier, capped waiters); `agent-units` (backpressure drops with zero encoder queue; watch expiry) |
 
 ## Findings from the source that change behaviour
@@ -102,7 +139,7 @@ The five required acceptance areas:
 2. **Board enumeration can fail on its own.** `/config/usb/get` calls into USB enumeration on every request. The agent treats its failure as "board status unknown", not as a phone fault.
 3. **Stopping an idle phone also latches Stop.** The kernel creates the slot and marks it stopped, so every Stop needs an explicit Resume. The UI says so.
 4. **`/input/status` lists only input-enabled phones.** Phones missing from it show as "Controls unavailable".
-5. **Command HTTP timeout.** It must exceed the kernel's 8 s deadline, so the agent uses 12 s. A timeout is treated as *outcome unknown* and the phone is stopped.
+5. **Command HTTP timeout.** It must exceed the kernel's 8 s deadline, so the agent uses 12 s. A timeout is treated as *uncertain* and the phone is stopped.
 
 ## Known limitations
 
@@ -136,83 +173,13 @@ The five required acceptance areas:
 2. **Portal hosting (blocks customer launch).** Where the public portal runs (VM or provider), its domain, and backups for the database.
 3. **Staff sign-in hardening.** Whether to add TOTP MFA ourselves or use an identity provider.
 
-## Windows validation checklist for Codex
+## Windows validation
 
-Record everything in `analysis/portal-m1-windows-<date>/`: commit hash, kernel binary path and SHA-256, commands run, screenshots, and kernel `/input/status` snapshots. Use the ownership-enabled kernel (`input_protocol: 1`). Do not stop vendor services unless separately authorized.
-
-**A. Build and test on Windows**
-1. Confirm `node --version` is 22.5 or newer. Then run `cd rack-agent; npm ci; npm test` and `cd portal; npm ci; npm test`.
-2. Expect 23/23 and 31/31.
-3. If the conformance tests fail with HttpListener "Access is denied", rerun elevated or set `NT_HARNESS_PORT` to a port reserved with `netsh http add urlacl`. On Windows the harness enumerates real boards read-only; it never writes HID.
-
-**B. Local portal against the real kernel (no internet exposure yet)**
-1. In `portal`, run:
-   `$env:NT_INSECURE_DEV='1'; $env:NT_SESSION_SECRET='<48+ random chars>'; $env:NT_DB_PATH='data\winval.db'`
-   then `npm run create-staff -- staff@local.test "Staff"`, then `npm start` (serves http://127.0.0.1:8080).
-2. As staff:
-   - create a rack credential and save it to a file;
-   - create customer "Validation A" (plan 10) with an admin user, and customer "Validation B" (plan 1) with an admin user.
-3. In `rack-agent`, run:
-   `$env:NT_PORTAL_URL='ws://127.0.0.1:8080/agent'; $env:NT_AGENT_CREDENTIAL_FILE='<file>'; npm start`
-   The log must show "Connected to portal", no SIMULATOR warning, and no "Input disabled".
-4. Staff → Racks: rack is Connected and the kernel shows "Compatible". Staff → Phones: C24C and C241 appear as Unverified with the correct board, and video Live.
-
-**C. Assignment and isolation**
-1. Mark C24C and C241 In service. Assign C24C to Validation A and C241 to Validation B.
-2. Sign in as A: only one phone is listed. Paste C241's phone URL (copy it from B's session): the page says "Phone not found".
-
-**D. Preview**
-1. The grid tile updates at about 1 fps.
-2. The focused view shows Live, with its fps and frame age. Record fps while scrolling Settings on the phone.
-3. Record rack PC CPU usage, and the Staff → Racks encode ms, sent and dropped counters.
-
-**E. Control and actions on C24C.** Before each action, write down the expected visible effect.
-1. Take control. The kernel `/input/status` shows `owned:true`.
-2. Home: returns to the first Home Screen.
-3. Click the Search pill (about 250,900): Spotlight opens.
-4. Type `hello2026` exactly, then press Delete ×4: `hello` remains.
-5. Drag left, then right, on the Home Screen: the page changes each time.
-6. Hold on an app icon for about 1 s: the context menu appears. Release: no double-click and no stuck button.
-7. App switcher, then Home. Control Centre, then Home.
-8. Reset pointer.
-9. Record the latency from click to the first visible change for 20 taps, using the phone's own video.
-
-**F. Desktop conflict**
-1. While the portal controls C24C, try the ownership console on C24C: it must be refused or shown as owned.
-2. Release in the portal, then take control in the console. The portal must show "In use by NodeTheory", and its Take control must be refused.
-
-**G. Stop.** Start a 3-second long press, then Stop within 1 s.
-1. The press releases on the phone.
-2. The phone shows Stopped. The kernel shows `stopped:true`.
-3. The next tap is refused.
-4. Resume, then take control, then tap: it works.
-5. Record the time from Stop to the visible release.
-
-**H. Lease expiry.** While in control, kill the agent's `node.exe` in Task Manager.
-1. Within 30 s the kernel shows `stopped:true`, "Controller lease expired".
-2. The portal shows the rack offline.
-3. Restart the agent. The phone shows Stopped and needs Resume. No input is replayed (check the phone and the kernel console log).
-
-**I. Connection loss.** While in control, stop the portal process.
-1. The agent logs "releasing all phones". The kernel shows `owned:false` within about 1 s.
-2. Restart the portal. Nothing is replayed, and control must be taken again explicitly.
-
-**J. Group** (assign both phones to A for this step).
-1. Group take control, group Home, group text `ok`.
-2. Force a failure on one phone, for example by unplugging C241's USB board for this step only if authorized, or by stopping C241 from the console mid-action.
-3. The results show individual outcomes. **Retry** targets only the failed phone, and the successful phone's screen shows no second action.
-
-**K. Video down, control up.** Stop Screen Mirroring on C241.
-1. The portal shows Video unavailable, and Control keeps working (Home is visible after recasting).
-2. Recast to `iMouse2-C241`: Live again, in the same session.
-
-**L. Emergency stop.** Hold C24C in the ownership console, and C241 in the portal. Staff emergency stop (type STOP) stops both. Both need Resume.
-
-**M. Revocation.** Revoke the rack credential. The agent logs HTTP 401 and cannot reconnect. The portal shows the rack offline.
-
-**N. Record any mismatch between these steps and the tests above.** A failed step blocks exposing the portal on the internet.
-
-Only after A–N pass: put the portal behind HTTPS (see `portal/README.md`), point the agent at `wss://…/agent`, and repeat C, E, G and I over the internet.
+The checklist originally in this section has been replaced by [WINDOWS-VALIDATION-HANDOFF.md](WINDOWS-VALIDATION-HANDOFF.md). That document covers:
+- the exact commit, prerequisites, commands, configuration and rollback;
+- separate simulator and real-rack steps;
+- a staged checklist: one phone, then two phones and two customers;
+- the measurement methods.
 
 ## Next milestones (proposed)
 

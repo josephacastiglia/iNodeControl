@@ -12,7 +12,7 @@ The build and launch notes below describe earlier project stages.
 **Customer portal (in development):** the internet-facing NodeTheory portal and the rack
 agent that connects it to this kernel live in [`portal/`](portal/README.md) and
 [`rack-agent/`](rack-agent/README.md). Status, evidence level and the Windows validation
-checklist: [Portal milestone 1](PORTAL-MILESTONE-1.md).
+checklist: [Portal milestone 1](PORTAL-MILESTONE-1.md) and [Windows validation handoff](WINDOWS-VALIDATION-HANDOFF.md).
 
 ## Working console: `console/`
 
