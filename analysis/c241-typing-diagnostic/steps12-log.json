@@ -1,0 +1,70 @@
+[
+  {
+    "fun": "/key/sendkey",
+    "id": "FE:A9:BC:D7:A0:44",
+    "payload": {
+      "fn_key": "Home"
+    },
+    "ms": 294.0,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/mouse/click",
+    "id": "FE:A9:BC:D7:A0:44",
+    "payload": {
+      "x": 250,
+      "y": 900,
+      "button": 1
+    },
+    "ms": 1053.9,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/key/sendkey",
+    "id": "FE:A9:BC:D7:A0:44",
+    "payload": {
+      "key": "hello"
+    },
+    "ms": 725.4,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  }
+]

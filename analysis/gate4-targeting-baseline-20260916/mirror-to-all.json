@@ -1,0 +1,14 @@
+{
+  "captured": "UIA immediately before minimize and input",
+  "uia_window": "iMouse 2.0 \u2014 iPhone Console",
+  "console_pid": 34852,
+  "SelectAllBox": {
+    "name": "Mirror the master's actions to every phone",
+    "toggleState": "Off"
+  },
+  "SelectAllLabel": "Mirror to all",
+  "follower_C24C": "Off",
+  "follower_C241": "Off",
+  "totals": "2 phones  \u00b7  2 mirroring  \u00b7  2 controllable  \u00b7  19 boards (2 with a phone)",
+  "dispatch": "single-id kernel API"
+}

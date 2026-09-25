@@ -1,0 +1,68 @@
+﻿{
+    "schema":  1,
+    "at":  "2026-09-24T01:01:35.0520505-04:00",
+    "host":  "JOEYDESKTOP",
+    "check_only":  false,
+    "applied":  false,
+    "vendor_root":  "C:\\iMouseXP",
+    "vendor_root_exists":  true,
+    "protected_vid":  "720A",
+    "services":  [
+                     {
+                         "name":  "iMouseService",
+                         "display_name":  "iMouse内核服务",
+                         "image_path":  "C:\\iMouseXP\\IMService.exe",
+                         "status":  "Running",
+                         "start_mode":  "Auto",
+                         "start_dword":  2,
+                         "start_name":  "LocalSystem",
+                         "process_id":  2740,
+                         "service_type":  16,
+                         "protected":  false,
+                         "disable":  true
+                     }
+                 ],
+    "startup_entries":  [
+
+                        ],
+    "startup_keys_scanned":  [
+                                 "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                                 "HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run",
+                                 "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                                 "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                                 "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                                 "HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+                             ],
+    "processes_seen":  [
+                           {
+                               "name":  "IMService.exe",
+                               "pid":  2740,
+                               "path":  "C:\\iMouseXP\\IMService.exe"
+                           },
+                           {
+                               "name":  "mDNSResponder.exe",
+                               "pid":  12772,
+                               "path":  "C:\\iMouseXP\\mDNSResponder.exe"
+                           },
+                           {
+                               "name":  "IMService.exe",
+                               "pid":  13176,
+                               "path":  "C:\\iMouseXP\\IMService.exe"
+                           },
+                           {
+                               "name":  "AirplayMirroring.exe",
+                               "pid":  23916,
+                               "path":  "C:\\iMouseXP\\x64\\AirplayMirroring.exe"
+                           }
+                       ],
+    "protected_skipped":  [
+                              {
+                                  "name":  "HidUsb",
+                                  "start_dword":  3,
+                                  "reason":  "WCH VID_720A board driver; never disable"
+                              }
+                          ],
+    "integrity":  {
+                      "sha256":  "4F25AABD224A2A29CF3B0CBC71A4DA085C564D61BE41208DB150BC392D9149BB"
+                  }
+}

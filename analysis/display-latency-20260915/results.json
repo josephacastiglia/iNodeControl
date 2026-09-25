@@ -1,0 +1,1827 @@
+{
+  "fps": [
+    {
+      "master": "C24C",
+      "selected": "XR C24C",
+      "duration_s": 18.29,
+      "received": {
+        "86:1D:4A:04:2F:F6": {
+          "name": "iMouse2-C24C",
+          "received_fps": 20.29,
+          "delta": 371,
+          "restarts": 0
+        },
+        "FE:A9:BC:D7:A0:44": {
+          "name": "iMouse2-C241",
+          "received_fps": 17.94,
+          "delta": 328,
+          "restarts": 1
+        }
+      },
+      "displayed_mean": 20.37,
+      "displayed_min": 19.8,
+      "displayed_max": 21.0,
+      "p50_ms": [
+        38,
+        38,
+        38,
+        38,
+        38,
+        38,
+        38,
+        38,
+        39,
+        39,
+        39,
+        39,
+        39
+      ],
+      "p95_ms": [
+        70,
+        69,
+        70,
+        70,
+        71,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72
+      ],
+      "reads": [
+        {
+          "t": 0.31,
+          "displayed_fps": 20.3,
+          "p50_ms": 38,
+          "p95_ms": 70,
+          "slow": 15,
+          "raw": "Live \u00b7 20.3 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 38/70 ms p50/p95 \u00b7 15 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 1.72,
+          "displayed_fps": 21.0,
+          "p50_ms": 38,
+          "p95_ms": 69,
+          "slow": 30,
+          "raw": "Live \u00b7 21 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 38/69 ms p50/p95 \u00b7 30 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 3.12,
+          "displayed_fps": 21.0,
+          "p50_ms": 38,
+          "p95_ms": 70,
+          "slow": 42,
+          "raw": "Live \u00b7 21 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 38/70 ms p50/p95 \u00b7 42 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 4.54,
+          "displayed_fps": 19.8,
+          "p50_ms": 38,
+          "p95_ms": 70,
+          "slow": 58,
+          "raw": "Live \u00b7 19.8 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 38/70 ms p50/p95 \u00b7 58 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 5.95,
+          "displayed_fps": 20.6,
+          "p50_ms": 38,
+          "p95_ms": 71,
+          "slow": 69,
+          "raw": "Live \u00b7 20.6 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 38/71 ms p50/p95 \u00b7 69 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 7.35,
+          "displayed_fps": 20.7,
+          "p50_ms": 38,
+          "p95_ms": 72,
+          "slow": 85,
+          "raw": "Live \u00b7 20.7 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 38/72 ms p50/p95 \u00b7 85 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 8.76,
+          "displayed_fps": 20.2,
+          "p50_ms": 38,
+          "p95_ms": 72,
+          "slow": 101,
+          "raw": "Live \u00b7 20.2 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 38/72 ms p50/p95 \u00b7 101 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 10.16,
+          "displayed_fps": 20.0,
+          "p50_ms": 38,
+          "p95_ms": 72,
+          "slow": 113,
+          "raw": "Live \u00b7 20 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 38/72 ms p50/p95 \u00b7 113 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 11.57,
+          "displayed_fps": 20.0,
+          "p50_ms": 39,
+          "p95_ms": 72,
+          "slow": 118,
+          "raw": "Live \u00b7 20 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 39/72 ms p50/p95 \u00b7 118 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 12.97,
+          "displayed_fps": 20.0,
+          "p50_ms": 39,
+          "p95_ms": 72,
+          "slow": 118,
+          "raw": "Live \u00b7 20 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 39/72 ms p50/p95 \u00b7 118 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 14.38,
+          "displayed_fps": 20.5,
+          "p50_ms": 39,
+          "p95_ms": 72,
+          "slow": 119,
+          "raw": "Live \u00b7 20.5 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 39/72 ms p50/p95 \u00b7 119 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 15.79,
+          "displayed_fps": 20.0,
+          "p50_ms": 39,
+          "p95_ms": 72,
+          "slow": 119,
+          "raw": "Live \u00b7 20 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 39/72 ms p50/p95 \u00b7 119 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 17.18,
+          "displayed_fps": 20.7,
+          "p50_ms": 39,
+          "p95_ms": 72,
+          "slow": 118,
+          "raw": "Live \u00b7 20.7 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 39/72 ms p50/p95 \u00b7 118 slow",
+          "selected": "XR C24C"
+        }
+      ]
+    },
+    {
+      "master": "C241",
+      "selected": "Phone in hand - C241",
+      "duration_s": 18.22,
+      "received": {
+        "86:1D:4A:04:2F:F6": {
+          "name": "iMouse2-C24C",
+          "received_fps": 20.03,
+          "delta": 365,
+          "restarts": 0
+        },
+        "FE:A9:BC:D7:A0:44": {
+          "name": "iMouse2-C241",
+          "received_fps": 12.62,
+          "delta": 230,
+          "restarts": 1
+        }
+      },
+      "displayed_mean": 15.48,
+      "displayed_min": 3.5,
+      "displayed_max": 23.6,
+      "p50_ms": [
+        35,
+        35,
+        35,
+        35,
+        36,
+        36,
+        37,
+        37,
+        36,
+        36,
+        36,
+        36,
+        36
+      ],
+      "p95_ms": [
+        71,
+        71,
+        675,
+        675,
+        72,
+        72,
+        71,
+        71,
+        71,
+        71,
+        71,
+        71,
+        71
+      ],
+      "reads": [
+        {
+          "t": 0.29,
+          "displayed_fps": 20.6,
+          "p50_ms": 35,
+          "p95_ms": 71,
+          "slow": 11,
+          "raw": "Live \u00b7 20.6 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 35/71 ms p50/p95 \u00b7 11 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 1.7,
+          "displayed_fps": 20.6,
+          "p50_ms": 35,
+          "p95_ms": 71,
+          "slow": 11,
+          "raw": "Live \u00b7 20.6 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 35/71 ms p50/p95 \u00b7 11 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 3.1,
+          "displayed_fps": 12.1,
+          "p50_ms": 35,
+          "p95_ms": 675,
+          "slow": 18,
+          "raw": "Live \u00b7 12.1 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 35/675 ms p50/p95 \u00b7 18 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 4.51,
+          "displayed_fps": 12.1,
+          "p50_ms": 35,
+          "p95_ms": 675,
+          "slow": 18,
+          "raw": "Live \u00b7 12.1 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 35/675 ms p50/p95 \u00b7 18 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 5.91,
+          "displayed_fps": 20.6,
+          "p50_ms": 36,
+          "p95_ms": 72,
+          "slow": 34,
+          "raw": "Live \u00b7 20.6 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 36/72 ms p50/p95 \u00b7 34 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 7.31,
+          "displayed_fps": 20.0,
+          "p50_ms": 36,
+          "p95_ms": 72,
+          "slow": 46,
+          "raw": "Live \u00b7 20 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 36/72 ms p50/p95 \u00b7 46 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 8.72,
+          "displayed_fps": 20.0,
+          "p50_ms": 37,
+          "p95_ms": 71,
+          "slow": 62,
+          "raw": "Live \u00b7 20 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 37/71 ms p50/p95 \u00b7 62 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 10.11,
+          "displayed_fps": 20.0,
+          "p50_ms": 37,
+          "p95_ms": 71,
+          "slow": 62,
+          "raw": "Live \u00b7 20 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 37/71 ms p50/p95 \u00b7 62 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 11.5,
+          "displayed_fps": 4.5,
+          "p50_ms": 36,
+          "p95_ms": 71,
+          "slow": 65,
+          "raw": "Live \u00b7 4.5 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 36/71 ms p50/p95 \u00b7 65 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 12.9,
+          "displayed_fps": 3.5,
+          "p50_ms": 36,
+          "p95_ms": 71,
+          "slow": 68,
+          "raw": "Live \u00b7 3.5 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 36/71 ms p50/p95 \u00b7 68 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 14.3,
+          "displayed_fps": 3.5,
+          "p50_ms": 36,
+          "p95_ms": 71,
+          "slow": 68,
+          "raw": "Live \u00b7 3.5 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 36/71 ms p50/p95 \u00b7 68 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 15.71,
+          "displayed_fps": 23.6,
+          "p50_ms": 36,
+          "p95_ms": 71,
+          "slow": 79,
+          "raw": "Live \u00b7 23.6 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 36/71 ms p50/p95 \u00b7 79 slow",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 17.11,
+          "displayed_fps": 20.2,
+          "p50_ms": 36,
+          "p95_ms": 71,
+          "slow": 95,
+          "raw": "Live \u00b7 20.2 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 36/71 ms p50/p95 \u00b7 95 slow",
+          "selected": "Phone in hand - C241"
+        }
+      ]
+    }
+  ],
+  "input": [
+    {
+      "phone": "C24C",
+      "kind": "search",
+      "n": 1,
+      "api_ms": 2998.8,
+      "first_visible_ms": 3159.4,
+      "settled_ms": 3394.6,
+      "other_mad": 0.02,
+      "poll_count": 142,
+      "polls": [
+        {
+          "ms": 7.8,
+          "fetch_ms": 1.6,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 18.0,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 27.4,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 58.0,
+          "fetch_ms": 22.5,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 88.3,
+          "fetch_ms": 21.6,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 120.1,
+          "fetch_ms": 23.4,
+          "mad_from_start": 0.02,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 129.9,
+          "fetch_ms": 1.1,
+          "mad_from_start": 0.02,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 151.7,
+          "fetch_ms": 13.9,
+          "mad_from_start": 0.02,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 182.7,
+          "fetch_ms": 22.6,
+          "mad_from_start": 0.02,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 214.3,
+          "fetch_ms": 22.2,
+          "mad_from_start": 0.03,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 224.2,
+          "fetch_ms": 1.1,
+          "mad_from_start": 0.03,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 259.4,
+          "fetch_ms": 25.5,
+          "mad_from_start": 0.03,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 290.6,
+          "fetch_ms": 22.7,
+          "mad_from_start": 0.04,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 324.4,
+          "fetch_ms": 25.5,
+          "mad_from_start": 0.04,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 351.7,
+          "fetch_ms": 17.6,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 383.1,
+          "fetch_ms": 23.0,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 392.6,
+          "fetch_ms": 1.1,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 414.7,
+          "fetch_ms": 13.0,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 461.0,
+          "fetch_ms": 38.0,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.03
+        },
+        {
+          "ms": 492.2,
+          "fetch_ms": 22.7,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.03
+        },
+        {
+          "ms": 501.8,
+          "fetch_ms": 1.2,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 523.4,
+          "fetch_ms": 12.8,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 555.1,
+          "fetch_ms": 22.9,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.03
+        },
+        {
+          "ms": 587.0,
+          "fetch_ms": 23.5,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 617.5,
+          "fetch_ms": 22.4,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 627.0,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 664.2,
+          "fetch_ms": 28.9,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 695.9,
+          "fetch_ms": 23.6,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 727.9,
+          "fetch_ms": 23.6,
+          "mad_from_start": 0.08,
+          "mad_from_prev": 0.03
+        },
+        {
+          "ms": 759.3,
+          "fetch_ms": 22.9,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.05
+        },
+        {
+          "ms": 769.2,
+          "fetch_ms": 1.2,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 791.6,
+          "fetch_ms": 14.1,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.1
+        },
+        {
+          "ms": 801.6,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 812.5,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 828.0,
+          "fetch_ms": 1.6,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.09
+        },
+        {
+          "ms": 854.2,
+          "fetch_ms": 16.5,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.08
+        },
+        {
+          "ms": 864.3,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 885.0,
+          "fetch_ms": 12.2,
+          "mad_from_start": 0.13,
+          "mad_from_prev": 0.09
+        },
+        {
+          "ms": 900.1,
+          "fetch_ms": 6.5,
+          "mad_from_start": 0.13,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 932.0,
+          "fetch_ms": 23.1,
+          "mad_from_start": 0.13,
+          "mad_from_prev": 0.09
+        }
+      ],
+      "last_mad": 77.78
+    },
+    {
+      "phone": "C24C",
+      "kind": "home",
+      "n": 1,
+      "api_ms": 356.5,
+      "first_visible_ms": 403.4,
+      "settled_ms": 583.7,
+      "other_mad": 0.04,
+      "poll_count": 33,
+      "polls": [
+        {
+          "ms": 1.2,
+          "fetch_ms": 1.1,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 31.9,
+          "fetch_ms": 22.1,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 42.0,
+          "fetch_ms": 1.7,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 63.6,
+          "fetch_ms": 13.3,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 72.8,
+          "fetch_ms": 1.0,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 93.8,
+          "fetch_ms": 12.4,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 125.7,
+          "fetch_ms": 23.6,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 156.9,
+          "fetch_ms": 22.5,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 188.8,
+          "fetch_ms": 23.4,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 202.4,
+          "fetch_ms": 5.3,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 233.6,
+          "fetch_ms": 20.9,
+          "mad_from_start": 0.47,
+          "mad_from_prev": 0.47
+        },
+        {
+          "ms": 264.2,
+          "fetch_ms": 21.7,
+          "mad_from_start": 0.47,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 295.2,
+          "fetch_ms": 22.0,
+          "mad_from_start": 0.47,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 327.0,
+          "fetch_ms": 22.4,
+          "mad_from_start": 0.52,
+          "mad_from_prev": 0.76
+        },
+        {
+          "ms": 337.4,
+          "fetch_ms": 1.7,
+          "mad_from_start": 0.52,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 372.2,
+          "fetch_ms": 25.9,
+          "mad_from_start": 0.52,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 403.4,
+          "fetch_ms": 22.3,
+          "mad_from_start": 19.07,
+          "mad_from_prev": 18.93
+        },
+        {
+          "ms": 435.0,
+          "fetch_ms": 21.6,
+          "mad_from_start": 31.28,
+          "mad_from_prev": 15.35
+        },
+        {
+          "ms": 466.4,
+          "fetch_ms": 21.8,
+          "mad_from_start": 42.85,
+          "mad_from_prev": 14.2
+        },
+        {
+          "ms": 499.5,
+          "fetch_ms": 19.4,
+          "mad_from_start": 53.95,
+          "mad_from_prev": 13.67
+        },
+        {
+          "ms": 529.8,
+          "fetch_ms": 19.3,
+          "mad_from_start": 63.0,
+          "mad_from_prev": 12.15
+        },
+        {
+          "ms": 561.1,
+          "fetch_ms": 21.5,
+          "mad_from_start": 69.45,
+          "mad_from_prev": 9.72
+        },
+        {
+          "ms": 572.4,
+          "fetch_ms": 1.4,
+          "mad_from_start": 69.45,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 583.7,
+          "fetch_ms": 1.2,
+          "mad_from_start": 69.45,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 594.4,
+          "fetch_ms": 1.5,
+          "mad_from_start": 74.0,
+          "mad_from_prev": 8.16
+        },
+        {
+          "ms": 623.5,
+          "fetch_ms": 19.4,
+          "mad_from_start": 74.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 654.2,
+          "fetch_ms": 21.6,
+          "mad_from_start": 76.78,
+          "mad_from_prev": 6.05
+        },
+        {
+          "ms": 685.6,
+          "fetch_ms": 22.1,
+          "mad_from_start": 77.91,
+          "mad_from_prev": 3.56
+        },
+        {
+          "ms": 716.2,
+          "fetch_ms": 21.0,
+          "mad_from_start": 77.93,
+          "mad_from_prev": 0.29
+        },
+        {
+          "ms": 746.3,
+          "fetch_ms": 19.3,
+          "mad_from_start": 77.93,
+          "mad_from_prev": 0.08
+        },
+        {
+          "ms": 756.8,
+          "fetch_ms": 1.2,
+          "mad_from_start": 77.93,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 778.1,
+          "fetch_ms": 12.4,
+          "mad_from_start": 77.93,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 808.9,
+          "fetch_ms": 21.8,
+          "mad_from_start": 77.93,
+          "mad_from_prev": 0.01
+        }
+      ],
+      "last_mad": 77.93
+    },
+    {
+      "phone": "C24C",
+      "kind": "swipe",
+      "n": 1,
+      "api_ms": 3040.7,
+      "first_visible_ms": 2043.1,
+      "settled_ms": 2195.6,
+      "other_mad": 0.04,
+      "poll_count": 155,
+      "polls": [
+        {
+          "ms": 1.2,
+          "fetch_ms": 1.0,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 31.8,
+          "fetch_ms": 22.2,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 42.6,
+          "fetch_ms": 1.7,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 52.7,
+          "fetch_ms": 1.6,
+          "mad_from_start": 0.08,
+          "mad_from_prev": 0.07
+        },
+        {
+          "ms": 76.6,
+          "fetch_ms": 15.0,
+          "mad_from_start": 0.08,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 107.6,
+          "fetch_ms": 22.1,
+          "mad_from_start": 0.08,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 117.9,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.08,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 127.2,
+          "fetch_ms": 1.1,
+          "mad_from_start": 0.08,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 154.9,
+          "fetch_ms": 19.1,
+          "mad_from_start": 0.09,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 186.6,
+          "fetch_ms": 22.7,
+          "mad_from_start": 0.08,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 217.6,
+          "fetch_ms": 22.3,
+          "mad_from_start": 0.09,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 232.9,
+          "fetch_ms": 6.6,
+          "mad_from_start": 0.09,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 242.9,
+          "fetch_ms": 1.5,
+          "mad_from_start": 0.09,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 253.9,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.09,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 294.9,
+          "fetch_ms": 32.7,
+          "mad_from_start": 0.09,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 305.4,
+          "fetch_ms": 1.6,
+          "mad_from_start": 0.09,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 326.2,
+          "fetch_ms": 11.8,
+          "mad_from_start": 0.1,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 358.0,
+          "fetch_ms": 22.9,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.04
+        },
+        {
+          "ms": 367.4,
+          "fetch_ms": 1.1,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 377.1,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 387.3,
+          "fetch_ms": 1.5,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.05
+        },
+        {
+          "ms": 419.3,
+          "fetch_ms": 23.5,
+          "mad_from_start": 0.13,
+          "mad_from_prev": 0.05
+        },
+        {
+          "ms": 449.4,
+          "fetch_ms": 21.6,
+          "mad_from_start": 0.13,
+          "mad_from_prev": 0.09
+        },
+        {
+          "ms": 462.9,
+          "fetch_ms": 4.9,
+          "mad_from_start": 0.13,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 472.8,
+          "fetch_ms": 1.2,
+          "mad_from_start": 0.13,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 496.1,
+          "fetch_ms": 14.5,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.04
+        },
+        {
+          "ms": 528.7,
+          "fetch_ms": 23.8,
+          "mad_from_start": 0.1,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 560.1,
+          "fetch_ms": 22.5,
+          "mad_from_start": 0.1,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 590.5,
+          "fetch_ms": 21.9,
+          "mad_from_start": 0.1,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 621.7,
+          "fetch_ms": 22.0,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 631.5,
+          "fetch_ms": 1.1,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 653.1,
+          "fetch_ms": 13.3,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 663.1,
+          "fetch_ms": 1.2,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 699.9,
+          "fetch_ms": 26.6,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 731.3,
+          "fetch_ms": 22.6,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 763.4,
+          "fetch_ms": 23.4,
+          "mad_from_start": 0.13,
+          "mad_from_prev": 0.03
+        },
+        {
+          "ms": 773.2,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.13,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 794.6,
+          "fetch_ms": 12.6,
+          "mad_from_start": 0.16,
+          "mad_from_prev": 0.06
+        },
+        {
+          "ms": 826.7,
+          "fetch_ms": 23.3,
+          "mad_from_start": 0.19,
+          "mad_from_prev": 0.07
+        },
+        {
+          "ms": 857.7,
+          "fetch_ms": 21.7,
+          "mad_from_start": 0.18,
+          "mad_from_prev": 0.12
+        }
+      ],
+      "last_mad": 31.2
+    },
+    {
+      "phone": "C241",
+      "kind": "search",
+      "n": 1,
+      "api_ms": 3013.5,
+      "first_visible_ms": null,
+      "settled_ms": null,
+      "other_mad": 0.04,
+      "poll_count": 155,
+      "polls": [
+        {
+          "ms": 1.5,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 31.9,
+          "fetch_ms": 22.1,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 63.5,
+          "fetch_ms": 22.5,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 96.4,
+          "fetch_ms": 24.6,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 126.1,
+          "fetch_ms": 21.2,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 156.7,
+          "fetch_ms": 21.6,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 187.9,
+          "fetch_ms": 21.8,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 198.0,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 219.0,
+          "fetch_ms": 12.3,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 229.3,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 240.4,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.02,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 264.4,
+          "fetch_ms": 15.9,
+          "mad_from_start": 0.02,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 296.6,
+          "fetch_ms": 23.1,
+          "mad_from_start": 0.02,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 327.8,
+          "fetch_ms": 22.1,
+          "mad_from_start": 0.02,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 358.7,
+          "fetch_ms": 21.8,
+          "mad_from_start": 0.02,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 389.8,
+          "fetch_ms": 22.3,
+          "mad_from_start": 0.03,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 400.4,
+          "fetch_ms": 1.9,
+          "mad_from_start": 0.03,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 420.7,
+          "fetch_ms": 11.5,
+          "mad_from_start": 0.03,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 452.2,
+          "fetch_ms": 23.0,
+          "mad_from_start": 0.03,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 481.9,
+          "fetch_ms": 21.2,
+          "mad_from_start": 0.04,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 513.8,
+          "fetch_ms": 23.1,
+          "mad_from_start": 0.04,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 545.7,
+          "fetch_ms": 22.7,
+          "mad_from_start": 0.03,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 577.2,
+          "fetch_ms": 22.3,
+          "mad_from_start": 0.04,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 607.8,
+          "fetch_ms": 20.8,
+          "mad_from_start": 0.04,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 623.7,
+          "fetch_ms": 7.2,
+          "mad_from_start": 0.04,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 655.1,
+          "fetch_ms": 23.0,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 665.5,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 675.6,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 685.2,
+          "fetch_ms": 1.2,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 718.5,
+          "fetch_ms": 25.0,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 728.6,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.05,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 739.2,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.09,
+          "mad_from_prev": 0.05
+        },
+        {
+          "ms": 766.1,
+          "fetch_ms": 18.5,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.06
+        },
+        {
+          "ms": 776.0,
+          "fetch_ms": 1.2,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 796.8,
+          "fetch_ms": 12.3,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 811.9,
+          "fetch_ms": 6.6,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.08
+        },
+        {
+          "ms": 843.2,
+          "fetch_ms": 22.5,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.09
+        },
+        {
+          "ms": 874.5,
+          "fetch_ms": 22.6,
+          "mad_from_start": 0.11,
+          "mad_from_prev": 0.08
+        },
+        {
+          "ms": 905.8,
+          "fetch_ms": 22.6,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.11
+        },
+        {
+          "ms": 920.4,
+          "fetch_ms": 4.7,
+          "mad_from_start": 0.12,
+          "mad_from_prev": 0.0
+        }
+      ],
+      "last_mad": 0.09
+    },
+    {
+      "phone": "C241",
+      "kind": "home",
+      "n": 1,
+      "api_ms": 339.7,
+      "first_visible_ms": 433.2,
+      "settled_ms": 631.9,
+      "other_mad": 0.04,
+      "poll_count": 42,
+      "polls": [
+        {
+          "ms": 1.6,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 29.1,
+          "fetch_ms": 18.8,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 38.9,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 48.6,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 58.1,
+          "fetch_ms": 1.0,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 68.1,
+          "fetch_ms": 1.3,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 78.7,
+          "fetch_ms": 1.8,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 107.4,
+          "fetch_ms": 20.2,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 138.2,
+          "fetch_ms": 22.4,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 168.9,
+          "fetch_ms": 21.9,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 200.1,
+          "fetch_ms": 22.5,
+          "mad_from_start": 0.01,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 231.6,
+          "fetch_ms": 22.7,
+          "mad_from_start": 1.41,
+          "mad_from_prev": 1.4
+        },
+        {
+          "ms": 261.1,
+          "fetch_ms": 20.6,
+          "mad_from_start": 1.41,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 273.4,
+          "fetch_ms": 1.3,
+          "mad_from_start": 1.41,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 283.6,
+          "fetch_ms": 1.2,
+          "mad_from_start": 1.41,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 309.7,
+          "fetch_ms": 17.5,
+          "mad_from_start": 0.47,
+          "mad_from_prev": 1.53
+        },
+        {
+          "ms": 319.9,
+          "fetch_ms": 1.5,
+          "mad_from_start": 0.47,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 340.8,
+          "fetch_ms": 12.2,
+          "mad_from_start": 4.18,
+          "mad_from_prev": 4.04
+        },
+        {
+          "ms": 351.3,
+          "fetch_ms": 1.1,
+          "mad_from_start": 4.18,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 361.5,
+          "fetch_ms": 1.3,
+          "mad_from_start": 4.18,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 387.1,
+          "fetch_ms": 14.5,
+          "mad_from_start": 11.78,
+          "mad_from_prev": 10.5
+        },
+        {
+          "ms": 398.4,
+          "fetch_ms": 1.5,
+          "mad_from_start": 11.78,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 433.2,
+          "fetch_ms": 25.5,
+          "mad_from_start": 19.33,
+          "mad_from_prev": 10.99
+        },
+        {
+          "ms": 464.5,
+          "fetch_ms": 21.3,
+          "mad_from_start": 25.83,
+          "mad_from_prev": 9.53
+        },
+        {
+          "ms": 495.8,
+          "fetch_ms": 19.6,
+          "mad_from_start": 31.64,
+          "mad_from_prev": 9.48
+        },
+        {
+          "ms": 526.1,
+          "fetch_ms": 20.6,
+          "mad_from_start": 36.97,
+          "mad_from_prev": 9.08
+        },
+        {
+          "ms": 536.7,
+          "fetch_ms": 1.3,
+          "mad_from_start": 36.97,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 557.9,
+          "fetch_ms": 11.5,
+          "mad_from_start": 41.55,
+          "mad_from_prev": 8.12
+        },
+        {
+          "ms": 588.6,
+          "fetch_ms": 20.8,
+          "mad_from_start": 45.41,
+          "mad_from_prev": 7.29
+        },
+        {
+          "ms": 600.8,
+          "fetch_ms": 1.3,
+          "mad_from_start": 45.41,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 611.7,
+          "fetch_ms": 1.3,
+          "mad_from_start": 48.09,
+          "mad_from_prev": 5.67
+        },
+        {
+          "ms": 622.2,
+          "fetch_ms": 1.1,
+          "mad_from_start": 48.09,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 631.9,
+          "fetch_ms": 1.0,
+          "mad_from_start": 48.09,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 642.0,
+          "fetch_ms": 1.2,
+          "mad_from_start": 48.09,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 666.6,
+          "fetch_ms": 13.8,
+          "mad_from_start": 49.76,
+          "mad_from_prev": 4.04
+        },
+        {
+          "ms": 697.5,
+          "fetch_ms": 20.7,
+          "mad_from_start": 49.77,
+          "mad_from_prev": 0.28
+        },
+        {
+          "ms": 708.9,
+          "fetch_ms": 1.2,
+          "mad_from_start": 49.77,
+          "mad_from_prev": 0.07
+        },
+        {
+          "ms": 728.7,
+          "fetch_ms": 10.7,
+          "mad_from_start": 49.77,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 759.9,
+          "fetch_ms": 21.7,
+          "mad_from_start": 49.77,
+          "mad_from_prev": 0.03
+        },
+        {
+          "ms": 770.7,
+          "fetch_ms": 1.2,
+          "mad_from_start": 49.77,
+          "mad_from_prev": 0.03
+        }
+      ],
+      "last_mad": 49.77
+    },
+    {
+      "phone": "C241",
+      "kind": "swipe",
+      "n": 1,
+      "api_ms": 3063.5,
+      "first_visible_ms": 3368.5,
+      "settled_ms": 3492.3,
+      "other_mad": 0.03,
+      "poll_count": 144,
+      "polls": [
+        {
+          "ms": 1.4,
+          "fetch_ms": 1.2,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 28.3,
+          "fetch_ms": 18.0,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 54.1,
+          "fetch_ms": 17.7,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 85.0,
+          "fetch_ms": 22.9,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 115.8,
+          "fetch_ms": 22.8,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 146.1,
+          "fetch_ms": 22.3,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 177.2,
+          "fetch_ms": 23.1,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 207.7,
+          "fetch_ms": 22.2,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 238.5,
+          "fetch_ms": 22.8,
+          "mad_from_start": 0.0,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 268.2,
+          "fetch_ms": 20.7,
+          "mad_from_start": 0.61,
+          "mad_from_prev": 0.61
+        },
+        {
+          "ms": 298.6,
+          "fetch_ms": 21.7,
+          "mad_from_start": 0.61,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 330.0,
+          "fetch_ms": 23.0,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 361.6,
+          "fetch_ms": 23.3,
+          "mad_from_start": 0.63,
+          "mad_from_prev": 0.03
+        },
+        {
+          "ms": 371.6,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.63,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 393.6,
+          "fetch_ms": 14.0,
+          "mad_from_start": 0.64,
+          "mad_from_prev": 0.06
+        },
+        {
+          "ms": 408.9,
+          "fetch_ms": 6.6,
+          "mad_from_start": 0.64,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 439.1,
+          "fetch_ms": 21.7,
+          "mad_from_start": 0.66,
+          "mad_from_prev": 0.05
+        },
+        {
+          "ms": 450.4,
+          "fetch_ms": 3.2,
+          "mad_from_start": 0.66,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 470.0,
+          "fetch_ms": 10.5,
+          "mad_from_start": 0.66,
+          "mad_from_prev": 0.07
+        },
+        {
+          "ms": 479.6,
+          "fetch_ms": 1.2,
+          "mad_from_start": 0.66,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 501.5,
+          "fetch_ms": 13.4,
+          "mad_from_start": 0.64,
+          "mad_from_prev": 0.05
+        },
+        {
+          "ms": 512.0,
+          "fetch_ms": 1.7,
+          "mad_from_start": 0.64,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 533.3,
+          "fetch_ms": 13.0,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.04
+        },
+        {
+          "ms": 542.7,
+          "fetch_ms": 1.2,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 552.4,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 561.6,
+          "fetch_ms": 1.1,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 594.8,
+          "fetch_ms": 25.1,
+          "mad_from_start": 0.61,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 611.7,
+          "fetch_ms": 8.4,
+          "mad_from_start": 0.61,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 641.2,
+          "fetch_ms": 21.0,
+          "mad_from_start": 0.61,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 672.7,
+          "fetch_ms": 22.7,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 682.1,
+          "fetch_ms": 1.4,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 703.8,
+          "fetch_ms": 11.8,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 735.5,
+          "fetch_ms": 22.2,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.01
+        },
+        {
+          "ms": 746.6,
+          "fetch_ms": 1.6,
+          "mad_from_start": 0.62,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 756.6,
+          "fetch_ms": 1.6,
+          "mad_from_start": 0.64,
+          "mad_from_prev": 0.02
+        },
+        {
+          "ms": 782.7,
+          "fetch_ms": 18.1,
+          "mad_from_start": 0.64,
+          "mad_from_prev": 0.0
+        },
+        {
+          "ms": 813.1,
+          "fetch_ms": 21.9,
+          "mad_from_start": 0.67,
+          "mad_from_prev": 0.05
+        },
+        {
+          "ms": 845.6,
+          "fetch_ms": 23.9,
+          "mad_from_start": 0.69,
+          "mad_from_prev": 0.09
+        },
+        {
+          "ms": 876.7,
+          "fetch_ms": 22.5,
+          "mad_from_start": 0.69,
+          "mad_from_prev": 0.11
+        },
+        {
+          "ms": 891.3,
+          "fetch_ms": 6.3,
+          "mad_from_start": 0.69,
+          "mad_from_prev": 0.0
+        }
+      ],
+      "last_mad": 26.71
+    }
+  ],
+  "activity_required": true,
+  "instrumentation": "none; FrameStatus is in the collapsed Activity drawer",
+  "console_id": 13320
+}

@@ -1,0 +1,267 @@
+{
+  "at": "2026-09-22T19:45:07.567-04:00",
+  "sample_gap_s": 1.0,
+  "status_ms": [
+    3.9,
+    1.4
+  ],
+  "http": [
+    200,
+    200
+  ],
+  "kernel_pid_expected": 29564,
+  "kernel_process": "iMouse2.Kernel",
+  "console_process": "iMouse2",
+  "allowed": [
+    "C24C",
+    "C241",
+    "C214",
+    "F215"
+  ],
+  "input": "direct-hid",
+  "input_protocol": 1,
+  "input_leases_required": true,
+  "frames": [
+    {
+      "deviceid": "86:1D:4A:04:2F:F6",
+      "name": "C24C",
+      "live": [
+        true,
+        true
+      ],
+      "state": [
+        "mirroring",
+        "mirroring"
+      ],
+      "frames": [
+        31568,
+        31585
+      ],
+      "delta": 17,
+      "receiver_pid": [
+        16160,
+        16160
+      ],
+      "receiver_restarts": [
+        0,
+        0
+      ],
+      "advancing": true
+    },
+    {
+      "deviceid": "FE:A9:BC:D7:A0:44",
+      "name": "C241",
+      "live": [
+        true,
+        true
+      ],
+      "state": [
+        "mirroring",
+        "mirroring"
+      ],
+      "frames": [
+        29826,
+        29846
+      ],
+      "delta": 20,
+      "receiver_pid": [
+        1624,
+        1624
+      ],
+      "receiver_restarts": [
+        0,
+        0
+      ],
+      "advancing": true
+    },
+    {
+      "deviceid": "8A:23:B5:71:35:8D",
+      "name": "C214",
+      "live": [
+        true,
+        true
+      ],
+      "state": [
+        "mirroring",
+        "mirroring"
+      ],
+      "frames": [
+        25355,
+        25368
+      ],
+      "delta": 13,
+      "receiver_pid": [
+        22872,
+        22872
+      ],
+      "receiver_restarts": [
+        0,
+        0
+      ],
+      "advancing": true
+    },
+    {
+      "deviceid": "3A:DC:15:FB:DD:EC",
+      "name": "F215",
+      "live": [
+        true,
+        true
+      ],
+      "state": [
+        "mirroring",
+        "mirroring"
+      ],
+      "frames": [
+        6616,
+        6637
+      ],
+      "delta": 21,
+      "receiver_pid": [
+        12332,
+        12332
+      ],
+      "receiver_restarts": [
+        0,
+        0
+      ],
+      "advancing": true
+    }
+  ],
+  "all_advancing": true,
+  "restarts_zero": true,
+  "pids_match": true,
+  "input_before": {
+    "code": 0,
+    "phones": [
+      {
+        "id": "86:1D:4A:04:2F:F6",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "Controller released.",
+        "generation": 3,
+        "lease_remaining_ms": 0
+      },
+      {
+        "id": "FE:A9:BC:D7:A0:44",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "Controller released.",
+        "generation": 2,
+        "lease_remaining_ms": 0
+      },
+      {
+        "id": "8A:23:B5:71:35:8D",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "Controller released.",
+        "generation": 1,
+        "lease_remaining_ms": 0
+      },
+      {
+        "id": "3A:DC:15:FB:DD:EC",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "Controller released.",
+        "generation": 6,
+        "lease_remaining_ms": 0
+      }
+    ],
+    "protocol": 1
+  },
+  "t0_receivers": [
+    {
+      "name": "C24C",
+      "deviceid": "86:1D:4A:04:2F:F6",
+      "live": true,
+      "frames": 31568,
+      "receiver_state": "mirroring",
+      "receiver_pid": 16160,
+      "receiver_restarts": 0,
+      "receiver_message": null
+    },
+    {
+      "name": "C241",
+      "deviceid": "FE:A9:BC:D7:A0:44",
+      "live": true,
+      "frames": 29826,
+      "receiver_state": "mirroring",
+      "receiver_pid": 1624,
+      "receiver_restarts": 0,
+      "receiver_message": null
+    },
+    {
+      "name": "C214",
+      "deviceid": "8A:23:B5:71:35:8D",
+      "live": true,
+      "frames": 25355,
+      "receiver_state": "mirroring",
+      "receiver_pid": 22872,
+      "receiver_restarts": 0,
+      "receiver_message": null
+    },
+    {
+      "name": "F215",
+      "deviceid": "3A:DC:15:FB:DD:EC",
+      "live": true,
+      "frames": 6616,
+      "receiver_state": "mirroring",
+      "receiver_pid": 12332,
+      "receiver_restarts": 0,
+      "receiver_message": null
+    }
+  ],
+  "t1_receivers": [
+    {
+      "name": "C24C",
+      "deviceid": "86:1D:4A:04:2F:F6",
+      "live": true,
+      "frames": 31585,
+      "receiver_state": "mirroring",
+      "receiver_pid": 16160,
+      "receiver_restarts": 0,
+      "receiver_message": null
+    },
+    {
+      "name": "C241",
+      "deviceid": "FE:A9:BC:D7:A0:44",
+      "live": true,
+      "frames": 29846,
+      "receiver_state": "mirroring",
+      "receiver_pid": 1624,
+      "receiver_restarts": 0,
+      "receiver_message": null
+    },
+    {
+      "name": "C214",
+      "deviceid": "8A:23:B5:71:35:8D",
+      "live": true,
+      "frames": 25368,
+      "receiver_state": "mirroring",
+      "receiver_pid": 22872,
+      "receiver_restarts": 0,
+      "receiver_message": null
+    },
+    {
+      "name": "F215",
+      "deviceid": "3A:DC:15:FB:DD:EC",
+      "live": true,
+      "frames": 6637,
+      "receiver_state": "mirroring",
+      "receiver_pid": 12332,
+      "receiver_restarts": 0,
+      "receiver_message": null
+    }
+  ]
+}

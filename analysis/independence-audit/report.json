@@ -1,0 +1,110 @@
+﻿{
+    "at":  "2026-09-23T00:28:47.8898665-04:00",
+    "gate":  1,
+    "product":  "iMouse 2.0 — Independent AirPlay",
+    "vendor_root":  "C:\\iMouseXP",
+    "vendor_root_exists":  true,
+    "vendor_processes":  [
+                             {
+                                 "name":  "IMService.exe",
+                                 "pid":  2676,
+                                 "path":  "C:\\iMouseXP\\IMService.exe",
+                                 "reason":  "named-vendor"
+                             },
+                             {
+                                 "name":  "mDNSResponder.exe",
+                                 "pid":  12932,
+                                 "path":  "C:\\iMouseXP\\mDNSResponder.exe",
+                                 "reason":  "vendor-directory"
+                             },
+                             {
+                                 "name":  "IMService.exe",
+                                 "pid":  13164,
+                                 "path":  "C:\\iMouseXP\\IMService.exe",
+                                 "reason":  "named-vendor"
+                             },
+                             {
+                                 "name":  "AirplayMirroring.exe",
+                                 "pid":  24940,
+                                 "path":  "C:\\iMouseXP\\x64\\AirplayMirroring.exe",
+                                 "reason":  "named-vendor"
+                             }
+                         ],
+    "vendor_process_count":  4,
+    "ports":  [
+                  {
+                      "port":  9911,
+                      "listening":  true,
+                      "owners":  [
+                                     {
+                                         "pid":  13164,
+                                         "name":  "IMService.exe",
+                                         "path":  "C:\\iMouseXP\\IMService.exe",
+                                         "vendor":  true
+                                     }
+                                 ]
+                  },
+                  {
+                      "port":  17000,
+                      "listening":  true,
+                      "owners":  [
+                                     {
+                                         "pid":  24940,
+                                         "name":  "AirplayMirroring.exe",
+                                         "path":  "C:\\iMouseXP\\x64\\AirplayMirroring.exe",
+                                         "vendor":  true
+                                     }
+                                 ]
+                  }
+              ],
+    "runtime_links":  [
+                          {
+                              "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+                              "present":  true,
+                              "vendor_string_hits":  [
+
+                                                     ]
+                          },
+                          {
+                              "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.dll",
+                              "present":  true,
+                              "vendor_string_hits":  [
+
+                                                     ]
+                          },
+                          {
+                              "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+                              "present":  true,
+                              "vendor_string_hits":  [
+
+                                                     ]
+                          },
+                          {
+                              "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.dll",
+                              "present":  true,
+                              "vendor_string_hits":  [
+
+                                                     ]
+                          },
+                          {
+                              "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+                              "present":  true,
+                              "vendor_string_hits":  [
+
+                                                     ]
+                          }
+                      ],
+    "zero_vendor_string_links":  true,
+    "cold_boot_not_executed":  true,
+    "cold_boot_procedure":  [
+                                "Disable IMService startup (services.msc or the vendor startup entry). Do not delete C:\\iMouseXP.",
+                                "Reboot Windows. Do not start the vendor console, IMService, or AirplayMirroring.",
+                                "Launch the desktop shortcut iMouse 2.0 - Independent AirPlay (Open iMouse 2.0.ps1).",
+                                "Confirm IMService.exe, AirplayMirroring.exe, and every process under C:\\iMouseXP\\ are absent.",
+                                "Confirm 9911 and 17000 are not owned by a vendor process.",
+                                "Recast C24C to iMouse2-C24C and C241 to iMouse2-C241 if mirroring is down.",
+                                "Run one real input check and one video check per phone. A missing vendor window is not proof.",
+                                "Re-run tools/verify_independence.ps1 and keep this report with the live result."
+                            ],
+    "note":  "Tooling audit only. Vendor processes may still be running. This does not close Gate 1."
+}

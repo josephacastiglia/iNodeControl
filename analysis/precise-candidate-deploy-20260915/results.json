@@ -1,0 +1,228 @@
+{
+  "start": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 5413,
+      "restarts": 0
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 3961,
+      "restarts": 0
+    }
+  },
+  "end": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 7325,
+      "restarts": 0
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 5272,
+      "restarts": 0
+    }
+  },
+  "rows": [
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 0,
+      "home_ms": 300.3,
+      "api_ms": 981.5,
+      "shot_after_ms": 1484.0
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 1,
+      "home_ms": 289.0,
+      "api_ms": 950.9,
+      "shot_after_ms": 1478.0
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 2,
+      "home_ms": 288.5,
+      "api_ms": 980.9,
+      "shot_after_ms": 1504.9
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 3,
+      "home_ms": 295.6,
+      "api_ms": 956.4,
+      "shot_after_ms": 1458.7
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 4,
+      "home_ms": 289.6,
+      "api_ms": 977.8,
+      "shot_after_ms": 1500.6
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 0,
+      "from": [
+        80,
+        140
+      ],
+      "move_api_ms": 362.5,
+      "home_ms": 306.3,
+      "api_ms": 969.0,
+      "shot_after_ms": 1498.4
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 1,
+      "from": [
+        400,
+        200
+      ],
+      "move_api_ms": 554.4,
+      "home_ms": 289.8,
+      "api_ms": 967.2,
+      "shot_after_ms": 1469.7
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 2,
+      "from": [
+        120,
+        500
+      ],
+      "move_api_ms": 633.3,
+      "home_ms": 285.3,
+      "api_ms": 981.4,
+      "shot_after_ms": 1483.3
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 3,
+      "from": [
+        360,
+        760
+      ],
+      "move_api_ms": 868.7,
+      "home_ms": 305.5,
+      "api_ms": 979.3,
+      "shot_after_ms": 1481.6
+    },
+    {
+      "phone": "C24C",
+      "kind": "swipe-left",
+      "api_ms": 1103.0
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 0,
+      "home_ms": 288.9,
+      "api_ms": 944.8,
+      "shot_after_ms": 1474.9
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 1,
+      "home_ms": 286.1,
+      "api_ms": 957.1,
+      "shot_after_ms": 1480.5
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 2,
+      "home_ms": 291.0,
+      "api_ms": 958.8,
+      "shot_after_ms": 1460.7
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 3,
+      "home_ms": 296.8,
+      "api_ms": 954.4,
+      "shot_after_ms": 1467.9
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 4,
+      "home_ms": 309.9,
+      "api_ms": 952.2,
+      "shot_after_ms": 1465.2
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 0,
+      "from": [
+        80,
+        140
+      ],
+      "move_api_ms": 352.8,
+      "home_ms": 303.9,
+      "api_ms": 978.2,
+      "shot_after_ms": 1480.3
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 1,
+      "from": [
+        400,
+        200
+      ],
+      "move_api_ms": 555.4,
+      "home_ms": 291.0,
+      "api_ms": 957.8,
+      "shot_after_ms": 1460.2
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 2,
+      "from": [
+        120,
+        500
+      ],
+      "move_api_ms": 631.8,
+      "home_ms": 305.3,
+      "api_ms": 948.8,
+      "shot_after_ms": 1470.8
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 3,
+      "from": [
+        360,
+        760
+      ],
+      "move_api_ms": 836.5,
+      "home_ms": 285.3,
+      "api_ms": 952.4,
+      "shot_after_ms": 1455.0
+    },
+    {
+      "phone": "C241",
+      "kind": "swipe-left",
+      "api_ms": 1097.5
+    }
+  ],
+  "kernel": "release/iMouse2-kernel-precise-candidate/iMouse2.Kernel.exe --precise-movement",
+  "rollback": "release/iMouse2-kernel-two-phone/iMouse2.Kernel.exe"
+}

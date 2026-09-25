@@ -1,0 +1,136 @@
+[
+  {
+    "fun": "/key/sendkey",
+    "id": "FE:A9:BC:D7:A0:44",
+    "payload": {
+      "fn_key": "Home"
+    },
+    "ms": 294.2,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/key/sendkey",
+    "id": "FE:A9:BC:D7:A0:44",
+    "payload": {
+      "fn_key": "Home"
+    },
+    "ms": 287.9,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/mouse/click",
+    "id": "FE:A9:BC:D7:A0:44",
+    "payload": {
+      "x": 250,
+      "y": 900,
+      "button": 1
+    },
+    "ms": 1035.6,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/key/sendkey",
+    "id": "FE:A9:BC:D7:A0:44",
+    "payload": {
+      "key": "test123"
+    },
+    "ms": 1009.2,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/key/sendkey",
+    "id": "FE:A9:BC:D7:A0:44",
+    "payload": {
+      "fn_key": "Home"
+    },
+    "ms": 294.9,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/key/sendkey",
+    "id": "FE:A9:BC:D7:A0:44",
+    "payload": {
+      "fn_key": "Home"
+    },
+    "ms": 291.3,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  }
+]

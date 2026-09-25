@@ -1,0 +1,978 @@
+{
+  "at": "2026-09-21T23:34:52-04:00",
+  "model": "Grok 4.7",
+  "gate": "Gate 4 console targeting baseline",
+  "kernel": {
+    "requested_pid": 31472,
+    "requested_pid_running": false,
+    "live_pid": 31944,
+    "exe": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+    "command_line": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe\" http://127.0.0.1:9913/api/ --data-dir \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\" --input-pid C24C,C241 --receivers \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\receivers.json\" --receiver \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" --receiver-runtime \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\msys64\\ucrt64\"",
+    "precise_movement_flag": false,
+    "dll_sha256": "A995CF5B92AEE4393E164FA4CE68D446A3F63D4D0CAAA73B5ACB6DCF587851BF",
+    "dll_matches_known_rollback": true,
+    "restarted": false,
+    "note": "PID 31472 was not running. Used the live rollback binary already bound to 9913 (PID 31944, same DLL hash, no --precise-movement). Kernel was not stopped or restarted."
+  },
+  "console": {
+    "pid": 34852,
+    "exe": "release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+    "hwnd": 395930,
+    "minimized_before_input": true,
+    "iconic_immediately_before_input": true
+  },
+  "mirror_to_all": false,
+  "mirror_to_all_evidence": {
+    "captured": "UIA immediately before minimize and input",
+    "uia_window": "iMouse 2.0 \u2014 iPhone Console",
+    "console_pid": 34852,
+    "SelectAllBox": {
+      "name": "Mirror the master's actions to every phone",
+      "toggleState": "Off"
+    },
+    "SelectAllLabel": "Mirror to all",
+    "follower_C24C": "Off",
+    "follower_C241": "Off",
+    "totals": "2 phones  \u00b7  2 mirroring  \u00b7  2 controllable  \u00b7  19 boards (2 with a phone)",
+    "dispatch": "single-id kernel API"
+  },
+  "preflight_frames": {
+    "sample_interval_s": 1.0,
+    "C24C": {
+      "frames0": 11923,
+      "frames1": 11943,
+      "delta": 20,
+      "live": true,
+      "advancing": true
+    },
+    "C241": {
+      "frames0": 12154,
+      "frames1": 12174,
+      "delta": 20,
+      "live": true,
+      "advancing": true
+    },
+    "both_live_and_advancing": true
+  },
+  "predeclared": {
+    "declared_before_input": true,
+    "phones": [
+      "C24C",
+      "C241"
+    ],
+    "ids": {
+      "C24C": "86:1D:4A:04:2F:F6",
+      "C241": "FE:A9:BC:D7:A0:44"
+    },
+    "threshold_s": 5,
+    "mirror_to_all": "must stay Off",
+    "dispatch": "single-id kernel API on 9913; console minimized so hover cannot inject moves",
+    "targets": [
+      {
+        "kind": "search",
+        "repeats": 5,
+        "steps": [
+          "Home",
+          "click (250, 900)"
+        ],
+        "expected": "Spotlight opens within 5s: wallpaper dims, Siri suggestions or search field visible",
+        "miss": "stays on Home, or any other screen"
+      },
+      {
+        "kind": "from-location",
+        "points": [
+          [
+            80,
+            140
+          ],
+          [
+            400,
+            200
+          ],
+          [
+            120,
+            500
+          ],
+          [
+            360,
+            760
+          ]
+        ],
+        "steps": [
+          "move to point (no click)",
+          "Home",
+          "click (250, 900)"
+        ],
+        "expected": "Spotlight opens within 5s",
+        "miss": "stays on Home, or off-location move opens an app"
+      },
+      {
+        "kind": "swipe",
+        "steps": [
+          "Home",
+          "swipe left",
+          "capture",
+          "swipe right",
+          "Home",
+          "capture"
+        ],
+        "expected_left": "Home page 2 visible within 5s",
+        "expected_right_home": "Home page 1 visible within 5s"
+      }
+    ],
+    "isolation": "other phone stays on Home for every target action"
+  },
+  "protocol": {
+    "home": "POST /api/ {fun:/key/sendkey, fn_key:Home, id:single}",
+    "sleep_after_home_s": 0.7,
+    "click": "POST /api/ {fun:/mouse/click, x:250, y:900, button:1}",
+    "off_location": "POST /api/ {fun:/mouse/move} only. Not a click, so an icon cannot open.",
+    "sleep_after_click_s": 0.6,
+    "swipe": "POST /api/ {fun:/mouse/swipe, direction, len:0.75, duration:400}",
+    "screenshot": "GET /pic/screenshot?id=...&binary=true",
+    "release": "POST /mouse/up button 1 once after each phone series",
+    "threshold_s": 5,
+    "effect_clock": "effect_ms is click-start to screenshot return, including the 0.6s settle. The saved frame already showed the expected screen, so time-to-visible is <= effect_ms."
+  },
+  "phones": {
+    "C24C": "86:1D:4A:04:2F:F6",
+    "C241": "FE:A9:BC:D7:A0:44"
+  },
+  "start": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 15719,
+      "restarts": 0,
+      "state": "mirroring",
+      "pid": 35520
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 16016,
+      "restarts": 0,
+      "state": "mirroring",
+      "pid": 31660
+    }
+  },
+  "end": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 17656,
+      "restarts": 0,
+      "state": "mirroring",
+      "pid": 35520
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 17944,
+      "restarts": 0,
+      "state": "mirroring",
+      "pid": 31660
+    }
+  },
+  "timing": {
+    "metric": "HTTP round-trip (urllib) of each call. Not InputRouter dispatch.",
+    "http_click_rtt_ms": {
+      "n": 18,
+      "median": 1058.4,
+      "min": 1034.0,
+      "max": 1101.9,
+      "values": [
+        1061.0,
+        1084.1,
+        1072.8,
+        1065.1,
+        1058.0,
+        1101.9,
+        1057.4,
+        1073.9,
+        1069.5,
+        1034.0,
+        1055.8,
+        1037.1,
+        1050.4,
+        1058.8,
+        1042.5,
+        1055.5,
+        1078.0,
+        1042.8
+      ]
+    },
+    "http_home_rtt_ms": {
+      "n": 18,
+      "median": 302.9,
+      "min": 288.8,
+      "max": 317.5,
+      "values": [
+        304.1,
+        290.5,
+        295.3,
+        288.8,
+        292.7,
+        317.5,
+        305.0,
+        308.7,
+        303.3,
+        305.4,
+        291.5,
+        291.2,
+        306.1,
+        317.0,
+        304.7,
+        301.1,
+        290.3,
+        302.5
+      ]
+    },
+    "search_effect_ms": {
+      "n": 18,
+      "median": 1668.9,
+      "min": 1645.1,
+      "max": 1714.5,
+      "values": [
+        1663.0,
+        1685.9,
+        1674.6,
+        1667.2,
+        1671.8,
+        1714.5,
+        1659.2,
+        1688.1,
+        1693.8,
+        1673.6,
+        1657.8,
+        1658.0,
+        1669.5,
+        1660.5,
+        1659.5,
+        1668.3,
+        1696.5,
+        1645.1
+      ]
+    },
+    "C24C_click_ms": [
+      1061.0,
+      1084.1,
+      1072.8,
+      1065.1,
+      1058.0,
+      1101.9,
+      1057.4,
+      1073.9,
+      1069.5
+    ],
+    "C241_click_ms": [
+      1034.0,
+      1055.8,
+      1037.1,
+      1050.4,
+      1058.8,
+      1042.5,
+      1055.5,
+      1078.0,
+      1042.8
+    ],
+    "note": "Do not treat click HTTP RTT as InputRouter dispatch. Capture is 0.6s after HTTP return."
+  },
+  "rows": [
+    {
+      "phone": "C24C",
+      "kind": "pre-home",
+      "shot_ms": 11.2,
+      "ui": "Home-page-1"
+    },
+    {
+      "phone": "C241",
+      "kind": "pre-home",
+      "shot_ms": 14.2,
+      "ui": "Home-page-1"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 1,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 304.1,
+      "click_ms": 1061.0,
+      "target_shot_ms": 1.8,
+      "isolation_shot_ms": 13.6,
+      "effect_ms": 1663.0,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle1-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle1.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 2,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 290.5,
+      "click_ms": 1084.1,
+      "target_shot_ms": 1.4,
+      "isolation_shot_ms": 23.1,
+      "effect_ms": 1685.9,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle2-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle2.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 3,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 295.3,
+      "click_ms": 1072.8,
+      "target_shot_ms": 1.4,
+      "isolation_shot_ms": 14.1,
+      "effect_ms": 1674.6,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle3-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle3.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 4,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 288.8,
+      "click_ms": 1065.1,
+      "target_shot_ms": 1.6,
+      "isolation_shot_ms": 16.6,
+      "effect_ms": 1667.2,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle4-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle4.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 5,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 292.7,
+      "click_ms": 1058.0,
+      "target_shot_ms": 13.6,
+      "isolation_shot_ms": 14.8,
+      "effect_ms": 1671.8,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle5-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle5.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 0,
+      "from": [
+        80,
+        140
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 187.8,
+      "home_ms": 317.5,
+      "click_ms": 1101.9,
+      "target_shot_ms": 12.4,
+      "isolation_shot_ms": 14.7,
+      "effect_ms": 1714.5,
+      "within_5s": true,
+      "target_bmp": "c24c-loc0-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-loc0.bmp",
+      "move_bmp": "c24c-loc0-after-move.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 1,
+      "from": [
+        400,
+        200
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 384.1,
+      "home_ms": 305.0,
+      "click_ms": 1057.4,
+      "target_shot_ms": 1.4,
+      "isolation_shot_ms": 1.1,
+      "effect_ms": 1659.2,
+      "within_5s": true,
+      "target_bmp": "c24c-loc1-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-loc1.bmp",
+      "move_bmp": "c24c-loc1-after-move.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 2,
+      "from": [
+        120,
+        500
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 513.7,
+      "home_ms": 308.7,
+      "click_ms": 1073.9,
+      "target_shot_ms": 13.8,
+      "isolation_shot_ms": 1.3,
+      "effect_ms": 1688.1,
+      "within_5s": true,
+      "target_bmp": "c24c-loc2-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-loc2.bmp",
+      "move_bmp": "c24c-loc2-after-move.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 3,
+      "from": [
+        360,
+        760
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 709.3,
+      "home_ms": 303.3,
+      "click_ms": 1069.5,
+      "target_shot_ms": 24.0,
+      "isolation_shot_ms": 15.5,
+      "effect_ms": 1693.8,
+      "within_5s": true,
+      "target_bmp": "c24c-loc3-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-loc3.bmp",
+      "move_bmp": "c24c-loc3-after-move.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C24C",
+      "kind": "swipe",
+      "expected_left": "Home page 2 within 5s",
+      "expected_right_home": "Home page 1 within 5s",
+      "left_ms": 1225.2,
+      "right_ms": 695.5,
+      "home_ms": 303.3,
+      "left_effect_ms": 1952.6,
+      "right_effect_ms": 2100.9,
+      "left_within_5s": true,
+      "right_within_5s": true,
+      "left_bmp": "c24c-swipe-left.bmp",
+      "right_bmp": "c24c-swipe-right-home.bmp",
+      "other_left_bmp": "c241-iso-during-c24c-swipe-left.bmp",
+      "other_right_bmp": "c241-iso-during-c24c-swipe-right.bmp",
+      "isolation_left_shot_ms": 14.7,
+      "isolation_right_shot_ms": 25.3,
+      "left_ui": "Home-page-2",
+      "right_ui": "Home-page-1",
+      "left_pass": true,
+      "right_pass": true,
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 1,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 305.4,
+      "click_ms": 1034.0,
+      "target_shot_ms": 39.4,
+      "isolation_shot_ms": 15.1,
+      "effect_ms": 1673.6,
+      "within_5s": true,
+      "target_bmp": "c241-cycle1-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle1.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 2,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 291.5,
+      "click_ms": 1055.8,
+      "target_shot_ms": 1.6,
+      "isolation_shot_ms": 1.2,
+      "effect_ms": 1657.8,
+      "within_5s": true,
+      "target_bmp": "c241-cycle2-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle2.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 3,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 291.2,
+      "click_ms": 1037.1,
+      "target_shot_ms": 20.6,
+      "isolation_shot_ms": 1.2,
+      "effect_ms": 1658.0,
+      "within_5s": true,
+      "target_bmp": "c241-cycle3-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle3.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 4,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 306.1,
+      "click_ms": 1050.4,
+      "target_shot_ms": 18.5,
+      "isolation_shot_ms": 34.8,
+      "effect_ms": 1669.5,
+      "within_5s": true,
+      "target_bmp": "c241-cycle4-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle4.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 5,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 317.0,
+      "click_ms": 1058.8,
+      "target_shot_ms": 1.4,
+      "isolation_shot_ms": 18.7,
+      "effect_ms": 1660.5,
+      "within_5s": true,
+      "target_bmp": "c241-cycle5-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle5.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 0,
+      "from": [
+        80,
+        140
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 167.8,
+      "home_ms": 304.7,
+      "click_ms": 1042.5,
+      "target_shot_ms": 16.6,
+      "isolation_shot_ms": 14.4,
+      "effect_ms": 1659.5,
+      "within_5s": true,
+      "target_bmp": "c241-loc0-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-loc0.bmp",
+      "move_bmp": "c241-loc0-after-move.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 1,
+      "from": [
+        400,
+        200
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 407.6,
+      "home_ms": 301.1,
+      "click_ms": 1055.5,
+      "target_shot_ms": 12.3,
+      "isolation_shot_ms": 30.1,
+      "effect_ms": 1668.3,
+      "within_5s": true,
+      "target_bmp": "c241-loc1-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-loc1.bmp",
+      "move_bmp": "c241-loc1-after-move.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 2,
+      "from": [
+        120,
+        500
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 511.7,
+      "home_ms": 290.3,
+      "click_ms": 1078.0,
+      "target_shot_ms": 18.2,
+      "isolation_shot_ms": 14.8,
+      "effect_ms": 1696.5,
+      "within_5s": true,
+      "target_bmp": "c241-loc2-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-loc2.bmp",
+      "move_bmp": "c241-loc2-after-move.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 3,
+      "from": [
+        360,
+        760
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 711.6,
+      "home_ms": 302.5,
+      "click_ms": 1042.8,
+      "target_shot_ms": 1.6,
+      "isolation_shot_ms": 1.4,
+      "effect_ms": 1645.1,
+      "within_5s": true,
+      "target_bmp": "c241-loc3-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-loc3.bmp",
+      "move_bmp": "c241-loc3-after-move.bmp",
+      "ui": "Spotlight",
+      "keyboard": false,
+      "pass": true,
+      "isolation_other_ui": "Home-page-1",
+      "isolation_pass": true
+    },
+    {
+      "phone": "C241",
+      "kind": "swipe",
+      "expected_left": "Home page 2 within 5s",
+      "expected_right_home": "Home page 1 within 5s",
+      "left_ms": 1214.3,
+      "right_ms": 709.0,
+      "home_ms": 289.6,
+      "left_effect_ms": 1916.0,
+      "right_effect_ms": 2101.1,
+      "left_within_5s": true,
+      "right_within_5s": true,
+      "left_bmp": "c241-swipe-left.bmp",
+      "right_bmp": "c241-swipe-right-home.bmp",
+      "other_left_bmp": "c24c-iso-during-c241-swipe-left.bmp",
+      "other_right_bmp": "c24c-iso-during-c241-swipe-right.bmp",
+      "isolation_left_shot_ms": 1.5,
+      "isolation_right_shot_ms": 26.0,
+      "left_ui": "Home-page-2",
+      "right_ui": "Home-page-1",
+      "left_pass": true,
+      "right_pass": true,
+      "isolation_pass": true
+    }
+  ],
+  "visual": {
+    "rule": "Spotlight = dimmed wallpaper + Siri Suggestions and/or Search field. Home-page-1 = first Home grid + dock, Search pill idle. Home-page-2 = second page dot. A focus ring or HTTP 0 is not a hit.",
+    "inspected": {
+      "c24c-cycle1-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c24c-cycle2-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c24c-cycle3-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c24c-cycle4-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c24c-cycle5-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c24c-loc0-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c24c-loc1-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c24c-loc2-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c24c-loc3-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c241-cycle1-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c241-cycle2-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c241-cycle3-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c241-cycle4-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c241-cycle5-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c241-loc0-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c241-loc1-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c241-loc2-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c241-loc3-search": {
+        "ui": "Spotlight",
+        "keyboard": false,
+        "pass": true
+      },
+      "c24c-swipe-left": {
+        "ui": "Home-page-2",
+        "pass": true
+      },
+      "c24c-swipe-right-home": {
+        "ui": "Home-page-1",
+        "pass": true
+      },
+      "c241-swipe-left": {
+        "ui": "Home-page-2",
+        "pass": true
+      },
+      "c241-swipe-right-home": {
+        "ui": "Home-page-1",
+        "pass": true
+      },
+      "pre-c24c-home": {
+        "ui": "Home-page-1"
+      },
+      "pre-c241-home": {
+        "ui": "Home-page-1"
+      },
+      "c24c-loc0-after-move": {
+        "ui": "Home-page-1",
+        "note": "pointer dot over FaceTime; no app, no focus ring"
+      },
+      "c241-loc0-after-move": {
+        "ui": "Home-page-1",
+        "note": "pointer dot over FaceTime; no app opened"
+      },
+      "c241-iso-during-c24c-cycle1": {
+        "ui": "Home-page-1",
+        "search_open": false
+      },
+      "c24c-iso-during-c241-cycle1": {
+        "ui": "Home-page-1",
+        "search_open": false
+      },
+      "c241-iso-during-c24c-swipe-left": {
+        "ui": "Home-page-1",
+        "search_open": false
+      },
+      "c24c-iso-during-c241-swipe-left": {
+        "ui": "Home-page-1",
+        "search_open": false
+      }
+    },
+    "isolation_luminance": {
+      "C24C_home_baseline": 143.7,
+      "C24C_isolation_during_C241": "143.6-143.7 on all 11 frames (Spotlight would be ~97)",
+      "C241_home_baseline": 87.5,
+      "C241_isolation_during_C24C": "87.3 on all 11 frames (Spotlight would be ~63)",
+      "page2_reference": {
+        "C24C": 135.3,
+        "C241": 80.2
+      }
+    }
+  },
+  "scores": {
+    "C24C_spotlight": "9/9",
+    "C241_spotlight": "9/9",
+    "C24C_search_success_rate": 1.0,
+    "C241_search_success_rate": 1.0,
+    "C24C_swipe": "left page 2, right+Home page 1",
+    "C241_swipe": "left page 2, right+Home page 1",
+    "isolation_C241_during_C24C": "11/11 Home",
+    "isolation_C24C_during_C241": "11/11 Home",
+    "isolation_score": 1.0,
+    "within_5s": "22/22 scored actions (18 Search + 4 swipe captures)",
+    "stuck_keys_or_buttons": 0,
+    "accidental_double_clicks": 0,
+    "unintended_phone_actions": 0,
+    "off_location_apps_opened": 0,
+    "keyboard_visible_on_search": 0
+  },
+  "conclusion": {
+    "baseline": "pass on this short Gate 4 sample",
+    "not_a_gate_close": "9 Search hits per phone is not the 995/1000 varied-tap close. This is the authorized C24C/C241 baseline only.",
+    "method": "Kernel API with console minimized, matching the assignment (exclude hover) and the prior rollback control. Not a GUI image click."
+  }
+}

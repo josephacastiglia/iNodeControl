@@ -1,0 +1,44 @@
+{
+  "gate": "Gate 5 Everyday Controls",
+  "model": "Grok 4.7",
+  "declared_before_input": true,
+  "phones": [
+    {"tag": "C24C", "id": "86:1D:4A:04:2F:F6"},
+    {"tag": "C241", "id": "FE:A9:BC:D7:A0:44"}
+  ],
+  "order": ["C24C", "C241"],
+  "dispatch": "single-id POST /api/ only. Never a comma id list.",
+  "threshold_s": 5,
+  "isolation": "After every scored action, the other phone must still be on Home.",
+  "cases": [
+    {
+      "name": "control_center",
+      "action": {"fun": "/key/sendkey", "fn_key": "ControlBar"},
+      "expected": "Control Center visible within 5s",
+      "dismiss": {"fun": "/key/sendkey", "fn_key": "Home"}
+    },
+    {
+      "name": "app_switcher",
+      "action": {"fun": "/key/sendkey", "fn_key": "AppSwitch"},
+      "expected": "App Switcher cards visible within 5s",
+      "dismiss": {"fun": "/key/sendkey", "fn_key": "Home"}
+    },
+    {
+      "name": "text_and_backspace",
+      "steps": [
+        {"fun": "/key/sendkey", "fn_key": "Home"},
+        {"fun": "/mouse/click", "x": 250, "y": 900, "button": 1, "purpose": "open Spotlight and focus search"},
+        {"fun": "/key/sendkey", "key": "iMouse2026", "expected": "text iMouse2026 appears in the search field within 5s"},
+        {"fun": "/key/sendkey", "fn_key": "Backspace", "times": 4, "expected": "text becomes iMouse within 5s"},
+        {"fun": "/key/sendkey", "fn_key": "Home", "purpose": "dismiss"}
+      ]
+    },
+    {
+      "name": "swipes",
+      "steps": [
+        {"fun": "/mouse/swipe", "direction": "left", "len": 0.75, "duration": 400, "expected": "Home page 2 within 5s"},
+        {"fun": "/mouse/swipe", "direction": "right", "len": 0.75, "duration": 400, "expected": "Home page 1 within 5s"}
+      ]
+    }
+  ]
+}

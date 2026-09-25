@@ -1,0 +1,413 @@
+{
+  "candidate-a": {
+    "start": "2026-09-15T04:31:48.7836814Z",
+    "end": "2026-09-15T04:33:19.5594200Z",
+    "duration_s": 90.77,
+    "samples": 45,
+    "errors": [],
+    "console_id": 9532,
+    "console_path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+    "kernel_id": 32328,
+    "receivers": {
+      "iMouse2-C24C": {
+        "received_fps": 20.24,
+        "frame_delta": 1837,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pid": [
+          20972
+        ]
+      },
+      "iMouse2-C241": {
+        "received_fps": 19.35,
+        "frame_delta": 1756,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pid": [
+          33972
+        ]
+      }
+    },
+    "processes": {
+      "9532": {
+        "name": "iMouse2",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+        "cpu_machine_percent": 0.805,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 199.77,
+          "end": 199.88,
+          "max": 202.43
+        },
+        "private_mib": {
+          "start": 204.11,
+          "end": 204.23,
+          "max": 206.77
+        }
+      },
+      "32328": {
+        "name": "iMouse2.Kernel",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+        "cpu_machine_percent": 0.306,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 79.57,
+          "end": 79.54,
+          "max": 79.61
+        },
+        "private_mib": {
+          "start": 41.11,
+          "end": 41.08,
+          "max": 41.16
+        }
+      },
+      "20972": {
+        "name": "uxplay",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+        "cpu_machine_percent": 0.336,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 108.17,
+          "end": 108.36,
+          "max": 108.36
+        },
+        "private_mib": {
+          "start": 90.12,
+          "end": 90.34,
+          "max": 90.34
+        }
+      },
+      "33972": {
+        "name": "uxplay",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+        "cpu_machine_percent": 0.303,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 107.42,
+          "end": 107.62,
+          "max": 107.62
+        },
+        "private_mib": {
+          "start": 89.32,
+          "end": 89.54,
+          "max": 89.54
+        }
+      }
+    },
+    "total_cpu_machine_percent": 1.75
+  },
+  "original-a": {
+    "start": "2026-09-15T04:33:54.6112193Z",
+    "end": "2026-09-15T04:35:24.9764960Z",
+    "duration_s": 90.37,
+    "samples": 45,
+    "errors": [],
+    "console_id": 31124,
+    "console_path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone\\iMouse2.exe",
+    "kernel_id": 32328,
+    "receivers": {
+      "iMouse2-C24C": {
+        "received_fps": 20.26,
+        "frame_delta": 1831,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pid": [
+          20972
+        ]
+      },
+      "iMouse2-C241": {
+        "received_fps": 19.29,
+        "frame_delta": 1743,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pid": [
+          33972
+        ]
+      }
+    },
+    "processes": {
+      "31124": {
+        "name": "iMouse2",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone\\iMouse2.exe",
+        "cpu_machine_percent": 0.726,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 162.43,
+          "end": 166.08,
+          "max": 169.58
+        },
+        "private_mib": {
+          "start": 159.55,
+          "end": 163.25,
+          "max": 167.07
+        }
+      },
+      "32328": {
+        "name": "iMouse2.Kernel",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+        "cpu_machine_percent": 0.317,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 79.71,
+          "end": 79.74,
+          "max": 79.74
+        },
+        "private_mib": {
+          "start": 41.68,
+          "end": 41.71,
+          "max": 41.71
+        }
+      },
+      "20972": {
+        "name": "uxplay",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+        "cpu_machine_percent": 0.364,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 108.43,
+          "end": 108.82,
+          "max": 108.82
+        },
+        "private_mib": {
+          "start": 90.34,
+          "end": 90.76,
+          "max": 90.76
+        }
+      },
+      "33972": {
+        "name": "uxplay",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+        "cpu_machine_percent": 0.336,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 107.68,
+          "end": 108.07,
+          "max": 108.07
+        },
+        "private_mib": {
+          "start": 89.61,
+          "end": 90.03,
+          "max": 90.03
+        }
+      }
+    },
+    "total_cpu_machine_percent": 1.743
+  },
+  "candidate-b": {
+    "start": "2026-09-15T04:36:00.0026643Z",
+    "end": "2026-09-15T04:37:30.4814221Z",
+    "duration_s": 90.48,
+    "samples": 45,
+    "errors": [],
+    "console_id": 3604,
+    "console_path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+    "kernel_id": 32328,
+    "receivers": {
+      "iMouse2-C24C": {
+        "received_fps": 20.17,
+        "frame_delta": 1825,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pid": [
+          20972
+        ]
+      },
+      "iMouse2-C241": {
+        "received_fps": 18.97,
+        "frame_delta": 1716,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pid": [
+          33972
+        ]
+      }
+    },
+    "processes": {
+      "3604": {
+        "name": "iMouse2",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+        "cpu_machine_percent": 0.828,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 163.81,
+          "end": 167.96,
+          "max": 171.58
+        },
+        "private_mib": {
+          "start": 162.25,
+          "end": 164.21,
+          "max": 167.65
+        }
+      },
+      "32328": {
+        "name": "iMouse2.Kernel",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+        "cpu_machine_percent": 0.351,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 79.74,
+          "end": 79.74,
+          "max": 79.74
+        },
+        "private_mib": {
+          "start": 41.71,
+          "end": 41.71,
+          "max": 41.71
+        }
+      },
+      "20972": {
+        "name": "uxplay",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+        "cpu_machine_percent": 0.328,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 108.82,
+          "end": 109.08,
+          "max": 109.08
+        },
+        "private_mib": {
+          "start": 90.76,
+          "end": 91.04,
+          "max": 91.04
+        }
+      },
+      "33972": {
+        "name": "uxplay",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+        "cpu_machine_percent": 0.294,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 108.07,
+          "end": 108.34,
+          "max": 108.34
+        },
+        "private_mib": {
+          "start": 90.03,
+          "end": 90.24,
+          "max": 90.24
+        }
+      }
+    },
+    "total_cpu_machine_percent": 1.801
+  },
+  "original-b": {
+    "start": "2026-09-15T04:38:05.5063811Z",
+    "end": "2026-09-15T04:39:35.9952849Z",
+    "duration_s": 90.49,
+    "samples": 45,
+    "errors": [],
+    "console_id": 5240,
+    "console_path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone\\iMouse2.exe",
+    "kernel_id": 32328,
+    "receivers": {
+      "iMouse2-C24C": {
+        "received_fps": 20.15,
+        "frame_delta": 1823,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pid": [
+          20972
+        ]
+      },
+      "iMouse2-C241": {
+        "received_fps": 19.34,
+        "frame_delta": 1750,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pid": [
+          33972
+        ]
+      }
+    },
+    "processes": {
+      "5240": {
+        "name": "iMouse2",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone\\iMouse2.exe",
+        "cpu_machine_percent": 0.621,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 158.69,
+          "end": 165.75,
+          "max": 168.43
+        },
+        "private_mib": {
+          "start": 159.57,
+          "end": 164.98,
+          "max": 167.57
+        }
+      },
+      "32328": {
+        "name": "iMouse2.Kernel",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+        "cpu_machine_percent": 0.301,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 79.77,
+          "end": 79.72,
+          "max": 79.77
+        },
+        "private_mib": {
+          "start": 41.75,
+          "end": 41.69,
+          "max": 41.75
+        }
+      },
+      "20972": {
+        "name": "uxplay",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+        "cpu_machine_percent": 0.363,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 109.29,
+          "end": 109.55,
+          "max": 109.55
+        },
+        "private_mib": {
+          "start": 91.27,
+          "end": 91.55,
+          "max": 91.55
+        }
+      },
+      "33972": {
+        "name": "uxplay",
+        "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+        "cpu_machine_percent": 0.333,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 108.56,
+          "end": 108.79,
+          "max": 108.79
+        },
+        "private_mib": {
+          "start": 90.49,
+          "end": 90.74,
+          "max": 90.74
+        }
+      }
+    },
+    "total_cpu_machine_percent": 1.618
+  },
+  "c241_received_fps": {
+    "candidate-a": 19.35,
+    "original-a": 19.29,
+    "candidate-b": 18.97,
+    "original-b": 19.34
+  },
+  "c24c_received_fps": {
+    "candidate-a": 20.24,
+    "original-a": 20.26,
+    "candidate-b": 20.17,
+    "original-b": 20.15
+  },
+  "c241_candidate_mean": 19.16,
+  "c241_original_mean": 19.31,
+  "c241_repeat_lower_on_candidate": false
+}

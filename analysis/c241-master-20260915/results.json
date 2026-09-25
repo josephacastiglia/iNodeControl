@@ -1,0 +1,756 @@
+{
+  "video_windows": [
+    {
+      "master": "C24C",
+      "selected": "XR C24C",
+      "duration_s": 20.3,
+      "note": "displayed_fps is RateMeter over ~2s of unique Present() calls; received_fps is all pipe frames in this whole window",
+      "received": {
+        "C24C": {
+          "received_fps": 19.95,
+          "delta": 405,
+          "restarts": 0,
+          "live": true
+        },
+        "C241": {
+          "received_fps": 18.81,
+          "delta": 382,
+          "restarts": 1,
+          "live": true
+        }
+      },
+      "displayed_mean": 28.9,
+      "displayed_min": 28.9,
+      "displayed_max": 28.9,
+      "displayed_n": 14,
+      "p50_ms": [
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34
+      ],
+      "p95_ms": [
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76
+      ],
+      "reads": [
+        {
+          "t": 0.3,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 1.75,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 3.19,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 4.64,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 6.09,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 7.54,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 9.0,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 10.45,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 11.9,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 13.35,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 14.8,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 16.24,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 17.68,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 19.15,
+          "displayed_fps": 28.9,
+          "p50_ms": 34,
+          "p95_ms": 76,
+          "slow": 75,
+          "raw": "Live \u00b7 28.9 fps \u00b7 500 \u00d7 1080 \u00b7 taps in image pixels 500 \u00d7 1080 \u00b7 34/76 ms p50/p95 \u00b7 75 slow",
+          "selected": "XR C24C"
+        }
+      ],
+      "seq": 0
+    },
+    {
+      "master": "C241",
+      "selected": "Phone in hand - C241",
+      "duration_s": 20.53,
+      "note": "displayed_fps is RateMeter over ~2s of unique Present() calls; received_fps is all pipe frames in this whole window",
+      "received": {
+        "C24C": {
+          "received_fps": 20.07,
+          "delta": 412,
+          "restarts": 0,
+          "live": true
+        },
+        "C241": {
+          "received_fps": 19.1,
+          "delta": 392,
+          "restarts": 1,
+          "live": true
+        }
+      },
+      "displayed_mean": null,
+      "displayed_min": null,
+      "displayed_max": null,
+      "displayed_n": 0,
+      "p50_ms": [],
+      "p95_ms": [],
+      "reads": [
+        {
+          "t": 0.32,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 1.79,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 3.25,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 4.72,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 6.19,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 7.66,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 9.11,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 10.58,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 12.04,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 13.5,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 14.97,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 16.44,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 17.91,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 19.38,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        }
+      ],
+      "seq": 1
+    },
+    {
+      "master": "C24C",
+      "selected": "XR C24C",
+      "duration_s": 20.5,
+      "note": "displayed_fps is RateMeter over ~2s of unique Present() calls; received_fps is all pipe frames in this whole window",
+      "received": {
+        "C24C": {
+          "received_fps": 20.2,
+          "delta": 414,
+          "restarts": 0,
+          "live": true
+        },
+        "C241": {
+          "received_fps": 18.2,
+          "delta": 373,
+          "restarts": 1,
+          "live": true
+        }
+      },
+      "displayed_mean": null,
+      "displayed_min": null,
+      "displayed_max": null,
+      "displayed_n": 0,
+      "p50_ms": [],
+      "p95_ms": [],
+      "reads": [
+        {
+          "t": 0.3,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 1.75,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 3.2,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 4.64,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 6.11,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 7.59,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 9.08,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 10.54,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 12.01,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 13.48,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 14.94,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 16.41,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 17.88,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        },
+        {
+          "t": 19.35,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "XR C24C"
+        }
+      ],
+      "seq": 2
+    },
+    {
+      "master": "C241",
+      "selected": "Phone in hand - C241",
+      "duration_s": 20.54,
+      "note": "displayed_fps is RateMeter over ~2s of unique Present() calls; received_fps is all pipe frames in this whole window",
+      "received": {
+        "C24C": {
+          "received_fps": 20.11,
+          "delta": 413,
+          "restarts": 0,
+          "live": true
+        },
+        "C241": {
+          "received_fps": 17.24,
+          "delta": 354,
+          "restarts": 1,
+          "live": true
+        }
+      },
+      "displayed_mean": null,
+      "displayed_min": null,
+      "displayed_max": null,
+      "displayed_n": 0,
+      "p50_ms": [],
+      "p95_ms": [],
+      "reads": [
+        {
+          "t": 0.31,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 1.78,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 3.24,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 4.7,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 6.17,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 7.63,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 9.1,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 10.56,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 12.04,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 13.52,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 14.98,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 16.44,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 17.9,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        },
+        {
+          "t": 19.37,
+          "displayed_fps": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "slow": null,
+          "raw": "Live view idle",
+          "selected": "Phone in hand - C241"
+        }
+      ],
+      "seq": 3
+    }
+  ],
+  "screenshot_ms": [
+    {
+      "master": "C24C",
+      "target": "C24C",
+      "n": 10,
+      "ms": [
+        12.3,
+        14.8,
+        1.1,
+        1.0,
+        13.4,
+        14.9,
+        15.3,
+        1.1,
+        1.0,
+        13.2
+      ],
+      "mean_ms": 8.8,
+      "max_ms": 15.3
+    },
+    {
+      "master": "C24C",
+      "target": "C241",
+      "n": 10,
+      "ms": [
+        0.9,
+        0.8,
+        13.2,
+        14.7,
+        15.5,
+        15.9,
+        15.3,
+        30.9,
+        15.9,
+        15.4
+      ],
+      "mean_ms": 13.8,
+      "max_ms": 30.9
+    },
+    {
+      "master": "C241",
+      "target": "C24C",
+      "n": 10,
+      "ms": [
+        1.5,
+        0.9,
+        5.9,
+        16.3,
+        15.8,
+        1.1,
+        14.2,
+        15.6,
+        15.6,
+        28.3
+      ],
+      "mean_ms": 11.5,
+      "max_ms": 28.3
+    },
+    {
+      "master": "C241",
+      "target": "C241",
+      "n": 10,
+      "ms": [
+        18.7,
+        15.8,
+        15.7,
+        15.7,
+        14.9,
+        16.0,
+        1.2,
+        14.0,
+        16.4,
+        15.6
+      ],
+      "mean_ms": 14.4,
+      "max_ms": 18.7
+    }
+  ],
+  "searches": [
+    {
+      "phone": "C24C",
+      "api_ms": 2995.8,
+      "shot_after_ms": 3482.4,
+      "after_path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\c241-master-20260915\\search-C24C-0-after.bmp",
+      "other_unchanged_hint_mad": null
+    },
+    {
+      "phone": "C241-while-C24C-master",
+      "api_ms": 3008.7,
+      "shot_after_ms": 3512.0,
+      "after_path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\c241-master-20260915\\search-C241-while-C24C-master-0-after.bmp",
+      "other_unchanged_hint_mad": null
+    },
+    {
+      "phone": "C241-while-C241-master",
+      "api_ms": 2991.0,
+      "shot_after_ms": 3462.4,
+      "after_path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\c241-master-20260915\\search-C241-while-C241-master-1-after.bmp",
+      "other_unchanged_hint_mad": null
+    }
+  ],
+  "displayed_note": "FrameStatus displayed_fps is unique Present() marks in a ~2s window; it does not count duplicate BMPs. received_fps counts every pipe frame over the whole ~20s window."
+}

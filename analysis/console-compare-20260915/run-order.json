@@ -1,0 +1,22 @@
+[
+    {
+        "phase":  "candidate-a",
+        "console_id":  9532,
+        "console_path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe"
+    },
+    {
+        "phase":  "original-a",
+        "console_id":  31124,
+        "console_path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone\\iMouse2.exe"
+    },
+    {
+        "phase":  "candidate-b",
+        "console_id":  3604,
+        "console_path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe"
+    },
+    {
+        "phase":  "original-b",
+        "console_id":  5240,
+        "console_path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone\\iMouse2.exe"
+    }
+]

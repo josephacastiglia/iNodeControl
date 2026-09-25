@@ -1,0 +1,15 @@
+{
+  "status": 200,
+  "message": "ok",
+  "data": {
+    "code": 0,
+    "input": "direct-hid",
+    "allowed": [
+      "C24C"
+    ],
+    "receiver": "iMouse2-C24C",
+    "receiver_pid": 12548,
+    "frames": 1081,
+    "live": true
+  }
+}

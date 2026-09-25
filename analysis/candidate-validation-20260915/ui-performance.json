@@ -1,0 +1,62 @@
+[
+  {
+    "phase": "baseline",
+    "at": "2026-09-15T04:12:51.963Z",
+    "readouts": [
+      "\t\t33 text XR C24C ID: SelectedTitle",
+      "\t\t\t\t\t83 text 20 fps",
+      "\t\t64 text Hardware 19 (2 with a phone) · Online 2 · Controllable 2 · Cast iMouse2-C24C / iMouse2-C214 ID: StatusInfo",
+      "\t\t\t89 text Live · 20.6 fps · 500 × 1080 · taps in image pixels 500 × 1080 · 41/72 ms p50/p95 · 119 slow ID: FrameStatus"
+    ]
+  },
+  {
+    "phase": "baseline",
+    "at": "2026-09-15T04:13:15.498Z",
+    "readouts": [
+      "\t\t33 text XR C24C ID: SelectedTitle",
+      "\t\t\t\t\t145 text 19 fps",
+      "\t\t64 text Hardware 19 (2 with a phone) · Online 2 · Controllable 2 · Cast iMouse2-C24C / iMouse2-C214 ID: StatusInfo",
+      "\t\t\t89 text Live · 20 fps · 500 × 1080 · taps in image pixels 500 × 1080 · 61/71 ms p50/p95 · 120 slow ID: FrameStatus"
+    ]
+  },
+  {
+    "phase": "baseline",
+    "at": "2026-09-15T04:13:56.372Z",
+    "readouts": [
+      "\t\t33 text XR C24C ID: SelectedTitle",
+      "\t\t\t\t\t148 text 19 fps",
+      "\t\t64 text Hardware 19 (2 with a phone) · Online 2 · Controllable 2 · Cast iMouse2-C24C / iMouse2-C214 ID: StatusInfo",
+      "\t\t\t89 text Live · 20 fps · 500 × 1080 · taps in image pixels 500 × 1080 · 49/72 ms p50/p95 · 120 slow ID: FrameStatus"
+    ]
+  },
+  {
+    "phase": "candidate",
+    "at": "2026-09-15T04:23:41.123Z",
+    "readouts": [
+      "\t\t33 text XR C24C ID: SelectedTitle",
+      "\t\t\t\t\t260 text 19 fps",
+      "\t\t64 text Hardware 19 (2 with a phone) · Online 2 · Controllable 2 · Cast iMouse2-C24C / iMouse2-C241 ID: StatusInfo",
+      "\t\t\t237 text Live · 20.2 fps · 500 × 1080 · taps in image pixels 500 × 1080 · 40/72 ms p50/p95 · 119 slow ID: FrameStatus"
+    ]
+  },
+  {
+    "phase": "candidate",
+    "at": "2026-09-15T04:24:06.944Z",
+    "readouts": [
+      "\t\t33 text XR C24C ID: SelectedTitle",
+      "\t\t\t\t\t263 text 19 fps",
+      "\t\t64 text Hardware 19 (2 with a phone) · Online 2 · Controllable 2 · Cast iMouse2-C24C / iMouse2-C241 ID: StatusInfo",
+      "\t\t\t237 text Live · 20.2 fps · 500 × 1080 · taps in image pixels 500 × 1080 · 40/72 ms p50/p95 · 119 slow ID: FrameStatus"
+    ]
+  },
+  {
+    "phase": "candidate-followup",
+    "at": "2026-09-15T04:24:54.715Z",
+    "readouts": [
+      "\t\t33 text XR C24C ID: SelectedTitle",
+      "\t\t\t\t\t265 text 19 fps",
+      "\t\t64 text Hardware 19 (2 with a phone) · Online 2 · Controllable 2 · Cast iMouse2-C24C / iMouse2-C241 ID: StatusInfo",
+      "\t\t\t237 text Live · 20.2 fps · 500 × 1080 · taps in image pixels 500 × 1080 · 40/71 ms p50/p95 · 119 slow ID: FrameStatus"
+    ]
+  }
+]

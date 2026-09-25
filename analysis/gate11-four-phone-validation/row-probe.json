@@ -1,0 +1,59 @@
+[
+  {
+    "y": 472,
+    "live": false,
+    "frames": 0,
+    "state": "offline",
+    "hits": []
+  },
+  {
+    "y": 535,
+    "live": false,
+    "frames": 0,
+    "state": "offline",
+    "hits": [
+      {
+        "receiver": "C24C",
+        "fresh": "2026-09-22T20:17:06.5582760-04:00 Accepted IPv4 client on socket 9476, port 7111\n2026-09-22T20:17:06.5585275-04:00 Local : 192.168.4.63\n2026-09-22T20:17:06.5587306-04:00 Remote: 192.168.4.57\n2026-09-22T20:17:06.5805535-04:00 connection request from iPhone (iPhone11,8) with deviceID = 86:1D:4A:04:2F:F6\n2026-09-22T20:17:06.5807936-04:00 \n2026-09-22T20:17:06.5809453-04:00 Client identified as User-Agent: AirPlay/870.14.1\n"
+      }
+    ]
+  },
+  {
+    "y": 598,
+    "live": false,
+    "frames": 0,
+    "state": "offline",
+    "hits": [
+      {
+        "receiver": "C214",
+        "fresh": "22T20:17:16.7779496-04:00 \n2026-09-22T20:17:16.7780772-04:00 client connections have been restricted to those with listed deviceID,\n2026-09-22T20:17:16.7781870-04:00 use \"-allow 86:1D:4A:04:2F:F6\" to allow this client to connect.\n2026-09-22T20:17:16.7782987-04:00 \n2026-09-22T20:17:16.8115032-04:00 *** ERROR: Mirroring not initialized at SETUP, playing will fail!\n2026-09-22T20:17:16.8117845-04:00 Disconnecting on software request\n2026-09-22T20:17:16.8120087-04:00 Connection closed on socket 9544\n"
+      }
+    ]
+  },
+  {
+    "y": 661,
+    "live": false,
+    "frames": 0,
+    "state": "offline",
+    "hits": [
+      {
+        "receiver": "C241",
+        "fresh": "2T20:17:27.0217399-04:00 \n2026-09-22T20:17:27.0219172-04:00 client connections have been restricted to those with listed deviceID,\n2026-09-22T20:17:27.0220686-04:00 use \"-allow 86:1D:4A:04:2F:F6\" to allow this client to connect.\n2026-09-22T20:17:27.0222206-04:00 \n2026-09-22T20:17:27.0424162-04:00 *** ERROR: Mirroring not initialized at SETUP, playing will fail!\n2026-09-22T20:17:27.0426859-04:00 Disconnecting on software request\n2026-09-22T20:17:27.0428602-04:00 Connection closed on socket 10152\n"
+      }
+    ]
+  },
+  {
+    "y": 691,
+    "live": false,
+    "frames": 0,
+    "state": "offline",
+    "hits": []
+  },
+  {
+    "y": 724,
+    "live": false,
+    "frames": 0,
+    "state": "offline",
+    "hits": []
+  }
+]

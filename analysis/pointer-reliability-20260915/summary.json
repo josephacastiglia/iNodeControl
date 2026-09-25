@@ -1,0 +1,94 @@
+{
+  "12-c241-legacy": {
+    "n": 2,
+    "min_ms": 3010.7038,
+    "max_ms": 3028.3222,
+    "median_ms": 3019.513,
+    "receiver_deltas": [
+      {
+        "name": "iMouse2-C24C",
+        "frames": 215,
+        "restarts": 0,
+        "pid_unchanged": true,
+        "live_at_end": true
+      },
+      {
+        "name": "iMouse2-C241",
+        "frames": 300,
+        "restarts": 0,
+        "pid_unchanged": true,
+        "live_at_end": true
+      }
+    ],
+    "max_other_mad": 0.02417283950617284
+  },
+  "13-c241-precise": {
+    "n": 14,
+    "min_ms": 1158.5073,
+    "max_ms": 1176.294,
+    "median_ms": 1168.75355,
+    "receiver_deltas": [
+      {
+        "name": "iMouse2-C24C",
+        "frames": 1120,
+        "restarts": 0,
+        "pid_unchanged": true,
+        "live_at_end": true
+      },
+      {
+        "name": "iMouse2-C241",
+        "frames": 1455,
+        "restarts": 0,
+        "pid_unchanged": true,
+        "live_at_end": true
+      }
+    ],
+    "max_other_mad": 0.029949382716049383
+  },
+  "14-c24c-legacy": {
+    "n": 2,
+    "min_ms": 3005.3883,
+    "max_ms": 3011.4725,
+    "median_ms": 3008.4304,
+    "receiver_deltas": [
+      {
+        "name": "iMouse2-C24C",
+        "frames": 300,
+        "restarts": 0,
+        "pid_unchanged": true,
+        "live_at_end": true
+      },
+      {
+        "name": "iMouse2-C241",
+        "frames": 140,
+        "restarts": 0,
+        "pid_unchanged": true,
+        "live_at_end": true
+      }
+    ],
+    "max_other_mad": 0.024983333333333333
+  },
+  "15-c24c-precise": {
+    "n": 14,
+    "min_ms": 1149.1461,
+    "max_ms": 1176.1705,
+    "median_ms": 1169.70395,
+    "receiver_deltas": [
+      {
+        "name": "iMouse2-C24C",
+        "frames": 1512,
+        "restarts": 0,
+        "pid_unchanged": true,
+        "live_at_end": true
+      },
+      {
+        "name": "iMouse2-C241",
+        "frames": 851,
+        "restarts": 0,
+        "pid_unchanged": true,
+        "live_at_end": true
+      }
+    ],
+    "max_other_mad": 0.022033333333333332
+  }
+}

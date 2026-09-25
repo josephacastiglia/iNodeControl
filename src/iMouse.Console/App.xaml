@@ -1,0 +1,222 @@
+<Application x:Class="IMouse2.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Application.Resources>
+
+    <!--
+      Every colour lives behind a key and every reference to one is a DynamicResource, so
+      Theme.Apply can swap the whole palette at runtime. A StaticResource here would be
+      resolved once at load and the night-mode toggle would silently do nothing to
+      anything styled in this file.
+
+      The light palette is the default: white surfaces, hairline rules, one restrained
+      accent. Ready/OK is a separate green from the accent, so "this phone is working"
+      never reads as "this phone is selected".
+    -->
+    <SolidColorBrush x:Key="CanvasBrush"     Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceBrush"    Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="RaisedBrush"     Color="#F5F6F8"/>
+    <SolidColorBrush x:Key="EdgeBrush"       Color="#E2E5E9"/>
+    <SolidColorBrush x:Key="TextBrush"       Color="#14171A"/>
+    <SolidColorBrush x:Key="MutedBrush"      Color="#6B7280"/>
+    <SolidColorBrush x:Key="AccentBrush"     Color="#2F6FED"/>
+    <SolidColorBrush x:Key="OnAccentBrush"   Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="OkBrush"         Color="#0E9F6E"/>
+    <SolidColorBrush x:Key="WarnBrush"       Color="#B45309"/>
+    <SolidColorBrush x:Key="BadBrush"        Color="#DC2626"/>
+    <SolidColorBrush x:Key="StageBrush"      Color="#EDEFF2"/>
+    <SolidColorBrush x:Key="WallBrush"       Color="#FAFBFC"/>
+    <SolidColorBrush x:Key="TileBrush"       Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ItemBrush"       Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ItemHoverBrush"  Color="#F2F5FA"/>
+    <SolidColorBrush x:Key="TargetBrush"     Color="#EAF2FE"/>
+    <SolidColorBrush x:Key="LogBrush"        Color="#FAFBFC"/>
+    <SolidColorBrush x:Key="ScrollThumbBrush" Color="#C7CCD3"/>
+
+    <Style x:Key="Muted" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="SectionLabel" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <!-- Buttons: flat, hairline, no gradient. Hover tints the fill rather than the border,
+         which reads as quieter at the density this window runs at. -->
+    <Style TargetType="Button">
+      <Setter Property="Background" Value="{DynamicResource RaisedBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}"/>
+      <Setter Property="Padding" Value="11,7"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Margin" Value="0,0,6,6"/>
+      <Setter Property="SnapsToDevicePixels" Value="True"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Box" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="1" CornerRadius="5" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Box" Property="Background" Value="{DynamicResource ItemHoverBrush}"/>
+                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                <Setter TargetName="Box" Property="BorderThickness" Value="2"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter TargetName="Box" Property="Opacity" Value="0.7"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Box" Property="Opacity" Value="0.42"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="Primary" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="Quiet" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+      <Setter Property="MinHeight" Value="26"/>
+      <Setter Property="Padding" Value="8,4"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style TargetType="TextBox">
+      <Setter Property="Background" Value="{DynamicResource RaisedBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="CaretBrush" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="8,6"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style TargetType="CheckBox">
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Padding" Value="6,3"/>
+      <Setter Property="MinHeight" Value="26"/>
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <Style TargetType="Label"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/><Setter Property="FontSize" Value="12"/></Style>
+
+    <!-- A minimal ComboBox. The stock template paints Windows' own chrome, which ignores
+         the palette and looks wrong the moment night mode is on. -->
+    <ControlTemplate x:Key="ComboToggle" TargetType="ToggleButton">
+      <Border x:Name="Box" Background="{DynamicResource RaisedBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="5" SnapsToDevicePixels="True">
+        <Path x:Name="Arrow" Data="M 0 0 L 4 4 L 8 0" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.4"
+              HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"/>
+      </Border>
+      <ControlTemplate.Triggers>
+        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger>
+      </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="ComboBox">
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="Background" Value="{DynamicResource RaisedBrush}"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Padding" Value="9,5"/>
+      <Setter Property="SnapsToDevicePixels" Value="True"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ComboBox">
+            <Grid>
+              <ToggleButton Template="{StaticResource ComboToggle}" Focusable="False" ClickMode="Press"
+                            IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+              <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                Margin="{TemplateBinding Padding}" VerticalAlignment="Center" HorizontalAlignment="Left" IsHitTestVisible="False"/>
+              <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="5"
+                        MinWidth="{TemplateBinding ActualWidth}" Margin="0,3,0,0" SnapsToDevicePixels="True">
+                  <ScrollViewer MaxHeight="280"><ItemsPresenter/></ScrollViewer>
+                </Border>
+              </Popup>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style TargetType="ComboBoxItem">
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="Padding" Value="9,6"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ComboBoxItem">
+            <Border x:Name="Box" Background="Transparent" Padding="{TemplateBinding Padding}" CornerRadius="4" Margin="3,2">
+              <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="Background" Value="{DynamicResource ItemHoverBrush}"/></Trigger>
+              <Trigger Property="IsSelected" Value="True"><Setter TargetName="Box" Property="Background" Value="{DynamicResource TargetBrush}"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Thin, unobtrusive scrollbars; the stock ones are a solid grey slab that dominates
+         a white layout and is invisible on a dark one. -->
+    <Style TargetType="ScrollBar">
+      <Setter Property="Width" Value="9"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ScrollBar">
+            <Grid Background="Transparent">
+              <Track x:Name="PART_Track" IsDirectionReversed="True">
+                <Track.Thumb>
+                  <Thumb>
+                    <Thumb.Template>
+                      <ControlTemplate TargetType="Thumb">
+                        <Border Background="{DynamicResource ScrollThumbBrush}" CornerRadius="4" Margin="2,0" Opacity="0.85"/>
+                      </ControlTemplate>
+                    </Thumb.Template>
+                  </Thumb>
+                </Track.Thumb>
+                <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False"/></Track.IncreaseRepeatButton>
+                <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False"/></Track.DecreaseRepeatButton>
+              </Track>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Height" Value="9"/><Setter Property="Width" Value="Auto"/>
+                <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Panels are white on white, separated by a hairline rather than a shadow. -->
+    <Style x:Key="Panel" TargetType="Border">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="16"/>
+      <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+  </Application.Resources>
+</Application>

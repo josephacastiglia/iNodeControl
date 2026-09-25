@@ -1,0 +1,88 @@
+{
+  "at": "2026-09-22T02:17:03-04:00",
+  "model": "Grok 4.7",
+  "model_id": "xai-oauth/grok-4.7",
+  "gate6_ceiling_ms": 2000,
+  "accepted": false,
+  "acceptance": {
+    "spotlight_c24c_5_of_5": false,
+    "spotlight_c241_5_of_5": true,
+    "dispatch_under_2000ms": true,
+    "reciprocal_isolation_100pct": true,
+    "stuck_inputs": 0
+  },
+  "kernel": {
+    "pid": 38748,
+    "untouched": true,
+    "still_running_after": true,
+    "start": "2026-09-22T01:58:42",
+    "exe": "release/iMouse2-kernel-two-phone/iMouse2.Kernel.exe",
+    "dll_sha256": "277A24F3EDC49442D13D88716AAB8750395E02C9A55D81076BC35CC8C94408B5",
+    "dll_mtime": "2026-09-22T01:54:50",
+    "command_line_flags": "no --legacy, no --precise-delay, no --precise-movement",
+    "pacing": "source default 7 ms waitable timer; DLL contains high-resolution and legacy Task.Delay strings",
+    "restarted": false
+  },
+  "console": {
+    "pid": 29436,
+    "window": "iMouse 2.0 — iPhone Console",
+    "minimized_before_clicks": true,
+    "mirror_to_all": false,
+    "SelectAllBox": "Off",
+    "SelectAllLabel": "Mirror to all",
+    "follower_C24C": "Off",
+    "follower_C241": "Off"
+  },
+  "preflight_frames": {
+    "C24C": {"pid": 39604, "before": 7187, "after_1s": 7194, "live": true, "restarts": 0},
+    "C241": {"pid": 1852, "before": 7560, "after_1s": 7580, "live": true, "restarts": 0}
+  },
+  "protocol": {
+    "api": "POST http://127.0.0.1:9913/api/ single-id with per-phone lease token",
+    "home": "fn_key Home twice, 0.15s between presses, then 0.8s",
+    "click": "POST /mouse/click x=250 y=900 button=1",
+    "after_click": "wait 0.8s, target BMP, other-phone BMP, one Home dismiss",
+    "cycles": 5,
+    "phones": ["C24C", "C241"],
+    "dispatch_measure": "HTTP elapsed of the blocking /mouse/click call. The handler awaits ClickAsync, so this is console-API dispatch time, not a separate InputRouter stopwatch. Kernel stdout total= lines were not redirected to a log.",
+    "no_retries": true,
+    "kernel_not_restarted": true
+  },
+  "visual_rule": "Spotlight = Search field + Siri Suggestions over dimmed Home. Home = icon grid, dock, small Search pill, no Spotlight sheet. Isolation = other phone stayed Home.",
+  "spotlight": {"C24C": "4/5", "C241": "5/5"},
+  "isolation_other_home": {"during_C24C": "5/5", "during_C241": "5/5", "reciprocal": "100%"},
+  "dispatch_ms": {
+    "C24C": [1826.1, 1823.4, 1823.3, 1822.8, 1842.9],
+    "C241": [1824.5, 1820.0, 1843.4, 1820.5, 1844.1]
+  },
+  "dispatch_min_ms": 1820.0,
+  "dispatch_max_ms": 1844.1,
+  "dispatch_median_ms": 1823.95,
+  "under_2s": true,
+  "rows": [
+    {"phone": "C24C", "cycle": 1, "dispatch_ms": 1826.1, "click_code": 0, "class": "Spotlight", "other": "C241", "other_class": "Home", "png": "c24c-c1-search.png"},
+    {"phone": "C24C", "cycle": 2, "dispatch_ms": 1823.4, "click_code": 0, "class": "Home", "other": "C241", "other_class": "Home", "png": "c24c-c2-search.png", "note": "Miss. Home screen, Search pill above dock, no focus ring, Spotlight not open. MAD 1.605 vs later C24C Home."},
+    {"phone": "C24C", "cycle": 3, "dispatch_ms": 1823.3, "click_code": 0, "class": "Spotlight", "other": "C241", "other_class": "Home", "png": "c24c-c3-search.png"},
+    {"phone": "C24C", "cycle": 4, "dispatch_ms": 1822.8, "click_code": 0, "class": "Spotlight", "other": "C241", "other_class": "Home", "png": "c24c-c4-search.png"},
+    {"phone": "C24C", "cycle": 5, "dispatch_ms": 1842.9, "click_code": 0, "class": "Spotlight", "other": "C241", "other_class": "Home", "png": "c24c-c5-search.png"},
+    {"phone": "C241", "cycle": 1, "dispatch_ms": 1824.5, "click_code": 0, "class": "Spotlight", "other": "C24C", "other_class": "Home", "png": "c241-c1-search.png"},
+    {"phone": "C241", "cycle": 2, "dispatch_ms": 1820.0, "click_code": 0, "class": "Spotlight", "other": "C24C", "other_class": "Home", "png": "c241-c2-search.png"},
+    {"phone": "C241", "cycle": 3, "dispatch_ms": 1843.4, "click_code": 0, "class": "Spotlight", "other": "C24C", "other_class": "Home", "png": "c241-c3-search.png"},
+    {"phone": "C241", "cycle": 4, "dispatch_ms": 1820.5, "click_code": 0, "class": "Spotlight", "other": "C24C", "other_class": "Home", "png": "c241-c4-search.png"},
+    {"phone": "C241", "cycle": 5, "dispatch_ms": 1844.1, "click_code": 0, "class": "Spotlight", "other": "C24C", "other_class": "Home", "png": "c241-c5-search.png"}
+  ],
+  "isolation_mad_vs_first_home": {
+    "C241_during_C24C": [0.0, 0.0256, 0.0315, 0.0378, 0.0382],
+    "C24C_during_C241": [0.0, 0.0258, 0.0314, 0.0859, 0.0918]
+  },
+  "classification": "Vision on all 10 search frames and isolation frames c1 and c5 of each phone. Other isolation frames match the vision-confirmed Home of the same phone (MAD < 0.1).",
+  "stuck_inputs": {
+    "after_release": {
+      "C24C": {"owned": false, "active": false, "stopped": false, "release_failed": false, "message": "Controller released."},
+      "C241": {"owned": false, "active": false, "stopped": false, "release_failed": false, "message": "Controller released."}
+    },
+    "click_codes": "10/10 code 0",
+    "note": "end-status.json was captured while the test lease was still held. Release returned code 0. Post-release status is above."
+  },
+  "conclusion": "Latency and isolation pass. C24C Spotlight is 4/5 because cycle 2 stayed on Home after a completed 1823.4 ms click. Gate 6 5/5 on both phones is not met. Kernel PID 38748 was not restarted."
+}

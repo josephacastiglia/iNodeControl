@@ -1,0 +1,904 @@
+{
+  "model": "Grok 4.7",
+  "model_id": "xai-oauth/grok-4.7",
+  "at": "2026-09-22T01:13:14.157380-04:00",
+  "kernel_pid": 31944,
+  "kernel_url": "http://127.0.0.1:9913/api",
+  "group_id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+  "dll_sha256": "A995CF5B92AEE4393E164FA4CE68D446A3F63D4D0CAAA73B5ACB6DCF587851BF",
+  "dll_matches_known_rollback": true,
+  "input_stop_in_rollback_dll": false,
+  "preflight": {
+    "status_ms": [
+      3.5,
+      12.4
+    ],
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "input": "direct-hid",
+    "frames": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "live": true,
+        "state": "mirroring",
+        "frames_before": 109535,
+        "frames_after": 109546,
+        "delta": 11,
+        "advancing": true
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "live": true,
+        "state": "mirroring",
+        "frames_before": 141731,
+        "frames_after": 141741,
+        "delta": 10,
+        "advancing": true
+      }
+    ],
+    "both_live_advancing": true
+  },
+  "settle_home": [
+    {
+      "fun": "/key/sendkey",
+      "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+      "payload": {
+        "fn_key": "Home"
+      },
+      "http": 200,
+      "code": 0,
+      "message": null,
+      "rtt_ms": 289.1,
+      "at": "2026-09-22T01:13:00.900941-04:00",
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "raw_keys": [
+        "code",
+        "results"
+      ]
+    },
+    {
+      "fun": "/key/sendkey",
+      "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+      "payload": {
+        "fn_key": "Home"
+      },
+      "http": 200,
+      "code": 0,
+      "message": null,
+      "rtt_ms": 289.9,
+      "at": "2026-09-22T01:13:01.190974-04:00",
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "raw_keys": [
+        "code",
+        "results"
+      ]
+    }
+  ],
+  "baseline": {
+    "C24C": {
+      "bmp": "c24c-baseline-home.bmp",
+      "png": "c24c-baseline-home.png",
+      "shot_ms": 1.5,
+      "http": 200,
+      "bytes": 1620054,
+      "wh": [
+        500,
+        1080
+      ]
+    },
+    "C241": {
+      "bmp": "c241-baseline-home.bmp",
+      "png": "c241-baseline-home.png",
+      "shot_ms": 1.3,
+      "http": 200,
+      "bytes": 1620054,
+      "wh": [
+        500,
+        1080
+      ]
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "parallel_home",
+      "request": {
+        "fun": "/key/sendkey",
+        "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+        "payload": {
+          "fn_key": "Home"
+        },
+        "http": 200,
+        "code": 0,
+        "message": null,
+        "rtt_ms": 308.5,
+        "at": "2026-09-22T01:13:02.310274-04:00",
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          },
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "raw_keys": [
+          "code",
+          "results"
+        ]
+      },
+      "wait_s": 0.8,
+      "phones": {
+        "C24C": {
+          "bmp": "c24c-step1-home.bmp",
+          "png": "c24c-step1-home.png",
+          "shot_ms": 1.7,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 0.04,
+          "visible_ms": 1132.0,
+          "within_5s": true,
+          "changed": false
+        },
+        "C241": {
+          "bmp": "c241-step1-home.bmp",
+          "png": "c241-step1-home.png",
+          "shot_ms": 17.0,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 0.05,
+          "visible_ms": 1134.7,
+          "within_5s": true,
+          "changed": false
+        }
+      },
+      "both_changed": false,
+      "both_within_5s": false
+    },
+    {
+      "step": 2,
+      "name": "parallel_search_click",
+      "request": {
+        "fun": "/mouse/click",
+        "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+        "payload": {
+          "x": 250,
+          "y": 900,
+          "button": 1
+        },
+        "http": 200,
+        "code": 0,
+        "message": null,
+        "rtt_ms": 1018.3,
+        "at": "2026-09-22T01:13:04.154516-04:00",
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          },
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "raw_keys": [
+          "code",
+          "results"
+        ]
+      },
+      "wait_s": 1.0,
+      "phones": {
+        "C24C": {
+          "bmp": "c24c-step2-spotlight.bmp",
+          "png": "c24c-step2-spotlight.png",
+          "shot_ms": 1.5,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 80.03,
+          "visible_ms": 2039.1,
+          "within_5s": true,
+          "changed": true
+        },
+        "C241": {
+          "bmp": "c241-step2-spotlight.bmp",
+          "png": "c241-step2-spotlight.png",
+          "shot_ms": 14.2,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 45.79,
+          "visible_ms": 2041.9,
+          "within_5s": true,
+          "changed": true
+        }
+      },
+      "both_changed": true,
+      "both_within_5s": true
+    },
+    {
+      "step": 3,
+      "name": "parallel_dismiss",
+      "request": {
+        "fun": "/key/sendkey",
+        "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+        "payload": {
+          "fn_key": "Home"
+        },
+        "http": 200,
+        "code": 0,
+        "message": null,
+        "rtt_ms": 290.1,
+        "at": "2026-09-22T01:13:05.469174-04:00",
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          },
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "raw_keys": [
+          "code",
+          "results"
+        ]
+      },
+      "wait_s": 0.8,
+      "phones": {
+        "C24C": {
+          "bmp": "c24c-step3-home.bmp",
+          "png": "c24c-step3-home.png",
+          "shot_ms": 1.5,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 79.98,
+          "visible_ms": 1098.6,
+          "within_5s": true,
+          "changed": true
+        },
+        "C241": {
+          "bmp": "c241-step3-home.bmp",
+          "png": "c241-step3-home.png",
+          "shot_ms": 1.2,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 45.76,
+          "visible_ms": 1101.6,
+          "within_5s": true,
+          "changed": true
+        }
+      },
+      "both_changed": true,
+      "both_within_5s": true
+    },
+    {
+      "step": 4,
+      "name": "parallel_swipe_left",
+      "request": {
+        "fun": "/mouse/swipe",
+        "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+        "payload": {
+          "direction": "left",
+          "len": 0.75,
+          "duration": 400
+        },
+        "http": 200,
+        "code": 0,
+        "message": null,
+        "rtt_ms": 1196.7,
+        "at": "2026-09-22T01:13:07.477089-04:00",
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          },
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "raw_keys": [
+          "code",
+          "results"
+        ]
+      },
+      "wait_s": 1.0,
+      "phones": {
+        "C24C": {
+          "bmp": "c24c-step4-swipe-left.bmp",
+          "png": "c24c-step4-swipe-left.png",
+          "shot_ms": 1.5,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 31.44,
+          "visible_ms": 2227.8,
+          "within_5s": true,
+          "changed": true
+        },
+        "C241": {
+          "bmp": "c241-step4-swipe-left.bmp",
+          "png": "c241-step4-swipe-left.png",
+          "shot_ms": 23.9,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 27.69,
+          "visible_ms": 2230.6,
+          "within_5s": true,
+          "changed": true
+        }
+      },
+      "both_changed": true,
+      "both_within_5s": true
+    },
+    {
+      "step": 5,
+      "name": "parallel_swipe_right",
+      "request": {
+        "fun": "/mouse/swipe",
+        "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+        "payload": {
+          "direction": "right",
+          "len": 0.75,
+          "duration": 400
+        },
+        "http": 200,
+        "code": 0,
+        "message": null,
+        "rtt_ms": 687.8,
+        "at": "2026-09-22T01:13:09.198532-04:00",
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          },
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "raw_keys": [
+          "code",
+          "results"
+        ]
+      },
+      "wait_s": 1.0,
+      "phones": {
+        "C24C": {
+          "bmp": "c24c-step5-swipe-right.bmp",
+          "png": "c24c-step5-swipe-right.png",
+          "shot_ms": 1.5,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 31.05,
+          "visible_ms": 1709.5,
+          "within_5s": true,
+          "changed": true
+        },
+        "C241": {
+          "bmp": "c241-step5-swipe-right.bmp",
+          "png": "c241-step5-swipe-right.png",
+          "shot_ms": 15.1,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 27.53,
+          "visible_ms": 1712.5,
+          "within_5s": true,
+          "changed": true
+        }
+      },
+      "both_changed": true,
+      "both_within_5s": true
+    },
+    {
+      "step": 6,
+      "name": "parallel_settle_home",
+      "request": {
+        "fun": "/key/sendkey",
+        "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+        "payload": {
+          "fn_key": "Home"
+        },
+        "http": 200,
+        "code": 0,
+        "message": null,
+        "rtt_ms": 290.7,
+        "at": "2026-09-22T01:13:10.514605-04:00",
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          },
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "raw_keys": [
+          "code",
+          "results"
+        ]
+      },
+      "wait_s": 0.8,
+      "phones": {
+        "C24C": {
+          "bmp": "c24c-step6-home.bmp",
+          "png": "c24c-step6-home.png",
+          "shot_ms": 1.5,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 0.29,
+          "visible_ms": 1098.6,
+          "within_5s": true,
+          "changed": false
+        },
+        "C241": {
+          "bmp": "c241-step6-home.bmp",
+          "png": "c241-step6-home.png",
+          "shot_ms": 1.4,
+          "http": 200,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "mad_vs_prev": 0.27,
+          "visible_ms": 1101.4,
+          "within_5s": true,
+          "changed": false
+        }
+      },
+      "both_changed": false,
+      "both_within_5s": false
+    }
+  ],
+  "cancellation": {
+    "mouse_down": {
+      "fun": "/mouse/down",
+      "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+      "payload": {
+        "button": 1
+      },
+      "http": 200,
+      "code": 0,
+      "message": null,
+      "rtt_ms": 122.7,
+      "at": "2026-09-22T01:13:11.447292-04:00",
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "raw_keys": [
+        "code",
+        "results"
+      ]
+    },
+    "input_stop": {
+      "fun": "/input/stop",
+      "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+      "payload": {},
+      "http": 200,
+      "code": 41,
+      "message": "Not implemented: /input/stop",
+      "rtt_ms": 1.1,
+      "at": "2026-09-22T01:13:11.449311-04:00",
+      "results": null,
+      "raw_keys": [
+        "code",
+        "message"
+      ]
+    },
+    "mouse_up": {
+      "fun": "/mouse/up",
+      "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+      "payload": {
+        "button": 1
+      },
+      "http": 200,
+      "code": 0,
+      "message": null,
+      "rtt_ms": 15.7,
+      "at": "2026-09-22T01:13:11.465245-04:00",
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "raw_keys": [
+        "code",
+        "results"
+      ]
+    },
+    "null_mouse_up": {
+      "fun": "/mouse/up",
+      "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+      "payload": {},
+      "http": 200,
+      "code": 0,
+      "message": null,
+      "rtt_ms": 14.9,
+      "at": "2026-09-22T01:13:11.480103-04:00",
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "raw_keys": [
+        "code",
+        "results"
+      ]
+    },
+    "release_rtt_ms": 154.7,
+    "stop_implemented": false,
+    "release_path": "mouse/up null report because /input/stop returned code 41",
+    "buttons_released": true,
+    "buttons_note": "Rollback kernel has no /input/status and does not expose state.Buttons. /mouse/up is the null button report (Buttons=0) in this build.",
+    "after_release": {
+      "C24C": {
+        "bmp": "c24c-step7-after-release.bmp",
+        "png": "c24c-step7-after-release.png",
+        "shot_ms": 1.3,
+        "http": 200,
+        "bytes": 1620054,
+        "wh": [
+          500,
+          1080
+        ],
+        "mad_vs_prev": 47.21
+      },
+      "C241": {
+        "bmp": "c241-step7-after-release.bmp",
+        "png": "c241-step7-after-release.png",
+        "shot_ms": 32.3,
+        "http": 200,
+        "bytes": 1620054,
+        "wh": [
+          500,
+          1080
+        ],
+        "mad_vs_prev": 116.32
+      }
+    },
+    "home_after": {
+      "fun": "/key/sendkey",
+      "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+      "payload": {
+        "fn_key": "Home"
+      },
+      "http": 200,
+      "code": 0,
+      "message": null,
+      "rtt_ms": 290.0,
+      "at": "2026-09-22T01:13:12.212109-04:00",
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "raw_keys": [
+        "code",
+        "results"
+      ]
+    },
+    "home_after_caps": {
+      "C24C": {
+        "bmp": "c24c-step7-home-after-release.bmp",
+        "png": "c24c-step7-home-after-release.png",
+        "shot_ms": 1.5,
+        "http": 200,
+        "bytes": 1620054,
+        "wh": [
+          500,
+          1080
+        ],
+        "mad_vs_release": 47.76,
+        "visible_ms": 1098.2,
+        "within_5s": true
+      },
+      "C241": {
+        "bmp": "c241-step7-home-after-release.bmp",
+        "png": "c241-step7-home-after-release.png",
+        "shot_ms": 1.3,
+        "http": 200,
+        "bytes": 1620054,
+        "wh": [
+          500,
+          1080
+        ],
+        "mad_vs_release": 116.23,
+        "visible_ms": 1100.9,
+        "within_5s": true
+      }
+    },
+    "home_settle": {
+      "fun": "/key/sendkey",
+      "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44",
+      "payload": {
+        "fn_key": "Home"
+      },
+      "http": 200,
+      "code": 0,
+      "message": null,
+      "rtt_ms": 302.5,
+      "at": "2026-09-22T01:13:13.325557-04:00",
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "raw_keys": [
+        "code",
+        "results"
+      ]
+    },
+    "home_settled": {
+      "C24C": {
+        "bmp": "c24c-step7-home-settled.bmp",
+        "png": "c24c-step7-home-settled.png",
+        "shot_ms": 1.5,
+        "http": 200,
+        "bytes": 1620054,
+        "wh": [
+          500,
+          1080
+        ]
+      },
+      "C241": {
+        "bmp": "c241-step7-home-settled.bmp",
+        "png": "c241-step7-home-settled.png",
+        "shot_ms": 13.6,
+        "http": 200,
+        "bytes": 1620054,
+        "wh": [
+          500,
+          1080
+        ]
+      }
+    },
+    "state_buttons": 0,
+    "state_buttons_evidence": "Rollback kernel does not expose state.Buttons. /mouse/up returned code 0 for both IDs and sends the null button report. A later group /mouse/move changed neither screen (MAD 0.01), so the button was not held."
+  },
+  "kernel_after": {
+    "code": 0,
+    "input": "direct-hid",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 49160,
+    "receiver_restarts": 1,
+    "frames": 109893,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 49160,
+        "receiver_restarts": 1,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 109893
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 31660,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 142115
+      }
+    ]
+  },
+  "kernel_after_ms": 14.3,
+  "kernel_log_new": [],
+  "pid_unchanged_check": "caller must confirm PID 31944 still iMouse2.Kernel",
+  "kernel_pid_alive_after": true,
+  "console_guard": {
+    "console_pid": 34852,
+    "window": "iMouse 2.0 \u2014 iPhone Console",
+    "iconic": true,
+    "mirror_on_count": 0,
+    "note": "Mirror-to-all and per-phone mirror boxes were Off. API comma-list was the only group path."
+  },
+  "visual": {
+    "step1_home": "Both already on Home page 1 (Search pill, dock, first-page apps). No pixel change; expected.",
+    "step2_spotlight": "Both opened Spotlight (search field, Siri Suggestions) within 2.1s.",
+    "step3_home": "Both left Spotlight and returned to Home page 1 within 1.2s. No jiggle or drag.",
+    "step4_swipe_left": "Both settled on a different Home page (C24C third-party page, C241 Weather/Stocks/Books page) within 2.3s.",
+    "step5_swipe_right": "Both returned to Home page 1 within 1.8s.",
+    "step6_home": "Already on page 1; MAD under 0.3. No extra navigation.",
+    "step7_down_up": "Down+up at the resting pointer completed a click before release was visible: C24C opened the Productivity folder; C241 opened App Switcher. Not a held drag.",
+    "step7_home": "Group Home dismissed those screens. Final frames are settled Home, not Spotlight, jiggle, or drag."
+  },
+  "release_probe": {
+    "move": {
+      "fun": "/mouse/move",
+      "http": 200,
+      "code": 0,
+      "message": null,
+      "rtt_ms": 95.4,
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ]
+    },
+    "mad": {
+      "C24C": 0.01,
+      "C241": 0.01
+    },
+    "mouse_up": {
+      "fun": "/mouse/up",
+      "http": 200,
+      "code": 0,
+      "message": null,
+      "rtt_ms": 12.8,
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ]
+    },
+    "status_ms": 15.0,
+    "frames": [
+      {
+        "id": "86:1D:4A:04:2F:F6",
+        "frames": 112527,
+        "live": true
+      },
+      {
+        "id": "FE:A9:BC:D7:A0:44",
+        "frames": 144668,
+        "live": true
+      }
+    ],
+    "drag_stuck": false
+  },
+  "acceptance": {
+    "comma_list_both_phones": true,
+    "selected_members_only": true,
+    "selected_members_note": "Every group result listed exactly 86:1D:4A:04:2F:F6 and FE:A9:BC:D7:A0:44, both code 0. Kernel allow-list is only C24C and C241.",
+    "visual_effects_within_5s": true,
+    "stop_releases_buttons": true,
+    "stuck_inputs": 0,
+    "unintended_actions_after_release": 0,
+    "cancellation_click_side_effect": "mouse/down then mouse/up at the resting pointer clicked under the pointer (folder on C24C, App Switcher on C241). Group Home cleared both. Not a stuck button.",
+    "pass": true
+  }
+}

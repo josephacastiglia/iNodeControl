@@ -1,0 +1,1 @@
+{"status":200,"message":"ok","data":{"code":0,"input":"direct-hid","allowed":["C24C"],"receiver":"iMouse2-C24C","receiver_state":"mirroring","receiver_message":"","receiver_pid":13412,"receiver_restarts":1,"frames":4397,"live":true}}

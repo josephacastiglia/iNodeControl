@@ -1,0 +1,330 @@
+[
+  {
+    "Path": "AirplayMirroring.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "1.0.0.5",
+    "Product": "投屏控制",
+    "Description": "投屏控制,支持x64目录"
+  },
+  {
+    "Path": "comtay_dbg.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "4.3.3.186",
+    "Product": "COMTAY",
+    "Description": "COMTAY coroutine manager"
+  },
+  {
+    "Path": "comtay.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "4.3.3.186",
+    "Product": "COMTAY",
+    "Description": "COMTAY coroutine manager"
+  },
+  {
+    "Path": "DisplayCore.exe",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "2026.7.8.736",
+    "Product": "DisplayCore",
+    "Description": "DisplayCore"
+  },
+  {
+    "Path": "dnssd.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "3,1,0,2",
+    "Product": "Bonjour",
+    "Description": "Bonjour Client Library"
+  },
+  {
+    "Path": "IMConsole.exe",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "2026.7.8.1294",
+    "Product": "IMConsole",
+    "Description": "IMConsole"
+  },
+  {
+    "Path": "iMouseKeyboard.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": null,
+    "Product": null,
+    "Description": null
+  },
+  {
+    "Path": "IMService.exe",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "2026.7.4.169",
+    "Product": "IMService",
+    "Description": "IMService"
+  },
+  {
+    "Path": "Installer.exe",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": null,
+    "Product": null,
+    "Description": null
+  },
+  {
+    "Path": "libvvlcu.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": null,
+    "Product": null,
+    "Description": null
+  },
+  {
+    "Path": "mDNSResponder.exe",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "3,1,0,2",
+    "Product": "Bonjour(iMouse)",
+    "Description": "Bonjour Service"
+  },
+  {
+    "Path": "MouseKeyItem.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "1.4.0.6",
+    "Product": "键鼠控制",
+    "Description": "键鼠API接口"
+  },
+  {
+    "Path": "msvcp120.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "12.00.40664.0 built by: VSULDR",
+    "Product": "Microsoft® Visual Studio® 2013",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "msvcp140.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "14.20.27508.1 built by: vcwrkspc",
+    "Product": "Microsoft® Visual Studio® 2017",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "msvcp140d.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "14.29.30135.0 built by: vcwrkspc",
+    "Product": "Microsoft® Visual Studio®",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "msvcr120.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "12.00.40664.0 built by: VSULDR",
+    "Product": "Microsoft® Visual Studio® 2013",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "nvcuda_b.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "32.0.15.6636",
+    "Product": "NVIDIA CUDA 12.7.33 driver",
+    "Description": "NVIDIA CUDA Driver, Version 566.36 "
+  },
+  {
+    "Path": "nvcuvid_b.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "7.17.15.6636",
+    "Product": "NVIDIA CUDA Video Decode API",
+    "Description": "NVIDIA CUDA Video Decode API, Version 566.36 "
+  },
+  {
+    "Path": "ucrtbased.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "10.0.22000.194 (WinBuild.160101.0800)",
+    "Product": "Microsoft® Windows® Operating System",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "vcomp140.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "14.16.27012.6 built by: vcwrkspc",
+    "Product": "Microsoft® Visual Studio® 2017",
+    "Description": "Microsoft® C/C++ OpenMP Runtime"
+  },
+  {
+    "Path": "vcruntime140_1.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "14.29.30156.0 built by: cloudtest",
+    "Product": "Microsoft® Visual Studio®",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "vcruntime140_1d.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "14.29.30153.0 built by: cloudtest",
+    "Product": "Microsoft® Visual Studio®",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "vcruntime140.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "14.20.27508.1 built by: vcwrkspc",
+    "Product": "Microsoft® Visual Studio® 2017",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "vcruntime140d.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "14.29.30135.0 built by: vcwrkspc",
+    "Product": "Microsoft® Visual Studio®",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "wsclient32.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": null,
+    "Product": null,
+    "Description": null
+  },
+  {
+    "Path": "x64\\AirplayMirroring.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "1.0.0.5",
+    "Product": "投屏控制",
+    "Description": "投屏控制,支持x64目录"
+  },
+  {
+    "Path": "x64\\AirplayMirroring.exe",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "1.6.6.11",
+    "Product": "iMouse",
+    "Description": "AriPlay"
+  },
+  {
+    "Path": "x64\\avcodec-60.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "60.31.102",
+    "Product": "FFmpeg",
+    "Description": "FFmpeg codec library"
+  },
+  {
+    "Path": "x64\\avcodec.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "60.36.100",
+    "Product": "FFmpeg",
+    "Description": "FFmpeg codec library"
+  },
+  {
+    "Path": "x64\\avutil-58.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "58.29.100",
+    "Product": "FFmpeg",
+    "Description": "FFmpeg utility library"
+  },
+  {
+    "Path": "x64\\avutil.dll",
+    "Architecture": "x86",
+    "HasClrHeader": false,
+    "FileVersion": "58.36.100",
+    "Product": "FFmpeg",
+    "Description": "FFmpeg utility library"
+  },
+  {
+    "Path": "x64\\cuda_study.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": null,
+    "Product": null,
+    "Description": null
+  },
+  {
+    "Path": "x64\\cudart64_110.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "6,14,11,11080",
+    "Product": "NVIDIA CUDA 11.8.89 Runtime",
+    "Description": "NVIDIA CUDA Runtime, Version 11.8.89 "
+  },
+  {
+    "Path": "x64\\dnssd.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "3,1,0,2",
+    "Product": "Bonjour",
+    "Description": "Bonjour Client Library"
+  },
+  {
+    "Path": "x64\\msvcp140.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "14.29.30156.0 built by: cloudtest",
+    "Product": "Microsoft® Visual Studio®",
+    "Description": "Microsoft® C Runtime Library"
+  },
+  {
+    "Path": "x64\\nvcuda.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "32.0.15.6636",
+    "Product": "NVIDIA CUDA 12.7.33 driver",
+    "Description": "NVIDIA CUDA Driver, Version 566.36 "
+  },
+  {
+    "Path": "x64\\nvcuvid.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "7.17.15.6636",
+    "Product": "NVIDIA CUDA Video Decode API",
+    "Description": "NVIDIA CUDA Video Decode API, Version 566.36 "
+  },
+  {
+    "Path": "x64\\SDL2.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "2, 30, 4, 0",
+    "Product": "Simple DirectMedia Layer",
+    "Description": "SDL"
+  },
+  {
+    "Path": "x64\\swresample-4.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "4.12.100",
+    "Product": "FFmpeg",
+    "Description": "FFmpeg audio resampling library"
+  },
+  {
+    "Path": "x64\\swscale-7.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "7.5.100",
+    "Product": "FFmpeg",
+    "Description": "FFmpeg image rescaling library"
+  },
+  {
+    "Path": "x64\\vcruntime140.dll",
+    "Architecture": "x64",
+    "HasClrHeader": false,
+    "FileVersion": "14.29.30156.0 built by: cloudtest",
+    "Product": "Microsoft® Visual Studio®",
+    "Description": "Microsoft® C Runtime Library"
+  }
+]

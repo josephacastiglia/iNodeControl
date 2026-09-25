@@ -1,0 +1,1157 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Node Theory: managed real-device social operations</title><style>
+@page { size: Letter; margin: 0.75in 0.7in 0.85in 0.7in; }
+:root {
+  --ground: #FFFFFF; --surface: #FFFFFF; --sunk: #F1F4F8;
+  --ink: #191D26; --ink-soft: #454D5C; --muted: #6B7483; --line: #D9E0E9; --line-soft: #E8EDF3;
+  --copper: #A2552A; --copper-soft: #F5E9DF; --signal: #23618F; --signal-soft: #E1ECF5;
+  --warn: #8A5A00; --warn-soft: #F8EDD8; --good: #1F6B4E; --good-soft: #E0EFE7; --bad: #9B2C2C; --bad-soft: #F7E1E1;
+  --display: 'Bahnschrift', 'Segoe UI', sans-serif;
+  --body: 'Georgia', 'Cambria', serif;
+  --mono: 'Cascadia Mono', 'Consolas', monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--ground); color: var(--ink); }
+body { font-family: var(--body); font-size: 9.9pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+p { margin: 0 0 7pt; orphans: 3; widows: 3; }
+ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
+li { margin-bottom: 2.5pt; }
+li::marker { color: var(--muted); }
+strong { font-weight: 700; }
+a { color: var(--signal); text-decoration: none; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--sunk); padding: 0 3px; border-radius: 2px; word-break: break-all; }
+pre { font-family: var(--mono); font-size: 8.3pt; line-height: 1.45; background: var(--sunk); border: 1px solid var(--line); border-radius: 3px; padding: 8pt 10pt; margin: 4pt 0 10pt; white-space: pre-wrap; word-break: break-word; break-inside: avoid; }
+pre code { background: none; padding: 0; font-size: inherit; }
+h1, h2, h3, h4 { font-family: var(--display); letter-spacing: -0.01em; break-after: avoid; }
+h2 { font-size: 22pt; font-weight: 700; line-height: 1.1; margin: 0 0 6pt; }
+h3 { font-size: 13.5pt; font-weight: 700; margin: 18pt 0 6pt; padding-top: 6pt; border-top: 1px solid var(--line-soft); }
+h4 { font-size: 11.2pt; font-weight: 700; margin: 0; }
+.kicker { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--copper); margin: 0 0 6pt; }
+.lead { font-size: 11.4pt; color: var(--ink-soft); margin: 0 0 12pt; }
+section { break-before: page; }
+section:first-of-type { break-before: auto; }
+
+/* cover */
+.cover { height: 9.2in; display: flex; flex-direction: column; justify-content: space-between; break-after: page; }
+.cover .eyebrow { font-family: var(--mono); font-size: 9pt; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.cover h1 { font-size: 38pt; font-weight: 700; line-height: 1.02; margin: 10pt 0 14pt; letter-spacing: -0.02em; }
+.cover .stand { font-size: 13pt; color: var(--ink-soft); max-width: 5.6in; margin-bottom: 18pt; }
+.vitals { display: flex; flex-wrap: wrap; gap: 6pt; margin: 8pt 0 0; }
+.vital { display: inline-flex; align-items: baseline; gap: 5pt; padding: 4pt 9pt; border: 1px solid var(--line); border-radius: 3px; font-family: var(--mono); font-size: 8.6pt; }
+.vital b { font-weight: 700; } .vital span { color: var(--muted); }
+.vital.ok { border-color: var(--good); background: var(--good-soft); } .vital.ok b { color: var(--good); }
+.vital.warn { border-color: var(--warn); background: var(--warn-soft); } .vital.warn b { color: var(--warn); }
+.vital.no { border-color: var(--bad); background: var(--bad-soft); } .vital.no b { color: var(--bad); }
+.channels { border: 1px solid var(--line); border-radius: 4px; padding: 14pt 14pt 10pt; }
+.channels svg { width: 100%; height: auto; display: block; }
+.chan-note { margin: 8pt 0 0; padding-top: 8pt; border-top: 1px solid var(--line-soft); font-size: 9.4pt; color: var(--ink-soft); }
+.cover-foot { font-family: var(--mono); font-size: 8.4pt; color: var(--muted); display: flex; justify-content: space-between; border-top: 2px solid var(--ink); padding-top: 8pt; }
+.svg-c-text { fill: #A2552A; } .svg-c-box { fill: #F5E9DF; stroke: #A2552A; } .svg-c-line { stroke: #A2552A; } .svg-c-ar { fill: #A2552A; }
+.svg-v-text { fill: #23618F; } .svg-v-box { fill: #E1ECF5; stroke: #23618F; } .svg-v-line { stroke: #23618F; } .svg-v-ar { fill: #23618F; }
+.svg-muted { fill: #6B7483; } .svg-sep { stroke: #D9E0E9; }
+
+/* table of contents */
+.toc { break-after: page; }
+.toc h2 { margin-bottom: 12pt; }
+.toc ol { list-style: none; padding: 0; margin: 0; }
+.toc li.l1 { display: flex; align-items: baseline; gap: 8pt; font-family: var(--display); font-size: 11.6pt; font-weight: 700; margin: 9pt 0 2pt; }
+.toc li.l2 { display: flex; align-items: baseline; gap: 8pt; font-size: 9.6pt; color: var(--ink-soft); margin: 0 0 1pt 22pt; }
+.toc .n { font-family: var(--mono); font-size: 8.6pt; color: var(--copper); min-width: 16pt; font-weight: 400; }
+.toc .dots { flex: 1; border-bottom: 1px dotted var(--line); transform: translateY(-3pt); }
+.toc .pg { font-family: var(--mono); font-size: 9pt; color: var(--muted); font-weight: 400; }
+
+/* use-case cards */
+.uc { border: 1px solid var(--line); border-left: 3px solid var(--copper); border-radius: 0 4px 4px 0; padding: 8pt 10pt 6pt; margin: 0 0 9pt; break-inside: auto; background: var(--surface); }
+.uc-head + p { break-before: avoid; }
+.uc .k { break-after: avoid; }
+.uc[data-v="no"], .uc[data-f="no"] { border-left-color: var(--bad); }
+.uc[data-v="caveats"] { border-left-color: var(--warn); }
+.uc[data-v="ok"] { border-left-color: var(--good); }
+.uc-head { display: flex; flex-wrap: wrap; align-items: center; gap: 5pt 6pt; margin-bottom: 5pt; break-inside: avoid; break-after: avoid; }
+.uc-head h4 { flex: 1 1 auto; min-width: 60%; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 7.3pt; letter-spacing: 0.06em; text-transform: uppercase; padding: 1.5pt 6pt; border-radius: 10pt; border: 1px solid var(--line); color: var(--ink-soft); background: var(--sunk); white-space: nowrap; }
+.pill.f-native { background: var(--signal-soft); border-color: var(--signal); color: var(--signal); }
+.pill.f-plugin, .pill.f-pro, .pill.f-shortcut { background: var(--copper-soft); border-color: var(--copper); color: var(--copper); }
+.pill.f-external, .pill.f-partial { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.pill.f-no, .pill.v-no { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.pill.v-ok { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+.pill.v-caveats { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.uc p { margin-bottom: 5pt; }
+.uc .k { font-family: var(--mono); font-size: 7.6pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 6pt 0 2pt; }
+.uc ol.chain { padding-left: 16pt; margin-bottom: 3pt; }
+.uc ol.chain li { margin-bottom: 2pt; }
+.uc ul { margin-bottom: 3pt; }
+.uc .xp { font-family: var(--mono); font-size: 0.82em; color: var(--signal); }
+.uc .xp::before { content: 'XP '; color: var(--muted); font-size: 0.85em; letter-spacing: 0.08em; }
+
+/* flags */
+.flag { border-left: 3px solid var(--line); background: var(--sunk); padding: 8pt 11pt; margin: 6pt 0 10pt; border-radius: 0 3px 3px 0; break-inside: avoid; }
+.flag :last-child { margin-bottom: 0; }
+.flag-title { font-family: var(--display); font-weight: 700; font-size: 10.4pt; margin: 0 0 3pt; display: flex; align-items: baseline; gap: 7pt; }
+.flag-title .tag { font-family: var(--mono); font-size: 7pt; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; padding: 1pt 5pt; border-radius: 2px; flex: none; }
+.flag p { font-size: 9.6pt; }
+.flag.trap { border-left-color: var(--warn); } .flag.trap .tag { background: var(--warn-soft); color: var(--warn); }
+.flag.wrong { border-left-color: var(--copper); } .flag.wrong .tag { background: var(--copper-soft); color: var(--copper); }
+.flag.open { border-left-color: var(--signal); } .flag.open .tag { background: var(--signal-soft); color: var(--signal); }
+.flag.good { border-left-color: var(--good); } .flag.good .tag { background: var(--good-soft); color: var(--good); }
+
+/* tables */
+.tw { margin: 4pt 0 12pt; }
+table { border-collapse: collapse; width: 100%; font-size: 8.9pt; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
+th, td { text-align: left; padding: 4pt 8pt 4pt 0; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+th { font-family: var(--display); font-weight: 700; font-size: 8.4pt; letter-spacing: 0.03em; color: var(--muted); border-bottom: 1px solid var(--line); }
+td.num, th.num { font-family: var(--mono); white-space: nowrap; }
+td.key { font-family: var(--mono); font-size: 8pt; }
+tr:last-child td { border-bottom: none; }
+
+/* readouts */
+.readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(1.45in, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; margin: 6pt 0 14pt; break-inside: avoid; }
+.readout { background: var(--surface); padding: 8pt 10pt 7pt; }
+.readout-label { font-family: var(--mono); font-size: 7.4pt; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-bottom: 4pt; }
+.readout-value { font-family: var(--mono); font-weight: 700; font-size: 14pt; line-height: 1.05; color: var(--copper); }
+.readout-sub { font-size: 8.4pt; line-height: 1.35; color: var(--muted); margin-top: 4pt; }
+
+.anchor { position: absolute; font-size: 1pt; color: #FFFFFF; }
+.gap-add { margin-top: 12pt; }
+.gap-add > :first-child { margin-top: 0; }
+
+/* action-plan additions */
+.uc .k.sell { color: var(--good); }
+.phase { border: 1px solid var(--line); border-left: 3px solid var(--signal); border-radius: 0 4px 4px 0; padding: 9pt 11pt 7pt; margin: 0 0 10pt; background: var(--surface); break-inside: avoid; }
+.phase h4 { margin: 0 0 4pt; }
+.phase .when { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--signal); margin: 0 0 5pt; }
+.money td.num { font-weight: 700; }
+.money tfoot td { border-top: 1px solid var(--ink); font-weight: 700; padding-top: 5pt; }
+.big { display: flex; flex-wrap: wrap; gap: 10pt; margin: 6pt 0 14pt; }
+.big div { flex: 1 1 1.6in; border: 1px solid var(--line); border-radius: 4px; padding: 10pt 12pt; background: var(--surface); }
+.big .n { font-family: var(--mono); font-weight: 700; font-size: 17pt; color: var(--copper); line-height: 1; }
+.big .l { font-size: 9pt; color: var(--muted); margin-top: 5pt; line-height: 1.35; }
+.no { border-left-color: var(--bad) !important; }
+.yes { border-left-color: var(--good) !important; }
+.svg-good { fill: #1F6B4E; }
+.svg-bad { fill: #9B2C2C; }
+</style></head><body>
+
+<div class="cover">
+  <div>
+    <div class="eyebrow">Action plan &middot; 13 September 2026</div>
+    <h1>Node Theory</h1>
+    <p class="stand">Managed real-device social operations. We run a rack of real iPhones and operate our clients' own accounts on them: publishing, replies, monitoring and proof, on a schedule, with someone watching the lights. This plan says what we sell, what it costs to run, what to build first, and where the line is.</p>
+    <div class="vitals">
+      <div class="vital ok"><b>44</b><span>sellable features</span></div>
+      <div class="vital"><b>11</b><span>platforms covered</span></div>
+      <div class="vital"><b>~50</b><span>devices per host PC</span></div>
+      <div class="vital warn"><b>90</b><span>days to first revenue</span></div>
+      <div class="vital"><b>65-80%</b><span>gross margin target</span></div>
+    </div>
+  </div>
+  <div class="channels">
+<svg viewBox="0 0 660 172" role="img" aria-label="One request from the PC drives every phone in parallel through the control boards, while each screenshot must be requested from one phone at a time.">
+  <defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="svg-c-ar"/></marker>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="svg-v-ar"/></marker>
+  </defs>
+  <text x="0" y="12" class="svg-c-text" font-family="Cascadia Mono, Consolas, monospace" font-size="10" letter-spacing="1.3">ACTIONS OUT &#183; ONE REQUEST, EVERY PHONE</text>
+  <rect x="0" y="24" width="120" height="30" rx="3" class="svg-c-box" stroke-width="1"/>
+  <text x="60" y="43.5" class="svg-c-text" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Our scheduler</text>
+  <line x1="124" y1="39" x2="196" y2="39" class="svg-c-line" stroke-width="1.4" marker-end="url(#a1)"/>
+  <text x="160" y="32" class="svg-muted" font-family="Cascadia Mono, Consolas, monospace" font-size="9" text-anchor="middle">1 call</text>
+  <rect x="202" y="24" width="104" height="30" rx="3" class="svg-c-box" stroke-width="1"/>
+  <text x="254" y="43.5" class="svg-c-text" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Boards</text>
+  <line x1="310" y1="39" x2="366" y2="26" class="svg-c-line" stroke-width="1.2" marker-end="url(#a1)"/>
+  <line x1="310" y1="39" x2="366" y2="39" class="svg-c-line" stroke-width="1.2" marker-end="url(#a1)"/>
+  <line x1="310" y1="39" x2="366" y2="52" class="svg-c-line" stroke-width="1.2" marker-end="url(#a1)"/>
+  <rect x="372" y="14" width="70" height="24" rx="3" class="svg-c-box" stroke-width="1"/>
+  <text x="407" y="30" class="svg-c-text" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="10.5" font-weight="600" text-anchor="middle">iPhone</text>
+  <rect x="372" y="42" width="70" height="24" rx="3" class="svg-c-box" stroke-width="1"/>
+  <text x="407" y="58" class="svg-c-text" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="10.5" font-weight="600" text-anchor="middle">iPhone</text>
+  <text x="458" y="42" class="svg-muted" font-family="Cascadia Mono, Consolas, monospace" font-size="9.5">&#215; N in parallel</text>
+  <text x="458" y="55" class="svg-good" font-family="Cascadia Mono, Consolas, monospace" font-size="9.5">cost stays flat</text>
+  <line x1="0" y1="86" x2="660" y2="86" class="svg-sep" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="0" y="106" class="svg-v-text" font-family="Cascadia Mono, Consolas, monospace" font-size="10" letter-spacing="1.3">PROOF BACK &#183; ONE PHONE AT A TIME</text>
+  <rect x="372" y="118" width="70" height="24" rx="3" class="svg-v-box" stroke-width="1"/>
+  <text x="407" y="134" class="svg-v-text" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="10.5" font-weight="600" text-anchor="middle">iPhone</text>
+  <line x1="368" y1="130" x2="312" y2="130" class="svg-v-line" stroke-width="1.2" marker-end="url(#a2)"/>
+  <rect x="202" y="115" width="104" height="30" rx="3" class="svg-v-box" stroke-width="1"/>
+  <text x="254" y="134.5" class="svg-v-text" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Screenshot</text>
+  <line x1="198" y1="130" x2="126" y2="130" class="svg-v-line" stroke-width="1.4" marker-end="url(#a2)"/>
+  <text x="162" y="123" class="svg-muted" font-family="Cascadia Mono, Consolas, monospace" font-size="9" text-anchor="middle">1 per phone</text>
+  <rect x="0" y="115" width="120" height="30" rx="3" class="svg-v-box" stroke-width="1"/>
+  <text x="60" y="134.5" class="svg-v-text" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Proof of post</text>
+  <text x="458" y="133" class="svg-muted" font-family="Cascadia Mono, Consolas, monospace" font-size="9.5">&#215; N one by one</text>
+  <text x="458" y="146" class="svg-bad" font-family="Cascadia Mono, Consolas, monospace" font-size="9.5">cost grows</text>
+</svg>
+
+    <p class="chan-note"><strong>The one fact the whole business rests on.</strong> Sending an action costs one request no matter how many phones receive it. Getting proof back costs one request per phone. Everything we can sell cheaply is on the top row. Everything that costs us money is on the bottom row.</p>
+  </div>
+  <div class="cover-foot"><span>Built on the verified capability audit, API-CAPABILITIES.pdf</span><span>Internal planning document</span></div>
+</div>
+
+<div class="toc"><p class="kicker">Contents</p><h2>What is in this plan</h2><ol><li class="l1"><span class="n">01</span><span>What Node Theory is</span><span class="dots"></span><span class="pg">4</span></li><li class="l2"><span>Said plainly</span></li><li class="l2"><span>Why real phones instead of software</span></li><li class="l2"><span>Whose accounts we run</span></li><li class="l2"><span>The one fact that decides what we can sell</span></li><li class="l2"><span>What we are not</span></li><li class="l1"><span class="n">02</span><span>What we sell</span><span class="dots"></span><span class="pg">6</span></li><li class="l2"><span>The unit: one managed device</span></li><li class="l2"><span>Three packages</span></li><li class="l2"><span>Two things sold separately</span></li><li class="l2"><span>What the client has to do</span></li><li class="l2"><span>The promise we make</span></li><li class="l1"><span class="n">03</span><span>The feature catalog</span><span class="dots"></span><span class="pg">8</span></li><li class="l2"><span>How to read the tags</span></li><li class="l2"><span>Module A · Publishing and distribution</span></li><li class="l2"><span>Platforms we can drive today</span></li><li class="l2"><span>Module B · Inbox and community</span></li><li class="l2"><span>Module C · Account health and keeping the lights on</span></li><li class="l2"><span>Module D · Proof and reporting</span></li><li class="l2"><span>Module E · Commerce operations</span></li><li class="l2"><span>Module F · The device lab</span></li><li class="l2"><span>Module G · The parts clients never see</span></li><li class="l1"><span class="n">04</span><span>Who it is for</span><span class="dots"></span><span class="pg">19</span></li><li class="l2"><span>The ranking</span></li><li class="l2"><span>Why the boring one moved to the top</span></li><li class="l2"><span>Where each segment needs a qualifying question</span></li><li class="l2"><span>The segment nobody asks about</span></li><li class="l2"><span>What a good first ten customers looks like</span></li><li class="l1"><span class="n">05</span><span>Pricing and unit economics</span><span class="dots"></span><span class="pg">21</span></li><li class="l2"><span>What one device costs us per month</span></li><li class="l2"><span>Margin by package</span></li><li class="l2"><span>Charge for working devices, not powered-on ones</span></li><li class="l2"><span>Getting the money in</span></li><li class="l2"><span>Payback and the shape of growth</span></li><li class="l2"><span>Three sizes of the business</span></li><li class="l1"><span class="n">06</span><span>How the operation runs</span><span class="dots"></span><span class="pg">24</span></li><li class="l2"><span>The daily rhythm</span></li><li class="l2"><span>How many devices one person can hold</span></li><li class="l2"><span>Bringing a client on</span></li><li class="l2"><span>Letting a client go</span></li><li class="l2"><span>Security and separation</span></li><li class="l2"><span>What we keep, and for how long</span></li><li class="l1"><span class="n">07</span><span>What we do not do, and why that sells</span><span class="dots"></span><span class="pg">27</span></li><li class="l2"><span>The rule</span></li><li class="l2"><span>Why this is a commercial advantage, not a tax</span></li><li class="l2"><span>What to do when a prospect asks for the other thing</span></li><li class="l2"><span>What goes in the contract</span></li><li class="l1"><span class="n">08</span><span>Build sequence: the first 90 days</span><span class="dots"></span><span class="pg">29</span></li><li class="l2"><span>What to build first if there is only one developer</span></li><li class="l1"><span class="n">09</span><span>Go to market and branding</span><span class="dots"></span><span class="pg">33</span></li><li class="l2"><span>Be customer zero</span></li><li class="l2"><span>Where the buyers are</span></li><li class="l2"><span>Lead with output, not with the pitch</span></li><li class="l2"><span>One page per segment</span></li><li class="l2"><span>The name</span></li><li class="l2"><span>What the first three months of marketing actually looks like</span></li><li class="l1"><span class="n">10</span><span>What would break us</span><span class="dots"></span><span class="pg">35</span></li><li class="l2"><span>The three that matter</span></li><li class="l2"><span>The rest of the register</span></li><li class="l2"><span>The honest summary</span></li><li class="l1"><span class="n">11</span><span>Appendix: feature to API map and capacity math</span><span class="dots"></span><span class="pg">38</span></li><li class="l2"><span>A. Feature to call map</span></li><li class="l2"><span>B. The measured numbers everything rests on</span></li><li class="l2"><span>C. Worked example: what one device can carry</span></li><li class="l2"><span>D. Capacity per host PC</span></li><li class="l2"><span>E. What we are not using yet</span></li></ol></div>
+<section id="what"><span class="anchor">MARK-WHAT-MARK</span>
+<p class="kicker">Section 1 &middot; The business in one page</p>
+<h2>What Node Theory is</h2>
+<p class="lead">We run a rack of real iPhones in our own space. Clients hand us the accounts they already own, and we operate those accounts on our phones: posting on a schedule, answering messages, watching for problems, and sending back proof that everything landed. They stop thinking about it. That is the product.</p>
+
+<h3>Said plainly</h3>
+<p>A client has ten social accounts they are responsible for. Their own brand pages, their creators' official pages, their clients' pages. Posting to all of them by hand eats a person's whole week. Scheduling tools cover some of it, but not the parts the platforms keep inside the phone app: Stories, the reply inbox, seller tools, anything that needs a real device.</p>
+<p>We put each of those accounts on a real iPhone we own and run. We drive the actual app the same way a person would, with taps and typing. The phone does not know it is being driven, because at the hardware level it is talking to what looks like an ordinary keyboard and mouse.</p>
+<p>The client sends us content and a calendar. We send back posts, replies, and screenshots proving each one happened.</p>
+
+<div class="flag good">
+<p class="flag-title"><span class="tag">Tip</span> The sentence to use on a call</p>
+<p>"You own the accounts. We own the phones, and we push the buttons on them for you, on schedule, and prove it." Everything else in this document is detail underneath that sentence.</p>
+</div>
+
+<h3>Why real phones instead of software</h3>
+<p>Three reasons, in order of how much they matter to a buyer.</p>
+<ul>
+<li><strong>Reach.</strong> The official posting APIs do not cover everything. Stories, DMs, seller apps, live shopping tools and most in-app settings are phone-only. A real phone reaches all of it because it is just using the app.</li>
+<li><strong>Durability.</strong> Scheduling tools break when a platform changes its API terms. A phone keeps working because there is nothing to revoke. If the app runs, we can run it.</li>
+<li><strong>Proof.</strong> We can screenshot the actual screen at native resolution. The client sees the post as it appeared on a real device, not a status code from an API.</li>
+</ul>
+
+<h3>Whose accounts we run</h3>
+<p>Only accounts the client owns or is contractually authorized to operate, and we collect that authorization in writing before a phone is assigned. That is not a legal footnote, it is the shape of the business. It decides which customers we can take, what we can charge, whether we can use Stripe, and whether the whole thing is still here in three years.</p>
+<p>Section 7 spells out where the line sits and why stating it out loud wins deals rather than losing them.</p>
+
+<h3>The one fact that decides what we can sell</h3>
+<p>The control software has a property that shapes every price in this document.</p>
+<ul>
+<li><strong>Doing something costs one request, no matter how many phones do it.</strong> Tapping the same spot on one phone or on fifty is a single instruction, and the boards carry it out on all of them at the same time. Posting identical content to a whole group is nearly free for us.</li>
+<li><strong>Checking what happened costs one request per phone.</strong> Screenshots come back one at a time. Watching fifty phones costs fifty times watching one.</li>
+</ul>
+<p>So the cheap products are the ones where many phones do the same thing: synchronized posting, fleet-wide maintenance, one campaign across a group. The expensive products are the ones where every phone needs its own attention: individual captions, inbox replies, monitoring, proof of every post. We charge accordingly, and we build the cheap half first.</p>
+
+<div class="readouts">
+<div class="readout"><div class="readout-label">Action to any phone count</div><div class="readout-value">1 request</div><div class="readout-sub">Boards act in parallel, so cost does not grow with the fleet</div></div>
+<div class="readout"><div class="readout-label">Screenshot back</div><div class="readout-value">2 ms</div><div class="readout-sub">Fast, but strictly one phone per request</div></div>
+<div class="readout"><div class="readout-label">Devices per host PC</div><div class="readout-value">~50</div><div class="readout-sub">At the middle video quality setting; about 100 at the lowest</div></div>
+</div>
+
+<h3>What we are not</h3>
+<p>We are not a dashboard company. We are not selling software the client logs into and operates themselves. If we ever ship a client-facing app it is a reporting window, not the product. The product is that a machine and a person are looking after their accounts and they do not have to.</p>
+<p>That also means our costs are labor-shaped, not code-shaped. Section 5 works through what that does to margin, and Section 6 works through how many devices one operator can actually hold.</p>
+</section>
+<section id="offer"><span class="anchor">MARK-OFFER-MARK</span>
+<p class="kicker">Section 2 &middot; The commercial offer</p>
+<h2>What we sell</h2>
+<p class="lead">We sell a managed device. One iPhone in our rack, assigned to one of the client's accounts, operated by us on a schedule, with an uptime promise and proof of every action. Everything else is packaging around that unit.</p>
+
+<h3>The unit: one managed device</h3>
+<p>A client buys devices, not software seats and not "phones powered on." A device comes with the account assigned to it, the work we do on it, and the evidence that the work happened. If the device is dark, we are not billing for it.</p>
+
+<div class="tw"><table>
+<thead><tr><th>What the client gets</th><th>What that means in practice</th></tr></thead>
+<tbody>
+<tr><td>A dedicated iPhone</td><td>Physical device in our rack, one account, not shared with another client.</td></tr>
+<tr><td>Scheduled publishing</td><td>They send content and a calendar. It posts through the real app at the times they set.</td></tr>
+<tr><td>Proof of every post</td><td>A screenshot from the device plus the post link, collected automatically and attached to the report.</td></tr>
+<tr><td>Health monitoring</td><td>We check the account is still signed in and the app is behaving, and we tell them before they notice.</td></tr>
+<tr><td>Someone on it</td><td>A human who fixes the phone when it needs fixing, without the client being involved.</td></tr>
+<tr><td>A monthly report</td><td>What posted, what did not, uptime, and anything that needs their decision.</td></tr>
+</tbody>
+</table></div>
+
+<h3>Three packages</h3>
+<p>Same hardware underneath. The difference is how much per-device attention is included, which is exactly where our cost sits.</p>
+
+<div class="tw"><table>
+<thead><tr><th>Package</th><th>Built for</th><th>Included per device, per month</th><th class="num">Price</th></tr></thead>
+<tbody>
+<tr><td><strong>Post</strong></td><td>Clients who just need content out reliably</td><td>Up to 60 scheduled posts on one platform, proof of post, health monitoring, monthly report</td><td class="num">$450</td></tr>
+<tr><td><strong>Operate</strong></td><td>The default. Most clients land here</td><td>Everything in Post, plus cross-posting to up to four platforms, Stories, inbox watch with daily triage, and analytics capture</td><td class="num">$700</td></tr>
+<tr><td><strong>Desk</strong></td><td>Inbox-heavy accounts: support, sales, live selling</td><td>Everything in Operate, plus a staffed reply desk during agreed hours and same-day response targets</td><td class="num">$1,100</td></tr>
+</tbody>
+</table></div>
+
+<p>Volume steps down: 10 or more devices at 10% off, 25 or more at 20% off. Annual prepay takes another 10%. Discounting on volume is safe for us because the fan-out property means the tenth device on a client's account costs us far less attention than the first.</p>
+
+<h3>Two things sold separately</h3>
+<ul>
+<li><strong>Onboarding, $250 per device, one time.</strong> Sourcing and preparing the phone, signing in, verifying authorization, calibrating taps for that model, and running the first test post. This is real work and should never be free, because giving it away invites clients who churn in month two.</li>
+<li><strong>Device lab, priced per project.</strong> The same rack rented as a test bench: checking that links, push notifications, emails and checkout flows work on real iPhones. Section 4 explains why this line matters out of proportion to its revenue.</li>
+</ul>
+
+<h3>What the client has to do</h3>
+<p>Keep this list short. Every item on it is a reason a deal stalls.</p>
+<ol>
+<li>Sign the authorization form for each account, once.</li>
+<li>Give us access to the account, and keep two-factor recovery on their side.</li>
+<li>Drop content and captions in a shared folder, with dates.</li>
+<li>Answer us when something needs a human decision.</li>
+</ol>
+
+<div class="flag trap">
+<p class="flag-title"><span class="tag">Trap</span> Do not sell "unlimited posting"</p>
+<p>One device can physically do a post every 40 to 60 seconds if driven back to back, which sounds like unlimited. It is not, because the platforms themselves start pushing back long before the hardware does, and because every post we have to verify individually costs us a screenshot and an operator glance. Sell a number, cap it, and charge for overage. The cap protects the account as much as it protects our margin.</p>
+</div>
+
+<h3>The promise we make</h3>
+<p>Keep the service level simple enough to say on a call and to measure without building a whole system for it.</p>
+<ul>
+<li><strong>Device uptime 99% monthly</strong>, measured as the device being reachable and the account signed in. Credit back a day's fee per full day down.</li>
+<li><strong>Scheduled posts land within 15 minutes</strong> of their slot, or we tell the client why before they ask.</li>
+<li><strong>Problems reported within one business hour</strong> of us detecting them.</li>
+<li><strong>No lock-in.</strong> Thirty days' notice, and we hand back the accounts cleanly and sign out of the device in front of them if they want to watch.</li>
+</ul>
+<p>That last point is worth more than it looks. The obvious fear with handing accounts to an infrastructure vendor is that leaving is painful. Saying the exit is clean, in writing, removes the main objection in the room.</p>
+</section>
+<section id="features"><span class="anchor">MARK-FEATURES-MARK</span>
+<p class="kicker">Section 3 &middot; What we can actually build</p>
+<h2>The feature catalog</h2>
+<p class="lead">Every feature below was checked against the control software's real capabilities and against measurements taken on our own rack. Nothing here is aspirational. Each card says what the client sees, roughly how we do it, and whether it costs us the same for one phone or for fifty.</p>
+
+<h3>How to read the tags</h3>
+<div class="tw"><table>
+<thead><tr><th>Tag</th><th>What it means for us</th></tr></thead>
+<tbody>
+<tr><td><span class="pill f-native">Ready now</span></td><td>Works with the software and hardware we already have. No dependency to clear.</td></tr>
+<tr><td><span class="pill f-shortcut">Needs phone helper</span></td><td>Needs a small Apple Shortcut installed on each phone. It is what lets us move photos, videos, files and emoji text between the PC and the phone. Installed once per device by hand. <strong>Not yet proven on our rack. This is the single biggest dependency in the plan.</strong></td></tr>
+<tr><td><span class="pill f-plugin">Needs text reader</span></td><td>Needs the text-recognition add-on for the control software, which is not installed today. Until it is, we read screens by comparing pictures, not by reading words.</td></tr>
+<tr><td><span class="pill f-external">Needs outside service</span></td><td>Needs something beyond the rack, such as a cloud text-recognition service or a mail provider.</td></tr>
+<tr><td><span class="pill f-partial">Needs build work</span></td><td>The capability exists, but we have to write the logic around it before it is sellable.</td></tr>
+<tr><td><span class="pill v-ok">Core</span> <span class="pill v-caveats">Add-on</span> <span class="pill v-no">Later</span></td><td>Whether it ships in the base package, costs extra, or waits for a later phase.</td></tr>
+</tbody>
+</table></div>
+
+<h3>Module A &middot; Publishing and distribution</h3>
+<p>This is the revenue engine. Most of it fans out for free, which is why the packages can include generous post counts without hurting margin.</p>
+
+<div class="uc" data-f="shortcut" data-v="ok">
+<div class="uc-head"><h4>Scheduled posting to the real app</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-ok">Core</span></div>
+<p>The client drops a photo or video and a caption into a folder with a date. At that time, the picture lands on the phone, the app opens, the composer is filled in, and it posts. Because it goes through the app itself, it reaches things the official scheduling tools cannot, including Stories and Reels.</p>
+<p class="k">How</p><p>Push the file to the phone's camera roll, put the caption on the phone's clipboard, then drive the composer with taps and paste it in.</p>
+<p class="k">Cost to us</p><p>Fans out free when the content is the same across a group. Different captions per account cost one small call each.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="ok">
+<div class="uc-head"><h4>Stories, Reels and short vertical video</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-ok">Core</span></div>
+<p>The formats that actually get reach. Same pipeline as a feed post, with the extra taps that the Story and Reel composers need. We can also drag a sticker or a link to a set position on the screen before publishing.</p>
+<p class="k">Cost to us</p><p>Roughly 30 to 45 seconds of device time per Reel, and about 15 seconds per Story, on top of the upload.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="ok">
+<div class="uc-head"><h4>One asset, every platform</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-ok">Core</span></div>
+<p>Upload the video once to the phone, then send it out to six platforms from the phone's own share sheet, or open each app's composer directly with a link. The client does one upload and gets posts everywhere.</p>
+<p class="k">Cost to us</p><p>The upload happens once per phone. Each additional platform is under a minute of device time.</p>
+</div>
+
+<div class="uc" data-f="partial" data-v="ok">
+<div class="uc-head"><h4>The posting calendar</h4><span class="pill f-partial">Needs build work</span><span class="pill v-ok">Core</span></div>
+<p>The scheduler is ours, not the phone's. A job says what to post, to which group of devices, at what time, and what to do if it fails. This is the piece of software we own, and it is where the service actually lives.</p>
+<p class="k">Cost to us</p><p>Build once. Running it is nearly free.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="caveats">
+<div class="uc-head"><h4>Synchronized drop</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-caveats">Add-on</span></div>
+<p>Everything publishes at the same moment across every device in the group. Useful for a product launch or a coordinated campaign push where the client wants one visible spike rather than a trickle.</p>
+<p class="k">How</p><p>Stage every phone up to the final button, then send one instruction that presses publish on all of them together.</p>
+<p class="k">Cost to us</p><p>One request for the whole fleet. This is the cheapest impressive thing we can demo.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="ok">
+<div class="uc-head"><h4>Emoji, accents and non-English captions</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-ok">Core</span></div>
+<p>The keyboard path only handles plain English letters and numbers. Anything else, including emoji, accented characters and other alphabets, goes through the phone's clipboard and a paste. Worth naming explicitly on sales calls with anyone posting outside English.</p>
+<p class="k">Cost to us</p><p>One small call per distinct caption.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>Back off when the platform pushes back</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>If the app shows "Action Blocked" or "Try again later", we stop that account, put it on cool-down, and tell the client. This protects the account and it is the honest opposite of pushing through a limit. Say this one out loud in sales conversations.</p>
+<p class="k">How</p><p>Compare a small crop of the screen against the known shape of those warning dialogs before continuing a run.</p>
+<p class="k">Cost to us</p><p>One screenshot per phone per check. Cheap, and it runs on a timer, not on every action.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="caveats">
+<div class="uc-head"><h4>A/B creative split across device groups</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-caveats">Add-on</span></div>
+<p>Put creative A on one group of accounts and creative B on another, publish both at once, then collect the in-app numbers a day later and hand back a comparison. Agencies pay for this because it is the thing they are supposed to be doing and rarely have time to do.</p>
+<p class="k">Cost to us</p><p>Publishing is free to fan out. The results harvest is per phone.</p>
+</div>
+
+<h3>Platforms we can drive today</h3>
+<p>All eleven were worked through individually. "Native scheduling" means the app has its own schedule feature, so we can queue a post inside the app instead of holding the phone until the slot.</p>
+
+<div class="tw"><table>
+<thead><tr><th>Platform</th><th>What we can do</th><th>Native scheduling</th><th class="num">Device time per post</th></tr></thead>
+<tbody>
+<tr><td>TikTok</td><td>Post clips with caption and hashtags, reply to comments</td><td>No</td><td class="num">40-60 s</td></tr>
+<tr><td>Instagram</td><td>Reels, Stories, feed, DM replies, follows</td><td>No</td><td class="num">30-45 s</td></tr>
+<tr><td>Facebook</td><td>Page posts, Marketplace listings, hide comments</td><td>Yes, in Business Suite</td><td class="num">45-60 s</td></tr>
+<tr><td>YouTube Shorts</td><td>Upload with title and visibility</td><td>Yes</td><td class="num">40-60 s</td></tr>
+<tr><td>Threads</td><td>Text posts and reply chains</td><td>No</td><td class="num">10-20 s</td></tr>
+<tr><td>X</td><td>Media posts, polls, bookmarks</td><td>Yes, via mobile web</td><td class="num">~20 s</td></tr>
+<tr><td>Pinterest</td><td>Pins with link and description, saves</td><td>Yes</td><td class="num">45-60 s</td></tr>
+<tr><td>Snapchat</td><td>Story posts from the camera roll</td><td>No</td><td class="num">20-40 s</td></tr>
+<tr><td>LinkedIn</td><td>Document carousels, text posts</td><td>Yes</td><td class="num">30-60 s</td></tr>
+<tr><td>Telegram</td><td>Channel broadcast by link and paste</td><td>No</td><td class="num">5-10 s</td></tr>
+<tr><td>Discord</td><td>Channel posts, reactions, moderation</td><td>No</td><td class="num">5-8 s</td></tr>
+</tbody>
+</table></div>
+
+<h3>Module B &middot; Inbox and community</h3>
+<p>This is where the Desk package earns its price, and where our costs are highest, because none of it fans out. Every message is one account's problem.</p>
+
+<div class="uc" data-f="partial" data-v="ok">
+<div class="uc-head"><h4>Inbox watch</h4><span class="pill f-partial">Needs build work</span><span class="pill v-ok">Core</span></div>
+<p>We check each account regularly for new direct messages, comments and mentions, and raise a flag when something is waiting. The client stops opening ten apps to find out whether anything happened.</p>
+<p class="k">How</p><p>Look at the app's badge and the notification list, and compare against the last check.</p>
+<p class="k">Cost to us</p><p>One screenshot per phone per sweep. Nineteen phones once a second is well inside what the rack handles, so cadence is a policy choice, not a technical limit.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>One sweep of every notification, without opening apps</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>Pull down the notification shade on every phone at once and photograph it. In one pass we see which accounts have something new and roughly from which app, without touching a single inbox.</p>
+<p class="k">Cost to us</p><p>The pull-down is one instruction for the whole rack. Only the screenshots are per phone.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="no">
+<div class="uc-head"><h4>Staffed reply desk</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-no">Desk package</span></div>
+<p>An operator sees the live screen of each phone in a browser and answers messages from a queue, with saved replies for the common ones. Replies with emoji go through the clipboard. This is a person doing the work with good tooling, and it should be priced as such.</p>
+<p class="k">Cost to us</p><p>Operator time is the whole cost. Budget one operator per 40 to 60 conversation-light accounts, far fewer if the accounts are busy.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="caveats">
+<div class="uc-head"><h4>Comment replies at scale</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-caveats">Add-on</span></div>
+<p>Reply to comments under the client's own posts, from the account that made the post. Approved reply text comes from the client, and anything outside the approved set goes to a human.</p>
+<p class="k">Cost to us</p><p>Per account. Identical replies across a group are one call, but identical replies are usually the wrong answer.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="no">
+<div class="uc-head"><h4>Outbound follow-ups the client is allowed to send</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-no">Later</span></div>
+<p>Order updates, booking confirmations and replies to people who contacted the client first, sent through WhatsApp, Telegram or Messages by opening a pre-filled link and pressing send.</p>
+<div class="flag trap" style="margin-top:6pt">
+<p class="flag-title"><span class="tag">Trap</span> This one carries real legal weight</p>
+<p>Unsolicited commercial messages to phone numbers are regulated hard in the US, UK and EU, with per-message penalties. Only ever send to recipients who asked, keep the client's consent records, and put the liability in the contract. If a prospect wants cold outreach volume, decline the work.</p>
+</div>
+</div>
+
+<h3>Module C &middot; Account health and keeping the lights on</h3>
+<p>This module is why a client pays a monthly fee instead of buying a script. None of it is glamorous and all of it is the actual product.</p>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>Is the account still signed in?</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>On a schedule, bring each phone to the app's home screen and sort what we see into one of four buckets: signed in and normal, signed out, asked to verify, or restricted. The client hears about a problem from us rather than from a missed campaign.</p>
+<p class="k">How</p><p>Compare a few small regions of the screen against known-good reference pictures. This works today without the text-recognition add-on.</p>
+<p class="k">Cost to us</p><p>About four seconds of device time per account per check, so a full rack sweep is minutes, not hours.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>The two-light health board</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>Each phone shows two independent lights: can we control it, and can we see it. They fail separately, and confusing them wastes hours. A phone can show a perfect picture and ignore every tap, or accept every tap while showing nothing.</p>
+<p class="k">Cost to us</p><p>Two calls return the state of the whole rack, regardless of size. Effectively free.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>Proof that taps are actually landing</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>A phone can quietly stop accepting taps while still looking healthy in every other way. We nudge the pointer a few pixels on a timer and confirm the screen reacts. If it does not, the phone is flagged before a real job runs on it.</p>
+<p class="k">Why this matters commercially</p><p>This is the single fault most likely to make us miss a client's posts without noticing. It is a measured, real failure on our hardware, and the fix is a one-line reset command.</p>
+</div>
+
+<div class="uc" data-f="partial" data-v="ok">
+<div class="uc-head"><h4>Self-healing ladder</h4><span class="pill f-partial">Needs build work</span><span class="pill v-ok">Core</span></div>
+<p>When something breaks, work up a ladder automatically before a human is involved: reset the pointer, release stuck keys, restart the app, restart the phone's connection, restart the board, reboot the phone. Escalate to a person only if the ladder runs out.</p>
+<p class="k">Cost to us</p><p>Each rung is cheap. This is the feature that decides how many devices one operator can hold, which is the main driver of our margin.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>App crash and frozen-screen watchdog</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>Notice when an app has dropped back to the home screen or when the picture has stopped changing, and restart it. Runs quietly at a low rate.</p>
+<p class="k">Cost to us</p><p>A once-a-second check per phone is a small fraction of what the rack can serve.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="caveats">
+<div class="uc-head"><h4>Catch a platform redesign before it breaks the schedule</h4><span class="pill f-native">Ready now</span><span class="pill v-caveats">Add-on</span></div>
+<p>Our taps go to fixed positions on the screen. When an app updates and moves a button, every script that touches it breaks. A nightly walk through the key screens, compared against saved reference pictures, tells us which scripts need fixing that morning.</p>
+<p class="k">Why this matters commercially</p><p>This converts our biggest ongoing maintenance risk into a scheduled morning task, which is the difference between a service and a constant fire.</p>
+</div>
+
+<div class="uc" data-f="partial" data-v="caveats">
+<div class="uc-head"><h4>iOS update tripwire</h4><span class="pill f-partial">Needs build work</span><span class="pill v-caveats">Add-on</span></div>
+<p>When a phone updates its operating system, tap positions can drift and need recalibrating. We watch the reported version, and when it changes we queue that device for a calibration check before it runs client work again.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="caveats">
+<div class="uc-head"><h4>Rank the phones by connection quality</h4><span class="pill f-native">Ready now</span><span class="pill v-caveats">Add-on</span></div>
+<p>Two identical phones on the same rack delivered very different picture rates in testing, one about six times slower than the other, purely because of its wireless link. Slow phones take longer to verify and should carry lighter accounts. We score them and place work accordingly.</p>
+<p class="k">Why this matters commercially</p><p>It stops us from promising the same throughput on every device when the hardware does not deliver it.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="caveats">
+<div class="uc-head"><h4>Storage cleanup</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-caveats">Add-on</span></div>
+<p>Every piece of content we push stays in the phone's camera roll. Left alone, devices fill up and start failing in confusing ways. A scheduled sweep removes what we put there after it has posted, and tracks storage growth per device.</p>
+<div class="flag trap" style="margin-top:6pt">
+<p class="flag-title"><span class="tag">Trap</span> The clear-album command is indiscriminate</p>
+<p>The bulk clear removes everything recent, not only our uploads. Delete by name from a manifest of what we pushed, and never point the bulk clear at a device holding a client's own photos.</p>
+</div>
+</div>
+
+<h3>Module D &middot; Proof and reporting</h3>
+<p>Proof is what makes the invoice easy to approve. It is also the cheapest trust we can buy, because the screenshots are nearly free to capture.</p>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>A screenshot of every post, as it appeared</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>Immediately after publishing, capture the screen and file it against the job. The client's monthly report is a wall of evidence rather than a list of claims. Full-quality device screenshots are also available through the phone helper when the client wants press-ready images.</p>
+<p class="k">Cost to us</p><p>Two milliseconds of rack time per capture. Storage is the only real cost.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="ok">
+<div class="uc-head"><h4>The link to every post</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-ok">Core</span></div>
+<p>After publishing, use the app's own share option to copy the post's link, then read it off the phone's clipboard. The report contains working links, not just pictures, which is what a client forwards to their own boss.</p>
+<p class="k">Cost to us</p><p>A few seconds per post, per phone.</p>
+</div>
+
+<div class="uc" data-f="plugin" data-v="caveats">
+<div class="uc-head"><h4>Performance numbers from inside the app</h4><span class="pill f-plugin">Needs text reader</span><span class="pill v-caveats">Add-on</span></div>
+<p>Open the account's own insights screen and read the view, like and follower numbers off it. This is the one genuinely useful thing blocked by the missing text-recognition add-on. Until it is installed we can capture the screens but not turn them into a spreadsheet automatically.</p>
+<p class="k">Decision needed</p><p>Either install the add-on, or send the screenshots to an outside recognition service, or type the numbers by hand for the small number of accounts that ask. Costed in Section 8.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="no">
+<div class="uc-head"><h4>Screen recordings for review</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-no">Later</span></div>
+<p>Record the device screen during a run and pull the video back to the PC. Useful when a client disputes what happened, and useful internally when a script misbehaves in a way a still picture does not explain.</p>
+</div>
+
+<div class="uc" data-f="partial" data-v="ok">
+<div class="uc-head"><h4>The monthly report</h4><span class="pill f-partial">Needs build work</span><span class="pill v-ok">Core</span></div>
+<p>Assembled automatically: what posted and when, links, proof pictures, uptime against the promise, anything held for a decision, and anything we noticed about the accounts. One PDF per client per month. This document is our retention tool, so it should look as good as this one does.</p>
+</div>
+<h3>Module E &middot; Commerce operations</h3>
+<p>For clients who sell inside the phone apps. Higher price tolerance than content clients, because the work maps directly to revenue they can count.</p>
+
+<div class="uc" data-f="shortcut" data-v="caveats">
+<div class="uc-head"><h4>Listing publisher for seller apps</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-caveats">Add-on</span></div>
+<p>Photos, title, price and description go in from a spreadsheet, and the listing gets created in the seller app itself. Covers the marketplaces that have no usable desktop path.</p>
+<p class="k">Cost to us</p><p>Roughly 60 to 120 seconds per listing per device. This is per-listing work, so price it per listing, not per month.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="caveats">
+<div class="uc-head"><h4>Price and relist sweeps</h4><span class="pill f-native">Ready now</span><span class="pill v-caveats">Add-on</span></div>
+<p>Walk the client's listings and apply a price change or a relist across the whole set. When the same change applies to many devices, it is one instruction for all of them.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="no">
+<div class="uc-head"><h4>Live selling control room</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-no">Later</span></div>
+<p>During a live stream, a second device runs the seller's control panel: rotating which product is pinned on a timer and posting prepared comments at the right moments, while the host only has to talk.</p>
+<p class="k">Why it is later</p><p>It needs an operator watching in real time, so it only makes sense once the Desk package has staff.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="no">
+<div class="uc-head"><h4>Photo round trip</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-no">Later</span></div>
+<p>Pull product photos the client shot on the phone back to the PC, clean them up, and push the finished versions back for listing or posting. Removes a fiddly manual step that clients do badly.</p>
+</div>
+
+<h3>Module F &middot; The device lab</h3>
+<p>The same rack, rented as a testing bench. This is a separate revenue line with a different buyer, and it is the segment least exposed to anything that happens on the social platforms. Worth building even if it never becomes the biggest number.</p>
+
+<div class="uc" data-f="shortcut" data-v="caveats">
+<div class="uc-head"><h4>Do the links work?</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-caveats">Add-on</span></div>
+<p>Fire every campaign link at a set of real iPhones and photograph where each one lands, with the app installed, not installed, and already open. Catches the broken link before a client spends money driving traffic to it.</p>
+<p class="k">Cost to us</p><p>The links go out to the whole rack in one instruction. Only the proof pictures are per device.</p>
+</div>
+
+<div class="uc" data-f="external" data-v="caveats">
+<div class="uc-head"><h4>Did the push notification arrive, and how long did it take?</h4><span class="pill f-external">Needs outside service</span><span class="pill v-caveats">Add-on</span></div>
+<p>Watch the top strip of every screen at a high rate and timestamp the moment a notification appears. Compared against the send time, that gives real delivery latency on real devices, plus a picture of how the notification actually looked.</p>
+</div>
+
+<div class="uc" data-f="partial" data-v="caveats">
+<div class="uc-head"><h4>Email rendering on real iPhones</h4><span class="pill f-partial">Needs build work</span><span class="pill v-caveats">Add-on</span></div>
+<p>Open the campaign email in the real iOS mail app, scroll it, capture each screenful and stitch them into one image. Marketing teams currently pay a subscription for a worse version of this that uses simulators.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="caveats">
+<div class="uc-head"><h4>App Store screenshots and language checks</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-caveats">Add-on</span></div>
+<p>Drive an app to the screens that need to appear in a store listing, in each language, and capture them at full device resolution. Tedious by hand, quick on a rack.</p>
+</div>
+
+<div class="uc" data-f="external" data-v="no">
+<div class="uc-head"><h4>Does checkout still work?</h4><span class="pill f-external">Needs outside service</span><span class="pill v-no">Later</span></div>
+<p>Run a real purchase through the client's app on a schedule and alert when it breaks. High value, and the most sensitive thing on the list because it touches payment details, so it needs its own controls before we sell it.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="caveats">
+<div class="uc-head"><h4>Ad slots, accessibility and crash logs</h4><span class="pill f-native">Ready now</span><span class="pill v-caveats">Add-on</span></div>
+<p>Three smaller lab jobs that share the same machinery: confirm ad slots actually fill and time how long they take, walk an app with the keyboard to check the focus order for accessibility, and pull crash logs off a device without needing a developer's laptop.</p>
+</div>
+
+<h3>Module G &middot; The parts clients never see</h3>
+<p>Sold as reliability rather than as features, but they are what the uptime promise in Section 2 is made of.</p>
+
+<div class="uc" data-f="partial" data-v="ok">
+<div class="uc-head"><h4>Locked front door</h4><span class="pill f-partial">Needs build work</span><span class="pill v-ok">Core</span></div>
+<p>The control software has no password of any kind. Anyone who can reach it on the network can drive every phone we own. We put an authenticated gateway in front of it, keep the rack on its own isolated network, and never expose the control port. This is the first thing to build and it is not optional.</p>
+<p class="k">Also</p><p>Watch for configuration changing underneath us, since anything on that network can change it silently.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>Slot registry</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>Every phone has a name, a group, a physical rack position and a client. Without this, finding the one broken phone in a rack of fifty means unplugging things. With it, a failure names its own slot.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>Automatic reconnection</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>Phones drop their screen connection on their own schedule. A sweeper reconnects anything that has fallen off, and new phones connect automatically when plugged in. Without this, someone babysits the rack every morning.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="caveats">
+<div class="uc-head"><h4>Cable and board watchdog</h4><span class="pill f-native">Ready now</span><span class="pill v-caveats">Add-on</span></div>
+<p>The software tells us the moment a board or cable disconnects. We reset it automatically and, if it keeps flapping, raise a ticket naming the exact slot to go and touch.</p>
+</div>
+
+<div class="uc" data-f="shortcut" data-v="caveats">
+<div class="uc-head"><h4>Find the phone in the rack</h4><span class="pill f-shortcut">Needs phone helper</span><span class="pill v-caveats">Add-on</span></div>
+<p>Turn on the torch of the phone that needs attention so a person can walk up to the right one. Small feature, saves real time once there are more than about twenty devices in a cabinet.</p>
+</div>
+
+<div class="uc" data-f="external" data-v="no">
+<div class="uc-head"><h4>More than one host PC</h4><span class="pill f-external">Needs outside service</span><span class="pill v-no">Phase 4</span></div>
+<p>One PC holds roughly fifty devices at normal quality, or around a hundred at the lowest. Past that we add another PC with its own receiver and a coordinator that treats them as one fleet. Needed at roughly sixty devices, which is where the business plan says month nine.</p>
+</div>
+
+<div class="uc" data-f="native" data-v="ok">
+<div class="uc-head"><h4>Remote hands</h4><span class="pill f-native">Ready now</span><span class="pill v-ok">Core</span></div>
+<p>Any phone's live screen in a browser with working mouse and keyboard. This is how an operator handles anything the automation cannot, and it is also the demo that sells the service, because a prospect can watch their own account being driven in real time.</p>
+</div>
+
+<div class="flag good">
+<p class="flag-title"><span class="tag">Tip</span> The demo that closes</p>
+<p>Live screen of a real iPhone, the prospect names a caption, it types itself and posts, and a screenshot lands in a folder. Thirty seconds, no slides. The capability audit confirms every step of that demo works with what is already on the rack, except the media upload, which needs the phone helper.</p>
+</div>
+</section>
+<section id="segments"><span class="anchor">MARK-SEGMENTS-MARK</span>
+<p class="kicker">Section 4 &middot; Demand</p>
+<h2>Who it is for</h2>
+<p class="lead">Six buyers, ranked by how quickly they close against how well they fit. The ranking is deliberately different from the one we started with, because once the product is defined as operating accounts the client owns, the boring segment turns out to be the best one.</p>
+
+<h3>The ranking</h3>
+<div class="tw"><table>
+<thead><tr><th class="num">#</th><th>Segment</th><th>Why they buy</th><th class="num">Devices per client</th><th class="num">Monthly value</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td><strong>Social and marketing agencies</strong></td><td>They already hold authorization for client accounts and are drowning in manual posting</td><td class="num">20-60</td><td class="num">$12k-40k</td></tr>
+<tr><td class="num">2</td><td><strong>Multi-location brands and franchises</strong></td><td>One account per location, all owned by them, nobody has time to run them</td><td class="num">15-100</td><td class="num">$9k-60k</td></tr>
+<tr><td class="num">3</td><td><strong>Creator and talent management</strong></td><td>Official accounts for each creator on their roster, posted consistently</td><td class="num">10-40</td><td class="num">$6k-25k</td></tr>
+<tr><td class="num">4</td><td><strong>Owned content networks</strong></td><td>They run many channels they own and need output without more staff</td><td class="num">10-50</td><td class="num">$6k-30k</td></tr>
+<tr><td class="num">5</td><td><strong>AI persona studios</strong></td><td>Near-zero content cost, high posting volume, needs disclosure handled properly</td><td class="num">5-30</td><td class="num">$3k-20k</td></tr>
+<tr><td class="num">6</td><td><strong>App and product teams</strong></td><td>Real-device testing without buying and maintaining a device lab</td><td class="num">5-20</td><td class="num">$3k-12k</td></tr>
+</tbody>
+</table></div>
+
+<h3>Why the boring one moved to the top</h3>
+<p>Agencies managing other companies' accounts were originally ranked last for being unexciting. They are the best first customer for four concrete reasons.</p>
+<ul>
+<li><strong>Authorization is already solved.</strong> They hold a signed agreement with each client that says they may operate the accounts. Our paperwork is a countersignature rather than a new conversation.</li>
+<li><strong>They pay like a business.</strong> Invoices, net 30, a card on file that will not get shut off. The service is an ordinary line item in a budget that already exists.</li>
+<li><strong>They expand on their own.</strong> Land six accounts, and every new client of theirs adds devices without a new sale.</li>
+<li><strong>They buy the proof.</strong> The monthly report is something they forward to their own client with their logo on it. That makes our reporting a retention feature rather than an overhead.</li>
+</ul>
+<p>The trade is that they are slower to close, typically six to ten weeks, and they will ask about data handling. Both are manageable, and both are signs of a customer who stays.</p>
+
+<h3>Where each segment needs a qualifying question</h3>
+<p>Three of these segments contain deals we can take and deals we cannot, and the difference is not visible from the outside. Ask on the first call.</p>
+
+<div class="tw"><table>
+<thead><tr><th>Segment</th><th>Ask this</th><th>Take it if</th><th>Walk if</th></tr></thead>
+<tbody>
+<tr><td>Creator management</td><td>"Which accounts, and whose name is on them?"</td><td>The creator's own official accounts, and the agency is authorized to run them</td><td>They want accounts that present as independent fans or unrelated third parties</td></tr>
+<tr><td>Owned content networks</td><td>"Are these your channels, and does anything link back to you?"</td><td>The network owns the channels and is not pretending they are unaffiliated</td><td>The point is to look like separate, unconnected voices agreeing with each other</td></tr>
+<tr><td>AI persona studios</td><td>"How are these labeled?"</td><td>Labeled as AI or brand-operated, as the platforms and the advertising rules require</td><td>The personas are presented as real people and that is the point of the product</td></tr>
+</tbody>
+</table></div>
+
+<div class="flag good">
+<p class="flag-title"><span class="tag">Tip</span> One question sorts most calls</p>
+<p>"If the platform emailed the account owner tomorrow and asked who operates this account, would the honest answer cause a problem?" If yes, it is not our deal. If no, we can price it. This is faster than reading anyone's terms of service on a call, and it lands as professional rather than preachy.</p>
+</div>
+
+<h3>The segment nobody asks about</h3>
+<p>App and product teams renting the rack as a test bench sit last on revenue and first on resilience. Their spend has nothing to do with what any social platform decides. If the content side of the business ever has a bad quarter because a platform changes its rules, this is the line that keeps the lights on. Build it in Phase 4 even if it looks like a distraction, and keep at least a few devices permanently assigned to it.</p>
+
+<h3>What a good first ten customers looks like</h3>
+<div class="big">
+<div><div class="n">3</div><div class="l">agencies at 20 or more devices, the revenue base</div></div>
+<div><div class="n">4</div><div class="l">smaller clients at 5 to 15 devices, proving the model repeats</div></div>
+<div><div class="n">2</div><div class="l">multi-location brands, the highest ceiling</div></div>
+<div><div class="n">1</div><div class="l">app team on the device lab, the uncorrelated line</div></div>
+</div>
+<p>That mix is roughly 150 devices and somewhere around $90k a month at package prices, against one host PC for every fifty devices and two operators. It is also diverse enough that losing any single customer is survivable, which is the real test of a first cohort.</p>
+</section>
+<section id="pricing"><span class="anchor">MARK-PRICING-MARK</span>
+<p class="kicker">Section 5 &middot; The money</p>
+<h2>Pricing and unit economics</h2>
+<p class="lead">One device is the unit of cost and the unit of price. Hardware is almost free at this scale. Labor is everything. Every pricing decision below is really a decision about how many devices one person can look after.</p>
+
+<h3>What one device costs us per month</h3>
+<div class="tw"><table class="money">
+<thead><tr><th>Cost line</th><th>Basis</th><th class="num">Per device</th></tr></thead>
+<tbody>
+<tr><td>iPhone</td><td>Refurbished, around $150, written off over 24 months</td><td class="num">$6</td></tr>
+<tr><td>Control board and cable</td><td>Around $45, over 36 months</td><td class="num">$2</td></tr>
+<tr><td>Share of the host PC</td><td>$1,400 over 36 months, split across 50 devices</td><td class="num">$1</td></tr>
+<tr><td>Power</td><td>Phone on charge plus a share of the PC</td><td class="num">$2</td></tr>
+<tr><td>Internet</td><td>Business line, split across the rack</td><td class="num">$4</td></tr>
+<tr><td>Control software licence</td><td>Per device, vendor priced <strong>(confirm before pricing publicly)</strong></td><td class="num">$8</td></tr>
+<tr><td>Space and racking</td><td>Shelf, hub, cooling</td><td class="num">$3</td></tr>
+<tr><td>Breakage reserve</td><td>Devices die, batteries swell, cables fail</td><td class="num">$4</td></tr>
+<tr><td><strong>Everything that is not a person</strong></td><td></td><td class="num"><strong>$30</strong></td></tr>
+<tr><td>Operations labor, Post package</td><td>One operator per 60 devices at $5,500 loaded</td><td class="num">$92</td></tr>
+</tbody>
+<tfoot><tr><td>Total, Post package</td><td></td><td class="num">$122</td></tr></tfoot>
+</table></div>
+
+<p>Thirty dollars of that is machinery and ninety is a person. Anything that lets one operator hold more devices is worth more than any hardware saving available to us. That is why the self-healing ladder in Module C is treated as a revenue feature rather than plumbing.</p>
+
+<h3>Margin by package</h3>
+<div class="tw"><table class="money">
+<thead><tr><th>Package</th><th class="num">Price</th><th class="num">Cost</th><th class="num">Gross profit</th><th class="num">Margin</th><th>Why the cost moves</th></tr></thead>
+<tbody>
+<tr><td>Post</td><td class="num">$450</td><td class="num">$122</td><td class="num">$328</td><td class="num">73%</td><td>One platform, automated, barely touched</td></tr>
+<tr><td>Operate</td><td class="num">$700</td><td class="num">$170</td><td class="num">$530</td><td class="num">76%</td><td>More platforms and a daily inbox glance</td></tr>
+<tr><td>Desk</td><td class="num">$1,100</td><td class="num">$430</td><td class="num">$670</td><td class="num">61%</td><td>A person answering messages, roughly one per 20 accounts</td></tr>
+</tbody>
+</table></div>
+
+<div class="flag wrong">
+<p class="flag-title"><span class="tag">Wrong</span> The expensive package is not the best package</p>
+<p>Desk earns the most dollars per device and the least margin, and it is the only one whose cost grows with how busy the client's audience is. Sell it deliberately, cap the included hours, and charge overage. A viral week on a Desk account can quietly turn a 61% margin negative.</p>
+</div>
+
+<h3>Charge for working devices, not powered-on ones</h3>
+<p>The competitor standard is a flat fee per phone whether or not it is doing anything. We bill on devices that were actually working, measured by the same uptime check that drives our health board, and we credit back days a device was down.</p>
+<p>This is worth doing for three reasons. It is an easy thing to say on a call that nobody else is saying. It forces us to actually measure uptime, which we need anyway. And it aligns the invoice with the thing the client cares about, which makes renewal an easy conversation rather than an audit.</p>
+
+<h3>Getting the money in</h3>
+<ul>
+<li><strong>Invoice B2B, monthly in arrears, net 15.</strong> The service is managed social media operations, which is an ordinary category, so payment processing is a normal business conversation.</li>
+<li><strong>Onboarding billed up front, per device.</strong> $250 covers the phone, the board and the setup labor, so a new device is roughly cash neutral on day one instead of being a loan to the customer.</li>
+<li><strong>Annual prepay at 10% off.</strong> Useful when the rack needs filling faster than monthly cash allows.</li>
+<li><strong>Minimum five devices.</strong> Below that the onboarding attention costs more than the contract returns.</li>
+</ul>
+
+<h3>Payback and the shape of growth</h3>
+<div class="big">
+<div><div class="n">$265</div><div class="l">to put one device into service, hardware and setup labor</div></div>
+<div><div class="n">$250</div><div class="l">recovered immediately from the onboarding fee</div></div>
+<div><div class="n">~1 mo</div><div class="l">until a device has paid for itself and is pure contribution</div></div>
+<div><div class="n">$30</div><div class="l">monthly cost of a device sitting idle between clients</div></div>
+</div>
+<p>An idle device costs almost nothing, which means buying slightly ahead of demand is cheap and running out of devices mid-deal is expensive. Keep roughly a ten percent buffer racked and ready.</p>
+
+<h3>Three sizes of the business</h3>
+<div class="tw"><table class="money">
+<thead><tr><th>Stage</th><th class="num">Devices</th><th class="num">Host PCs</th><th class="num">Operators</th><th class="num">Revenue</th><th class="num">Gross profit</th></tr></thead>
+<tbody>
+<tr><td>Proving it works</td><td class="num">50</td><td class="num">1</td><td class="num">1</td><td class="num">$30k</td><td class="num">$22k</td></tr>
+<tr><td>A real business</td><td class="num">150</td><td class="num">3</td><td class="num">3</td><td class="num">$90k</td><td class="num">$66k</td></tr>
+<tr><td>Needs a second site</td><td class="num">400</td><td class="num">8</td><td class="num">7</td><td class="num">$240k</td><td class="num">$176k</td></tr>
+</tbody>
+</table></div>
+<p>Revenue assumes an average of $600 per device, which sits between the Post and Operate packages. Gross profit is before rent, software we build, sales and the founder. The numbers hold as long as the operator-to-device ratio holds, so that ratio is the one metric to watch weekly.</p>
+
+<div class="flag open">
+<p class="flag-title"><span class="tag">Open</span> Two numbers that could move all of this</p>
+<p>The vendor licence cost per device is an estimate and needs confirming before we publish a price. And every capacity figure above assumes roughly fifty devices per host PC, which comes from the vendor's own guidance rather than from our measurement. We have only ever run two phones at once. Proving ten, then twenty, is the first real technical milestone in Section 8.</p>
+</div>
+</section>
+<section id="operations"><span class="anchor">MARK-OPERATIONS-MARK</span>
+<p class="kicker">Section 6 &middot; Running it</p>
+<h2>How the operation runs</h2>
+<p class="lead">The service is a room full of phones and one person watching a board. This section is what that person does, how many devices they can hold, and the runbooks that keep the answer from drifting.</p>
+
+<h3>The daily rhythm</h3>
+<div class="tw"><table>
+<thead><tr><th>When</th><th>What happens</th><th>Who</th></tr></thead>
+<tbody>
+<tr><td>Overnight</td><td>Health sweep across every device, self-healing ladder runs, anything unresolved queues for the morning</td><td>Automatic</td></tr>
+<tr><td>First hour</td><td>Read the overnight queue, fix what the ladder could not, check the reference screens for platform redesigns</td><td>Operator</td></tr>
+<tr><td>Through the day</td><td>Scheduled posts fire on their own. Operator handles exceptions and the inbox queue for Desk clients</td><td>Automatic, with exceptions</td></tr>
+<tr><td>End of day</td><td>Confirm every scheduled job either landed or was reported, clear the evidence folder into client reports</td><td>Operator</td></tr>
+<tr><td>Weekly</td><td>Storage cleanup, device quality ranking, spare device rotation, review the operator-to-device ratio</td><td>Operator</td></tr>
+<tr><td>Monthly</td><td>Reports out, uptime credits applied, capacity check against the sales pipeline</td><td>Owner</td></tr>
+</tbody>
+</table></div>
+<p>The goal of every piece of automation in Module C is to keep the first hour short. When the morning queue starts taking two hours, the ratio has broken and the next hire is already late.</p>
+
+<h3>How many devices one person can hold</h3>
+<div class="big">
+<div><div class="n">60</div><div class="l">Post package devices per operator, mostly hands-off</div></div>
+<div><div class="n">40</div><div class="l">Operate devices, with a daily inbox pass</div></div>
+<div><div class="n">20</div><div class="l">Desk devices, where a person is answering messages</div></div>
+</div>
+<p>These are planning numbers, not measured ones, and the only honest way to find the real figures is to run fifty devices and watch. Track two things weekly: minutes of operator time per device, and the share of incidents the automatic ladder resolved without a person. The second number rising is what lets the first number fall.</p>
+
+<h3>Bringing a client on</h3>
+<p>Target five working days from signature to first scheduled post. Every step below has a failure mode that shows up later if it is skipped.</p>
+<ol>
+<li><strong>Authorization, in writing, per account.</strong> Who owns each account and confirmation that the client may appoint us to operate it. Countersigned before a device is assigned.</li>
+<li><strong>Device assignment.</strong> Phone taken from the ready pool, named, put in a group for that client, position recorded.</li>
+<li><strong>Phone preparation.</strong> The accessibility settings the control hardware needs, screen lock off, orientation locked, automatic updates off so a platform app does not change underneath us unannounced.</li>
+<li><strong>Sign in.</strong> The client's own credentials, entered once. Recovery and two-factor stay on the client's side, always. We never become the recovery contact.</li>
+<li><strong>Calibration.</strong> Confirm taps land where we think they do on this exact model and system version, then save a reference set of screens for the change detector.</li>
+<li><strong>Phone helper install.</strong> The Apple Shortcut, installed and bound by hand on that device. Currently the longest and least certain step.</li>
+<li><strong>Test post.</strong> One real post to a quiet place, with proof, reviewed by the client before the calendar goes live.</li>
+</ol>
+
+<div class="flag trap">
+<p class="flag-title"><span class="tag">Trap</span> Never hold the recovery method</p>
+<p>It is tempting to take over the recovery email or the two-factor number to make sign-ins easier. Do not. The moment we hold recovery we have effectively taken the account rather than been lent it, which changes what we are in a dispute, and it turns a client offboarding into a hostage negotiation. Keep recovery with the owner even when it costs us a support call.</p>
+</div>
+
+<h3>Letting a client go</h3>
+<p>Offboarding is a sales feature, so make it crisp. Within two business days of notice: sign out of every device in front of the client if they want to watch, hand over the evidence archive and reports, delete their content from our storage on a stated schedule, wipe and re-image the phones, and return them to the ready pool. Send written confirmation of each step. A clean exit is what makes the next prospect comfortable, and departing clients refer.</p>
+
+<h3>Security and separation</h3>
+<p>Three things matter here, and the first one is urgent.</p>
+<ul>
+<li><strong>The control software has no password.</strong> Anything on the same network can drive every phone. The rack goes on its own isolated network segment, the control port is never exposed, and all access runs through a gateway we control that requires authentication and logs who did what.</li>
+<li><strong>One device, one client.</strong> Not for any technical reason, but because a client's content and a client's session should never share hardware with another's. It is also the simplest answer to the data question in a procurement review.</li>
+<li><strong>Credentials are handled once and stored properly.</strong> In a password manager with access limited to the operators who need it, entered at setup, not kept in job files or spreadsheets. Rotate when staff change.</li>
+</ul>
+<p>Keep our own marketing accounts on entirely separate hardware and a separate network from client delivery. If something goes wrong on one side, it should not be able to reach the other.</p>
+
+<h3>What we keep, and for how long</h3>
+<div class="tw"><table>
+<thead><tr><th>Data</th><th>Where</th><th>Kept for</th></tr></thead>
+<tbody>
+<tr><td>Proof screenshots and post links</td><td>Our storage, per client folder</td><td>13 months, then deleted</td></tr>
+<tr><td>Client content awaiting posting</td><td>Shared folder plus the device camera roll</td><td>Deleted from the device after posting</td></tr>
+<tr><td>Account credentials</td><td>Password manager</td><td>Until offboarding, then removed</td></tr>
+<tr><td>Message content seen by the reply desk</td><td>Not stored beyond the working queue</td><td>Working queue only</td></tr>
+<tr><td>Health and uptime logs</td><td>Our monitoring</td><td>13 months, for billing disputes</td></tr>
+</tbody>
+</table></div>
+<p>Write this table into the contract. Agencies will ask, and having the answer ready shortens a procurement cycle noticeably.</p>
+</section>
+<section id="guardrails"><span class="anchor">MARK-GUARDRAILS-MARK</span>
+<p class="kicker">Section 7 &middot; The line</p>
+<h2>What we do not do, and why that sells</h2>
+<p class="lead">The same rack can be pointed at work that is ordinary business and at work that gets accounts removed and invites legal trouble. The difference is not technical, it is who owns the accounts and whether anyone is being misled. Deciding this once, in writing, is what makes everything else in this plan financeable.</p>
+
+<h3>The rule</h3>
+<p>We operate accounts that our client owns or is contractually authorized to operate, and we do not make an account look like it belongs to someone other than whoever really runs it.</p>
+<p>That single sentence decides every edge case below without a debate.</p>
+
+<div class="tw"><table>
+<thead><tr><th>We do</th><th>We do not</th></tr></thead>
+<tbody>
+<tr><td>Post to the client's own brand, location and creator accounts</td><td>Run accounts presented as unaffiliated fans or independent third parties</td></tr>
+<tr><td>Reply to people who contacted the client</td><td>Send unsolicited commercial messages to bought or scraped lists</td></tr>
+<tr><td>Like and comment as the client's own account, openly</td><td>Manufacture engagement from accounts that exist to inflate numbers</td></tr>
+<tr><td>Stop and report when a platform says slow down</td><td>Work around a limit, a block or an enforcement action</td></tr>
+<tr><td>Keep each client's devices separate for confidentiality</td><td>Arrange devices or connections to hide that accounts are related</td></tr>
+<tr><td>Label AI-operated personas as the rules require</td><td>Present a synthetic persona as a real person</td></tr>
+<tr><td>Hand accounts back cleanly on exit</td><td>Hold recovery methods so a client cannot leave</td></tr>
+</tbody>
+</table></div>
+
+<h3>Why this is a commercial advantage, not a tax</h3>
+<ul>
+<li><strong>It is the only version that survives a procurement review.</strong> Agency clients have their own contracts with their own customers. If we cannot answer the authorization question, we cannot sign the good deals at all.</li>
+<li><strong>Payments stay boring.</strong> Managed social media operations is an ordinary service category. The moment the work is about evading platform enforcement, processors and banks treat it differently, and that risk arrives without warning.</li>
+<li><strong>Our costs stay predictable.</strong> A business built on accounts that keep getting removed is really a business selling replacement accounts, which is labor we cannot schedule and cannot price. Authorized accounts do not have that failure mode.</li>
+<li><strong>It is a differentiator we can say out loud.</strong> The competitor pitch is more phones. Ours is that everything we do is something the client can explain to their own customer, and that the exit is clean.</li>
+</ul>
+
+<div class="flag good">
+<p class="flag-title"><span class="tag">Tip</span> Put the line in the sales deck, not the appendix</p>
+<p>Agencies have usually been pitched by someone whose service would embarrass them if a client asked how it worked. Leading with the rule sorts prospects fast, disarms the compliance question before it is asked, and makes the price easier to hold because we are not competing with the cheapest possible version of the work.</p>
+</div>
+
+<h3>What to do when a prospect asks for the other thing</h3>
+<p>It will happen, and the answer should be quick and non-judgmental so the relationship survives it. Decline the specific request, name what we can do instead, and keep the door open. A lot of these prospects have legitimate accounts elsewhere in their business, and the ones who do not will often come back once they have been burned by someone who said yes.</p>
+<p>Do not negotiate this in the moment or make case-by-case exceptions. One exception becomes the policy, and the exception is always the account that eventually causes the problem.</p>
+
+<h3>What goes in the contract</h3>
+<ol>
+<li>The client owns or is authorized to operate every account, and will tell us immediately if that stops being true.</li>
+<li>The client is responsible for the content they give us and for having the rights to it.</li>
+<li>We operate accounts in line with the platforms' rules, and we will pause work rather than work around an enforcement action.</li>
+<li>Consent records for any outbound messaging are the client's responsibility, and we may refuse a list.</li>
+<li>Either side can end it with thirty days' notice, with the offboarding steps from Section 6 written out.</li>
+<li>Our data handling and retention, as in the table in Section 6.</li>
+</ol>
+<p>Have a lawyer in the relevant jurisdiction review this before the first agency deal, not after the tenth. It is a few hundred dollars against a contract that will be reused a hundred times.</p>
+</section>
+<section id="build"><span class="anchor">MARK-BUILD-MARK</span>
+<p class="kicker">Section 8 &middot; Execution</p>
+<h2>Build sequence: the first 90 days</h2>
+<p class="lead">Five phases, each with a test that says whether it is finished. The order is chosen so that the two things most likely to kill the plan get tested in the first two weeks, while changing course is still cheap.</p>
+
+<div class="phase">
+<p class="when">Phase 0 &middot; Weeks 1-2 &middot; Clear the unknowns</p>
+<h4>Find out whether the plan is real</h4>
+<p>Three questions block everything downstream. Answer them before writing a line of product code.</p>
+<ul>
+<li><strong>Does the phone helper work?</strong> Install the Apple Shortcut on one device, bind it, and prove all four things it gives us: push a photo to the camera roll, push text with emoji to the clipboard, read the clipboard back, and open a link. Without this there is no media posting, no emoji captions and no post links, which removes most of the Core feature set.</li>
+<li><strong>How will we read numbers off a screen?</strong> Price the text-recognition add-on from the vendor against sending screenshots to a cloud recognition service. Decide, because the analytics feature and several lab features depend on it.</li>
+<li><strong>What does the licence cost per device?</strong> Confirm with the vendor. It is the one cost line in Section 5 that is a guess, and it moves the floor price.</li>
+</ul>
+<p class="k">Also this phase</p><p>Put the gateway in front of the control software and move the rack onto its own network. No client account should ever touch an unauthenticated control port.</p>
+<p class="k">Done when</p><p>A photo taken on the PC appears in a phone's camera roll, an emoji caption pastes into a real app, and the control port is unreachable from the normal network.</p>
+</div>
+
+<div class="phase">
+<p class="when">Phase 1 &middot; Weeks 2-5 &middot; The control plane</p>
+<h4>Build the thing we actually own</h4>
+<p>The vendor software drives phones. It does not know about clients, schedules, retries or evidence. That layer is our product and nobody else has it.</p>
+<ul>
+<li><strong>Device registry.</strong> Name, group, rack position, client, current state for every phone.</li>
+<li><strong>Job queue and scheduler.</strong> A job knows its content, its target group, its time, its retry rule and its proof requirement.</li>
+<li><strong>Two-light health board.</strong> Control and video shown separately per device, because they fail separately.</li>
+<li><strong>Self-healing ladder.</strong> Reset, release, restart app, reconnect, reset board, reboot, then escalate to a person.</li>
+<li><strong>Evidence capture.</strong> Screenshot after every action, filed against the job automatically.</li>
+<li><strong>Remote hands view.</strong> Live screen in a browser with mouse and keyboard. Also the sales demo.</li>
+</ul>
+<p class="k">Done when</p><p>A job scheduled for 9am runs on two devices at 9am, retries by itself when one fails, files proof for both, and shows red on the board when a phone is unplugged mid-run.</p>
+</div>
+
+<div class="phase">
+<p class="when">Phase 2 &middot; Weeks 4-8 &middot; Prove it scales, then dogfood it</p>
+<h4>Ten phones, then twenty</h4>
+<p>Every capacity number in this plan assumes around fifty devices per host PC. We have only ever run two at once. This is the largest untested assumption in the business and it is cheap to test now and expensive to discover later.</p>
+<ul>
+<li>Bring ten devices up at once and hold them for a full day. Watch picture rates, dropped connections and whether the host PC keeps up.</li>
+<li>Then nineteen, which is every board we own. Record where it starts to degrade and at which video quality setting.</li>
+<li>Fix the pacing and the quality policy based on what actually happens, then write the real capacity number into the pricing model.</li>
+</ul>
+<p class="k">Then run our own accounts on it</p><p>Move Node Theory's own marketing accounts onto the rack, on separate hardware from anything client-facing. We become customer zero, the demo becomes real, and the go-to-market content in Section 9 starts producing while the product finishes.</p>
+<p class="k">Done when</p><p>Nineteen devices run a full day unattended, and our own accounts have posted for two weeks straight with proof, with no morning queue longer than thirty minutes.</p>
+</div>
+
+<div class="phase">
+<p class="when">Phase 3 &middot; Weeks 8-12 &middot; First revenue</p>
+<h4>Sell the Post and Operate packages</h4>
+<ul>
+<li><strong>Paperwork first.</strong> Contract, authorization form and the data table from Section 6, reviewed by a lawyer.</li>
+<li><strong>Onboarding runbook.</strong> The seven steps from Section 6, timed, so a new device is a checklist and not a project.</li>
+<li><strong>Inbox watch and the monthly report.</strong> The two features that turn a posting script into a service worth a retainer.</li>
+<li><strong>Land two or three clients</strong>, ideally one agency and one smaller account, at ten to twenty devices total.</li>
+</ul>
+<p class="k">Done when</p><p>An invoice has been paid, uptime has been measured against the promise for a full month, and the report went out without anyone assembling it by hand.</p>
+</div>
+
+<div class="phase">
+<p class="when">Phase 4 &middot; Beyond 90 days &middot; Widen</p>
+<h4>Staff the desk, open the lab, add the second PC</h4>
+<ul>
+<li><strong>Desk package</strong> once there is an operator to staff it and enough inbox volume to justify the price.</li>
+<li><strong>Device lab</strong> as a separate line with its own landing page, because it is the revenue least exposed to platform decisions.</li>
+<li><strong>Second host PC and the coordinator</strong> at around sixty devices.</li>
+<li><strong>Commerce module</strong> when a seller client asks for it, not before. It is per-listing work and should be priced per listing.</li>
+</ul>
+</div>
+
+<h3>What to build first if there is only one developer</h3>
+<p>In strict order, stopping when time runs out. Everything above the line is required to take money.</p>
+<ol>
+<li>Gateway and network isolation.</li>
+<li>Device registry and health board.</li>
+<li>Job queue with retries.</li>
+<li>Evidence capture.</li>
+<li>Self-healing ladder.</li>
+<li>Remote hands view.</li>
+<li>Report assembly.</li>
+</ol>
+<p>Items one through four are the minimum that can honestly be sold. Five is what makes it profitable. Six is what sells it. Seven is what renews it.</p>
+
+<div class="flag trap">
+<p class="flag-title"><span class="tag">Trap</span> Do not start with the client dashboard</p>
+<p>It is the most visible thing and the least valuable. Clients in this category do not want to log in, that is what they are paying to avoid. A monthly PDF and an email when something breaks beats a dashboard for at least the first year, and costs a fraction as much to build.</p>
+</div>
+</section>
+<section id="gtm"><span class="anchor">MARK-GTM-MARK</span>
+<p class="kicker">Section 9 &middot; Getting customers</p>
+<h2>Go to market and branding</h2>
+<p class="lead">We sell a service whose whole promise is consistent output, so the marketing is simple: be the most consistent account in the feed, and let people work out what that implies. Prove the product by running it on ourselves.</p>
+
+<h3>Be customer zero</h3>
+<p>Our own accounts run on our own rack, on hardware kept entirely separate from client delivery. Three things fall out of that, all of them free.</p>
+<ul>
+<li>The product gets used hard every day by the people who can fix it.</li>
+<li>The marketing is the proof. An account posting cleanly across five platforms for six months straight is the case study.</li>
+<li>The demo is real. A prospect watches an actual phone in our rack post an actual thing while they are on the call.</li>
+</ul>
+<p>Keep the separation strict. Marketing accounts and client accounts share no devices, no network and no credentials. If one side has a bad day, it should not be able to reach the other.</p>
+
+<h3>Where the buyers are</h3>
+<p>X first, not Instagram. Agency owners, content-network operators and the people who run this kind of business talk shop there in public, and the format rewards specifics. Instagram is where we demonstrate the output, not where we find the buyer.</p>
+<div class="tw"><table>
+<thead><tr><th>Channel</th><th>What we post</th><th>What it is for</th></tr></thead>
+<tbody>
+<tr><td>X</td><td>Operating numbers, what broke and how we fixed it, capacity notes, uptime</td><td>Finding buyers in segments 1, 3 and 4</td></tr>
+<tr><td>Instagram and TikTok</td><td>The niche accounts themselves, running as normal accounts</td><td>Proof that the output is real</td></tr>
+<tr><td>LinkedIn</td><td>The compliance and data-handling angle, agency case studies</td><td>Segments 1 and 2, where procurement lives</td></tr>
+<tr><td>Direct outreach</td><td>Short, specific, to agencies posting for many clients</td><td>The first ten customers, realistically</td></tr>
+</tbody>
+</table></div>
+<p>For the first ten customers, expect direct outreach and referral to do most of the work, and treat the public posting as the thing that makes the outreach land rather than as a channel in its own right.</p>
+
+<h3>Lead with output, not with the pitch</h3>
+<p>The strongest post is a number with evidence behind it. "These six accounts published 340 times last month across five platforms with 99.4% on-time delivery, here is the uptime board" is a better advertisement than any description of the service. It is also the exact artifact the monthly report already produces, so the marketing costs nothing extra to make.</p>
+
+<h3>One page per segment</h3>
+<p>Path-based pages under the main domain, so link tracking stays simple and each ad or post can point at the page that speaks the buyer's language.</p>
+<div class="tw"><table>
+<thead><tr><th>Page</th><th>Headline idea</th><th>Primary action</th></tr></thead>
+<tbody>
+<tr><td class="key">/agencies</td><td>Your client accounts, posted on time, with proof you can forward</td><td>Book a live demo</td></tr>
+<tr><td class="key">/locations</td><td>Every location's account, handled from one place</td><td>Book a live demo</td></tr>
+<tr><td class="key">/creators</td><td>Your roster's official accounts, published daily without your team</td><td>Book a live demo</td></tr>
+<tr><td class="key">/networks</td><td>Run more owned channels without hiring more people</td><td>See the output</td></tr>
+<tr><td class="key">/lab</td><td>Real iPhones for link, push, email and checkout testing</td><td>Request a test run</td></tr>
+</tbody>
+</table></div>
+<p>Every page ends with the same two things: the live demo offer, and the rule from Section 7 stated plainly. The second one costs us the deals we do not want and wins the ones we do.</p>
+
+<h3>The name</h3>
+<p>Node Theory reads as infrastructure rather than as an agency, which is the right signal for a service sold on reliability. The domain and the Instagram handle are secured. Two items remain and both are time-sensitive.</p>
+<ul>
+<li><strong>Lock the remaining handles now.</strong> X, TikTok, LinkedIn, Reddit and YouTube. Handle squatting on a name that is starting to appear in public posts is an avoidable annoyance.</li>
+<li><strong>Resolve the trademark question before spending on the brand.</strong> There is an existing Node Theory operating in systems thinking on a .net domain. Different field, different customers, but get a search done by a trademark attorney covering our actual class of services before printing anything, buying ads, or filing. A few hundred dollars now against a rename after twelve months of brand equity is an easy trade.</li>
+</ul>
+
+<div class="flag open">
+<p class="flag-title"><span class="tag">Open</span> Decide the naming question early</p>
+<p>If the search comes back messy, the cheapest moment to change the name is now, before the landing pages, the contracts and the reports carry it. Set a date to make the call rather than letting it drift, because every week of delay raises the cost of switching.</p>
+</div>
+
+<h3>What the first three months of marketing actually looks like</h3>
+<ol>
+<li><strong>Weeks 1-4.</strong> Get our own accounts onto the rack and posting. Nothing public yet.</li>
+<li><strong>Weeks 5-8.</strong> Start posting operating detail on X. Build the five landing pages. Open the demo calendar.</li>
+<li><strong>Weeks 9-12.</strong> Direct outreach to thirty agencies with a specific observation about their posting, not a pitch. Target two or three closed deals from that list.</li>
+</ol>
+<p>Thirty well-chosen approaches beats three hundred generic ones in this market, because the buyer list is small, reachable and talks to each other. That last part matters more than any channel: in a market this size, the second customer usually comes from the first.</p>
+</section>
+<section id="risks"><span class="anchor">MARK-RISKS-MARK</span>
+<p class="kicker">Section 10 &middot; Honest assessment</p>
+<h2>What would break us</h2>
+<p class="lead">Ranked by how much damage they do multiplied by how likely they are. The first three are the ones to actually worry about. Each has an early warning sign, because the point of a risk list is to notice trouble a month before it arrives rather than to feel prepared.</p>
+
+<h3>The three that matter</h3>
+
+<div class="uc no" data-f="no" data-v="no">
+<div class="uc-head"><h4>1. The phone helper does not work reliably</h4><span class="pill f-no">Highest impact</span></div>
+<p>The Apple Shortcut is how photos, videos, files, emoji text and post links move between the PC and the phone. It has never been proven on our rack. If it is unreliable, or Apple changes how Shortcuts behave, we lose media posting, non-English captions and post links, which is most of what the packages promise.</p>
+<p class="k">Early warning</p><p>Phase 0 tells us in the first two weeks. That is precisely why it is Phase 0.</p>
+<p class="k">If it fails</p><p>The fallback service is text-only posting, monitoring, health and the device lab, which is a smaller but genuine business. Reprice around it rather than pretending the feature exists. Do not sell media posting to anyone until it is proven on the exact device model they are buying.</p>
+</div>
+
+<div class="uc no" data-f="no" data-v="no">
+<div class="uc-head"><h4>2. It does not scale past a handful of phones</h4><span class="pill f-no">High impact</span></div>
+<p>Every number in Section 5 assumes roughly fifty devices on one host PC. That figure comes from the vendor, not from us. We have run two at once. If the real ceiling is fifteen, the cost per device roughly triples and the packages stop working at their current prices.</p>
+<p class="k">Early warning</p><p>The Phase 2 scale test at ten and then nineteen devices. Watch for picture rates falling as devices are added, which would mean they are competing for the same wireless capacity.</p>
+<p class="k">If it fails</p><p>More host PCs, sooner, at about $1,400 each. Annoying but survivable, and mostly a hit to margin rather than to feasibility. Discover it before quoting a hundred-device deal.</p>
+</div>
+
+<div class="uc no" data-f="no" data-v="no">
+<div class="uc-head"><h4>3. Apps move their buttons</h4><span class="pill f-no">Certain, ongoing</span></div>
+<p>We tap fixed positions on the screen. Every app redesign moves something and breaks whatever script touched it. This is not a risk that gets resolved, it is a permanent maintenance cost, and it is the main reason this business needs staff rather than just servers.</p>
+<p class="k">Early warning</p><p>The nightly reference-screen comparison in Module C, which turns a surprise into a morning task.</p>
+<p class="k">How to live with it</p><p>Budget engineering time every week for it, keep the number of distinct screens we depend on as small as possible, and prefer the paths that do not depend on layout, such as opening a composer by link or launching apps by typing their name into search.</p>
+</div>
+
+<h3>The rest of the register</h3>
+<div class="tw"><table>
+<thead><tr><th>Risk</th><th>What we would see first</th><th>What we do about it</th></tr></thead>
+<tbody>
+<tr><td><strong>Vendor dependency.</strong> The control software is closed, third-party, and the whole rack depends on it</td><td>A licence price change, a broken update, or support going quiet</td><td>Keep the control layer we wrote separate from the vendor's, so it could be pointed at something else. Hold back a version that works and do not auto-update the rack</td></tr>
+<tr><td><strong>Security incident on the control layer.</strong> The vendor software has no authentication at all</td><td>Anything unexpected in the gateway logs</td><td>Phase 0 isolation and gateway, no exceptions. This one is existential because it is client accounts, not our own</td></tr>
+<tr><td><strong>The operator ratio does not hold.</strong> Sixty devices per person is an estimate</td><td>The morning queue growing past thirty minutes</td><td>Track minutes per device weekly. Invest in the self-healing ladder before hiring, since automation is cheaper than headcount at this margin</td></tr>
+<tr><td><strong>Uneven devices.</strong> Two identical phones differed sixfold in picture rate purely on wireless link quality</td><td>Verification taking much longer on some devices</td><td>Score and rank devices, put heavy accounts on good ones, improve the wireless before buying more phones</td></tr>
+<tr><td><strong>Client concentration.</strong> One agency could easily be half the revenue</td><td>Any client above 30% of billings</td><td>Cap deliberately, price the device lab line to grow, keep the first-ten mix from Section 4</td></tr>
+<tr><td><strong>Platform policy shifts.</strong> Rules on automation can tighten even for authorized accounts</td><td>Changes to the automation and third-party access terms</td><td>Stay on the authorized side of the line so we are never relying on not being noticed. Keep the lab revenue, which is unaffected</td></tr>
+<tr><td><strong>Apple account limits.</strong> Apple restricts how many devices associate with one Apple ID</td><td>Sign-in refusals during onboarding</td><td>Plan one Apple ID per small group of devices from the start rather than discovering the limit at device forty</td></tr>
+<tr><td><strong>Physical.</strong> Dense racks of charging phones get hot and batteries swell</td><td>Devices getting warm, cases bulging, throttled performance</td><td>Charge management, airflow, monthly physical inspection, smoke detection. A rack of lithium batteries deserves real respect</td></tr>
+<tr><td><strong>Key person.</strong> One person currently understands the whole stack</td><td>Nothing, until they are unavailable</td><td>Write the runbooks as they are built, not later. The Section 6 procedures are the start of that</td></tr>
+</tbody>
+</table></div>
+
+<h3>The honest summary</h3>
+<p>This is a labor business with a hardware front end, sold as reliability. The margins are good if one person can hold sixty devices, and mediocre if they can hold twenty. Two weeks of testing in Phase 0 and Phase 2 will tell us which business we are in, and both of those tests are cheap.</p>
+<p>The strategic risk worth repeating is the one that is already handled: a version of this built on accounts that are not the client's would have better margins on paper and no defensible future, because its core cost is replacing things that keep getting taken away. The version in this document grows slower and does not have that problem.</p>
+</section>
+<section id="appendix"><span class="anchor">MARK-APPENDIX-MARK</span>
+<p class="kicker">Section 11 &middot; Reference</p>
+<h2>Appendix: feature to API map and capacity math</h2>
+<p class="lead">For whoever builds this. Every feature in Section 3 maps to specific calls on the control software already installed on our rack. The paths below are the ones that answer on our kernel, which is the XP edition on port 9911.</p>
+
+<h3>A. Feature to call map</h3>
+<p>"Fan-out" means one request serves every device in the list at once. "Per device" means the cost multiplies by fleet size, which is what drives the pricing in Section 5.</p>
+<div class="tw"><table>
+<thead><tr><th>Feature</th><th>Calls it uses</th><th>Cost shape</th></tr></thead>
+<tbody>
+<tr><td>Pick the target devices</td><td class="key">/device/get, /config/usb/get</td><td>Whole rack in one call</td></tr>
+<tr><td>Push photo or video to the phone</td><td class="key">/shortcut/album/upload</td><td>Fan-out, but the file transfer itself takes real time</td></tr>
+<tr><td>Push a caption with emoji</td><td class="key">/shortcut/clipboard/set</td><td>Fan-out per distinct caption</td></tr>
+<tr><td>Paste it in</td><td class="key">/key/sendkey (paste hotkey)</td><td>Fan-out</td></tr>
+<tr><td>Tap through a composer</td><td class="key">/mouse/click</td><td>Fan-out</td></tr>
+<tr><td>Swipe, scroll, drag a sticker</td><td class="key">/mouse/swipe, /mouse/down, /mouse/move, /mouse/up, /mouse/wheel</td><td>Fan-out</td></tr>
+<tr><td>Type plain text</td><td class="key">/key/sendkey</td><td>Fan-out, English letters and numbers only</td></tr>
+<tr><td>Go to the home screen</td><td class="key">/key/sendkey (home hotkey, twice)</td><td>Fan-out</td></tr>
+<tr><td>Open an app or a link directly</td><td class="key">/shortcut/exec/url</td><td>Fan-out</td></tr>
+<tr><td>Proof screenshot</td><td class="key">/pic/screenshot</td><td><strong>Per device</strong></td></tr>
+<tr><td>Read the post link back</td><td class="key">/shortcut/clipboard/get</td><td><strong>Per device</strong></td></tr>
+<tr><td>Read numbers off a screen</td><td class="key">/pic/ocr</td><td><strong>Per device</strong>, add-on not installed today</td></tr>
+<tr><td>Check for a known dialog or button</td><td class="key">/pic/find</td><td><strong>Per device</strong>, add-on not installed today</td></tr>
+<tr><td>Clear a stuck pointer</td><td class="key">/mouse/reset</td><td>Fan-out</td></tr>
+<tr><td>Release stuck keys</td><td class="key">/key/upall</td><td>Fan-out</td></tr>
+<tr><td>Reconnect the screen feed</td><td class="key">/device/airplay/connect, /device/airplay/connect/all</td><td>Fan-out</td></tr>
+<tr><td>Video quality policy</td><td class="key">/device/airplay/set</td><td>Fan-out</td></tr>
+<tr><td>Reset the board or reboot the phone</td><td class="key">/device/usb/restart, /device/restart</td><td>Fan-out</td></tr>
+<tr><td>Name, group and bind devices</td><td class="key">/device/set, /device/group/set</td><td>One device per call</td></tr>
+<tr><td>Live events for the health board</td><td class="key">WebSocket on 9911</td><td>One connection covers the whole rack</td></tr>
+<tr><td>Files to and from the phone</td><td class="key">/shortcut/file/upload, /shortcut/file/down</td><td>Fan-out to send, per device to retrieve</td></tr>
+<tr><td>Torch, radios, brightness</td><td class="key">/shortcut/switch/torch, /switch/wlan, /switch/cdpd, /switch/bril</td><td>Fan-out</td></tr>
+<tr><td>Licence and account state</td><td class="key">/config/user/info</td><td>One call</td></tr>
+</tbody>
+</table></div>
+
+<h3>B. The measured numbers everything rests on</h3>
+<div class="tw"><table>
+<thead><tr><th>What</th><th class="num">Measured</th><th>Why it matters to the plan</th></tr></thead>
+<tbody>
+<tr><td>Screenshot, uncompressed</td><td class="num">2 ms</td><td>Proof and monitoring are nearly free per capture</td></tr>
+<tr><td>Screenshot rate, one phone</td><td class="num">84 per second</td><td>Monitoring cadence is a policy choice, not a limit</td></tr>
+<tr><td>Screenshot rate, ten phones at once</td><td class="num">512 per second</td><td>The phones do not compete with each other on this path</td></tr>
+<tr><td>Compressed screenshot</td><td class="num">21 per second</td><td>A hard ceiling. Always use the uncompressed path</td></tr>
+<tr><td>Pointer travel</td><td class="num">0.6 ms per pixel</td><td>A long swipe takes about half a second. Tap cost depends on distance</td></tr>
+<tr><td>Picture rate, good phone</td><td class="num">29 per second</td><td>Verification is quick</td></tr>
+<tr><td>Picture rate, weak phone</td><td class="num">4.5 per second</td><td>Same model, worse wireless. Rank devices and place work accordingly</td></tr>
+<tr><td>Bandwidth per phone</td><td class="num">5 / 10 / 20 Mbps</td><td>Low, normal and high video quality. Sets devices per PC and per line</td></tr>
+</tbody>
+</table></div>
+
+<h3>C. Worked example: what one device can carry</h3>
+<p>A typical Operate client wants three posts a day across four platforms, with proof.</p>
+<ul>
+<li>Content upload to the device, once per asset: about a minute, shared across the platforms it goes to.</li>
+<li>Four composer runs at roughly 45 seconds each: about three minutes.</li>
+<li>Four proof screenshots and four link captures: well under a minute.</li>
+<li><strong>Total device time: roughly five minutes per posting round, fifteen minutes a day.</strong></li>
+</ul>
+<p>A device is therefore busy about 1% of the day. The constraint on a client's account is never our hardware, it is what the platform and the audience will tolerate. This is why packages are sold on post counts rather than on device hours, and why an idle device costing thirty dollars a month is not a problem worth optimizing.</p>
+
+<h3>D. Capacity per host PC</h3>
+<div class="tw"><table>
+<thead><tr><th>Video quality</th><th class="num">Bandwidth per phone</th><th class="num">Devices per PC</th><th>Use it for</th></tr></thead>
+<tbody>
+<tr><td>Low</td><td class="num">~5 Mbps</td><td class="num">~100</td><td>Devices that only post and get checked occasionally</td></tr>
+<tr><td>Normal</td><td class="num">~10 Mbps</td><td class="num">~50</td><td>The default for client work</td></tr>
+<tr><td>High</td><td class="num">~20 Mbps</td><td class="num">~25</td><td>The reply desk and live selling, where a person is watching</td></tr>
+</tbody>
+</table></div>
+<p>Quality is set per device and can change on a schedule, so a device can sit on low quality overnight and move to normal for its posting window. These figures are the vendor's and are unconfirmed by us above two devices. Confirming them is the Phase 2 milestone.</p>
+
+<h3>E. What we are not using yet</h3>
+<p>The full capability audit covers 165 verified use cases. This plan builds on perhaps forty of them. The ones deliberately parked, with a note on when to revisit:</p>
+<ul>
+<li><strong>Text recognition</strong> unlocks analytics capture, content monitoring and several lab features. Revisit in Phase 0 as a buy decision.</li>
+<li><strong>Commerce operations</strong> are ready to build when a seller client asks. Price per listing.</li>
+<li><strong>The device lab features</strong> are mostly ready now and only need packaging. Phase 4, or sooner if an app team asks.</li>
+<li><strong>Training-data capture</strong>, recording what is on screen alongside the actions taken, is a real asset if anyone ever wants to train a model on phone interfaces. Costs nothing to collect while doing other work. Worth switching on early even though it is not sellable today.</li>
+</ul>
+<p>Full detail on all of them, with the verified call chains and caveats, is in the capability audit that this plan was built from.</p>
+</section>
+</body></html>

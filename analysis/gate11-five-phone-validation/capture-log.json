@@ -1,0 +1,1214 @@
+{
+  "at": "2026-09-22T21:07:05.497-04:00",
+  "kernel_pid": 34032,
+  "kernel_alive": true,
+  "poll": [
+    {
+      "name": "C24C",
+      "live": [
+        true,
+        true
+      ],
+      "frames": [
+        27546,
+        27591
+      ],
+      "delta": 45,
+      "restarts": [
+        0,
+        0
+      ],
+      "receiver_pid": 37856,
+      "expect_pid": 37856,
+      "state": "mirroring",
+      "advancing": true
+    },
+    {
+      "name": "C241",
+      "live": [
+        true,
+        true
+      ],
+      "frames": [
+        35065,
+        35105
+      ],
+      "delta": 40,
+      "restarts": [
+        0,
+        0
+      ],
+      "receiver_pid": 37608,
+      "expect_pid": 37608,
+      "state": "mirroring",
+      "advancing": true
+    },
+    {
+      "name": "C214",
+      "live": [
+        true,
+        true
+      ],
+      "frames": [
+        28579,
+        28619
+      ],
+      "delta": 40,
+      "restarts": [
+        0,
+        0
+      ],
+      "receiver_pid": 31560,
+      "expect_pid": 31560,
+      "state": "mirroring",
+      "advancing": true
+    },
+    {
+      "name": "724E",
+      "live": [
+        true,
+        true
+      ],
+      "frames": [
+        6333,
+        6373
+      ],
+      "delta": 40,
+      "restarts": [
+        0,
+        0
+      ],
+      "receiver_pid": 37828,
+      "expect_pid": 37828,
+      "state": "mirroring",
+      "advancing": true
+    },
+    {
+      "name": "*",
+      "live": [
+        true,
+        true
+      ],
+      "frames": [
+        22632,
+        22672
+      ],
+      "delta": 40,
+      "restarts": [
+        0,
+        0
+      ],
+      "receiver_pid": 34268,
+      "expect_pid": 34268,
+      "state": "mirroring",
+      "advancing": true
+    }
+  ],
+  "input_before": [
+    {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": true,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller lease expired.",
+      "generation": 2,
+      "lease_remaining_ms": 0
+    },
+    {
+      "id": "FE:A9:BC:D7:A0:44",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 2,
+      "lease_remaining_ms": 0
+    },
+    {
+      "id": "8A:23:B5:71:35:8D",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 1,
+      "lease_remaining_ms": 0
+    },
+    {
+      "id": "3A:DC:15:FB:DD:EC",
+      "owned": false,
+      "active": false,
+      "stopped": true,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller lease expired.",
+      "generation": 3,
+      "lease_remaining_ms": 0
+    },
+    {
+      "id": "*",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "",
+      "generation": 0,
+      "lease_remaining_ms": 0
+    }
+  ],
+  "resume": {
+    "fun": "/input/resume",
+    "http": 200,
+    "code": 0,
+    "message": "Input ready for a new lease. Old tokens remain invalid.",
+    "rtt_ms": 21.5,
+    "at": "2026-09-22T21:07:05.496-04:00",
+    "id": "86:1D:4A:04:2F:F6,3A:DC:15:FB:DD:EC"
+  },
+  "acquire": {
+    "fun": "/input/acquire",
+    "http": 200,
+    "code": 0,
+    "message": null,
+    "rtt_ms": 1.0,
+    "at": "2026-09-22T21:07:05.497-04:00",
+    "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44,8A:23:B5:71:35:8D,3A:DC:15:FB:DD:EC,*",
+    "lease_ids": [
+      "86:1D:4A:04:2F:F6",
+      "FE:A9:BC:D7:A0:44",
+      "8A:23:B5:71:35:8D",
+      "3A:DC:15:FB:DD:EC",
+      "*"
+    ]
+  },
+  "part_a": [
+    {
+      "target": "C24C",
+      "home_rtt_ms": 293.2,
+      "search_rtt_ms": 1829.8,
+      "search_code": 0,
+      "search_results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "effect_ms": 2849.2,
+      "within_5s": true,
+      "capture": {
+        "C24C": {
+          "bmp": "a-c24c-search-c24c.bmp",
+          "http": 200,
+          "shot_ms": 2.5,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2845.2,
+          "within_5s": true,
+          "mad_vs_home": 79.68
+        },
+        "C241": {
+          "bmp": "a-c24c-search-c241.bmp",
+          "http": 200,
+          "shot_ms": 2.2,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2838.1,
+          "within_5s": true,
+          "mad_vs_home": 0.16
+        },
+        "C214": {
+          "bmp": "a-c24c-search-c214.bmp",
+          "http": 200,
+          "shot_ms": 1.8,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2834.6,
+          "within_5s": true,
+          "mad_vs_home": 0.16
+        },
+        "724E": {
+          "bmp": "a-c24c-search-724e.bmp",
+          "http": 200,
+          "shot_ms": 2.3,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2849.2,
+          "within_5s": true,
+          "mad_vs_home": 0.13
+        },
+        "*": {
+          "bmp": "a-c24c-search-phone5.bmp",
+          "http": 200,
+          "shot_ms": 1.7,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2842.1,
+          "within_5s": true,
+          "mad_vs_home": 0.14
+        }
+      }
+    },
+    {
+      "target": "C241",
+      "home_rtt_ms": 308.4,
+      "search_rtt_ms": 1830.0,
+      "search_code": 0,
+      "search_results": [
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "effect_ms": 2848.0,
+      "within_5s": true,
+      "capture": {
+        "C24C": {
+          "bmp": "a-c241-search-c24c.bmp",
+          "http": 200,
+          "shot_ms": 1.9,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2834.2,
+          "within_5s": true,
+          "mad_vs_home": 1.33
+        },
+        "C241": {
+          "bmp": "a-c241-search-c241.bmp",
+          "http": 200,
+          "shot_ms": 1.9,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2844.4,
+          "within_5s": true,
+          "mad_vs_home": 45.34
+        },
+        "C214": {
+          "bmp": "a-c241-search-c214.bmp",
+          "http": 200,
+          "shot_ms": 1.6,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2837.9,
+          "within_5s": true,
+          "mad_vs_home": 0.17
+        },
+        "724E": {
+          "bmp": "a-c241-search-724e.bmp",
+          "http": 200,
+          "shot_ms": 1.8,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2841.1,
+          "within_5s": true,
+          "mad_vs_home": 0.14
+        },
+        "*": {
+          "bmp": "a-c241-search-phone5.bmp",
+          "http": 200,
+          "shot_ms": 1.4,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2848.0,
+          "within_5s": true,
+          "mad_vs_home": 0.16
+        }
+      }
+    },
+    {
+      "target": "C214",
+      "home_rtt_ms": 319.7,
+      "search_rtt_ms": 1829.2,
+      "search_code": 0,
+      "search_results": [
+        {
+          "id": "8A:23:B5:71:35:8D",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "effect_ms": 2857.1,
+      "within_5s": true,
+      "capture": {
+        "C24C": {
+          "bmp": "a-c214-search-c24c.bmp",
+          "http": 200,
+          "shot_ms": 2.4,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2857.1,
+          "within_5s": true,
+          "mad_vs_home": 1.34
+        },
+        "C241": {
+          "bmp": "a-c214-search-c241.bmp",
+          "http": 200,
+          "shot_ms": 1.9,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2839.9,
+          "within_5s": true,
+          "mad_vs_home": 1.19
+        },
+        "C214": {
+          "bmp": "a-c214-search-c214.bmp",
+          "http": 200,
+          "shot_ms": 1.8,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2849.9,
+          "within_5s": true,
+          "mad_vs_home": 63.84
+        },
+        "724E": {
+          "bmp": "a-c214-search-724e.bmp",
+          "http": 200,
+          "shot_ms": 2.0,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2845.3,
+          "within_5s": true,
+          "mad_vs_home": 0.14
+        },
+        "*": {
+          "bmp": "a-c214-search-phone5.bmp",
+          "http": 200,
+          "shot_ms": 1.7,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2853.9,
+          "within_5s": true,
+          "mad_vs_home": 0.16
+        }
+      }
+    },
+    {
+      "target": "724E",
+      "home_rtt_ms": 314.1,
+      "search_rtt_ms": 1838.9,
+      "search_code": 0,
+      "search_results": [
+        {
+          "id": "3A:DC:15:FB:DD:EC",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "effect_ms": 2861.8,
+      "within_5s": true,
+      "capture": {
+        "C24C": {
+          "bmp": "a-724e-search-c24c.bmp",
+          "http": 200,
+          "shot_ms": 2.1,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2843.0,
+          "within_5s": true,
+          "mad_vs_home": 1.28
+        },
+        "C241": {
+          "bmp": "a-724e-search-c241.bmp",
+          "http": 200,
+          "shot_ms": 2.1,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2847.7,
+          "within_5s": true,
+          "mad_vs_home": 1.2
+        },
+        "C214": {
+          "bmp": "a-724e-search-c214.bmp",
+          "http": 200,
+          "shot_ms": 1.9,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2851.1,
+          "within_5s": true,
+          "mad_vs_home": 1.36
+        },
+        "724E": {
+          "bmp": "a-724e-search-724e.bmp",
+          "http": 200,
+          "shot_ms": 20.0,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2861.8,
+          "within_5s": true,
+          "mad_vs_home": 52.83
+        },
+        "*": {
+          "bmp": "a-724e-search-phone5.bmp",
+          "http": 200,
+          "shot_ms": 1.7,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2854.4,
+          "within_5s": true,
+          "mad_vs_home": 0.17
+        }
+      }
+    },
+    {
+      "target": "*",
+      "home_rtt_ms": 293.2,
+      "search_rtt_ms": 1821.2,
+      "search_code": 0,
+      "search_results": [
+        {
+          "id": "*",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "effect_ms": 2842.5,
+      "within_5s": true,
+      "capture": {
+        "C24C": {
+          "bmp": "a-phone5-search-c24c.bmp",
+          "http": 200,
+          "shot_ms": 2.2,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2837.7,
+          "within_5s": true,
+          "mad_vs_home": 1.29
+        },
+        "C241": {
+          "bmp": "a-phone5-search-c241.bmp",
+          "http": 200,
+          "shot_ms": 1.7,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2825.6,
+          "within_5s": true,
+          "mad_vs_home": 1.17
+        },
+        "C214": {
+          "bmp": "a-phone5-search-c214.bmp",
+          "http": 200,
+          "shot_ms": 2.1,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2833.7,
+          "within_5s": true,
+          "mad_vs_home": 1.38
+        },
+        "724E": {
+          "bmp": "a-phone5-search-724e.bmp",
+          "http": 200,
+          "shot_ms": 1.5,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2829.6,
+          "within_5s": true,
+          "mad_vs_home": 1.55
+        },
+        "*": {
+          "bmp": "a-phone5-search-phone5.bmp",
+          "http": 200,
+          "shot_ms": 1.7,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2842.5,
+          "within_5s": true,
+          "mad_vs_home": 0.35
+        }
+      }
+    }
+  ],
+  "baseline": {
+    "C24C": {
+      "bmp": "baseline-home-c24c.bmp",
+      "http": 200,
+      "shot_ms": 2.9,
+      "bytes": 1620054,
+      "wh": [
+        500,
+        1080
+      ],
+      "visible_ms": 11.4,
+      "within_5s": true
+    },
+    "C241": {
+      "bmp": "baseline-home-c241.bmp",
+      "http": 200,
+      "shot_ms": 2.6,
+      "bytes": 1620054,
+      "wh": [
+        500,
+        1080
+      ],
+      "visible_ms": 10.7,
+      "within_5s": true
+    },
+    "C214": {
+      "bmp": "baseline-home-c214.bmp",
+      "http": 200,
+      "shot_ms": 2.2,
+      "bytes": 1620054,
+      "wh": [
+        500,
+        1080
+      ],
+      "visible_ms": 9.8,
+      "within_5s": true
+    },
+    "724E": {
+      "bmp": "baseline-home-724e.bmp",
+      "http": 200,
+      "shot_ms": 2.2,
+      "bytes": 1620054,
+      "wh": [
+        500,
+        1080
+      ],
+      "visible_ms": 11.0,
+      "within_5s": true
+    },
+    "*": {
+      "bmp": "baseline-home-phone5.bmp",
+      "http": 200,
+      "shot_ms": 1.9,
+      "bytes": 1620054,
+      "wh": [
+        500,
+        1080
+      ],
+      "visible_ms": 11.2,
+      "within_5s": true
+    }
+  },
+  "renew": {
+    "fun": "/input/renew",
+    "http": 200,
+    "code": 0,
+    "message": null,
+    "rtt_ms": 2.7,
+    "at": "2026-09-22T21:07:31.869-04:00",
+    "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44,8A:23:B5:71:35:8D,3A:DC:15:FB:DD:EC,*"
+  },
+  "part_b": {
+    "home_before": {
+      "rtt_ms": 288.3,
+      "code": 0,
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "8A:23:B5:71:35:8D",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "3A:DC:15:FB:DD:EC",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "*",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "effect_ms": 1109.6,
+      "capture": {
+        "C24C": {
+          "bmp": "b-home-before-c24c.bmp",
+          "http": 200,
+          "shot_ms": 3.2,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1097.1,
+          "within_5s": true,
+          "mad_vs_home": 1.13
+        },
+        "C241": {
+          "bmp": "b-home-before-c241.bmp",
+          "http": 200,
+          "shot_ms": 14.9,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1109.6,
+          "within_5s": true,
+          "mad_vs_home": 1.01
+        },
+        "C214": {
+          "bmp": "b-home-before-c214.bmp",
+          "http": 200,
+          "shot_ms": 2.2,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1093.1,
+          "within_5s": true,
+          "mad_vs_home": 1.25
+        },
+        "724E": {
+          "bmp": "b-home-before-724e.bmp",
+          "http": 200,
+          "shot_ms": 14.6,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1105.6,
+          "within_5s": true,
+          "mad_vs_home": 1.43
+        },
+        "*": {
+          "bmp": "b-home-before-phone5.bmp",
+          "http": 200,
+          "shot_ms": 6.1,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1100.7,
+          "within_5s": true,
+          "mad_vs_home": 1.17
+        }
+      }
+    },
+    "search": {
+      "rtt_ms": 1821.5,
+      "code": 0,
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "8A:23:B5:71:35:8D",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "3A:DC:15:FB:DD:EC",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "*",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "effect_ms": 2842.7,
+      "capture": {
+        "C24C": {
+          "bmp": "b-spotlight-c24c.bmp",
+          "http": 200,
+          "shot_ms": 2.3,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2832.6,
+          "within_5s": true,
+          "mad_vs_home": 79.39
+        },
+        "C241": {
+          "bmp": "b-spotlight-c241.bmp",
+          "http": 200,
+          "shot_ms": 19.3,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2842.7,
+          "within_5s": true,
+          "mad_vs_home": 45.22
+        },
+        "C214": {
+          "bmp": "b-spotlight-c214.bmp",
+          "http": 200,
+          "shot_ms": 1.7,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2825.6,
+          "within_5s": true,
+          "mad_vs_home": 64.22
+        },
+        "724E": {
+          "bmp": "b-spotlight-724e.bmp",
+          "http": 200,
+          "shot_ms": 1.7,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2829.1,
+          "within_5s": true,
+          "mad_vs_home": 52.71
+        },
+        "*": {
+          "bmp": "b-spotlight-phone5.bmp",
+          "http": 200,
+          "shot_ms": 1.6,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 2836.5,
+          "within_5s": true,
+          "mad_vs_home": 52.19
+        }
+      }
+    },
+    "home_after": {
+      "rtt_ms": 289.8,
+      "code": 0,
+      "results": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "8A:23:B5:71:35:8D",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "3A:DC:15:FB:DD:EC",
+          "code": 0,
+          "message": "ok"
+        },
+        {
+          "id": "*",
+          "code": 0,
+          "message": "ok"
+        }
+      ],
+      "effect_ms": 1109.4,
+      "capture": {
+        "C24C": {
+          "bmp": "b-home-after-c24c.bmp",
+          "http": 200,
+          "shot_ms": 2.6,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1109.4,
+          "within_5s": true,
+          "mad_vs_home": 79.19
+        },
+        "C241": {
+          "bmp": "b-home-after-c241.bmp",
+          "http": 200,
+          "shot_ms": 2.0,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1098.2,
+          "within_5s": true,
+          "mad_vs_home": 1.07
+        },
+        "C214": {
+          "bmp": "b-home-after-c214.bmp",
+          "http": 200,
+          "shot_ms": 2.4,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1105.9,
+          "within_5s": true,
+          "mad_vs_home": 1.29
+        },
+        "724E": {
+          "bmp": "b-home-after-724e.bmp",
+          "http": 200,
+          "shot_ms": 1.6,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1094.5,
+          "within_5s": true,
+          "mad_vs_home": 1.46
+        },
+        "*": {
+          "bmp": "b-home-after-phone5.bmp",
+          "http": 200,
+          "shot_ms": 1.9,
+          "bytes": 1620054,
+          "wh": [
+            500,
+            1080
+          ],
+          "visible_ms": 1101.8,
+          "within_5s": true,
+          "mad_vs_home": 1.19
+        }
+      }
+    },
+    "kernel_log": [
+      "/key/sendkey",
+      "click pid=C214 known=False reset=48ms steps=174 send=175ms delay=1218ms settle=122ms button=83ms total=1819ms",
+      "click pid=724E known=False reset=48ms steps=174 send=175ms delay=1218ms settle=122ms button=83ms total=1819ms",
+      "click pid=C241 known=False reset=48ms steps=174 send=175ms delay=1218ms settle=122ms button=83ms total=1819ms",
+      "click pid=F215 known=False reset=48ms steps=174 send=176ms delay=1218ms settle=122ms button=83ms total=1819ms",
+      "click pid=C24C known=False reset=48ms steps=174 send=178ms delay=1218ms settle=122ms button=83ms total=1819ms",
+      "/key/sendkey"
+    ]
+  },
+  "mouse_up": {
+    "fun": "/mouse/up",
+    "http": 200,
+    "code": 0,
+    "message": null,
+    "rtt_ms": 3.3,
+    "at": "2026-09-22T21:07:36.951-04:00",
+    "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44,8A:23:B5:71:35:8D,3A:DC:15:FB:DD:EC,*",
+    "results": [
+      {
+        "id": "86:1D:4A:04:2F:F6",
+        "code": 0,
+        "message": "ok"
+      },
+      {
+        "id": "FE:A9:BC:D7:A0:44",
+        "code": 0,
+        "message": "ok"
+      },
+      {
+        "id": "8A:23:B5:71:35:8D",
+        "code": 0,
+        "message": "ok"
+      },
+      {
+        "id": "3A:DC:15:FB:DD:EC",
+        "code": 0,
+        "message": "ok"
+      },
+      {
+        "id": "*",
+        "code": 0,
+        "message": "ok"
+      }
+    ]
+  },
+  "input_while_leased": [
+    {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": true,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "",
+      "generation": 2,
+      "lease_remaining_ms": 114891
+    },
+    {
+      "id": "FE:A9:BC:D7:A0:44",
+      "owned": true,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 2,
+      "lease_remaining_ms": 114891
+    },
+    {
+      "id": "8A:23:B5:71:35:8D",
+      "owned": true,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 1,
+      "lease_remaining_ms": 114891
+    },
+    {
+      "id": "3A:DC:15:FB:DD:EC",
+      "owned": true,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "",
+      "generation": 3,
+      "lease_remaining_ms": 114891
+    },
+    {
+      "id": "*",
+      "owned": true,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "",
+      "generation": 0,
+      "lease_remaining_ms": 114891
+    }
+  ],
+  "release": {
+    "fun": "/input/release",
+    "http": 200,
+    "code": 0,
+    "message": "Input released; previous tokens revoked.",
+    "rtt_ms": 19.8,
+    "at": "2026-09-22T21:07:36.989-04:00",
+    "id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44,8A:23:B5:71:35:8D,3A:DC:15:FB:DD:EC,*"
+  },
+  "postflight": {
+    "kernel_pid": 34032,
+    "kernel_alive": true,
+    "status_ms": [
+      11.6,
+      20.3
+    ],
+    "frames": [
+      {
+        "name": "C24C",
+        "live": true,
+        "restarts": 0,
+        "pid": 37856,
+        "pid_unchanged": true,
+        "delta": 14,
+        "frames": [
+          27992,
+          28006
+        ]
+      },
+      {
+        "name": "C241",
+        "live": true,
+        "restarts": 0,
+        "pid": 37608,
+        "pid_unchanged": true,
+        "delta": 43,
+        "frames": [
+          35860,
+          35903
+        ]
+      },
+      {
+        "name": "C214",
+        "live": true,
+        "restarts": 0,
+        "pid": 31560,
+        "pid_unchanged": true,
+        "delta": 46,
+        "frames": [
+          29194,
+          29240
+        ]
+      },
+      {
+        "name": "724E",
+        "live": true,
+        "restarts": 0,
+        "pid": 37828,
+        "pid_unchanged": true,
+        "delta": 41,
+        "frames": [
+          7124,
+          7165
+        ]
+      },
+      {
+        "name": "*",
+        "live": true,
+        "restarts": 0,
+        "pid": 34268,
+        "pid_unchanged": true,
+        "delta": 37,
+        "frames": [
+          23233,
+          23270
+        ]
+      }
+    ]
+  },
+  "input_after_release": [
+    {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 3,
+      "lease_remaining_ms": 0
+    },
+    {
+      "id": "FE:A9:BC:D7:A0:44",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 3,
+      "lease_remaining_ms": 0
+    },
+    {
+      "id": "8A:23:B5:71:35:8D",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 2,
+      "lease_remaining_ms": 0
+    },
+    {
+      "id": "3A:DC:15:FB:DD:EC",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 4,
+      "lease_remaining_ms": 0
+    },
+    {
+      "id": "*",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 1,
+      "lease_remaining_ms": 0
+    }
+  ],
+  "elapsed_s": 36.9,
+  "pre_status_ms": [
+    3.6,
+    1.1
+  ]
+}

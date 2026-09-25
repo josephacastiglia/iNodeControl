@@ -1,0 +1,131 @@
+{
+  "at": "2026-09-21T23:51:36-04:00",
+  "model": "Grok 4.7",
+  "gate": "Gate 5 Everyday Controls",
+  "kernel": {
+    "pid": 31944,
+    "still_running_after": true,
+    "start_time": "2026-09-21T23:14:19-04:00",
+    "exe": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+    "precise_movement_flag": false,
+    "dll_sha256": "A995CF5B92AEE4393E164FA4CE68D446A3F63D4D0CAAA73B5ACB6DCF587851BF",
+    "dll_matches_known_rollback": true,
+    "restarted": false,
+    "killed": false
+  },
+  "console": {
+    "pid": 34852,
+    "hwnd": 395930,
+    "minimized_immediately_before_input": true,
+    "iconic": true
+  },
+  "mirror_to_all": false,
+  "mirror_to_all_evidence": {
+    "captured": "UIA immediately before input, after minimize",
+    "SelectAllBox": "Off",
+    "follower_C24C": "Off",
+    "follower_C241": "Off",
+    "mirror_on_count": 0,
+    "dispatch": "single-id POST /api/ only"
+  },
+  "preflight_frames": {
+    "sample_s": 2,
+    "C24C": {"live": true, "frames_t0": 37170, "frames_t2": 37210, "receiver_pid": 35520, "restarts": 0},
+    "C241": {"live": true, "frames_t0": 37536, "frames_t2": 37577, "receiver_pid": 31660, "restarts": 0}
+  },
+  "sessions": {
+    "dropped": false,
+    "start_frames": {"C24C": 41435, "C241": 41794},
+    "end_frames": {"C24C": 42256, "C241": 42602},
+    "receiver_pids_unchanged": {"C24C": 35520, "C241": 31660},
+    "restarts": 0,
+    "live_end": true
+  },
+  "threshold_s": 5,
+  "predeclared": "predeclared-cases.json",
+  "phones": {
+    "C24C": {
+      "id": "86:1D:4A:04:2F:F6",
+      "control_center": {"pass": true, "visible_ms": 525.4, "api_ms": 256.9, "ui": "Control Center"},
+      "app_switcher": {"pass": true, "visible_ms": 547.1, "api_ms": 258.3, "ui": "App Switcher cards"},
+      "text_typing": {"pass": true, "visible_ms": 1875.6, "api_ms": 1455.8, "text": "iMouse2026"},
+      "backspace": {"pass": true, "visible_ms": 625.9, "api_ms": [157.7, 144.8, 155.2, 160.4], "text": "iMouse"},
+      "swipes": {
+        "pass": true,
+        "left": {"pass": true, "visible_ms": 1236.8, "api_ms": 1212.2, "ui": "Home-page-2"},
+        "right": {"pass": true, "visible_ms": 714.1, "api_ms": 681.6, "ui": "Home-page-1"}
+      }
+    },
+    "C241": {
+      "id": "FE:A9:BC:D7:A0:44",
+      "control_center": {"pass": true, "visible_ms": 544.0, "api_ms": 255.0, "ui": "Control Center"},
+      "app_switcher": {"pass": true, "visible_ms": 564.3, "api_ms": 256.0, "ui": "App Switcher cards"},
+      "text_typing": {"pass": false, "visible_ms": null, "api_ms": 1475.3, "code": 0, "text": "empty placeholder Search", "expected": "iMouse2026"},
+      "backspace": {"pass": false, "visible_ms": null, "api_ms": [158.0, 156.6, 146.1, 169.1], "codes": [0, 0, 0, 0], "text": "empty placeholder Search", "expected": "iMouse"},
+      "swipes": {
+        "pass": true,
+        "left": {"pass": true, "visible_ms": 1235.4, "api_ms": 1231.6, "ui": "Home-page-2"},
+        "right": {"pass": true, "visible_ms": 756.4, "api_ms": 713.8, "ui": "Home-page-1"}
+      }
+    }
+  },
+  "isolation": {
+    "reciprocal": "100%",
+    "frames": 20,
+    "failed": 0,
+    "rule": "Other phone stayed on Home for every scored action.",
+    "mad_vs_home_reference": {
+      "C241_during_C24C": "0.37-0.39 vs baseline Home page 1",
+      "C24C_during_C241": "0.19-0.27 vs c24c-swipe-right Home page 1"
+    },
+    "visual_samples": [
+      "c241-iso-during-c24c-control-center: Home",
+      "c241-iso-during-c24c-typed: Home",
+      "c24c-iso-during-c241-typed: Home page 1, no iMouse2026",
+      "c24c-iso-during-c241-swipe-left: Home page 1"
+    ]
+  },
+  "stuck_keys_buttons": {
+    "stuck": 0,
+    "unintended_actions": 0,
+    "evidence": "Every sendkey, click, swipe, and mouse/up returned code 0. mouse/up sent after each phone series and again at the end. Later Home and swipes still changed the acted-on phone. C24C text was exactly iMouse2026 then iMouse, so no stuck Shift. C241 keys did not insert text and did not navigate; the following Home dismiss and both swipes still worked."
+  },
+  "visual": {
+    "c24c-baseline-home": {"ui": "Home-page-1", "pass": true},
+    "c241-baseline-home": {"ui": "Home-page-1", "pass": true},
+    "c24c-control-center": {"ui": "Control Center", "pass": true, "note": "connectivity toggles, brightness, Not Playing, Focus"},
+    "c24c-control-center-dismiss": {"ui": "Home", "pass": true},
+    "c24c-app-switcher": {"ui": "App Switcher", "pass": true, "note": "FaceTime and Notes cards. FaceTime card already showed FaceTime Activation / Unable to contact the FaceTime server / OK. Not tapped."},
+    "c24c-app-switcher-dismiss": {"ui": "Home", "pass": true, "note": "dialog not left open"},
+    "c24c-spotlight": {"ui": "Spotlight", "pass": true, "text": ""},
+    "c24c-typed": {"ui": "Spotlight", "pass": true, "text": "iMouse2026"},
+    "c24c-backspace": {"ui": "Spotlight", "pass": true, "text": "iMouse"},
+    "c24c-text-dismiss": {"ui": "Home-page-1", "pass": true},
+    "c24c-swipe-left": {"ui": "Home-page-2", "pass": true},
+    "c24c-swipe-right": {"ui": "Home-page-1", "pass": true},
+    "c241-control-center": {"ui": "Control Center", "pass": true, "note": "AssistiveTouch button visible. Full Keyboard Access ring on the + control. Not edited."},
+    "c241-control-center-dismiss": {"ui": "Home", "pass": true},
+    "c241-app-switcher": {"ui": "App Switcher", "pass": true, "note": "FaceTime card on its welcome screen with Continue. Not tapped."},
+    "c241-app-switcher-dismiss": {"ui": "Home", "pass": true},
+    "c241-spotlight": {"ui": "Spotlight", "pass": true, "text": "", "note": "insertion cursor in the field; on-screen keyboard absent, expected with HID keyboard"},
+    "c241-typed": {"ui": "Spotlight", "pass": false, "text": "", "note": "placeholder Search unchanged through 5s. Whole-frame MAD vs spotlight 0.38."},
+    "c241-backspace": {"ui": "Spotlight", "pass": false, "text": "", "note": "still placeholder Search. MAD vs typed frame 0.03."},
+    "c241-text-dismiss": {"ui": "Home-page-1", "pass": true},
+    "c241-swipe-left": {"ui": "Home-page-2", "pass": true},
+    "c241-swipe-right": {"ui": "Home-page-1", "pass": true}
+  },
+  "evidence": {
+    "bmp": 46,
+    "png": 46,
+    "timings": "timings.json"
+  },
+  "conclusion": {
+    "C24C": "pass",
+    "C241": "fail",
+    "fail_reason": "C241 Spotlight opened and showed a cursor, but iMouse2026 never appeared and four Backspaces left the field empty. API code was 0. No retry.",
+    "isolation": "100%",
+    "stuck_keys_buttons": 0,
+    "unintended_actions": 0,
+    "sessions_dropped": 0
+  }
+}

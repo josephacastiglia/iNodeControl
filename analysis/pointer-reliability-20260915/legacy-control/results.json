@@ -1,0 +1,153 @@
+{
+  "at": "2026-09-16T00:40:47.575436-04:00",
+  "model": "Grok 4.6",
+  "evidence_run": "run3",
+  "prior_runs_preserved": ["run1/", "run2/"],
+  "kernel": "release/iMouse2-kernel-two-phone/iMouse2.Kernel.exe",
+  "kernel_pid": 31472,
+  "command_line": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe\" http://127.0.0.1:9913/api/ --data-dir analysis\\two-phone-config --input-pid C24C,C241 --receivers analysis\\two-phone-config\\receivers.json --receiver tools\\airplay\\uxplay\\build-imouse\\uxplay.exe --receiver-runtime tools\\airplay\\msys64\\ucrt64",
+  "precise_movement_flag": false,
+  "startup_pacing_line": "absent (no 'high-resolution 3 ms')",
+  "loaded_dll": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.dll",
+  "dll_sha256": "A995CF5B92AEE4393E164FA4CE68D446A3F63D4D0CAAA73B5ACB6DCF587851BF",
+  "candidate_dll_sha256": "EFB6A8C0EDDE97BA6377670C6ACB5DED639F5A031C40F598647DF06276873823",
+  "apphost_exe_sha256": "A2C5B90636854F20487F9760499869838C3F674809D978668002D220B189D5AC",
+  "apphost_note": "Identical .exe hashes are the .NET apphost stub only. Kernel identity is the DLL hash, which differs from the candidate DLL.",
+  "console": {
+    "pid": 26000,
+    "minimized_before_run3": true,
+    "kernel_log_during_run3": "only /key/sendkey and /mouse/click (no /mouse/move)"
+  },
+  "mirror_to_all": false,
+  "mirror_to_all_evidence": {
+    "captured": "fresh UIA immediately before minimize, then run3",
+    "uia_window": "iMouse 2.0 — iPhone Console",
+    "console_pid": 26000,
+    "SelectAllBox": {
+      "name": "Mirror the master's actions to every phone",
+      "toggleState": "Off"
+    },
+    "SelectAllLabel": "Mirror to all",
+    "follower_C24C": "Off",
+    "follower_C241": "Off",
+    "totals": "2 phones  ·  2 mirroring  ·  2 controllable  ·  19 boards (2 with a phone)",
+    "dispatch": "single-id kernel API"
+  },
+  "preflight_frames": {
+    "sample_interval_s": 1.005,
+    "C24C": {"frames0": 4111, "frames1": 4131, "delta": 20, "live": true, "advancing": true},
+    "C241": {"frames0": 2966, "frames1": 2986, "delta": 20, "live": true, "advancing": true},
+    "both_live_and_advancing": true
+  },
+  "pre_series_home": {
+    "note": "Both phones sent Home before measured cycles. C24C isolation is vs this Home baseline.",
+    "c24c_bmp": "pre-c24c-home.bmp",
+    "c241_bmp": "pre-c241-home.bmp",
+    "c24c_shot_ms": 1.3,
+    "c241_shot_ms": 20.1,
+    "c24c_ui": "Home",
+    "c241_ui": "Home"
+  },
+  "start": {
+    "86:1D:4A:04:2F:F6": {"name": "iMouse2-C24C", "live": true, "frames": 18008, "restarts": 0, "state": "mirroring"},
+    "FE:A9:BC:D7:A0:44": {"name": "iMouse2-C241", "live": true, "frames": 14985, "restarts": 0, "state": "mirroring"}
+  },
+  "end": {
+    "86:1D:4A:04:2F:F6": {"name": "iMouse2-C24C", "live": true, "frames": 18436, "restarts": 0, "state": "mirroring"},
+    "FE:A9:BC:D7:A0:44": {"name": "iMouse2-C241", "live": true, "frames": 15488, "restarts": 0, "state": "mirroring"}
+  },
+  "protocol": {
+    "home": "POST /api/ {fun:/key/sendkey, fn_key:Home}",
+    "sleep_after_home_s": 0.7,
+    "click": "POST /api/ {fun:/mouse/click, x:250, y:900, button:1}",
+    "sleep_after_click_s": 0.6,
+    "screenshot": "GET /pic/screenshot?id=...&binary=true"
+  },
+  "timing": {
+    "metric": "HTTP round-trip (urllib) of each call. Not InputRouter dispatch.",
+    "http_click_rtt_ms_median": 908.4,
+    "http_click_rtt_ms_range": [900.3, 919.9],
+    "http_home_rtt_ms_range": [286.9, 309.7],
+    "c241_click_rtt_ms": [901.8, 908.4, 900.9, 900.3, 919.9],
+    "c24c_click_rtt_ms": [909.5, 914.6],
+    "prior_legacy_inputrouter_dispatch_s": 3.02,
+    "kernel_click_total_log": "absent on this rollback kernel",
+    "note": "Do not treat click HTTP RTT as InputRouter dispatch. Capture is 0.6 s after HTTP return, which proves Spotlight was visible by then, not that dispatch finished inside the RTT."
+  },
+  "rows": [
+    {
+      "phone": "C241", "kind": "cycle", "n": 1,
+      "home_ms": 288.9, "click_ms": 901.8, "target_shot_ms": 13.1, "isolation_shot_ms": 1.6,
+      "target_bmp": "c241-legacy-cycle1.bmp", "other_bmp": "c24c-isolation-1.bmp",
+      "ui": "Search", "pass": true, "keyboard": false,
+      "isolation_other_ui": "Home", "isolation_pass": true
+    },
+    {
+      "phone": "C241", "kind": "cycle", "n": 2,
+      "home_ms": 304.0, "click_ms": 908.4, "target_shot_ms": 1.3, "isolation_shot_ms": 19.2,
+      "target_bmp": "c241-legacy-cycle2.bmp", "other_bmp": "c24c-isolation-2.bmp",
+      "ui": "Search", "pass": true, "keyboard": false,
+      "isolation_other_ui": "Home", "isolation_pass": true
+    },
+    {
+      "phone": "C241", "kind": "cycle", "n": 3,
+      "home_ms": 293.4, "click_ms": 900.9, "target_shot_ms": 1.6, "isolation_shot_ms": 14.4,
+      "target_bmp": "c241-legacy-cycle3.bmp", "other_bmp": "c24c-isolation-3.bmp",
+      "ui": "Search", "pass": true, "keyboard": false,
+      "isolation_other_ui": "Home", "isolation_pass": true
+    },
+    {
+      "phone": "C241", "kind": "cycle", "n": 4,
+      "home_ms": 291.5, "click_ms": 900.3, "target_shot_ms": 1.6, "isolation_shot_ms": 1.2,
+      "target_bmp": "c241-legacy-cycle4.bmp", "other_bmp": "c24c-isolation-4.bmp",
+      "ui": "Search", "pass": true, "keyboard": false,
+      "isolation_other_ui": "Home", "isolation_pass": true
+    },
+    {
+      "phone": "C241", "kind": "cycle", "n": 5,
+      "home_ms": 309.7, "click_ms": 919.9, "target_shot_ms": 26.5, "isolation_shot_ms": 15.8,
+      "target_bmp": "c241-legacy-cycle5.bmp", "other_bmp": "c24c-isolation-5.bmp",
+      "ui": "Search", "pass": true, "keyboard": false,
+      "isolation_other_ui": "Home", "isolation_pass": true
+    },
+    {
+      "phone": "C24C", "kind": "cycle", "n": 1,
+      "home_ms": 286.9, "click_ms": 909.5, "target_shot_ms": 1.3, "isolation_shot_ms": 14.8,
+      "target_bmp": "c24c-legacy-cycle1.bmp", "other_bmp": "c241-isolation-1.bmp",
+      "ui": "Search", "pass": true, "keyboard": false,
+      "isolation_other_ui": "Home", "isolation_pass": true
+    },
+    {
+      "phone": "C24C", "kind": "cycle", "n": 2,
+      "home_ms": 302.9, "click_ms": 914.6, "target_shot_ms": 1.6, "isolation_shot_ms": 14.9,
+      "target_bmp": "c24c-legacy-cycle2.bmp", "other_bmp": "c241-isolation-2.bmp",
+      "ui": "Search", "pass": true, "keyboard": false,
+      "isolation_other_ui": "Home", "isolation_pass": true
+    }
+  ],
+  "visual": {
+    "rule": "Spotlight = Siri Suggestions + focused Search field over dimmed Home. Miss = stayed on Home / FaceTime focus ring. Keyboard separately noted.",
+    "classified_from": "run3 PNGs regenerated from run3 BMPs after capture",
+    "C241_spotlight": "5/5",
+    "C24C_spotlight": "2/2",
+    "C24C_isolation_during_C241": "5/5 Home",
+    "C241_isolation_during_C24C": "2/2 Home",
+    "c241_notes": [
+      "cycle1-5: Spotlight with Siri Suggestions (Set Timer / FaceTime / Clock / Settings / Messages), Search field focused, dimmed wallpaper. Keyboard not visible. No FaceTime focus ring on Home."
+    ],
+    "c24c_notes": [
+      "cycle1-2: Spotlight with Siri Suggestions (New Note / FaceTime / Maps / Notes), Search field focused. Keyboard not visible."
+    ],
+    "run2_isolation_invalid": "run2 C24C isolation shots were leftover Spotlight from the previous C24C series; discarded. Isolation taken from run3 after pre-series Home."
+  },
+  "conclusion": {
+    "http_click_rtt_ms_median": 908.4,
+    "prior_legacy_inputrouter_dispatch_s": 3.02,
+    "legacy_dispatch_time": "Not measured on this kernel (no click-total log). Measured HTTP click RTT median 908.4 ms (900.3-919.9). Prior InputRouter-direct legacy dispatch reference remains 3.02 s. These are different clocks; do not substitute.",
+    "C241_spotlight": "5/5",
+    "C24C_spotlight": "2/2",
+    "isolation": "C24C stayed Home 5/5 during C241; C241 stayed Home 2/2 during C24C",
+    "root_cause": "C241 Home->Search miss is specific to --precise-movement. It did not reproduce on this rollback kernel (no --precise-movement, two-phone DLL A995CF5B): 5/5 Spotlight with verified Home isolation. Not a persistent C241 device/calibration failure.",
+    "vs_candidate_targeted_rerun": "candidate C241 0/5; legacy-control run3 C241 5/5"
+  }
+}

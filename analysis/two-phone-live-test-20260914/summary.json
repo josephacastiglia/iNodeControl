@@ -1,0 +1,145 @@
+{
+  "start": "2026-09-15T02:26:17.5807038Z",
+  "end": "2026-09-15T02:38:16.4330880Z",
+  "duration_s": 718.85,
+  "samples": 144,
+  "telemetry_errors": [],
+  "receivers": {
+    "iMouse2-C24C": {
+      "pid_start": 20972,
+      "pid_end": 20972,
+      "restart_delta": 0,
+      "offline_samples": 0,
+      "no_frame_progress_intervals": 1,
+      "frames_received": 14211,
+      "average_received_fps": 19.77,
+      "interval_fps_min": 0.0,
+      "interval_fps_p50": 20.1,
+      "interval_fps_p95": 22.28,
+      "zero_progress_intervals": [
+        {
+          "from": "2026-09-15T02:29:03.5248437Z",
+          "to": "2026-09-15T02:29:08.5467617Z"
+        }
+      ]
+    },
+    "iMouse2-C241": {
+      "pid_start": 33972,
+      "pid_end": 33972,
+      "restart_delta": 0,
+      "offline_samples": 0,
+      "no_frame_progress_intervals": 5,
+      "frames_received": 13948,
+      "average_received_fps": 19.4,
+      "interval_fps_min": 0.0,
+      "interval_fps_p50": 20.1,
+      "interval_fps_p95": 26.79,
+      "zero_progress_intervals": [
+        {
+          "from": "2026-09-15T02:28:28.3239621Z",
+          "to": "2026-09-15T02:28:33.3521798Z"
+        },
+        {
+          "from": "2026-09-15T02:34:30.2502225Z",
+          "to": "2026-09-15T02:34:35.2768510Z"
+        },
+        {
+          "from": "2026-09-15T02:34:35.2768510Z",
+          "to": "2026-09-15T02:34:40.3035205Z"
+        },
+        {
+          "from": "2026-09-15T02:34:45.3277988Z",
+          "to": "2026-09-15T02:34:50.3575732Z"
+        },
+        {
+          "from": "2026-09-15T02:34:50.3575732Z",
+          "to": "2026-09-15T02:34:55.3876314Z"
+        }
+      ]
+    }
+  },
+  "processes": {
+    "2804": {
+      "name": "iMouse2",
+      "samples_present": 144,
+      "not_responding_samples": 0,
+      "working_set_start_mib": 193.91,
+      "working_set_end_mib": 201.6,
+      "working_set_peak_mib": 204.75,
+      "private_start_mib": 207.57,
+      "private_end_mib": 208.84,
+      "private_peak_mib": 218.0,
+      "cpu_machine_average_percent": 1.88,
+      "cpu_machine_interval_p95_percent": 2.86
+    },
+    "32328": {
+      "name": "iMouse2.Kernel",
+      "samples_present": 144,
+      "not_responding_samples": 0,
+      "working_set_start_mib": 77.2,
+      "working_set_end_mib": 77.54,
+      "working_set_peak_mib": 78.46,
+      "private_start_mib": 40.6,
+      "private_end_mib": 40.73,
+      "private_peak_mib": 41.58,
+      "cpu_machine_average_percent": 0.49,
+      "cpu_machine_interval_p95_percent": 0.68
+    },
+    "20972": {
+      "name": "uxplay",
+      "samples_present": 144,
+      "not_responding_samples": 0,
+      "working_set_start_mib": 84.25,
+      "working_set_end_mib": 86.93,
+      "working_set_peak_mib": 86.93,
+      "private_start_mib": 65.05,
+      "private_end_mib": 67.89,
+      "private_peak_mib": 67.89,
+      "cpu_machine_average_percent": 0.37,
+      "cpu_machine_interval_p95_percent": 0.49
+    },
+    "33972": {
+      "name": "uxplay",
+      "samples_present": 144,
+      "not_responding_samples": 0,
+      "working_set_start_mib": 83.7,
+      "working_set_end_mib": 86.23,
+      "working_set_peak_mib": 86.23,
+      "private_start_mib": 64.49,
+      "private_end_mib": 67.2,
+      "private_peak_mib": 67.2,
+      "cpu_machine_average_percent": 0.36,
+      "cpu_machine_interval_p95_percent": 0.49
+    }
+  },
+  "api_actions": {
+    "home": {
+      "count": 5,
+      "response_ms_min": 290.0,
+      "response_ms_median": 293.7,
+      "response_ms_max": 314.2,
+      "nonzero_result_count": 0
+    },
+    "left": {
+      "count": 2,
+      "response_ms_min": 1219.1,
+      "response_ms_median": 1221.75,
+      "response_ms_max": 1224.4,
+      "nonzero_result_count": 0
+    },
+    "right": {
+      "count": 3,
+      "response_ms_min": 692.3,
+      "response_ms_median": 694.1,
+      "response_ms_max": 709.2,
+      "nonzero_result_count": 0
+    },
+    "search": {
+      "count": 5,
+      "response_ms_min": 538.0,
+      "response_ms_median": 705.8,
+      "response_ms_max": 1067.6,
+      "nonzero_result_count": 0
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "status": 200,
+  "message": "ok",
+  "data": {
+    "code": 0,
+    "input": "direct-hid",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 20972,
+    "receiver_restarts": 0,
+    "frames": 174837,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 20972,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 174837
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 33972,
+        "receiver_restarts": 1,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 163474
+      }
+    ]
+  }
+}

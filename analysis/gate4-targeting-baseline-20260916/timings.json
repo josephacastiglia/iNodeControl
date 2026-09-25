@@ -1,0 +1,460 @@
+{
+  "start": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 15719,
+      "restarts": 0,
+      "state": "mirroring",
+      "pid": 35520
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 16016,
+      "restarts": 0,
+      "state": "mirroring",
+      "pid": 31660
+    }
+  },
+  "end": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 17656,
+      "restarts": 0,
+      "state": "mirroring",
+      "pid": 35520
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 17944,
+      "restarts": 0,
+      "state": "mirroring",
+      "pid": 31660
+    }
+  },
+  "rows": [
+    {
+      "phone": "C24C",
+      "kind": "pre-home",
+      "shot_ms": 11.2
+    },
+    {
+      "phone": "C241",
+      "kind": "pre-home",
+      "shot_ms": 14.2
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 1,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 304.1,
+      "click_ms": 1061.0,
+      "target_shot_ms": 1.8,
+      "isolation_shot_ms": 13.6,
+      "effect_ms": 1663.0,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle1-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle1.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 2,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 290.5,
+      "click_ms": 1084.1,
+      "target_shot_ms": 1.4,
+      "isolation_shot_ms": 23.1,
+      "effect_ms": 1685.9,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle2-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle2.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 3,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 295.3,
+      "click_ms": 1072.8,
+      "target_shot_ms": 1.4,
+      "isolation_shot_ms": 14.1,
+      "effect_ms": 1674.6,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle3-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle3.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 4,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 288.8,
+      "click_ms": 1065.1,
+      "target_shot_ms": 1.6,
+      "isolation_shot_ms": 16.6,
+      "effect_ms": 1667.2,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle4-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle4.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 5,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 292.7,
+      "click_ms": 1058.0,
+      "target_shot_ms": 13.6,
+      "isolation_shot_ms": 14.8,
+      "effect_ms": 1671.8,
+      "within_5s": true,
+      "target_bmp": "c24c-cycle5-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-cycle5.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 0,
+      "from": [
+        80,
+        140
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 187.8,
+      "home_ms": 317.5,
+      "click_ms": 1101.9,
+      "target_shot_ms": 12.4,
+      "isolation_shot_ms": 14.7,
+      "effect_ms": 1714.5,
+      "within_5s": true,
+      "target_bmp": "c24c-loc0-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-loc0.bmp",
+      "move_bmp": "c24c-loc0-after-move.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 1,
+      "from": [
+        400,
+        200
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 384.1,
+      "home_ms": 305.0,
+      "click_ms": 1057.4,
+      "target_shot_ms": 1.4,
+      "isolation_shot_ms": 1.1,
+      "effect_ms": 1659.2,
+      "within_5s": true,
+      "target_bmp": "c24c-loc1-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-loc1.bmp",
+      "move_bmp": "c24c-loc1-after-move.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 2,
+      "from": [
+        120,
+        500
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 513.7,
+      "home_ms": 308.7,
+      "click_ms": 1073.9,
+      "target_shot_ms": 13.8,
+      "isolation_shot_ms": 1.3,
+      "effect_ms": 1688.1,
+      "within_5s": true,
+      "target_bmp": "c24c-loc2-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-loc2.bmp",
+      "move_bmp": "c24c-loc2-after-move.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 3,
+      "from": [
+        360,
+        760
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 709.3,
+      "home_ms": 303.3,
+      "click_ms": 1069.5,
+      "target_shot_ms": 24.0,
+      "isolation_shot_ms": 15.5,
+      "effect_ms": 1693.8,
+      "within_5s": true,
+      "target_bmp": "c24c-loc3-search.bmp",
+      "other_bmp": "c241-iso-during-c24c-loc3.bmp",
+      "move_bmp": "c24c-loc3-after-move.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "swipe",
+      "expected_left": "Home page 2 within 5s",
+      "expected_right_home": "Home page 1 within 5s",
+      "left_ms": 1225.2,
+      "right_ms": 695.5,
+      "home_ms": 303.3,
+      "left_effect_ms": 1952.6,
+      "right_effect_ms": 2100.9,
+      "left_within_5s": true,
+      "right_within_5s": true,
+      "left_bmp": "c24c-swipe-left.bmp",
+      "right_bmp": "c24c-swipe-right-home.bmp",
+      "other_left_bmp": "c241-iso-during-c24c-swipe-left.bmp",
+      "other_right_bmp": "c241-iso-during-c24c-swipe-right.bmp",
+      "isolation_left_shot_ms": 14.7,
+      "isolation_right_shot_ms": 25.3
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 1,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 305.4,
+      "click_ms": 1034.0,
+      "target_shot_ms": 39.4,
+      "isolation_shot_ms": 15.1,
+      "effect_ms": 1673.6,
+      "within_5s": true,
+      "target_bmp": "c241-cycle1-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle1.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 2,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 291.5,
+      "click_ms": 1055.8,
+      "target_shot_ms": 1.6,
+      "isolation_shot_ms": 1.2,
+      "effect_ms": 1657.8,
+      "within_5s": true,
+      "target_bmp": "c241-cycle2-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle2.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 3,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 291.2,
+      "click_ms": 1037.1,
+      "target_shot_ms": 20.6,
+      "isolation_shot_ms": 1.2,
+      "effect_ms": 1658.0,
+      "within_5s": true,
+      "target_bmp": "c241-cycle3-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle3.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 4,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 306.1,
+      "click_ms": 1050.4,
+      "target_shot_ms": 18.5,
+      "isolation_shot_ms": 34.8,
+      "effect_ms": 1669.5,
+      "within_5s": true,
+      "target_bmp": "c241-cycle4-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle4.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 5,
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "home_ms": 317.0,
+      "click_ms": 1058.8,
+      "target_shot_ms": 1.4,
+      "isolation_shot_ms": 18.7,
+      "effect_ms": 1660.5,
+      "within_5s": true,
+      "target_bmp": "c241-cycle5-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-cycle5.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 0,
+      "from": [
+        80,
+        140
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 167.8,
+      "home_ms": 304.7,
+      "click_ms": 1042.5,
+      "target_shot_ms": 16.6,
+      "isolation_shot_ms": 14.4,
+      "effect_ms": 1659.5,
+      "within_5s": true,
+      "target_bmp": "c241-loc0-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-loc0.bmp",
+      "move_bmp": "c241-loc0-after-move.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 1,
+      "from": [
+        400,
+        200
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 407.6,
+      "home_ms": 301.1,
+      "click_ms": 1055.5,
+      "target_shot_ms": 12.3,
+      "isolation_shot_ms": 30.1,
+      "effect_ms": 1668.3,
+      "within_5s": true,
+      "target_bmp": "c241-loc1-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-loc1.bmp",
+      "move_bmp": "c241-loc1-after-move.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 2,
+      "from": [
+        120,
+        500
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 511.7,
+      "home_ms": 290.3,
+      "click_ms": 1078.0,
+      "target_shot_ms": 18.2,
+      "isolation_shot_ms": 14.8,
+      "effect_ms": 1696.5,
+      "within_5s": true,
+      "target_bmp": "c241-loc2-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-loc2.bmp",
+      "move_bmp": "c241-loc2-after-move.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 3,
+      "from": [
+        360,
+        760
+      ],
+      "target": [
+        250,
+        900
+      ],
+      "expected": "Spotlight within 5s",
+      "move_ms": 711.6,
+      "home_ms": 302.5,
+      "click_ms": 1042.8,
+      "target_shot_ms": 1.6,
+      "isolation_shot_ms": 1.4,
+      "effect_ms": 1645.1,
+      "within_5s": true,
+      "target_bmp": "c241-loc3-search.bmp",
+      "other_bmp": "c24c-iso-during-c241-loc3.bmp",
+      "move_bmp": "c241-loc3-after-move.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "swipe",
+      "expected_left": "Home page 2 within 5s",
+      "expected_right_home": "Home page 1 within 5s",
+      "left_ms": 1214.3,
+      "right_ms": 709.0,
+      "home_ms": 289.6,
+      "left_effect_ms": 1916.0,
+      "right_effect_ms": 2101.1,
+      "left_within_5s": true,
+      "right_within_5s": true,
+      "left_bmp": "c241-swipe-left.bmp",
+      "right_bmp": "c241-swipe-right-home.bmp",
+      "other_left_bmp": "c24c-iso-during-c241-swipe-left.bmp",
+      "other_right_bmp": "c24c-iso-during-c241-swipe-right.bmp",
+      "isolation_left_shot_ms": 1.5,
+      "isolation_right_shot_ms": 26.0
+    }
+  ]
+}

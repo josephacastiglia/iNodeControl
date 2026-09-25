@@ -1,0 +1,346 @@
+{
+  "start": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 9285,
+      "restarts": 0
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 8335,
+      "restarts": 0
+    }
+  },
+  "end": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 11625,
+      "restarts": 0
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 10042,
+      "restarts": 0
+    }
+  },
+  "rows": [
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 0,
+      "home_ms": 324.0,
+      "api_ms": 243.9,
+      "shot_after_ms": 770.3,
+      "search_bmp": "C24C-cycle00-search.bmp",
+      "other_bmp": "C24C-cycle00-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 1,
+      "home_ms": 358.2,
+      "api_ms": 246.7,
+      "shot_after_ms": 748.3,
+      "search_bmp": "C24C-cycle01-search.bmp",
+      "other_bmp": "C24C-cycle01-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 2,
+      "home_ms": 345.8,
+      "api_ms": 232.5,
+      "shot_after_ms": 734.9,
+      "search_bmp": "C24C-cycle02-search.bmp",
+      "other_bmp": "C24C-cycle02-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 3,
+      "home_ms": 330.7,
+      "api_ms": 247.2,
+      "shot_after_ms": 748.8,
+      "search_bmp": "C24C-cycle03-search.bmp",
+      "other_bmp": "C24C-cycle03-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 4,
+      "home_ms": 327.2,
+      "api_ms": 261.5,
+      "shot_after_ms": 763.7,
+      "search_bmp": "C24C-cycle04-search.bmp",
+      "other_bmp": "C24C-cycle04-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 5,
+      "home_ms": 329.7,
+      "api_ms": 250.7,
+      "shot_after_ms": 752.5,
+      "search_bmp": "C24C-cycle05-search.bmp",
+      "other_bmp": "C24C-cycle05-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 6,
+      "home_ms": 359.7,
+      "api_ms": 251.1,
+      "shot_after_ms": 775.9,
+      "search_bmp": "C24C-cycle06-search.bmp",
+      "other_bmp": "C24C-cycle06-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 7,
+      "home_ms": 346.4,
+      "api_ms": 237.0,
+      "shot_after_ms": 759.4,
+      "search_bmp": "C24C-cycle07-search.bmp",
+      "other_bmp": "C24C-cycle07-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 8,
+      "home_ms": 344.5,
+      "api_ms": 239.3,
+      "shot_after_ms": 761.4,
+      "search_bmp": "C24C-cycle08-search.bmp",
+      "other_bmp": "C24C-cycle08-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 9,
+      "home_ms": 345.5,
+      "api_ms": 259.9,
+      "shot_after_ms": 772.4,
+      "search_bmp": "C24C-cycle09-search.bmp",
+      "other_bmp": "C24C-cycle09-other.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 0,
+      "from": [
+        80,
+        140
+      ],
+      "move_api_ms": 2547.8,
+      "home_ms": 320.2,
+      "api_ms": 2555.4,
+      "shot_after_ms": 3078.6,
+      "search_bmp": "C24C-loc0-search.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 1,
+      "from": [
+        400,
+        200
+      ],
+      "move_api_ms": 2381.8,
+      "home_ms": 354.5,
+      "api_ms": 2377.8,
+      "shot_after_ms": 2879.7,
+      "search_bmp": "C24C-loc1-search.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 2,
+      "from": [
+        120,
+        500
+      ],
+      "move_api_ms": 1486.6,
+      "home_ms": 339.4,
+      "api_ms": 572.2,
+      "shot_after_ms": 1092.9,
+      "search_bmp": "C24C-loc2-search.bmp"
+    },
+    {
+      "phone": "C24C",
+      "kind": "from-location",
+      "n": 3,
+      "from": [
+        360,
+        760
+      ],
+      "move_api_ms": 644.3,
+      "home_ms": 321.1,
+      "api_ms": 653.6,
+      "shot_after_ms": 1164.3,
+      "search_bmp": "C24C-loc3-search.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 0,
+      "home_ms": 339.7,
+      "api_ms": 237.0,
+      "shot_after_ms": 738.9,
+      "search_bmp": "C241-cycle00-search.bmp",
+      "other_bmp": "C241-cycle00-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 1,
+      "home_ms": 290.9,
+      "api_ms": 205.9,
+      "shot_after_ms": 707.5,
+      "search_bmp": "C241-cycle01-search.bmp",
+      "other_bmp": "C241-cycle01-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 2,
+      "home_ms": 310.3,
+      "api_ms": 219.7,
+      "shot_after_ms": 732.2,
+      "search_bmp": "C241-cycle02-search.bmp",
+      "other_bmp": "C241-cycle02-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 3,
+      "home_ms": 296.5,
+      "api_ms": 230.0,
+      "shot_after_ms": 753.8,
+      "search_bmp": "C241-cycle03-search.bmp",
+      "other_bmp": "C241-cycle03-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 4,
+      "home_ms": 294.9,
+      "api_ms": 212.5,
+      "shot_after_ms": 714.0,
+      "search_bmp": "C241-cycle04-search.bmp",
+      "other_bmp": "C241-cycle04-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 5,
+      "home_ms": 299.5,
+      "api_ms": 211.7,
+      "shot_after_ms": 713.5,
+      "search_bmp": "C241-cycle05-search.bmp",
+      "other_bmp": "C241-cycle05-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 6,
+      "home_ms": 292.0,
+      "api_ms": 216.5,
+      "shot_after_ms": 718.4,
+      "search_bmp": "C241-cycle06-search.bmp",
+      "other_bmp": "C241-cycle06-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 7,
+      "home_ms": 295.3,
+      "api_ms": 206.9,
+      "shot_after_ms": 708.7,
+      "search_bmp": "C241-cycle07-search.bmp",
+      "other_bmp": "C241-cycle07-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 8,
+      "home_ms": 315.1,
+      "api_ms": 207.5,
+      "shot_after_ms": 711.4,
+      "search_bmp": "C241-cycle08-search.bmp",
+      "other_bmp": "C241-cycle08-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 9,
+      "home_ms": 320.7,
+      "api_ms": 211.5,
+      "shot_after_ms": 713.2,
+      "search_bmp": "C241-cycle09-search.bmp",
+      "other_bmp": "C241-cycle09-other.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 0,
+      "from": [
+        80,
+        140
+      ],
+      "move_api_ms": 943.1,
+      "home_ms": 310.9,
+      "api_ms": 927.6,
+      "shot_after_ms": 1429.3,
+      "search_bmp": "C241-loc0-search.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 1,
+      "from": [
+        400,
+        200
+      ],
+      "move_api_ms": 887.2,
+      "home_ms": 310.2,
+      "api_ms": 897.5,
+      "shot_after_ms": 1418.3,
+      "search_bmp": "C241-loc1-search.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 2,
+      "from": [
+        120,
+        500
+      ],
+      "move_api_ms": 603.1,
+      "home_ms": 295.1,
+      "api_ms": 615.2,
+      "shot_after_ms": 1117.0,
+      "search_bmp": "C241-loc2-search.bmp"
+    },
+    {
+      "phone": "C241",
+      "kind": "from-location",
+      "n": 3,
+      "from": [
+        360,
+        760
+      ],
+      "move_api_ms": 351.4,
+      "home_ms": 292.9,
+      "api_ms": 348.5,
+      "shot_after_ms": 873.8,
+      "search_bmp": "C241-loc3-search.bmp"
+    }
+  ],
+  "kernel": "release/iMouse2-kernel-click-candidate/iMouse2.Kernel.exe",
+  "rollback": "release/iMouse2-kernel-two-phone/iMouse2.Kernel.exe"
+}

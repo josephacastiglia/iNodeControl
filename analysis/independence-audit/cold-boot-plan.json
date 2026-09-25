@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "gate": 1,
+  "model": "grok-4.7",
+  "cold_boot_executed": false,
+  "services_altered": false,
+  "vendor_root": "C:\\iMouseXP",
+  "do_not_delete_vendor_root": true,
+  "protected": {
+    "vid": "720A",
+    "driver_service": "HidUsb",
+    "hidusb_start_dword": 3,
+    "reason": "WCH USB-HID board driver. Never disable."
+  },
+  "vendor_service": {
+    "name": "iMouseService",
+    "binary": "C:\\iMouseXP\\IMService.exe",
+    "display_name": "iMouse内核服务",
+    "status": "Running",
+    "start_mode": "Auto",
+    "start_dword": 2,
+    "service_type": 16,
+    "note": "There is no service named IMService. The process is IMService.exe; the service is iMouseService."
+  },
+  "startup_registry": {
+    "vendor_entries": 0,
+    "keys_scanned": [
+      "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+      "HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run",
+      "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+      "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+      "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+      "HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+    ]
+  },
+  "processes_that_must_be_absent_after_reboot": [
+    "IMService.exe",
+    "AirplayMirroring.exe",
+    "mDNSResponder.exe under C:\\iMouseXP",
+    "any other process whose path is under C:\\iMouseXP"
+  ],
+  "ports_that_must_be_free": [9911, 17000],
+  "backup": {
+    "path": "analysis/independence-audit/vendor-service-backup.json",
+    "schema": 1,
+    "at": "2026-09-23T22:58:53.5812602-04:00",
+    "applied": false,
+    "sha256": "4F25AABD224A2A29CF3B0CBC71A4DA085C564D61BE41208DB150BC392D9149BB",
+    "canon": "schema=1\\nservice|{name}|{start_dword}|{status}|{image_path}\\nstartup|{key}|{name}|{value}"
+  },
+  "scripts": {
+    "prepare": "tools/prepare_cold_boot.ps1",
+    "restore": "tools/restore_vendor_services.ps1",
+    "post_reboot": "tools/post_reboot_test.ps1"
+  },
+  "check_only": {
+    "prepare": "pass",
+    "restore_planned": [
+      "sc.exe config iMouseService start= auto",
+      "Start-Service iMouseService"
+    ],
+    "restore_applied": false,
+    "disable_command_not_run": "sc.exe config iMouseService start= disabled",
+    "post_reboot_launched": false,
+    "post_reboot_vendor_processes_seen": 4,
+    "post_reboot_ports_free": false
+  },
+  "procedure": [
+    "powershell -File tools\\prepare_cold_boot.ps1",
+    "Reboot Windows yourself. Do not start the vendor console, IMService, or AirplayMirroring.",
+    "powershell -File tools\\post_reboot_test.ps1",
+    "If asked, recast C24C to iMouse2-C24C and C241 to iMouse2-C241.",
+    "Evidence: analysis/independence-audit/cold-boot-evidence.json. A missing vendor window is not proof.",
+    "Restore: powershell -File tools\\restore_vendor_services.ps1"
+  ],
+  "pass_requires": [
+    "boot time after backup.at",
+    "iMouseService still present and Start dword 4",
+    "no vendor processes",
+    "9911 and 17000 not listening",
+    "kernel status on 9913",
+    "boards C24C and C241 discovered",
+    "per-phone acquire plus click and Home code 0",
+    "live BMP frame per phone"
+  ]
+}

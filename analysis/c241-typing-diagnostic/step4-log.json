@@ -1,0 +1,132 @@
+[
+  {
+    "fun": "/key/sendkey",
+    "payload": {
+      "fn_key": "Home"
+    },
+    "ms": 292.8,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/mouse/click",
+    "payload": {
+      "x": 250,
+      "y": 900,
+      "button": 1
+    },
+    "ms": 1038.8,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/mouse/click",
+    "payload": {
+      "x": 200,
+      "y": 1006,
+      "button": 1
+    },
+    "ms": 303.4,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/key/sendkey",
+    "payload": {
+      "key": "a"
+    },
+    "ms": 147.0,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/key/sendkey",
+    "payload": {
+      "key": " "
+    },
+    "ms": 175.1,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/key/sendkey",
+    "payload": {
+      "fn_key": "Backspace"
+    },
+    "ms": 145.8,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  }
+]

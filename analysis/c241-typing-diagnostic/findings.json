@@ -1,0 +1,93 @@
+{
+  "model": "Grok 4.7",
+  "model_id": "xai-oauth/grok-4.7",
+  "phone": {
+    "name": "C241",
+    "deviceid": "FE:A9:BC:D7:A0:44",
+    "board": "C241",
+    "uid": "C241BFBD",
+    "device_name": "iPhone XR",
+    "ios": "18.7.10"
+  },
+  "kernel": {
+    "pid": 31944,
+    "path": "release/iMouse2-kernel-two-phone/iMouse2.Kernel.exe",
+    "stopped_or_restarted": false,
+    "still_running_after": true
+  },
+  "preflight": {
+    "both_live": true,
+    "frames_advancing": true,
+    "sample": {
+      "C24C": {"deviceid": "86:1D:4A:04:2F:F6", "frames": [60215, 60237], "delta": 22, "live": true},
+      "C241": {"deviceid": "FE:A9:BC:D7:A0:44", "frames": [60906, 60929], "delta": 23, "live": true}
+    },
+    "mirror_to_all": "Off",
+    "mirror_evidence": {
+      "SelectAllBox": "Off",
+      "follower_C24C": "Off",
+      "follower_C241": "Off",
+      "console_pid": 34852,
+      "window": "iMouse 2.0 — iPhone Console"
+    },
+    "console_minimized": true
+  },
+  "isolation": {
+    "commands_targeted_only": "FE:A9:BC:D7:A0:44",
+    "c24c_after_c241_hello": "Home screen, Search pill, no Spotlight, no hello",
+    "evidence": "c24c-iso-after-step2.png"
+  },
+  "hello_appeared": false,
+  "test_appeared": false,
+  "hi_appeared": true,
+  "visual": {
+    "step1_settled": "Spotlight open. Insertion cursor before placeholder Search. No on-screen keyboard. No typed text. AssistiveTouch button visible.",
+    "step2_typed": "Unchanged Spotlight. Placeholder still Search. hello absent. Cursor still before Search.",
+    "step2_mad_vs_step1": 0.022,
+    "step3_prescribed_click": "Click (250,900) while Spotlight was open dismissed Spotlight. Home screen before test was sent.",
+    "step3_after_click": "Home screen. Search pill shows Search. test absent. test was sent with no text field open.",
+    "step4_infield_click": "Click (200,1006) stayed in Spotlight. Cursor remained. AutoFill callout appeared above the field. No typed text.",
+    "step4_letter_a": "a did not insert. Placeholder still Search.",
+    "step4_space": "Space did not insert a space. It opened the AssistiveTouch menu over Spotlight.",
+    "step4_backspace": "Backspace did not change the empty Search placeholder.",
+    "probe_tab": "Tab did not move the blue ring off AssistiveTouch. Search field still empty.",
+    "probe_space_then_z": "z absent. AssistiveTouch menu open. Spotlight still showing Search.",
+    "probe_control_center": "Control Center opened. Blue Full Keyboard Access ring on the + control and around the AssistiveTouch menu.",
+    "fka_tab1": "Blue ring still on AssistiveTouch. Spotlight cursor and AutoFill still present. No typed text.",
+    "fka_tab6": "Blue ring moved onto the AutoFill callout above the search field. Field still empty.",
+    "fka_after_space_then_hi": "Spotlight search field contains hi. Suggestions and Search in Apps results for hi are visible. Clear button in the field.",
+    "fka_mad_vs_spotlight": 15.775,
+    "cleanup": "Two Home presses returned to Home. Typing Mode banner remained until Escape. Escape cleared Typing Mode: ⌃Tab to exit. Final screen is Home, Search pill, FKA ring on FaceTime, AssistiveTouch menu closed."
+  },
+  "api": {
+    "all_sendkey_and_click_codes": 0,
+    "hello_ms": 725.4,
+    "test_ms": 580.6,
+    "note": "code 0 means the kernel finished the HID writes. It does not mean iOS inserted text."
+  },
+  "coordinates": {
+    "home_search_button": [250, 900],
+    "spotlight_text_bar": {"x": [30, 470], "y": [980, 1032], "used_click": [200, 1006]},
+    "note": "(250,900) opens Spotlight from Home. The same point is above the Spotlight field and dismisses Spotlight."
+  },
+  "hypotheses": {
+    "settle_wait": "rejected. Cursor was already visible after 1.0s. hello still absent. MAD 0.022.",
+    "click_engages_text_mode": "rejected as a fix. UIKit cursor and AutoFill appeared after an in-field click. a, space, and backspace still did not insert. The prescribed (250,900) click dismissed Spotlight.",
+    "hid_keyboard_report_not_delivered": "rejected. Same A2 report path opened Control Center and dismissed Spotlight with Home. Letter writes returned code 0. C24C inserts the same report format."
+  },
+  "root_cause": "C241 has Full Keyboard Access on. Character keys are accessibility commands until Typing Mode is entered. The Spotlight insertion cursor is UIKit focus, not Typing Mode. Space while the blue ring was on AssistiveTouch opened that menu instead of inserting a space. C24C types directly and its Control Center did not show an FKA ring. Toggling FKA off then on left it on. AirPlay reconnect does not change that. The kernel was not restarted.",
+  "resolution": {
+    "worked": "From Home, click (250,900), wait 1.0s, Tab until the blue FKA ring is on the search-field control (6 Tabs in this run, starting on AssistiveTouch), Space, then /key/sendkey text. hi appeared.",
+    "exit_typing_mode": "On-screen hint is Control+Tab. This kernel has no verified Control+Tab fn_key. Escape cleared the banner once.",
+    "direct_typing": "Turn Full Keyboard Access off on C241 to match C24C. Do not toggle it back on and expect sendkey text to land.",
+    "not_changed": "No kernel code change. PID 31944 left running."
+  },
+  "end_state": {
+    "screen": "Home",
+    "spotlight": "dismissed",
+    "typing_mode_banner": "cleared by Escape",
+    "fka_ring": "FaceTime icon",
+    "kernel_pid": 31944,
+    "both_phones_live_after": true
+  }
+}

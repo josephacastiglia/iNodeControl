@@ -1,0 +1,63 @@
+{
+  "model": "Grok 4.7",
+  "runtime_model": "xai-oauth/grok-4.7",
+  "at": "2026-09-22T02:45:53-04:00",
+  "command": "python tools/force_recast.py --phone C241",
+  "tool": "tools/force_recast.py",
+  "kernel": {
+    "pid": 38748,
+    "process": "iMouse2.Kernel",
+    "restarted": false,
+    "still_running_after": true,
+    "url": "http://127.0.0.1:9913",
+    "input": "direct-hid",
+    "input_leases_required": true
+  },
+  "mirror_to_all": false,
+  "mirror_to_all_evidence": "C24C mean absolute pixel difference stayed <= 0.028 while C241 opened Control Center and the Screen Mirroring picker. Mirror-to-all was not toggled.",
+  "targeted_only": "FE:A9:BC:D7:A0:44",
+  "c24c_lease_generation": 1,
+  "c241_lease_generation": 6,
+  "leases_released": true,
+  "note": "A checked-row tap stops mirroring. recast() runs the select sequence once more from Home when that drop is observed, then confirms live frames.",
+  "runs": [
+    {
+      "when": "C241 was offline after a checked-row tap",
+      "exit": 0,
+      "elapsed_s": 7.04,
+      "reselected": false,
+      "live": true,
+      "receiver_state": "mirroring",
+      "frames": [36131, 36145],
+      "frame_delta": 14,
+      "picker": "test-c241-picker-checked.png",
+      "picker_visual": "Screen Mirroring picker, iMouse2-C241 checked",
+      "home": "test-c241-home.png",
+      "home_visual": "Home screen, Search pill visible",
+      "c24c_max_mad": 0.027,
+      "c24c_shot": "test-c24c-isolated.png"
+    },
+    {
+      "when": "C241 already mirroring; this is the force-recast",
+      "exit": 0,
+      "elapsed_s": 13.56,
+      "reselected": true,
+      "live": true,
+      "receiver_state": "mirroring",
+      "frames": [37325, 37339],
+      "frame_delta": 14,
+      "picker": "test-c241-reselect-checked.png",
+      "picker_visual": "Screen Mirroring picker after reselect, iMouse2-C241 checked",
+      "home": "test-c241-reselect-home.png",
+      "home_visual": "Home screen",
+      "c24c_max_mad": 0.028,
+      "c24c_shot": "test-c24c-isolated-rerun.png",
+      "offline_gap": "C241 screenshots failed while the checked-row tap had stopped the cast; the second select restored them"
+    }
+  ],
+  "end": {
+    "C24C": {"live": true, "receiver_state": "mirroring", "frames": 41374, "receiver_pid": 39604, "screen": "Home"},
+    "C241": {"live": true, "receiver_state": "mirroring", "frames": 38663, "receiver_pid": 1852, "screen": "Home", "receiver": "iMouse2-C241"}
+  },
+  "passed": true
+}

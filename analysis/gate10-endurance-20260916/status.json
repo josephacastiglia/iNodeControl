@@ -1,0 +1,294 @@
+{
+  "gate": 10,
+  "operator": "Grok 4.7",
+  "running": false,
+  "pid": 12272,
+  "started_at": "2026-09-23T22:46:24.338+00:00",
+  "at": "2026-09-24T04:04:24.333+00:00",
+  "elapsed_s": 19080.0,
+  "remaining_s": 0,
+  "duration_s": 19080.0,
+  "schedule": {
+    "sample_interval_s": 15,
+    "interaction_interval_s": 300,
+    "memory_window_s": 600,
+    "rotation": [
+      "C24C",
+      "C241",
+      "C214",
+      "724E",
+      "*"
+    ],
+    "next_target": "*"
+  },
+  "samples": 1272,
+  "interactions": 64,
+  "kernel_pid": 4376,
+  "console_pid": 11224,
+  "console_pids": [
+    11224
+  ],
+  "fleet_match": true,
+  "expected": {
+    "kernel_pid": 4376,
+    "console_pid": 11224
+  },
+  "phones": [
+    {
+      "deviceid": "86:1D:4A:04:2F:F6",
+      "name": "iMouse2-C24C",
+      "receiver_pid": 3420,
+      "receiver_restarts": 0,
+      "receiver_state": "mirroring",
+      "live": true,
+      "frames": 299070,
+      "frame_delta": 183,
+      "label": "C24C"
+    },
+    {
+      "deviceid": "FE:A9:BC:D7:A0:44",
+      "name": "iMouse2-C241",
+      "receiver_pid": 8868,
+      "receiver_restarts": 0,
+      "receiver_state": "mirroring",
+      "live": true,
+      "frames": 297825,
+      "frame_delta": 271,
+      "label": "C241"
+    },
+    {
+      "deviceid": "8A:23:B5:71:35:8D",
+      "name": "iMouse2-C214",
+      "receiver_pid": 10496,
+      "receiver_restarts": 0,
+      "receiver_state": "mirroring",
+      "live": true,
+      "frames": 388367,
+      "frame_delta": 302,
+      "label": "C214"
+    },
+    {
+      "deviceid": "3A:DC:15:FB:DD:EC",
+      "name": "iMouse2-724E",
+      "receiver_pid": 12148,
+      "receiver_restarts": 0,
+      "receiver_state": "mirroring",
+      "live": true,
+      "frames": 382938,
+      "frame_delta": 301,
+      "label": "724E"
+    },
+    {
+      "deviceid": "*",
+      "name": "iMouse2-Phone5",
+      "receiver_pid": 21952,
+      "receiver_restarts": 0,
+      "receiver_state": "mirroring",
+      "live": true,
+      "frames": 395185,
+      "frame_delta": 302,
+      "label": "*"
+    }
+  ],
+  "processes": [
+    {
+      "pid": 4376,
+      "alive": true,
+      "working_set": 92651520,
+      "private_bytes": 52854784,
+      "cpu_s": 1310.406,
+      "responding": true,
+      "role": "kernel",
+      "name": "iMouse2.Kernel.exe",
+      "cpu_delta_s": 0.344
+    },
+    {
+      "pid": 11224,
+      "alive": true,
+      "working_set": 223432704,
+      "private_bytes": 276172800,
+      "cpu_s": 2563.562,
+      "responding": true,
+      "role": "console",
+      "name": "iMouse2.exe",
+      "cpu_delta_s": 0.171
+    },
+    {
+      "pid": 3420,
+      "alive": true,
+      "working_set": 173535232,
+      "private_bytes": 156532736,
+      "cpu_s": 893.109,
+      "responding": true,
+      "role": "receiver",
+      "name": "uxplay.exe",
+      "deviceid": "86:1D:4A:04:2F:F6",
+      "cpu_delta_s": 0.656
+    },
+    {
+      "pid": 8868,
+      "alive": true,
+      "working_set": 177061888,
+      "private_bytes": 159969280,
+      "cpu_s": 845.484,
+      "responding": true,
+      "role": "receiver",
+      "name": "uxplay.exe",
+      "deviceid": "FE:A9:BC:D7:A0:44",
+      "cpu_delta_s": 0.968
+    },
+    {
+      "pid": 10496,
+      "alive": true,
+      "working_set": 174723072,
+      "private_bytes": 157687808,
+      "cpu_s": 1154.156,
+      "responding": true,
+      "role": "receiver",
+      "name": "uxplay.exe",
+      "deviceid": "8A:23:B5:71:35:8D",
+      "cpu_delta_s": 0.906
+    },
+    {
+      "pid": 12148,
+      "alive": true,
+      "working_set": 173412352,
+      "private_bytes": 156397568,
+      "cpu_s": 1126.844,
+      "responding": true,
+      "role": "receiver",
+      "name": "uxplay.exe",
+      "deviceid": "3A:DC:15:FB:DD:EC",
+      "cpu_delta_s": 0.891
+    },
+    {
+      "pid": 21952,
+      "alive": true,
+      "working_set": 173449216,
+      "private_bytes": 156467200,
+      "cpu_s": 1187.922,
+      "responding": true,
+      "role": "receiver",
+      "name": "uxplay.exe",
+      "deviceid": "*",
+      "cpu_delta_s": 0.953
+    }
+  ],
+  "memory_10m": {
+    "window_s": 600,
+    "samples": 40,
+    "total": {
+      "working_set": {
+        "median": 1183541248,
+        "peak": 1188265984,
+        "n": 40
+      },
+      "private": {
+        "median": 1111148544,
+        "peak": 1116082176,
+        "n": 40
+      }
+    },
+    "by_pid": {
+      "10496": {
+        "working_set": {
+          "median": 173760512,
+          "peak": 174723072,
+          "n": 40
+        },
+        "private": {
+          "median": 156721152,
+          "peak": 157687808,
+          "n": 40
+        }
+      },
+      "21952": {
+        "working_set": {
+          "median": 172564480,
+          "peak": 173449216,
+          "n": 40
+        },
+        "private": {
+          "median": 155541504,
+          "peak": 156467200,
+          "n": 40
+        }
+      },
+      "8868": {
+        "working_set": {
+          "median": 176103424,
+          "peak": 177061888,
+          "n": 40
+        },
+        "private": {
+          "median": 158924800,
+          "peak": 159969280,
+          "n": 40
+        }
+      },
+      "12148": {
+        "working_set": {
+          "median": 172386304,
+          "peak": 173412352,
+          "n": 40
+        },
+        "private": {
+          "median": 155363328,
+          "peak": 156397568,
+          "n": 40
+        }
+      },
+      "11224": {
+        "working_set": {
+          "median": 223428608,
+          "peak": 223444992,
+          "n": 40
+        },
+        "private": {
+          "median": 276168704,
+          "peak": 276201472,
+          "n": 40
+        }
+      },
+      "4376": {
+        "working_set": {
+          "median": 92651520,
+          "peak": 92672000,
+          "n": 40
+        },
+        "private": {
+          "median": 52858880,
+          "peak": 52891648,
+          "n": 40
+        }
+      },
+      "3420": {
+        "working_set": {
+          "median": 172646400,
+          "peak": 173535232,
+          "n": 40
+        },
+        "private": {
+          "median": 155570176,
+          "peak": 156532736,
+          "n": 40
+        }
+      }
+    }
+  },
+  "last_interaction": {
+    "kind": "interaction",
+    "at": "2026-09-24T04:01:26.037+00:00",
+    "cycle": 63,
+    "target": "724E",
+    "ok": false,
+    "input_status_ms": 12.9,
+    "acquire_code": 409,
+    "acquire_ms": 6.6,
+    "error": "A target is owned, stopped, or recovering. No leases acquired.",
+    "latency_s": 0.02,
+    "elapsed_s": 18901.7
+  },
+  "error": null,
+  "stop_reason": "duration"
+}

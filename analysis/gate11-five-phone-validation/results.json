@@ -1,0 +1,262 @@
+{
+  "model": "Grok 4.7",
+  "model_id": "xai-oauth/grok-4.7",
+  "gate": 11,
+  "milestone": "5-phone",
+  "at": "2026-09-22T21:07:05.497-04:00",
+  "kernel": {
+    "pid": 34032,
+    "process": "iMouse2.Kernel",
+    "exe": "release/iMouse2-kernel-two-phone/iMouse2.Kernel.exe",
+    "url": "http://127.0.0.1:9913/api",
+    "pacing": "high-resolution 7 ms",
+    "restarted": false,
+    "input": "direct-hid",
+    "input_protocol": 1,
+    "input_leases_required": true,
+    "allowed": ["C24C", "C241", "C214", "724E", "F215"],
+    "input_pid": "C24C,C241,C214,724E,F215"
+  },
+  "phones": [
+    {"name": "C24C", "deviceid": "86:1D:4A:04:2F:F6", "board": "C24C", "receiver": "iMouse2-C24C", "port": 7110, "receiver_pid": 37856, "restarts": 0},
+    {"name": "C241", "deviceid": "FE:A9:BC:D7:A0:44", "board": "C241", "receiver": "iMouse2-C241", "port": 7120, "receiver_pid": 37608, "restarts": 0},
+    {"name": "C214", "deviceid": "8A:23:B5:71:35:8D", "board": "C214", "receiver": "iMouse2-C214", "port": 7130, "receiver_pid": 31560, "restarts": 0},
+    {"name": "724E", "deviceid": "3A:DC:15:FB:DD:EC", "board": "724E", "receiver": "iMouse2-724E", "port": 7140, "receiver_pid": 37828, "restarts": 0},
+    {"name": "*", "deviceid": "*", "board": "F215", "airplay_mac": "D6:5E:EE:14:38:88", "receiver": "iMouse2-Phone5", "port": 7150, "receiver_pid": 34268, "restarts": 0}
+  ],
+  "preflight": {
+    "sample_gap_s": 2.0,
+    "status_ms": [3.6, 1.1],
+    "all_live_mirroring": true,
+    "all_frames_advancing": true,
+    "restarts": 0,
+    "pids_unchanged": true,
+    "kernel_pid_unchanged": true,
+    "frames": {
+      "C24C": {"t0": 27546, "t1": 27591, "delta": 45, "pid": 37856},
+      "C241": {"t0": 35065, "t1": 35105, "delta": 40, "pid": 37608},
+      "C214": {"delta": 40, "pid": 31560},
+      "724E": {"delta": 40, "pid": 37828},
+      "*": {"delta": 40, "pid": 34268}
+    },
+    "lease_resume": {
+      "why": "C24C and 724E were stopped from an expired controller lease. Receivers were not restarted.",
+      "ids": ["86:1D:4A:04:2F:F6", "3A:DC:15:FB:DD:EC"],
+      "code": 0,
+      "message": "Input ready for a new lease. Old tokens remain invalid."
+    }
+  },
+  "method": {
+    "home": "POST /key/sendkey fn_key=Home with per-phone lease tokens",
+    "search": "POST /mouse/click x=250 y=900 button=1",
+    "group_id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44,8A:23:B5:71:35:8D,3A:DC:15:FB:DD:EC,*",
+    "capture": "parallel GET /pic/screenshot binary BMP, then PNG. Phone 5 id * is percent-encoded.",
+    "classification": "Vision read of the PNG. Isolation also scored by mean absolute pixel diff against the Home baseline. Confirmed Spotlight MAD was 45-80. Confirmed Home MAD was 0.13-1.63. Dismiss blur sat between.",
+    "raw_log": "capture-log.json",
+    "retry_log": "retry-log.json"
+  },
+  "part_a": {
+    "sequence": "Home, wait 0.8s, Search click (250,900), wait 1.0s, capture all 5, Home, wait 0.8s",
+    "rounds": [
+      {
+        "target": "C24C",
+        "search_code": 0,
+        "search_rtt_ms": 1829.8,
+        "effect_ms": 2849.2,
+        "within_5s": true,
+        "expected": "C24C Spotlight; C241, C214, 724E, * Home",
+        "actual": {"C24C": "Spotlight", "C241": "Home", "C214": "Home", "724E": "Home", "*": "Home"},
+        "mad_vs_home": {"C24C": 79.68, "C241": 0.16, "C214": 0.16, "724E": 0.13, "*": 0.14},
+        "isolation_held": true,
+        "target_effect": true,
+        "evidence": ["a-c24c-search-c24c.png", "a-c24c-search-c241.png", "a-c24c-search-c214.png", "a-c24c-search-724e.png", "a-c24c-search-phone5.png"]
+      },
+      {
+        "target": "C241",
+        "search_code": 0,
+        "search_rtt_ms": 1830.0,
+        "effect_ms": 2848.0,
+        "within_5s": true,
+        "expected": "C241 Spotlight; C24C, C214, 724E, * Home",
+        "actual": {"C24C": "Home", "C241": "Spotlight", "C214": "Home", "724E": "Home", "*": "Home"},
+        "mad_vs_home": {"C24C": 1.33, "C241": 45.34, "C214": 0.17, "724E": 0.14, "*": 0.16},
+        "isolation_held": true,
+        "target_effect": true,
+        "evidence": ["a-c241-search-c241.png", "a-c241-search-c24c.png", "a-c241-search-c214.png", "a-c241-search-724e.png", "a-c241-search-phone5.png"]
+      },
+      {
+        "target": "C214",
+        "search_code": 0,
+        "search_rtt_ms": 1829.2,
+        "effect_ms": 2857.1,
+        "within_5s": true,
+        "expected": "C214 Spotlight; C24C, C241, 724E, * Home",
+        "actual": {"C24C": "Home", "C241": "Home", "C214": "Spotlight", "724E": "Home", "*": "Home"},
+        "mad_vs_home": {"C24C": 1.34, "C241": 1.19, "C214": 63.84, "724E": 0.14, "*": 0.16},
+        "isolation_held": true,
+        "target_effect": true,
+        "evidence": ["a-c214-search-c214.png", "a-c214-search-c24c.png", "a-c214-search-c241.png", "a-c214-search-724e.png", "a-c214-search-phone5.png"]
+      },
+      {
+        "target": "724E",
+        "search_code": 0,
+        "search_rtt_ms": 1838.9,
+        "effect_ms": 2861.8,
+        "within_5s": true,
+        "expected": "724E Spotlight; C24C, C241, C214, * Home",
+        "actual": {"C24C": "Home", "C241": "Home", "C214": "Home", "724E": "Spotlight", "*": "Home"},
+        "mad_vs_home": {"C24C": 1.28, "C241": 1.2, "C214": 1.36, "724E": 52.83, "*": 0.17},
+        "isolation_held": true,
+        "target_effect": true,
+        "evidence": ["a-724e-search-724e.png", "a-724e-search-c24c.png", "a-724e-search-c241.png", "a-724e-search-c214.png", "a-724e-search-phone5.png"]
+      },
+      {
+        "target": "*",
+        "search_code": 0,
+        "search_rtt_ms": 1821.2,
+        "effect_ms": 2842.5,
+        "within_5s": false,
+        "expected": "* Spotlight; C24C, C241, C214, 724E Home",
+        "actual": {"C24C": "Home", "C241": "Home", "C214": "Home", "724E": "Home", "*": "Home"},
+        "mad_vs_home": {"C24C": 1.29, "C241": 1.17, "C214": 1.38, "724E": 1.55, "*": 0.35},
+        "isolation_held": true,
+        "target_effect": false,
+        "note": "Click returned ok. Kernel logged click pid=F215 known=False total=1818ms. The 1s capture was still Home. Not a leak.",
+        "evidence": ["a-phone5-search-phone5.png", "a-phone5-search-c24c.png", "a-phone5-search-c241.png", "a-phone5-search-c214.png", "a-phone5-search-724e.png"]
+      }
+    ]
+  },
+  "part_b": {
+    "group_id": "86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44,8A:23:B5:71:35:8D,3A:DC:15:FB:DD:EC,*",
+    "parallel_dispatch": "One comma-list click. Kernel logged all 5 boards at total=1819ms: C214, 724E, C241, F215, C24C.",
+    "home_before": {
+      "code": 0,
+      "rtt_ms": 288.3,
+      "effect_ms": 1109.6,
+      "within_5s": true,
+      "expected": "all 5 Home",
+      "actual": {"C24C": "Home", "C241": "Home", "C214": "Home", "724E": "Home", "*": "Home"},
+      "mad_vs_home": {"C24C": 1.13, "C241": 1.01, "C214": 1.25, "724E": 1.43, "*": 1.17},
+      "pass": true,
+      "evidence": ["b-home-before-c24c.png", "b-home-before-c241.png", "b-home-before-c214.png", "b-home-before-724e.png", "b-home-before-phone5.png"]
+    },
+    "search": {
+      "code": 0,
+      "rtt_ms": 1821.5,
+      "effect_ms": 2842.7,
+      "within_5s": true,
+      "expected": "all 5 Spotlight",
+      "actual": {"C24C": "Spotlight", "C241": "Spotlight", "C214": "Spotlight", "724E": "Spotlight", "*": "Spotlight"},
+      "mad_vs_home": {"C24C": 79.39, "C241": 45.22, "C214": 64.22, "724E": 52.71, "*": 52.19},
+      "pass": true,
+      "evidence": ["b-spotlight-c24c.png", "b-spotlight-c241.png", "b-spotlight-c214.png", "b-spotlight-724e.png", "b-spotlight-phone5.png"]
+    },
+    "home_after": {
+      "code": 0,
+      "rtt_ms": 289.8,
+      "effect_ms": 1109.4,
+      "within_5s": true,
+      "expected": "all 5 Home",
+      "actual": {"C24C": "Spotlight", "C241": "Home", "C214": "Home", "724E": "Home", "*": "Home"},
+      "mad_vs_home": {"C24C": 79.19, "C241": 1.07, "C214": 1.29, "724E": 1.46, "*": 1.19},
+      "mad_vs_own_spotlight": {"C24C": 1.56},
+      "pass": false,
+      "note": "C24C's 1.11s frame is still Spotlight, nearly the same pixels as its Spotlight capture. The other four are Home. A later untimed frame, now-c24c.png, is Home. That does not prove the dismiss landed inside 5s.",
+      "evidence": ["b-home-after-c24c.png", "b-home-after-c241.png", "b-home-after-c214.png", "b-home-after-724e.png", "b-home-after-phone5.png"]
+    }
+  },
+  "retry": {
+    "why": "First sample missed phone 5 isolated Spotlight and left C24C in Spotlight at the 0.8s group-Home capture.",
+    "phone5_isolated": {
+      "search_code": 0,
+      "search_rtt_ms": 1825.6,
+      "effect_ms": 2846.9,
+      "within_5s": true,
+      "actual": {"C24C": "Home", "C241": "Home", "C214": "Home", "724E": "Home", "*": "Spotlight"},
+      "mad_vs_home": {"C24C": 1.36, "C241": 1.21, "C214": 1.4, "724E": 1.58, "*": 53.04},
+      "isolation_held": true,
+      "target_effect": true,
+      "evidence": ["retry-a-phone5-1s-phone5.png", "retry-a-phone5-1s-c24c.png"]
+    },
+    "group_search": {
+      "rtt_ms": 1821.9,
+      "effect_ms": 2841.0,
+      "within_5s": true,
+      "mad_vs_home": {"C24C": 79.38, "C241": 45.22, "C214": 64.23, "724E": 52.73, "*": 53.05},
+      "actual": "all 5 Spotlight by MAD match to the vision-confirmed first-run Spotlight frames",
+      "pass": true
+    },
+    "group_home_0_8s": {
+      "rtt_ms": 320.0,
+      "effect_ms": 1147.0,
+      "expected": "all 5 Home",
+      "actual": {"C24C": "Home dismiss blur", "C241": "Home", "C214": "Spotlight", "724E": "Home", "*": "Home dismiss blur"},
+      "mad_vs_home": {"C24C": 33.35, "C241": 1.11, "C214": 64.15, "724E": 1.54, "*": 23.7},
+      "mad_vs_own_spotlight": {"C24C": 55.12, "C214": 1.88, "*": 40.66},
+      "pass": false,
+      "note": "C214 is still Spotlight. C24C and phone 5 are dismiss blur: Search pill visible, no active search field. C241 and 724E are Home.",
+      "evidence": ["retry-b-home-0.8s-c24c.png", "retry-b-home-0.8s-c214.png", "retry-b-home-0.8s-phone5.png"]
+    },
+    "group_home_4_6s": {
+      "effect_ms": 4619.4,
+      "within_5s": true,
+      "expected": "all 5 Home",
+      "actual": {"C24C": "Home", "C241": "Home", "C214": "Home", "724E": "Home", "*": "Home"},
+      "mad_vs_home": {"C24C": 1.41, "C241": 1.24, "C214": 1.44, "724E": 1.63, "*": 1.36},
+      "pass": true,
+      "evidence": ["retry-b-home-4s-c24c.png", "retry-b-home-4s-c214.png", "retry-b-home-4s-phone5.png"]
+    }
+  },
+  "timing": {
+    "first_sample_all_scored_captures_within_5s": false,
+    "max_search_effect_ms": 2861.8,
+    "group_home_visible_on_all_5_ms": 4619.4,
+    "suite_s": 36.9,
+    "note": "effect_ms is from request start to the slowest parallel screenshot. Group Home is not visually done on all 5 at 0.8s. It was done on all 5 at 4.6s on the retry."
+  },
+  "stuck_inputs": {
+    "mouse_up_code": 0,
+    "while_leased": "owned=true, active=false, stopped=false, release_failed=false on all 5",
+    "after_release": "owned=false, active=false, stopped=false, release_failed=false on all 5",
+    "release_message": "Input released; previous tokens revoked.",
+    "after_retry": "same released state on all 5"
+  },
+  "streams": {
+    "restarts": 0,
+    "pids_unchanged": true,
+    "kernel_pid_unchanged": true,
+    "postflight_gap_s": 2.0,
+    "postflight": {
+      "C24C": {"pid": 37856, "restarts": 0, "delta": 14, "live": true},
+      "C241": {"pid": 37608, "restarts": 0, "delta": 43, "live": true},
+      "C214": {"pid": 31560, "restarts": 0, "delta": 46, "live": true},
+      "724E": {"pid": 37828, "restarts": 0, "delta": 41, "live": true},
+      "*": {"pid": 34268, "restarts": 0, "delta": 37, "live": true}
+    },
+    "after_retry": {
+      "kernel_pid": 34032,
+      "C24C": {"pid": 37856, "restarts": 0, "delta": 43, "frames": 34731, "live": true},
+      "C241": {"pid": 37608, "restarts": 0, "delta": 41, "frames": 45811, "live": true},
+      "C214": {"pid": 31560, "restarts": 0, "delta": 11, "frames": 38229, "live": true},
+      "724E": {"pid": 37828, "restarts": 0, "delta": 40, "frames": 17132, "live": true},
+      "*": {"pid": 34268, "restarts": 0, "delta": 37, "frames": 32463, "live": true}
+    }
+  },
+  "acceptance": {
+    "five_live_mirroring_zero_restarts": true,
+    "five_way_single_target_isolation": true,
+    "isolation_detail": "Every single-target Search left the other four on Home. 20/20 first-run non-target PNGs classified Home. Phone 5's retry did the same.",
+    "target_spotlight_first_sample": false,
+    "target_detail": "C24C, C241, C214, and 724E opened Spotlight within 2.9s. Phone 5 stayed on Home on the first click (code 0, no leak) and opened Spotlight on the retry within 2.8s.",
+    "concurrent_parallel_group_search": true,
+    "group_search_detail": "One comma-list Search opened Spotlight on all 5 within 2.9s, twice. Kernel logged all 5 boards in the same 1819ms click.",
+    "concurrent_parallel_group_home_at_0_8s": false,
+    "group_home_detail": "The specified 0.8s capture did not show all 5 at Home. First sample: C24C still Spotlight. Retry: C214 still Spotlight; C24C and phone 5 still in dismiss blur. A 4.6s capture showed all 5 Home.",
+    "visual_effects_within_5s": false,
+    "within_5s_detail": "Search effects that landed were inside 2.9s. Group Home was inside 5s only on the extra 4.6s capture, not on the specified 0.8s snapshot. Phone 5's first Search produced no effect before Home dismissed the attempt.",
+    "receiver_restarts": 0,
+    "stuck_keys": 0,
+    "unintended_actions": 0,
+    "pass": false
+  }
+}

@@ -1,0 +1,113 @@
+{
+    "status":  {
+                   "status":  200,
+                   "message":  "ok",
+                   "data":  {
+                                "code":  0,
+                                "input":  "direct-hid",
+                                "allowed":  [
+                                                "C24C",
+                                                "C241"
+                                            ],
+                                "receiver":  "iMouse2-C24C / iMouse2-C241",
+                                "receiver_state":  "mirroring",
+                                "receiver_message":  "",
+                                "receiver_pid":  37656,
+                                "receiver_restarts":  0,
+                                "frames":  33991,
+                                "live":  true,
+                                "receivers":  [
+                                                  {
+                                                      "deviceid":  "86:1D:4A:04:2F:F6",
+                                                      "name":  "iMouse2-C24C",
+                                                      "receiver_pid":  37656,
+                                                      "receiver_restarts":  0,
+                                                      "receiver_state":  "mirroring",
+                                                      "live":  true,
+                                                      "frames":  33991
+                                                  },
+                                                  {
+                                                      "deviceid":  "FE:A9:BC:D7:A0:44",
+                                                      "name":  "iMouse2-C241",
+                                                      "receiver_pid":  29980,
+                                                      "receiver_restarts":  0,
+                                                      "receiver_state":  "mirroring",
+                                                      "live":  true,
+                                                      "frames":  32095
+                                                  }
+                                              ]
+                            }
+               },
+    "devices":  {
+                    "status":  200,
+                    "message":  "ok",
+                    "data":  {
+                                 "code":  0,
+                                 "list":  [
+                                              {
+                                                  "deviceid":  "86:1D:4A:04:2F:F6",
+                                                  "name":  "XR C24C",
+                                                  "user_name":  "XR C24C",
+                                                  "device_name":  "iPhone XR",
+                                                  "gname":  "Two-phone test",
+                                                  "state":  1,
+                                                  "video_state":  "mirroring",
+                                                  "receiver_name":  "iMouse2-C24C",
+                                                  "width":  "414",
+                                                  "height":  "896",
+                                                  "imgw":  500,
+                                                  "imgh":  1080,
+                                                  "air_pid":  37656,
+                                                  "version":  "18.7.10",
+                                                  "uid":  "C24CBFBD",
+                                                  "vid":  "720A",
+                                                  "pid":  "C24C",
+                                                  "rotate":  0
+                                              },
+                                              {
+                                                  "deviceid":  "FE:A9:BC:D7:A0:44",
+                                                  "name":  "Phone in hand - C241",
+                                                  "user_name":  "Phone in hand - C241",
+                                                  "device_name":  "iPhone XR",
+                                                  "gname":  "Two-phone test",
+                                                  "state":  1,
+                                                  "video_state":  "mirroring",
+                                                  "receiver_name":  "iMouse2-C241",
+                                                  "width":  "414",
+                                                  "height":  "896",
+                                                  "imgw":  500,
+                                                  "imgh":  1080,
+                                                  "air_pid":  29980,
+                                                  "version":  "18.7.10",
+                                                  "uid":  "C241BFBD",
+                                                  "vid":  "720A",
+                                                  "pid":  "C241",
+                                                  "rotate":  0
+                                              }
+                                          ]
+                             }
+                },
+    "processes":  [
+                      {
+                          "ProcessId":  28896,
+                          "Name":  "iMouse2.Kernel.exe",
+                          "CommandLine":  "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe\" http://127.0.0.1:9913/api/ --data-dir \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\" --input-pid C24C,C241 --receivers \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\receivers.json\" --receiver \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" --receiver-runtime \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\msys64\\ucrt64\" "
+                      },
+                      {
+                          "ProcessId":  37656,
+                          "Name":  "uxplay.exe",
+                          "CommandLine":  "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" -n iMouse2-C24C -nh -s 500x1080 -fps 30 -avdec -vs appsink -as fakesink -p 7110 -restrict -allow 86:1D:4A:04:2F:F6 -m 02:49:4D:32:C2:4C"
+                      },
+                      {
+                          "ProcessId":  29980,
+                          "Name":  "uxplay.exe",
+                          "CommandLine":  "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" -n iMouse2-C241 -nh -s 500x1080 -fps 30 -avdec -vs appsink -as fakesink -p 7120 -restrict -allow FE:A9:BC:D7:A0:44 -m 02:49:4D:32:C2:41"
+                      },
+                      {
+                          "ProcessId":  15792,
+                          "Name":  "iMouse2.exe",
+                          "CommandLine":  "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe\" "
+                      }
+                  ],
+    "at":  "2026-09-15T02:45:52.7304758-04:00"
+}

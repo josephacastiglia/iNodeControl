@@ -1,0 +1,77 @@
+{
+  "board": "C241",
+  "mode": "precise",
+  "start": {
+    "code": 0,
+    "input": "direct-hid",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 49160,
+    "receiver_restarts": 1,
+    "frames": 127558,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 49160,
+        "receiver_restarts": 1,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 127558
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 31660,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 160020
+      }
+    ]
+  },
+  "end": {
+    "code": 0,
+    "input": "direct-hid",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 49160,
+    "receiver_restarts": 1,
+    "frames": 128336,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 49160,
+        "receiver_restarts": 1,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 128336
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 31660,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 161334
+      }
+    ]
+  },
+  "assembly": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\pointer-study\\bin\\Release\\net8.0-windows\\iMouse2.Kernel.dll",
+  "sha256": "D20A40408C73D0F24D2273BC6AAF7775AA1FD0D264949456FC1521CD14A5E66E",
+  "note": "Actual InputRouter/HidConnection; existing kernel used only for video. Dispatch time is not HTTP time."
+}

@@ -1,0 +1,224 @@
+{
+  "model": "grok-4.7",
+  "phone": "D6:5E:EE:14:38:88",
+  "board": "9515",
+  "board_uid": "9515BEBD",
+  "session_id": "*",
+  "receiver": "iMouse2-Phone5",
+  "port": 7150,
+  "kernel_pid": 34032,
+  "kernel_pid_assignment": 29564,
+  "kernel_left_running": true,
+  "started": "2026-09-22T20:51:47.785-04:00",
+  "screenshot_id_note": "Running kernel session key is devices.json deviceid '*', not the AirPlay MAC. Requested id returned Unknown receiver device. Frames are the live iMouse2-Phone5 session whose receiver log names this MAC.",
+  "requested_id_attempt": {
+    "ms": 4.0,
+    "bytes": 84,
+    "body": "{\"status\":200,\"message\":\"ok\",\"data\":{\"code\":1,\"message\":\"Unknown receiver device.\"}}"
+  },
+  "baseline_ms": 1.0,
+  "baseline": {
+    "bmp": "01-baseline.bmp",
+    "png": "01-baseline.png",
+    "sha256": "c04552c5307c5619282a895e3df658da86bc2ec0522347c39c853fb53604b801",
+    "bytes": 1620054,
+    "png_bytes": 462647
+  },
+  "idle_mad": 0.0,
+  "controlbar_reports": [
+    "A200000000000000",
+    "A2002B0000000000",
+    "A200000000000000",
+    "A200000000000002",
+    "A200060000000002",
+    "A200000000000000"
+  ],
+  "controlbar": {
+    "board": "9515",
+    "label": "controlbar",
+    "reports": 6,
+    "exit": 0,
+    "ms": 348.0,
+    "stdout": "iMouse 2.0 kernel. 19 WCH boards (VID_720A). 12 saved phones.\nCompleted 6 reports on 9515; buttons and keys released.",
+    "stderr": ""
+  },
+  "controlbar_shot_ms": 10.1,
+  "controlbar_frame": {
+    "bmp": "02-controlbar.bmp",
+    "png": "02-controlbar.png",
+    "sha256": "ab4b0d6d14a470500c8223faabb5d931655a26835bf3db8bb2c8c81450bf676c",
+    "bytes": 1620054,
+    "png_bytes": 462755
+  },
+  "controlbar_mad": 0.02,
+  "control_center_opened": false,
+  "home_after_controlbar": {
+    "board": "9515",
+    "label": "home-after-controlbar",
+    "reports": 12,
+    "exit": 0,
+    "ms": 665.9,
+    "stdout": "iMouse 2.0 kernel. 19 WCH boards (VID_720A). 12 saved phones.\nCompleted 12 reports on 9515; buttons and keys released.",
+    "stderr": ""
+  },
+  "home_frame": {
+    "bmp": "03-home.bmp",
+    "png": "03-home.png",
+    "sha256": "09f5e55d5e45b3a938d3934cb09fbfacf1f79293ed7f3d155248c768ef0ed5f5",
+    "bytes": 1620054,
+    "png_bytes": 462705
+  },
+  "home_mad_vs_controlbar": 0.01,
+  "home_mad_vs_baseline": 0.02,
+  "click_plan": {
+    "tx": 46,
+    "ty": 174,
+    "steps": 174,
+    "origin": 14,
+    "ppu": 5.1,
+    "x": 250,
+    "y": 900,
+    "pacing_ms": 7
+  },
+  "search": {
+    "board": "9515",
+    "label": "search",
+    "reports": 183,
+    "exit": 0,
+    "ms": 1850.6,
+    "stdout": "iMouse 2.0 kernel. 19 WCH boards (VID_720A). 12 saved phones.\nCompleted 183 reports on 9515; buttons and keys released.",
+    "stderr": ""
+  },
+  "spotlight_frame": {
+    "bmp": "04-spotlight.bmp",
+    "png": "04-spotlight.png",
+    "sha256": "d3d210c7b0d70808acbef682f23e8fd7922efd620d2ece2905c0141cc43cb1c5",
+    "bytes": 1620054,
+    "png_bytes": 462650
+  },
+  "spotlight_mad": 0.02,
+  "spotlight_opened": false,
+  "home_after_spotlight": {
+    "board": "9515",
+    "label": "home-after-spotlight",
+    "reports": 12,
+    "exit": 0,
+    "ms": 666.1,
+    "stdout": "iMouse 2.0 kernel. 19 WCH boards (VID_720A). 12 saved phones.\nCompleted 12 reports on 9515; buttons and keys released.",
+    "stderr": ""
+  },
+  "final_home": {
+    "bmp": "05-final-home.bmp",
+    "png": "05-final-home.png",
+    "sha256": "3525251a2c94e5bcdd7b695528ca793db49a4f13a0f6270257f74994663570af",
+    "bytes": 1620054,
+    "png_bytes": 462783
+  },
+  "final_mad_vs_spotlight": 0.02,
+  "kernel_still_alive": true,
+  "finished": "2026-09-22T20:54:55.518-04:00",
+  "kernel_not_restarted": 34032,
+  "stream": {
+    "receiver": "iMouse2-Phone5",
+    "port": 7150,
+    "airplay_device_id": "D6:5E:EE:14:38:88",
+    "airplay_model": "iPhone11,8",
+    "session_key": "*",
+    "frames_advanced": "6280 to 6306 in 1.2s after the 9515 sequence, so the watched frame was live",
+    "receiver_log": "analysis/five-phone-config/receiver-F215.log line: connection request from iPhone (iPhone11,8) with deviceID = D6:5E:EE:14:38:88"
+  },
+  "verdict": {
+    "claimed_board": "9515",
+    "claimed_uid": "9515BEBD",
+    "claimed_board_controls_phone5": false,
+    "actual_board": "F215",
+    "actual_board_controls_phone5": true,
+    "control_center_on_9515": false,
+    "spotlight_on_9515": false,
+    "control_center_on_F215": true,
+    "spotlight_on_F215": true,
+    "phone_left_on_home": true
+  },
+  "board_9515": {
+    "hid_completed": true,
+    "controlbar_exit": 0,
+    "controlbar_mad": 0.02,
+    "spotlight_mad": 0.02,
+    "threshold": 10.0,
+    "screen_changed": false
+  },
+  "board_F215": {
+    "controlbar_mad_vs_baseline": 63.58,
+    "controlbar_frame": {
+      "file": "probe-F215.png",
+      "sha256": "12055cfe668760b58a39ce032a1dca1ee2aba1e70335119a6533365ad7c610cd",
+      "bytes": 315310
+    },
+    "home_after_controlbar": {
+      "board": "F215",
+      "label": "F215-home-after-cc",
+      "reports": 12,
+      "exit": 0,
+      "ms": 673.9,
+      "stdout": "iMouse 2.0 kernel. 19 WCH boards (VID_720A). 12 saved phones.\nCompleted 12 reports on F215; buttons and keys released.",
+      "stderr": ""
+    },
+    "home_mad_vs_controlbar": 63.63,
+    "home_frame": {
+      "file": "03-home-F215.png",
+      "sha256": "17805ff8d123f21d9f5cd3c2b476eea6c24b39f6380df4f6dd3132284837bcdb",
+      "bytes": 441510
+    },
+    "click_plan": {
+      "tx": 46,
+      "ty": 174,
+      "steps": 174,
+      "origin": 14,
+      "ppu": 5.1,
+      "x": 250,
+      "y": 900,
+      "pacing_ms": 7
+    },
+    "search": {
+      "board": "F215",
+      "label": "F215-search",
+      "reports": 183,
+      "exit": 0,
+      "ms": 1830.7,
+      "stdout": "iMouse 2.0 kernel. 19 WCH boards (VID_720A). 12 saved phones.\nCompleted 183 reports on F215; buttons and keys released.",
+      "stderr": ""
+    },
+    "spotlight_mad": 52.09,
+    "spotlight_opened": true,
+    "spotlight_frame": {
+      "file": "04-spotlight-F215.png",
+      "sha256": "06e2c659fb15023af61509e24b1cc09bb87a77ab639781fc1c0d76da3b9dc84d",
+      "bytes": 218739
+    },
+    "home_after_spotlight": {
+      "board": "F215",
+      "label": "F215-home-after-spotlight",
+      "reports": 12,
+      "exit": 0,
+      "ms": 669.1,
+      "stdout": "iMouse 2.0 kernel. 19 WCH boards (VID_720A). 12 saved phones.\nCompleted 12 reports on F215; buttons and keys released.",
+      "stderr": ""
+    },
+    "final_mad_vs_spotlight": 51.9,
+    "final_mad_vs_home": 1.96,
+    "final_home": {
+      "file": "05-final-home-F215.png",
+      "sha256": "e97fd54601fa33509e2b5000223cda5a416222a5f7dd5eec113a8f64a2118df7",
+      "bytes": 430301
+    }
+  },
+  "visual": {
+    "baseline": "iOS Home screen. Search pill and dock visible. Control Center and Spotlight closed.",
+    "after_9515_controlbar": "Same Home screen. MAD 0.02. Control Center did not open.",
+    "after_9515_search": "Same Home screen. MAD 0.02. Spotlight did not open.",
+    "F215_control_center": "iOS 18 Control Center: connectivity tiles, Not Playing media routed to iMouse, brightness and volume sliders, Focus, flashlight. MAD 63.58.",
+    "F215_home_after_cc": "Control Center dismissed. MAD 63.63 versus the Control Center frame.",
+    "F215_spotlight": "Spotlight open: Siri Suggestions, Search field, Home screen blurred behind. MAD 52.09 versus Home. Tap (250, 900) at 7 ms pacing landed.",
+    "F215_final_home": "Home screen. Spotlight and Control Center gone. Search pill and dock visible. MAD 1.96 versus the pre-Spotlight Home frame."
+  }
+}

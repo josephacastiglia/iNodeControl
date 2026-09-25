@@ -1,0 +1,17 @@
+[
+  {
+    "Algorithm": "SHA256",
+    "Hash": "CD49CBCC1417299102F21117CFEAE0D10006965254A394E81706F6170A39DDEE",
+    "Path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone\\iMouse2.dll"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "A995CF5B92AEE4393E164FA4CE68D446A3F63D4D0CAAA73B5ACB6DCF587851BF",
+    "Path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.dll"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "4C1A24F35DE00D2C3A8D50A4B0BCFB06A9F5C16BD185810EC54466AC090D2208",
+    "Path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe"
+  }
+]

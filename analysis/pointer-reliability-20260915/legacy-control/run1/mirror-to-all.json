@@ -1,0 +1,30 @@
+{
+  "SelectAllBox_name": "Mirror the master's actions to every phone",
+  "Totals": "2 phones  \u00b7  2 mirroring  \u00b7  2 controllable  \u00b7  19 boards (2 with a phone)",
+  "checkboxes": [
+    {
+      "name": "Online",
+      "id": "OnlineOnly",
+      "toggle": "Off"
+    },
+    {
+      "name": "Mirror the master's actions to every phone",
+      "id": "SelectAllBox",
+      "toggle": "Off"
+    },
+    {
+      "name": "Mirror to XR C24C",
+      "id": "",
+      "toggle": "Off"
+    },
+    {
+      "name": "Mirror to Phone in hand - C241",
+      "id": "",
+      "toggle": "Off"
+    }
+  ],
+  "SelectAllBox_toggle": "Off",
+  "SelectAllLabel": "Mirror to all",
+  "window": "iMouse 2.0 \u2014 iPhone Console",
+  "console_pid": 26000
+}

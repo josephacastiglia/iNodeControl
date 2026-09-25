@@ -1,0 +1,27 @@
+[
+  {
+    "Name": "iMouse2 C24C test phone TCP",
+    "Enabled": "True",
+    "Profile": "Public",
+    "Action": "Allow",
+    "Direction": "Inbound",
+    "Program": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+    "Protocol": "TCP",
+    "LocalPort": "7110-7112",
+    "RemoteAddress": "192.168.4.28"
+  },
+  {
+    "Name": "iMouse2 C24C test phone UDP",
+    "Enabled": "True",
+    "Profile": "Public",
+    "Action": "Allow",
+    "Direction": "Inbound",
+    "Program": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+    "Protocol": "UDP",
+    "LocalPort": [
+      "5353",
+      "7110-7112"
+    ],
+    "RemoteAddress": "192.168.4.28"
+  }
+]

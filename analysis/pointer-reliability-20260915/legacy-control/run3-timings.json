@@ -1,0 +1,149 @@
+{
+  "at": "2026-09-16T00:40:47.575436-04:00",
+  "pre_home_shot_ms": {
+    "c24c": 1.3,
+    "c241": 20.1
+  },
+  "kernel_log_during": [
+    "/key/sendkey",
+    "/mouse/click",
+    "/key/sendkey",
+    "/mouse/click",
+    "/key/sendkey",
+    "/mouse/click",
+    "/key/sendkey",
+    "/mouse/click",
+    "/key/sendkey",
+    "/mouse/click",
+    "/key/sendkey",
+    "/key/sendkey",
+    "/mouse/click",
+    "/key/sendkey",
+    "/mouse/click"
+  ],
+  "start": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 18008,
+      "restarts": 0,
+      "state": "mirroring"
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 14985,
+      "restarts": 0,
+      "state": "mirroring"
+    }
+  },
+  "end": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 18436,
+      "restarts": 0,
+      "state": "mirroring"
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 15488,
+      "restarts": 0,
+      "state": "mirroring"
+    }
+  },
+  "rows": [
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 1,
+      "home_ms": 288.9,
+      "click_ms": 901.8,
+      "target_shot_ms": 13.1,
+      "isolation_shot_ms": 1.6,
+      "target_bmp": "c241-legacy-cycle1.bmp",
+      "other_bmp": "c24c-isolation-1.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 2,
+      "home_ms": 304.0,
+      "click_ms": 908.4,
+      "target_shot_ms": 1.3,
+      "isolation_shot_ms": 19.2,
+      "target_bmp": "c241-legacy-cycle2.bmp",
+      "other_bmp": "c24c-isolation-2.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 3,
+      "home_ms": 293.4,
+      "click_ms": 900.9,
+      "target_shot_ms": 1.6,
+      "isolation_shot_ms": 14.4,
+      "target_bmp": "c241-legacy-cycle3.bmp",
+      "other_bmp": "c24c-isolation-3.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 4,
+      "home_ms": 291.5,
+      "click_ms": 900.3,
+      "target_shot_ms": 1.6,
+      "isolation_shot_ms": 1.2,
+      "target_bmp": "c241-legacy-cycle4.bmp",
+      "other_bmp": "c24c-isolation-4.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 5,
+      "home_ms": 309.7,
+      "click_ms": 919.9,
+      "target_shot_ms": 26.5,
+      "isolation_shot_ms": 15.8,
+      "target_bmp": "c241-legacy-cycle5.bmp",
+      "other_bmp": "c24c-isolation-5.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 1,
+      "home_ms": 286.9,
+      "click_ms": 909.5,
+      "target_shot_ms": 1.3,
+      "isolation_shot_ms": 14.8,
+      "target_bmp": "c24c-legacy-cycle1.bmp",
+      "other_bmp": "c241-isolation-1.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 2,
+      "home_ms": 302.9,
+      "click_ms": 914.6,
+      "target_shot_ms": 1.6,
+      "isolation_shot_ms": 14.9,
+      "target_bmp": "c24c-legacy-cycle2.bmp",
+      "other_bmp": "c241-isolation-2.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "board": "C241",
+  "mode": "legacy",
+  "start": {
+    "code": 0,
+    "input": "direct-hid",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 37656,
+    "receiver_restarts": 0,
+    "frames": 14344,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 37656,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 14344
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 29980,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 13882
+      }
+    ]
+  },
+  "end": {
+    "code": 0,
+    "input": "direct-hid",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 37656,
+    "receiver_restarts": 0,
+    "frames": 14559,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 37656,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 14559
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 29980,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 14182
+      }
+    ]
+  },
+  "assembly": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\pointer-study\\bin\\Release\\net8.0-windows\\iMouse2.Kernel.dll",
+  "sha256": "EFB6A8C0EDDE97BA6377670C6ACB5DED639F5A031C40F598647DF06276873823",
+  "note": "Actual InputRouter/HidConnection; existing kernel used only for video. Dispatch time is not HTTP time."
+}

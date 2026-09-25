@@ -1,0 +1,172 @@
+{
+
+    "kernel_pid_31944":  true,
+
+    "kernel_name":  "iMouse2.Kernel",
+
+    "frames":  {
+
+                   "t0":  [
+
+                              {
+
+                                  "deviceid":  "86:1D:4A:04:2F:F6",
+
+                                  "name":  "iMouse2-C24C",
+
+                                  "live":  true,
+
+                                  "frames":  84066,
+
+                                  "receiver_state":  "mirroring",
+
+                                  "receiver_pid":  35520
+
+                              },
+
+                              {
+
+                                  "deviceid":  "FE:A9:BC:D7:A0:44",
+
+                                  "name":  "iMouse2-C241",
+
+                                  "live":  true,
+
+                                  "frames":  86494,
+
+                                  "receiver_state":  "mirroring",
+
+                                  "receiver_pid":  31660
+
+                              }
+
+                          ],
+
+                   "t2":  [
+
+                              {
+
+                                  "deviceid":  "86:1D:4A:04:2F:F6",
+
+                                  "name":  "iMouse2-C24C",
+
+                                  "live":  true,
+
+                                  "frames":  84107,
+
+                                  "receiver_state":  "mirroring",
+
+                                  "receiver_pid":  35520
+
+                              },
+
+                              {
+
+                                  "deviceid":  "FE:A9:BC:D7:A0:44",
+
+                                  "name":  "iMouse2-C241",
+
+                                  "live":  true,
+
+                                  "frames":  86534,
+
+                                  "receiver_state":  "mirroring",
+
+                                  "receiver_pid":  31660
+
+                              }
+
+                          ]
+
+               },
+
+    "console_pid":  34852,
+
+    "window":  "iMouse 2.0 — iPhone Console",
+
+    "hwnd":  395930,
+
+    "iconic":  true,
+
+    "mirror_on_count":  0,
+
+    "mirror_boxes":  [
+
+                         {
+
+                             "name":  "Mirror the master\u0027s actions to every phone",
+
+                             "id":  "SelectAllBox",
+
+                             "toggle":  "Off"
+
+                         },
+
+                         {
+
+                             "name":  "Mirror to XR C24C",
+
+                             "id":  "",
+
+                             "toggle":  "Off"
+
+                         },
+
+                         {
+
+                             "name":  "Mirror to Phone in hand - C241",
+
+                             "id":  "",
+
+                             "toggle":  "Off"
+
+                         }
+
+                     ],
+
+    "all_boxes":  [
+
+                      {
+
+                          "name":  "Online",
+
+                          "id":  "OnlineOnly",
+
+                          "toggle":  "Off"
+
+                      },
+
+                      {
+
+                          "name":  "Mirror the master\u0027s actions to every phone",
+
+                          "id":  "SelectAllBox",
+
+                          "toggle":  "Off"
+
+                      },
+
+                      {
+
+                          "name":  "Mirror to XR C24C",
+
+                          "id":  "",
+
+                          "toggle":  "Off"
+
+                      },
+
+                      {
+
+                          "name":  "Mirror to Phone in hand - C241",
+
+                          "id":  "",
+
+                          "toggle":  "Off"
+
+                      }
+
+                  ]
+
+}
+

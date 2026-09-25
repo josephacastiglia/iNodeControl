@@ -1,0 +1,42 @@
+{
+  "Phone": {
+    "air_handle": 0,
+    "air_pid": 0,
+    "rotate": 0,
+    "state": 0,
+    "imgw": 500,
+    "imgh": 1080,
+    "gid": 0,
+    "air_ratio": 0,
+    "air_fps": 0,
+    "air_refresh": 0,
+    "air_img_fps": 0,
+    "air_audio": 0,
+    "name": "",
+    "srv_name": "",
+    "width": "414",
+    "height": "896",
+    "ip": "192.168.4.68",
+    "mac": "56:B9:08:0E:65:B2",
+    "user_name": "iPhone",
+    "version": "18.7.10",
+    "model": "iPhone11,8",
+    "deviceid": "FE:A9:BC:D7:A0:44",
+    "device_name": "iPhone XR",
+    "location": "",
+    "location_crc": "B0DBD800",
+    "vid": "720A",
+    "pid": "C241",
+    "uid": "C241BFBD",
+    "gname": "未分组",
+    "uver": "¿.½"
+  },
+  "Board": {
+    "vid": "720A",
+    "pid": "C241",
+    "uid": "C241BFBD",
+    "ver": "¿.½",
+    "state": 2
+  },
+  "Reason": "Observed this exact AirPlay client attempting both test receivers"
+}

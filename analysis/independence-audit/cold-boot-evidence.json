@@ -1,0 +1,250 @@
+﻿{
+    "schema":  1,
+    "at":  "2026-09-24T22:25:23.0962702-04:00",
+    "gate":  1,
+    "boot_time":  "2026-09-24T19:58:10.5000000-04:00",
+    "backup_at":  "2026-09-24T01:01:35.0520505-04:00",
+    "missing_vendor_window_is_not_proof":  true,
+    "vendor_root_exists":  true,
+    "hidusb_start":  3,
+    "vendor_processes":  [
+
+                         ],
+    "vendor_process_count":  0,
+    "ports":  [
+                  {
+                      "port":  9911,
+                      "listening":  false,
+                      "owners":  [
+
+                                 ]
+                  },
+                  {
+                      "port":  17000,
+                      "listening":  false,
+                      "owners":  [
+
+                                 ]
+                  }
+              ],
+    "ports_free":  true,
+    "launch":  {
+                   "exit_code":  0,
+                   "script":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\Open iMouse 2.0.ps1"
+               },
+    "kernel":  {
+                   "status":  200,
+                   "message":  "ok",
+                   "data":  {
+                                "code":  0,
+                                "input":  "direct-hid",
+                                "input_protocol":  1,
+                                "input_leases_required":  true,
+                                "allowed":  [
+                                                "C24C",
+                                                "C241"
+                                            ],
+                                "receiver":  "iMouse2-C24C / iMouse2-C241",
+                                "receiver_state":  "offline",
+                                "receiver_message":  "No live frame. Select iMouse2-C24C in iPhone Screen Mirroring.",
+                                "receiver_pid":  27276,
+                                "receiver_restarts":  0,
+                                "frames":  0,
+                                "live":  false,
+                                "receivers":  [
+                                                  {
+                                                      "deviceid":  "86:1D:4A:04:2F:F6",
+                                                      "name":  "iMouse2-C24C",
+                                                      "receiver_pid":  27276,
+                                                      "receiver_restarts":  0,
+                                                      "receiver_state":  "offline",
+                                                      "live":  false,
+                                                      "frames":  0
+                                                  },
+                                                  {
+                                                      "deviceid":  "FE:A9:BC:D7:A0:44",
+                                                      "name":  "iMouse2-C241",
+                                                      "receiver_pid":  11228,
+                                                      "receiver_restarts":  0,
+                                                      "receiver_state":  "offline",
+                                                      "live":  false,
+                                                      "frames":  0
+                                                  }
+                                              ]
+                            }
+               },
+    "boards":  [
+                   {
+                       "vid":  "720A",
+                       "pid":  "1248",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "1814",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "3523",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "374C",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "3848",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "694E",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "704E",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "724E",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "764E",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "7949",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "9515",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "C214",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "C241",
+                       "state":  2
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "C24C",
+                       "state":  2
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "C415",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "D142",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "D446",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "E414",
+                       "state":  1
+                   },
+                   {
+                       "vid":  "720A",
+                       "pid":  "F215",
+                       "state":  1
+                   }
+               ],
+    "process_identities":  {
+                               "vendor":  [
+
+                                          ],
+                               "ours":  [
+                                            {
+                                                "name":  "iMouse2.Kernel.exe",
+                                                "pid":  5804,
+                                                "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe"
+                                            },
+                                            {
+                                                "name":  "uxplay.exe",
+                                                "pid":  27276,
+                                                "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe"
+                                            },
+                                            {
+                                                "name":  "uxplay.exe",
+                                                "pid":  11228,
+                                                "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe"
+                                            },
+                                            {
+                                                "name":  "iMouse2.exe",
+                                                "pid":  31416,
+                                                "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe"
+                                            }
+                                        ]
+                           },
+    "input":  [
+                  {
+                      "id":  "86:1D:4A:04:2F:F6",
+                      "board":  "C24C",
+                      "acquire_code":  0,
+                      "click_code":  0,
+                      "home_code":  0,
+                      "released":  true
+                  },
+                  {
+                      "id":  "FE:A9:BC:D7:A0:44",
+                      "board":  "C241",
+                      "acquire_code":  0,
+                      "click_code":  0,
+                      "home_code":  0,
+                      "released":  true
+                  }
+              ],
+    "video":  [
+                  {
+                      "id":  "86:1D:4A:04:2F:F6",
+                      "live":  false,
+                      "receiver_state":  "offline",
+                      "receiver_pid":  27276,
+                      "frames":  0,
+                      "bmp":  false,
+                      "width":  0,
+                      "height":  0,
+                      "bytes":  0,
+                      "path":  ""
+                  },
+                  {
+                      "id":  "FE:A9:BC:D7:A0:44",
+                      "live":  false,
+                      "receiver_state":  "offline",
+                      "receiver_pid":  11228,
+                      "frames":  0,
+                      "bmp":  false,
+                      "width":  0,
+                      "height":  0,
+                      "bytes":  0,
+                      "path":  ""
+                  }
+              ],
+    "failures":  [
+                     "86:1D:4A:04:2F:F6 video not live or not a BMP frame",
+                     "FE:A9:BC:D7:A0:44 video not live or not a BMP frame"
+                 ],
+    "pass":  false,
+    "note":  "Pass requires absent vendor processes, free 9911/17000, disabled iMouseService, kernel on 9913, boards C24C and C241, input code 0, and a real BMP. A missing vendor window is not proof."
+}

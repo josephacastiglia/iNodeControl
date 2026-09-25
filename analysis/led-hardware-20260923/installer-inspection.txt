@@ -1,0 +1,16 @@
+ProductName | Bus Hound
+ProductVersion | 8.0
+SecureCustomProperties | PREVIOUSVERSIONSINSTALLED;NEWERPRODUCTFOUND
+VSDNETCOREMSG | This setup requires the [2] [3] version [1].  Please install the [3] and run this setup again.
+VSDNETCOREURLMSG | This setup requires the [2] [3] version [1].  Please install the [3] and run this setup again.  The [3] can be obtained from the web.  Would you like to do this now?
+VSDNETURLMSG | This setup requires the .NET Framework version [1].  Please install the .NET Framework and run this setup again.  The .NET Framework can be obtained from the web.  Would you like to do this now?
+VSDIISMSG | This setup requires Internet Information Server 5.1 or higher.  Please install Internet Information Server and run this setup again.
+VSDUIANDADVERTISED | This advertised application will not be installed because it might be unsafe. Contact your administrator to change the installation user interface option of the package to basic.
+VSDNETMSG | This setup requires the .NET Framework version [1].  Please install the .NET Framework and run this setup again.
+VSDVERSIONMSG | Unable to install because a newer version of this product is already installed.
+REINSTALLMODE | amus
+_7CACD7BE05A44A468A5D16B9CD7DCAC4 | DINSTALL.EXE|dinstall.exe
+_A0A6BBD5DBE543B68462F2D8295DB5F9 | DINSTALL.EXE|dinstall.exe
+_6C68C19A8DE64CB48CD0C0787F866CA5 | BHOUND10.SYS|bhound10.sys
+_9E6976443004491B8FEBD3A8208FDA5A | BHOUND10.SYS|bhound10.sys
+DIRCA_TARGETDIR | 307 | TARGETDIR | [ProgramFiles64Folder]\[ProductName]

@@ -1,0 +1,129 @@
+ldarg.0 
+ldfld IMouse2.MainWindow/<PumpPointerAsync>d__::<>1__state
+stloc.0 
+ldarg.0 
+ldfld IMouse2.MainWindow/<PumpPointerAsync>d__::<>4__this
+stloc.1 
+ldloc.0 
+pop 
+nop 
+ldloc.0 
+brfalse.s 47
+br 0E010000
+ldloc.1 
+ldfld IMouse2.MainWindow::_wantedPoint
+stloc.2 
+ldloc.1 
+ldfld IMouse2.MainWindow::_api
+stloc.3 
+ldloc.1 
+volatile. 
+ldfld IMouse2.MainWindow::_wantedIds
+stloc.s 04
+ldloca.s 02
+call typespec:151180D901151180F1020808::get_HasValue
+brfalse F5000000
+ldloc.3 
+brfalse EF000000
+ldloc.s 04
+callvirt System.String::get_Length
+brfalse E3000000
+ldloc.1 
+ldflda IMouse2.MainWindow::_wantedPoint
+initobj typespec:151180D901151180F1020808
+nop 
+ldloc.0 
+brfalse 9B000000
+ldloc.3 
+ldstr /mouse/move
+newobj typespec:1512809D020E1C::.ctor
+dup 
+ldstr id
+ldloc.s 04
+callvirt typespec:1512809D020E1C::set_Item
+dup 
+ldstr x
+ldloca.s 02
+call typespec:151180D901151180F1020808::get_Value
+ldfld typespec:151180F1020808::Item1
+box System.Int32
+callvirt typespec:1512809D020E1C::set_Item
+dup 
+ldstr y
+ldloca.s 02
+call typespec:151180D901151180F1020808::get_Value
+ldfld typespec:151180F1020808::Item2
+box System.Int32
+callvirt typespec:1512809D020E1C::set_Item
+ldloc.1 
+ldfld IMouse2.MainWindow::_lifetime
+callvirt System.Threading.CancellationTokenSource::get_Token
+callvirt IMouse2.ApiClient::CommandAsync
+ldc.i4.0 
+callvirt typespec:15128095011161::ConfigureAwait
+stloc.s 06
+ldloca.s 06
+call typespec:151181FD011161::GetAwaiter
+stloc.s 05
+ldloca.s 05
+call typespec:15118201011161::get_IsCompleted
+brtrue.s 3E
+ldarg.0 
+ldc.i4.0 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<PumpPointerAsync>d__::<>1__state
+ldarg.0 
+ldloc.s 05
+stfld IMouse2.MainWindow/<PumpPointerAsync>d__::<>u__1
+ldarg.0 
+ldflda IMouse2.MainWindow/<PumpPointerAsync>d__::<>t__builder
+ldloca.s 05
+ldarg.0 
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted:0A0215118201011161118174
+leave.s 71
+ldarg.0 
+ldfld IMouse2.MainWindow/<PumpPointerAsync>d__::<>u__1
+stloc.s 05
+ldarg.0 
+ldflda IMouse2.MainWindow/<PumpPointerAsync>d__::<>u__1
+initobj typespec:15118201011161
+ldarg.0 
+ldc.i4.m1 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<PumpPointerAsync>d__::<>1__state
+ldloca.s 05
+call typespec:15118201011161::GetResult
+pop 
+leave.s 03
+pop 
+leave.s 0B
+ldloc.1 
+ldfld IMouse2.MainWindow::_closing
+brfalse E7FEFFFF
+leave.s 0C
+ldloc.0 
+ldc.i4.0 
+bge.s 07
+ldloc.1 
+ldc.i4.0 
+stfld IMouse2.MainWindow::_pumpingPointer
+endfinally 
+leave.s 19
+stloc.s 07
+ldarg.0 
+ldc.i4.s FE
+stfld IMouse2.MainWindow/<PumpPointerAsync>d__::<>1__state
+ldarg.0 
+ldflda IMouse2.MainWindow/<PumpPointerAsync>d__::<>t__builder
+ldloc.s 07
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException
+leave.s 13
+ldarg.0 
+ldc.i4.s FE
+stfld IMouse2.MainWindow/<PumpPointerAsync>d__::<>1__state
+ldarg.0 
+ldflda IMouse2.MainWindow/<PumpPointerAsync>d__::<>t__builder
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult
+ret 

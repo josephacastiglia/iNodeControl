@@ -1,0 +1,50 @@
+{
+  "gate6_ceiling_s": 2.0,
+  "under_2s": true,
+  "reciprocal_isolation": "100%",
+  "invariants": "known=False after Home; 4x corner reset present; steps=174; delay=1218ms (174*7); drag/hold path not used",
+  "kernel_pid_untouched": 31944,
+  "visual_rule": "Spotlight = Search field + Siri Suggestions over dimmed Home. Isolation = other phone stayed Home.",
+  "board": "C24C",
+  "mode": "7",
+  "preciseDelayMs": 7,
+  "trials": 9,
+  "dispatch_ms": [
+    1865.8,
+    1865.4,
+    1857.4,
+    1859.0,
+    1858.3,
+    1869.9,
+    1873.1,
+    1863.2,
+    1859.6
+  ],
+  "kernel_total_ms": [
+    1864,
+    1865,
+    1857,
+    1858,
+    1858,
+    1869,
+    1873,
+    1863,
+    1859
+  ],
+  "spotlight": "9/9",
+  "isolation_other_home": "9/9",
+  "other_mean_abs_channel": [
+    0.024,
+    0.0182,
+    0.0184,
+    0.0234,
+    0.0321,
+    0.0184,
+    0.019,
+    0.0193,
+    0.0229
+  ],
+  "dispatch_min_ms": 1857.4,
+  "dispatch_max_ms": 1873.1,
+  "dispatch_median_ms": 1863.2
+}

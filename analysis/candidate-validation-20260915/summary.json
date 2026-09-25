@@ -1,0 +1,202 @@
+{
+  "baseline": {
+    "start": "2026-09-15T04:12:24.8903050Z",
+    "end": "2026-09-15T04:13:56.2779538Z",
+    "duration_s": 91.38514959999999,
+    "samples": 46,
+    "errors": [],
+    "receivers": {
+      "iMouse2-C24C": {
+        "received_fps": 20.112677038283255,
+        "frame_delta": 1838,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pids": [
+          20972
+        ]
+      },
+      "iMouse2-C241": {
+        "received_fps": 19.018407340879378,
+        "frame_delta": 1738,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pids": [
+          33972
+        ]
+      }
+    },
+    "processes": {
+      "2804": {
+        "name": "iMouse2",
+        "cpu_machine_percent": 1.7621589170107352,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 207.01953125,
+          "end": 207.140625,
+          "min": 207.01953125,
+          "max": 207.140625
+        },
+        "private_bytes_mib": {
+          "start": 222.95703125,
+          "end": 222.9921875,
+          "min": 222.91796875,
+          "max": 223.0078125
+        }
+      },
+      "32328": {
+        "name": "iMouse2.Kernel",
+        "cpu_machine_percent": 0.49263508838201875,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 79.8515625,
+          "end": 79.890625,
+          "min": 79.82421875,
+          "max": 79.9375
+        },
+        "private_bytes_mib": {
+          "start": 41.95703125,
+          "end": 42.015625,
+          "min": 41.92578125,
+          "max": 42.07421875
+        }
+      },
+      "20972": {
+        "name": "uxplay",
+        "cpu_machine_percent": 0.3975276635100021,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 104.41015625,
+          "end": 104.671875,
+          "min": 104.41015625,
+          "max": 104.671875
+        },
+        "private_bytes_mib": {
+          "start": 86.12890625,
+          "end": 86.4140625,
+          "min": 86.12890625,
+          "max": 86.4140625
+        }
+      },
+      "33972": {
+        "name": "uxplay",
+        "cpu_machine_percent": 0.3654689809688729,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 103.859375,
+          "end": 104.0546875,
+          "min": 103.859375,
+          "max": 104.0546875
+        },
+        "private_bytes_mib": {
+          "start": 85.59375,
+          "end": 85.8046875,
+          "min": 85.59375,
+          "max": 85.8046875
+        }
+      }
+    },
+    "total_cpu_machine_percent": 3.017790649871629
+  },
+  "candidate": {
+    "start": "2026-09-15T04:22:32.7662542Z",
+    "end": "2026-09-15T04:24:04.1228334Z",
+    "duration_s": 91.3541633,
+    "samples": 46,
+    "errors": [],
+    "receivers": {
+      "iMouse2-C24C": {
+        "received_fps": 20.13044543969897,
+        "frame_delta": 1839,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pids": [
+          20972
+        ]
+      },
+      "iMouse2-C241": {
+        "received_fps": 18.214823932386672,
+        "frame_delta": 1664,
+        "offline_samples": 0,
+        "zero_progress_intervals": 0,
+        "restart_delta": 0,
+        "pids": [
+          33972
+        ]
+      }
+    },
+    "processes": {
+      "9532": {
+        "name": "iMouse2",
+        "cpu_machine_percent": 1.613098691146351,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 207.27734375,
+          "end": 207.59765625,
+          "min": 206.4375,
+          "max": 208.65625
+        },
+        "private_bytes_mib": {
+          "start": 215.37109375,
+          "end": 215.828125,
+          "min": 213.9296875,
+          "max": 216.203125
+        }
+      },
+      "32328": {
+        "name": "iMouse2.Kernel",
+        "cpu_machine_percent": 0.4243871308052361,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 79.58984375,
+          "end": 79.55859375,
+          "min": 79.55859375,
+          "max": 79.60546875
+        },
+        "private_bytes_mib": {
+          "start": 41.14453125,
+          "end": 41.0859375,
+          "min": 41.0859375,
+          "max": 41.14453125
+        }
+      },
+      "20972": {
+        "name": "uxplay",
+        "cpu_machine_percent": 0.37093786999853134,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 106.37109375,
+          "end": 106.56640625,
+          "min": 106.37109375,
+          "max": 106.56640625
+        },
+        "private_bytes_mib": {
+          "start": 88.2421875,
+          "end": 88.453125,
+          "min": 88.2421875,
+          "max": 88.453125
+        }
+      },
+      "33972": {
+        "name": "uxplay",
+        "cpu_machine_percent": 0.3292474465693016,
+        "not_responding_samples": 0,
+        "working_set_mib": {
+          "start": 105.765625,
+          "end": 105.91796875,
+          "min": 105.76171875,
+          "max": 105.91796875
+        },
+        "private_bytes_mib": {
+          "start": 87.55859375,
+          "end": 87.76953125,
+          "min": 87.55859375,
+          "max": 87.76953125
+        }
+      }
+    },
+    "total_cpu_machine_percent": 2.73767113851942
+  }
+}

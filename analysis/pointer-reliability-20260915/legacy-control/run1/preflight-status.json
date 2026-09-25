@@ -1,0 +1,102 @@
+{
+  "model": "Grok 4.6",
+  "kernel_pid": 31472,
+  "kernel": "release/iMouse2-kernel-two-phone/iMouse2.Kernel.exe",
+  "precise_movement": false,
+  "sample_interval_s": 1.005,
+  "status_t0": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "input": "direct-hid",
+      "allowed": [
+        "C24C",
+        "C241"
+      ],
+      "receiver": "iMouse2-C24C / iMouse2-C241",
+      "receiver_state": "mirroring",
+      "receiver_message": "",
+      "receiver_pid": 35988,
+      "receiver_restarts": 0,
+      "frames": 4111,
+      "live": true,
+      "receivers": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "iMouse2-C24C",
+          "receiver_pid": 35988,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 4111
+        },
+        {
+          "deviceid": "FE:A9:BC:D7:A0:44",
+          "name": "iMouse2-C241",
+          "receiver_pid": 24824,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 2966
+        }
+      ]
+    }
+  },
+  "status_t1": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "input": "direct-hid",
+      "allowed": [
+        "C24C",
+        "C241"
+      ],
+      "receiver": "iMouse2-C24C / iMouse2-C241",
+      "receiver_state": "mirroring",
+      "receiver_message": "",
+      "receiver_pid": 35988,
+      "receiver_restarts": 0,
+      "frames": 4131,
+      "live": true,
+      "receivers": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "iMouse2-C24C",
+          "receiver_pid": 35988,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 4131
+        },
+        {
+          "deviceid": "FE:A9:BC:D7:A0:44",
+          "name": "iMouse2-C241",
+          "receiver_pid": 24824,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 2986
+        }
+      ]
+    }
+  },
+  "gate": {
+    "iMouse2-C24C": {
+      "frames0": 4111,
+      "frames1": 4131,
+      "delta": 20,
+      "live": true,
+      "advancing": true
+    },
+    "iMouse2-C241": {
+      "frames0": 2966,
+      "frames1": 2986,
+      "delta": 20,
+      "live": true,
+      "advancing": true
+    }
+  },
+  "both_live_and_advancing": true
+}

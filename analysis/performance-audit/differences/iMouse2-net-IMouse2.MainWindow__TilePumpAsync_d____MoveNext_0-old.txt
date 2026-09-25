@@ -1,0 +1,614 @@
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+stloc.0 
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>4__this
+stloc.1 
+ldloc.0 
+ldc.i4.6 
+ble.un.s 6A
+ldarg.0 
+newobj IMouse2.MainWindow/<>c__DisplayClass155_0::.ctor
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>4__this
+stfld IMouse2.MainWindow/<>c__DisplayClass155_0::<>4__this
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::id
+stfld IMouse2.MainWindow/<>c__DisplayClass155_0::id
+ldarg.0 
+newobj IMouse2.FrameBuffer::.ctor
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<fetch>5__2
+ldarg.0 
+newobj IMouse2.FrameBuffer::.ctor
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<previous>5__3
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+newobj IMouse2.LiveFrame::.ctor
+stfld IMouse2.MainWindow/<>c__DisplayClass155_0::live
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+newobj IMouse2.RateMeter::.ctor
+stfld IMouse2.MainWindow/<>c__DisplayClass155_0::rate
+ldarg.0 
+ldc.i4.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<idle>5__4
+nop 
+ldloc.0 
+switch 070000006B000000CC000000CC000000CC000000050400009E0400003E050000
+br 64050000
+ldarg.0 
+ldloc.1 
+ldfld IMouse2.MainWindow::_api
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<api>5__5
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<api>5__5
+brfalse.s 0A
+ldloc.1 
+volatile. 
+ldfld IMouse2.MainWindow::_pumpEnabled
+brtrue.s 71
+ldc.i4 FA000000
+call System.Threading.Tasks.Task::Delay
+ldc.i4.0 
+callvirt System.Threading.Tasks.Task::ConfigureAwait
+stloc.s 06
+ldloca.s 06
+call System.Runtime.CompilerServices.ConfiguredTaskAwaitable::GetAwaiter
+stloc.s 05
+ldloca.s 05
+call .ConfiguredTaskAwaiter::get_IsCompleted
+brtrue.s 41
+ldarg.0 
+ldc.i4.0 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldarg.0 
+ldloc.s 05
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>t__builder
+ldloca.s 05
+ldarg.0 
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted:0A0211820511819C
+leave DA050000
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+stloc.s 05
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+initobj .ConfiguredTaskAwaiter
+ldarg.0 
+ldc.i4.m1 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldloca.s 05
+call .ConfiguredTaskAwaiter::GetResult
+br D5040000
+ldc.i4.1 
+ldloc.1 
+volatile. 
+ldfld IMouse2.MainWindow::_wallTargets
+ldlen 
+conv.i4 
+call System.Math::Max
+stloc.2 
+ldarg.0 
+ldloc.1 
+ldfld IMouse2.MainWindow::_tilePeriodMs
+ldloc.2 
+ldc.i4.s 0C
+mul 
+call System.Math::Max
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<period>5__6
+ldarg.0 
+call System.Environment::get_TickCount64
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<started>5__7
+ldarg.0 
+ldc.i4.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>7__wrap7
+nop 
+ldloc.0 
+ldc.i4.1 
+sub 
+switch 030000005F0000008300000081020000
+ldarg.0 
+call System.Environment::get_TickCount64
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<t0>5__9
+ldloc.1 
+ldfld IMouse2.MainWindow::_tileGate
+ldloc.1 
+ldfld IMouse2.MainWindow::_lifetime
+callvirt System.Threading.CancellationTokenSource::get_Token
+callvirt System.Threading.SemaphoreSlim::WaitAsync
+ldc.i4.0 
+callvirt System.Threading.Tasks.Task::ConfigureAwait
+stloc.s 06
+ldloca.s 06
+call System.Runtime.CompilerServices.ConfiguredTaskAwaitable::GetAwaiter
+stloc.s 05
+ldloca.s 05
+call .ConfiguredTaskAwaiter::get_IsCompleted
+brtrue.s 41
+ldarg.0 
+ldc.i4.1 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldarg.0 
+ldloc.s 05
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>t__builder
+ldloca.s 05
+ldarg.0 
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted:0A0211820511819C
+leave 05050000
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+stloc.s 05
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+initobj .ConfiguredTaskAwaiter
+ldarg.0 
+ldc.i4.m1 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldloca.s 05
+call .ConfiguredTaskAwaiter::GetResult
+nop 
+ldloc.0 
+ldc.i4.2 
+beq.s 66
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<api>5__5
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldfld IMouse2.MainWindow/<>c__DisplayClass155_0::id
+ldc.i4.0 
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<fetch>5__2
+ldloc.1 
+ldfld IMouse2.MainWindow::_lifetime
+callvirt System.Threading.CancellationTokenSource::get_Token
+callvirt IMouse2.ApiClient::ScreenshotIntoAsync
+ldc.i4.0 
+callvirt System.Threading.Tasks.Task::ConfigureAwait
+stloc.s 06
+ldloca.s 06
+call System.Runtime.CompilerServices.ConfiguredTaskAwaitable::GetAwaiter
+stloc.s 05
+ldloca.s 05
+call .ConfiguredTaskAwaiter::get_IsCompleted
+brtrue.s 41
+ldarg.0 
+ldc.i4.2 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldarg.0 
+ldloc.s 05
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>t__builder
+ldloca.s 05
+ldarg.0 
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted:0A0211820511819C
+leave 76040000
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+stloc.s 05
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+initobj .ConfiguredTaskAwaiter
+ldarg.0 
+ldc.i4.m1 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldloca.s 05
+call .ConfiguredTaskAwaiter::GetResult
+leave.s 11
+ldloc.0 
+ldc.i4.0 
+bge.s 0C
+ldloc.1 
+ldfld IMouse2.MainWindow::_tileGate
+callvirt System.Threading.SemaphoreSlim::Release
+pop 
+endfinally 
+ldloc.1 
+ldflda IMouse2.MainWindow::_tileFetches
+call System.Threading.Interlocked::Increment
+pop 
+ldloc.1 
+ldflda IMouse2.MainWindow::_tileFetchMs
+call System.Environment::get_TickCount64
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<t0>5__9
+sub 
+call System.Threading.Interlocked::Add
+pop 
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<previous>5__3
+callvirt IMouse2.FrameBuffer::get_Span
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<fetch>5__2
+callvirt IMouse2.FrameBuffer::get_Span
+call IMouse2.LiveFrame::SameAsPrevious
+brfalse.s 33
+ldloc.1 
+ldflda IMouse2.MainWindow::_tileDupes
+call System.Threading.Interlocked::Increment
+pop 
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<idle>5__4
+ldc.i4 C8000000
+bge 3B010000
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<idle>5__4
+stloc.s 07
+ldarg.0 
+ldloc.s 07
+ldc.i4.1 
+add 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<idle>5__4
+br 24010000
+newobj IMouse2.MainWindow/<>c__DisplayClass155_1::.ctor
+stloc.s 08
+ldloc.s 08
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+stfld IMouse2.MainWindow/<>c__DisplayClass155_1::CS$<>8__locals1
+ldarg.0 
+ldc.i4.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<idle>5__4
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<previous>5__3
+stloc.s 0A
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<fetch>5__2
+stloc.s 0B
+ldarg.0 
+ldloc.s 0B
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<previous>5__3
+ldarg.0 
+ldloc.s 0A
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<fetch>5__2
+call System.Environment::get_TickCount64
+stloc.s 09
+ldloc.s 08
+ldloc.s 08
+ldfld IMouse2.MainWindow/<>c__DisplayClass155_1::CS$<>8__locals1
+ldfld IMouse2.MainWindow/<>c__DisplayClass155_0::live
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<previous>5__3
+callvirt IMouse2.FrameBuffer::get_Span
+ldc.i4.s 30
+ldloc.1 
+ldfld IMouse2.MainWindow::_tileHeight
+ldc.i4.2 
+mul 
+call System.Math::Max
+callvirt IMouse2.LiveFrame::Prepare
+stfld IMouse2.MainWindow/<>c__DisplayClass155_1::prepared
+ldloc.1 
+ldflda IMouse2.MainWindow::_tilePrepareMs
+call System.Environment::get_TickCount64
+ldloc.s 09
+sub 
+call System.Threading.Interlocked::Add
+pop 
+ldarg.0 
+call System.Environment::get_TickCount64
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<t2>5__10
+ldloc.s 08
+ldfld IMouse2.MainWindow/<>c__DisplayClass155_1::prepared
+brfalse.s 70
+ldloc.1 
+call System.Windows.Threading.DispatcherObject::get_Dispatcher
+ldloc.s 08
+ldftn IMouse2.MainWindow/<>c__DisplayClass155_1::<TilePumpAsync>b__1
+newobj System.Action::.ctor
+callvirt System.Windows.Threading.Dispatcher::InvokeAsync
+callvirt System.Windows.Threading.DispatcherOperation::GetAwaiter
+stloc.s 0C
+ldloca.s 0C
+call System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted
+brtrue.s 41
+ldarg.0 
+ldc.i4.3 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldarg.0 
+ldloc.s 0C
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__2
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>t__builder
+ldloca.s 0C
+ldarg.0 
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted:0A0211811511819C
+leave E3020000
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__2
+stloc.s 0C
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>u__2
+initobj System.Runtime.CompilerServices.TaskAwaiter
+ldarg.0 
+ldc.i4.m1 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldloca.s 0C
+call System.Runtime.CompilerServices.TaskAwaiter::GetResult
+ldloc.1 
+ldflda IMouse2.MainWindow::_tilePresentMs
+call System.Environment::get_TickCount64
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<t2>5__10
+sub 
+call System.Threading.Interlocked::Add
+pop 
+leave.s 10
+pop 
+leave 77020000
+pop 
+ldarg.0 
+ldc.i4.1 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>7__wrap7
+leave.s 00
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>7__wrap7
+stloc.s 07
+ldloc.s 07
+ldc.i4.1 
+bne.un.s 6C
+ldc.i4 90010000
+call System.Threading.Tasks.Task::Delay
+ldc.i4.0 
+callvirt System.Threading.Tasks.Task::ConfigureAwait
+stloc.s 06
+ldloca.s 06
+call System.Runtime.CompilerServices.ConfiguredTaskAwaitable::GetAwaiter
+stloc.s 05
+ldloca.s 05
+call .ConfiguredTaskAwaiter::get_IsCompleted
+brtrue.s 41
+ldarg.0 
+ldc.i4.4 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldarg.0 
+ldloc.s 05
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>t__builder
+ldloca.s 05
+ldarg.0 
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted:0A0211820511819C
+leave 40020000
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+stloc.s 05
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+initobj .ConfiguredTaskAwaiter
+ldarg.0 
+ldc.i4.m1 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldloca.s 05
+call .ConfiguredTaskAwaiter::GetResult
+call System.Environment::get_TickCount64
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<started>5__7
+sub 
+conv.i4 
+stloc.3 
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<period>5__6
+ldc.i4 DC000000
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<idle>5__4
+ldc.i4.4 
+mul 
+call System.Math::Min
+add 
+ldloc.3 
+sub 
+stloc.s 04
+ldloc.s 04
+ldc.i4.0 
+ble.s 69
+ldloc.s 04
+call System.Threading.Tasks.Task::Delay
+ldc.i4.0 
+callvirt System.Threading.Tasks.Task::ConfigureAwait
+stloc.s 06
+ldloca.s 06
+call System.Runtime.CompilerServices.ConfiguredTaskAwaitable::GetAwaiter
+stloc.s 05
+ldloca.s 05
+call .ConfiguredTaskAwaiter::get_IsCompleted
+brtrue.s 41
+ldarg.0 
+ldc.i4.5 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldarg.0 
+ldloc.s 05
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>t__builder
+ldloca.s 05
+ldarg.0 
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted:0A0211820511819C
+leave A7010000
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+stloc.s 05
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>u__1
+initobj .ConfiguredTaskAwaiter
+ldarg.0 
+ldc.i4.m1 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldloca.s 05
+call .ConfiguredTaskAwaiter::GetResult
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<idle>5__4
+ldc.i4.s 09
+bne.un 93000000
+ldloc.1 
+call System.Windows.Threading.DispatcherObject::get_Dispatcher
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldfld IMouse2.MainWindow/<>c__DisplayClass155_0::<>9__0
+dup 
+brtrue.s 22
+pop 
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldftn IMouse2.MainWindow/<>c__DisplayClass155_0::<TilePumpAsync>b__0
+newobj System.Action::.ctor
+dup 
+stloc.s 0D
+stfld IMouse2.MainWindow/<>c__DisplayClass155_0::<>9__0
+ldloc.s 0D
+callvirt System.Windows.Threading.Dispatcher::InvokeAsync
+callvirt System.Windows.Threading.DispatcherOperation::GetAwaiter
+stloc.s 0C
+ldloca.s 0C
+call System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted
+brtrue.s 41
+ldarg.0 
+ldc.i4.6 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldarg.0 
+ldloc.s 0C
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__2
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>t__builder
+ldloca.s 0C
+ldarg.0 
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted:0A0211811511819C
+leave 07010000
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>u__2
+stloc.s 0C
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>u__2
+initobj System.Runtime.CompilerServices.TaskAwaiter
+ldarg.0 
+ldc.i4.m1 
+dup 
+stloc.0 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldloca.s 0C
+call System.Runtime.CompilerServices.TaskAwaiter::GetResult
+ldarg.0 
+ldnull 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<api>5__5
+ldloc.1 
+ldfld IMouse2.MainWindow::_closing
+brtrue.s 2C
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::session
+ldloc.1 
+ldfld IMouse2.MainWindow::_session
+bne.un.s 1E
+ldloc.1 
+volatile. 
+ldfld IMouse2.MainWindow::_wallTargets
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldfld IMouse2.MainWindow/<>c__DisplayClass155_0::id
+call System.Array::IndexOf:0A010E
+ldc.i4.0 
+bge 68FAFFFF
+leave.s 4E
+ldloc.0 
+ldc.i4.0 
+bge.s 49
+ldloc.1 
+ldflda IMouse2.MainWindow::_tileRestarts
+call System.Threading.Interlocked::Increment
+pop 
+ldloc.1 
+ldfld IMouse2.MainWindow::_tilePumps
+stloc.s 0E
+ldc.i4.0 
+stloc.s 0F
+ldloc.s 0E
+ldloca.s 0F
+call System.Threading.Monitor::Enter
+ldloc.1 
+ldfld IMouse2.MainWindow::_tilePumps
+ldarg.0 
+ldfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldfld IMouse2.MainWindow/<>c__DisplayClass155_0::id
+callvirt typespec:1512809D020E1280A5::Remove
+pop 
+leave.s 10
+ldloc.0 
+ldc.i4.0 
+bge.s 0B
+ldloc.s 0F
+brfalse.s 07
+ldloc.s 0E
+call System.Threading.Monitor::Exit
+endfinally 
+endfinally 
+leave.s 2E
+stloc.s 10
+ldarg.0 
+ldc.i4.s FE
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldarg.0 
+ldnull 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldarg.0 
+ldnull 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<fetch>5__2
+ldarg.0 
+ldnull 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<previous>5__3
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>t__builder
+ldloc.s 10
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException
+leave.s 28
+ldarg.0 
+ldc.i4.s FE
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>1__state
+ldarg.0 
+ldnull 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<>8__1
+ldarg.0 
+ldnull 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<fetch>5__2
+ldarg.0 
+ldnull 
+stfld IMouse2.MainWindow/<TilePumpAsync>d__::<previous>5__3
+ldarg.0 
+ldflda IMouse2.MainWindow/<TilePumpAsync>d__::<>t__builder
+call System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult
+ret 

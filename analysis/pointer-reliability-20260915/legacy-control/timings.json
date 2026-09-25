@@ -1,0 +1,120 @@
+{
+  "at": "2026-09-16T00:32:57.372908-04:00",
+  "model": "Grok 4.6",
+  "kernel": "release/iMouse2-kernel-two-phone/iMouse2.Kernel.exe",
+  "kernel_pid": 31472,
+  "precise_movement": false,
+  "mirror_to_all": false,
+  "start": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 5206,
+      "restarts": 0,
+      "state": "mirroring"
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 4052,
+      "restarts": 0,
+      "state": "mirroring"
+    }
+  },
+  "end": {
+    "86:1D:4A:04:2F:F6": {
+      "name": "iMouse2-C24C",
+      "live": true,
+      "frames": 5602,
+      "restarts": 0,
+      "state": "mirroring"
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "name": "iMouse2-C241",
+      "live": true,
+      "frames": 4537,
+      "restarts": 0,
+      "state": "mirroring"
+    }
+  },
+  "rows": [
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 1,
+      "home_ms": 295.5,
+      "click_ms": 933.1,
+      "shot_pair_ms": 13.5,
+      "target_bmp": "c241-legacy-cycle1.bmp",
+      "other_bmp": "c24c-isolation-1.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 2,
+      "home_ms": 287.0,
+      "click_ms": 900.7,
+      "shot_pair_ms": 21.3,
+      "target_bmp": "c241-legacy-cycle2.bmp",
+      "other_bmp": "c24c-isolation-2.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 3,
+      "home_ms": 292.2,
+      "click_ms": 899.0,
+      "shot_pair_ms": 16.2,
+      "target_bmp": "c241-legacy-cycle3.bmp",
+      "other_bmp": "c24c-isolation-3.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 4,
+      "home_ms": 291.7,
+      "click_ms": 935.0,
+      "shot_pair_ms": 30.9,
+      "target_bmp": "c241-legacy-cycle4.bmp",
+      "other_bmp": "c24c-isolation-4.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C241",
+      "kind": "cycle",
+      "n": 5,
+      "home_ms": 305.2,
+      "click_ms": 893.8,
+      "shot_pair_ms": 22.4,
+      "target_bmp": "c241-legacy-cycle5.bmp",
+      "other_bmp": "c24c-isolation-5.bmp",
+      "target_bytes": 1620054,
+      "other_bytes": 1620054
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 1,
+      "home_ms": 290.6,
+      "click_ms": 908.8,
+      "target_bmp": "c24c-legacy-cycle1.bmp",
+      "target_bytes": 1620054
+    },
+    {
+      "phone": "C24C",
+      "kind": "cycle",
+      "n": 2,
+      "home_ms": 284.8,
+      "click_ms": 905.7,
+      "target_bmp": "c24c-legacy-cycle2.bmp",
+      "target_bytes": 1620054
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+iMouse 2.0 kernel. 19 WCH boards (VID_720A). 0 saved phones.
+1248  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+1814  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+3523  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+374C  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+3848  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+694E  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+704E  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+724E  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+764E  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+7949  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+9515  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+C214  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+C241  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+C24C  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+C415  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+D142  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+D446  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+E414  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1
+F215  ok  page=0xFF00 usage=0x0000  in=17 out=9 feat=0
+    out: id=0 page=0xFF00 bit=8 count=8 abs=0
+    desc: ioctl 1

@@ -1,0 +1,254 @@
+[
+  {
+    "phone": "C241",
+    "id": "FE:A9:BC:D7:A0:44",
+    "api_ms": 310.4,
+    "api_return_ms": 310.5,
+    "visual_home_ms": 436.3,
+    "video_after_api_ms": 125.8,
+    "polls": [
+      {
+        "ms_from_send": 343.0,
+        "fetch_ms": 32.5,
+        "mad": 0.47
+      },
+      {
+        "ms_from_send": 359.1,
+        "fetch_ms": 11.3,
+        "mad": 6.83
+      },
+      {
+        "ms_from_send": 365.1,
+        "fetch_ms": 1.5,
+        "mad": 6.83
+      },
+      {
+        "ms_from_send": 390.3,
+        "fetch_ms": 21.0,
+        "mad": 12.52
+      },
+      {
+        "ms_from_send": 405.4,
+        "fetch_ms": 10.6,
+        "mad": 12.52
+      },
+      {
+        "ms_from_send": 436.3,
+        "fetch_ms": 26.7,
+        "mad": 19.97
+      }
+    ],
+    "live": true,
+    "frames": 85514
+  },
+  {
+    "phone": "C241",
+    "id": "FE:A9:BC:D7:A0:44",
+    "api_ms": 289.4,
+    "api_return_ms": 289.5,
+    "visual_home_ms": 372.4,
+    "video_after_api_ms": 82.9,
+    "polls": [
+      {
+        "ms_from_send": 308.9,
+        "fetch_ms": 19.4,
+        "mad": 4.33
+      },
+      {
+        "ms_from_send": 314.7,
+        "fetch_ms": 1.5,
+        "mad": 4.33
+      },
+      {
+        "ms_from_send": 354.8,
+        "fetch_ms": 35.8,
+        "mad": 12.1
+      },
+      {
+        "ms_from_send": 360.9,
+        "fetch_ms": 1.3,
+        "mad": 12.1
+      },
+      {
+        "ms_from_send": 366.5,
+        "fetch_ms": 1.3,
+        "mad": 12.1
+      },
+      {
+        "ms_from_send": 372.4,
+        "fetch_ms": 1.2,
+        "mad": 19.71
+      }
+    ],
+    "live": true,
+    "frames": 85625
+  },
+  {
+    "phone": "C241",
+    "id": "FE:A9:BC:D7:A0:44",
+    "api_ms": 297.2,
+    "api_return_ms": 297.3,
+    "visual_home_ms": 429.1,
+    "video_after_api_ms": 131.8,
+    "polls": [
+      {
+        "ms_from_send": 318.8,
+        "fetch_ms": 21.5,
+        "mad": 3.2
+      },
+      {
+        "ms_from_send": 334.0,
+        "fetch_ms": 11.0,
+        "mad": 3.2
+      },
+      {
+        "ms_from_send": 339.6,
+        "fetch_ms": 1.2,
+        "mad": 3.2
+      },
+      {
+        "ms_from_send": 365.5,
+        "fetch_ms": 21.9,
+        "mad": 9.41
+      },
+      {
+        "ms_from_send": 371.6,
+        "fetch_ms": 1.4,
+        "mad": 9.41
+      },
+      {
+        "ms_from_send": 398.0,
+        "fetch_ms": 22.1,
+        "mad": 17.16
+      },
+      {
+        "ms_from_send": 429.1,
+        "fetch_ms": 25.8,
+        "mad": 23.92
+      }
+    ],
+    "live": true,
+    "frames": 85736
+  },
+  {
+    "phone": "C24C",
+    "id": "86:1D:4A:04:2F:F6",
+    "api_ms": 295.7,
+    "api_return_ms": 295.7,
+    "visual_home_ms": 402.8,
+    "video_after_api_ms": 107.1,
+    "polls": [
+      {
+        "ms_from_send": 297.0,
+        "fetch_ms": 1.2,
+        "mad": 0.2
+      },
+      {
+        "ms_from_send": 302.3,
+        "fetch_ms": 1.1,
+        "mad": 0.2
+      },
+      {
+        "ms_from_send": 307.8,
+        "fetch_ms": 1.4,
+        "mad": 0.2
+      },
+      {
+        "ms_from_send": 313.5,
+        "fetch_ms": 1.3,
+        "mad": 0.2
+      },
+      {
+        "ms_from_send": 340.6,
+        "fetch_ms": 22.9,
+        "mad": 8.43
+      },
+      {
+        "ms_from_send": 346.5,
+        "fetch_ms": 1.4,
+        "mad": 16.72
+      },
+      {
+        "ms_from_send": 386.2,
+        "fetch_ms": 35.2,
+        "mad": 16.72
+      },
+      {
+        "ms_from_send": 402.8,
+        "fetch_ms": 12.3,
+        "mad": 28.97
+      }
+    ],
+    "live": true,
+    "frames": 91422
+  },
+  {
+    "phone": "C24C",
+    "id": "86:1D:4A:04:2F:F6",
+    "api_ms": 316.2,
+    "api_return_ms": 316.3,
+    "visual_home_ms": 380.9,
+    "video_after_api_ms": 64.6,
+    "polls": [
+      {
+        "ms_from_send": 317.6,
+        "fetch_ms": 1.3,
+        "mad": 0.94
+      },
+      {
+        "ms_from_send": 334.3,
+        "fetch_ms": 12.7,
+        "mad": 11.55
+      },
+      {
+        "ms_from_send": 349.6,
+        "fetch_ms": 10.6,
+        "mad": 11.55
+      },
+      {
+        "ms_from_send": 380.9,
+        "fetch_ms": 26.9,
+        "mad": 19.9
+      }
+    ],
+    "live": true,
+    "frames": 91532
+  },
+  {
+    "phone": "C24C",
+    "id": "86:1D:4A:04:2F:F6",
+    "api_ms": 292.5,
+    "api_return_ms": 292.6,
+    "visual_home_ms": 407.5,
+    "video_after_api_ms": 115.0,
+    "polls": [
+      {
+        "ms_from_send": 329.6,
+        "fetch_ms": 37.1,
+        "mad": 0.2
+      },
+      {
+        "ms_from_send": 346.6,
+        "fetch_ms": 12.7,
+        "mad": 3.85
+      },
+      {
+        "ms_from_send": 362.4,
+        "fetch_ms": 11.5,
+        "mad": 16.45
+      },
+      {
+        "ms_from_send": 368.2,
+        "fetch_ms": 1.3,
+        "mad": 16.45
+      },
+      {
+        "ms_from_send": 407.5,
+        "fetch_ms": 35.0,
+        "mad": 28.79
+      }
+    ],
+    "live": true,
+    "frames": 91644
+  }
+]

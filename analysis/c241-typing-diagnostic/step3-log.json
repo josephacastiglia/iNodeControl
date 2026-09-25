@@ -1,0 +1,46 @@
+[
+  {
+    "fun": "/mouse/click",
+    "payload": {
+      "x": 250,
+      "y": 900,
+      "button": 1
+    },
+    "ms": 207.0,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "fun": "/key/sendkey",
+    "payload": {
+      "key": "test"
+    },
+    "ms": 580.6,
+    "body": {
+      "status": 200,
+      "message": "ok",
+      "data": {
+        "code": 0,
+        "results": [
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "code": 0,
+            "message": "ok"
+          }
+        ]
+      }
+    }
+  }
+]

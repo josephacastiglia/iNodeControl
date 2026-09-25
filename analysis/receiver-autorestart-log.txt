@@ -1,0 +1,7 @@
+02:20:09.845 state=restarting pid=0 restarts=1 live=False
+02:20:10.186 state=restarting pid=0 restarts=1 live=False
+02:20:10.510 state=restarting pid=0 restarts=1 live=False
+02:20:10.836 state=restarting pid=0 restarts=1 live=False
+02:20:11.175 state=restarting pid=0 restarts=1 live=False
+02:20:11.516 state=restarting pid=0 restarts=1 live=False
+02:20:11.856 state=offline pid=13412 restarts=1 live=False

@@ -1,0 +1,49 @@
+﻿{
+    "status":  200,
+    "message":  "ok",
+    "data":  {
+                 "code":  0,
+                 "list":  [
+                              {
+                                  "deviceid":  "86:1D:4A:04:2F:F6",
+                                  "name":  "XR C24C",
+                                  "user_name":  "XR C24C",
+                                  "device_name":  "iPhone XR",
+                                  "gname":  "Two-phone test",
+                                  "state":  1,
+                                  "video_state":  "mirroring",
+                                  "receiver_name":  "iMouse2-C24C",
+                                  "width":  "414",
+                                  "height":  "896",
+                                  "imgw":  500,
+                                  "imgh":  1080,
+                                  "air_pid":  27948,
+                                  "version":  "18.7.10",
+                                  "uid":  "C24CBFBD",
+                                  "vid":  "720A",
+                                  "pid":  "C24C",
+                                  "rotate":  0
+                              },
+                              {
+                                  "deviceid":  "FE:A9:BC:D7:A0:44",
+                                  "name":  "Phone in hand - C241",
+                                  "user_name":  "Phone in hand - C241",
+                                  "device_name":  "iPhone XR",
+                                  "gname":  "Two-phone test",
+                                  "state":  1,
+                                  "video_state":  "mirroring",
+                                  "receiver_name":  "iMouse2-C241",
+                                  "width":  "414",
+                                  "height":  "896",
+                                  "imgw":  500,
+                                  "imgh":  1080,
+                                  "air_pid":  7612,
+                                  "version":  "18.7.10",
+                                  "uid":  "C241BFBD",
+                                  "vid":  "720A",
+                                  "pid":  "C241",
+                                  "rotate":  0
+                              }
+                          ]
+             }
+}

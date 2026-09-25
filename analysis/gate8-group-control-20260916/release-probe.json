@@ -1,0 +1,58 @@
+{
+  "move": {
+    "fun": "/mouse/move",
+    "http": 200,
+    "code": 0,
+    "message": null,
+    "rtt_ms": 95.4,
+    "results": [
+      {
+        "id": "86:1D:4A:04:2F:F6",
+        "code": 0,
+        "message": "ok"
+      },
+      {
+        "id": "FE:A9:BC:D7:A0:44",
+        "code": 0,
+        "message": "ok"
+      }
+    ]
+  },
+  "mad": {
+    "C24C": 0.01,
+    "C241": 0.01
+  },
+  "mouse_up": {
+    "fun": "/mouse/up",
+    "http": 200,
+    "code": 0,
+    "message": null,
+    "rtt_ms": 12.8,
+    "results": [
+      {
+        "id": "86:1D:4A:04:2F:F6",
+        "code": 0,
+        "message": "ok"
+      },
+      {
+        "id": "FE:A9:BC:D7:A0:44",
+        "code": 0,
+        "message": "ok"
+      }
+    ]
+  },
+  "status_ms": 15.0,
+  "frames": [
+    {
+      "id": "86:1D:4A:04:2F:F6",
+      "frames": 112527,
+      "live": true
+    },
+    {
+      "id": "FE:A9:BC:D7:A0:44",
+      "frames": 144668,
+      "live": true
+    }
+  ],
+  "drag_stuck": false
+}

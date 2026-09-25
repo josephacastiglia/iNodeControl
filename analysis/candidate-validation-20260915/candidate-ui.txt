@@ -1,0 +1,107 @@
+Window: "iMouse 2.0 — iPhone Console", App: iMouse2.exe.
+	0 window iMouse 2.0 — iPhone Console Secondary Actions: Raise
+		1 title bar
+			2 menu bar System ID: MenuBar
+				3 menu item System
+			4 button Minimize
+			5 button Restore
+			6 button Close
+		7 text iMouse
+		8 text 2.0
+		9 button Controls ID: ControlsButton
+			10 text Controls
+		11 button Settings ID: SettingsButton
+			12 text Settings
+		13 button Activity ID: ActivityButton
+			14 text Activity
+		15 text Connected to iMouse ID: ConnectionStatus
+		16 text 2 phones · 2 mirroring · 2 controllable · 19 boards (2 with a phone) ID: Totals
+		17 button Toggle night mode Description: Switch between the light and night palette ID: ThemeButton
+			18 text Night
+		19 edit Search devices ID: SearchBox
+		20 check box Online ID: OnlineOnly
+			21 text Online
+		22 check box Mirror the master's actions to every phone ID: SelectAllBox
+			23 text Mirror to all ID: SelectAllLabel
+		24 list view iPhones ID: DeviceList
+			25 list item (selectable) IMouse2.Device
+				26 check box Mirror to XR C24C
+				27 text XR C24C Description: XR C24C
+				28 text Control ready · Mirroring Description: Control ready · Mirroring
+			29 list item (selectable) IMouse2.Device
+				30 check box Mirror to Phone in hand - C241
+				31 text Phone in hand - C241 Description: Phone in hand - C241
+				32 text Control ready · Mirroring Description: Control ready · Mirroring
+		33 text XR C24C ID: SelectedTitle
+		34 text iOS 18.7.10 · · Mirroring · Control ready ID: SelectedDetails
+		35 text Hover the screen to see tap coordinates ID: PointerReadout
+		36 pane ID: MasterScroll
+			37 image Master iPhone screen ID: PhoneImage
+			38 button Reset Description: Re-centre the phone pointer so it lines up with the mouse again ID: ResetButton
+				39 text Reset
+			40 button Home Description: Send the phone to its home screen ID: HomeButton
+				41 text Home
+			42 button Restart Description: Restart this phone's control board. Control drops for a few seconds. ID: RestartButton
+				43 text Restart
+			44 button Lock Description: Lock the phone screen ID: LockButton
+				45 text Lock
+			46 button Ctrl Bar Description: Open Control Centre ID: CtrlBarButton
+				47 text Ctrl Bar
+			48 button KB Description: Open the on-screen keyboard ID: KeyboardButton
+				49 text KB
+			50 button Cast Description: Ask this phone to start screen mirroring ID: CastButton
+				51 text Cast
+			52 button App Description: Open the app switcher ID: AppButton
+				53 text App
+			54 button IME Description: Switch the phone input method ID: ImeButton
+				55 text IME
+			56 button Disc Description: Stop this phone's screen mirroring ID: DiscButton
+				57 text Disc
+			58 text Others · 0/1 following ID: WallHeading
+			59 list view ID: PhoneWall
+				227 dataitem IMouse2.Thumb
+					228 image
+					265 text 19 fps
+					230 text Phone in hand - C241
+		64 text Hardware 19 (2 with a phone) · Online 2 · Controllable 2 · Cast iMouse2-C24C / iMouse2-C241 ID: StatusInfo
+		65 text Large screen
+		66 slider Master screen size ID: LargeSize
+			67 button ID: DecreaseLarge
+			68 button ID: IncreaseLarge
+			69 thumb ID: Thumb
+		70 button Fit Description: Size the master screen to the window ID: FitButton
+			71 text Fit
+		72 combo box Master refresh rate ID: PreviewRate
+		73 text Small screens
+		74 slider Wall tile size ID: SmallSize
+			75 button ID: DecreaseLarge
+			76 button ID: IncreaseLarge
+			77 thumb ID: Thumb
+		78 combo box Wall refresh rate ID: WallRate
+		232 text Activity ID: DrawerTitle
+		233 button Close
+			234 text Close
+		235 pane
+			236 text Right ID: LastEvent
+			237 text Live · 20.2 fps · 500 × 1080 · taps in image pixels 500 × 1080 · 40/71 ms p50/p95 · 119 slow ID: FrameStatus
+			238 list view ID: ActivityList
+				239 list item (selectable) 00:21:27 Right
+					240 text 00:21:27 Right
+				241 list item (selectable) 00:21:13 Left
+					242 text 00:21:13 Left
+				243 list item (selectable) 00:20:49 Home
+					244 text 00:20:49 Home
+				245 list item (selectable) 00:20:35 Tap
+					246 text 00:20:35 Tap
+				247 list item (selectable) 00:20:07 Right
+					248 text 00:20:07 Right
+				249 list item (selectable) 00:19:49 Left
+					250 text 00:19:49 Left
+				251 list item (selectable) 00:19:26 Home
+					252 text 00:19:26 Home
+				253 list item (selectable) 00:16:49 Tap
+					254 text 00:16:49 Tap
+				255 list item (selectable) 00:14:13 Service connected. 2 devices, 2 online.
+					256 text 00:14:13 Service connected. 2 devices, 2 online.
+
+The focused UI element is 19 edit Search devices ID: SearchBox.

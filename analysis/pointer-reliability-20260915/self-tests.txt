@@ -1,0 +1,64 @@
+PASS Down matches captured packet
+PASS Corner reset matches captured packet
+PASS ASCII space and shifted digit usages
+PASS Letter modifiers match captured packets
+PASS Unapproved batch target rejects whole request before output
+PASS Out of bounds click sends nothing
+click pid=C24C known=False reset=72ms steps=0 send=0ms delay=0ms settle=124ms button=93ms total=290ms
+PASS First absolute action releases inputs and establishes corner origin
+PASS Click holds then releases
+PASS Click settles with a zero-motion report before button down
+PASS Drag settles, then preserves held button during relative steps
+PASS Space is emitted as USB usage 44 between letters
+PASS Home reproduces observed Tab and GUI+H sequence
+click pid=C24C known=False reset=62ms steps=2 send=0ms delay=30ms settle=126ms button=95ms total=313ms
+PASS Home invalidates the pointer estimate; next click re-establishes origin
+PASS Transport failure is reported
+PASS Failure releases inputs and discards handle
+PASS Movement failure is surfaced (precise=False)
+PASS Movement failure forces a new connection and corner reset (precise=False)
+PASS Movement failure is surfaced (precise=True)
+PASS Movement failure forces a new connection and corner reset (precise=True)
+click pid=C24C known=False reset=70ms steps=37 send=0ms delay=566ms settle=126ms button=95ms total=870ms
+click pid=C24C known=False reset=62ms steps=37 send=0ms delay=562ms settle=123ms button=95ms total=859ms
+click pid=C24C known=False reset=61ms steps=37 send=0ms delay=111ms settle=126ms button=94ms total=406ms
+click pid=C24C known=False reset=61ms steps=37 send=0ms delay=111ms settle=131ms button=95ms total=405ms
+PASS Precise pacing preserves all reset, movement, keyboard, click and swipe packets
+PASS Precise clicks retain both cold-start and post-Home corner resets
+PASS Padded bottom-up BMP accepted
+PASS Video is offline before a receiver sends a frame
+PASS Named pipe publishes validated receiver dimensions
+PASS Identical live frames remain usable
+PASS Receiver stop marker clears stale picture
+Frame pipe: receiver disconnected; waiting to reconnect.
+PASS Two receivers accept distinct bindings, ports and identities
+PASS Conflicting or mismatched receiver configuration rejected
+PASS Conflicting or mismatched receiver configuration rejected
+PASS Conflicting or mismatched receiver configuration rejected
+PASS Conflicting or mismatched receiver configuration rejected
+click pid=C24C known=False reset=69ms steps=0 send=0ms delay=0ms settle=127ms button=95ms total=291ms
+PASS Phone one input does not touch phone two
+click pid=C214 known=False reset=62ms steps=0 send=0ms delay=0ms settle=124ms button=93ms total=279ms
+PASS Phone two input does not touch phone one
+PASS Independent receiver pipes publish both frames
+Frame pipe: receiver disconnected; waiting to reconnect.
+PASS Disconnecting one pipe preserves the other phone's frame
+Frame pipe: receiver disconnected; waiting to reconnect.
+PASS Unexpected pixel format rejected
+PASS Missing receiver process reports pid 0
+PASS Exited receiver process reports pid 0
+Receiver running, pid 1
+Receiver exited.
+Receiver running, pid 2
+Receiver exited.
+Receiver running, pid 3
+Receiver exited.
+Receiver retry limit reached (2).
+PASS Retry limit stops after initial start plus two restarts
+Receiver running, pid 9
+PASS Healthy receiver stays running with zero restarts
+Receiver running, pid 21
+Receiver exited.
+Receiver running, pid 22
+PASS One crash relaunches the receiver without failing
+41 tests passed; no real HID transport opened.

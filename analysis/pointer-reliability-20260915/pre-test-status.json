@@ -1,0 +1,174 @@
+{
+  "at": "2026-09-16T00:10:43.999470-04:00",
+  "sample_interval_s": 1.027,
+  "status_t0": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "input": "direct-hid",
+      "allowed": [
+        "C24C",
+        "C241"
+      ],
+      "receiver": "iMouse2-C24C / iMouse2-C241",
+      "receiver_state": "mirroring",
+      "receiver_message": "",
+      "receiver_pid": 37964,
+      "receiver_restarts": 0,
+      "frames": 5330,
+      "live": true,
+      "receivers": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "iMouse2-C24C",
+          "receiver_pid": 37964,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 5330
+        },
+        {
+          "deviceid": "FE:A9:BC:D7:A0:44",
+          "name": "iMouse2-C241",
+          "receiver_pid": 25016,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 3886
+        }
+      ]
+    }
+  },
+  "status_t1": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "input": "direct-hid",
+      "allowed": [
+        "C24C",
+        "C241"
+      ],
+      "receiver": "iMouse2-C24C / iMouse2-C241",
+      "receiver_state": "mirroring",
+      "receiver_message": "",
+      "receiver_pid": 37964,
+      "receiver_restarts": 0,
+      "frames": 5350,
+      "live": true,
+      "receivers": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "iMouse2-C24C",
+          "receiver_pid": 37964,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 5350
+        },
+        {
+          "deviceid": "FE:A9:BC:D7:A0:44",
+          "name": "iMouse2-C241",
+          "receiver_pid": 25016,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 3906
+        }
+      ]
+    }
+  },
+  "devices": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "list": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "XR C24C",
+          "user_name": "XR C24C",
+          "device_name": "iPhone XR",
+          "gname": "Two-phone test",
+          "state": 1,
+          "video_state": "mirroring",
+          "receiver_name": "iMouse2-C24C",
+          "width": "414",
+          "height": "896",
+          "imgw": 500,
+          "imgh": 1080,
+          "air_pid": 37964,
+          "version": "18.7.10",
+          "uid": "C24CBFBD",
+          "vid": "720A",
+          "pid": "C24C",
+          "rotate": 0
+        },
+        {
+          "deviceid": "FE:A9:BC:D7:A0:44",
+          "name": "Phone in hand - C241",
+          "user_name": "Phone in hand - C241",
+          "device_name": "iPhone XR",
+          "gname": "Two-phone test",
+          "state": 1,
+          "video_state": "mirroring",
+          "receiver_name": "iMouse2-C241",
+          "width": "414",
+          "height": "896",
+          "imgw": 500,
+          "imgh": 1080,
+          "air_pid": 25016,
+          "version": "18.7.10",
+          "uid": "C241BFBD",
+          "vid": "720A",
+          "pid": "C241",
+          "rotate": 0
+        }
+      ]
+    }
+  },
+  "gate": {
+    "C24C": {
+      "live": true,
+      "frames_t0": 5330,
+      "frames_t1": 5350,
+      "delta": 20,
+      "restarts": 0,
+      "frames_advancing": true
+    },
+    "C241": {
+      "live": true,
+      "frames_t0": 3886,
+      "frames_t1": 3906,
+      "delta": 20,
+      "restarts": 0,
+      "frames_advancing": true
+    }
+  },
+  "mirror_to_all": false,
+  "input_scope": "single-id kernel dispatch; allowed C24C,C241 only",
+  "both_live_and_advancing": true,
+  "mirror_to_all_evidence": {
+    "uia_window": "iMouse 2.0 \u2014 iPhone Console",
+    "console_pid": 26000,
+    "SelectAllBox": {
+      "name": "Mirror the master's actions to every phone",
+      "toggleState": "Off"
+    },
+    "follower_C24C": {
+      "name": "Mirror to XR C24C",
+      "toggleState": "Off"
+    },
+    "follower_C241": {
+      "name": "Mirror to Phone in hand - C241",
+      "toggleState": "Off"
+    },
+    "tree_note": "Others \u00b7 0/1 following",
+    "kernel_allowed": [
+      "C24C",
+      "C241"
+    ],
+    "dispatch": "single-id kernel API"
+  }
+}

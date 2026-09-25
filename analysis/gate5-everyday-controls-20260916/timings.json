@@ -1,0 +1,473 @@
+{
+  "predeclared": [
+    {
+      "name": "control_center",
+      "action": {
+        "fun": "/key/sendkey",
+        "fn_key": "ControlBar"
+      },
+      "expected": "Control Center visible within 5s",
+      "dismiss": {
+        "fun": "/key/sendkey",
+        "fn_key": "Home"
+      }
+    },
+    {
+      "name": "app_switcher",
+      "action": {
+        "fun": "/key/sendkey",
+        "fn_key": "AppSwitch"
+      },
+      "expected": "App Switcher cards visible within 5s",
+      "dismiss": {
+        "fun": "/key/sendkey",
+        "fn_key": "Home"
+      }
+    },
+    {
+      "name": "text_and_backspace",
+      "steps": [
+        {
+          "fun": "/key/sendkey",
+          "fn_key": "Home"
+        },
+        {
+          "fun": "/mouse/click",
+          "x": 250,
+          "y": 900,
+          "button": 1,
+          "purpose": "open Spotlight and focus search"
+        },
+        {
+          "fun": "/key/sendkey",
+          "key": "iMouse2026",
+          "expected": "text iMouse2026 appears in the search field within 5s"
+        },
+        {
+          "fun": "/key/sendkey",
+          "fn_key": "Backspace",
+          "times": 4,
+          "expected": "text becomes iMouse within 5s"
+        },
+        {
+          "fun": "/key/sendkey",
+          "fn_key": "Home",
+          "purpose": "dismiss"
+        }
+      ]
+    },
+    {
+      "name": "swipes",
+      "steps": [
+        {
+          "fun": "/mouse/swipe",
+          "direction": "left",
+          "len": 0.75,
+          "duration": 400,
+          "expected": "Home page 2 within 5s"
+        },
+        {
+          "fun": "/mouse/swipe",
+          "direction": "right",
+          "len": 0.75,
+          "duration": 400,
+          "expected": "Home page 1 within 5s"
+        }
+      ]
+    }
+  ],
+  "guard": {
+    "console_pid": 34852,
+    "hwnd": 395930,
+    "iconic": true,
+    "mirror_boxes": [
+      {
+        "name": "Mirror the master's actions to every phone",
+        "id": "SelectAllBox",
+        "toggle": "Off"
+      },
+      {
+        "name": "Mirror to XR C24C",
+        "id": "",
+        "toggle": "Off"
+      },
+      {
+        "name": "Mirror to Phone in hand - C241",
+        "id": "",
+        "toggle": "Off"
+      }
+    ],
+    "mirror_on_count": 0
+  },
+  "dll_sha256": "A995CF5B92AEE4393E164FA4CE68D446A3F63D4D0CAAA73B5ACB6DCF587851BF",
+  "dll_matches_known_rollback": true,
+  "setup_home": [
+    {
+      "phone": "C24C",
+      "api_ms": 289.5,
+      "code": 0
+    },
+    {
+      "phone": "C241",
+      "api_ms": 292.9,
+      "code": 0
+    }
+  ],
+  "baselines": {
+    "C24C": "c24c-baseline-home.bmp",
+    "C241": "c241-baseline-home.bmp"
+  },
+  "start": {
+    "code": 0,
+    "input": "direct-hid",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 35520,
+    "receiver_restarts": 0,
+    "frames": 41435,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 35520,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 41435
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 31660,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 41794
+      }
+    ]
+  },
+  "end": {
+    "code": 0,
+    "input": "direct-hid",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 35520,
+    "receiver_restarts": 0,
+    "frames": 42256,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 35520,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 42256
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 31660,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 42602
+      }
+    ]
+  },
+  "kernel_log_new": [],
+  "rows": [
+    {
+      "phone": "C24C",
+      "case": "control_center",
+      "api_ms": 256.9,
+      "code": 0,
+      "expected": "Control Center visible within 5s",
+      "bmp": "c24c-control-center.bmp",
+      "visible_ms": 525.4,
+      "within_5s": true,
+      "mad": 47.09,
+      "shot_ms": 24.3,
+      "changed": true,
+      "isolation_bmp": "c241-iso-during-c24c-control-center.bmp",
+      "isolation_shot_ms": 1.1,
+      "dismiss_api_ms": 289.8,
+      "dismiss_code": 0,
+      "dismiss_bmp": "c24c-control-center-dismiss.bmp",
+      "dismiss_visible_ms": 426.7,
+      "dismiss_within_5s": true,
+      "dismiss_iso_bmp": "c241-iso-during-c24c-control-center-dismiss.bmp"
+    },
+    {
+      "phone": "C24C",
+      "case": "app_switcher",
+      "api_ms": 258.3,
+      "code": 0,
+      "expected": "App Switcher cards visible within 5s",
+      "bmp": "c24c-app-switcher.bmp",
+      "visible_ms": 547.1,
+      "within_5s": true,
+      "mad": 66.57,
+      "shot_ms": 20.7,
+      "changed": true,
+      "isolation_bmp": "c241-iso-during-c24c-app-switcher.bmp",
+      "isolation_shot_ms": 12.0,
+      "dismiss_api_ms": 305.7,
+      "dismiss_code": 0,
+      "dismiss_bmp": "c24c-app-switcher-dismiss.bmp",
+      "dismiss_visible_ms": 439.5,
+      "dismiss_within_5s": true,
+      "dismiss_iso_bmp": "c241-iso-during-c24c-app-switcher-dismiss.bmp"
+    },
+    {
+      "phone": "C24C",
+      "case": "text_and_backspace",
+      "home_api_ms": 301.8,
+      "home_code": 0,
+      "home_bmp": "c24c-text-home.bmp",
+      "click": {
+        "x": 250,
+        "y": 900,
+        "api_ms": 1080.4,
+        "code": 0
+      },
+      "spotlight": {
+        "bmp": "c24c-spotlight.bmp",
+        "visible_ms": 1350.8,
+        "within_5s": true,
+        "mad": 67.52,
+        "shot_ms": 13.7,
+        "changed": true
+      },
+      "spotlight_iso": "c241-iso-during-c24c-spotlight.bmp",
+      "typed_api_ms": 1455.8,
+      "typed_code": 0,
+      "typed_expected": "iMouse2026",
+      "typed": {
+        "bmp": "c24c-typed.bmp",
+        "visible_ms": 1875.6,
+        "within_5s": true,
+        "mad": 15.86,
+        "shot_ms": 28.2,
+        "changed": true
+      },
+      "typed_iso": "c241-iso-during-c24c-typed.bmp",
+      "backspace_api_ms": [
+        157.7,
+        144.8,
+        155.2,
+        160.4
+      ],
+      "backspace_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "backspace_expected": "iMouse",
+      "backspace": {
+        "bmp": "c24c-backspace.bmp",
+        "visible_ms": 625.9,
+        "within_5s": true,
+        "mad": 9.08,
+        "shot_ms": 14.5,
+        "changed": true
+      },
+      "backspace_iso": "c241-iso-during-c24c-backspace.bmp",
+      "dismiss_api_ms": 315.4,
+      "dismiss_code": 0,
+      "dismiss": {
+        "bmp": "c24c-text-dismiss.bmp",
+        "visible_ms": 324.1,
+        "within_5s": true,
+        "mad": 28.39,
+        "shot_ms": 28.7,
+        "changed": true
+      },
+      "dismiss_iso": "c241-iso-during-c24c-text-dismiss.bmp"
+    },
+    {
+      "phone": "C24C",
+      "case": "swipes",
+      "pre_bmp": "c24c-pre-swipe.bmp",
+      "left_api_ms": 1212.2,
+      "left_code": 0,
+      "left_expected": "Home page 2 within 5s",
+      "left": {
+        "bmp": "c24c-swipe-left.bmp",
+        "visible_ms": 1236.8,
+        "within_5s": true,
+        "mad": 48.36,
+        "shot_ms": 12.9,
+        "changed": true
+      },
+      "left_iso": "c241-iso-during-c24c-swipe-left.bmp",
+      "right_api_ms": 681.6,
+      "right_code": 0,
+      "right_expected": "Home page 1 within 5s",
+      "right": {
+        "bmp": "c24c-swipe-right.bmp",
+        "visible_ms": 714.1,
+        "within_5s": true,
+        "mad": 44.9,
+        "shot_ms": 12.0,
+        "changed": true
+      },
+      "right_iso": "c241-iso-during-c24c-swipe-right.bmp",
+      "mouse_up_ms": 26.5,
+      "mouse_up_code": 0
+    },
+    {
+      "phone": "C241",
+      "case": "control_center",
+      "api_ms": 255.0,
+      "code": 0,
+      "expected": "Control Center visible within 5s",
+      "bmp": "c241-control-center.bmp",
+      "visible_ms": 544.0,
+      "within_5s": true,
+      "mad": 48.61,
+      "shot_ms": 1.5,
+      "changed": true,
+      "isolation_bmp": "c24c-iso-during-c241-control-center.bmp",
+      "isolation_shot_ms": 38.5,
+      "dismiss_api_ms": 305.3,
+      "dismiss_code": 0,
+      "dismiss_bmp": "c241-control-center-dismiss.bmp",
+      "dismiss_visible_ms": 438.6,
+      "dismiss_within_5s": true,
+      "dismiss_iso_bmp": "c24c-iso-during-c241-control-center-dismiss.bmp"
+    },
+    {
+      "phone": "C241",
+      "case": "app_switcher",
+      "api_ms": 256.0,
+      "code": 0,
+      "expected": "App Switcher cards visible within 5s",
+      "bmp": "c241-app-switcher.bmp",
+      "visible_ms": 564.3,
+      "within_5s": true,
+      "mad": 48.33,
+      "shot_ms": 12.6,
+      "changed": true,
+      "isolation_bmp": "c24c-iso-during-c241-app-switcher.bmp",
+      "isolation_shot_ms": 11.6,
+      "dismiss_api_ms": 307.6,
+      "dismiss_code": 0,
+      "dismiss_bmp": "c241-app-switcher-dismiss.bmp",
+      "dismiss_visible_ms": 440.9,
+      "dismiss_within_5s": true,
+      "dismiss_iso_bmp": "c24c-iso-during-c241-app-switcher-dismiss.bmp"
+    },
+    {
+      "phone": "C241",
+      "case": "text_and_backspace",
+      "home_api_ms": 304.6,
+      "home_code": 0,
+      "home_bmp": "c241-text-home.bmp",
+      "click": {
+        "x": 250,
+        "y": 900,
+        "api_ms": 1091.1,
+        "code": 0
+      },
+      "spotlight": {
+        "bmp": "c241-spotlight.bmp",
+        "visible_ms": 1345.0,
+        "within_5s": true,
+        "mad": 38.61,
+        "shot_ms": 1.7,
+        "changed": true
+      },
+      "spotlight_iso": "c24c-iso-during-c241-spotlight.bmp",
+      "typed_api_ms": 1475.3,
+      "typed_code": 0,
+      "typed_expected": "iMouse2026",
+      "typed": {
+        "bmp": "c241-typed.bmp",
+        "visible_ms": null,
+        "within_5s": false,
+        "mad": 0.17,
+        "shot_ms": 17.2,
+        "changed": false
+      },
+      "typed_iso": "c24c-iso-during-c241-typed.bmp",
+      "backspace_api_ms": [
+        158.0,
+        156.6,
+        146.1,
+        169.1
+      ],
+      "backspace_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "backspace_expected": "iMouse",
+      "backspace": {
+        "bmp": "c241-backspace.bmp",
+        "visible_ms": null,
+        "within_5s": false,
+        "mad": 0.03,
+        "shot_ms": 1.6,
+        "changed": false
+      },
+      "backspace_iso": "c24c-iso-during-c241-backspace.bmp",
+      "dismiss_api_ms": 290.9,
+      "dismiss_code": 0,
+      "dismiss": {
+        "bmp": "c241-text-dismiss.bmp",
+        "visible_ms": 456.5,
+        "within_5s": true,
+        "mad": 29.87,
+        "shot_ms": 25.6,
+        "changed": true
+      },
+      "dismiss_iso": "c24c-iso-during-c241-text-dismiss.bmp"
+    },
+    {
+      "phone": "C241",
+      "case": "swipes",
+      "pre_bmp": "c241-pre-swipe.bmp",
+      "left_api_ms": 1231.6,
+      "left_code": 0,
+      "left_expected": "Home page 2 within 5s",
+      "left": {
+        "bmp": "c241-swipe-left.bmp",
+        "visible_ms": 1235.4,
+        "within_5s": true,
+        "mad": 40.4,
+        "shot_ms": 11.8,
+        "changed": true
+      },
+      "left_iso": "c24c-iso-during-c241-swipe-left.bmp",
+      "right_api_ms": 713.8,
+      "right_code": 0,
+      "right_expected": "Home page 1 within 5s",
+      "right": {
+        "bmp": "c241-swipe-right.bmp",
+        "visible_ms": 756.4,
+        "within_5s": true,
+        "mad": 40.64,
+        "shot_ms": 25.0,
+        "changed": true
+      },
+      "right_iso": "c24c-iso-during-c241-swipe-right.bmp",
+      "mouse_up_ms": 2.5,
+      "mouse_up_code": 0
+    }
+  ]
+}
