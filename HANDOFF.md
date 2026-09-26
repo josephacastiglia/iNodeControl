@@ -219,6 +219,11 @@ Five modes, all writing JSON/PNG into `qa/` beside the executable:
 | `--wall-test` | master + tiles under continuous motion, tile geometry stability | yes |
 | `--mirror-test` | end-to-end mirrored tap and stroke, with pixel-difference proof | yes |
 
+The test modes run on a throwaway data folder under `%TEMP%`, never `%APPDATA%\iMouse2`
+(which every console build shares), and leave `data\settings.json` beside the exe alone.
+So the live modes need the service passed explicitly, e.g.
+`iMouse2.exe --wall-test --address=http://127.0.0.1:9913`; without it they fail rather than guess.
+
 `--ui-test` is the valuable one. `TestHandler` in `SelfTests.cs` serves a five-device
 fixture (TEST:01…05) with deliberate variety: offline, no board, and one phone at a
 different screen size so mirroring exclusion can be asserted.

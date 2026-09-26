@@ -6,6 +6,29 @@ namespace IMouse2;
 
 public partial class App : Application
 {
+    private string? _testData;
+
+    // Test modes run on a throwaway data folder so they never read or save the operator's
+    // %APPDATA%\iMouse2. That also means a live mode cannot pick up the saved service address,
+    // so it has to be given one: guessing could point a test that sends taps at the wrong service.
+    private MainWindow CreateTestWindow(string[] args, bool live, Func<string, ApiClient>? factory = null)
+    {
+        var address = args.FirstOrDefault(a => a.StartsWith("--address="))?["--address=".Length..];
+        if (live && string.IsNullOrWhiteSpace(address))
+            throw new Exception("Live test modes need --address=<service url>, for example --address=http://127.0.0.1:9913. They use their own data folder and do not read the address saved in %APPDATA%\\iMouse2.");
+        _testData = Path.Combine(Path.GetTempPath(), "iMouse2-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_testData);
+        var window = new MainWindow(factory, _testData);
+        if (!string.IsNullOrWhiteSpace(address)) window.AddressBox.Text = address;
+        return window;
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        if (_testData is not null) try { Directory.Delete(_testData, true); } catch { }
+        base.OnExit(e);
+    }
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -40,7 +63,7 @@ public partial class App : Application
         {
             try
             {
-                var window = new MainWindow();
+                var window = CreateTestWindow(e.Args, live: true);
                 window.Show();
                 var tileArg = e.Args.FirstOrDefault(a => a.StartsWith("--tile-ms="));
                 await window.RunWallAsync(tileArg is null ? 0 : int.Parse(tileArg["--tile-ms=".Length..]));
@@ -54,7 +77,7 @@ public partial class App : Application
         {
             try
             {
-                var window = new MainWindow();
+                var window = CreateTestWindow(e.Args, live: true);
                 window.Show();
                 await window.RunMirrorAsync();
                 window.Close();
@@ -67,7 +90,7 @@ public partial class App : Application
         {
             try
             {
-                var window = new MainWindow();
+                var window = CreateTestWindow(e.Args, live: true);
                 window.Show();
                 await window.RunFpsAsync();
                 window.Close();
@@ -82,7 +105,7 @@ public partial class App : Application
             {
                 bool fake = e.Args.Contains("--ui-test");
                 var handler = fake ? new TestHandler() : null;
-                var window = new MainWindow(handler is null ? null : address => new ApiClient(address, handler));
+                var window = CreateTestWindow(e.Args, live: !fake, handler is null ? null : address => new ApiClient(address, handler));
                 await window.RunSmokeAsync(fake, handler);
                 window.Close();
                 Shutdown(0);

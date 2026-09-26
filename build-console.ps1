@@ -130,7 +130,11 @@ class Launcher {
    string dotnet = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet", "dotnet.exe");
    if (!File.Exists(dotnet)) throw new Exception("Install the .NET 8 Windows Desktop Runtime (x64), then open iMouse2 again.");
    string arguments = "\"" + Path.Combine(folder, "iMouse2.dll") + "\"";
-   foreach (string arg in args) { if (arg == "--self-test" || arg == "--smoke-test" || arg == "--ui-test") arguments += " " + arg; }
+   foreach (string arg in args) {
+    if (arg == "--self-test" || arg == "--smoke-test" || arg == "--ui-test") arguments += " " + arg;
+    // Live test modes no longer read the saved address, so the service has to come through here.
+    else if (arg.StartsWith("--address=", StringComparison.Ordinal)) arguments += " \"" + arg + "\"";
+   }
    var start = new ProcessStartInfo(dotnet, arguments) { UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = folder, RedirectStandardError = true };
    using (var process = Process.Start(start)) {
     string error = process.StandardError.ReadToEnd(); process.WaitForExit();
