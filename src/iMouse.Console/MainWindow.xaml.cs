@@ -32,11 +32,16 @@ public partial class MainWindow : Window
     private bool _autoBinding;
     private (string Id, int Session, int X, int Y, Point View, int W, int H)? _gesture;
     private string _lastPreviewError = "";
-    private readonly string _dataPath = ResolveDataPath();
+    private readonly string _dataPath;
+    private readonly bool _mirrorLocal;
     private Device? Selected => DeviceList.SelectedItem as Device;
 
-    public MainWindow(Func<string, ApiClient>? factory = null)
+    // dataPath is for test modes: they must never load or overwrite the operator's
+    // %APPDATA%\iMouse2, which every console build on this machine shares.
+    public MainWindow(Func<string, ApiClient>? factory = null, string? dataPath = null)
     {
+        _dataPath = dataPath ?? ResolveDataPath();
+        _mirrorLocal = dataPath is null;
         _factory = factory ?? (address => new ApiClient(address));
         _presentNow = () => PresentPending(null, EventArgs.Empty);
         InitializeComponent();
@@ -140,6 +145,8 @@ public partial class MainWindow : Window
         var json = JsonSerializer.Serialize(new { address = AddressBox.Text, theme = Theme.IsNight ? "night" : "light" });
         Directory.CreateDirectory(_dataPath);
         File.WriteAllText(Path.Combine(_dataPath, "settings.json"), json);
+        // The local mirror is what launcher scripts check and what seeds %APPDATA%, so a test run leaves it alone.
+        if (!_mirrorLocal) return;
         var local = Path.Combine(AppContext.BaseDirectory, "data");
         if (string.Equals(Path.GetFullPath(local), Path.GetFullPath(_dataPath), StringComparison.OrdinalIgnoreCase)) return;
         Directory.CreateDirectory(local);
@@ -2127,6 +2134,19 @@ public partial class MainWindow : Window
             for (int i = 0; (_commandBusy || _refreshSession >= 0) && i < 100; i++) await Task.Delay(20);
             if (_commandBusy) throw new Exception("Command did not complete during UI test.");
         }
+        // The operator's console reads %APPDATA%\iMouse2 on every launch; a test run must not be able to change it.
+        var operatorData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "iMouse2");
+        Check("The test run's data folder is not the operator's %APPDATA%\\iMouse2",
+            !string.Equals(Path.GetFullPath(_dataPath).TrimEnd('\\'), Path.GetFullPath(operatorData).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase));
+        var testSettings = Path.Combine(_dataPath, "settings.json");
+        Check("Connecting saves settings into the test's own data folder", File.Exists(testSettings));
+        string SavedTheme() { using var d = JsonDocument.Parse(File.ReadAllText(testSettings)); return JsonValue.Text(d.RootElement, "theme"); }
+        var mirror = Path.Combine(AppContext.BaseDirectory, "data", "settings.json");
+        var mirrorStamp = File.GetLastWriteTimeUtc(mirror);
+        Theme_Click(ThemeButton, new RoutedEventArgs());
+        Check("A theme change during a test is saved to the test's data folder", SavedTheme() == (Theme.IsNight ? "night" : "light"));
+        Theme_Click(ThemeButton, new RoutedEventArgs());
+        Check("A test run does not rewrite the settings mirror beside the exe", File.GetLastWriteTimeUtc(mirror) == mirrorStamp);
         AutoPreview.IsChecked = false;
         Check("Footer uses live receiver names, not a stale imserver name",
             StatusInfo.Text.Contains("iMouse2-C24C") && StatusInfo.Text.Contains("iMouse2-C241") && !StatusInfo.Text.Contains("C214"));
@@ -2760,6 +2780,6 @@ public partial class MainWindow : Window
 
         Disconnect_Click(this, new RoutedEventArgs());
 
-        File.WriteAllText(Path.Combine(qa, "ui-interactions.json"), JsonSerializer.Serialize(new { passed = passed.Count, tests = passed, mockPostAttempts = handler.PostAttempts, realPhoneInputCommands = 0 }, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(Path.Combine(qa, "ui-interactions.json"), JsonSerializer.Serialize(new { passed = passed.Count, tests = passed, mockPostAttempts = handler.PostAttempts, realPhoneInputCommands = 0, dataPath = _dataPath }, new JsonSerializerOptions { WriteIndented = true }));
     }
 }
