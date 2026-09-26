@@ -209,13 +209,14 @@ Spotlight consumes spaces. Usage 44 is still a space in Notes (`A B Test 123!` o
   - one lease versus a fresh lease per send;
   - whether the send began with Enter.
 - Once a note had lost its first space, later sends into it arrived exactly, including after a 3 s pause. Every exact result in these runs was typed into such a note.
+- Not specific to Notes (26 Sep; see the report's lone-space diagnostic). `Hi`, a lone space and `there` were sent as three Send text commands, each answered with code 0. Two fresh notes and two fresh Settings search fields all read `Hithere`. The cursor did not move on the lone space.
 
 *Hypotheses:*
 
 - iOS Inline Predictions. An "Inline Predictions — Press space to input predictive text" tip and grey predicted text appeared on screen during these runs, and one Enter accepted a pending prediction and inserted `he` that was never sent. **Tested with no change seen.** With authorization, Settings → General → Keyboard → Show Predictions Inline (originally ON) was turned OFF and then restored to ON. `Hi there` sent with the Send text button became `Hithere` in all nine fresh-note trials, three in each state. This does not definitively rule the setting out: no inline prediction was visible in either state, and Notes was not relaunched after the change.
 - Full Keyboard Access (above). Untested. Testing it means changing that setting, which has not been authorized.
 
-The kernel keeps no per-note state and sends the same reports for every space. That points at the phone, but it is not proven. The cause remains unresolved.
+The kernel keeps no per-note state and sends the same reports for every space. That points at the phone, but it is not proven. Because Settings search loses the space too, a Notes-only explanation is unlikely. Full Keyboard Access remains an untested hypothesis. The cause remains unresolved, and exact typing into a fresh text field remains an open requirement.
 
 The older `A B Test 123!` capture kept its first space and is unexplained.
 
