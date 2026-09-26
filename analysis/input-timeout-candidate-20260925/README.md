@@ -155,7 +155,13 @@ The running kernel already serves this candidate (protocol 1, `/input/release`),
 | Visible timeout and explicit Resume | A loopback proxy between this console and the kernel loses the answer to one tap on a blank area (the kernel still runs it) | The panel shows the timeout; nothing is sent until Resume; Resume recovers |
 | Safe drag cleanup | The same proxy loses the answer to one move of a short drag in blank space inside an open note | The log shows a confirmed release about 8 s after the move; the phone shows no held touch afterwards |
 
-The proxy is test tooling next to the release; the kernel and phone configuration are unchanged. Pointing the console at the proxy makes it save the proxy's address in the shared `%APPDATA%\iMouse2\settings.json`. Back that file up before the test, reconnect to `http://127.0.0.1:9913` afterwards, and verify the file is byte-identical to the backup.
+**The proxy** is `tools/input-fault-proxy` (built as `%TEMP%\claude\imouse-candidate-integrated-1\proxy\InputFaultProxy.exe`). It is test tooling next to the release; the kernel and phone configuration are unchanged.
+- It forwards everything to the kernel unchanged.
+- `GET /proxy/lose?fun=<command>&skip=N` lets the (N+1)th matching command reach the kernel and withholds the answer once. It logs every command with the kernel's actual answer code.
+- Only `/mouse/*`, `/key/sendkey` and `/input/status` can be armed; ownership calls are refused.
+- Offline check against the running kernel, read-only requests only, 26 Sep 00:21: the device list and a C24C frame were identical through the proxy. Armed `/input/status` reached the kernel (code 0) and the client got no answer within 8 s. The next request was answered. Arming `/input/release` was refused.
+
+Pointing the console at the proxy (`http://localhost:9923`) makes it save that address in the shared `%APPDATA%\iMouse2\settings.json`. Back the file up before the test, reconnect to `http://127.0.0.1:9913` afterwards, and verify the file is byte-identical to the backup.
 
 ## Requirements kept open
 
