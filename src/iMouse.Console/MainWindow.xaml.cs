@@ -158,6 +158,10 @@ public partial class MainWindow : Window
         ControlsPane.Visibility = ReferenceEquals(pane, ControlsPane) ? Visibility.Visible : Visibility.Collapsed;
         SettingsPane.Visibility = ReferenceEquals(pane, SettingsPane) ? Visibility.Visible : Visibility.Collapsed;
         ActivityPane.Visibility = ReferenceEquals(pane, ActivityPane) ? Visibility.Visible : Visibility.Collapsed;
+        // Start below the top bar. Covering it made the first click on Stop input only close
+        // the drawer, and Send text lives in a drawer, so a long send could not be stopped
+        // with one click.
+        DrawerHost.Margin = new Thickness(0, TopBar.ActualHeight, 0, 0);
         DrawerHost.Visibility = Visibility.Visible;
     }
     private void OpenControls_Click(object sender, RoutedEventArgs e) { ShowDrawer("Controls", ControlsPane); UpdateControls(); }
@@ -1554,12 +1558,58 @@ public partial class MainWindow : Window
         if (parts[0] == "cast") { await ExecuteAsync(button.Content.ToString()!, function, data, targets, true); return; }
         await SendInputAsync(button.Content.ToString()!, function, data);
     }
+    /// <summary>
+    /// Temporary cap on one Send text, not a chunking requirement: chunks keep each command
+    /// inside the kernel deadline at any length. It bounds how long one send holds the phones
+    /// (200 characters is seven chunks, roughly 30 s). The box has no MaxLength, because WPF
+    /// truncates pasted text to it silently; over-limit text stays visible and is refused.
+    /// </summary>
+    internal const int MaxSendText = 200;
+    private bool _sendingText;
+    private void SendTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (SendTextCount is null) return;
+        int length = SendTextBox.Text.Length;
+        SendTextCount.Text = length > MaxSendText ? $"{length} / {MaxSendText} · too long to send" : $"{length} / {MaxSendText}";
+        SendTextCount.SetResourceReference(TextBlock.ForegroundProperty, length > MaxSendText ? "BadBrush" : "MutedBrush");
+    }
     private async void SendText_Click(object sender, RoutedEventArgs e)
     {
         string text = SendTextBox.Text;
         if (string.IsNullOrEmpty(text)) { Log("Enter text to send first.", true); return; }
         if (text.Any(c => c < 32 || c > 126)) { Log("Keyboard typing supports English letters, numbers and punctuation. Use the original console's shortcut tools for Unicode text.", true); return; }
-        await SendInputAsync("Send text", "/key/sendkey", new() { ["key"] = text });
+        if (text.Length > MaxSendText) { Log($"Send text takes at most {MaxSendText} characters at a time; this is {text.Length}. Nothing was sent.", true); return; }
+        if (_sendingText) { Log("Still typing the previous text. Wait for it to finish, or use Stop input.", true); return; }
+        if (!_controlReady) return;
+        var api = _api; var ids = InputTargetIds();
+        if (api is null || !_connected || ids.Length == 0) return;
+        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, _controlCancellation.Token);
+        int count = ids.Count(c => c == ',') + 1;
+        string label = count > 1 ? $"Send text -> {count} phones" : "Send text";
+        _sendingText = true;
+        try
+        {
+            var r = await api.SendTextAsync(ids, text, inputLifetime.Token);
+            if (r.End == InputEnd.Completed) { Log($"{label}: {r.Total} characters in {r.Chunks} chunk(s)"); return; }
+            string progress = $"{r.ConfirmedCharacters} of {r.Total} characters confirmed.";
+            string partial = r.Sent > r.Confirmed ? $" Chunk {r.Sent} of {r.Chunks} may be partly typed and was not retried." : "";
+            string rest = r.Sent == r.Chunks ? "" : r.Sent == 0 ? " No chunk was sent."
+                : r.Sent + 1 == r.Chunks ? $" Chunk {r.Chunks} was not sent." : $" Chunks {r.Sent + 1}–{r.Chunks} were not sent.";
+            switch (r.End)
+            {
+                case InputEnd.Cancelled: Log($"{label} stopped: {progress}{partial}{rest}", true); break;
+                case InputEnd.TimedOut:
+                    Log($"{label} timed out: {progress}{partial}{rest} Check the phone before continuing.", true);
+                    // The lease client has paused these phones but raises no notice for a timeout.
+                    if (api.UsesInputOwnership && api == _api)
+                    {
+                        CancelLocalInput(); InputStateText.Text = "Input paused: text timed out · check the phone, then choose Resume input"; RefreshInputOwnershipUi();
+                    }
+                    break;
+                default: Log($"{label} failed: {progress}{partial}{rest} {Friendly(r.Failure!)}", true); break;
+            }
+        }
+        finally { _sendingText = false; }
     }
     private async Task ExecuteAsync(string label, string function, Dictionary<string, object> data, List<Device> targets, bool allowOffline)
     {
@@ -2471,7 +2521,7 @@ public partial class MainWindow : Window
         SendTextBox.Text = "not ASCII: é"; SendText_Click(this, new RoutedEventArgs());
         Check("Unsupported text is blocked before transmission", handler.Commands.Count == beforeText);
         SendTextBox.Text = "hello"; SendText_Click(this, new RoutedEventArgs());
-        for (int i = 0; _commandBusy && i < 100; i++) await Task.Delay(20);
+        for (int i = 0; (_commandBusy || _sendingText) && i < 100; i++) await Task.Delay(20);
         Check("Send text transmits explicit field", handler.Commands.Count == beforeText + 1 && handler.Commands[^1].GetProperty("data").GetProperty("key").GetString() == "hello");
         SearchBox.Text = "does-not-match";
         int beforeNone = handler.Commands.Count;
@@ -2516,6 +2566,25 @@ public partial class MainWindow : Window
         UpdateControls();
 
         Check("Stop button enabled under ownership", StopInputButton.IsEnabled);
+        // Send text runs from the Controls drawer, so Stop must take the first click while it
+        // is open. On the rack the drawer's scrim swallowed that click and typing carried on.
+        // Geometric hit test: the test window is never shown, and InputHitTest skips
+        // elements that are not on screen.
+        string hitDetail = "";
+        bool Hits(Button button)
+        {
+            var root = (UIElement)Content; root.UpdateLayout();
+            var centre = button.TranslatePoint(new Point(button.ActualWidth / 2, button.ActualHeight / 2), root);
+            var hit = VisualTreeHelper.HitTest(root, centre)?.VisualHit;
+            hitDetail = $" (hit {hit?.GetType().Name ?? "nothing"} at {centre})";
+            for (DependencyObject? d = hit; d is not null; d = VisualTreeHelper.GetParent(d))
+                if (ReferenceEquals(d, button)) return true;
+            return false;
+        }
+        ShowDrawer("Controls", ControlsPane);
+        bool stopReachable = Hits(StopInputButton);
+        Check("Stop input takes the first click while the Send text drawer is open" + (stopReachable ? "" : hitDetail), stopReachable);
+        CloseDrawer_Click(this, new RoutedEventArgs());
         Check("Stop button tooltip lists master and all checked phones",
             StopInputButton.ToolTip.ToString()!.Contains("Test phone 01") &&
             StopInputButton.ToolTip.ToString()!.Contains("Test phone 04") &&
@@ -2536,6 +2605,53 @@ public partial class MainWindow : Window
         Check("Resume button click sends /input/resume",
             handler.Commands.Any(c => c.GetProperty("fun").GetString() == "/input/resume"));
         Check("Input state recovers to ready", InputStateText.Text.Contains("ready"));
+
+        // --- long text goes out in 32-character chunks, through the real button ---
+        // One 200-character sendkey used to outlive the kernel's 8 s command deadline, which
+        // cancelled it partway and latched Stop. Master TEST:01 plus follower TEST:04 here.
+        async Task SendTextAndWait(string value)
+        {
+            SendTextBox.Text = value; SendText_Click(this, new RoutedEventArgs());
+            for (int i = 0; _sendingText && i < 500; i++) await Task.Delay(10);
+            if (_sendingText) throw new Exception("Send text did not finish during UI test.");
+        }
+        JsonElement[] KeysSince(int index) => handler.Commands.ToArray().Skip(index).Where(c => c.GetProperty("fun").GetString() == "/key/sendkey").ToArray();
+        string text = SelfTests.LongText;
+        Check("Send text cap is the documented 200 characters", MaxSendText == 200);
+        Check("The text box never truncates, so paste cannot shorten text silently", SendTextBox.MaxLength == 0);
+
+        int beforeLong = handler.Commands.Count;
+        await SendTextAndWait(text);
+        var chunks = KeysSince(beforeLong);
+        Check("A 200-character Send text is seven /key/sendkey requests", chunks.Length == 7);
+        Check("Every Send text chunk is at most 32 characters", chunks.All(c => c.GetProperty("data").GetProperty("key").GetString()!.Length <= ApiClient.TextChunk));
+        Check("Send text chunks arrive in order and rebuild the text", string.Concat(chunks.Select(c => c.GetProperty("data").GetProperty("key").GetString())) == text);
+        Check("Every Send text chunk addresses the mirrored phones",
+            chunks.All(c => c.GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04"));
+        string chunkToken = chunks[0].GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString()!;
+        Check("Every Send text chunk carries the same lease",
+            chunks.All(c => c.GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString() == chunkToken));
+        Check("A complete Send text is logged as such", _activity.Any(s => s.Contains("Send text -> 2 phones: 200 characters in 7 chunk(s)")));
+        Check("Long text leaves input ready, not stopped", _controlReady && InputStateText.Text.Contains("ready"));
+
+        Check("The counter shows a full box as within the cap", SendTextCount.Text == "200 / 200");
+        int beforeOver = handler.Commands.Count;
+        await SendTextAndWait(new string('a', MaxSendText + 1));
+        Check("Over-limit text stays whole in the box", SendTextBox.Text.Length == MaxSendText + 1);
+        Check("The counter flags over-limit text before sending", SendTextCount.Text.Contains("201 / 200") && SendTextCount.Text.Contains("too long"));
+        // Count keys only: the 50 ms renewal heartbeat adds /input/renew while this runs.
+        Check("Text over the limit is refused before transmission, not truncated and sent",
+            KeysSince(beforeOver).Length == 0 && _activity.Any(s => s.Contains($"at most {MaxSendText} characters at a time; this is 201. Nothing was sent.")));
+
+        int beforeFail = handler.Commands.Count;
+        handler.FailSendKeyNumber = handler.SendKeyCount + 3;
+        await SendTextAndWait(text);
+        var failedChunks = KeysSince(beforeFail);
+        Check("A failure on chunk 3 sends no chunk after it", failedChunks.Length == 3);
+        Check("The failure reports confirmed characters and the chunk with an unknown outcome",
+            _activity.Any(s => s.Contains("64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.")));
+        for (int i = 0; !InputStateText.Text.Contains("Input paused") && i < 100; i++) await Task.Delay(10);
+        Check("A failed chunk shows input paused and offers Resume", InputStateText.Text.Contains("Input paused") && ResumeInputButton.IsEnabled);
 
         Disconnect_Click(this, new RoutedEventArgs());
 

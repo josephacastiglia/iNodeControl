@@ -1,3 +1,4 @@
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
 
 namespace IMouse2;
@@ -35,8 +36,28 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         tokens is null ? new() { ["id"] = string.Join(',', ids) } : new() { ["id"] = string.Join(',', ids), ["tokens"] = tokens };
     public async Task<JsonElement> CommandAsync(string function, Dictionary<string, object> data, CancellationToken caller)
     {
+        JsonElement result = default;
+        var (_, failure) = await SequenceAsync(function, [data], _ => { }, (_, r) => result = r, caller).ConfigureAwait(false);
+        if (failure is not null) ExceptionDispatchInfo.Throw(failure);
+        return result;
+    }
+    /// <summary>
+    /// Sends the steps in order under one hold of each phone's gate and one lease, so every
+    /// step carries the same tokens and nothing else from this console lands between them.
+    /// <paramref name="sending"/> runs just before a step leaves, <paramref name="confirmed"/>
+    /// after the kernel accepted it. The first failure ends the sequence and pauses the phones
+    /// like any failed command; the failed step is never resent, because it may have partly
+    /// run. Refusals before anything could be sent (paused, closed, caller cancelled) throw.
+    /// </summary>
+    public async Task<(InputEnd End, Exception? Failure)> SequenceAsync(string function, IReadOnlyList<Dictionary<string, object>> steps,
+        Action<int> sending, Action<int, JsonElement> confirmed, CancellationToken caller)
+    {
         caller.ThrowIfCancellationRequested();
-        var ids = Ids(data.GetValueOrDefault("id")?.ToString() ?? "");
+        if (steps.Count == 0) throw new ArgumentException("A sequence needs at least one step.");
+        string scope = steps[0].GetValueOrDefault("id")?.ToString() ?? "";
+        if (steps.Any(s => (s.GetValueOrDefault("id")?.ToString() ?? "") != scope))
+            throw new ArgumentException("Every step of a sequence must address the same phones.");
+        var ids = Ids(scope);
         if (ids.Length == 0) throw new ApiException("Select a phone first.");
         Phone[] phones; CancellationToken[] lifetimes;
         lock (_sync)
@@ -47,7 +68,7 @@ internal sealed class InputLeaseClient : IAsyncDisposable
             lifetimes = phones.Select(p => p.Life.Token).Append(caller).Append(_shutdown.Token).ToArray();
         }
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(lifetimes);
-        var ct = linked.Token; int held = 0;
+        var ct = linked.Token; int held = 0; bool paused = false;
         try
         {
             foreach (var phone in phones) { await phone.Gate.WaitAsync(ct).ConfigureAwait(false); held++; }
@@ -78,16 +99,30 @@ internal sealed class InputLeaseClient : IAsyncDisposable
             finally { _acquire.Release(); }
             Dictionary<string, string> tokens;
             lock (_sync) { ct.ThrowIfCancellationRequested(); tokens = ids.Select((id, i) => (id, token: phones[i].Token!)).ToDictionary(x => x.id, x => x.token); }
-            var payload = new Dictionary<string, object>(data) { ["tokens"] = tokens };
-            return await _send(function, payload, ct).ConfigureAwait(false);
+            for (int step = 0; step < steps.Count; step++)
+            {
+                // Pause marks the phone under the lock before it cancels, so checking both
+                // closes the gap in which a Stop could otherwise let one more step out.
+                lock (_sync) { ct.ThrowIfCancellationRequested(); paused = phones.Any(p => p.Paused); }
+                if (paused) throw new OperationCanceledException(ct);
+                var payload = new Dictionary<string, object>(steps[step]) { ["tokens"] = tokens };
+                sending(step);
+                confirmed(step, await _send(function, payload, ct).ConfigureAwait(false));
+            }
+            return (InputEnd.Completed, null);
         }
         catch (Exception ex)
         {
+            // Decide before Pause below cancels ct. Only this client's lifetimes, the caller
+            // and HttpClient's own timeout cancel anything here, so a cancellation none of
+            // ours requested is the timeout, and that step's outcome is unknown.
+            var end = ex is not OperationCanceledException ? InputEnd.Failed
+                : ct.IsCancellationRequested || paused ? InputEnd.Cancelled : InputEnd.TimedOut;
             string[] current;
             lock (_sync) current = ids.Where((id, i) => phones[i].Life.Token == lifetimes[i]).ToArray();
             Pause(current);
             if (current.Length > 0 && ex is not OperationCanceledException) Notice?.Invoke("Input paused: " + ex.Message);
-            throw;
+            return (end, ex);
         }
         finally { for (int i = held - 1; i >= 0; i--) phones[i].Gate.Release(); }
     }

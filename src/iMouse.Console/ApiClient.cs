@@ -7,6 +7,19 @@ namespace IMouse2;
 
 public sealed class ApiException(string message) : Exception(message);
 
+/// <summary>How an input sequence ended. Cancelled means this console asked it to stop
+/// (Stop, a scope change, disconnect); TimedOut means no answer arrived in time.</summary>
+public enum InputEnd { Completed, Cancelled, TimedOut, Failed }
+
+/// <summary>
+/// Outcome of <see cref="ApiClient.SendTextAsync"/>. ConfirmedCharacters counts characters in
+/// chunks the kernel answered with code 0: their HID writes finished, which does not prove iOS
+/// inserted them. Sent counts chunks that left this console. When Sent &gt; Confirmed, chunk
+/// Sent has an unknown outcome and may be partly typed; when they are equal the send ended
+/// between chunks and nothing is partial. No chunk after Sent was sent.
+/// </summary>
+public sealed record TextDelivery(InputEnd End, int ConfirmedCharacters, int Total, int Sent, int Confirmed, int Chunks, Exception? Failure);
+
 public static class JsonValue
 {
     public static string Text(JsonElement obj, string name, string fallback = "") =>
@@ -151,6 +164,51 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         using var response = await _http.PostAsync(Endpoint, body, ct);
         response.EnsureSuccessStatusCode();
         return ReadResult(await response.Content.ReadAsStringAsync(ct));
+    }
+    /// <summary>
+    /// Most characters one /key/sendkey carries. The kernel spends 140 ms of HID timing on a
+    /// character (170 ms on a space) and cancels any command after 8 s, which also stops the
+    /// phone until Resume; this client's HTTP timeout is 8 s as well. 32 spaces is 5.4 s.
+    /// </summary>
+    public const int TextChunk = 32;
+    public static List<string> SplitText(string text) => text.Chunk(TextChunk).Select(c => new string(c)).ToList();
+    /// <summary>
+    /// Types text as consecutive /key/sendkey commands of at most <see cref="TextChunk"/>
+    /// characters, in one input lease. Stops at the first chunk that fails and never resends
+    /// it: its outcome is unknown and it may be partly typed. Does not throw once the text is
+    /// accepted; the result says how it ended and how far it got.
+    /// </summary>
+    public async Task<TextDelivery> SendTextAsync(string ids, string text, CancellationToken ct = default)
+    {
+        if (text.Length == 0) throw new ArgumentException("Enter text to send first.");
+        var chunks = SplitText(text);
+        var steps = chunks.Select(c => new Dictionary<string, object> { ["id"] = ids, ["key"] = c }).ToList();
+        int characters = 0, sent = 0, confirmed = 0;
+        void Confirm(int i) { characters += chunks[i].Length; confirmed = i + 1; }
+        TextDelivery Result(InputEnd end, Exception? failure) => new(end, characters, text.Length, sent, confirmed, chunks.Count, failure);
+        try
+        {
+            if (_input is not null)
+            {
+                var (end, failure) = await _input.SequenceAsync("/key/sendkey", steps, i => sent = i + 1, (i, _) => Confirm(i), ct).ConfigureAwait(false);
+                return Result(end, failure);
+            }
+            for (int i = 0; i < steps.Count; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+                sent = i + 1;
+                await RawCommandAsync("/key/sendkey", steps[i], ct).ConfigureAwait(false);
+                Confirm(i);
+            }
+            return Result(InputEnd.Completed, null);
+        }
+        catch (Exception ex)
+        {
+            // The raw path, or a refusal before the lease client sent anything. As there, a
+            // cancellation our token did not request is HttpClient's timeout.
+            return Result(ex is not OperationCanceledException ? InputEnd.Failed
+                : ct.IsCancellationRequested ? InputEnd.Cancelled : InputEnd.TimedOut, ex);
+        }
     }
     public Task StopInputAsync(string ids) => _input?.StopAsync(ids) ?? Task.CompletedTask;
     public Task ResumeInputAsync(string ids) => _input?.ResumeAsync(ids) ?? Task.CompletedTask;

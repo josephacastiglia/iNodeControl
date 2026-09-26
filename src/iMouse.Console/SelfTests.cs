@@ -35,6 +35,20 @@ public sealed class TestHandler : HttpMessageHandler
         ActiveLeases.Remove(id);
         ExpiredLeases.Add(id);
     }
+
+    // --- Scripted /key/sendkey outcomes, numbered by how many sendkeys this handler has seen ---
+    public int SendKeyCount { get; private set; }
+    /// <summary>This sendkey fails as the kernel reports a failed command: code 33, phones stopped.</summary>
+    public int FailSendKeyNumber { get; set; }
+    /// <summary>This sendkey gets no answer, which HttpClient reports as its own timeout.</summary>
+    public int TimeoutSendKeyNumber { get; set; }
+    /// <summary>This sendkey stays in flight until cancelled; SendKeyHeld completes when it arrives.</summary>
+    public int HoldSendKeyNumber { get; set; }
+    public TaskCompletionSource SendKeyHeld { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private int _postsInFlight, _peakPostsInFlight;
+    /// <summary>Most POSTs that were ever in flight at once.</summary>
+    public int PeakPostsInFlight => Volatile.Read(ref _peakPostsInFlight);
+    public void ResetPeak() => Volatile.Write(ref _peakPostsInFlight, 0);
     public const string Fixture = """
     {"status":200,"data":{"code":0,"list":[
       {"deviceid":"TEST:01","name":"Test phone 01","device_name":"iPhone XR","gname":"Test devices","state":1,"width":"414","height":"896","imgw":500,"imgh":1080,"air_pid":4321,"version":"18.0","uid":"TEST-BOARD-01","receiver_name":"iMouse2-C24C"},
@@ -51,6 +65,14 @@ public sealed class TestHandler : HttpMessageHandler
       {"vid":"720A","pid":"B005","uid":"TEST-BOARD-05","ver":"c.n","state":2}]}}
     """;
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+    {
+        if (request.Method != HttpMethod.Post) return await HandleAsync(request, ct);
+        int now = Interlocked.Increment(ref _postsInFlight);
+        for (int peak = Volatile.Read(ref _peakPostsInFlight); now > peak && Interlocked.CompareExchange(ref _peakPostsInFlight, now, peak) != peak; peak = Volatile.Read(ref _peakPostsInFlight)) { }
+        try { return await HandleAsync(request, ct); }
+        finally { Interlocked.Decrement(ref _postsInFlight); }
+    }
+    private async Task<HttpResponseMessage> HandleAsync(HttpRequestMessage request, CancellationToken ct)
     {
         if (request.Method == HttpMethod.Post) PostAttempts++;
         if (DelayMs > 0) await Task.Delay(DelayMs, ct);
@@ -195,6 +217,25 @@ public sealed class TestHandler : HttpMessageHandler
                 else
                 {
                     return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 409, message = "Input lease token required" } }));
+                }
+            }
+            if (fun == "/key/sendkey")
+            {
+                int number = ++SendKeyCount;
+                if (number == HoldSendKeyNumber) { SendKeyHeld.TrySetResult(); await Task.Delay(Timeout.Infinite, ct); }
+                if (number == TimeoutSendKeyNumber) throw new TaskCanceledException("Simulated: no answer before the HTTP timeout.");
+                if (number == FailSendKeyNumber)
+                {
+                    // InputSessions stops the phone and revokes its lease on any non-zero result.
+                    string idStr = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
+                    var ids = idStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var id in ids)
+                    {
+                        ActiveLeases.Remove(id);
+                        StoppedPhones.Add(id);
+                        PhoneGenerations[id] = PhoneGenerations.GetValueOrDefault(id, 1) + 1;
+                    }
+                    return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 33, results = ids.Select(id => new { id, code = 499, message = "Input cancelled" }) } }));
                 }
             }
 
@@ -432,6 +473,7 @@ public static class SelfTests
             CoordinateMapper.MapClamped(5, 300, 600, 600, 500, 1080, 500, 1080) is { X: 0 });
 
         await RunOwnershipTestsAsync(passed);
+        await RunTextChunkTestsAsync(passed);
 
         var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
         File.WriteAllText(Path.Combine(qa, "self-tests.json"), JsonSerializer.Serialize(new { passed = passed.Count, tests = passed, allCommandsUsedMockTransport = true, at = DateTime.Now }, new JsonSerializerOptions { WriteIndented = true }));
@@ -627,6 +669,145 @@ public static class SelfTests
         Check("Disconnect releases all active leases", hDisc.ActiveLeases.Count == 0);
         Check("Release commands recorded on disconnect",
             hDisc.Commands.Any(c => c.GetProperty("fun").GetString() == "/input/release"));
+    }
+
+    /// <summary>200 characters of typeable ASCII, spaces included, so chunk order is checkable.</summary>
+    public static readonly string LongText = string.Concat(Enumerable.Repeat("The quick brown fox jumps over the lazy dog 0123456789! ", 4))[..200];
+
+    /// <summary>
+    /// Long text used to go out as one /key/sendkey. At 140-170 ms a character the kernel's
+    /// 8 s command deadline cancelled it after about 50 characters, left the rest untyped and
+    /// latched Stop. It now goes out in 32-character chunks inside one lease.
+    /// </summary>
+    public static async Task RunTextChunkTestsAsync(List<string> passed)
+    {
+        void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
+        static string Fun(JsonElement c) => c.GetProperty("fun").GetString()!;
+        static JsonElement[] Keys(TestHandler h) => h.Commands.ToArray().Where(c => Fun(c) == "/key/sendkey").ToArray();
+        static string Key(JsonElement c) => c.GetProperty("data").GetProperty("key").GetString()!;
+        static string Token(JsonElement c, string id) => c.GetProperty("data").GetProperty("tokens").GetProperty(id).GetString()!;
+        string text = LongText;
+        var chunks = ApiClient.SplitText(text);
+
+        Check("A 32-character text is one chunk", ApiClient.SplitText(new string('a', 32)).Count == 1);
+        Check("A 33-character text is two chunks", ApiClient.SplitText(new string('a', 33)).Select(c => c.Length).SequenceEqual(new[] { 32, 1 }));
+        Check("200 characters split into seven chunks of at most 32",
+            text.Length == 200 && chunks.Count == 7 && chunks.All(c => c.Length <= ApiClient.TextChunk) && string.Concat(chunks) == text);
+
+        // 1. The whole text, one lease, one chunk at a time.
+        var h = new TestHandler { OwnershipSupported = true, DelayMs = 5 };
+        await using (var api = new ApiClient("localhost", h, ownership: true))
+        {
+            var r = await api.SendTextAsync("TEST:01", text);
+            var keys = Keys(h);
+            Check("200-character send completes", r.End == InputEnd.Completed && r.Failure is null);
+            Check("200-character send reports every character confirmed", r.ConfirmedCharacters == 200 && r.Total == 200 && r.Sent == 7 && r.Confirmed == 7);
+            Check("200-character send is exactly seven /key/sendkey requests", keys.Length == 7);
+            Check("Every chunk carries at most 32 characters", keys.All(k => Key(k).Length <= 32));
+            Check("Chunks arrive in order and rebuild the text exactly", string.Concat(keys.Select(Key)) == text);
+            Check("Chunks are sequential, never concurrent", h.PeakPostsInFlight == 1);
+            Check("One lease: a single acquire, before the first chunk",
+                h.Commands.Count(c => Fun(c) == "/input/acquire") == 1 && Fun(h.Commands[0]) == "/input/acquire" && h.Commands.Count == 8);
+            string token = Token(keys[0], "TEST:01");
+            Check("Every chunk carries the same lease token", keys.All(k => Token(k, "TEST:01") == token));
+        }
+
+        // 2. A failure on chunk 3 stops there: chunks 4-7 never leave, chunk 3 is not retried.
+        var hFail = new TestHandler { OwnershipSupported = true, FailSendKeyNumber = 3 };
+        await using (var api = new ApiClient("localhost", hFail, ownership: true))
+        {
+            string notice = "";
+            api.InputNotice += m => notice = m;
+            var r = await api.SendTextAsync("TEST:01", text);
+            var keys = Keys(hFail);
+            Check("A failed chunk ends the send as failed", r.End == InputEnd.Failed && r.Failure is ApiException);
+            Check("Failure on chunk 3 sends only chunks 1-3", keys.Length == 3 && keys.Select(Key).SequenceEqual(chunks.Take(3)));
+            Check("Failed chunk 3 is not retried", hFail.SendKeyCount == 3);
+            Check("Failure reports the two confirmed chunks as 64 characters", r.ConfirmedCharacters == 64 && r.Confirmed == 2);
+            Check("Failure marks chunk 3 as sent with an unknown outcome", r.Sent == 3 && r.Chunks == 7);
+            Check("A failed chunk pauses input with a notice", notice.StartsWith("Input paused"));
+            int before = hFail.Commands.Count;
+            var again = await api.SendTextAsync("TEST:01", text);
+            Check("A paused phone refuses new text before sending anything",
+                again.End == InputEnd.Failed && again.Sent == 0 && again.ConfirmedCharacters == 0 && hFail.Commands.Count == before);
+        }
+
+        // 3. Stop while chunk 3 is in flight: it is cut short, nothing after it is sent.
+        var hStop = new TestHandler { OwnershipSupported = true, HoldSendKeyNumber = 3 };
+        await using (var api = new ApiClient("localhost", hStop, ownership: true))
+        {
+            var sending = api.SendTextAsync("TEST:01", text);
+            await hStop.SendKeyHeld.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            await api.StopInputAsync("TEST:01");
+            var r = await sending.WaitAsync(TimeSpan.FromSeconds(5));
+            var all = hStop.Commands.ToArray().ToList();
+            int stopAt = all.FindIndex(c => Fun(c) == "/input/stop");
+            Check("Stop during text ends the send as cancelled, not failed or timed out", r.End == InputEnd.Cancelled);
+            Check("Stop during chunk 3 leaves chunk 3 unconfirmed and sends nothing after it",
+                r.Sent == 3 && r.Confirmed == 2 && r.ConfirmedCharacters == 64 && hStop.SendKeyCount == 3);
+            Check("No chunk is sent after /input/stop", stopAt >= 0 && !all.Skip(stopAt).Any(c => Fun(c) == "/key/sendkey"));
+        }
+
+        // 4. A timeout is told apart from a Stop by whether this console cancelled, not by the
+        // exception's shape. HttpClient reports a handler's unrequested cancellation as its timeout.
+        var hTime = new TestHandler { OwnershipSupported = true, TimeoutSendKeyNumber = 2 };
+        await using (var api = new ApiClient("localhost", hTime, ownership: true))
+        {
+            var r = await api.SendTextAsync("TEST:01", text);
+            Check("A chunk with no answer ends the send as timed out", r.End == InputEnd.TimedOut);
+            Check("Timeout on chunk 2 is not retried and nothing after it is sent",
+                hTime.SendKeyCount == 2 && r.Sent == 2 && r.Confirmed == 1 && r.ConfirmedCharacters == 32);
+            int before = hTime.Commands.Count;
+            var again = await api.SendTextAsync("TEST:01", text);
+            Check("A timed-out chunk pauses input until Resume", again.End == InputEnd.Failed && again.Sent == 0 && hTime.Commands.Count == before);
+        }
+
+        // 5. Cancelled before anything left: nothing is reported as possibly partly typed.
+        var hEarly = new TestHandler { OwnershipSupported = true };
+        await using (var api = new ApiClient("localhost", hEarly, ownership: true))
+        {
+            using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
+            var r = await api.SendTextAsync("TEST:01", text, cancelled.Token);
+            Check("Text cancelled before sending reports no chunk sent",
+                r.End == InputEnd.Cancelled && r.Sent == 0 && r.Confirmed == 0 && r.ConfirmedCharacters == 0);
+            Check("Text cancelled before sending sends no request at all", hEarly.Commands.Count == 0);
+        }
+
+        // 6. Mirrored typing: one lease covers every phone, and every chunk carries both tokens.
+        var hGroup = new TestHandler { OwnershipSupported = true };
+        await using (var api = new ApiClient("localhost", hGroup, ownership: true))
+        {
+            var r = await api.SendTextAsync("TEST:01,TEST:04", text);
+            var keys = Keys(hGroup);
+            Check("Mirrored text acquires both phones once",
+                hGroup.Commands.Count(c => Fun(c) == "/input/acquire") == 1 && hGroup.Commands[0].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
+            Check("Mirrored text is seven chunks, each for both phones with the same tokens",
+                r.End == InputEnd.Completed && keys.Length == 7 &&
+                keys.All(k => Token(k, "TEST:01") == Token(keys[0], "TEST:01") && Token(k, "TEST:04") == Token(keys[0], "TEST:04")));
+        }
+
+        // 7. Without the ownership protocol the chunks are still sequential and stop at a failure.
+        var hRaw = new TestHandler { DelayMs = 5 };
+        await using (var api = new ApiClient("localhost", hRaw, ownership: false))
+        {
+            var r = await api.SendTextAsync("TEST:01", text);
+            Check("Unowned text is seven sequential chunks rebuilding the text",
+                r.End == InputEnd.Completed && Keys(hRaw).Length == 7 && string.Concat(Keys(hRaw).Select(Key)) == text && hRaw.PeakPostsInFlight == 1);
+            hRaw.FailSendKeyNumber = hRaw.SendKeyCount + 3;
+            var failed = await api.SendTextAsync("TEST:01", text);
+            Check("Unowned text stops at a failed chunk 3",
+                failed.End == InputEnd.Failed && failed.Sent == 3 && failed.ConfirmedCharacters == 64 && Keys(hRaw).Length == 10);
+        }
+
+        // 8. Single commands keep their exceptions: taps and keys still see HttpClient's own type.
+        var hLegacy = new TestHandler { OwnershipSupported = true, TimeoutSendKeyNumber = 1 };
+        await using (var api = new ApiClient("localhost", hLegacy, ownership: true))
+        {
+            Exception? thrown = null;
+            try { await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" }); }
+            catch (Exception ex) { thrown = ex; }
+            Check("A timed-out single command still throws HttpClient's TaskCanceledException", thrown is TaskCanceledException);
+        }
     }
 
     /// <summary>Builds a 24-bit BMP whose marker pixel is red at the visual top-left.</summary>

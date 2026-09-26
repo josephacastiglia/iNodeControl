@@ -1,0 +1,6 @@
+IMouse2.Device
+IMouse2.Device
+03:09:01  Input stopped: 86:1D:4A:04:2F:F6
+03:09:01  Send text stopped: 64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.
+03:08:47  Enter
+03:05:26  Service connected. 2 devices, 2 online.

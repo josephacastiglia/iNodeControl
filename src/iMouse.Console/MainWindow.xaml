@@ -11,7 +11,7 @@
       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
 
       <!-- ================= top bar ================= -->
-      <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,0,0,1" Padding="12,7">
+      <Border x:Name="TopBar" Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,0,0,1" Padding="12,7">
         <Grid>
           <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -295,8 +295,11 @@
                   </UniformGrid>
 
                   <TextBlock Text="TYPING" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
-                  <TextBox x:Name="SendTextBox" Height="54" TextWrapping="Wrap" AcceptsReturn="False" VerticalScrollBarVisibility="Auto" MaxLength="2000"
-                           AutomationProperties.Name="Text to type on target phones"/>
+                  <!-- No MaxLength: WPF truncates pasted text to it silently. Over-limit text stays visible and Send text refuses it. -->
+                  <TextBox x:Name="SendTextBox" Height="54" TextWrapping="Wrap" AcceptsReturn="False" VerticalScrollBarVisibility="Auto"
+                           TextChanged="SendTextBox_TextChanged" AutomationProperties.Name="Text to type on target phones"/>
+                  <TextBlock x:Name="SendTextCount" Text="0 / 200" Style="{StaticResource Muted}" FontSize="11" HorizontalAlignment="Right" Margin="0,3,0,0"
+                             AutomationProperties.Name="Characters in the text box and the Send text limit"/>
                   <Button Content="Send text" Click="SendText_Click" Style="{StaticResource Primary}" HorizontalAlignment="Stretch" Margin="0,6,0,0"/>
                   <UniformGrid Columns="3">
                     <Button Content="Enter" Tag="key|ENTER" Click="Action_Click"/><Button Content="Bksp" Tag="key|BACKSPACE" Click="Action_Click"/><Button Content="Paste" Tag="key|WIN+v" Click="Action_Click"/>
