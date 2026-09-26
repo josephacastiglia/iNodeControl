@@ -534,6 +534,22 @@ public static class SelfTests
         Check("Clamped mapper folds the letterbox onto the edge",
             CoordinateMapper.MapClamped(5, 300, 600, 600, 500, 1080, 500, 1080) is { X: 0 });
 
+        // --data-dir: an isolated settings folder for a manually started candidate.
+        static bool Refused(string[] args) { try { App.DataDirArgument(args); return false; } catch (ArgumentException) { return true; } }
+        string spaced = Path.Combine(Path.GetTempPath(), "iMouse2 data dir test", "with spaces");
+        Check("--data-dir is absent unless given", App.DataDirArgument(["--ui-test"]) is null);
+        Check("--data-dir=<path> with spaces is taken whole", App.DataDirArgument(["--data-dir=" + spaced]) == Path.GetFullPath(spaced));
+        Check("--data-dir <path> as two arguments works too", App.DataDirArgument(["--data-dir", spaced + "\\"]) == Path.GetFullPath(spaced));
+        Check("--data-dir with nothing after it is refused", Refused(["--data-dir"]) && Refused(["--data-dir="]) && Refused(["--data-dir", "--address=http://x"]));
+        Check("A relative --data-dir is refused", Refused(["--data-dir=candidate\\data"]));
+        Check("A --data-dir with invalid characters is refused", Refused(["--data-dir=C:\\bad|name"]));
+        Check("A --data-dir naming the shared operator folder is refused",
+            Refused(["--data-dir=" + Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "iMouse2")]));
+        string aFile = Path.GetTempFileName();
+        try { Check("A --data-dir naming a file is refused", Refused(["--data-dir=" + aFile])); } finally { File.Delete(aFile); }
+        Check("--address=<url> is read, and absent or empty means none",
+            App.AddressArgument(["--address=http://localhost:9923"]) == "http://localhost:9923" && App.AddressArgument([]) is null && App.AddressArgument(["--address="]) is null);
+
         await RunOwnershipTestsAsync(passed);
         await RunTextChunkTestsAsync(passed);
 

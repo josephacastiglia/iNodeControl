@@ -35,9 +35,12 @@ public partial class MainWindow : Window
     private readonly string _dataPath;
     private readonly bool _mirrorLocal;
     private Device? Selected => DeviceList.SelectedItem as Device;
+    /// <summary>The address the data folder's settings.json named, or null when it named none
+    /// (the box then shows the built-in default, the vendor service on 9911).</summary>
+    internal string? SavedAddress { get; private set; }
 
-    // dataPath is for test modes: they must never load or overwrite the operator's
-    // %APPDATA%\iMouse2, which every console build on this machine shares.
+    // dataPath is for test modes and --data-dir: they must never load or overwrite the
+    // operator's %APPDATA%\iMouse2, which every console build on this machine shares.
     public MainWindow(Func<string, ApiClient>? factory = null, string? dataPath = null)
     {
         _dataPath = dataPath ?? ResolveDataPath();
@@ -56,6 +59,8 @@ public partial class MainWindow : Window
             if (File.Exists(file))
             {
                 using var d = JsonDocument.Parse(File.ReadAllText(file));
+                var saved = JsonValue.Text(d.RootElement, "address");
+                if (!string.IsNullOrWhiteSpace(saved)) SavedAddress = saved;
                 AddressBox.Text = JsonValue.Text(d.RootElement, "address", AddressBox.Text);
                 if (JsonValue.Text(d.RootElement, "theme") == "night") ApplyTheme(true);
             }
