@@ -126,7 +126,7 @@
     "Text over the limit is refused before transmission, not truncated and sent",
     "A failure on chunk 3 sends no chunk after it",
     "The failure reports confirmed characters and the chunk with an unknown outcome",
-    "A failed chunk shows input paused and offers Resume"
+    "A failed chunk leaves input paused and offers Resume"
   ],
   "mockPostAttempts": 58,
   "realPhoneInputCommands": 0

@@ -12,7 +12,7 @@ Date: 25 Sep 2026 (times are local, UTC−4). Status: **candidate only**. It is 
 | Explicit recovery without replay | **Met** (U5) |
 | Taking and releasing control | **Met** (U6) |
 | Over-limit text rejected, not truncated and sent | **Met** (U3). The box no longer truncates pasted text |
-| Windows `--self-test` / `--ui-test` on the final candidate | **Pass**: 143/143 and 126/126 (three runs), zero real-phone input |
+| Windows `--self-test` / `--ui-test` on the final candidate | **Pass after a test-only fix**: 143, and 126 in 15 of 15 runs, zero real-phone input. Before the fix, one UI check failed in about 1 run in 5 (see Tests) |
 
 ## Source revision
 
@@ -30,6 +30,15 @@ Built with `dotnet build src/iMouse.Console/iMouse.Console.csproj -c Release -o 
 | `%TEMP%\claude\imouse-candidate-textchunk\iMouse2.exe` (`C:\Users\joey_\AppData\Local\Temp\claude\imouse-candidate-textchunk\iMouse2.exe`) | `B1C38A1EE0156C178106FFE18EC8EC32AE359C149066F089FE05D9B9C117D060` |
 | `…\iMouse2.dll` | `6AD50CBA4C81F48F98731CD111EDC13C5BDA908681CFCBFEE3B3C34BA48B733E` |
 
+**Current candidate (26 Sep)**, built from the test-fix commit into a new folder. Its product code is identical to the build above; only the UI test's check changed.
+
+| File | SHA-256 |
+|---|---|
+| `C:\Users\joey_\AppData\Local\Temp\claude\imouse-candidate-textchunk-2\iMouse2.exe` | `2C9AF29184691DF575EF45E1ACECAA45EB20368A383CFC99D1FA111A0C6B8111` |
+| `…\imouse-candidate-textchunk-2\iMouse2.dll` | `4258EAB4D07D759BABD7DD3DE8453194EF0688B001622D76FD641B03DB2E150F` |
+
+The `6AD50CBA…` build above, which the 25 Sep UI validation and the Inline Predictions experiment used, is kept unchanged in its own folder for traceability. A .NET build embeds its output path, so a rebuild in another folder has a different hash even from identical source.
+
 **Build A**, used for U1–U4a, was an earlier build into the same folder. It differed from the final build only by the drawer fix (the `TopBar` name and one line in `ShowDrawer`) and that fix's UI test. Its hash was not recorded.
 
 ## Tests (final build)
@@ -39,7 +48,16 @@ Built with `dotnet build src/iMouse.Console/iMouse.Console.csproj -c Release -o 
 - Mutation checks:
   - Chunking disabled (`TextChunk = 1000`): both suites fail.
   - Drawer fix removed: the UI test fails with `hit Rectangle`, the drawer's dimming overlay.
-- The latest run's output files (the same binary, re-run on 25 Sep after the Inline Predictions experiment) are in [`test-results/`](test-results/): `self-tests.json` and `ui-interactions.json`.
+- The latest run's output files are in [`test-results/`](test-results/): `self-tests.json` and `ui-interactions.json`.
+
+**Correction (26 Sep): the UI test was flaky, and the earlier "three runs" pass was luck.**
+
+- Re-running it five times each on the `6AD50CBA…` build and on a fresh build from the checkpoint commit gave 4 of 5 passes on both. Every failure was at *A failed chunk shows input paused and offers Resume*.
+- A diagnostic build that recorded the state text caught it once in 20 runs. Input was correctly paused and Resume enabled, but the text read `Ownership renewal failed: Code 409: … Expired or invalid token` instead of `Input paused: …`.
+- Cause: a lease renewal already in flight when the mock kernel revoked the lease posted its own notice just after the failed send's notice, replacing the wording. The 50 ms test heartbeat makes this frequent; the 10 s production heartbeat makes it rare.
+- Fixed in the test only. The check now asserts the paused state (not ready, Resume enabled, no "ready" text) instead of the wording. No product code changed.
+- Afterwards: `--self-test` 143 passed, and `--ui-test` passed 15 of 15 runs at 126 each, with zero real-phone input. These results are in `test-results/`.
+- The wording overwrite is an existing behaviour of the renewal code. It is listed under open issues for the integration session and is not changed here.
 
 ## Changes made in this round
 
@@ -200,7 +218,8 @@ Only if both point at system handling would a Full Keyboard Access comparison, w
 5. **Cosmetic issues:**
    - After Disconnect, the header still says `Input ready · previous actions discarded`.
    - On relaunch the candidate opened on the secondary monitor and had to be moved.
-6. **Unverified references:** `rack-agent/src/actions.js` and `rack-agent/test/conformance.test.mjs` are cited in the docs as given, but they are not in this checkout.
+6. **A lease-renewal notice can replace a failed-send notice** (existing renewal code, for the integration session). If a renewal is in flight when the kernel revokes the lease after a failed command, `InputLeaseClient`'s renewal loop posts "Ownership renewal failed: …", which replaces the more accurate "Input paused: …" in the header. Input is still paused and Resume offered. Only the wording misleads. This touches the notice logic that the timeout-recovery work also changes.
+7. **Unverified references:** `rack-agent/src/actions.js` and `rack-agent/test/conformance.test.mjs` are cited in the docs as given, but they are not in this checkout.
 
 ## Rack state and side effects
 

@@ -2650,8 +2650,12 @@ public partial class MainWindow : Window
         Check("A failure on chunk 3 sends no chunk after it", failedChunks.Length == 3);
         Check("The failure reports confirmed characters and the chunk with an unknown outcome",
             _activity.Any(s => s.Contains("64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.")));
-        for (int i = 0; !InputStateText.Text.Contains("Input paused") && i < 100; i++) await Task.Delay(10);
-        Check("A failed chunk shows input paused and offers Resume", InputStateText.Text.Contains("Input paused") && ResumeInputButton.IsEnabled);
+        // The failed send posts "Input paused: …". A lease renewal already in flight when the kernel revoked
+        // the lease can post "Ownership renewal failed: …" just after it and replace that text (seen in about
+        // 1 run in 5 with the 50 ms test heartbeat). Either way input is paused, which is what this checks.
+        for (int i = 0; _controlReady && i < 100; i++) await Task.Delay(10);
+        Check("A failed chunk leaves input paused and offers Resume",
+            !_controlReady && ResumeInputButton.IsEnabled && !InputStateText.Text.Contains("ready"));
 
         Disconnect_Click(this, new RoutedEventArgs());
 
