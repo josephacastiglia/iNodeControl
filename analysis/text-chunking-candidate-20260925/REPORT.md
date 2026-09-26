@@ -1,13 +1,13 @@
 # Text-chunking candidate: validation report
 
-Date: 25 Sep 2026 (times are local, UTC−4). Status: **candidate only**. It is not merged, not promoted, and has not replaced the installed console.
+Date: 25 Sep 2026, updated 26 Sep 2026 (times are local, UTC−4). Status: **candidate only**. The fresh-field exact-text requirement is open. It is not merged, not promoted, and has not replaced the installed console.
 
 ## Verdict
 
 | Requirement | Result |
 |---|---|
 | Long text no longer latches Stop | **Met.** Every 100- and 200-character send completed without Stop, through the harness and through the Send text button |
-| Exact 100 characters through the real Send text button | **Met only in a note that had already lost its first space** (U2, F2). In a fresh note the first space is lost (U1, F1). See open issue 1 |
+| Exact 100 characters through the real Send text button | **Open for fresh fields.** Met only in a note that had already lost its first space (U2, F2). In a fresh note the first space is lost (U1, F1), and a lone first space was also lost in fresh Settings search fields. See open issue 1 |
 | Stop during a long send stops further chunks and reports accurately | **Met on the final build** (U4b). On the earlier build the first Stop click was swallowed (U4a); fixed in this candidate |
 | Explicit recovery without replay | **Met** (U5) |
 | Taking and releasing control | **Met** (U6) |
@@ -236,10 +236,10 @@ After each click, three phone screenshots were taken 300 ms apart. Each records 
 **Findings.**
 
 - In 4 of 4 fresh fields, a space sent alone as the first space was acknowledged by the kernel (code 0) but not inserted. The cursor did not advance, and the final text was `Hithere`. This happened in two apps (Notes and Settings search) and with a separate one-character command.
-- It is therefore not caused by chunking, by sharing a command with letters, or by anything specific to Notes.
+- So it is not caused by chunking or by the space sharing a command with letters. Because the first space also went missing in Settings search, a Notes-only explanation is unlikely.
 - Once, in E1, the lone space produced the text-edit menu that iOS shows when a focused text field is activated.
 
-**Next hypothesis supported by the evidence (untested).** iOS **Full Keyboard Access** treats the first Space in a newly focused text field as its *Activate* command (Space is FKA's default Activate key). That activates the field, which in E1 showed the edit menu, instead of typing a space. After that, spaces type normally. Four observations support it:
+**Next hypothesis (untested, not proven).** iOS **Full Keyboard Access** may treat the first Space in a newly focused text field as its *Activate* command (Space is FKA's default Activate key). That would activate the field, which in E1 showed the edit menu, instead of typing a space; after that, spaces type normally. The evidence is consistent with this but **does not show that Full Keyboard Access is responsible**. FKA was never changed, the Activate binding was not read, and other system-level text handling would fit the same observations. Four observations support it:
 
 1. FKA focus rings were visible throughout: on FaceTime, on Back, on the Apple Account row, and around the search field in E1.
 2. The E1 edit menu.
@@ -272,7 +272,12 @@ After each click, three phone screenshots were taken 300 ms apart. Each records 
 
 ## Remaining failures and open issues
 
-1. **The first space typed into a note is lost (cause unresolved).** It happens through the real button too (U1, F1). Exact text through the UI was obtained only after a note had already lost its first space. This is not a clean pass. Turning Show Predictions Inline off did not change it (9 of 9 identical across ON, OFF and restored ON). A space sent alone as the first space was also lost, in Notes and in Settings search (4 of 4). The leading hypothesis is Full Keyboard Access taking that Space as *Activate* (see [Lone-space diagnostic](#lone-space-diagnostic)); it is untested. No environmental workaround and no software fix has been found. Exact-text acceptance remains open.
+1. **The first space typed into a fresh text field is lost (cause unresolved).**
+   - It happens through the real button too (U1, F1). Exact text through the UI was obtained only after a note had already lost its first space. This is not a clean pass.
+   - Turning Show Predictions Inline off did not change it (9 of 9 identical across ON, OFF and restored ON).
+   - A space sent alone as the first space was also lost, in fresh Notes notes and in fresh Settings search fields (4 of 4). That makes a Notes-only explanation unlikely.
+   - Full Keyboard Access taking that Space as *Activate* is the leading hypothesis (see [Lone-space diagnostic](#lone-space-diagnostic)). It is untested and **not proven**.
+   - No environmental workaround and no software fix has been found. **The fresh-field exact-text requirement remains open.**
 2. **iOS alters text next to what was sent.**
    - An Enter accepted a pending inline prediction (`over t` → `over the`, U4b).
    - Leaving a note applied pending autocorrections (`Hithere` → `Hi there`, `Chunkchecktest` → `Chunkcheck test` in the list).
@@ -309,6 +314,15 @@ After each click, three phone screenshots were taken 300 ms apart. Each records 
 
 [`evidence-inventory.txt`](evidence-inventory.txt) lists every file in this folder with its size and SHA-256, and marks each as committed or local-only. Screenshots (`*.png`) and the raw `*.jsonl` trial logs are local-only, because the repository ignores `/analysis/**/*.png` and `/analysis/**/*.jsonl`; they were deliberately not force-added. Following the repository's convention for typing evidence (`c241-typing-investigation/trial-log.json`), each raw log is also saved as a committed `trial-log.json` array with local absolute paths made relative: `trials/trial-log.json`, `inline-predictions/trial-log.json` and `lone-space/trial-log.json`. The other committed text evidence is this report, `ui/U4b-activity-log.txt`, `lone-space/*-activity-log.txt` and `test-results/*.json`.
 
+**Preserve the screenshots until they are archived.**
+
+- The 162 screenshots (18.3 MB) and 3 raw JSONL logs exist only in this worktree, at `.claude/worktrees/jovial-yonath-f044e9/analysis/text-chunking-candidate-20260925/`.
+- Three earlier screenshots from 25 Sep are in the sibling folder `analysis/c24c-text-chunking-20260925/`:
+  - `c24c-01-new-note.png`, SHA-256 `C9084812C61C01EF69EFA034689929A2DBB6651C3E1EFA94AB5D1F9D37BC53D0`
+  - `c24c-02-new-note-repeat.png`, SHA-256 `E03D3B145CEA3350CC174FA1F0545BE20319C9CB9015B8C337C73002E5D5583D`
+  - `c24c-03-second-paragraph.png`, SHA-256 `BD3D323DC482F22C6902C9ED9298479ABF7C6A403D4096694B5EB7F7EA874CC5`
+- Removing this worktree, or running `git clean -x` in it, would delete them. Archive both folders first and check the copies against `evidence-inventory.txt`.
+
 ## Checkpoint and handoff
 
 All commits are local on branch `claude/jovial-yonath-f044e9`: not pushed, not merged, not promoted.
@@ -318,7 +332,8 @@ All commits are local on branch `claude/jovial-yonath-f044e9`: not pushed, not m
 | `ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a` | Base |
 | `5ea04382e4525fe13457018dd360b77f1679d684` | Checkpoint: text-chunking code, tests, KEYBOARD-SPEC, this report and its text evidence |
 | `8d6a2853216d06ab2490906635b4ec312ae7034d` | **Stable for integration.** Test-only fix of the flaky failed-chunk UI check, plus report and test-result updates |
-| The commit that adds this section | Report only: the lone-space diagnostic and this handoff. No `src/` changes |
+| `e41b8a8773386dbe075d2d56506e072ef5e5b5f9` | Report only: the lone-space diagnostic and this handoff. No `src/` changes |
+| The commit that adds this row | Report only: final wording. A Notes-only explanation is unlikely; Full Keyboard Access is not proven; the fresh-field exact-text requirement stays open; screenshot preservation note. No `src/` changes |
 
 **Candidate binary**, built from `8d6a285`:
 
