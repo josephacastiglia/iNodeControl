@@ -205,9 +205,74 @@ Evidence: `inline-predictions/<id>-empty.png`, `-typed.png`, `-zoom.png`, the si
 
 Only if both point at system handling would a Full Keyboard Access comparison, which needs a further settings authorization, be the next step.
 
+## Lone-space diagnostic
+
+26 Sep 2026, 01:24–01:38. No settings were changed.
+
+**Pre-flight.**
+
+- C24C `86:1D:4A:04:2F:F6` "XR C24C" (board `C24CBFBD`) was mirroring, not owned, not active and not stopped, generation 48. No other session was using it.
+- The installed console (PID 10696) was minimized, so it was left running and not closed. C241 was offline and untouched.
+- The console was the **current candidate**: `imouse-candidate-textchunk-2` (dll `4258EAB4…`, built from commit `8d6a285`), PID 412. The user first declined desktop control for this build, then approved it on a second request.
+
+**Hover incident (no text input).** Before any trial, the setup guard found C24C owned. The candidate had taken the lease through its default "Move phone pointer with mouse", from a mouse passing over its phone preview. That sends pointer moves only, not taps or keys. Disconnecting the candidate released it (generation 48 → 49). "Move phone pointer with mouse" was then turned off in the candidate for this session. It is a per-session console option, not a keyboard setting and not HID timing.
+
+**The lone space is not trimmed or rejected before it is sent.**
+
+- In code: `SendText_Click` rejects only empty text (`IsNullOrEmpty`, not `IsNullOrWhiteSpace`) and characters outside 32–126, and never trims. `ApiClient` trims only URLs. The kernel's `Text()` returns the JSON string unchanged, and `Validate` accepts 1–1000 characters, so a space becomes one Spacebar stroke (usage 44).
+- Observed: before each lone-space send the box counter read `1 / 200`. The console then logged `Send text: 1 characters in 1 chunk(s)`, which it writes only when the kernel answered code 0.
+
+**Procedure.** Each field was fresh: a new note prepared exactly as in the earlier trials (compose, 3.0 s, empty-note check), or a newly opened Settings search field. Three separate clicks on the real **Send text** button, about 20 s apart: `Hi`, then exactly one ASCII space, then `there`.
+
+After each click, three phone screenshots were taken 300 ms apart. Each records the cursor's x-position on the text row and the right edge of the dark text. A trailing space is invisible, so the evidence is whether the cursor moved plus the final text. The raw log is `lone-space/trial-log.json`; screenshots are `lone-space/<id>-typed-f1..f3.png` and `<id>-zoom.png`; the console's log lines are `lone-space/*-activity-log.txt`.
+
+| Field | `Hi` (ack time) | Lone `" "` (ack time) | `there` (ack time) | Final text |
+|---|---|---|---|---|
+| D1: fresh Notes note | 01:27:12. Text edge x=63, cursor x=66 | 01:27:32. Cursor **still x=66** | 01:27:54 | **`Hithere`** |
+| D2: fresh Notes note | 01:28:58. Text edge x=63 (cursor blinked off in all 3 frames) | 01:29:18. Cursor x=66 | 01:29:38 | **`Hithere`** |
+| E1: fresh Settings search field | 01:33:26. Text edge x=80. A blue focus ring was around the field | 01:34:32. Cursor x=82, directly after `Hi`. **Text-edit menu "Select \| Select All \| AutoFill" appeared**, and the results were unchanged | 01:35:07 | **`Hithere`** |
+| E2: fresh Settings search field | 01:36:35. Text edge x=80, cursor x=82 | 01:36:57. Cursor x=82. No menu in the captures | 01:37:27 | **`Hithere`** |
+
+**Findings.**
+
+- In 4 of 4 fresh fields, a space sent alone as the first space was acknowledged by the kernel (code 0) but not inserted. The cursor did not advance, and the final text was `Hithere`. This happened in two apps (Notes and Settings search) and with a separate one-character command.
+- It is therefore not caused by chunking, by sharing a command with letters, or by anything specific to Notes.
+- Once, in E1, the lone space produced the text-edit menu that iOS shows when a focused text field is activated.
+
+**Next hypothesis supported by the evidence (untested).** iOS **Full Keyboard Access** treats the first Space in a newly focused text field as its *Activate* command (Space is FKA's default Activate key). That activates the field, which in E1 showed the edit menu, instead of typing a space. After that, spaces type normally. Four observations support it:
+
+1. FKA focus rings were visible throughout: on FaceTime, on Back, on the Apple Account row, and around the search field in E1.
+2. The E1 edit menu.
+3. The earlier finding that later spaces in the same field are fine.
+4. KEYBOARD-SPEC's C241 record, where Typing Mode was entered with "Tab until the blue ring is on the field, then Space".
+
+**Limits.**
+
+- FKA was not changed; that needs its own authorization.
+- The edit menu was captured once in two Settings trials and never in Notes. It may be transient.
+- Some captures missed the cursor while it blinked.
+- E1a was captured three times while the probe was adapted to Settings. The first attempt crashed after saving its screenshots. The second counted the blue focus ring as the cursor (x=26). The third bounded the search. Nothing was sent between these captures, so all show the same "after `Hi`" state.
+- Settings search is a different control from Notes' editor, though it uses the same system text handling.
+- Only C24C was tested.
+
+**No environmental workaround and no software fix has been demonstrated.** Turning FKA off would be an environmental workaround at best. Sending a sacrificial space or other compensating keystroke is explicitly out of scope.
+
+**Proposed next isolated test.**
+
+1. Read-only first: open Settings → Accessibility → Keyboards & Typing → Full Keyboard Access → Commands on C24C and record which key is bound to *Activate*. Change nothing.
+2. Then, only with authorization: turn FKA off, repeat `Hi` / lone space / `there` in two fresh notes with the same procedure, and restore FKA afterwards.
+
+**Artifacts and side effects.**
+
+- Two new notes in C24C Notes, both `Hithere`, for 33 notes in total. None were deleted.
+- The Settings search was used twice and cancelled each time: nothing was opened from the results, no setting changed, and Show Predictions Inline was confirmed still ON.
+- Every desktop typing action in this diagnostic reported keystrokes ("Typed N char(s)"), not the clipboard fast path. The clipboard was not changed here; it may still hold a test string from earlier passes.
+- At the end the candidate was closed and C24C released (generation 68). The installed console stayed running and minimized. The kernel and both receivers are running, and C24C is mirroring.
+- C24C was then handed to the integration session.
+
 ## Remaining failures and open issues
 
-1. **The first space typed into a note is lost (cause unresolved).** It happens through the real button too (U1, F1). Exact text through the UI was obtained only after a note had already lost its first space. This is not a clean pass. Turning Show Predictions Inline off did not change it (9 of 9 identical across ON, OFF and restored ON). No environmental workaround and no software fix has been found.
+1. **The first space typed into a note is lost (cause unresolved).** It happens through the real button too (U1, F1). Exact text through the UI was obtained only after a note had already lost its first space. This is not a clean pass. Turning Show Predictions Inline off did not change it (9 of 9 identical across ON, OFF and restored ON). A space sent alone as the first space was also lost, in Notes and in Settings search (4 of 4). The leading hypothesis is Full Keyboard Access taking that Space as *Activate* (see [Lone-space diagnostic](#lone-space-diagnostic)); it is untested. No environmental workaround and no software fix has been found. Exact-text acceptance remains open.
 2. **iOS alters text next to what was sent.**
    - An Enter accepted a pending inline prediction (`over t` → `over the`, U4b).
    - Leaving a note applied pending autocorrections (`Hithere` → `Hi there`, `Chunkchecktest` → `Chunkcheck test` in the list).
@@ -226,7 +291,7 @@ Only if both point at system handling would a Full Keyboard Access comparison, w
 - The kernel (`release\iMouse2-kernel-two-phone`, PID 5804) and both AirPlay receivers stayed running. At the end the receiver state was `mirroring`, live.
 - C241 (`FE:A9:BC:D7:A0:44`) received no input and was never selected. Its generation stayed at 18 throughout.
 - The installed console `release\iMouse2-two-phone-candidate\iMouse2.exe` (PID 7928) was not used or changed. No release file or shortcut was modified.
-- A console from the timeout-recovery session (PID 19536, running from that session's scratchpad) was connected to the kernel during this work. It was left alone. Every trial's `/input/acquire` for C24C succeeded, and the kernel refuses acquisition while another client owns the phone, so no other client held C24C when a trial started. That does not rule out activity in between.
+- A console from the timeout-recovery session (PID 19536, running from that session's scratchpad) was running during this work, and it was left alone. *Correction (26 Sep):* this report first said it "was connected to the kernel", which I had not verified. That session reports that its scratchpad consoles ran only `--self-test` and `--ui-test`, which use the in-process fake transport and never contact :9913. Separately, every trial's `/input/acquire` for C24C succeeded, and the kernel refuses acquisition while another client owns the phone, so no other client held C24C when a trial started.
 - C24C Notes now holds the dedicated test notes from this work (titles like `Chunkcheck…`, `Body…`, `Warmup`, `AB C`, `Hi there`). None were deleted.
 - The desktop typing tool entered text through the Windows clipboard, so the clipboard holds the last test string.
 - "Move phone pointer with mouse" was left on in the candidate. It is a per-session setting and is not saved.
@@ -242,8 +307,37 @@ Only if both point at system handling would a Full Keyboard Access comparison, w
 
 ## Evidence inventory
 
-[`evidence-inventory.txt`](evidence-inventory.txt) lists every file in this folder with its size and SHA-256, and marks each as committed or local-only. Screenshots (`*.png`) and the raw `*.jsonl` trial logs are local-only, because the repository ignores `/analysis/**/*.png` and `/analysis/**/*.jsonl`; they were deliberately not force-added. Following the repository's convention for typing evidence (`c241-typing-investigation/trial-log.json`), each raw log is also saved as a committed `trial-log.json` array with local absolute paths made relative: `trials/trial-log.json` and `inline-predictions/trial-log.json`. The other committed text evidence is this report, `ui/U4b-activity-log.txt` and `test-results/*.json`.
+[`evidence-inventory.txt`](evidence-inventory.txt) lists every file in this folder with its size and SHA-256, and marks each as committed or local-only. Screenshots (`*.png`) and the raw `*.jsonl` trial logs are local-only, because the repository ignores `/analysis/**/*.png` and `/analysis/**/*.jsonl`; they were deliberately not force-added. Following the repository's convention for typing evidence (`c241-typing-investigation/trial-log.json`), each raw log is also saved as a committed `trial-log.json` array with local absolute paths made relative: `trials/trial-log.json`, `inline-predictions/trial-log.json` and `lone-space/trial-log.json`. The other committed text evidence is this report, `ui/U4b-activity-log.txt`, `lone-space/*-activity-log.txt` and `test-results/*.json`.
 
 ## Checkpoint and handoff
 
-The checkpoint commit's full ID, the candidate binary hash and the handoff notes for the integration session are recorded here by the follow-up report commit.
+All commits are local on branch `claude/jovial-yonath-f044e9`: not pushed, not merged, not promoted.
+
+| Commit | Content |
+|---|---|
+| `ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a` | Base |
+| `5ea04382e4525fe13457018dd360b77f1679d684` | Checkpoint: text-chunking code, tests, KEYBOARD-SPEC, this report and its text evidence |
+| `8d6a2853216d06ab2490906635b4ec312ae7034d` | **Stable for integration.** Test-only fix of the flaky failed-chunk UI check, plus report and test-result updates |
+| The commit that adds this section | Report only: the lone-space diagnostic and this handoff. No `src/` changes |
+
+**Candidate binary**, built from `8d6a285`:
+
+- `C:\Users\joey_\AppData\Local\Temp\claude\imouse-candidate-textchunk-2\iMouse2.dll`, SHA-256 `4258EAB4D07D759BABD7DD3DE8453194EF0688B001622D76FD641B03DB2E150F`
+- `…\iMouse2.exe`, SHA-256 `2C9AF29184691DF575EF45E1ACECAA45EB20368A383CFC99D1FA111A0C6B8111`
+- `--self-test` 143 passed; `--ui-test` 15 of 15 runs at 126, with zero real-phone input.
+- A clean build from `git archive 5ea0438` also passed `--self-test` 143 before the flake was fixed.
+
+**Handoff patches against the base**, outside every worktree, in `C:\Users\joey_\AppData\Local\Temp\claude\C--Users-joey--Desktop-Claude-Code-iMouseXP-2-0--claude-worktrees-jovial-yonath-f044e9\5833754a-0a75-4837-a381-6827cd6d4def\scratchpad\handoff\`:
+
+- `0001-Chunk-console-Send-text-into-32-character-commands-w.patch`, SHA-256 `9F0F98B9A8086C59B60CAE45FCADBCC1AED0EEBD72527F34FB267CB53E867130`
+- `0002-Make-the-failed-chunk-UI-check-assert-paused-state-n.patch`, SHA-256 `3310B9FDF2F0A1CAAC06A9BB22C6DE81E66ABAE30DE314C7014F8C57330E396B`
+- `text-chunking-ee445d7..8d6a285.diff`, SHA-256 `A6D216628FABC8550C5C08708E3773A854743820D2C3989678EE190CE71FD057`
+
+`git diff ee445d7 8d6a285` produces the same diff from any worktree.
+
+**Integration.**
+
+- The timeout-recovery session ("Surface timed-out tap/drag/key commands in console", worktree `vigorous-nightingale-2cc961`) was told by message that `8d6a285` is stable. I did not modify its worktree.
+- Read-only check: its branch `claude/input-timeout-integration` contains `8d6a285` as an ancestor, followed by its own commits `7e65548` (timeouts made visible) and `8c66dc8` (a loopback fault proxy for tests).
+- It reports fixing open issue 6 (the renewal notice) at the root, in `InputLeaseClient.RenewAsync`.
+- C24C was handed to it at 01:38, not owned and not stopped, generation 68. Combining this work with the test-settings isolation and timeout recovery belongs to that session.
