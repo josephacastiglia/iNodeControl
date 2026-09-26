@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Test harness only: runs the real console ApiClient against the real kernel ApiServer over
+       loopback HTTP with a simulated board. Not part of either product build. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>InputCleanupHarness</AssemblyName>
+    <RootNamespace>IMouse2.Harness</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\iMouse.Console\iMouse.Console.csproj" />
+    <ProjectReference Include="..\..\src\iMouse.Kernel\iMouse.Kernel.csproj" />
+  </ItemGroup>
+</Project>

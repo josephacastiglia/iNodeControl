@@ -83,7 +83,17 @@ public partial class MainWindow : Window
         next.InputNotice += message => Dispatcher.BeginInvoke(() =>
         {
             if (_closing || _api != next) return;
+            if (!_controlCancellation.IsCancellationRequested) _pausedByNotice = _controlCancellation;
             CancelLocalInput(); InputStateText.Text = message; RefreshInputOwnershipUi();
+        });
+        // The release after a failure never resumes anything: the panel stays paused and only says
+        // whether the kernel confirmed the button came up. A result overtaken by Stop, Resume or a
+        // selection change is logged but leaves the panel to that newer state.
+        next.InputCleaned += cleanup => Dispatcher.BeginInvoke(() =>
+        {
+            if (_closing || _api != next) return;
+            Log(cleanup.Summary, !cleanup.Confirmed);
+            if (cleanup.Current && !_controlReady) { InputStateText.Text = cleanup.PanelText; RefreshInputOwnershipUi(); }
         });
         _connected = false;
         ClearFrame("Connecting", "Loading devices from the iMouse service.");
@@ -915,9 +925,10 @@ public partial class MainWindow : Window
     /// </summary>
     private async Task DragLoopAsync(string ids, ApiClient api, int x, int y)
     {
-        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, _controlCancellation.Token);
+        var lifetime = _lifetime.Token; var control = _controlCancellation;
+        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(lifetime, control.Token);
         var ct = inputLifetime.Token;
-        bool pressed = false, hold = _holdGesture;
+        bool pressed = false, hold = _holdGesture, paused = false;
         var held = System.Diagnostics.Stopwatch.StartNew();
         _lastDragIds = ids; _lastDragMoves = 0; _lastDragTrace = ""; _lastDragX = -1;
         try
@@ -959,18 +970,24 @@ public partial class MainWindow : Window
                 if (_lastDragTrace.Length < 400) _lastDragTrace += $"final({final.Value.X},{final.Value.Y})+{phase.ElapsedMilliseconds - tf}ms ";
             }
         }
-        catch (OperationCanceledException) { }
-        catch (Exception ex) { LogAsync("Drag: " + Friendly(ex), true); }
+        catch (OperationCanceledException) when (CancelledHere(lifetime, control)) { }
+        catch (Exception ex)
+        {
+            // A failure or timeout has paused the phones under the lease client, which would
+            // only refuse the release below and log that as a second error.
+            paused = api.UsesInputOwnership;
+            LogAsync("Drag: " + Friendly(ex), true);
+        }
         finally
         {
             // The button must come up even if a move failed mid-gesture, or the phone is
             // left with a stuck press and every later tap lands inside a drag.
             // After Stop or cancellation, the kernel has already released all held buttons;
             // sending /mouse/up would be rejected and log a spurious release failure.
-            if (pressed && !ct.IsCancellationRequested && !_controlCancellation.IsCancellationRequested && !_closing)
+            if (pressed && !paused && !ct.IsCancellationRequested && !_controlCancellation.IsCancellationRequested && !_closing)
             {
                 try { await api.CommandAsync("/mouse/up", new() { ["id"] = ids, ["button"] = "1" }, ct).ConfigureAwait(false); }
-                catch (OperationCanceledException) { }
+                catch (OperationCanceledException) when (CancelledHere(lifetime, control)) { }
                 catch (Exception ex) { LogAsync("Drag release failed: " + Friendly(ex), true); }
                 if (hold)
                 {
@@ -1524,7 +1541,8 @@ public partial class MainWindow : Window
     private async Task SendInputAsync(string label, string function, Dictionary<string, object> data, bool quiet = false)
     {
         if (!_controlReady) return;
-        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, _controlCancellation.Token);
+        var lifetime = _lifetime.Token; var control = _controlCancellation;
+        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(lifetime, control.Token);
         var api = _api;
         var ids = InputTargetIds();
         if (api is null || !_connected || ids.Length == 0) return;
@@ -1536,7 +1554,9 @@ public partial class MainWindow : Window
             await api.CommandAsync(function, new Dictionary<string, object>(data) { ["id"] = ids }, inputLifetime.Token).ConfigureAwait(false);
             if (!quiet) LogAsync(count > 1 ? $"{label} -> {count} phones" : label);
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) when (CancelledHere(lifetime, control)) { }
+        catch (InputNotSentException ex) { LogAsync($"{label}: {ex.Message}", true); }
+        // A cancellation nobody here asked for is HttpClient's timeout: logged, not swallowed.
         catch (Exception ex) { LogAsync($"{label} failed: {Friendly(ex)}", true); }
     }
 
@@ -1598,14 +1618,8 @@ public partial class MainWindow : Window
             switch (r.End)
             {
                 case InputEnd.Cancelled: Log($"{label} stopped: {progress}{partial}{rest}", true); break;
-                case InputEnd.TimedOut:
-                    Log($"{label} timed out: {progress}{partial}{rest} Check the phone before continuing.", true);
-                    // The lease client has paused these phones but raises no notice for a timeout.
-                    if (api.UsesInputOwnership && api == _api)
-                    {
-                        CancelLocalInput(); InputStateText.Text = "Input paused: text timed out · check the phone, then choose Resume input"; RefreshInputOwnershipUi();
-                    }
-                    break;
+                // The lease client's pause notice shows Input paused and enables Resume.
+                case InputEnd.TimedOut: Log($"{label} timed out: {progress}{partial}{rest} Check the phone before continuing.", true); break;
                 default: Log($"{label} failed: {progress}{partial}{rest} {Friendly(r.Failure!)}", true); break;
             }
         }
@@ -2656,6 +2670,93 @@ public partial class MainWindow : Window
         for (int i = 0; _controlReady && i < 100; i++) await Task.Delay(10);
         Check("A failed chunk leaves input paused and offers Resume",
             !_controlReady && ResumeInputButton.IsEnabled && !InputStateText.Text.Contains("ready"));
+
+        // --- a key with no answer is visible and recoverable ---
+        // The lease client pauses the phones on HttpClient's timeout. It used to raise no notice
+        // for one and the key path swallowed the exception, so the panel still read ready, Resume
+        // stayed disabled and the next input was refused as paused.
+        async Task ResumeAndWait()
+        {
+            ResumeInput_Click(ResumeInputButton, new RoutedEventArgs());
+            for (int i = 0; _resumePending && i < 100; i++) await Task.Delay(10);
+        }
+        async Task WaitFor(Func<bool> condition) { for (int i = 0; !condition() && i < 100; i++) await Task.Delay(10); }
+        await ResumeAndWait();
+        Check("Resume after the failed chunk leaves input ready", _controlReady && InputStateText.Text.Contains("ready"));
+        int beforeTimeout = handler.Commands.Count;
+        handler.TimeoutSendKeyNumber = handler.SendKeyCount + 1;
+        await Click("key|Home");
+        await WaitFor(() => InputStateText.Text.StartsWith("Input paused") && _activity.Any(s => s.Contains("key|Home failed")));
+        Check("A timed-out key was sent once and not retried", KeysSince(beforeTimeout).Length == 1);
+        Check("A timed-out key shows input paused and offers Resume",
+            InputStateText.Text == InputLeaseClient.TimedOutNotice && !_controlReady && ResumeInputButton.IsEnabled);
+        Check("A timed-out key is logged once as a timeout", _activity.Count(s => s.Contains("key|Home failed: Request timed out")) == 1);
+
+        await ResumeAndWait();
+        int beforeRecovered = handler.Commands.Count;
+        await Click("key|Home");
+        await WaitFor(() => KeysSince(beforeRecovered).Length > 0);
+        Check("Resume after a timed-out key restores input", _controlReady && InputStateText.Text.Contains("ready") && KeysSince(beforeRecovered).Length == 1);
+
+        // Send text relies on the same notice now rather than pausing the panel itself.
+        int beforeTextTimeout = handler.Commands.Count;
+        handler.TimeoutSendKeyNumber = handler.SendKeyCount + 2;
+        await SendTextAndWait(text);
+        await WaitFor(() => InputStateText.Text.StartsWith("Input paused"));
+        Check("A Send text timeout sends nothing after the chunk with no answer", KeysSince(beforeTextTimeout).Length == 2);
+        Check("A Send text timeout reports how far it got",
+            _activity.Any(s => s.Contains("Send text -> 2 phones timed out: 32 of 200 characters confirmed. Chunk 2 of 7 may be partly typed and was not retried. Chunks 3–7 were not sent.")));
+        Check("A Send text timeout shows input paused and offers Resume",
+            InputStateText.Text == InputLeaseClient.TimedOutNotice && ResumeInputButton.IsEnabled);
+
+        // --- a key queued behind one that times out never goes out, and is reported so ---
+        await ResumeAndWait();
+        int beforeQueue = handler.Commands.Count;
+        int KeyTimeouts() => _activity.Count(s => s.Contains("key|Home failed: Request timed out"));
+        int timeoutsBefore = KeyTimeouts();
+        var hung = handler.HangNext("/key/sendkey");
+        await Click("key|Home");
+        await hung.WaitAsync(TimeSpan.FromSeconds(5));
+        await Click("key|Home");
+        handler.EndHang();
+        await WaitFor(() => _activity.Any(s => s.Contains("key|Home: Not sent")) && KeyTimeouts() > timeoutsBefore);
+        Check("A key queued behind a timed-out key never reaches the service", KeysSince(beforeQueue).Length == 1);
+        Check("The queued key is reported as not sent, once", _activity.Count(s => s.Contains("key|Home: Not sent")) == 1);
+        Check("Only the key that went out is reported as timed out", KeyTimeouts() == timeoutsBefore + 1);
+        Check("The queued key leaves the timeout's pause showing", InputStateText.Text == InputLeaseClient.TimedOutNotice && ResumeInputButton.IsEnabled);
+
+        // --- a drag whose move times out: logged once, no /mouse/up, released at once, input paused ---
+        // The lease client has paused the phones, so /mouse/up would only be refused locally. It
+        // releases each phone's own lease instead, which lifts the button on the kernel.
+        await ResumeAndWait();
+        await GrabOneAsync();
+        ((FrameworkElement)Content).UpdateLayout();
+        var dragFrom = new Point(PhoneImage.ActualWidth * 0.30, PhoneImage.ActualHeight * 0.30);
+        int beforeHeld = handler.Commands.Count;
+        BeginGesture(dragFrom);
+        TrackGesture(new Point(dragFrom.X + 30, dragFrom.Y), true);
+        await WaitFor(() => handler.Commands.Skip(beforeHeld).Any(c => c.GetProperty("fun").GetString() == "/mouse/down"));
+        Check("The drag presses the button before its move times out",
+            handler.Commands.Skip(beforeHeld).Any(c => c.GetProperty("fun").GetString() == "/mouse/down"));
+        handler.TimeoutFun = "/mouse/move";
+        TrackGesture(new Point(dragFrom.X + 60, dragFrom.Y), true);
+        await WaitFor(() => !_dragLoopRunning && _activity.Any(s => s.Contains("Drag: Request timed out")));
+        await EndGestureAsync(new Point(dragFrom.X + 60, dragFrom.Y));
+        await WaitFor(() => !_dragLoopRunning && _activity.Any(s => s.Contains("Held button released after the request timed out")));
+        handler.TimeoutFun = null;
+        var heldCommands = handler.Commands.Skip(beforeHeld).ToList();
+        var heldStroke = heldCommands.Select(c => c.GetProperty("fun").GetString()).ToList();
+        var pressTokens = heldCommands.First(c => c.GetProperty("fun").GetString() == "/mouse/down").GetProperty("data").GetProperty("tokens");
+        var releases = heldCommands.Where(c => c.GetProperty("fun").GetString() == "/input/release").Select(c => c.GetProperty("data")).ToList();
+        Check("A drag whose move timed out sends no /mouse/up", !heldStroke.Contains("/mouse/up") && !_dragLoopRunning);
+        Check("A drag timeout is logged once, with no refused release after it",
+            _activity.Count(s => s.Contains("Drag: Request timed out")) == 1 && !_activity.Any(s => s.Contains("Drag release failed")));
+        Check("A drag timeout releases each mirrored phone's own lease at once",
+            releases.Count == 2 && releases.All(r => r.GetProperty("token").GetString() == pressTokens.GetProperty(r.GetProperty("id").GetString()!).GetString()));
+        Check("The confirmed release is logged and the panel stays paused with Resume offered",
+            _activity.Count(s => s.Contains("Held button released after the request timed out on TEST:01, TEST:04")) == 1 &&
+            InputStateText.Text == "Input paused: request timed out; held button released (confirmed). Check the phone, then choose Resume input." &&
+            !_controlReady && ResumeInputButton.IsEnabled && !heldStroke.Contains("/input/resume"));
 
         Disconnect_Click(this, new RoutedEventArgs());
 

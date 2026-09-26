@@ -1,0 +1,581 @@
+diff --git a/KEYBOARD-SPEC.md b/KEYBOARD-SPEC.md
+index 58b8742..d58b5d2 100644
+--- a/KEYBOARD-SPEC.md
++++ b/KEYBOARD-SPEC.md
+@@ -1,6 +1,6 @@
+ # Keyboard specification
+ 
+-Author: Grok 4.7. Sources: `src/iMouse.Kernel/HidProtocol.cs` (`Ascii`, `Key`), `src/iMouse.Kernel/InputRouter.cs` (`/key/sendkey`, `Stroke`), `src/iMouse.Console/MainWindow.xaml` / `MainWindow.xaml.cs` (`SendText_Click`).
++Author: Grok 4.7. Sources: `src/iMouse.Kernel/HidProtocol.cs` (`Ascii`, `Key`), `src/iMouse.Kernel/InputRouter.cs` (`/key/sendkey`, `Stroke`), `src/iMouse.Kernel/InputSessions.cs` (`ExecuteAsync`), `src/iMouse.Console/MainWindow.xaml` / `MainWindow.xaml.cs` (`SendText_Click`, `MaxSendText`), `src/iMouse.Console/ApiClient.cs` (`TextChunk`, `SendTextAsync`), `src/iMouse.Console/InputLeaseClient.cs` (`SequenceAsync`).
+ 
+ This is the Gate 5 character-set and keyboard-settings record from [FINISH-CRITERIA.md](FINISH-CRITERIA.md). It does not sign off Gate 5. A code-0 sendkey means the HID writes finished. It does not mean iOS inserted the text.
+ 
+@@ -74,7 +74,7 @@ These are accepted by `Ascii` on the API `key` string. The console text box reje
+ 
+ Anything `Ascii` does not list throws `ArgumentException` with `Unsupported character U+XXXX` (four hex digits). The API returns that as code 36. Unicode, emoji, and DEL (127) are rejected. There is no truncation and no IME path in this kernel. Unicode needs the original console's shortcut / clipboard tools, which this kernel does not implement.
+ 
+-The console blocks before the API when any character is `< 32` or `> 126`, and logs: `Keyboard typing supports English letters, numbers and punctuation. Use the original console's shortcut tools for Unicode text.` An empty box logs `Enter text to send first.` and sends nothing.
++The console blocks before the API when any character is `< 32` or `> 126`, and logs: `Keyboard typing supports English letters, numbers and punctuation. Use the original console's shortcut tools for Unicode text.` An empty box logs `Enter text to send first.` and sends nothing. Text over 200 characters (pasted or set in code; `MaxLength` only stops typing) logs `Send text takes at most 200 characters at a time.` and sends nothing.
+ 
+ ## USB-HID report
+ 
+@@ -142,12 +142,35 @@ Delays are `Task.Delay` on the command token. They are scheduled intervals, not
+ 
+ The ControlBar / AppSwitch chord is not a `Stroke`: 45 ms on the byte-7 prefix, 60 ms on the usage report, release, no 35 ms settle.
+ 
++### The 8-second command deadline
++
++`InputSessions.ExecuteAsync` cancels every input command 8 s after it starts (`deadline.CancelAfter(TimeSpan.FromSeconds(8))`). The cancelled stroke still sends its release. The phone's result is code 499 (`Input cancelled`) inside a code-33 answer. Any non-zero result calls `BeginClose(slot, true, …)`: the lease is revoked and the phone stays stopped until an explicit Resume. The console's `HttpClient.Timeout` (`ApiClient`) is also 8 s.
++
++At 140 ms a character (170 ms for a space), plus HID write time, one `key` string longer than roughly 50 characters (about 47 if every character is a space) cannot finish in 8 s. It is cut off partway: the start is typed, the rest is not, and input is stopped. `rack-agent/test/conformance.test.mjs` reproduces this with one 64-character sendkey against the kernel source with a fake HID ("one 64-character sendkey exceeds the 8 s command deadline").
++
++### Text chunking
++
++Send text never puts more than 32 characters (`ApiClient.TextChunk`) in one `/key/sendkey`. That is at most 5.44 s of stroke timing (32 spaces) and 4.48 s with no spaces, which leaves at least 2.5 s of the deadline for HID writes and the round trip. The rack agent uses the same size (`rack-agent/src/actions.js`, `TEXT_CHUNK`).
++
++`ApiClient.SendTextAsync` splits the text into consecutive 32-character chunks (the last may be shorter) and sends them through `InputLeaseClient.SequenceAsync`:
++
++- **One lease.** Every chunk carries the same token map. The console holds the phones' input gates for the whole text, so no other input from this console lands between chunks. Other input waits, and Stop input cancels it. The lease is renewed in the background as usual (every 10 s, 30 s lease).
++- **Strictly sequential.** A chunk leaves only after the kernel answered code 0 for the one before it.
++- **Stop at the first problem, never retry.** The first chunk that fails, times out, or is cut short by Stop ends the text. That chunk is never resent, because its outcome is unknown and it may be partly typed. No later chunk is sent. A failure or timeout pauses input like any failed command (the kernel also stops the phone on its own failures), so Resume is required before more input.
++- **Report how far it got.** The activity log gives confirmed characters out of the total, then which chunk may be partly typed and which chunks were not sent. For example: `Send text failed: 64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.` Confirmed means the kernel answered code 0 for that chunk. As above, that means the HID writes finished, not that iOS inserted the text. When the send ends before a chunk leaves (for example, Stop before the first chunk), no chunk is reported as partly typed.
++- **Stopped, timed out and failed are reported separately.** The lease client decides which by checking whether one of its own cancellation sources fired (Stop, a selection change, disconnect, the caller). It does not go by the exception type. A cancellation that none of them requested is the HTTP timeout.
++
++200 characters is seven chunks: about 28 s of typing with no spaces, up to about 34 s with many spaces, plus round trips. The chunking is in the console, not the kernel. Another API client that sends a long `key` in one command still hits the deadline.
++
+ Limits:
+ 
+ | Bound | Value | Where |
+ |---|---|---|
+-| Kernel `key` length | 1–1000 characters | `InputRouter`. Longer, or empty `key` with empty `fn_key`: `Provide a key or 1–1000 ASCII characters.` |
+-| UI text box | 2000 characters | `SendTextBox.MaxLength`. 1001–2000 pass the box and fail in the kernel |
++| Kernel command deadline | 8 s per command; then code 499, lease revoked, Stop latched until Resume | `InputSessions.ExecuteAsync` |
++| Console request timeout | 8 s per HTTP request | `ApiClient` (`HttpClient.Timeout`) |
++| Kernel `key` length | 1–1000 characters | `InputRouter`. Longer, or empty `key` with empty `fn_key`: `Provide a key or 1–1000 ASCII characters.` Anything over roughly 50 characters in one command can outlast the deadline |
++| Console chunk | 32 characters per `/key/sendkey` | `ApiClient.TextChunk` |
++| UI text box | 200 characters (seven chunks) | `SendTextBox.MaxLength` and `MainWindow.MaxSendText`. Longer pasted or programmatic text is refused before anything is sent |
+ | UI alphabet | codes 32–126 only | `SendText_Click`. `AcceptsReturn` is false |
+ 
+ ## Required iOS settings
+@@ -169,6 +192,8 @@ The phone sees a hardware keyboard. Settings the API cannot read still decide wh
+ 
+ Spotlight consumes spaces. Usage 44 is still a space in Notes (`A B Test 123!` on C24C). Do not score spaces in Spotlight.
+ 
++**New notes drop the first space.** On C24C (25 Sep 2026), the same 100-character text typed as the first line of a brand-new note arrived as `Chunkcheck 2026 …` twice in a row. The space after the first word was missing, and iOS underlined the merged word as misspelled. Typed again as the second paragraph of that note, it arrived exactly. The kernel confirmed every chunk each time, and the dropped space was mid-chunk, so this is Notes at the start of a new note, not the transport or the chunking. These runs did not separate note creation from title-line handling. Score exact text in the body of an existing note.
++
+ ## Evidence
+ 
+ | Run | What was visible | Files |
+@@ -178,5 +203,6 @@ Spotlight consumes spaces. Usage 44 is still a space in Notes (`A B Test 123!` o
+ | C241 clean typing, 22 Sep 2026 | Spotlight exactly `hello2026`, then four Backspaces left `hello` | [analysis/c241-clean-typing/](analysis/c241-clean-typing/) `c241-02-typed.png`, `c241-03-backspaced.png` |
+ | C24C Notes (older kernel) | Spaces, digits, and `!` visible as `A B Test 123!` | [INDEPENDENT-KERNEL.md](INDEPENDENT-KERNEL.md), `analysis/live-notes-space.bmp` |
+ | FKA diagnosis | Typing Mode required on C241; Escape cleared the banner | [analysis/c241-typing-diagnostic/findings.json](analysis/c241-typing-diagnostic/findings.json) |
++| C24C text chunking, 25 Sep 2026 | `ApiClient.SendTextAsync` against the two-phone kernel. 100 characters in 4 chunks, about 15.4 s each run, every chunk confirmed, no Stop, lease released. Second-paragraph run exactly `Chunk check 2026 on C24C types 100 characters in four chunks of 32 with one lease (no Stop) #78 & OK`. Both new-note runs dropped the first space (see above) | [analysis/c24c-text-chunking-20260925/](analysis/c24c-text-chunking-20260925/) `c24c-01-new-note.png`, `c24c-02-new-note-repeat.png`, `c24c-03-second-paragraph.png` |
+ 
+ Those captures do not include a live Enter newline, a live punctuation string on both phones, or a recorded Settings screenshot of English (US) / Smart Punctuation / Auto-Capitalization. Those remain open Gate 5 checks. This file only closes the documentation requirement.
+diff --git a/src/iMouse.Console/ApiClient.cs b/src/iMouse.Console/ApiClient.cs
+index 0c4bbcf..2f19f26 100644
+--- a/src/iMouse.Console/ApiClient.cs
++++ b/src/iMouse.Console/ApiClient.cs
+@@ -7,6 +7,19 @@ namespace IMouse2;
+ 
+ public sealed class ApiException(string message) : Exception(message);
+ 
++/// <summary>How an input sequence ended. Cancelled means this console asked it to stop
++/// (Stop, a scope change, disconnect); TimedOut means no answer arrived in time.</summary>
++public enum InputEnd { Completed, Cancelled, TimedOut, Failed }
++
++/// <summary>
++/// Outcome of <see cref="ApiClient.SendTextAsync"/>. ConfirmedCharacters counts characters in
++/// chunks the kernel answered with code 0: their HID writes finished, which does not prove iOS
++/// inserted them. Sent counts chunks that left this console. When Sent &gt; Confirmed, chunk
++/// Sent has an unknown outcome and may be partly typed; when they are equal the send ended
++/// between chunks and nothing is partial. No chunk after Sent was sent.
++/// </summary>
++public sealed record TextDelivery(InputEnd End, int ConfirmedCharacters, int Total, int Sent, int Confirmed, int Chunks, Exception? Failure);
++
+ public static class JsonValue
+ {
+     public static string Text(JsonElement obj, string name, string fallback = "") =>
+@@ -152,6 +165,51 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
+         response.EnsureSuccessStatusCode();
+         return ReadResult(await response.Content.ReadAsStringAsync(ct));
+     }
++    /// <summary>
++    /// Most characters one /key/sendkey carries. The kernel spends 140 ms of HID timing on a
++    /// character (170 ms on a space) and cancels any command after 8 s, which also stops the
++    /// phone until Resume; this client's HTTP timeout is 8 s as well. 32 spaces is 5.4 s.
++    /// </summary>
++    public const int TextChunk = 32;
++    public static List<string> SplitText(string text) => text.Chunk(TextChunk).Select(c => new string(c)).ToList();
++    /// <summary>
++    /// Types text as consecutive /key/sendkey commands of at most <see cref="TextChunk"/>
++    /// characters, in one input lease. Stops at the first chunk that fails and never resends
++    /// it: its outcome is unknown and it may be partly typed. Does not throw once the text is
++    /// accepted; the result says how it ended and how far it got.
++    /// </summary>
++    public async Task<TextDelivery> SendTextAsync(string ids, string text, CancellationToken ct = default)
++    {
++        if (text.Length == 0) throw new ArgumentException("Enter text to send first.");
++        var chunks = SplitText(text);
++        var steps = chunks.Select(c => new Dictionary<string, object> { ["id"] = ids, ["key"] = c }).ToList();
++        int characters = 0, sent = 0, confirmed = 0;
++        void Confirm(int i) { characters += chunks[i].Length; confirmed = i + 1; }
++        TextDelivery Result(InputEnd end, Exception? failure) => new(end, characters, text.Length, sent, confirmed, chunks.Count, failure);
++        try
++        {
++            if (_input is not null)
++            {
++                var (end, failure) = await _input.SequenceAsync("/key/sendkey", steps, i => sent = i + 1, (i, _) => Confirm(i), ct).ConfigureAwait(false);
++                return Result(end, failure);
++            }
++            for (int i = 0; i < steps.Count; i++)
++            {
++                ct.ThrowIfCancellationRequested();
++                sent = i + 1;
++                await RawCommandAsync("/key/sendkey", steps[i], ct).ConfigureAwait(false);
++                Confirm(i);
++            }
++            return Result(InputEnd.Completed, null);
++        }
++        catch (Exception ex)
++        {
++            // The raw path, or a refusal before the lease client sent anything. As there, a
++            // cancellation our token did not request is HttpClient's timeout.
++            return Result(ex is not OperationCanceledException ? InputEnd.Failed
++                : ct.IsCancellationRequested ? InputEnd.Cancelled : InputEnd.TimedOut, ex);
++        }
++    }
+     public Task StopInputAsync(string ids) => _input?.StopAsync(ids) ?? Task.CompletedTask;
+     public Task ResumeInputAsync(string ids) => _input?.ResumeAsync(ids) ?? Task.CompletedTask;
+     public Task ReleaseInputAsync(string ids) => _input?.ReleaseAsync(ids) ?? Task.CompletedTask;
+diff --git a/src/iMouse.Console/InputLeaseClient.cs b/src/iMouse.Console/InputLeaseClient.cs
+index 548d911..ee7ba58 100644
+--- a/src/iMouse.Console/InputLeaseClient.cs
++++ b/src/iMouse.Console/InputLeaseClient.cs
+@@ -1,3 +1,4 @@
++using System.Runtime.ExceptionServices;
+ using System.Text.Json;
+ 
+ namespace IMouse2;
+@@ -34,9 +35,29 @@ internal sealed class InputLeaseClient : IAsyncDisposable
+     private static Dictionary<string, object> Payload(string[] ids, Dictionary<string, string>? tokens = null) =>
+         tokens is null ? new() { ["id"] = string.Join(',', ids) } : new() { ["id"] = string.Join(',', ids), ["tokens"] = tokens };
+     public async Task<JsonElement> CommandAsync(string function, Dictionary<string, object> data, CancellationToken caller)
++    {
++        JsonElement result = default;
++        var (_, failure) = await SequenceAsync(function, [data], _ => { }, (_, r) => result = r, caller).ConfigureAwait(false);
++        if (failure is not null) ExceptionDispatchInfo.Throw(failure);
++        return result;
++    }
++    /// <summary>
++    /// Sends the steps in order under one hold of each phone's gate and one lease, so every
++    /// step carries the same tokens and nothing else from this console lands between them.
++    /// <paramref name="sending"/> runs just before a step leaves, <paramref name="confirmed"/>
++    /// after the kernel accepted it. The first failure ends the sequence and pauses the phones
++    /// like any failed command; the failed step is never resent, because it may have partly
++    /// run. Refusals before anything could be sent (paused, closed, caller cancelled) throw.
++    /// </summary>
++    public async Task<(InputEnd End, Exception? Failure)> SequenceAsync(string function, IReadOnlyList<Dictionary<string, object>> steps,
++        Action<int> sending, Action<int, JsonElement> confirmed, CancellationToken caller)
+     {
+         caller.ThrowIfCancellationRequested();
+-        var ids = Ids(data.GetValueOrDefault("id")?.ToString() ?? "");
++        if (steps.Count == 0) throw new ArgumentException("A sequence needs at least one step.");
++        string scope = steps[0].GetValueOrDefault("id")?.ToString() ?? "";
++        if (steps.Any(s => (s.GetValueOrDefault("id")?.ToString() ?? "") != scope))
++            throw new ArgumentException("Every step of a sequence must address the same phones.");
++        var ids = Ids(scope);
+         if (ids.Length == 0) throw new ApiException("Select a phone first.");
+         Phone[] phones; CancellationToken[] lifetimes;
+         lock (_sync)
+@@ -47,7 +68,7 @@ internal sealed class InputLeaseClient : IAsyncDisposable
+             lifetimes = phones.Select(p => p.Life.Token).Append(caller).Append(_shutdown.Token).ToArray();
+         }
+         using var linked = CancellationTokenSource.CreateLinkedTokenSource(lifetimes);
+-        var ct = linked.Token; int held = 0;
++        var ct = linked.Token; int held = 0; bool paused = false;
+         try
+         {
+             foreach (var phone in phones) { await phone.Gate.WaitAsync(ct).ConfigureAwait(false); held++; }
+@@ -78,16 +99,30 @@ internal sealed class InputLeaseClient : IAsyncDisposable
+             finally { _acquire.Release(); }
+             Dictionary<string, string> tokens;
+             lock (_sync) { ct.ThrowIfCancellationRequested(); tokens = ids.Select((id, i) => (id, token: phones[i].Token!)).ToDictionary(x => x.id, x => x.token); }
+-            var payload = new Dictionary<string, object>(data) { ["tokens"] = tokens };
+-            return await _send(function, payload, ct).ConfigureAwait(false);
++            for (int step = 0; step < steps.Count; step++)
++            {
++                // Pause marks the phone under the lock before it cancels, so checking both
++                // closes the gap in which a Stop could otherwise let one more step out.
++                lock (_sync) { ct.ThrowIfCancellationRequested(); paused = phones.Any(p => p.Paused); }
++                if (paused) throw new OperationCanceledException(ct);
++                var payload = new Dictionary<string, object>(steps[step]) { ["tokens"] = tokens };
++                sending(step);
++                confirmed(step, await _send(function, payload, ct).ConfigureAwait(false));
++            }
++            return (InputEnd.Completed, null);
+         }
+         catch (Exception ex)
+         {
++            // Decide before Pause below cancels ct. Only this client's lifetimes, the caller
++            // and HttpClient's own timeout cancel anything here, so a cancellation none of
++            // ours requested is the timeout, and that step's outcome is unknown.
++            var end = ex is not OperationCanceledException ? InputEnd.Failed
++                : ct.IsCancellationRequested || paused ? InputEnd.Cancelled : InputEnd.TimedOut;
+             string[] current;
+             lock (_sync) current = ids.Where((id, i) => phones[i].Life.Token == lifetimes[i]).ToArray();
+             Pause(current);
+             if (current.Length > 0 && ex is not OperationCanceledException) Notice?.Invoke("Input paused: " + ex.Message);
+-            throw;
++            return (end, ex);
+         }
+         finally { for (int i = held - 1; i >= 0; i--) phones[i].Gate.Release(); }
+     }
+diff --git a/src/iMouse.Console/MainWindow.xaml b/src/iMouse.Console/MainWindow.xaml
+index e2c6360..e95ab3d 100644
+--- a/src/iMouse.Console/MainWindow.xaml
++++ b/src/iMouse.Console/MainWindow.xaml
+@@ -295,7 +295,7 @@
+                   </UniformGrid>
+ 
+                   <TextBlock Text="TYPING" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
+-                  <TextBox x:Name="SendTextBox" Height="54" TextWrapping="Wrap" AcceptsReturn="False" VerticalScrollBarVisibility="Auto" MaxLength="2000"
++                  <TextBox x:Name="SendTextBox" Height="54" TextWrapping="Wrap" AcceptsReturn="False" VerticalScrollBarVisibility="Auto" MaxLength="200"
+                            AutomationProperties.Name="Text to type on target phones"/>
+                   <Button Content="Send text" Click="SendText_Click" Style="{StaticResource Primary}" HorizontalAlignment="Stretch" Margin="0,6,0,0"/>
+                   <UniformGrid Columns="3">
+diff --git a/src/iMouse.Console/MainWindow.xaml.cs b/src/iMouse.Console/MainWindow.xaml.cs
+index 67ce4ce..0badbc7 100644
+--- a/src/iMouse.Console/MainWindow.xaml.cs
++++ b/src/iMouse.Console/MainWindow.xaml.cs
+@@ -1554,12 +1554,50 @@ public partial class MainWindow : Window
+         if (parts[0] == "cast") { await ExecuteAsync(button.Content.ToString()!, function, data, targets, true); return; }
+         await SendInputAsync(button.Content.ToString()!, function, data);
+     }
++    /// <summary>
++    /// Longest text Send text accepts; SendTextBox.MaxLength matches. It goes out as seven
++    /// 32-character chunks (<see cref="ApiClient.TextChunk"/>), roughly 30 s of typing.
++    /// </summary>
++    internal const int MaxSendText = 200;
++    private bool _sendingText;
+     private async void SendText_Click(object sender, RoutedEventArgs e)
+     {
+         string text = SendTextBox.Text;
+         if (string.IsNullOrEmpty(text)) { Log("Enter text to send first.", true); return; }
+         if (text.Any(c => c < 32 || c > 126)) { Log("Keyboard typing supports English letters, numbers and punctuation. Use the original console's shortcut tools for Unicode text.", true); return; }
+-        await SendInputAsync("Send text", "/key/sendkey", new() { ["key"] = text });
++        // MaxLength only limits typing; pasted or programmatic text still has to be checked.
++        if (text.Length > MaxSendText) { Log($"Send text takes at most {MaxSendText} characters at a time.", true); return; }
++        if (_sendingText) { Log("Still typing the previous text. Wait for it to finish, or use Stop input.", true); return; }
++        if (!_controlReady) return;
++        var api = _api; var ids = InputTargetIds();
++        if (api is null || !_connected || ids.Length == 0) return;
++        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, _controlCancellation.Token);
++        int count = ids.Count(c => c == ',') + 1;
++        string label = count > 1 ? $"Send text -> {count} phones" : "Send text";
++        _sendingText = true;
++        try
++        {
++            var r = await api.SendTextAsync(ids, text, inputLifetime.Token);
++            if (r.End == InputEnd.Completed) { Log($"{label}: {r.Total} characters in {r.Chunks} chunk(s)"); return; }
++            string progress = $"{r.ConfirmedCharacters} of {r.Total} characters confirmed.";
++            string partial = r.Sent > r.Confirmed ? $" Chunk {r.Sent} of {r.Chunks} may be partly typed and was not retried." : "";
++            string rest = r.Sent == r.Chunks ? "" : r.Sent == 0 ? " No chunk was sent."
++                : r.Sent + 1 == r.Chunks ? $" Chunk {r.Chunks} was not sent." : $" Chunks {r.Sent + 1}–{r.Chunks} were not sent.";
++            switch (r.End)
++            {
++                case InputEnd.Cancelled: Log($"{label} stopped: {progress}{partial}{rest}", true); break;
++                case InputEnd.TimedOut:
++                    Log($"{label} timed out: {progress}{partial}{rest} Check the phone before continuing.", true);
++                    // The lease client has paused these phones but raises no notice for a timeout.
++                    if (api.UsesInputOwnership && api == _api)
++                    {
++                        CancelLocalInput(); InputStateText.Text = "Input paused: text timed out · check the phone, then choose Resume input"; RefreshInputOwnershipUi();
++                    }
++                    break;
++                default: Log($"{label} failed: {progress}{partial}{rest} {Friendly(r.Failure!)}", true); break;
++            }
++        }
++        finally { _sendingText = false; }
+     }
+     private async Task ExecuteAsync(string label, string function, Dictionary<string, object> data, List<Device> targets, bool allowOffline)
+     {
+@@ -2471,7 +2509,7 @@ public partial class MainWindow : Window
+         SendTextBox.Text = "not ASCII: é"; SendText_Click(this, new RoutedEventArgs());
+         Check("Unsupported text is blocked before transmission", handler.Commands.Count == beforeText);
+         SendTextBox.Text = "hello"; SendText_Click(this, new RoutedEventArgs());
+-        for (int i = 0; _commandBusy && i < 100; i++) await Task.Delay(20);
++        for (int i = 0; (_commandBusy || _sendingText) && i < 100; i++) await Task.Delay(20);
+         Check("Send text transmits explicit field", handler.Commands.Count == beforeText + 1 && handler.Commands[^1].GetProperty("data").GetProperty("key").GetString() == "hello");
+         SearchBox.Text = "does-not-match";
+         int beforeNone = handler.Commands.Count;
+@@ -2537,6 +2575,48 @@ public partial class MainWindow : Window
+             handler.Commands.Any(c => c.GetProperty("fun").GetString() == "/input/resume"));
+         Check("Input state recovers to ready", InputStateText.Text.Contains("ready"));
+ 
++        // --- long text goes out in 32-character chunks, through the real button ---
++        // One 200-character sendkey used to outlive the kernel's 8 s command deadline, which
++        // cancelled it partway and latched Stop. Master TEST:01 plus follower TEST:04 here.
++        async Task SendTextAndWait(string value)
++        {
++            SendTextBox.Text = value; SendText_Click(this, new RoutedEventArgs());
++            for (int i = 0; _sendingText && i < 500; i++) await Task.Delay(10);
++            if (_sendingText) throw new Exception("Send text did not finish during UI test.");
++        }
++        JsonElement[] KeysSince(int index) => handler.Commands.ToArray().Skip(index).Where(c => c.GetProperty("fun").GetString() == "/key/sendkey").ToArray();
++        string text = SelfTests.LongText;
++        Check("Send text box limit is the documented 200 characters", SendTextBox.MaxLength == MaxSendText && MaxSendText == 200);
++
++        int beforeLong = handler.Commands.Count;
++        await SendTextAndWait(text);
++        var chunks = KeysSince(beforeLong);
++        Check("A 200-character Send text is seven /key/sendkey requests", chunks.Length == 7);
++        Check("Every Send text chunk is at most 32 characters", chunks.All(c => c.GetProperty("data").GetProperty("key").GetString()!.Length <= ApiClient.TextChunk));
++        Check("Send text chunks arrive in order and rebuild the text", string.Concat(chunks.Select(c => c.GetProperty("data").GetProperty("key").GetString())) == text);
++        Check("Every Send text chunk addresses the mirrored phones",
++            chunks.All(c => c.GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04"));
++        string chunkToken = chunks[0].GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString()!;
++        Check("Every Send text chunk carries the same lease",
++            chunks.All(c => c.GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString() == chunkToken));
++        Check("A complete Send text is logged as such", _activity.Any(s => s.Contains("Send text -> 2 phones: 200 characters in 7 chunk(s)")));
++        Check("Long text leaves input ready, not stopped", _controlReady && InputStateText.Text.Contains("ready"));
++
++        int beforeOver = handler.Commands.Count;
++        await SendTextAndWait(new string('a', MaxSendText + 1));
++        Check("Text over the limit is refused before transmission",
++            handler.Commands.Count == beforeOver && _activity.Any(s => s.Contains($"at most {MaxSendText} characters")));
++
++        int beforeFail = handler.Commands.Count;
++        handler.FailSendKeyNumber = handler.SendKeyCount + 3;
++        await SendTextAndWait(text);
++        var failedChunks = KeysSince(beforeFail);
++        Check("A failure on chunk 3 sends no chunk after it", failedChunks.Length == 3);
++        Check("The failure reports confirmed characters and the chunk with an unknown outcome",
++            _activity.Any(s => s.Contains("64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.")));
++        for (int i = 0; !InputStateText.Text.Contains("Input paused") && i < 100; i++) await Task.Delay(10);
++        Check("A failed chunk shows input paused and offers Resume", InputStateText.Text.Contains("Input paused") && ResumeInputButton.IsEnabled);
++
+         Disconnect_Click(this, new RoutedEventArgs());
+ 
+         File.WriteAllText(Path.Combine(qa, "ui-interactions.json"), JsonSerializer.Serialize(new { passed = passed.Count, tests = passed, mockPostAttempts = handler.PostAttempts, realPhoneInputCommands = 0 }, new JsonSerializerOptions { WriteIndented = true }));
+diff --git a/src/iMouse.Console/SelfTests.cs b/src/iMouse.Console/SelfTests.cs
+index dea2b33..61550cb 100644
+--- a/src/iMouse.Console/SelfTests.cs
++++ b/src/iMouse.Console/SelfTests.cs
+@@ -35,6 +35,20 @@ public sealed class TestHandler : HttpMessageHandler
+         ActiveLeases.Remove(id);
+         ExpiredLeases.Add(id);
+     }
++
++    // --- Scripted /key/sendkey outcomes, numbered by how many sendkeys this handler has seen ---
++    public int SendKeyCount { get; private set; }
++    /// <summary>This sendkey fails as the kernel reports a failed command: code 33, phones stopped.</summary>
++    public int FailSendKeyNumber { get; set; }
++    /// <summary>This sendkey gets no answer, which HttpClient reports as its own timeout.</summary>
++    public int TimeoutSendKeyNumber { get; set; }
++    /// <summary>This sendkey stays in flight until cancelled; SendKeyHeld completes when it arrives.</summary>
++    public int HoldSendKeyNumber { get; set; }
++    public TaskCompletionSource SendKeyHeld { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
++    private int _postsInFlight, _peakPostsInFlight;
++    /// <summary>Most POSTs that were ever in flight at once.</summary>
++    public int PeakPostsInFlight => Volatile.Read(ref _peakPostsInFlight);
++    public void ResetPeak() => Volatile.Write(ref _peakPostsInFlight, 0);
+     public const string Fixture = """
+     {"status":200,"data":{"code":0,"list":[
+       {"deviceid":"TEST:01","name":"Test phone 01","device_name":"iPhone XR","gname":"Test devices","state":1,"width":"414","height":"896","imgw":500,"imgh":1080,"air_pid":4321,"version":"18.0","uid":"TEST-BOARD-01","receiver_name":"iMouse2-C24C"},
+@@ -51,6 +65,14 @@ public sealed class TestHandler : HttpMessageHandler
+       {"vid":"720A","pid":"B005","uid":"TEST-BOARD-05","ver":"c.n","state":2}]}}
+     """;
+     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
++    {
++        if (request.Method != HttpMethod.Post) return await HandleAsync(request, ct);
++        int now = Interlocked.Increment(ref _postsInFlight);
++        for (int peak = Volatile.Read(ref _peakPostsInFlight); now > peak && Interlocked.CompareExchange(ref _peakPostsInFlight, now, peak) != peak; peak = Volatile.Read(ref _peakPostsInFlight)) { }
++        try { return await HandleAsync(request, ct); }
++        finally { Interlocked.Decrement(ref _postsInFlight); }
++    }
++    private async Task<HttpResponseMessage> HandleAsync(HttpRequestMessage request, CancellationToken ct)
+     {
+         if (request.Method == HttpMethod.Post) PostAttempts++;
+         if (DelayMs > 0) await Task.Delay(DelayMs, ct);
+@@ -197,6 +219,25 @@ public sealed class TestHandler : HttpMessageHandler
+                     return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 409, message = "Input lease token required" } }));
+                 }
+             }
++            if (fun == "/key/sendkey")
++            {
++                int number = ++SendKeyCount;
++                if (number == HoldSendKeyNumber) { SendKeyHeld.TrySetResult(); await Task.Delay(Timeout.Infinite, ct); }
++                if (number == TimeoutSendKeyNumber) throw new TaskCanceledException("Simulated: no answer before the HTTP timeout.");
++                if (number == FailSendKeyNumber)
++                {
++                    // InputSessions stops the phone and revokes its lease on any non-zero result.
++                    string idStr = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
++                    var ids = idStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
++                    foreach (var id in ids)
++                    {
++                        ActiveLeases.Remove(id);
++                        StoppedPhones.Add(id);
++                        PhoneGenerations[id] = PhoneGenerations.GetValueOrDefault(id, 1) + 1;
++                    }
++                    return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 33, results = ids.Select(id => new { id, code = 499, message = "Input cancelled" }) } }));
++                }
++            }
+ 
+             return Json("{\"status\":200,\"data\":{\"code\":0}}");
+         }
+@@ -432,6 +473,7 @@ public static class SelfTests
+             CoordinateMapper.MapClamped(5, 300, 600, 600, 500, 1080, 500, 1080) is { X: 0 });
+ 
+         await RunOwnershipTestsAsync(passed);
++        await RunTextChunkTestsAsync(passed);
+ 
+         var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+         File.WriteAllText(Path.Combine(qa, "self-tests.json"), JsonSerializer.Serialize(new { passed = passed.Count, tests = passed, allCommandsUsedMockTransport = true, at = DateTime.Now }, new JsonSerializerOptions { WriteIndented = true }));
+@@ -629,6 +671,145 @@ public static class SelfTests
+             hDisc.Commands.Any(c => c.GetProperty("fun").GetString() == "/input/release"));
+     }
+ 
++    /// <summary>200 characters of typeable ASCII, spaces included, so chunk order is checkable.</summary>
++    public static readonly string LongText = string.Concat(Enumerable.Repeat("The quick brown fox jumps over the lazy dog 0123456789! ", 4))[..200];
++
++    /// <summary>
++    /// Long text used to go out as one /key/sendkey. At 140-170 ms a character the kernel's
++    /// 8 s command deadline cancelled it after about 50 characters, left the rest untyped and
++    /// latched Stop. It now goes out in 32-character chunks inside one lease.
++    /// </summary>
++    public static async Task RunTextChunkTestsAsync(List<string> passed)
++    {
++        void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
++        static string Fun(JsonElement c) => c.GetProperty("fun").GetString()!;
++        static JsonElement[] Keys(TestHandler h) => h.Commands.ToArray().Where(c => Fun(c) == "/key/sendkey").ToArray();
++        static string Key(JsonElement c) => c.GetProperty("data").GetProperty("key").GetString()!;
++        static string Token(JsonElement c, string id) => c.GetProperty("data").GetProperty("tokens").GetProperty(id).GetString()!;
++        string text = LongText;
++        var chunks = ApiClient.SplitText(text);
++
++        Check("A 32-character text is one chunk", ApiClient.SplitText(new string('a', 32)).Count == 1);
++        Check("A 33-character text is two chunks", ApiClient.SplitText(new string('a', 33)).Select(c => c.Length).SequenceEqual(new[] { 32, 1 }));
++        Check("200 characters split into seven chunks of at most 32",
++            text.Length == 200 && chunks.Count == 7 && chunks.All(c => c.Length <= ApiClient.TextChunk) && string.Concat(chunks) == text);
++
++        // 1. The whole text, one lease, one chunk at a time.
++        var h = new TestHandler { OwnershipSupported = true, DelayMs = 5 };
++        await using (var api = new ApiClient("localhost", h, ownership: true))
++        {
++            var r = await api.SendTextAsync("TEST:01", text);
++            var keys = Keys(h);
++            Check("200-character send completes", r.End == InputEnd.Completed && r.Failure is null);
++            Check("200-character send reports every character confirmed", r.ConfirmedCharacters == 200 && r.Total == 200 && r.Sent == 7 && r.Confirmed == 7);
++            Check("200-character send is exactly seven /key/sendkey requests", keys.Length == 7);
++            Check("Every chunk carries at most 32 characters", keys.All(k => Key(k).Length <= 32));
++            Check("Chunks arrive in order and rebuild the text exactly", string.Concat(keys.Select(Key)) == text);
++            Check("Chunks are sequential, never concurrent", h.PeakPostsInFlight == 1);
++            Check("One lease: a single acquire, before the first chunk",
++                h.Commands.Count(c => Fun(c) == "/input/acquire") == 1 && Fun(h.Commands[0]) == "/input/acquire" && h.Commands.Count == 8);
++            string token = Token(keys[0], "TEST:01");
++            Check("Every chunk carries the same lease token", keys.All(k => Token(k, "TEST:01") == token));
++        }
++
++        // 2. A failure on chunk 3 stops there: chunks 4-7 never leave, chunk 3 is not retried.
++        var hFail = new TestHandler { OwnershipSupported = true, FailSendKeyNumber = 3 };
++        await using (var api = new ApiClient("localhost", hFail, ownership: true))
++        {
++            string notice = "";
++            api.InputNotice += m => notice = m;
++            var r = await api.SendTextAsync("TEST:01", text);
++            var keys = Keys(hFail);
++            Check("A failed chunk ends the send as failed", r.End == InputEnd.Failed && r.Failure is ApiException);
++            Check("Failure on chunk 3 sends only chunks 1-3", keys.Length == 3 && keys.Select(Key).SequenceEqual(chunks.Take(3)));
++            Check("Failed chunk 3 is not retried", hFail.SendKeyCount == 3);
++            Check("Failure reports the two confirmed chunks as 64 characters", r.ConfirmedCharacters == 64 && r.Confirmed == 2);
++            Check("Failure marks chunk 3 as sent with an unknown outcome", r.Sent == 3 && r.Chunks == 7);
++            Check("A failed chunk pauses input with a notice", notice.StartsWith("Input paused"));
++            int before = hFail.Commands.Count;
++            var again = await api.SendTextAsync("TEST:01", text);
++            Check("A paused phone refuses new text before sending anything",
++                again.End == InputEnd.Failed && again.Sent == 0 && again.ConfirmedCharacters == 0 && hFail.Commands.Count == before);
++        }
++
++        // 3. Stop while chunk 3 is in flight: it is cut short, nothing after it is sent.
++        var hStop = new TestHandler { OwnershipSupported = true, HoldSendKeyNumber = 3 };
++        await using (var api = new ApiClient("localhost", hStop, ownership: true))
++        {
++            var sending = api.SendTextAsync("TEST:01", text);
++            await hStop.SendKeyHeld.Task.WaitAsync(TimeSpan.FromSeconds(5));
++            await api.StopInputAsync("TEST:01");
++            var r = await sending.WaitAsync(TimeSpan.FromSeconds(5));
++            var all = hStop.Commands.ToArray().ToList();
++            int stopAt = all.FindIndex(c => Fun(c) == "/input/stop");
++            Check("Stop during text ends the send as cancelled, not failed or timed out", r.End == InputEnd.Cancelled);
++            Check("Stop during chunk 3 leaves chunk 3 unconfirmed and sends nothing after it",
++                r.Sent == 3 && r.Confirmed == 2 && r.ConfirmedCharacters == 64 && hStop.SendKeyCount == 3);
++            Check("No chunk is sent after /input/stop", stopAt >= 0 && !all.Skip(stopAt).Any(c => Fun(c) == "/key/sendkey"));
++        }
++
++        // 4. A timeout is told apart from a Stop by whether this console cancelled, not by the
++        // exception's shape. HttpClient reports a handler's unrequested cancellation as its timeout.
++        var hTime = new TestHandler { OwnershipSupported = true, TimeoutSendKeyNumber = 2 };
++        await using (var api = new ApiClient("localhost", hTime, ownership: true))
++        {
++            var r = await api.SendTextAsync("TEST:01", text);
++            Check("A chunk with no answer ends the send as timed out", r.End == InputEnd.TimedOut);
++            Check("Timeout on chunk 2 is not retried and nothing after it is sent",
++                hTime.SendKeyCount == 2 && r.Sent == 2 && r.Confirmed == 1 && r.ConfirmedCharacters == 32);
++            int before = hTime.Commands.Count;
++            var again = await api.SendTextAsync("TEST:01", text);
++            Check("A timed-out chunk pauses input until Resume", again.End == InputEnd.Failed && again.Sent == 0 && hTime.Commands.Count == before);
++        }
++
++        // 5. Cancelled before anything left: nothing is reported as possibly partly typed.
++        var hEarly = new TestHandler { OwnershipSupported = true };
++        await using (var api = new ApiClient("localhost", hEarly, ownership: true))
++        {
++            using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
++            var r = await api.SendTextAsync("TEST:01", text, cancelled.Token);
++            Check("Text cancelled before sending reports no chunk sent",
++                r.End == InputEnd.Cancelled && r.Sent == 0 && r.Confirmed == 0 && r.ConfirmedCharacters == 0);
++            Check("Text cancelled before sending sends no request at all", hEarly.Commands.Count == 0);
++        }
++
++        // 6. Mirrored typing: one lease covers every phone, and every chunk carries both tokens.
++        var hGroup = new TestHandler { OwnershipSupported = true };
++        await using (var api = new ApiClient("localhost", hGroup, ownership: true))
++        {
++            var r = await api.SendTextAsync("TEST:01,TEST:04", text);
++            var keys = Keys(hGroup);
++            Check("Mirrored text acquires both phones once",
++                hGroup.Commands.Count(c => Fun(c) == "/input/acquire") == 1 && hGroup.Commands[0].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
++            Check("Mirrored text is seven chunks, each for both phones with the same tokens",
++                r.End == InputEnd.Completed && keys.Length == 7 &&
++                keys.All(k => Token(k, "TEST:01") == Token(keys[0], "TEST:01") && Token(k, "TEST:04") == Token(keys[0], "TEST:04")));
++        }
++
++        // 7. Without the ownership protocol the chunks are still sequential and stop at a failure.
++        var hRaw = new TestHandler { DelayMs = 5 };
++        await using (var api = new ApiClient("localhost", hRaw, ownership: false))
++        {
++            var r = await api.SendTextAsync("TEST:01", text);
++            Check("Unowned text is seven sequential chunks rebuilding the text",
++                r.End == InputEnd.Completed && Keys(hRaw).Length == 7 && string.Concat(Keys(hRaw).Select(Key)) == text && hRaw.PeakPostsInFlight == 1);
++            hRaw.FailSendKeyNumber = hRaw.SendKeyCount + 3;
++            var failed = await api.SendTextAsync("TEST:01", text);
++            Check("Unowned text stops at a failed chunk 3",
++                failed.End == InputEnd.Failed && failed.Sent == 3 && failed.ConfirmedCharacters == 64 && Keys(hRaw).Length == 10);
++        }
++
++        // 8. Single commands keep their exceptions: taps and keys still see HttpClient's own type.
++        var hLegacy = new TestHandler { OwnershipSupported = true, TimeoutSendKeyNumber = 1 };
++        await using (var api = new ApiClient("localhost", hLegacy, ownership: true))
++        {
++            Exception? thrown = null;
++            try { await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" }); }
++            catch (Exception ex) { thrown = ex; }
++            Check("A timed-out single command still throws HttpClient's TaskCanceledException", thrown is TaskCanceledException);
++        }
++    }
++
+     /// <summary>Builds a 24-bit BMP whose marker pixel is red at the visual top-left.</summary>
+     /// <summary>A 1px black/white checkerboard, so point-sampling and averaging differ.</summary>
+     private static byte[] Checkerboard(int width, int height)

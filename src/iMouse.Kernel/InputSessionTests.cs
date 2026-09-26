@@ -140,6 +140,75 @@ internal static class InputSessionTests
         }
         finally { File.Delete(expiryFile); }
 
+        // A console that gives up on a drag move (its own 8 s HTTP timeout) pauses locally and
+        // sends no /mouse/up. The kernel must lift the button without one: at once when the move
+        // fails or hits the 8 s command deadline, and by lease expiry or /input/release when the
+        // move finished but its answer reached the console too late.
+        string dragFile = Path.Combine(Path.GetTempPath(), "imouse-drag-cleanup-" + Guid.NewGuid().ToString("N") + ".json");
+        File.WriteAllText(dragFile, JsonSerializer.Serialize(new[] {
+            new Phone { deviceid = "one", pid = "C24C" }, new Phone { deviceid = "two", pid = "C241" } }));
+        try
+        {
+            var dragStore = new DeviceStore(dragFile);
+            var one = new Transport(); var two = new Transport(); long now = 0;
+            using var dragInput = new InputRouter(dragStore, ["C24C", "C241"],
+                [new("C24C", 500, 1080, 14, 14, 5, 5), new("C241", 500, 1080, 14, 14, 5, 5)], pid => pid == "C24C" ? one : two);
+            await using var drag = new InputSessions(dragStore, dragInput, () => Interlocked.Read(ref now));
+            static bool HeldMove(string hex) => hex.StartsWith("A101") && hex != "A101000000000000";
+            string[] lifted = ["A100000000000000", "A200000000000000"];
+            void Reset(Transport t) { t.Reports.Clear(); t.Disposed = false; t.Fail = null; t.Block = null; }
+            async Task<string> Press(string id)
+            {
+                string token = Lease(drag, id);
+                await drag.DispatchAsync("/mouse/move", Data(new { id, token, x = 14, y = 14 }));
+                await drag.DispatchAsync("/mouse/down", Data(new { id, token, button = 1 }));
+                return token;
+            }
+
+            string token = await Press("one");
+            one.Fail = HeldMove;
+            check(Code(await drag.DispatchAsync("/mouse/move", Data(new { id = "one", token, x = 24, y = 14 }))) != 0 &&
+                one.Reports.TakeLast(2).SequenceEqual(lifted) && one.Disposed,
+                "A drag move that fails lifts the held button without /mouse/up");
+            check(Code(drag.Acquire(Data(new { id = "one" }))) == 409, "A failed drag move latches Stop until Resume");
+
+            token = await Press("two");
+            two.Block = HeldMove;
+            var cut = drag.DispatchAsync("/mouse/move", Data(new { id = "two", token, x = 24, y = 14 }));
+            await two.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            check(Code(await cut.WaitAsync(TimeSpan.FromSeconds(12))) != 0 && two.Reports.TakeLast(2).SequenceEqual(lifted) && two.Disposed,
+                "A drag move cut by the 8 s command deadline lifts the held button without /mouse/up");
+            check(Code(drag.Acquire(Data(new { id = "two" }))) == 409, "A drag move cut by the deadline latches Stop until Resume");
+
+            check(Code(drag.Resume(Data(new { id = "one,two" }))) == 0, "Both phones resume after cleanup");
+            Reset(one); Reset(two);
+            token = await Press("one");
+            check(Code(await drag.DispatchAsync("/mouse/move", Data(new { id = "one", token, x = 24, y = 14 }))) == 0 &&
+                one.Reports.Last() == "A101010000000000", "A late-answered drag move leaves the button held on the kernel");
+            Interlocked.Exchange(ref now, 31_000);   // the console stopped renewing a paused lease
+            for (int n = 0; n < 100 && !one.Disposed; n++) await Task.Delay(10);
+            check(one.Disposed && one.Reports.TakeLast(2).SequenceEqual(lifted),
+                "Lease expiry lifts a button left held by a drag the console gave up on");
+
+            token = await Press("two");
+            await drag.DispatchAsync("/mouse/move", Data(new { id = "two", token, x = 24, y = 14 }));
+            check(Code(await drag.StopAsync(Data(new { id = "two", token }), release: true)) == 0 &&
+                two.Reports.TakeLast(2).SequenceEqual(lifted) && two.Disposed,
+                "The release the console sends on Resume lifts a button left held by a drag");
+
+            // A console's release that arrives late, after the kernel closed its lease and a newer
+            // controller took the phone and pressed, must change nothing for that controller.
+            string stale = token;
+            Reset(two);
+            string newer = await Press("two");
+            int beforeStale = two.Reports.Count;
+            await Rejected(() => drag.StopAsync(Data(new { id = "two", token = stale }), release: true));
+            check(two.Reports.Count == beforeStale && !two.Disposed && two.Reports.Last() == "A101000000000000" &&
+                Code(await drag.DispatchAsync("/mouse/move", Data(new { id = "two", token = newer, x = 24, y = 14 }))) == 0,
+                "A stale release is refused and leaves a newer controller's held button and lease alone");
+        }
+        finally { File.Delete(dragFile); }
+
         // Cleanup failure must remain visible, not turn into a successful Stop.
         string failureFile = Path.Combine(Path.GetTempPath(), "imouse-release-" + Guid.NewGuid().ToString("N") + ".json");
         File.WriteAllText(failureFile, JsonSerializer.Serialize(new[] { new Phone { deviceid = "one", pid = "C24C" } }));

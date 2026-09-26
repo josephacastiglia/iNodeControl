@@ -10,6 +10,8 @@ public partial class MainWindow
     private Task _scopeTail = Task.CompletedTask;
     private long _controlRevision;
     private bool _controlReady = true, _stopPending, _resumePending;
+    // The control lifetime a pause notice cancelled, when the notice cancelled it first.
+    private volatile CancellationTokenSource? _pausedByNotice;
 
     private string StopTargetIds() => string.Join(',',
         (Selected is { } selected ? new[] { selected.Id } : Array.Empty<string>())
@@ -25,6 +27,16 @@ public partial class MainWindow
         _dragWanted = null; _dragRelease = true;
         if (PhoneImage.IsMouseCaptured) PhoneImage.ReleaseMouseCapture();
     }
+
+    /// <summary>
+    /// Whether this console cancelled an input path (Stop, Resume, a selection change, disconnect
+    /// or close) rather than HttpClient's timeout. Decided by the path's own lifetimes, because the
+    /// exception is a TaskCanceledException either way. The pause notice a timeout raises cancels
+    /// local input as well, possibly before the path sees its exception, so a control lifetime that
+    /// notice cancelled first does not count as a cancellation.
+    /// </summary>
+    private bool CancelledHere(CancellationToken lifetime, CancellationTokenSource control) =>
+        lifetime.IsCancellationRequested || (control.IsCancellationRequested && control != _pausedByNotice);
 
     private void RefreshInputOwnershipUi()
     {

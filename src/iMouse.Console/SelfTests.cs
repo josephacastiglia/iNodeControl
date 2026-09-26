@@ -42,6 +42,38 @@ public sealed class TestHandler : HttpMessageHandler
     public int FailSendKeyNumber { get; set; }
     /// <summary>This sendkey gets no answer, which HttpClient reports as its own timeout.</summary>
     public int TimeoutSendKeyNumber { get; set; }
+    /// <summary>Every command with this function gets no answer, like <see cref="TimeoutSendKeyNumber"/>.</summary>
+    public string? TimeoutFun { get; set; }
+    private string? _hangFun;
+    private TaskCompletionSource _hung = new(), _endHang = new();
+    /// <summary>
+    /// The next command with this function stays in flight until <see cref="EndHang"/>, then gets
+    /// no answer, like <see cref="TimeoutFun"/>. The task completes once that command has arrived.
+    /// </summary>
+    public Task HangNext(string fun)
+    {
+        _hung = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        _endHang = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        _hangFun = fun;
+        return _hung.Task;
+    }
+    public void EndHang() => _endHang.TrySetResult();
+    /// <summary>While set, /input/renew waits for it before answering. RenewWaiting completes once one waits.</summary>
+    public Task? RenewGate { get; set; }
+    public TaskCompletionSource RenewWaiting { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    // --- The kernel's side of cleanup after a failure ---
+    /// <summary>Every command with this function fails on the kernel as FailSendKeyNumber does: code 33, lease revoked, phone stopped.</summary>
+    public string? FailFun { get; set; }
+    /// <summary>/input/release refuses a token that is not the phone's live lease with code 409, as the kernel does.</summary>
+    public bool StrictRelease { get; set; }
+    /// <summary>/input/release gets no answer (HttpClient's timeout).</summary>
+    public bool ReleaseTimeout { get; set; }
+    /// <summary>Phones whose button-up write fails: /input/release answers 33 and status reports release_failed.</summary>
+    public HashSet<string> ReleaseFailed { get; } = new();
+    /// <summary>While set, /input/release waits for it before answering. ReleaseWaiting completes once one waits.</summary>
+    public Task? ReleaseGate { get; set; }
+    public TaskCompletionSource ReleaseWaiting { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
     /// <summary>This sendkey stays in flight until cancelled; SendKeyHeld completes when it arrives.</summary>
     public int HoldSendKeyNumber { get; set; }
     public TaskCompletionSource SendKeyHeld { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -107,6 +139,7 @@ public sealed class TestHandler : HttpMessageHandler
             }
             if (fun == "/input/renew")
             {
+                if (RenewGate is { } renewGate) { RenewWaiting.TrySetResult(); await renewGate.WaitAsync(ct); }
                 string id = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
                 string token = data.TryGetProperty("token", out var tokProp) ? tokProp.GetString() ?? "" : "";
                 if (ExpiredLeases.Contains(id) || !ActiveLeases.TryGetValue(id, out var active) || active != token || StoppedPhones.Contains(id))
@@ -119,9 +152,19 @@ public sealed class TestHandler : HttpMessageHandler
             {
                 string idStr = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
                 var ids = idStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                if (ReleaseGate is { } releaseGate) { ReleaseWaiting.TrySetResult(); await releaseGate.WaitAsync(ct); }
+                if (ReleaseTimeout) throw new TaskCanceledException("Simulated: no answer to the release before the HTTP timeout.");
                 if (data.TryGetProperty("token", out var tokProp))
                 {
                     string token = tokProp.GetString() ?? "";
+                    // The kernel validates the owner before it closes anything (InputSessions.ValidateOwner).
+                    if (StrictRelease && ids.Any(id => StoppedPhones.Contains(id) || !ActiveLeases.TryGetValue(id, out var live) || live != token))
+                        return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 409, message = "A valid per-phone input lease is required." } }));
+                    if (ids.Any(ReleaseFailed.Contains))
+                    {
+                        foreach (var id in ids) { ActiveLeases.Remove(id); StoppedPhones.Add(id); PhoneGenerations[id] = PhoneGenerations.GetValueOrDefault(id, 1) + 1; }
+                        return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 33, message = "Release failed; input remains stopped. Check the board." } }));
+                    }
                     foreach (var id in ids)
                     {
                         if (ActiveLeases.TryGetValue(id, out var active) && active == token)
@@ -162,6 +205,9 @@ public sealed class TestHandler : HttpMessageHandler
                         id,
                         owned = ActiveLeases.ContainsKey(id),
                         stopped = StoppedPhones.Contains(id),
+                        releasing = false,
+                        release_failed = ReleaseFailed.Contains(id),
+                        message = ReleaseFailed.Contains(id) ? "Input release could not be confirmed." : "",
                         generation = PhoneGenerations.GetValueOrDefault(id, 1)
                     });
                 return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 0, phones } }));
@@ -218,6 +264,22 @@ public sealed class TestHandler : HttpMessageHandler
                 {
                     return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 409, message = "Input lease token required" } }));
                 }
+            }
+            if (fun == _hangFun)
+            {
+                _hangFun = null; var endHang = _endHang;
+                _hung.TrySetResult();
+                await endHang.Task.WaitAsync(ct);
+                throw new TaskCanceledException("Simulated: no answer before the HTTP timeout.");
+            }
+            if (fun == TimeoutFun) throw new TaskCanceledException("Simulated: no answer before the HTTP timeout.");
+            if (fun == FailFun)
+            {
+                // The kernel releases the board itself, revokes the lease and stops the phone.
+                string idStr = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
+                var ids = idStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                foreach (var id in ids) { ActiveLeases.Remove(id); StoppedPhones.Add(id); PhoneGenerations[id] = PhoneGenerations.GetValueOrDefault(id, 1) + 1; }
+                return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 33, results = ids.Select(id => new { id, code = 33, message = "Simulated board write failure" }) } }));
             }
             if (fun == "/key/sendkey")
             {
@@ -669,6 +731,278 @@ public static class SelfTests
         Check("Disconnect releases all active leases", hDisc.ActiveLeases.Count == 0);
         Check("Release commands recorded on disconnect",
             hDisc.Commands.Any(c => c.GetProperty("fun").GetString() == "/input/release"));
+
+        // 15. A tap with no answer is HttpClient's timeout. It pauses the phone like a failed
+        // command, and must say so: silence left the console reading ready on a paused phone.
+        var hClick = new TestHandler { OwnershipSupported = true, TimeoutFun = "/mouse/click" };
+        using (var apiClick = new ApiClient("localhost", hClick, ownership: true))
+        {
+            string clickNotice = "";
+            apiClick.InputNotice += m => clickNotice = m;
+            Exception? thrown = null;
+            try { await apiClick.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 }); }
+            catch (Exception ex) { thrown = ex; }
+            Check("A timed-out tap still throws HttpClient's TaskCanceledException", thrown is TaskCanceledException);
+            Check("A timed-out tap raises the timeout pause notice", clickNotice == InputLeaseClient.TimedOutNotice);
+            int beforePaused = hClick.Commands.Count;
+            await Reject("A phone paused by a timeout refuses the next tap", () =>
+                apiClick.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 }));
+            Check("Nothing is sent to a phone paused by a timeout", hClick.Commands.Count == beforePaused);
+            Check("A timed-out tap, with no button held across commands, starts no release",
+                !hClick.Commands.Any(c => c.GetProperty("fun").GetString() == "/input/release"));
+            hClick.TimeoutFun = null;
+            await apiClick.ResumeInputAsync("TEST:01");
+            await apiClick.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 });
+            Check("Resume after a timed-out tap restores input", hClick.Commands[^1].GetProperty("fun").GetString() == "/mouse/click");
+        }
+
+        // 16. A command its caller cancels in flight (Stop, a selection change, disconnect) stays silent.
+        var hCancel = new TestHandler { OwnershipSupported = true, HoldSendKeyNumber = 1 };
+        using (var apiCancel = new ApiClient("localhost", hCancel, ownership: true))
+        {
+            string cancelNotice = "";
+            apiCancel.InputNotice += m => cancelNotice = m;
+            using var caller = new CancellationTokenSource();
+            var key = apiCancel.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" }, caller.Token);
+            await hCancel.SendKeyHeld.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            caller.Cancel();
+            Exception? thrown = null;
+            try { await key.WaitAsync(TimeSpan.FromSeconds(5)); }
+            catch (Exception ex) { thrown = ex; }
+            Check("A command its caller cancelled ends as a cancellation", thrown is OperationCanceledException);
+            Check("A command its caller cancelled raises no notice", cancelNotice == "");
+        }
+
+        static string Fun(JsonElement c) => c.GetProperty("fun").GetString()!;
+        static int X(JsonElement c) => c.GetProperty("data").GetProperty("x").GetInt32();
+        static async Task<Exception?> Outcome(Task task)
+        {
+            try { await task.WaitAsync(TimeSpan.FromSeconds(5)); return null; }
+            catch (Exception ex) { return ex; }
+        }
+
+        // 17. A tap queued behind one that times out never goes out, and says so. It used to end
+        // as a bare cancellation that the console could only report as another timeout.
+        var hQueue = new TestHandler { OwnershipSupported = true };
+        using (var apiQueue = new ApiClient("localhost", hQueue, ownership: true))
+        {
+            var hung = hQueue.HangNext("/mouse/click");
+            var first = apiQueue.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 });
+            await hung.WaitAsync(TimeSpan.FromSeconds(5));
+            var queued = apiQueue.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 30, ["y"] = 40 });
+            Check("The second tap waits behind the first rather than going out", !queued.IsCompleted);
+            hQueue.EndHang();
+            var firstOutcome = await Outcome(first);
+            var queuedOutcome = await Outcome(queued);
+            Check("The tap in flight ends as HttpClient's timeout", firstOutcome is TaskCanceledException);
+            Check("The tap queued behind it is reported as not sent", queuedOutcome is InputNotSentException);
+            var clicks = hQueue.Commands.ToArray().Where(c => Fun(c) == "/mouse/click").ToList();
+            Check("The queued tap never reaches the transport", clicks.Count == 1 && X(clicks[0]) == 10 && hQueue.PostAttempts == 2);
+        }
+
+        // Stop is not a failure: a tap queued when the operator stops stays a plain cancellation.
+        var hQueueStop = new TestHandler { OwnershipSupported = true };
+        using (var apiQueueStop = new ApiClient("localhost", hQueueStop, ownership: true))
+        {
+            var hung = hQueueStop.HangNext("/mouse/click");
+            var first = apiQueueStop.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 });
+            await hung.WaitAsync(TimeSpan.FromSeconds(5));
+            var queued = apiQueueStop.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 30, ["y"] = 40 });
+            await apiQueueStop.StopInputAsync("TEST:01");
+            var queuedOutcome = await Outcome(queued);
+            await Outcome(first);
+            Check("A tap queued when Stop is pressed ends as a cancellation, not as not sent",
+                queuedOutcome is OperationCanceledException);
+            Check("A tap queued when Stop is pressed never reaches the transport",
+                hQueueStop.Commands.ToArray().Count(c => Fun(c) == "/mouse/click") == 1);
+        }
+
+        static async Task<string> Press(ApiClient api, TestHandler h)
+        {
+            await api.MoveAsync("TEST:01", 100, 200);
+            await api.CommandAsync("/mouse/down", new() { ["id"] = "TEST:01", ["button"] = "1" });
+            return h.Commands[^1].GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString()!;
+        }
+        static TaskCompletionSource<InputCleanup> Cleanups(ApiClient api)
+        {
+            var next = new TaskCompletionSource<InputCleanup>(TaskCreationOptions.RunContinuationsAsynchronously);
+            api.InputCleaned += c => next.TrySetResult(c);
+            return next;
+        }
+        static bool Releases(JsonElement c, string token) => Fun(c) == "/input/release" &&
+            c.GetProperty("data").TryGetProperty("token", out var t) && t.GetString() == token;
+
+        // 18. A drag whose move times out may leave the button down. The console sends no /mouse/up
+        // (that is refused while paused) but releases its own lease at once, instead of letting the
+        // kernel's expiry lift the button 20-30 s later. Nothing is replayed and nothing resumes.
+        var hHeld = new TestHandler { OwnershipSupported = true, StrictRelease = true };
+        using (var apiHeld = new ApiClient("localhost", hHeld, ownership: true, renewalInterval: TimeSpan.FromMilliseconds(40)))
+        {
+            var cleaned = Cleanups(apiHeld);
+            string heldToken = await Press(apiHeld, hHeld);
+            hHeld.TimeoutFun = "/mouse/move";
+            var moveOutcome = await Outcome(apiHeld.MoveAsync("TEST:01", 150, 250));
+            hHeld.TimeoutFun = null;
+            var cleanup = await cleaned.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Check("A drag move with no answer ends as HttpClient's timeout", moveOutcome is TaskCanceledException);
+            Check("A drag timeout releases the held lease at once, with that lease's own token",
+                cleanup.Cause == InputEnd.TimedOut && cleanup.Current && hHeld.Commands.ToArray().Count(c => Releases(c, heldToken)) == 1);
+            Check("The release after a drag timeout is reported as confirmed by the kernel",
+                cleanup.Confirmed && cleanup.Phones.Single().Detail.Contains("closed this lease") && !hHeld.ActiveLeases.ContainsKey("TEST:01"));
+            await Task.Delay(60);   // let a renewal already in flight land before watching
+            int afterCleanup = hHeld.Commands.Count;
+            await Reject("After the release the phone stays paused: /mouse/up is refused before it leaves", () =>
+                apiHeld.CommandAsync("/mouse/up", new() { ["id"] = "TEST:01", ["button"] = "1" }));
+            await Task.Delay(200);  // five renewal intervals
+            Check("Nothing follows the release: no /mouse/up, replayed move, acquire, renewal or Resume",
+                hHeld.Commands.Count == afterCleanup);
+            await apiHeld.ResumeInputAsync("TEST:01");
+            var resume = hHeld.Commands.Skip(afterCleanup).ToList();
+            Check("Resume after a confirmed release resumes without releasing again",
+                resume.Any(c => Fun(c) == "/input/resume") && !resume.Any(c => Fun(c) == "/input/release"));
+        }
+
+        // 20. The kernel failed the move itself: it already lifted the button and closed the lease.
+        // The console's release is refused (409), so it asks /input/status how that close ended.
+        var hKernelFail = new TestHandler { OwnershipSupported = true, StrictRelease = true };
+        using (var api = new ApiClient("localhost", hKernelFail, ownership: true))
+        {
+            var cleaned = Cleanups(api);
+            string heldToken = await Press(api, hKernelFail);
+            int beforeFailure = hKernelFail.Commands.Count;
+            hKernelFail.FailFun = "/mouse/move";
+            var outcome = await Outcome(api.MoveAsync("TEST:01", 150, 250));
+            var cleanup = await cleaned.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            var after = hKernelFail.Commands.Skip(beforeFailure + 1).Select(Fun).ToList();
+            Check("A kernel failure on a drag move is a failure, not a timeout", outcome is ApiException && cleanup.Cause == InputEnd.Failed);
+            Check("A release refused because the kernel already closed the lease is confirmed from its status",
+                cleanup.Confirmed && cleanup.Phones.Single().Detail.Contains("already closed") && after.SequenceEqual(new[] { "/input/release", "/input/status" }));
+        }
+
+        // 21. The release gets no answer. That is attempted, not confirmed: the token is kept, the
+        // phone stays paused, and the operator's Resume tries the release again before resuming.
+        var hNoAnswer = new TestHandler { OwnershipSupported = true, StrictRelease = true, ReleaseTimeout = true };
+        using (var api = new ApiClient("localhost", hNoAnswer, ownership: true, renewalInterval: TimeSpan.FromMilliseconds(40)))
+        {
+            var cleaned = Cleanups(api);
+            string heldToken = await Press(api, hNoAnswer);
+            hNoAnswer.TimeoutFun = "/mouse/move";
+            await Outcome(api.MoveAsync("TEST:01", 150, 250));
+            hNoAnswer.TimeoutFun = null;
+            var cleanup = await cleaned.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Check("A release with no answer is reported as attempted but not confirmed",
+                !cleanup.Confirmed && cleanup.Phones.Single().Detail.StartsWith("no answer") && cleanup.Summary.Contains("NOT confirmed") && cleanup.Summary.Contains("within 30 s"));
+            Check("An unconfirmed release leaves the panel paused and says so", cleanup.PanelText.Contains("button release not confirmed") && cleanup.PanelText.Contains("Resume input"));
+            await Task.Delay(60);
+            int afterCleanup = hNoAnswer.Commands.Count;
+            await Reject("After an unconfirmed release the phone stays paused", () =>
+                api.CommandAsync("/mouse/up", new() { ["id"] = "TEST:01", ["button"] = "1" }));
+            await Task.Delay(200);
+            Check("After an unconfirmed release nothing is retried or resumed on its own", hNoAnswer.Commands.Count == afterCleanup);
+            hNoAnswer.ReleaseTimeout = false;
+            await api.ResumeInputAsync("TEST:01");
+            var resume = hNoAnswer.Commands.Skip(afterCleanup).ToList();
+            int released = resume.FindIndex(c => Releases(c, heldToken));
+            Check("Resume tries the unconfirmed release again before resuming",
+                released >= 0 && resume.FindIndex(c => Fun(c) == "/input/resume") > released);
+        }
+
+        // 22. The kernel answers that its button-up write failed on the board.
+        var hBoard = new TestHandler { OwnershipSupported = true, StrictRelease = true };
+        using (var api = new ApiClient("localhost", hBoard, ownership: true))
+        {
+            var cleaned = Cleanups(api);
+            await Press(api, hBoard);
+            hBoard.ReleaseFailed.Add("TEST:01");
+            hBoard.TimeoutFun = "/mouse/move";
+            await Outcome(api.MoveAsync("TEST:01", 150, 250));
+            var cleanup = await cleaned.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Check("A release the board could not complete is reported as not confirmed",
+                !cleanup.Confirmed && cleanup.Phones.Single().Detail.Contains("could not complete the release on the board"));
+        }
+
+        // 23. A stale release: before it arrives, the kernel has closed this lease and another
+        // controller owns the phone. The kernel refuses the old token, the newer lease is untouched.
+        var hStale = new TestHandler { OwnershipSupported = true, StrictRelease = true };
+        using (var api = new ApiClient("localhost", hStale, ownership: true))
+        {
+            var cleaned = Cleanups(api);
+            string heldToken = await Press(api, hStale);
+            var gate = new TaskCompletionSource();
+            hStale.ReleaseGate = gate.Task;
+            hStale.TimeoutFun = "/mouse/move";
+            await Outcome(api.MoveAsync("TEST:01", 150, 250));
+            await hStale.ReleaseWaiting.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            hStale.ActiveLeases["TEST:01"] = "NEWER-CONTROLLER";   // closed by the kernel, then acquired elsewhere
+            hStale.PhoneGenerations["TEST:01"] = hStale.PhoneGenerations.GetValueOrDefault("TEST:01", 1) + 1;
+            hStale.ReleaseGate = null; gate.SetResult();
+            var cleanup = await cleaned.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Check("A stale release leaves a newer controller's lease untouched", hStale.ActiveLeases.GetValueOrDefault("TEST:01") == "NEWER-CONTROLLER");
+            Check("A stale release is not reported as this console's failure: the kernel had closed its lease",
+                cleanup.Confirmed && cleanup.Phones.Single().Detail.Contains("already closed"));
+        }
+
+        // 24. Resume waits for a release still on its way, then does not release the same lease again.
+        var hWait = new TestHandler { OwnershipSupported = true, StrictRelease = true };
+        using (var api = new ApiClient("localhost", hWait, ownership: true))
+        {
+            var cleaned = Cleanups(api);
+            string heldToken = await Press(api, hWait);
+            var gate = new TaskCompletionSource();
+            hWait.ReleaseGate = gate.Task;
+            hWait.TimeoutFun = "/mouse/move";
+            await Outcome(api.MoveAsync("TEST:01", 150, 250));
+            hWait.TimeoutFun = null;
+            await hWait.ReleaseWaiting.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            var resuming = api.ResumeInputAsync("TEST:01");
+            await Task.Delay(150);
+            Check("Resume waits while the release after a failure is unanswered",
+                !resuming.IsCompleted && !hWait.Commands.ToArray().Any(c => Fun(c) == "/input/resume"));
+            hWait.ReleaseGate = null; gate.SetResult();
+            await resuming.WaitAsync(TimeSpan.FromSeconds(5));
+            var cleanup = await cleaned.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            var all = hWait.Commands.ToArray().ToList();
+            Check("Resume goes ahead after the release answered, and the lease is released once",
+                cleanup.Confirmed && all.Count(c => Releases(c, heldToken)) == 1 && all.FindIndex(c => Fun(c) == "/input/resume") > all.FindIndex(c => Releases(c, heldToken)));
+        }
+
+        // 25. An operator Stop while the release is on its way: the result is logged but no longer
+        // current, so it cannot overwrite the Stop on the panel.
+        var hStopped = new TestHandler { OwnershipSupported = true, StrictRelease = true };
+        using (var api = new ApiClient("localhost", hStopped, ownership: true))
+        {
+            var cleaned = Cleanups(api);
+            await Press(api, hStopped);
+            var gate = new TaskCompletionSource();
+            hStopped.ReleaseGate = gate.Task;
+            hStopped.TimeoutFun = "/mouse/move";
+            await Outcome(api.MoveAsync("TEST:01", 150, 250));
+            await hStopped.ReleaseWaiting.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            await api.StopInputAsync("TEST:01");
+            hStopped.ReleaseGate = null; gate.SetResult();
+            var cleanup = await cleaned.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Check("A release overtaken by Stop is reported as no longer current", !cleanup.Current && cleanup.Summary.StartsWith("Earlier input failure"));
+        }
+
+        // 19. A renewal already on its way when a failure pauses the phone comes back refused,
+        // because the kernel revoked the lease with the failure. It must not replace that
+        // failure's notice: the phone is paused either way, and the operator needs the cause.
+        var hRace = new TestHandler { OwnershipSupported = true, FailSendKeyNumber = 1 };
+        using (var apiRace = new ApiClient("localhost", hRace, ownership: true, renewalInterval: TimeSpan.FromMilliseconds(20)))
+        {
+            var notices = new List<string>();
+            apiRace.InputNotice += m => { lock (notices) notices.Add(m); };
+            await apiRace.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 });
+            var renewGate = new TaskCompletionSource();
+            hRace.RenewGate = renewGate.Task;
+            await hRace.RenewWaiting.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            var failed = await Outcome(apiRace.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" }));
+            hRace.RenewGate = null; renewGate.SetResult();
+            await Task.Delay(150);  // the held renewal is answered 409 and handled
+            string[] seen; lock (notices) seen = notices.ToArray();
+            Check("A failed key pauses input with its own notice", failed is ApiException && seen.Length > 0 && seen[0].StartsWith("Input paused"));
+            Check("A renewal refused after that failure does not replace its notice", seen.Length == 1);
+        }
     }
 
     /// <summary>200 characters of typeable ASCII, spaces included, so chunk order is checkable.</summary>
@@ -736,6 +1070,8 @@ public static class SelfTests
         var hStop = new TestHandler { OwnershipSupported = true, HoldSendKeyNumber = 3 };
         await using (var api = new ApiClient("localhost", hStop, ownership: true))
         {
+            string notice = "";
+            api.InputNotice += m => notice = m;
             var sending = api.SendTextAsync("TEST:01", text);
             await hStop.SendKeyHeld.Task.WaitAsync(TimeSpan.FromSeconds(5));
             await api.StopInputAsync("TEST:01");
@@ -746,6 +1082,7 @@ public static class SelfTests
             Check("Stop during chunk 3 leaves chunk 3 unconfirmed and sends nothing after it",
                 r.Sent == 3 && r.Confirmed == 2 && r.ConfirmedCharacters == 64 && hStop.SendKeyCount == 3);
             Check("No chunk is sent after /input/stop", stopAt >= 0 && !all.Skip(stopAt).Any(c => Fun(c) == "/key/sendkey"));
+            Check("Stop during text raises no pause notice", notice == "");
         }
 
         // 4. A timeout is told apart from a Stop by whether this console cancelled, not by the
@@ -753,8 +1090,11 @@ public static class SelfTests
         var hTime = new TestHandler { OwnershipSupported = true, TimeoutSendKeyNumber = 2 };
         await using (var api = new ApiClient("localhost", hTime, ownership: true))
         {
+            string notice = "";
+            api.InputNotice += m => notice = m;
             var r = await api.SendTextAsync("TEST:01", text);
             Check("A chunk with no answer ends the send as timed out", r.End == InputEnd.TimedOut);
+            Check("A timed-out chunk raises the timeout pause notice", notice == InputLeaseClient.TimedOutNotice);
             Check("Timeout on chunk 2 is not retried and nothing after it is sent",
                 hTime.SendKeyCount == 2 && r.Sent == 2 && r.Confirmed == 1 && r.ConfirmedCharacters == 32);
             int before = hTime.Commands.Count;
@@ -803,10 +1143,13 @@ public static class SelfTests
         var hLegacy = new TestHandler { OwnershipSupported = true, TimeoutSendKeyNumber = 1 };
         await using (var api = new ApiClient("localhost", hLegacy, ownership: true))
         {
+            string notice = "";
+            api.InputNotice += m => notice = m;
             Exception? thrown = null;
             try { await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" }); }
             catch (Exception ex) { thrown = ex; }
             Check("A timed-out single command still throws HttpClient's TaskCanceledException", thrown is TaskCanceledException);
+            Check("A timed-out single key raises the timeout pause notice", notice == InputLeaseClient.TimedOutNotice);
         }
     }
 

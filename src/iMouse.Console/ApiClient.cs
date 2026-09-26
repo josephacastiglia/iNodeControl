@@ -5,11 +5,49 @@ using System.Text.Json;
 
 namespace IMouse2;
 
-public sealed class ApiException(string message) : Exception(message);
+/// <summary>A refusal or failure the service reported. Code is its result code, or -1 when it came from here.</summary>
+public sealed class ApiException(string message, int code = -1) : Exception(message)
+{
+    public int Code { get; } = code;
+}
+
+/// <summary>An input command that never left this console: another command's failure or timeout,
+/// or a failed ownership renewal, paused its phones while it waited its turn.</summary>
+public sealed class InputNotSentException(Exception cause)
+    : Exception("Not sent: input was paused by an earlier failure or timeout while this waited.", cause);
 
 /// <summary>How an input sequence ended. Cancelled means this console asked it to stop
 /// (Stop, a scope change, disconnect); TimedOut means no answer arrived in time.</summary>
 public enum InputEnd { Completed, Cancelled, TimedOut, Failed }
+
+/// <summary>
+/// How releasing one phone's possibly held button ended after an input failure. Confirmed means
+/// the kernel answered that it closed this console's lease and wrote the button-up report, or had
+/// already done so itself. Like every input result it proves the HID write, not what iOS saw.
+/// </summary>
+public sealed record PhoneCleanup(string Id, bool Confirmed, string Detail);
+
+/// <summary>
+/// The release this console sends at once when a command fails or times out while a button may be
+/// down, instead of leaving it held until the lease expires. Elapsed runs from the failure being
+/// detected (DetectedAt, a Stopwatch timestamp) to the last answer. Current is false when an
+/// operator action or Resume has changed the phones' input state since.
+/// </summary>
+public sealed record InputCleanup(InputEnd Cause, IReadOnlyList<PhoneCleanup> Phones, TimeSpan Elapsed, long DetectedAt, bool Current)
+{
+    public bool Confirmed => Phones.All(p => p.Confirmed);
+    private string CauseText => Cause == InputEnd.TimedOut ? "request timed out" : "command failed";
+    private string Ids => string.Join(", ", Phones.Select(p => p.Id));
+    /// <summary>For the activity log.</summary>
+    public string Summary => (Current ? "" : "Earlier input failure: ") + (Confirmed
+        ? $"Held button released after the {CauseText} on {Ids}; the kernel confirmed it {Elapsed.TotalMilliseconds:0} ms after the failure."
+        : $"Button release NOT confirmed after the {CauseText}: " +
+          string.Join("; ", Phones.Select(p => p.Id + ": " + (p.Confirmed ? "released" : p.Detail))) +
+          ". If the kernel is running it releases the button when the lease expires, within 30 s; Resume input tries the release again.");
+    /// <summary>For the input panel, which stays paused until the operator resumes.</summary>
+    public string PanelText => $"Input paused: {CauseText}; " +
+        (Confirmed ? "held button released (confirmed)" : "button release not confirmed") + ". Check the phone, then choose Resume input.";
+}
 
 /// <summary>
 /// Outcome of <see cref="ApiClient.SendTextAsync"/>. ConfirmedCharacters counts characters in
@@ -112,6 +150,8 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
     private readonly InputLeaseClient? _input;
     private bool _ownershipVerified;
     public event Action<string>? InputNotice;
+    /// <summary>Raised on a pool thread when the release after an input failure has an answer.</summary>
+    public event Action<InputCleanup>? InputCleaned;
     public bool UsesInputOwnership => _input is not null;
     public Uri Endpoint { get; }
     public ApiClient(string address, HttpMessageHandler? handler = null, bool? ownership = null, TimeSpan? renewalInterval = null)
@@ -124,6 +164,7 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         {
             _input = new InputLeaseClient(RawCommandAsync, VerifyOwnershipAsync, renewalInterval);
             _input.Notice += message => InputNotice?.Invoke(message);
+            _input.Cleaned += cleanup => InputCleaned?.Invoke(cleanup);
         }
     }
     public static Uri NormalizeEndpoint(string address)
@@ -311,7 +352,7 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
             if (JsonValue.Int(root, "status", -1) != 200) throw new ApiException("Service error: " + JsonValue.Text(root, "message", "unexpected response"));
             if (!root.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Object) throw new ApiException("The service returned no result data.");
             var code = JsonValue.Int(data, "code", -1);
-            if (code != 0) throw new ApiException("Code " + code + ": " + ErrorDescription(code) + " " + JsonValue.Text(data, "message"));
+            if (code != 0) throw new ApiException("Code " + code + ": " + ErrorDescription(code) + " " + JsonValue.Text(data, "message"), code);
             return data.Clone();
         }
         catch (JsonException) { throw new ApiException("The service returned an invalid response. Verify the service address."); }
