@@ -2,7 +2,10 @@
 
 **Status: integrated, not promoted, not deployed. Not yet ready for final acceptance.** It is committed locally on branch `claude/input-timeout-integration`, on top of the text-chunking commit `8d6a285` (not pushed, not merged). Two things block acceptance:
 
-1. **No live validation.** Nothing in this candidate has run on a phone. At 00:1x EDT on 26 Sep the jovial session asked to keep C24C until its own diagnostic is decided with the user. That session also reported that the user declined desktop control for its build. Live checks through this candidate's console need the user's approval for desktop control too.
+1. **No live validation.** Nothing in this candidate has run on a phone.
+   - The jovial session held C24C for its diagnostic and released it at 01:38 EDT on 26 Sep.
+   - Checked here at 01:39:13: C24C not owned, not active, not stopped, generation 68. C241 at generation 0.
+   - Live checks through this candidate's console wait for the user's own approval of desktop control. None has been given for this build.
 2. **The missing first space is still unexplained.** It stays open (see Requirements kept open).
 
 The working release was not touched: the kernel (`release/iMouse2-kernel-two-phone`, `http://127.0.0.1:9913/api/`), the AirPlay receivers, the installed console (`release/iMouse2-two-phone-candidate`), the shortcuts and the `release/` folders. PIDs change on restart; resolve them fresh before any live step.
@@ -165,8 +168,13 @@ Pointing the console at the proxy (`http://localhost:9923`) makes it save that a
 
 ## Requirements kept open
 
-- **The first space typed into a note goes missing; cause unresolved.**
+- **The first space typed into a fresh text field goes missing; cause unresolved.**
   - Jovial's record: 21 of 21 sends lost that space, and it was 9 of 9 alike with Show Predictions Inline on, off and restored on.
-  - Full Keyboard Access is untested and needs authorization.
-  - Nothing here attributes it to Notes or to any setting.
+  - Jovial's 26 Sep diagnostic, reported to this session and not re-verified here: "Hi", then a lone space, then "there" as three Send text commands, all kernel code 0.
+    - Two fresh Notes notes and two fresh Settings search fields all read "Hithere".
+    - The cursor did not move on the lone space.
+    - Once it brought up the text-edit menu instead, which suggests Full Keyboard Access "Activate" on the focused field.
+  - So the loss is not specific to Notes. Full Keyboard Access is the leading hypothesis, but it is untested because that needs a settings change and authorization.
+  - Nothing here attributes a cause.
+  - A fresh-field result such as "Chunkcheck…" is this open issue, not a regression.
 - **Live validation through the actual candidate console** (above).
