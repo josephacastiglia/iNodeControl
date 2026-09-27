@@ -1,5 +1,34 @@
 # Home inserts a Tab into an active text field: 27 Sep 2026
 
+## Testing window, 27 Sep 18:24–18:31: stopped at mirroring; release restored; Home not tested
+
+**Outcome.** The test kernel started correctly, but C24C's Screen Mirroring list never showed its receiver. Following the agreed rule, the experiment stopped and the release was restored. **No Home trial ran, and no input went to any phone. V1 is still untested.**
+
+| Time | Step |
+|---|---|
+| 18:24:51 | Preflight. Installed console 9044 was not yet running; the console at the time was 25728. Release kernel 28776 (release path, full command line recorded). Receivers **36456 = iMouse2-C24C** and **13616 = iMouse2-C241**; the "Interruption" section below had these two PIDs swapped. C24C was leased by the installed console but not active; no active work on either phone |
+| 18:25 | **Release snapshot.** Kernel folder, `devices.json`, `pointer-calibration.json`, `receivers.json` and the launcher copied to the evidence archive, plus the exact kernel and receiver command lines and `ORIGINALS-SHA256.txt`. Every copy was verified. `uxplay.exe` was used in place; its hash was recorded |
+| 18:25 | **Test build provenance** (`test-build-provenance.txt`). All 16 kernel sources equal commit `068bb68`. Compared with release (line endings normalised), 9 are identical. The 7 that differ are this change's 5 files and the 2 unrecorded AirPlay files (release PDB SHA-256: `AirplayProcess.cs` `1881E2DE…79DF`, `ReceiverFleet.cs` `E86091FF…69E5BD`) |
+| 18:26:02 | Installed console closed normally; C24C's lease released (generation 9) |
+| 18:26:11 | **Release kernel stopped gracefully** (Ctrl+C helper, exit 0). Both receivers and the console host exited; port 9913 was free |
+| 18:26:22 | **Test kernel 30912 started.** `home_sequence: command-h`, input allowed for C24C only, one receiver `iMouse2-C24C` (35768) with arguments identical to the release C24C receiver |
+| 18:26–18:28 | **Mirroring failed.** On both phones Screen Mirroring searched and listed nothing (user photo). The test receiver logged startup up to "Initialized server socket(s)", the same lines as the release receiver at 14:37, and then no client. The console has no role in mirroring: the kernel's `/device/airplay/*` only returns a message |
+| 18:29:03 | **Test kernel stopped gracefully** (exit 0). Its receiver exited, port 9913 was free, and no test process remained |
+| 18:29:22 | **Release restored** with `Open iMouse 2.0.ps1` after a `-CheckOnly` dry run. Kernel 33912, receivers 36508 (iMouse2-C24C) and 36856 (iMouse2-C241), installed console 9044. The kernel and receiver command lines are identical to the pre-window ones, all release files match the snapshot, and operator settings are unchanged |
+| 18:29:55 | **C24C recast by the user through the release receiver: mirroring works.** C24C's list shows both iMouse2-C24C and iMouse2-C241 |
+| 18:31 | **C241's list shows no receivers at all**, although its receiver is running and C24C can see it advertised. No connection attempt has reached it. This looks phone-side and was not changed |
+
+**Why the test receiver was not listed: undetermined.** Candidates, none tested:
+- **the test build's receiver handling:** `AirplayProcess.cs` and `ReceiverFleet.cs` differ from release's unrecorded versions;
+- **Bonjour/mDNS timing:** the test receiver re-registered the same service name and MAC seconds after the release instance was stopped;
+- **phone discovery state:** C241 is not discovering any receivers even now.
+
+A future attempt should first show that the test build's receiver can be discovered, before any input: for example, by waiting longer or by confirming it is listed. That attempt needs its own approval.
+
+**Scope.** This window tested nothing about the Home sequence. It does not authorise promoting the test kernel or its AirPlay implementation.
+
+Evidence: `iMouseXP-2.0-evidence-archive/20260927-home-window/` (the release snapshot and the test build provenance).
+
 **Status: traced and reproduced in HID reports on the mock. A test-only kernel option is prepared. The phone test has not run; it needs a coordinated window.** The release kernel's behaviour is unchanged: the option defaults to the current sequence. The candidate is not promoted. App Switcher, Control Centre, pointer movement, keyboard settings and the missing-space behaviour are untouched.
 
 ## Why Tab precedes Command+H
