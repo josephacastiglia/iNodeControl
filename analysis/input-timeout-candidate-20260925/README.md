@@ -1,9 +1,28 @@
 # Input timeout and recovery, integrated candidate, 26 Sep 2026
 
-**Status: integrated, not promoted, not deployed. Awaiting review.** It is committed locally on branch `claude/input-timeout-integration`, which also merges the text-chunking report commits (`a6e4a9b`) and the test-mode settings isolation (`43b43f7`), and adds `--data-dir` (`a1560ed`) and 12-character text chunks (`b994de9`). Nothing is pushed or merged.
+**Status: partial acceptance. Not promoted, not deployed.** It is committed locally on branch `claude/input-timeout-integration`, which also merges the text-chunking report commits (`a6e4a9b`) and the test-mode settings isolation (`43b43f7`), and adds `--data-dir` (`a1560ed`), 12-character text chunks (`b994de9`) and an optional `trackPointer` setting for test configurations (`b0708e3`). Nothing is pushed or merged. Evidence is reported by build; see the acceptance matrix below.
 
-- **All four live checks passed on C24C with the `b994de9` build on 27 Sep** (see Live validation, 27 Sep). Evidence is reported by build: the 26 Sep runs used 32-character chunks (`a1560ed`) and are historical evidence, not validation of this binary.
-- **The missing first space is still unexplained.** Fresh-field exact typing remains open; see Requirements kept open.
+- **Failed / open: fresh-field exact typing.** The first space typed into a fresh field is lost on every build tested, and the cause is unknown. It needs its own focused investigation. The console does not compensate for it, and must not silently do so.
+- **Passed live:**
+  - Chunked typing in a previously used field, first-click Stop, lost-tap recovery and lost-drag cleanup (27 Sep, `b994de9`).
+  - First-click Resume with a real mouse click, and the full-hold frame record of the lost drag (27 Sep, `b0708e3`).
+- **Not explained:** three Resume clicks failed once on `b994de9`. They were not reproduced on a mock kernel or on C24C (see Resume click investigation). No product change was made for it.
+
+### Acceptance matrix
+
+| Requirement | Result | Build and evidence |
+|---|---|---|
+| Fresh-field exact typing | **Failed / open** | First space lost on `b994de9` (27 Sep) and on every earlier build |
+| 100 characters in a previously used field | Passed | `b994de9`: exact; 9 chunks, slowest 1,838 ms |
+| First-click Stop during a long send | Passed | `b994de9` |
+| Lost tap: timeout shown, paused tap not sent, no replay | Passed | `b994de9` and `b0708e3` |
+| First-click Resume with a real mouse click after a lost tap and lease expiry | Passed | `b0708e3`, C24C, 15:35:34; mock kernel twice |
+| Lost drag: console omits `/mouse/up`; kernel cleanup release confirmed | Passed | `b994de9` (8 ms) and `b0708e3` (9 ms) |
+| Lost drag: phone state for the whole hold and after release | Passed | `b0708e3`: note held overscrolled for the whole 8 s, back at rest within one 0.5 s frame of the kernel release |
+| Connecting a test candidate sends no input and takes no lease | Passed | `b0708e3` with `"trackPointer": false` |
+| Operator settings untouched by candidates | Passed | Hash `72F51CC0…` unchanged; see the stale-launch note under Resume click investigation |
+| Offline suites | Passed | `b0708e3`: kernel 79, `--self-test` 191, `--ui-test` 151, harness S1–S6 |
+| Chunk completion under arbitrary host load | Not guaranteed | By design; an overrun is reported and never retried |
 
 The working release was not modified: the kernel binary, the receivers, `release/`, `Open iMouse 2.0.ps1` and the shortcuts. For the live checks, the installed console (PID 10696) was closed normally after confirming it held no lease. It was not relaunched before the rack went down; the operator's launcher starts it with the rest of the release. The operator settings file `%APPDATA%\iMouse2\settings.json` was never written by the candidate. Its content hash (`72F51CC0…`) is unchanged throughout. Its timestamp changed once, at 06:57:30Z on 26 Sep: this session ran UI tests of the pre-isolation candidate 1 for an A/B comparison, which rewrote it with the same bytes.
 
@@ -164,6 +183,78 @@ Live on C24C, 32-character chunks took 4.9–5.7 s, plus one 8,021 ms overrun (a
 
 **Portal.** Its independent `TEXT_CHUNK = 32` needs the same evaluation. See `PORTAL-TEXT-CHUNK-NOTICE.md`; that branch was not edited.
 
+## Resume click investigation and live re-check, 27 Sep 2026, build `b0708e3`
+
+**What failed on `b994de9`.** After the lost tap in check 3, three mouse clicks on Resume input (15:07:33, 15:07:42, 15:08:14) sent nothing. UI Automation Invoke then worked (15:08:33). This is diagnostic evidence only: Invoke skips hit testing, so it is not an acceptance check.
+- **Enabled state.** At 15:08:09 UIA reported Resume enabled, on screen, rectangle 655–808 × 50–100 physical px.
+- **Hit test.** The clicks at frame (277,28) and (277,29) map inside that rectangle at 2.64× scaling. The third, at (310,30), missed the button.
+- **Wider than Resume.** Two Activity clicks (15:07:00 and 15:07:15) also did nothing, while the console was foreground and responding. So from 15:07:00 to 15:08:20 no top-bar click reached the console.
+- **Overlays.** The Activity/Controls drawer starts below the top bar (`DrawerHost.Margin` = top bar height), so it cannot cover these buttons.
+- **Code path.** `ResumeInput_Click` has no early return that fits: Invoke ran the same handler successfully. The pause notice refreshes the button state. A paused press on the preview takes no mouse capture (`BeginGesture` returns before `CaptureMouse`).
+- **Timing.** The clicks came after the kernel lease expired (acquire 15:06:28, expiry about 15:06:58).
+
+**Reproduction with mocks (not reproduced).**
+- Setup: `input-cleanup-harness --serve` (the kernel's own ApiServer and InputRouter, simulated board, synthetic frame) behind the fault proxy, driven by real mouse clicks on a candidate console.
+- Resume worked on the first click both times: at 22 s, and at about 50 s, after lease expiry. Activity also opened on the first click. The latter run replayed the check-3 sequence exactly: lost tap, paused tap, Activity, Resume.
+
+**Live re-check on C24C (not reproduced).**
+- Before each top-bar click, `tools/click-probe` confirmed the top-level window, foreground window and UIA element under the point all belonged to the candidate (PID 27944), with Resume enabled.
+- The same sequence then passed on the first click: lost tap, lease expiry (C24C stopped, generation 6), paused tap, Activity, Resume. `/input/release` 409, `/input/status` 0, `/input/resume` 0 at 15:35:34.
+- Resume after the lost drag also worked on the first click (15:37:02).
+
+**Conclusion.**
+- No console-side cause was found, and the failure did not recur in three attempts. So no product change was made.
+- The remaining explanation is untested: this session's computer-use tool masks other applications' windows, so a transparent window from another process over the top bar would not have shown in its screenshots. `textinputhost.exe` was among the masked windows in a later capture, but that is only a hypothesis.
+- Future live checks should run `tools/click-probe` before each click so a recurrence identifies what received the click.
+
+**Unintended stale launch (15:24:00–15:24:13).**
+- Asking the computer-use tool to open "Imouse2" launched `%TEMP%\claude\imouse-candidate-integrated-2\iMouse2.exe` (`a1560ed`), without `--data-dir`. It connected to the release kernel and saved settings. It was closed after 13 s.
+- It took no lease and sent no input: C24C stayed at generation 5 and C241 at 1.
+- It rewrote `%APPDATA%\iMouse2\settings.json` with identical bytes (hash `72F51CC0…` unchanged; timestamp 19:24:00Z) and its own `data\settings.json`.
+- Since then candidates are brought forward by PID, never opened by name.
+
+**Setup for the re-check.**
+- **Candidate.** `%TEMP%\claude\imouse-candidate-5\` built from `b0708e3`: `iMouse2.dll` SHA-256 `E5A51FC6204566FA3B48C650FC239A42B158217D8045D2712850173980303AC3`, `iMouse2.exe` `2A0D5CB94AF84226269507C2442BAC3DDAE524DB6E1EED4306B7C2AF79945253`. Self-test 191 and UI test 151 run on this binary.
+- **Isolated settings.** Data folder `imouse-candidate-5 data\live` with `{"address":"http://localhost:9923","theme":"light","trackPointer":false}`. On connect the proxy log shows no commands, and both phones stayed unowned.
+- **Rack.** The installed console (PID 3516, release path verified) was closed normally at 15:32:51. C24C identity was checked (XR C24C, board C24C, uid C24CBFBD, receiver 36456). Both phones were unowned, and `tools/phone-frame-capture` was self-checked read-only on C24C (6 of 6 frames).
+
+**Check A: lost tap, then first-click Resume.** Frames every 1 s for 100 s (100 of 100).
+- `/mouse/click` code 0 in 1,843 ms, answer withheld. Panel paused at about 10 s.
+- The paused tap sent nothing, and the lease expired.
+- The only change on the phone was the iOS edit menu appearing at 15:34:39, after the tap. Text unchanged.
+
+**Check B: lost drag, full-hold capture.** Frames every 0.5 s for 90 s (177 of 177).
+
+| Time (EDT) | Kernel / console | Phone (frames) |
+|---|---|---|
+| 15:36:28.43 | — | Note at rest, edit menu showing |
+| 15:36:28.51 | `/mouse/down` code 0 (123 ms): the button is down | — |
+| 15:36:28.71 | Drag `/mouse/move` completed by the kernel (code 0, 200 ms); **answer withheld** | — |
+| 15:36:28.93 → 36.54 | Console waiting; panel still reads ready | Menu dismissed; note pulled about 50 px down (overscroll, scroll indicator shown) in every frame of the hold |
+| 15:36:36.51 | Console timeout; **no `/mouse/up` sent** | — |
+| 15:36:36.517 | `/input/release` code 0 (4.5 ms). Log: `…the kernel confirmed it 9 ms after the failure` | — |
+| 15:36:37.06 | — | Content back at rest |
+| 15:36:37.58 | — | Edit menu shown again |
+| 15:37:02.61 | Resume (first click): status 0, resume 0 | No change |
+
+- **Held about 8.0 s,** from the down at 28.51 to the kernel release at 36.52.
+- **The console did not send `/mouse/up`.** On its own that proves nothing about the phone. What shows the touch ending is the frames: iOS holds an overscroll only while a touch is down, and the note stayed pulled down until the kernel's release and was back at rest in the next frame.
+- **Effects:** the edit menu was dismissed and then shown again. There was a temporary overscroll; no text changed, nothing was selected, and there was no lasting scroll (the first and last frames differ only in the blinking caret).
+- **Observation:** during the 8 s hold the panel still reads `Input ready`, because the console cannot know the answer is lost until its timeout.
+
+**Restore.**
+- The candidate was closed at 15:38:35 and the proxy stopped. The installed console was relaunched from the release folder (PID 12328) and not interacted with.
+- Afterwards both phones were unowned (C24C generation 7, C241 generation 1), and kernel 28776 and receivers 36456 and 13616 were running.
+- Operator settings hash unchanged; the timestamp is the installed console's own save at 19:38:36Z.
+
+**Evidence.** `iMouseXP-2.0-evidence-archive/20260927-live-b0708e3/` holds:
+- the proxy log, both frame captures with `frames.tsv`, the click probes, and the contact sheet of the hold;
+- the capture self-checks;
+- the mock-kernel reproduction log;
+- the check-3 screenshots from `b994de9`.
+
+`SHA256SUMS.txt` lists 328 files; the copied files were verified against their sources.
+
 ## Live validation, 27 Sep 2026, build `b994de9` (C24C only; all four checks run)
 
 **Setup.**
@@ -294,7 +385,7 @@ Pointing the console at the proxy (`http://localhost:9923`) makes it save that a
 
 ## Requirements kept open
 
-- **The first space typed into a fresh text field goes missing; cause unresolved.**
+- **Failed / open: the first space typed into a fresh text field goes missing; cause unresolved.** It needs a separate, focused investigation. Neither the console nor this candidate adds or re-sends a space to hide it, and none should without a known cause.
   - Jovial's record: 21 of 21 sends lost that space, and it was 9 of 9 alike with Show Predictions Inline on, off and restored on.
   - Jovial's 26 Sep diagnostic, reported to this session and not re-verified here: "Hi", then a lone space, then "there" as three Send text commands, all kernel code 0.
     - Two fresh Notes notes and two fresh Settings search fields all read "Hithere".
