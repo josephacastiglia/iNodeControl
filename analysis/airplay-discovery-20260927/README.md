@@ -19,6 +19,10 @@ At each window, the kernel stop ended the receivers while C24C and C241 were mir
 
 - Phones that had never connected listed the release receivers within about 3 minutes of the 18:45 restart.
 - When C24C (192.168.4.57) and C241 (192.168.4.56) finally connected, `mdns_listen.py` recorded each asking directly for its own receiver (a QU query for `02494D32C24C@iMouse2-C24C._raop._tcp.local`, and likewise for C241).
+- Over the whole 4-minute listen (18:57:11–19:01:12), those two queries were the only AirPlay-related mDNS traffic from any phone:
+  - no general `_airplay._tcp` or `_raop._tcp` browse query was seen;
+  - the PC's answers to QU queries are unicast, so they are not visible to the listener.
+  - So multicast from these phones does reach the PC. When and whether the phones browse after a receiver restart is still to be observed.
 
 ## Leading hypothesis (not demonstrated)
 
