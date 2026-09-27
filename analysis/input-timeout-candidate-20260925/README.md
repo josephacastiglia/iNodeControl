@@ -1,14 +1,15 @@
 # Input timeout and recovery, integrated candidate, 26 Sep 2026
 
-**Status: integrated, not promoted, not deployed. Not yet ready for final acceptance.** It is committed locally on branch `claude/input-timeout-integration`, on top of the text-chunking commit `8d6a285` (not pushed, not merged). Two things block acceptance:
+**Status: integrated, not promoted, not deployed. Not ready for final acceptance.** It is committed locally on branch `claude/input-timeout-integration`, which also merges the text-chunking report commits (`a6e4a9b`) and the test-mode settings isolation (`43b43f7`), and adds `--data-dir` (`a1560ed`). Nothing is pushed or merged. Three things block acceptance:
 
-1. **No live validation.** Nothing in this candidate has run on a phone.
-   - The jovial session held C24C for its diagnostic and released it at 01:38 EDT on 26 Sep.
-   - Checked here at 01:39:13: C24C not owned, not active, not stopped, generation 68. C241 at generation 0.
-   - Live checks through this candidate's console wait for the user's own approval of desktop control. None has been given for this build.
-2. **The missing first space is still unexplained.** It stays open (see Requirements kept open).
+1. **Live validation is half done.** Checks 1 and 2 ran on C24C on 26 Sep, 03:03–03:10 EDT (see Live validation, 26 Sep). Checks 3 (lost tap answer) and 4 (lost drag answer) did not run.
+   - The rack went down at 03:17:41. The machine was shut down on 26 Sep at 23:26, crashed at 04:47 on 27 Sep, and rebooted at 13:52.
+   - At 14:02 on 27 Sep no kernel, receiver or console was running.
+   - Continuing needs the working kernel and receivers started again. That is the operator's step, not this session's. Exclusive C24C access must also be re-established.
+2. **A 32-character chunk overran the kernel's 8 s deadline under host CPU load** (live, check 1b). This is a margin question for the text-chunking design, not a defect in this change.
+3. **The missing first space is still unexplained.** Fresh-field exact typing remains open; see Requirements kept open.
 
-The working release was not touched: the kernel (`release/iMouse2-kernel-two-phone`, `http://127.0.0.1:9913/api/`), the AirPlay receivers, the installed console (`release/iMouse2-two-phone-candidate`), the shortcuts and the `release/` folders. PIDs change on restart; resolve them fresh before any live step.
+The working release was not modified: the kernel binary, the receivers, `release/`, `Open iMouse 2.0.ps1` and the shortcuts. For the live checks, the installed console (PID 10696) was closed normally after confirming it held no lease. It was not relaunched before the rack went down; the operator's launcher starts it with the rest of the release. The operator settings file `%APPDATA%\iMouse2\settings.json` was never written by the candidate. Its content hash (`72F51CC0…`) is unchanged throughout. Its timestamp changed once, at 06:57:30Z on 26 Sep: this session ran UI tests of the pre-isolation candidate 1 for an A/B comparison, which rewrote it with the same bytes.
 
 ## What the candidate is
 
@@ -141,7 +142,50 @@ So the button stays down for about 8 s plus under 10 ms when an answer is lost; 
 - Archive them before that worktree is cleaned up; they are not in any commit.
 - This candidate adds no screenshots.
 
-## Live validation plan (not run)
+## Live validation, 26 Sep 2026 (C24C only; checks 1–2 done, 3–4 not run)
+
+**Setup.**
+- **Candidate.** `%TEMP%\claude\imouse-candidate-integrated-2\` built from `a1560ed`: `iMouse2.dll` SHA-256 `BEB949B9A0EB4522A6355608855BF0C890DD5B6F7ADE2602A58EFA5CDEBA9A85`, `iMouse2.exe` `E25A661221D769C6CA0A741F1FFB647F3538BF8A92509821E6CC26F114748590`.
+- **Launch.** `tools/candidate-launcher/Start-iMouse2Candidate.ps1 -ViaProxy`, with data folder `%TEMP%\claude\imouse-candidate-integrated-2 data\live`, which holds its own `settings.json`. The console connected through the proxy (`http://localhost:9923`) to the release kernel. No settings mirror was written beside the exe.
+- **Preflight at 03:03:06.**
+  - Kernel PID 34796 from `release\iMouse2-kernel-two-phone`; receivers 9760 (C24C) and 16500 (C241); installed console 10696.
+  - C24C `86:1D:4A:04:2F:F6` "XR C24C", board C24C, uid `C24CBFBD`: not owned, not active, generation 68.
+  - The jovial session confirmed exclusivity in writing: no input, lease, console or kernel calls until release.
+- **Unplanned hover move.** Hover tracking ("Move phone pointer with mouse") was on by default and sent one `/mouse/move` at 03:03:48, before it was switched off. That moved the pointer only; nothing was tapped.
+
+**Environment.**
+- Host CPU was 85–100% during the checks.
+- The load came from several headless Chrome (Puppeteer) processes of about one core each, plus Windows `TextInputHost`. None belonged to this work.
+
+**Check 1: 100-character typing.** `Integrated check 26 Sep: chunked Send text types one hundred characters in four chunks #7, all OK!!!`, sent with the Send text button in a new note.
+
+| Run | Field | Kernel | Phone |
+|---|---|---|---|
+| 1a | Fresh note | 4 chunks, code 0: 4.76, 5.69, 5.05, 0.58 s | `Integratedcheck 26 Sep: …` First space lost (the open issue); the rest exact |
+| 1b | Same note, new line | Enter 156 ms; chunk 1 ran 8,021 ms and got code 33 (the kernel's own 8 s deadline; C24C stopped, generation 69) | 30 of 32 characters typed (`Integrated check 26 Sep: chunk`), then nothing. The console showed `Input paused: request timed out…` and logged `Send text timed out: 0 of 100 characters confirmed. Chunk 1 of 4 may be partly typed and was not retried. Chunks 2–4 were not sent.` Nothing was replayed |
+| — | Resume input (operator) | `/input/release` 409 (lease already closed by the kernel), `/input/status`, `/input/resume` 0 | Panel `Input ready · previous actions discarded` |
+| 1c | Same note, new line | Enter 350 ms; 4 chunks, code 0: 5.07, 4.93, 5.22, 0.59 s | Exact, all 100 characters (checked on a crop of the phone's own 500×1080 frame) |
+
+**Result:**
+- **Chunking verified** in a previously used note.
+- **Fresh-field exact typing stays unresolved.**
+- **Side effect.** Pressing Enter in 1c accepted iOS's pending inline prediction on line 1b, which became `…chunked Send text` with `ed Send text` never sent. Read typed text before pressing Enter or leaving a field.
+- **Load finding (1b).** The 32-character chunk normally takes about 5 s. Under this host load one exceeded 8 s, so the chunk-size margin is not enough under sustained CPU load.
+
+**Check 2: first-click Stop during a long send.** 200 characters were sent into the same note. Stop input was clicked once about 7.5 s in, with the Controls drawer open.
+- Kernel: Enter 156 ms (code 0). Chunk 1 in 4.95 s (code 0). Chunk 2 was cut after 2.95 s (code 33). `/input/stop` answered 0 in 11.7 ms. C24C was then stopped, generation 71.
+- Phone: `Stop check 26 Sep: this long send is cut by one c`, which is chunk 1 plus 17 characters of chunk 2. Frames 5 s apart showed no further typing, and nothing more was sent.
+- Panel: `Input stopped · choose Resume input to continue`.
+- **Result: the first click on Stop took effect, the send stopped within the chunk in flight, and nothing was replayed.**
+
+**Checks 3 and 4:** not run (see Status).
+
+**Evidence.**
+- In this folder: `live-20260926/proxy-log.jsonl` (every command, with the kernel's answer code and duration), `live-20260926/settings.json` (the candidate's own), and `live-20260926/phone-captures.sha256`.
+- The phone captures are PNGs, which `.gitignore` excludes. They are archived at `iMouseXP-2.0-evidence-archive/20260926-live-candidate/phone/` next to the repository, with `SHA256SUMS.txt`.
+- The test note stays on C24C, titled `Integratedcheck 26 Sep: …`. It was not deleted.
+
+## Live validation plan
 
 These checks run on C24C only, through this candidate's console (`%TEMP%\claude\imouse-candidate-integrated-1\iMouse2.exe`). Start only when the jovial session has released C24C and the user has approved desktop control. Before any live action:
 1. Resolve process paths and PIDs fresh.
