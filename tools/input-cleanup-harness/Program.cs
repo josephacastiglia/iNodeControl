@@ -33,6 +33,8 @@ static class Harness
         await Run("S4 release refused, explicit Resume retries it", ReleaseRefused);
         await Run("S5 stale release after ownership changed", StaleRelease);
         await Run("S6 release lost, lease-expiry fallback", ReleaseLost);
+        await Run("S7 mock kernel refuses a port another listener holds", MockRefusesTakenPort);
+        await Run("S8 mock kernel starts, self-checks and serves only the simulated board", MockServesSimulatedBoard);
         File.WriteAllText(output, JsonSerializer.Serialize(new { simulated = true, board = "simulated IHidTransport", at = DateTime.Now, failures = _failures, scenarios = Results },
             new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine($"{(_failures == 0 ? "ALL PASSED" : _failures + " CHECK(S) FAILED")}; results in {output}");
@@ -88,6 +90,51 @@ static class Harness
         s.Measured["cleanup detail"] = cleanup.Phones.Select(p => p.Detail).ToArray();
         s.Measured["detected failure -> cleanup answered (ms)"] = Math.Round(cleanup.Elapsed.TotalMilliseconds, 1);
         s.Measured["detected failure -> button-up report on the board (ms)"] = up is { } at ? Ms(cleanup.DetectedAt, at) : null;
+    }
+
+    static int FreePort() { var l = new TcpListener(IPAddress.Loopback, 0); l.Start(); int p = ((IPEndPoint)l.LocalEndpoint).Port; l.Stop(); return p; }
+
+    // S7. The mock must fail startup, not share a port. On 27 Sep an http.sys registration for
+    // /api/ on the same port took the mock's requests, and the real boards were enumerated.
+    static async Task MockRefusesTakenPort(Scenario s)
+    {
+        int port = FreePort();
+        using (var squatter = new HttpListener())
+        {
+            squatter.Prefixes.Add($"http://localhost:{port}/api/");
+            squatter.Start();
+            var result = await Serve.RunAsync(port, "F001").WaitAsync(TimeSpan.FromSeconds(10));
+            s.Check("an http.sys listener for /api/ on the port: startup refused (exit 3)", result == Serve.PortInUse);
+        }
+        port = FreePort();
+        var socket = new TcpListener(IPAddress.Loopback, port); socket.Start();
+        try
+        {
+            var result = await Serve.RunAsync(port, "F001").WaitAsync(TimeSpan.FromSeconds(10));
+            s.Check("a plain socket on the port: startup refused (exit 3)", result == Serve.PortInUse);
+        }
+        finally { socket.Stop(); }
+    }
+
+    // S8. On a free port the mock starts, passes its own self-check, and answers only with the
+    // simulated board and phone through that port.
+    static async Task MockServesSimulatedBoard(Scenario s)
+    {
+        int port = FreePort();
+        using var stop = new CancellationTokenSource();
+        var started = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var run = Serve.RunAsync(port, "F001", stop.Token, url => started.TrySetResult(url));
+        string url = await started.Task.WaitAsync(TimeSpan.FromSeconds(15));
+        using var client = new HttpClient();
+        using var boards = JsonDocument.Parse(await client.GetStringAsync(url + "/api/config/usb/get"));
+        var list = boards.RootElement.GetProperty("data").GetProperty("list").EnumerateArray().Select(b => b.GetProperty("pid").GetString()).ToArray();
+        s.Measured["board list"] = list;
+        s.Check("the board list is exactly the simulated board", list is ["F001"]);
+        using var status = JsonDocument.Parse(await client.GetStringAsync(url + "/api/kernel/status"));
+        s.Check("kernel status answers through the front", status.RootElement.GetProperty("data").GetProperty("input_protocol").GetInt32() == 1);
+        stop.Cancel();
+        s.Check("stops cleanly when cancelled (exit 0)", await run.WaitAsync(TimeSpan.FromSeconds(10)) == 0);
+        s.Check("the port is free again afterwards", !Serve.PortTaken(port));
     }
 
     // S1. The kernel completed the held move, but its answer never reached the console, which times

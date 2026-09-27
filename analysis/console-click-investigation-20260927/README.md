@@ -1,6 +1,16 @@
 # Intermittent console click failures: investigation, 27 Sep 2026
 
-**Status: not reproduced; cause undetermined; no fix made.** The candidate is not promoted. Physical-phone testing was paused, and the rack was not used for input.
+**Status: CLOSED as unreproduced (27 Sep, by the user's decision). Cause undetermined; no fix made.** No further reproduction on the working desktop. Any future attempt belongs in the isolated environment (`analysis/isolated-test-environment-plan-20260927/`). The candidate is not promoted. Physical-phone testing was paused, and the rack was not used for input.
+
+## Binaries
+
+| Build | `iMouse2.dll` SHA-256 | `iMouse2.exe` SHA-256 | Embedded version | Built from |
+|---|---|---|---|---|
+| **Original candidate** | `E5A51FC6204566FA3B48C650FC239A42B158217D8045D2712850173980303AC3` | `2A0D5CB94AF84226269507C2442BAC3DDAE524DB6E1EED4306B7C2AF79945253` | `2.0.0+b0708e3db09…` | Commit `b0708e3`, clean |
+| **Instrumented investigation build** (diagnostic only, never a candidate) | `EAE9D2C3BE8B2DA3E5CA4BF64F524D331FBDA8AEA9A058F6D6C029562FAC028F` | `7C78E3BDBE1D310C11EE7ED66DC1258FE58A33AE3903251936ABD68D22C37F0E` | `2.0.0+afdbba3aa00…` (misleading) | The uncommitted working tree at 21:03:10Z, while HEAD was `afdbba3`. Its `src/` equals `90f7a62`'s |
+
+- Both builds are preserved under `binaries/` in the archive below, with `BINARIES.txt`.
+- The instrumented build's version stamp names `afdbba3` only because that was HEAD when it was built. It also contains `InputTrace.cs`.
 
 ## What was being investigated
 
@@ -86,5 +96,5 @@ A live episode captured with both the input trace and `Watch-MouseButtons` runni
 
 ## Evidence
 
-- `iMouseXP-2.0-evidence-archive/20260927-console-click-investigation/`, with `SHA256SUMS.txt` (19 files). It holds the input trace (3,139 lines), the system-hook logs, the proxy logs, the loop logs and the session scripts.
+- `iMouseXP-2.0-evidence-archive/20260927-console-click-investigation/`, with `SHA256SUMS.txt` (32 files, verified). It holds the input trace (3,139 lines), the system-hook logs, the proxy logs, the loop logs, the session scripts, and both builds under `binaries/`.
 - The `afdbba3` evidence (`20260927-fka-space-loss-b0708e3/`, 217 files) was re-verified intact before starting.
