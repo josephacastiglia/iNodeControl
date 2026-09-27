@@ -49,6 +49,7 @@ public partial class MainWindow : Window
         _factory = factory ?? (address => new ApiClient(address));
         _presentNow = () => PresentPending(null, EventArgs.Empty);
         InitializeComponent();
+        InputTrace.AttachIfRequested(this);
         ActivityList.ItemsSource = _activity;
         PhoneWall.ItemsSource = _wall;
         PhoneWall.DataContext = this;

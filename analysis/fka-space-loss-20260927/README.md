@@ -89,7 +89,7 @@ These were recorded here and not fixed.
 - Clicks on Controls, Activity and Reset did nothing from about 16:04:50 until 16:07:24. Controls failed again at 16:08:25, while a click on Settings worked straight after. The three failed Resume clicks on 27 Sep (`b994de9`) are probably the same thing.
 - Hit testing: the click probe put every point in the candidate's own window (PID 35716). That window was foreground and responding.
 - Mouse capture: `GetGUIThreadInfo` showed no window holding capture and no menu or move mode.
-- Plain `SendInput` clicks failed the same way, so the automation tool is not the cause.
+- Plain `SendInput` clicks failed the same way, so the automation tool is not the cause. **Corrected later:** `SendInput` from the agent's shell injects nothing at all, so this proves nothing. See `analysis/console-click-investigation-20260927/README.md`.
 - The clicked button showed the keyboard focus ring but did not fire.
 - Recovery: clicks worked again after a UI Automation Invoke of Activity followed by a click on the drawer's Close link.
 - Scripts are in `session-scripts\` in the archive: `guithread.ps1`, `win32click.ps1`, `drawer.ps1`, plus `tools/click-probe`.
