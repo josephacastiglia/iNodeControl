@@ -385,7 +385,7 @@ Pointing the console at the proxy (`http://localhost:9923`) makes it save that a
 
 ## Requirements kept open
 
-- **Failed / open: the first space typed into a fresh text field goes missing; cause unresolved.** It needs a separate, focused investigation. Neither the console nor this candidate adds or re-sends a space to hide it, and none should without a known cause.
+- **Failed / open: the first space typed into a fresh text field goes missing; cause unresolved.** It needs a separate, focused investigation. Neither the console nor this candidate adds or re-sends a space to hide it, and none should without a known cause. The 27 Sep Full Keyboard Access experiment ended before its Off comparison, so FKA causation is unresolved; see `analysis/fka-space-loss-20260927/README.md`.
   - Jovial's record: 21 of 21 sends lost that space, and it was 9 of 9 alike with Show Predictions Inline on, off and restored on.
   - Jovial's 26 Sep diagnostic, reported to this session and not re-verified here: "Hi", then a lone space, then "there" as three Send text commands, all kernel code 0.
     - Two fresh Notes notes and two fresh Settings search fields all read "Hithere".
