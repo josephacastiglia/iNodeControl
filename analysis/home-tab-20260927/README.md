@@ -18,6 +18,14 @@
 
 **Home result: none.** V1 remains untested on a phone. V2 was not run because V1 was never observed.
 
+**After the second restore (18:45–18:51): this weakens the receiver-code explanation.**
+- The **release** receivers, started at 18:45:46, had still not been listed by C24C or C241 five minutes later. Both phones' Screen Mirroring was searching (user photo, `user-photo-after-window2.webp`).
+- Two **other** rack phones could see them and tried to connect. Both were refused by `-restrict -allow`, as designed, so no video flowed:
+  - `8A:23:B5:71:35:8D` (192.168.4.27) tried both iMouse2-C24C and iMouse2-C241 at 18:48:43–46;
+  - `3A:DC:15:FB:DD:EC` (192.168.4.65) tried iMouse2-C241 at 18:48:58, and iMouse2-C24C at 18:49:39.
+- Earlier today C241 took about 3 minutes to list a restarted release receiver.
+- So slow or failed discovery on **C24C and C241 themselves** after a receiver restart is at least as likely a cause as the test build's receiver code. It is unknown whether other phones could see the test receiver. Neither explanation is established.
+
 ## Testing window, 27 Sep 18:24–18:31: stopped at mirroring; release restored; Home not tested
 
 **Outcome.** The test kernel started correctly, but C24C's Screen Mirroring list never showed its receiver. Following the agreed rule, the experiment stopped and the release was restored. **No Home trial ran, and no input went to any phone. V1 is still untested.**
