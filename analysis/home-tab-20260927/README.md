@@ -1,5 +1,23 @@
 # Home inserts a Tab into an active text field: 27 Sep 2026
 
+## Second testing window, 27 Sep 18:34–18:46: discovery failed again; release restored; Home not tested
+
+**Outcome.** With a 10-minute discovery allowance, the test receiver was still never connected. The window ended and the release was restored. **No Home trial ran, and no input went to any phone. No firewall, network or receiver code was changed.**
+
+| Time | Step |
+|---|---|
+| 18:34:58 | Preflight. Installed console 9044; release kernel 33912 (command line identical to the snapshot); receivers 36508 = C24C and 36856 = C241, both mirroring. C24C = XR C24C (board C24C, uid C24CBFBD). Both phones unowned, no active work. Release files unchanged since the snapshot; operator settings `72F51CC0…`. Test kernel and candidate hashes re-verified |
+| 18:35:12 | Installed console closed normally |
+| 18:35:14 | Release kernel stopped gracefully (exit 0); both receivers exited; port 9913 free |
+| 18:35:23 | Test kernel 32464 started (`command-h`, C24C only); receiver `iMouse2-C24C` 15144 |
+| 18:35–18:45:24 | Receiver checked every 5 s, read-only. The process stayed alive, and its log shows only startup up to "Initialized server socket(s)". No client connected and no frames arrived. The user watched C24C's Screen Mirroring list to select it |
+| 18:45:34 | Test kernel stopped gracefully (exit 0); its receiver exited; port 9913 free |
+| 18:45:52 | Release restored with `Open iMouse 2.0.ps1` after `-CheckOnly`. Kernel 30652, receivers 35448 (iMouse2-C24C) and 6100 (iMouse2-C241), console 30604. Kernel and receiver command lines identical to the snapshot; no release file changed; both phones unowned; operator settings unchanged |
+
+**What this shows (AirPlay compatibility, not Home).** Two test runs of about 2.5 and 10 minutes were never discovered or connected. In both windows the release receivers, started by the release kernel with identical uxplay arguments, were listed and connected within minutes. So the test build's receiver management most likely differs in a way that matters. It uses the repository's `AirplayProcess.cs` and `ReceiverFleet.cs`, whose release versions are unrecorded. This is not proven, and it was not investigated during the window, as instructed.
+
+**Home result: none.** V1 remains untested on a phone. V2 was not run because V1 was never observed.
+
 ## Testing window, 27 Sep 18:24–18:31: stopped at mirroring; release restored; Home not tested
 
 **Outcome.** The test kernel started correctly, but C24C's Screen Mirroring list never showed its receiver. Following the agreed rule, the experiment stopped and the release was restored. **No Home trial ran, and no input went to any phone. V1 is still untested.**
