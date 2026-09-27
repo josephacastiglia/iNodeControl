@@ -181,7 +181,8 @@ So the button stays down for about 8 s plus under 10 ms when an answer is lost; 
 **Checks 3 and 4:** not run (see Status).
 
 **Evidence.**
-- In this folder: `live-20260926/proxy-log.jsonl` (every command, with the kernel's answer code and duration), `live-20260926/settings.json` (the candidate's own), and `live-20260926/phone-captures.sha256`.
+- In this folder: `live-20260926/settings.json` (the candidate's own) and `live-20260926/phone-captures.sha256`.
+- The proxy log (`proxy-log.jsonl`: every command, with the kernel's answer code and duration) is raw JSONL, which `.gitignore` excludes. It is in the archive below and listed in its `SHA256SUMS.txt`.
 - The phone captures are PNGs, which `.gitignore` excludes. They are archived at `iMouseXP-2.0-evidence-archive/20260926-live-candidate/phone/` next to the repository, with `SHA256SUMS.txt`.
 - The test note stays on C24C, titled `Integratedcheck 26 Sep: …`. It was not deleted.
 
