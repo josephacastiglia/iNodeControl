@@ -1,45 +1,110 @@
 # Receivers not listed in Screen Mirroring after a restart: 27 Sep 2026
 
-**Status: investigated; cause not yet demonstrated; nothing changed.** The release kernel, receivers, network, firewall and phone settings are unchanged. Both phones were mirroring through the release again at 18:58:50 (C24C) and 18:58:53 (C241).
+**Status: investigated; cause not demonstrated; nothing changed.** A controlled test plan is prepared and awaits a coordinated window. The release kernel, receivers, network, firewall, identity keys, product code and phone settings are unchanged. Both phones were mirroring through the release again at 18:58:50 (C24C) and 18:58:53 (C241).
 
-## Ruled out
+## What is established, and what is not
 
-- **The PC not advertising on the LAN.** `tools/airplay-diagnostics/mdns_probe.py` sends one standard mDNS query out of Ethernet (192.168.4.26) and lists answers. The PC answered `_airplay._tcp` and `_raop._tcp` with both receivers (`JoeyDesktop.local`, 192.168.4.26, ports 7111 and 7121), repeatedly, including with the unicast-reply bit that an iPhone's first query carries. The probe also heard other LAN devices (router, Chromecasts, speakers), so it works. One first probe got no answer; three repeats did.
-- **The receivers being unreachable.** Two other rack phones reached both receivers at 18:48–18:49 (`8A:23:B5:71:35:8D` from 192.168.4.27; `3A:DC:15:FB:DD:EC` from 192.168.4.65). The allow list refused them, as designed.
-- **A changing receiver identity.** UxPlay 1.74 without `-key` derives its Ed25519 key from the device ID (`lib/crypto.c`, `ed25519_key_generate`; README 1.68 notes). The kernel fixes the device ID with `-m`, so the TXT `pk` is the same after every restart. The TXT `pi` is UxPlay's fixed constant for every instance.
+- **This PC answers AirPlay discovery on its Ethernet segment.**
+  - `tools/airplay-diagnostics/mdns_probe.py` sends one standard mDNS query out of 192.168.4.26. The PC answered `_airplay._tcp` and `_raop._tcp` for both receivers (`JoeyDesktop.local`, 192.168.4.26, ports 7111 and 7121), including to a query with the unicast-reply bit. It did so on three runs; one first run got no answer.
+  - The probe heard other LAN devices, so it works.
+  - **Not established:** that every relevant answer reached C24C or C241 over Wi-Fi at the times they were searching.
+- **Some phones on the LAN reached both receivers.** Two other rack phones connected at 18:48–18:49 (`8A:23:B5:71:35:8D` from 192.168.4.27; `3A:DC:15:FB:DD:EC` from 192.168.4.65), and the allow list refused them as designed.
+  - This shows some LAN reachability.
+  - It says nothing about C24C's or C241's path.
+  - Receiver ports are fixed, so those phones may also have used cached records.
+- **The receiver identity does not change across restarts.**
+  - UxPlay 1.74 without `-key` derives its Ed25519 key from the device ID (`lib/crypto.c`, `ed25519_key_generate`; README 1.68 notes). The kernel fixes that ID with `-m`.
+  - The TXT `pk` read at 18:54 and again at 19:32 in the same receiver run was identical. Across restarts this follows from the source and still has to be observed; the trial runner records it before and after each trial.
+- **The listen at 18:57–19:01 saw only two AirPlay-related queries from these phones:** each phone's direct query for its own receiver, at the moment it connected.
+  - No browse query appeared in that capture.
+  - **This does not show the phones never searched.** Queries can fall outside the window, be sent unicast, or be missed by a single listener.
 
-## Observed pattern
+## Observed pattern (uncontrolled)
 
-At each window, the kernel stop ended the receivers while C24C and C241 were mirroring to them. The kernel ends uxplay with `Process.Kill(entireProcessTree)` in `AirplayProcess.Dispose`. uxplay on Windows has a Ctrl+C handler (`SetConsoleCtrlHandler`) that stops its server and unregisters from DNS-SD; the kill bypasses it.
+The kernel ends uxplay with `Process.Kill(entireProcessTree)` (`AirplayProcess.Dispose`). uxplay on Windows has a Ctrl+C handler that quits its main loop, logs "Stopping RAOP Server...", destroys the RAOP server, unregisters DNS-SD, and exits (`uxplay.cpp`: `CtrlHandler`, `handle_signal`, `stop_raop_server`, `stop_dnssd`). The kill bypasses that.
 
-| Receivers killed | New receivers up | C24C listed and connected | C241 listed and connected |
+| Receivers killed (phones mirroring) | New receivers up | C24C listed and connected | C241 listed and connected |
 |---|---|---|---|
 | 18:26:11 (window 1) | test 18:26:22; release 18:29:22 | 18:29:55 (release) | 18:32:38 (release) |
 | 18:35:14 (window 2) | test 18:35:23; release 18:45:46 | 18:58:50 (release) | 18:58:53 (release) |
 
-- Phones that had never connected listed the release receivers within about 3 minutes of the 18:45 restart.
-- When C24C (192.168.4.57) and C241 (192.168.4.56) finally connected, `mdns_listen.py` recorded each asking directly for its own receiver (a QU query for `02494D32C24C@iMouse2-C24C._raop._tcp.local`, and likewise for C241).
-- Over the whole 4-minute listen (18:57:11–19:01:12), those two queries were the only AirPlay-related mDNS traffic from any phone:
-  - no general `_airplay._tcp` or `_raop._tcp` browse query was seen;
-  - the PC's answers to QU queries are unicast, so they are not visible to the listener.
-  - So multicast from these phones does reach the PC. When and whether the phones browse after a receiver restart is still to be observed.
+These are observations across different conditions: different kernels, receiver code, timing and phones. They motivate the test; they do not establish a cause.
 
-## Leading hypothesis (not demonstrated)
+## Questions to separate
 
-A phone whose active session was severed by a killed receiver keeps stale state for that receiver identity, and hides it for minutes after it reappears.
+1. **Does manually stopping mirroring on the phone before a receiver restart change rediscovery time?** The shutdown method is held at Forced.
+2. **Does a graceful receiver shutdown improve rediscovery compared with forced termination?** The phone state is held at "mirroring".
 
-**Candidate fix:** stop receivers cleanly. Send uxplay Ctrl+C and wait before any kill, so sessions are torn down and the DNS-SD records withdrawn. It is not implemented; it would change the kernel and need a release deployment.
+A result for question 1 does not answer question 2, and neither alone proves the root cause.
 
-## Proposed confirming test (needs approval and a window)
+## Controlled plan
 
-Restart one receiver at a time; the kernel's supervisor relaunches an exited receiver, so the kernel keeps running.
-- **Control:** on C24C, tap Stop Mirroring, then its receiver is restarted. Measure the time until C24C lists and connects.
-- **Test:** C241 keeps mirroring while its receiver is restarted. Measure the same.
-- Record with `mdns_listen.py` throughout.
+### Fixed for every trial
 
-A fast control and a slow test would support the hypothesis. The clean-shutdown change would then be verified the same way before any release change.
+- **Phone: C24C only.** C241 and its receiver are never signalled. Each trial records C241's receiver PID (it must be unchanged) and its video state.
+- **Receiver: the release `iMouse2-C24C` only.** It is restarted through the running release kernel's own supervisor, which relaunches an exited receiver after 2 s; the kernel is never restarted.
+- **Verified mapping**, checked by `tools/airplay-diagnostics/Invoke-ReceiverTrial.ps1` before each stop:
+  - the kernel's receiver PID for `86:1D:4A:04:2F:F6` equals the only uxplay process named `iMouse2-C24C`;
+  - its executable is the release uxplay and its parent is the release kernel;
+  - its arguments restrict it to `86:1D:4A:04:2F:F6`;
+  - the other receiver is running.
+
+  Dry run at 19:32: PID 35448 under kernel 30652, 0 relaunches used.
+- **Identical arguments and identity.** The full command line and the advertised `deviceid`/`pk` are recorded before and after. A trial whose replacement differs is invalid.
+- **Exactly one replacement.** After the stop, the runner requires one new `iMouse2-C24C` process, and records its PID and start time.
+- **Relaunch budget.** The supervisor allows 5 relaunches per kernel lifetime, and on a 6th exit the receiver stays down until the kernel restarts. The runner refuses at 4 used, leaving one spare. **At most 4 trials per kernel lifetime.**
+
+### Conditions
+
+| Code | Phone state at the stop | Stop method |
+|---|---|---|
+| F-M | Mirroring | Forced: the process is terminated, as the kernel does today |
+| G-M | Mirroring | Graceful: Ctrl+C to uxplay's console. Valid only if its log then shows "Stopping RAOP Server" |
+| F-S | Stopped first: Stop Mirroring tapped on C24C, teardown confirmed in the receiver log, then 60 s wait | Forced |
+
+- Question 1 compares **F-S with F-M**.
+- Question 2 compares **G-M with F-M**.
+
+### Recommended sessions (each within one kernel lifetime's budget)
+
+- **Session A, question 2:** F-M, G-M, G-M, F-M (ABBA). It answers whether graceful shutdown helps.
+- **Session B, question 1, later:** F-M, F-S, F-S, F-M.
+
+It needs a fresh relaunch budget, which comes with the next normal kernel start. No causal conclusion is drawn unless both repetitions agree. If they disagree, order is reversed in a further session.
+
+### Step 0 (before Session A, optional but recommended)
+
+Validate the graceful stop on a **throwaway** uxplay that is not part of the rack:
+- name `iMouse2-selftest`, restricted to a device ID no phone has, port 7150, MAC `02:49:4D:32:00:99`;
+- the release uxplay executable is used unchanged.
+
+Then Ctrl+C it with the helper and confirm three things: "Stopping RAOP Server" in its log, a goodbye (TTL 0) from `mdns_listen.py`, and the process exiting. It is visible for about a minute in nearby phones' Screen Mirroring lists, but nothing can connect to it.
+
+### Timed observation procedure (operator, C24C)
+
+1. I announce T0, the exact time the stop is issued.
+2. You open Control Center, then Screen Mirroring, at **T0+30 s and then every 60 s** (T0+90, T0+150, …). Keep the list open for 20 s each time, then close it.
+3. At each opening, note the clock time and whether `iMouse2-C24C` is listed. A photo showing the time is ideal.
+4. The first time it is listed, tap it immediately.
+
+### Recorded separately for every trial
+
+- T0; old receiver exit; replacement PID and start time (supervisor);
+- **receiver ready**: "Initialized server socket(s)" in the receiver log;
+- announcements and goodbyes from 192.168.4.26 (`mdns_listen.py`, now showing TTLs);
+- **appearance in C24C's list** (operator, at a resolution of 60 s);
+- **connection request** from `86:1D:4A:04:2F:F6` (receiver log);
+- **live video**: the kernel shows the receiver offline, then live again (its frame counter is not reset by a restart, so "live again after offline" is used).
+
+### Bounds and recovery
+
+- **Observation window: 25 minutes from T0.** The earlier worst case was about 23 minutes. If C24C has not listed and connected by then, the trial result is "> 25 min".
+- **Recovery:** no further restart of anything. You keep checking the list every 2 minutes up to T0+50 min. If C24C has still not recovered then, the session ends with C24C unmirrored and the next step is agreed with you. A phone restart, for example, is your decision.
+- **Between trials:** the next trial starts only after C24C has had live video for 2 minutes, plus a fixed 5-minute settle, identical for every trial.
+- **Duration.** Each trial takes 10–55 minutes, so Session A is **about 45 minutes at best and over 3 hours at worst**. It can end after any trial. **No short interruption is promised:** earlier recoveries took up to about 23 minutes.
 
 ## Evidence
 
 - `iMouseXP-2.0-evidence-archive/20260927-home-window/`: `mdns-listen-1.txt`, `window2-release-reconnect.txt`, and the user's photos.
+- Trial records will go to `iMouseXP-2.0-evidence-archive/20260927-rediscovery/`.
 - Receiver logs in `analysis/two-phone-config/receiver-*.log` in the main checkout. They are read only, not copied.

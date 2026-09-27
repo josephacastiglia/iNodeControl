@@ -76,7 +76,9 @@ while time.time() - start < seconds:
         if asked:
             out(f"{now} QUERY    from {src}:{sport}  {', '.join(asked)}  (+{sum(1 for a in answers if relevant(a[0]) or relevant(a[2]))} known answers)")
     else:
-        names = sorted({(a[2] or a[0]) for a in answers if a[1] == 12 and (relevant(a[0]) or relevant(a[2]))})
-        if names:
-            out(f"{now} RESPONSE from {src}:{sport}  {', '.join(names)}")
+        rel = [a for a in answers if a[1] == 12 and (relevant(a[0]) or relevant(a[2]))]
+        if rel:
+            kind = "GOODBYE " if all(a[3] == 0 for a in rel) else "RESPONSE"   # TTL 0 withdraws the records
+            names = sorted({f"{a[2] or a[0]} ttl={a[3]}" for a in rel})
+            out(f"{now} {kind} from {src}:{sport}  {', '.join(names)}")
 out(f"{time.strftime('%H:%M:%S')} done")
