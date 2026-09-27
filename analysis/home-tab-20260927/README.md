@@ -23,7 +23,9 @@
 - **Bonjour/mDNS timing:** the test receiver re-registered the same service name and MAC seconds after the release instance was stopped;
 - **phone discovery state:** C241 is not discovering any receivers even now.
 
-A future attempt should first show that the test build's receiver can be discovered, before any input: for example, by waiting longer or by confirming it is listed. That attempt needs its own approval.
+**Later observation (18:32).** C241 listed and connected to the **release** C241 receiver at 18:32:38, about 3 minutes after that receiver started (18:29:22); both phones then mirrored through release. The test receiver was up for only about 2.5 minutes (18:26:22–18:29:03). So slow discovery on the phones after a receiver restart is a plausible explanation for the failed window, alongside the test build's receiver code. This is not proven either way.
+
+A future attempt should first show that the test build's receiver can be discovered before any input, allowing at least 5 minutes for the phones to list it. That attempt needs its own approval.
 
 **Scope.** This window tested nothing about the Home sequence. It does not authorise promoting the test kernel or its AirPlay implementation.
 
