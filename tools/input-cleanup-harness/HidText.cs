@@ -9,7 +9,8 @@ namespace IMouse2.Harness;
 /// field inserts a tab). A report carrying Left GUI (Command) or the vendor byte-7 flag is a
 /// shortcut and types nothing; it is shown as [GUI+x] or [flag02+x]. Releases type nothing.
 /// The character map is the kernel's own HidProtocol.Ascii, inverted, so it cannot drift from it.
-/// This models the field only; whether iOS then acts on a shortcut is a phone question.
+/// A simplified model of the field only: it validates emitted reports, and says nothing about
+/// whether iOS acts on a shortcut or what a real field does with it.
 /// </summary>
 static class HidText
 {
@@ -38,35 +39,6 @@ static class HidText
             text.Append(Typed.TryGetValue((modifier, usage), out char c) ? c.ToString() : $"[{modifier:X2}:{usage:X2}]");
         }
         return text.ToString();
-    }
-
-    /// <summary>
-    /// Home sequences for a phone comparison, as (hex, delay after) steps with the kernel's Stroke
-    /// timing: release, 45 ms; key, 60 ms; release, 35 ms. V0 is the kernel's current (vendor)
-    /// Home. The same steps are decoded in S9 and written as --hid-replay files, so the bytes a
-    /// phone test replays are exactly the bytes the model checked.
-    /// </summary>
-    public static readonly (string Name, string Description, (string Hex, int DelayMs)[] Steps)[] HomeVariants =
-    [
-        ("home-v0-vendor", "Current kernel Home: Tab stroke, then Command+H stroke", [.. Stroke(0x00, 0x2B), .. Stroke(0x08, 0x0B)]),
-        ("home-v1-command-h", "Command+H stroke only", [.. Stroke(0x08, 0x0B)]),
-        ("home-v2-command-wake", "Command pressed alone (types nothing), then Command+H stroke", [.. Stroke(0x08, 0x00), .. Stroke(0x08, 0x0B)]),
-    ];
-
-    private static (string, int)[] Stroke(byte modifier, byte usage) =>
-        [("A200000000000000", 45), ($"A2{modifier:X2}{usage:X2}0000000000", 60), ("A200000000000000", 35)];
-
-    /// <summary>Writes each Home variant as a JSON file for iMouse2.Kernel.exe --hid-replay PID FILE.</summary>
-    public static void WriteHomeReplays(string dir)
-    {
-        Directory.CreateDirectory(dir);
-        foreach (var v in HomeVariants)
-        {
-            string path = Path.Combine(dir, v.Name + ".json");
-            File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(v.Steps.Select(s => new { Hex = s.Hex, DelayMs = s.DelayMs }),
-                new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
-            Console.WriteLine($"{path}  ({v.Description}; a text field would receive: {Show(Decode(v.Steps.Select(s => s.Hex)))})");
-        }
     }
 
     /// <summary>A decoded string with tabs made visible.</summary>

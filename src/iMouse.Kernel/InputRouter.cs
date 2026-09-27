@@ -7,6 +7,14 @@ namespace IMouse2.Kernel;
 public sealed record PointerCalibration(string Pid, int Width, int Height, double OriginX,
     double OriginY, double PixelsPerUnitX, double PixelsPerUnitY);
 
+/// <summary>
+/// What fn_key=Home sends. Vendor is the sequence observed from IMService on 14 Sep (Tab, then
+/// Left GUI+H) and stays the default. Its Tab is typed into a focused text field. The other two
+/// are for a phone comparison only, chosen once at kernel startup with --home-sequence; each
+/// still goes through the per-phone lease, the board's write gate, Stop and key release.
+/// </summary>
+public enum HomeSequence { Vendor, CommandH, CommandWake }
+
 public sealed class InputRouter : IDisposable
 {
     private readonly DeviceStore _store;
@@ -44,6 +52,15 @@ public sealed class InputRouter : IDisposable
         : this(store, allowed, calibrations, open, preciseMovement ? 8 : 0) {}
     public bool Enabled(string pid) => _allowed.Contains(pid) && _calibrations.ContainsKey(pid);
     public string[] Allowed => _allowed.ToArray();
+    public HomeSequence Home { get; init; } = HomeSequence.Vendor;
+    public string HomeSequenceName => Home switch { HomeSequence.CommandH => "command-h", HomeSequence.CommandWake => "command-wake", _ => "vendor" };
+    public static HomeSequence ParseHomeSequence(string value) => value switch
+    {
+        "vendor" => HomeSequence.Vendor,
+        "command-h" => HomeSequence.CommandH,
+        "command-wake" => HomeSequence.CommandWake,
+        _ => throw new ArgumentException($"--home-sequence must be vendor, command-h or command-wake, not \"{value}\"."),
+    };
 
     public async Task<object> DispatchAsync(string fun, JsonElement data, CancellationToken cancellation = default)
     {
@@ -165,7 +182,13 @@ public sealed class InputRouter : IDisposable
                     break;
                 case "/key/sendkey":
                     string fn=Text(data,"fn_key");
-                    if (fn=="Home") { await Stroke(state,0,43); await Stroke(state,8,11); state.Known=false; }
+                    if (fn=="Home")
+                    {
+                        if (Home == HomeSequence.Vendor) await Stroke(state,0,43);          // Tab: typed into a focused text field
+                        else if (Home == HomeSequence.CommandWake) await Stroke(state,8,0); // Left GUI alone: types nothing
+                        await Stroke(state,8,11);                                            // Left GUI+H
+                        state.Known=false;
+                    }
                     else if(fn is "AppSwitch" or "ControlBar")
                     {
                         await Stroke(state,0,43);

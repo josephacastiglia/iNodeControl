@@ -36,6 +36,65 @@ internal static class InputSessionTests
         try { await action(); } catch (InvalidOperationException) { return; }
         throw new Exception("Expected ownership rejection");
     }
+    /// <summary>
+    /// --home-sequence: each option's exact reports, and that every option still needs the phone's
+    /// lease, runs under its write gate, and is cancelled by Stop with keys and buttons released.
+    /// </summary>
+    public static async Task HomeSequenceAsync(Action<bool, string> check)
+    {
+        string directory = Path.Combine(Path.GetTempPath(), "imouse-home-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        string file = Path.Combine(directory, "devices.json");
+        File.WriteAllText(file, JsonSerializer.Serialize(new[] { new Phone { deviceid = "one", pid = "C24C", uid = "A" } }));
+        var store = new DeviceStore(file);
+        const string release = "A200000000000000", tab = "A2002B0000000000", gui = "A208000000000000", guiH = "A2080B0000000000";
+        var expected = new Dictionary<HomeSequence, string[]>
+        {
+            [HomeSequence.Vendor] = [release, tab, release, release, guiH, release],
+            [HomeSequence.CommandH] = [release, guiH, release],
+            [HomeSequence.CommandWake] = [release, gui, release, release, guiH, release],
+        };
+        try
+        {
+            check(new InputRouter(store, [], []).Home == HomeSequence.Vendor, "Home sequence defaults to the vendor sequence");
+            foreach (string bad in new[] { "", "Vendor", "command_h", "tab" })
+            {
+                bool threw = false;
+                try { InputRouter.ParseHomeSequence(bad); } catch (ArgumentException) { threw = true; }
+                check(threw, $"--home-sequence rejects \"{bad}\"");
+            }
+            foreach (var (sequence, reports) in expected)
+            {
+                var t = new Transport();
+                using var input = new InputRouter(store, ["C24C"], [new("C24C", 500, 1080, 14, 14, 5, 5)], _ => t) { Home = sequence };
+                await using var sessions = new InputSessions(store, input);
+                await Rejected(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", fn_key = "Home" })));
+                check(t.Reports.IsEmpty, $"Home ({input.HomeSequenceName}) without the phone's lease sends nothing");
+                string token = Lease(sessions, "one");
+                check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Home" }))) == 0
+                    && t.Reports.SequenceEqual(reports), $"Home ({input.HomeSequenceName}) sends exactly its reports");
+                check(sequence == HomeSequence.Vendor ? t.Reports.Contains(tab) : !t.Reports.Contains(tab),
+                    $"Home ({input.HomeSequenceName}) {(sequence == HomeSequence.Vendor ? "keeps" : "sends no")} Tab");
+            }
+            // Stop during a command-h Home: the held GUI+H is cancelled and everything is released.
+            var held = new Transport { Block = hex => hex == guiH };
+            using (var input = new InputRouter(store, ["C24C"], [new("C24C", 500, 1080, 14, 14, 5, 5)], _ => held) { Home = HomeSequence.CommandH })
+            await using (var sessions = new InputSessions(store, input))
+            {
+                string token = Lease(sessions, "one");
+                var home = sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Home" }));
+                await held.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+                check(Code(await sessions.DispatchAsync("/mouse/click", Data(new { id = "one", token, x = 14, y = 14 }))) == 409,
+                    "A second command during Home (command-h) is refused, not interleaved");
+                check(Code(await sessions.StopAsync(Data(new { id = "one" })).WaitAsync(TimeSpan.FromSeconds(2))) == 0 && Code(await home) != 0,
+                    "Stop cancels a Home (command-h) in progress");
+                check(held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release }),
+                    "Cancelled Home (command-h) releases mouse and keyboard");
+            }
+        }
+        finally { try { Directory.Delete(directory, true); } catch { } }
+    }
+
     public static async Task RunAsync(Action<bool, string> check)
     {
         string directory = Path.Combine(Path.GetTempPath(), "imouse-ownership-" + Guid.NewGuid().ToString("N"));

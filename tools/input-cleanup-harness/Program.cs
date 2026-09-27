@@ -25,7 +25,6 @@ static class Harness
         if (args.Length > 0 && args[0] == "--chunk-timing")
             return await ChunkTiming.RunAsync(args.Length > 1 ? args[1] : Path.Combine(AppContext.BaseDirectory, "chunk-timing.json"), args.Length > 2 ? int.Parse(args[2]) : 6,
                 args.Length > 3 ? args[3].Split(',').Select(int.Parse).ToArray() : null, args.Length > 4 ? args[4].Split(',').Select(int.Parse).ToArray() : null);
-        if (args.Length > 1 && args[0] == "--write-home-replays") { HidText.WriteHomeReplays(args[1]); return 0; }
         if (args.Length > 1 && args[0] == "--serve") return await Serve.RunAsync(int.Parse(args[1]), args.Length > 2 ? args[2] : "F001");
         string output = args.Length > 0 ? args[0] : Path.Combine(AppContext.BaseDirectory, "cleanup-harness-results.json");
         await Run("S1 command completed, answer lost", LostAnswer);
@@ -36,7 +35,7 @@ static class Harness
         await Run("S6 release lost, lease-expiry fallback", ReleaseLost);
         await Run("S7 mock kernel refuses a port another listener holds", MockRefusesTakenPort);
         await Run("S8 mock kernel starts, self-checks and serves only the simulated board", MockServesSimulatedBoard);
-        await Run("S9 Home while a text field is focused: what the field receives", HomeInTextField);
+        await Run("S9 Home: emitted HID reports under a simplified text-field model (not iOS behaviour)", HomeInTextField);
         File.WriteAllText(output, JsonSerializer.Serialize(new { simulated = true, board = "simulated IHidTransport", at = DateTime.Now, failures = _failures, scenarios = Results },
             new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine($"{(_failures == 0 ? "ALL PASSED" : _failures + " CHECK(S) FAILED")}; results in {output}");
@@ -139,42 +138,36 @@ static class Harness
         s.Check("the port is free again afterwards", !Serve.PortTaken(port));
     }
 
-    // S9. The console's Home button sends /key/sendkey fn_key=Home. Typed text before and after
-    // it, decoded as a focused text field would receive the kernel's actual reports, shows whether
-    // Home itself types anything. Characterization of the current (vendor-copied) sequence.
+    // S9. Validates the HID reports the kernel emits for the console's Home button (which sends
+    // /key/sendkey fn_key=Home), decoded under a simplified model of a focused text field
+    // (HidText). It shows what each --home-sequence option would type; it is not evidence of how
+    // iOS responds, which only a phone test can show.
     static async Task HomeInTextField(Scenario s)
     {
-        await using var kernel = new Kernel();
-        await using var api = new ApiClient(kernel.Address, new Wire(), ownership: true);
-        await api.SendTextAsync(Id, "ab");
-        int before = kernel.Board.Reports.Length;
-        await api.CommandAsync("/key/sendkey", new() { ["id"] = Id, ["fn_key"] = "Home" });
-        var homeReports = kernel.Board.Reports.Skip(before).Select(r => r.Hex).ToArray();
-        await api.SendTextAsync(Id, "c");
-        string field = HidText.Decode(kernel.Board.Reports.Select(r => r.Hex));
-        string home = HidText.Decode(homeReports);
-        s.Measured["Home reports"] = homeReports;
-        s.Measured["field receives from Home"] = HidText.Show(home);
-        s.Measured["field receives for ab, Home, c"] = HidText.Show(field);
-        s.Check("reproduced: Home types a Tab into the focused field, then sends GUI+H", home == "\t[GUI+h]");
-        s.Check("the text around Home is otherwise intact", field == "ab\t[GUI+h]c");
-
-        // The replay variants: V0 must be byte-for-byte the kernel's Home, so a phone comparison
-        // tests the real thing; the alternatives must type nothing into the field.
-        var v0 = HidText.HomeVariants[0].Steps.Select(x => x.Hex).ToArray();
-        s.Check("replay V0 is exactly the kernel's Home reports", v0.SequenceEqual(homeReports));
-        foreach (var v in HidText.HomeVariants.Skip(1))
+        foreach (var sequence in new[] { HomeSequence.Vendor, HomeSequence.CommandH, HomeSequence.CommandWake })
         {
-            string typed = HidText.Decode(v.Steps.Select(x => x.Hex));
-            s.Measured[v.Name + " field receives"] = HidText.Show(typed);
-            s.Check($"{v.Name} types nothing into the field and still sends GUI+H", typed == "[GUI+h]");
-        }
-        // AppSwitch and ControlBar share the Tab prefix (not changed here; recorded for later).
-        foreach (string fn in new[] { "AppSwitch", "ControlBar" })
-        {
-            int at = kernel.Board.Reports.Length;
-            await api.CommandAsync("/key/sendkey", new() { ["id"] = Id, ["fn_key"] = fn });
-            s.Measured[fn + " field receives"] = HidText.Show(HidText.Decode(kernel.Board.Reports.Skip(at).Select(r => r.Hex)));
+            await using var kernel = new Kernel(sequence);
+            await using var api = new ApiClient(kernel.Address, new Wire(), ownership: true);
+            string name = sequence switch { HomeSequence.CommandH => "command-h", HomeSequence.CommandWake => "command-wake", _ => "vendor" };
+            await api.SendTextAsync(Id, "ab");
+            int before = kernel.Board.Reports.Length;
+            await api.CommandAsync("/key/sendkey", new() { ["id"] = Id, ["fn_key"] = "Home" });
+            string home = HidText.Decode(kernel.Board.Reports.Skip(before).Select(r => r.Hex));
+            await api.SendTextAsync(Id, "c");
+            string field = HidText.Decode(kernel.Board.Reports.Select(r => r.Hex));
+            s.Measured[$"{name}: model field receives for ab, Home, c"] = HidText.Show(field);
+            if (sequence == HomeSequence.Vendor)
+                s.Check("vendor (release default): the emitted Home includes a Tab, which a focused field would type", home == "\t[GUI+h]" && field == "ab\t[GUI+h]c");
+            else
+                s.Check($"{name}: the emitted Home has no typed key, only GUI+H", home == "[GUI+h]" && field == "ab[GUI+h]c");
+            if (sequence != HomeSequence.Vendor) continue;
+            // AppSwitch and ControlBar share the Tab prefix (unchanged here; recorded for later).
+            foreach (string fn in new[] { "AppSwitch", "ControlBar" })
+            {
+                int at = kernel.Board.Reports.Length;
+                await api.CommandAsync("/key/sendkey", new() { ["id"] = Id, ["fn_key"] = fn });
+                s.Measured[fn + " (unchanged): model field receives"] = HidText.Show(HidText.Decode(kernel.Board.Reports.Skip(at).Select(r => r.Hex)));
+            }
         }
     }
 
@@ -396,14 +389,14 @@ sealed class Kernel : IAsyncDisposable
     private readonly ApiServer _server;
     private readonly CancellationTokenSource _stop = new();
     private readonly Task _run;
-    public Kernel()
+    public Kernel(HomeSequence home = HomeSequence.Vendor)
     {
         _dir = Path.Combine(Path.GetTempPath(), "imouse-cleanup-harness-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_dir);
         string file = Path.Combine(_dir, "devices.json");
         File.WriteAllText(file, JsonSerializer.Serialize(new[] { new Phone { deviceid = PhoneId, pid = "F001", uid = "SIM" } }));
         var store = new DeviceStore(file);
-        _input = new InputRouter(store, ["F001"], [new PointerCalibration("F001", 500, 1080, 14, 14, 5, 5)], _ => Board);
+        _input = new InputRouter(store, ["F001"], [new PointerCalibration("F001", 500, 1080, 14, 14, 5, 5)], _ => Board) { Home = home };
         _frames = new FrameStore("imouse-cleanup-harness-" + Guid.NewGuid().ToString("N"), PhoneId);
         var probe = new TcpListener(IPAddress.Loopback, 0); probe.Start();
         int port = ((IPEndPoint)probe.LocalEndpoint).Port; probe.Stop();
