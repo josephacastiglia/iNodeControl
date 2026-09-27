@@ -18,7 +18,8 @@
 param(
     [Parameter(Mandatory)][int]$ProcessId,
     [Parameter(Mandatory)][string]$ExpectedPath,
-    [int]$TimeoutSeconds = 20
+    [int]$TimeoutSeconds = 20,
+    [switch]$ListOnly   # attach, list the console's processes, detach; signal nothing
 )
 $ErrorActionPreference = 'Stop'
 Add-Type -Namespace KW -Name U -MemberDefinition @'
@@ -26,6 +27,7 @@ Add-Type -Namespace KW -Name U -MemberDefinition @'
 [DllImport("kernel32.dll", SetLastError=true)] public static extern bool FreeConsole();
 [DllImport("kernel32.dll", SetLastError=true)] public static extern bool SetConsoleCtrlHandler(IntPtr handler, bool add);
 [DllImport("kernel32.dll", SetLastError=true)] public static extern bool GenerateConsoleCtrlEvent(uint ctrlEvent, uint groupId);
+[DllImport("kernel32.dll", SetLastError=true)] public static extern uint GetConsoleProcessList(uint[] list, uint count);
 '@
 $target = Get-CimInstance Win32_Process -Filter "ProcessId=$ProcessId"
 if (-not $target) { "PID $ProcessId is not running."; exit 1 }
@@ -33,10 +35,26 @@ if (-not $target.ExecutablePath -or ([IO.Path]::GetFullPath($target.ExecutablePa
     "Refused: PID $ProcessId is $($target.ExecutablePath), not $ExpectedPath."; exit 1
 }
 $children = @(Get-CimInstance Win32_Process -Filter "ParentProcessId=$ProcessId" | Select-Object ProcessId, Name, ExecutablePath)
-"{0:HH:mm:ss.fff} stopping PID {1} ({2}); children: {3}" -f (Get-Date), $ProcessId, $target.Name, (($children | ForEach-Object { "$($_.ProcessId) $($_.Name)" }) -join ', ')
+"{0:HH:mm:ss.fff} {4} PID {1} ({2}); children: {3}" -f (Get-Date), $ProcessId, $target.Name, (($children | ForEach-Object { "$($_.ProcessId) $($_.Name)" }) -join ', '), $(if ($ListOnly) { 'checking (list only)' } else { 'stopping' })
+
+# Ctrl+C reaches every process attached to the target's console. Allowed: the target, its own
+# descendants, and this helper while attached. Anything else sharing the console means refusal.
+$tree = @{ [uint32]$ProcessId = $true }
+$all = @(Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name)
+do { $added = $false; foreach ($p in $all) { if ($tree.ContainsKey([uint32]$p.ParentProcessId) -and -not $tree.ContainsKey([uint32]$p.ProcessId)) { $tree[[uint32]$p.ProcessId] = $true; $added = $true } } } while ($added)
 
 [void][KW.U]::FreeConsole()
 if (-not [KW.U]::AttachConsole([uint32]$ProcessId)) { "Could not attach to the console of PID $ProcessId (error $([Runtime.InteropServices.Marshal]::GetLastWin32Error()))."; exit 2 }
+$ids = New-Object uint32[] 64
+$count = [KW.U]::GetConsoleProcessList($ids, 64)
+$attached = @($ids[0..([Math]::Max(0, [int]$count - 1))] | Where-Object { $_ -ne 0 })
+$foreign = @($attached | Where-Object { $_ -ne [uint32]$PID -and -not $tree.ContainsKey($_) })
+[void][KW.U]::FreeConsole()
+$names = ($attached | ForEach-Object { $n = ($all | Where-Object ProcessId -eq $_).Name; "$_ $n" }) -join ', '
+"{0:HH:mm:ss.fff} processes attached to PID {1}'s console: {2}" -f (Get-Date), $ProcessId, $names
+if ($foreign.Count) { "Refused: the console is shared with process(es) outside the target: $($foreign -join ', '). Nothing was signalled."; exit 1 }
+if ($ListOnly) { "List only: nothing was signalled."; exit 0 }
+if (-not [KW.U]::AttachConsole([uint32]$ProcessId)) { "Could not re-attach to the console of PID $ProcessId."; exit 2 }
 [void][KW.U]::SetConsoleCtrlHandler([IntPtr]::Zero, $true)       # this helper ignores the Ctrl+C it sends
 $sent = [KW.U]::GenerateConsoleCtrlEvent(0, 0)
 [void][KW.U]::FreeConsole()
