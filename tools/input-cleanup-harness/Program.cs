@@ -22,6 +22,9 @@ static class Harness
 
     static async Task<int> Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--chunk-timing")
+            return await ChunkTiming.RunAsync(args.Length > 1 ? args[1] : Path.Combine(AppContext.BaseDirectory, "chunk-timing.json"), args.Length > 2 ? int.Parse(args[2]) : 6,
+                args.Length > 3 ? args[3].Split(',').Select(int.Parse).ToArray() : null, args.Length > 4 ? args[4].Split(',').Select(int.Parse).ToArray() : null);
         string output = args.Length > 0 ? args[0] : Path.Combine(AppContext.BaseDirectory, "cleanup-harness-results.json");
         await Run("S1 command completed, answer lost", LostAnswer);
         await Run("S2 kernel command deadline", KernelDeadline);

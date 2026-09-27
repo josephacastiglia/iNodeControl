@@ -1593,7 +1593,7 @@ public partial class MainWindow : Window
     /// <summary>
     /// Temporary cap on one Send text, not a chunking requirement: chunks keep each command
     /// inside the kernel deadline at any length. It bounds how long one send holds the phones
-    /// (200 characters is seven chunks, roughly 30 s). The box has no MaxLength, because WPF
+    /// (200 characters is 17 chunks of 12, roughly 35 s idle). The box has no MaxLength, because WPF
     /// truncates pasted text to it silently; over-limit text stays visible and is refused.
     /// </summary>
     internal const int MaxSendText = 200;
@@ -2645,7 +2645,8 @@ public partial class MainWindow : Window
             handler.Commands.Any(c => c.GetProperty("fun").GetString() == "/input/resume"));
         Check("Input state recovers to ready", InputStateText.Text.Contains("ready"));
 
-        // --- long text goes out in 32-character chunks, through the real button ---
+        // --- long text goes out in ApiClient.TextChunk-character chunks, through the real button ---
+        const int C = ApiClient.TextChunk; int n = (200 + C - 1) / C;
         // One 200-character sendkey used to outlive the kernel's 8 s command deadline, which
         // cancelled it partway and latched Stop. Master TEST:01 plus follower TEST:04 here.
         async Task SendTextAndWait(string value)
@@ -2662,15 +2663,15 @@ public partial class MainWindow : Window
         int beforeLong = handler.Commands.Count;
         await SendTextAndWait(text);
         var chunks = KeysSince(beforeLong);
-        Check("A 200-character Send text is seven /key/sendkey requests", chunks.Length == 7);
-        Check("Every Send text chunk is at most 32 characters", chunks.All(c => c.GetProperty("data").GetProperty("key").GetString()!.Length <= ApiClient.TextChunk));
+        Check($"A 200-character Send text is {n} /key/sendkey requests", chunks.Length == n);
+        Check($"Every Send text chunk is at most {C} characters", chunks.All(c => c.GetProperty("data").GetProperty("key").GetString()!.Length <= ApiClient.TextChunk));
         Check("Send text chunks arrive in order and rebuild the text", string.Concat(chunks.Select(c => c.GetProperty("data").GetProperty("key").GetString())) == text);
         Check("Every Send text chunk addresses the mirrored phones",
             chunks.All(c => c.GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04"));
         string chunkToken = chunks[0].GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString()!;
         Check("Every Send text chunk carries the same lease",
             chunks.All(c => c.GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString() == chunkToken));
-        Check("A complete Send text is logged as such", _activity.Any(s => s.Contains("Send text -> 2 phones: 200 characters in 7 chunk(s)")));
+        Check("A complete Send text is logged as such", _activity.Any(s => s.Contains($"Send text -> 2 phones: 200 characters in {n} chunk(s)")));
         Check("Long text leaves input ready, not stopped", _controlReady && InputStateText.Text.Contains("ready"));
 
         Check("The counter shows a full box as within the cap", SendTextCount.Text == "200 / 200");
@@ -2688,7 +2689,7 @@ public partial class MainWindow : Window
         var failedChunks = KeysSince(beforeFail);
         Check("A failure on chunk 3 sends no chunk after it", failedChunks.Length == 3);
         Check("The failure reports confirmed characters and the chunk with an unknown outcome",
-            _activity.Any(s => s.Contains("64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.")));
+            _activity.Any(s => s.Contains($"{2 * C} of 200 characters confirmed. Chunk 3 of {n} may be partly typed and was not retried. Chunks 4–{n} were not sent.")));
         // The failed send posts "Input paused: …". A lease renewal already in flight when the kernel revoked
         // the lease can post "Ownership renewal failed: …" just after it and replace that text (seen in about
         // 1 run in 5 with the 50 ms test heartbeat). Either way input is paused, which is what this checks.
@@ -2730,7 +2731,7 @@ public partial class MainWindow : Window
         await WaitFor(() => InputStateText.Text.StartsWith("Input paused"));
         Check("A Send text timeout sends nothing after the chunk with no answer", KeysSince(beforeTextTimeout).Length == 2);
         Check("A Send text timeout reports how far it got",
-            _activity.Any(s => s.Contains("Send text -> 2 phones timed out: 32 of 200 characters confirmed. Chunk 2 of 7 may be partly typed and was not retried. Chunks 3–7 were not sent.")));
+            _activity.Any(s => s.Contains($"Send text -> 2 phones timed out: {C} of 200 characters confirmed. Chunk 2 of {n} may be partly typed and was not retried. Chunks 3–{n} were not sent.")));
         Check("A Send text timeout shows input paused and offers Resume",
             InputStateText.Text == InputLeaseClient.TimedOutNotice && ResumeInputButton.IsEnabled);
 

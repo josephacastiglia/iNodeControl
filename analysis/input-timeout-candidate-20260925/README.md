@@ -6,7 +6,7 @@
    - The rack went down at 03:17:41. The machine was shut down on 26 Sep at 23:26, crashed at 04:47 on 27 Sep, and rebooted at 13:52.
    - At 14:02 on 27 Sep no kernel, receiver or console was running.
    - Continuing needs the working kernel and receivers started again. That is the operator's step, not this session's. Exclusive C24C access must also be re-established.
-2. **A 32-character chunk overran the kernel's 8 s deadline under host CPU load** (live, check 1b). This is a margin question for the text-chunking design, not a defect in this change.
+2. **Chunk size (addressed offline, not yet re-validated live).** A 32-character chunk overran the kernel's 8 s deadline live under host CPU load. The console now uses 12-character chunks, chosen from measured durations (see Chunk size). A live Send text with 12-character chunks has not run yet.
 3. **The missing first space is still unexplained.** Fresh-field exact typing remains open; see Requirements kept open.
 
 The working release was not modified: the kernel binary, the receivers, `release/`, `Open iMouse 2.0.ps1` and the shortcuts. For the live checks, the installed console (PID 10696) was closed normally after confirming it held no lease. It was not relaunched before the rack went down; the operator's launcher starts it with the rest of the release. The operator settings file `%APPDATA%\iMouse2\settings.json` was never written by the candidate. Its content hash (`72F51CC0…`) is unchanged throughout. Its timestamp changed once, at 06:57:30Z on 26 Sep: this session ran UI tests of the pre-isolation candidate 1 for an A/B comparison, which rewrote it with the same bytes.
@@ -141,6 +141,32 @@ So the button stays down for about 8 s plus under 10 ms when an answer is lost; 
 - Those files are `local-only`: `.gitignore:25` ignores `/analysis/**/*.png`. They exist only in `.claude/worktrees/jovial-yonath-f044e9/analysis/`: 97+ PNGs in `text-chunking-candidate-20260925/` and 3 in `c24c-text-chunking-20260925/`, which `KEYBOARD-SPEC.md` links to.
 - Archive them before that worktree is cleaned up; they are not in any commit.
 - This candidate adds no screenshots.
+
+## Chunk size: 32 → 12 characters (27 Sep)
+
+**Failure preserved.** `live-20260926/check1b-deadline-overrun.txt` has the verbatim proxy-log lines and archive hash. A 32-character chunk ran 8,021 ms, got code 33, and the phone was stopped after 30 of 32 characters were typed.
+
+**Measured.** `tools/input-cleanup-harness --chunk-timing` runs the kernel's own `InputRouter` (timing unchanged) on a simulated board, with spinning threads at normal priority for load. Raw data is in `chunk-timing/`.
+
+| Load (16 logical cores) | 12 characters, max | 16, max | 32, max | Worst ms per character |
+|---|---|---|---|---|
+| Idle | 1,987 ms | 2,630 ms | 5,234 ms | 166 |
+| 16 threads | 2,316 ms | 3,313 ms | 5,704 ms | 219 |
+| 32 threads, run 1 | 3,015 ms | 4,053 ms | 8,614 ms | 371 (at 24 characters) |
+| 32 threads, run 2 | 2,054 ms | 2,883 ms | — | 185 |
+| 48 threads | 2,205 ms | 2,943 ms | — | 188 |
+
+Live on C24C, 32-character chunks took 4.9–5.7 s, plus one 8,021 ms overrun (about 267 ms per character).
+
+**Chosen:** `ApiClient.TextChunk = 12`.
+- At the worst measured rate that is about 4.5 s; at the live overrun's rate, about 3.2 s. 16 would reach about 5.9 s at the worst rate.
+- 200 characters is now 17 chunks.
+- The kernel deadline, HID timing and the no-retry rule are unchanged.
+- **No size guarantees completion under arbitrary load.** An overrun is still reported as timed out and never retried.
+
+**Tests.** The text-chunk self-tests and UI checks now derive every count from `TextChunk` instead of hard-coding 32, 64, seven or eight. A new check keeps `TextChunk × 371 ms` within 5 s.
+
+**Portal.** Its independent `TEXT_CHUNK = 32` needs the same evaluation. See `PORTAL-TEXT-CHUNK-NOTICE.md`; that branch was not edited.
 
 ## Live validation, 26 Sep 2026 (C24C only; checks 1–2 done, 3–4 not run)
 

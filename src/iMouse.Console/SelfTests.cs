@@ -1027,7 +1027,7 @@ public static class SelfTests
     /// <summary>
     /// Long text used to go out as one /key/sendkey. At 140-170 ms a character the kernel's
     /// 8 s command deadline cancelled it after about 50 characters, left the rest untyped and
-    /// latched Stop. It now goes out in 32-character chunks inside one lease.
+    /// latched Stop. It now goes out in ApiClient.TextChunk-character chunks inside one lease.
     /// </summary>
     public static async Task RunTextChunkTestsAsync(List<string> passed)
     {
@@ -1038,11 +1038,16 @@ public static class SelfTests
         static string Token(JsonElement c, string id) => c.GetProperty("data").GetProperty("tokens").GetProperty(id).GetString()!;
         string text = LongText;
         var chunks = ApiClient.SplitText(text);
+        const int C = ApiClient.TextChunk;
+        int n = (text.Length + C - 1) / C;   // chunks in the 200-character text
 
-        Check("A 32-character text is one chunk", ApiClient.SplitText(new string('a', 32)).Count == 1);
-        Check("A 33-character text is two chunks", ApiClient.SplitText(new string('a', 33)).Select(c => c.Length).SequenceEqual(new[] { 32, 1 }));
-        Check("200 characters split into seven chunks of at most 32",
-            text.Length == 200 && chunks.Count == 7 && chunks.All(c => c.Length <= ApiClient.TextChunk) && string.Concat(chunks) == text);
+        Check($"A {C}-character text is one chunk", ApiClient.SplitText(new string('a', C)).Count == 1);
+        Check($"A {C + 1}-character text is two chunks", ApiClient.SplitText(new string('a', C + 1)).Select(c => c.Length).SequenceEqual(new[] { C, 1 }));
+        // A 32-character chunk overran the 8 s deadline live under CPU load; the kernel's own timing reached
+        // 371 ms a character in the load measurements. Keep a chunk well inside the deadline at that rate.
+        Check($"A {C}-character chunk at the worst measured 371 ms a character stays within 5 s of the 8 s deadline", C * 371 <= 5000);
+        Check($"200 characters split into {n} chunks of at most {C}",
+            text.Length == 200 && chunks.Count == n && chunks.All(c => c.Length <= ApiClient.TextChunk) && string.Concat(chunks) == text);
 
         // 1. The whole text, one lease, one chunk at a time.
         var h = new TestHandler { OwnershipSupported = true, DelayMs = 5 };
@@ -1051,18 +1056,18 @@ public static class SelfTests
             var r = await api.SendTextAsync("TEST:01", text);
             var keys = Keys(h);
             Check("200-character send completes", r.End == InputEnd.Completed && r.Failure is null);
-            Check("200-character send reports every character confirmed", r.ConfirmedCharacters == 200 && r.Total == 200 && r.Sent == 7 && r.Confirmed == 7);
-            Check("200-character send is exactly seven /key/sendkey requests", keys.Length == 7);
-            Check("Every chunk carries at most 32 characters", keys.All(k => Key(k).Length <= 32));
+            Check("200-character send reports every character confirmed", r.ConfirmedCharacters == 200 && r.Total == 200 && r.Sent == n && r.Confirmed == n);
+            Check($"200-character send is exactly {n} /key/sendkey requests", keys.Length == n);
+            Check($"Every chunk carries at most {C} characters", keys.All(k => Key(k).Length <= C));
             Check("Chunks arrive in order and rebuild the text exactly", string.Concat(keys.Select(Key)) == text);
             Check("Chunks are sequential, never concurrent", h.PeakPostsInFlight == 1);
             Check("One lease: a single acquire, before the first chunk",
-                h.Commands.Count(c => Fun(c) == "/input/acquire") == 1 && Fun(h.Commands[0]) == "/input/acquire" && h.Commands.Count == 8);
+                h.Commands.Count(c => Fun(c) == "/input/acquire") == 1 && Fun(h.Commands[0]) == "/input/acquire" && h.Commands.Count == n + 1);
             string token = Token(keys[0], "TEST:01");
             Check("Every chunk carries the same lease token", keys.All(k => Token(k, "TEST:01") == token));
         }
 
-        // 2. A failure on chunk 3 stops there: chunks 4-7 never leave, chunk 3 is not retried.
+        // 2. A failure on chunk 3 stops there: later chunks never leave, chunk 3 is not retried.
         var hFail = new TestHandler { OwnershipSupported = true, FailSendKeyNumber = 3 };
         await using (var api = new ApiClient("localhost", hFail, ownership: true))
         {
@@ -1073,8 +1078,8 @@ public static class SelfTests
             Check("A failed chunk ends the send as failed", r.End == InputEnd.Failed && r.Failure is ApiException);
             Check("Failure on chunk 3 sends only chunks 1-3", keys.Length == 3 && keys.Select(Key).SequenceEqual(chunks.Take(3)));
             Check("Failed chunk 3 is not retried", hFail.SendKeyCount == 3);
-            Check("Failure reports the two confirmed chunks as 64 characters", r.ConfirmedCharacters == 64 && r.Confirmed == 2);
-            Check("Failure marks chunk 3 as sent with an unknown outcome", r.Sent == 3 && r.Chunks == 7);
+            Check($"Failure reports the two confirmed chunks as {2 * C} characters", r.ConfirmedCharacters == 2 * C && r.Confirmed == 2);
+            Check("Failure marks chunk 3 as sent with an unknown outcome", r.Sent == 3 && r.Chunks == n);
             Check("A failed chunk pauses input with a notice", notice.StartsWith("Input paused"));
             int before = hFail.Commands.Count;
             var again = await api.SendTextAsync("TEST:01", text);
@@ -1096,7 +1101,7 @@ public static class SelfTests
             int stopAt = all.FindIndex(c => Fun(c) == "/input/stop");
             Check("Stop during text ends the send as cancelled, not failed or timed out", r.End == InputEnd.Cancelled);
             Check("Stop during chunk 3 leaves chunk 3 unconfirmed and sends nothing after it",
-                r.Sent == 3 && r.Confirmed == 2 && r.ConfirmedCharacters == 64 && hStop.SendKeyCount == 3);
+                r.Sent == 3 && r.Confirmed == 2 && r.ConfirmedCharacters == 2 * C && hStop.SendKeyCount == 3);
             Check("No chunk is sent after /input/stop", stopAt >= 0 && !all.Skip(stopAt).Any(c => Fun(c) == "/key/sendkey"));
             Check("Stop during text raises no pause notice", notice == "");
         }
@@ -1112,7 +1117,7 @@ public static class SelfTests
             Check("A chunk with no answer ends the send as timed out", r.End == InputEnd.TimedOut);
             Check("A timed-out chunk raises the timeout pause notice", notice == InputLeaseClient.TimedOutNotice);
             Check("Timeout on chunk 2 is not retried and nothing after it is sent",
-                hTime.SendKeyCount == 2 && r.Sent == 2 && r.Confirmed == 1 && r.ConfirmedCharacters == 32);
+                hTime.SendKeyCount == 2 && r.Sent == 2 && r.Confirmed == 1 && r.ConfirmedCharacters == C);
             int before = hTime.Commands.Count;
             var again = await api.SendTextAsync("TEST:01", text);
             Check("A timed-out chunk pauses input until Resume", again.End == InputEnd.Failed && again.Sent == 0 && hTime.Commands.Count == before);
@@ -1137,8 +1142,8 @@ public static class SelfTests
             var keys = Keys(hGroup);
             Check("Mirrored text acquires both phones once",
                 hGroup.Commands.Count(c => Fun(c) == "/input/acquire") == 1 && hGroup.Commands[0].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
-            Check("Mirrored text is seven chunks, each for both phones with the same tokens",
-                r.End == InputEnd.Completed && keys.Length == 7 &&
+            Check($"Mirrored text is {n} chunks, each for both phones with the same tokens",
+                r.End == InputEnd.Completed && keys.Length == n &&
                 keys.All(k => Token(k, "TEST:01") == Token(keys[0], "TEST:01") && Token(k, "TEST:04") == Token(keys[0], "TEST:04")));
         }
 
@@ -1147,12 +1152,12 @@ public static class SelfTests
         await using (var api = new ApiClient("localhost", hRaw, ownership: false))
         {
             var r = await api.SendTextAsync("TEST:01", text);
-            Check("Unowned text is seven sequential chunks rebuilding the text",
-                r.End == InputEnd.Completed && Keys(hRaw).Length == 7 && string.Concat(Keys(hRaw).Select(Key)) == text && hRaw.PeakPostsInFlight == 1);
+            Check($"Unowned text is {n} sequential chunks rebuilding the text",
+                r.End == InputEnd.Completed && Keys(hRaw).Length == n && string.Concat(Keys(hRaw).Select(Key)) == text && hRaw.PeakPostsInFlight == 1);
             hRaw.FailSendKeyNumber = hRaw.SendKeyCount + 3;
             var failed = await api.SendTextAsync("TEST:01", text);
             Check("Unowned text stops at a failed chunk 3",
-                failed.End == InputEnd.Failed && failed.Sent == 3 && failed.ConfirmedCharacters == 64 && Keys(hRaw).Length == 10);
+                failed.End == InputEnd.Failed && failed.Sent == 3 && failed.ConfirmedCharacters == 2 * C && Keys(hRaw).Length == n + 3);
         }
 
         // 8. Single commands keep their exceptions: taps and keys still see HttpClient's own type.

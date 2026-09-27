@@ -207,11 +207,15 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         return ReadResult(await response.Content.ReadAsStringAsync(ct));
     }
     /// <summary>
-    /// Most characters one /key/sendkey carries. The kernel spends 140 ms of HID timing on a
-    /// character (170 ms on a space) and cancels any command after 8 s, which also stops the
-    /// phone until Resume; this client's HTTP timeout is 8 s as well. 32 spaces is 5.4 s.
+    /// Most characters one /key/sendkey carries. The kernel schedules 140 ms of HID timing per
+    /// character (170 ms per space) and cancels any command after 8 s, which also stops the phone
+    /// until Resume; this client's HTTP timeout is 8 s as well. Under CPU load its delays stretch:
+    /// a 32-character chunk ran 8,021 ms live on 26 Sep and was cut, and the kernel's own timing
+    /// reached 371 ms a character under oversubscribed load in analysis/input-timeout-candidate-20260925.
+    /// 12 characters is about 2 s idle and 4.5 s at that worst rate. No size guarantees completion
+    /// under arbitrary load: a chunk that still overruns is reported as timed out and never retried.
     /// </summary>
-    public const int TextChunk = 32;
+    public const int TextChunk = 12;
     public static List<string> SplitText(string text) => text.Chunk(TextChunk).Select(c => new string(c)).ToList();
     /// <summary>
     /// Types text as consecutive /key/sendkey commands of at most <see cref="TextChunk"/>

@@ -150,21 +150,31 @@ At 140 ms a character (170 ms for a space), plus HID write time, one `key` strin
 
 ### Text chunking
 
-Send text never puts more than 32 characters (`ApiClient.TextChunk`) in one `/key/sendkey`. That is at most 5.44 s of stroke timing (32 spaces) and 4.48 s with no spaces, which leaves at least 2.5 s of the deadline for HID writes and the round trip. The rack agent uses the same size (`rack-agent/src/actions.js`, `TEXT_CHUNK`).
+Send text never puts more than 12 characters (`ApiClient.TextChunk`) in one `/key/sendkey`. The size comes from measured command durations, not only from the nominal stroke timing:
 
-`ApiClient.SendTextAsync` splits the text into consecutive 32-character chunks (the last may be shorter) and sends them through `InputLeaseClient.SequenceAsync`:
+- **Idle.** A chunk takes about 164 ms a character with the kernel's own timing (about 2 s for 12).
+- **Under CPU load the kernel's delays stretch, and 32 characters was not safe.**
+  - Live on C24C (26 Sep, host CPU 85–100%), one 32-character chunk ran 8,021 ms and was cut by the deadline after 30 characters. Other 32-character chunks took 4.9–5.7 s.
+  - Offline, the kernel's `InputRouter` with its unchanged timing reached up to 371 ms a character with spinning threads oversubscribing every core. 32 characters then took 8.4–8.6 s.
+  - At that worst rate 12 characters take about 4.5 s, and at the live overrun's rate (267 ms) about 3.2 s.
+  - Measurements: `analysis/input-timeout-candidate-20260925/chunk-timing/`.
+- **No size guarantees completion under arbitrary load.** A chunk that still overruns is reported as timed out, pauses input, and is never retried automatically.
+
+The portal's rack agent has its own 32-character constant (`TEXT_CHUNK`, branch `claude/focused-noether-s600e0`). It needs the same evaluation and was not changed here.
+
+`ApiClient.SendTextAsync` splits the text into consecutive `TextChunk`-character chunks (the last may be shorter) and sends them through `InputLeaseClient.SequenceAsync`:
 
 - **One lease.** Every chunk carries the same token map. The console holds the phones' input gates for the whole text, so no other input from this console lands between chunks. Other input waits, and Stop input cancels it. The lease is renewed in the background as usual (every 10 s, 30 s lease).
 - **Strictly sequential.** A chunk leaves only after the kernel answered code 0 for the one before it.
 - **Stop at the first problem, never retry.** The first chunk that fails, times out, or is cut short by Stop ends the text. That chunk is never resent, because its outcome is unknown and it may be partly typed. No later chunk is sent. A failure or timeout pauses input like any failed command (the kernel also stops the phone on its own failures), so Resume is required before more input. Either one raises the lease client's pause notice, so the panel reads Input paused and Resume is enabled. For a timeout the notice reads `Input paused: request timed out; the outcome is unknown. Check the phone, then choose Resume input.` Single taps, keys and drags behave the same way. A Stop raises no notice.
-- **Report how far it got.** The activity log gives confirmed characters out of the total, then which chunk may be partly typed and which chunks were not sent. For example: `Send text failed: 64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.` Confirmed means the kernel answered code 0 for that chunk. As above, that means the HID writes finished, not that iOS inserted the text. When the send ends before a chunk leaves (for example, Stop before the first chunk), no chunk is reported as partly typed.
+- **Report how far it got.** The activity log gives confirmed characters out of the total, then which chunk may be partly typed and which chunks were not sent. For example, with 12-character chunks: `Send text failed: 24 of 200 characters confirmed. Chunk 3 of 17 may be partly typed and was not retried. Chunks 4–17 were not sent.` Confirmed means the kernel answered code 0 for that chunk. As above, that means the HID writes finished, not that iOS inserted the text. When the send ends before a chunk leaves (for example, Stop before the first chunk), no chunk is reported as partly typed.
 - **Stopped, timed out and failed are reported separately.** The lease client decides which by checking whether one of its own cancellation sources fired (Stop, a selection change, disconnect, the caller). It does not go by the exception type. A cancellation that none of them requested is the HTTP timeout.
-- **Stop input takes the first click while a drawer is open.** Send text lives in the Controls drawer. The drawer's dimming overlay used to cover the top bar too, so on the rack the first click on Stop input only closed the drawer and the 200-character send ran to completion. The drawer now starts below the top bar. Live on C24C, a single Stop click during chunk 3 left `64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.`, matching the phone: 64 characters plus 12 of chunk 3, and nothing afterwards.
+- **Stop input takes the first click while a drawer is open.** Send text lives in the Controls drawer. The drawer's dimming overlay used to cover the top bar too, so on the rack the first click on Stop input only closed the drawer and the 200-character send ran to completion. The drawer now starts below the top bar. Live on C24C with 32-character chunks (before the size changed), a single Stop click during chunk 3 left `64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.`, matching the phone: 64 characters plus 12 of chunk 3, and nothing afterwards.
 - **Timeout recovery covers every input path.** Text chunks, taps, keys and drags all raise the pause notice above and wait for Resume input. Input queued behind a failed command is not sent and is logged as `Not sent: …`. A drag that fails or times out while its button may be down is released at once with `/input/release` and the console's own token. The panel then says whether the kernel confirmed the release. See `analysis/input-timeout-candidate-20260925/`.
 
 The chunking is in the console, not the kernel. Another API client that sends a long `key` in one command still hits the deadline.
 
-**The 200-character cap is temporary.** Chunking does not require it: every chunk fits the deadline whatever the text length. The cap bounds how long one send holds the phones and blocks other input from this console. 200 characters is seven chunks, about 28 s of typing with no spaces and up to about 34 s with many spaces, plus round trips. Revisit it once Stop and recovery during long sends have more rack time.
+**The 200-character cap is temporary.** Chunking does not require it; the text length does not change how long each chunk takes. The cap bounds how long one send holds the phones and blocks other input from this console. 200 characters is 17 chunks, about 28 s of typing with no spaces and up to about 34 s with many spaces at idle, plus round trips. Revisit it once Stop and recovery during long sends have more rack time.
 
 Limits:
 
@@ -173,8 +183,8 @@ Limits:
 | Kernel command deadline | 8 s per command; then code 499, lease revoked, Stop latched until Resume | `InputSessions.ExecuteAsync` |
 | Console request timeout | 8 s per HTTP request | `ApiClient` (`HttpClient.Timeout`) |
 | Kernel `key` length | 1–1000 characters | `InputRouter`. Longer, or empty `key` with empty `fn_key`: `Provide a key or 1–1000 ASCII characters.` Anything over roughly 50 characters in one command can outlast the deadline |
-| Console chunk | 32 characters per `/key/sendkey` | `ApiClient.TextChunk` |
-| Send text cap (temporary) | 200 characters (seven chunks) | `MainWindow.MaxSendText`, checked in `SendText_Click`. Longer text stays whole in the box, the counter turns red, and nothing is sent. There is no `MaxLength` on the box, so nothing is truncated |
+| Console chunk | 12 characters per `/key/sendkey` (was 32 until 27 Sep; 32 overran the deadline under load) | `ApiClient.TextChunk` |
+| Send text cap (temporary) | 200 characters (17 chunks) | `MainWindow.MaxSendText`, checked in `SendText_Click`. Longer text stays whole in the box, the counter turns red, and nothing is sent. There is no `MaxLength` on the box, so nothing is truncated |
 | UI alphabet | codes 32–126 only | `SendText_Click`. `AcceptsReturn` is false |
 
 ## Required iOS settings
