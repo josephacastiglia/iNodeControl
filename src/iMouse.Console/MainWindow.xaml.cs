@@ -38,6 +38,7 @@ public partial class MainWindow : Window
     /// <summary>The address the data folder's settings.json named, or null when it named none
     /// (the box then shows the built-in default, the vendor service on 9911).</summary>
     internal string? SavedAddress { get; private set; }
+    private bool? _savedTrackPointer;
 
     // dataPath is for test modes and --data-dir: they must never load or overwrite the
     // operator's %APPDATA%\iMouse2, which every console build on this machine shares.
@@ -63,6 +64,11 @@ public partial class MainWindow : Window
                 if (!string.IsNullOrWhiteSpace(saved)) SavedAddress = saved;
                 AddressBox.Text = JsonValue.Text(d.RootElement, "address", AddressBox.Text);
                 if (JsonValue.Text(d.RootElement, "theme") == "night") ApplyTheme(true);
+                // Optional and absent by default, so hover tracking stays on unless a settings file
+                // turns it off. A test data folder sets it false, so connecting sends no incidental
+                // pointer moves and does not take control before the test starts.
+                if (d.RootElement.TryGetProperty("trackPointer", out var track) && track.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                    TrackPointer.IsChecked = _savedTrackPointer = track.GetBoolean();
             }
         }
         catch { /* A damaged optional preferences file must not prevent startup. */ }
@@ -147,7 +153,11 @@ public partial class MainWindow : Window
 
     private void SaveSettings()
     {
-        var json = JsonSerializer.Serialize(new { address = AddressBox.Text, theme = Theme.IsNight ? "night" : "light" });
+        // trackPointer is written back only when the file named it, so a file without it is
+        // rewritten exactly as before.
+        var values = new Dictionary<string, object> { ["address"] = AddressBox.Text, ["theme"] = Theme.IsNight ? "night" : "light" };
+        if (_savedTrackPointer is not null) values["trackPointer"] = TrackPointer.IsChecked == true;
+        var json = JsonSerializer.Serialize(values);
         Directory.CreateDirectory(_dataPath);
         File.WriteAllText(Path.Combine(_dataPath, "settings.json"), json);
         // The local mirror is what launcher scripts check and what seeds %APPDATA%, so a test run leaves it alone.
@@ -2152,6 +2162,26 @@ public partial class MainWindow : Window
         Check("A theme change during a test is saved to the test's data folder", SavedTheme() == (Theme.IsNight ? "night" : "light"));
         Theme_Click(ThemeButton, new RoutedEventArgs());
         Check("A test run does not rewrite the settings mirror beside the exe", File.GetLastWriteTimeUtc(mirror) == mirrorStamp);
+        // Hover tracking: on unless a settings file turns it off, and a file without the key is
+        // written back exactly as before, so the operator's file never gains it.
+        var trackDir = Path.Combine(_dataPath, "track-pointer-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(trackDir);
+        var trackFile = Path.Combine(trackDir, "settings.json");
+        File.WriteAllText(trackFile, "{\"address\":\"http://localhost:9923\",\"theme\":\"light\",\"trackPointer\":false}");
+        var off = new MainWindow(_factory, trackDir);
+        Check("A settings file can turn hover tracking off before connecting", off.TrackPointer.IsChecked == false);
+        off.SaveSettings();
+        Check("A saved trackPointer setting is kept when settings are saved",
+            File.ReadAllText(trackFile) == "{\"address\":\"http://localhost:9923\",\"theme\":\"light\",\"trackPointer\":false}");
+        off.Close();
+        File.WriteAllText(trackFile, "{\"address\":\"http://localhost:9923\",\"theme\":\"light\"}");
+        var on = new MainWindow(_factory, trackDir);
+        Check("Hover tracking stays on by default", on.TrackPointer.IsChecked == true);
+        on.SaveSettings();
+        Check("A settings file without trackPointer is saved without it",
+            File.ReadAllText(trackFile) == "{\"address\":\"http://localhost:9923\",\"theme\":\"light\"}");
+        on.Close();
+        Directory.Delete(trackDir, true);
         AutoPreview.IsChecked = false;
         Check("Footer uses live receiver names, not a stale imserver name",
             StatusInfo.Text.Contains("iMouse2-C24C") && StatusInfo.Text.Contains("iMouse2-C241") && !StatusInfo.Text.Contains("C214"));
