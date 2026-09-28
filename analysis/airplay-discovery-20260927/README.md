@@ -103,8 +103,72 @@ Then Ctrl+C it with the helper and confirm three things: "Stopping RAOP Server" 
 - **Between trials:** the next trial starts only after C24C has had live video for 2 minutes, plus a fixed 5-minute settle, identical for every trial.
 - **Duration.** Each trial takes 10–55 minutes, so Session A is **about 45 minutes at best and over 3 hours at worst**. It can end after any trial. **No short interruption is promised:** earlier recoveries took up to about 23 minutes.
 
+## Results: staged window, 27 Sep 2026 (preliminary; one trial)
+
+### Step 0: graceful stop of a disposable receiver (passed, run 2)
+
+- The disposable `uxplay-selftest-noconnect` receiver ran on ports 7150–7152 as `02:49:4D:32:00:99`, restricted to `00:00:5E:00:53:99`.
+  - That device ID is an exclusion precaution; it doesn't guarantee a phone could never connect.
+  - No phone selected it.
+- Its console held only the uxplay and the helper.
+- The log shows "Stopping RAOP Server", and the receiver exited with code 0.
+- Recorded separately:
+  - withdrawal: Bonjour `Rmv` at 20:03:42.761 (it was added at 20:03:22.406);
+  - process exit;
+  - ports freed.
+- Limits:
+  - `Rmv` can't tell an explicit unregistration from a closed connection.
+  - The LAN goodbye and the advertisement were not observed: this host's own multicast isn't visible to a local listener, which is why run 1 saw neither.
+
+### Trial 1: graceful restart of C24C's receiver (condition G-M)
+
+T0 was 20:09:00. The stop went to uxplay PID 35448 alone.
+
+| Measure | Result |
+|---|---|
+| Graceful path | "Stopping RAOP Server" logged; the old receiver had exited 20:09:02 |
+| Replacement | exactly one, PID 6264, started 20:09:03.731, arguments identical, identity/pk identical |
+| Readiness | 20:09:03.798 (about 3.8 s after T0); Bonjour `Rmv` 20:09:02.823, `Add` 20:09:03.802 |
+| Appearance in C24C's list | **none within the 25-min window**. The webcam showed an empty list with a spinner through 20:33. C241 and a third phone listed `iMouse2-C24C` during the same period. |
+| Connection request | none within 25 min |
+| Live video | none within 25 min (offline from 20:09:09) |
+| C241 | PID 6100 unchanged, live throughout |
+| Restart budget | 1 of 5 used, 4 left |
+
+**Discovery traffic.**
+- C24C (192.168.4.57) sent `_raop._tcp` queries at 20:09:07, 20:09:13 and 20:09:14.
+- After that, nothing from C24C was captured through 20:34, or in the second capture from 20:34:54 to 20:40:02.
+- Other phones kept querying.
+- An absent query in the capture doesn't prove the phone never searched.
+
+**Manual intervention (not recovery, not a trial result).**
+- At about 20:40 the operator unplugged C24C's cable and plugged it back in; the receiver list then appeared on C24C.
+- C24C's queries resumed at 20:40:02. The first was a QU query with 0 known answers.
+- The operator connected at 20:42:49 (connection request); the kernel showed C24C live at 20:42:50.
+- The receiver was the same PID 6264 and no further restart was made.
+- The board binding was unchanged: `86:1D:4A:04:2F:F6`, uid `C24CBFBD`, board C24C.
+
+**Reading (preliminary).**
+- In this one trial, a graceful stop did not give fast rediscovery. The replacement was advertised and other phones saw it. C24C's list stayed empty until the cable was reconnected.
+- This weakens "forced termination alone causes the delay" but doesn't rule it out.
+- It points to C24C's own discovery state, possibly tied to its accessory/cable connection, as the next thing to examine.
+- It doesn't establish that the cable caused the recovery: the timing is one coincidence, and the session was already 31 minutes past T0.
+- No further trial was run; Q1 wasn't started.
+
+**Next investigation (not yet approved).**
+- Consider the phone and accessory connection state: what the board's USB/HID connection does to the phone's network and discovery behaviour.
+- Don't repeat the unplug until a method is agreed.
+
 ## Evidence
 
 - `iMouseXP-2.0-evidence-archive/20260927-home-window/`: `mdns-listen-1.txt`, `window2-release-reconnect.txt`, and the user's photos.
-- Trial records will go to `iMouseXP-2.0-evidence-archive/20260927-rediscovery/`.
+- `iMouseXP-2.0-evidence-archive/20260927-rediscovery/`, containing:
+  - `step0/` and `step0-run1/`;
+  - `trial-200609-Graceful-G-M.txt` and `dns-sd-browse-200609.txt`;
+  - `mdns-listen-trial1.txt` and `mdns-listen-trial1-recovery.txt`;
+  - `operator-notes-trial1.txt` (the manual intervention and the final rack state);
+  - `recovery-watch.txt`;
+  - `webcam-trial1-window/`: PrintWindow frames of the webcam every 10 s from 20:25; `gaps.txt` lists the times the Camera window was closed or minimised;
+  - `webcam-trial1/`: the earlier screen-region frames; after about 20:20 they show a covering window, not the phones.
+- Recording tools: `tools/airplay-diagnostics/Save-WindowCapture.ps1` (used) and `Save-ScreenRegion.ps1` (superseded; it records whatever window covers the region).
 - Receiver logs in `analysis/two-phone-config/receiver-*.log` in the main checkout. They are read only, not copied.
