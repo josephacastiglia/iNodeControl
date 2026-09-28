@@ -35,6 +35,10 @@ Note "rack receivers untouched: $((Get-CimInstance Win32_Process -Filter "Name='
 
 # --- listener, then launch -------------------------------------------------------------------
 $py = Start-Process python -ArgumentList "`"$(Join-Path $PSScriptRoot 'mdns_listen.py')`"", '192.168.4.26', '75', "`"$listen`"" -WindowStyle Hidden -PassThru
+# Bonjour's own view: Add when registered, Rmv when withdrawn. (The LAN listener cannot see this
+# host's own multicast announcements, as the first Step 0 run showed.)
+$browse = Join-Path $OutDir 'dns-sd-browse.txt'
+$ds = Start-Process 'C:\Windows\System32\dns-sd.exe' -ArgumentList '-B', '_airplay._tcp', 'local' -RedirectStandardOutput $browse -WindowStyle Hidden -PassThru
 Start-Sleep 2
 $si = New-Object Diagnostics.ProcessStartInfo $uxplay
 $si.UseShellExecute = $false; $si.CreateNoWindow = $true; $si.RedirectStandardOutput = $true; $si.RedirectStandardError = $true
@@ -55,8 +59,11 @@ $ready = $false
 for ($i = 0; $i -lt 40 -and -not $ready; $i++) { Start-Sleep -Milliseconds 500; $ready = (Test-Path $log) -and [bool](Select-String -Path $log -Pattern 'Initialized server socket' -Quiet) }
 Note "ready (log 'Initialized server socket'): $ready"
 Start-Sleep 5
-$probe = & python (Join-Path $PSScriptRoot 'mdns_probe.py') 192.168.4.26 4 '_airplay._tcp.local' | Select-String $name
-Note "advertised on Ethernet (probe saw $name): $([bool]$probe)"
+$seen = $false
+for ($i = 1; $i -le 4 -and -not $seen; $i++) {
+    $seen = [bool](& python (Join-Path $PSScriptRoot 'mdns_probe.py') 192.168.4.26 3 '_airplay._tcp.local' | Select-String $name)
+    Note "probe $i before stop answered for ${name}: $seen"
+}
 
 # --- graceful stop ---------------------------------------------------------------------------
 $helper = Join-Path $PSScriptRoot '..\kernel-window\Stop-ConsoleProcessGracefully.ps1'
@@ -68,9 +75,15 @@ Note "helper exit $helperExit; disposable receiver exited: $($proc.HasExited)$(i
 Note "log shows 'Stopping RAOP Server': $([bool](Select-String -Path $log -Pattern 'Stopping RAOP Server' -Quiet))"
 $busy = @(Get-NetTCPConnection -LocalPort $port, ($port + 1), ($port + 2) -State Listen -ErrorAction SilentlyContinue)
 Note "ports $port-$($port + 2) freed: $($busy.Count -eq 0)"
+Start-Sleep 3
+$after = @(1..2 | ForEach-Object { [bool](& python (Join-Path $PSScriptRoot 'mdns_probe.py') 192.168.4.26 3 '_airplay._tcp.local' | Select-String $name) })
+Note "probes after stop still answered for ${name}: $($after -join ', ')"
+Stop-Process -Id $ds.Id -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 300
+Get-Content $browse | Where-Object { $_ -match $name } | ForEach-Object { Note "  dns-sd: $($_.Trim())" }
+Note "withdrawn in Bonjour (dns-sd Rmv): $([bool](Select-String -Path $browse -Pattern ('Rmv.*' + $name) -Quiet))"
 Wait-Process -Id $py.Id -Timeout 90 -ErrorAction SilentlyContinue
 $bye = Select-String -Path $listen -Pattern "GOODBYE.*$name" -Quiet
-Note "goodbye (TTL 0) for $name seen on the LAN: $([bool]$bye)"
+Note "goodbye (TTL 0) for $name seen by the LAN listener: $([bool]$bye) (this host's own multicast may not be visible to it)"
 Unregister-Event -SourceIdentifier $e1.Name; Unregister-Event -SourceIdentifier $e2.Name
 if (-not $proc.HasExited) { Note 'DISPOSABLE RECEIVER STILL RUNNING: not force-killed; operator decision needed.'; exit 3 }
 Note "rack receivers still: $((Get-CimInstance Win32_Process -Filter "Name='uxplay.exe'" | ForEach-Object { $_.ProcessId }) -join ', ')"

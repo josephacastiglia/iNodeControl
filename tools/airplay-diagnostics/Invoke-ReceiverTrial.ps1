@@ -27,6 +27,7 @@ param(
     [string]$Condition = '',
     [int]$WindowMinutes = 25,
     [string]$OutDir = 'C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-evidence-archive\20260927-rediscovery',
+    [datetime]$StartAt = [datetime]::MinValue,   # T0 is not before this time, so the operator is told first
     [switch]$DryRun
 )
 $ErrorActionPreference = 'Stop'
@@ -65,7 +66,7 @@ $kernel = Get-CimInstance Win32_Process -Filter "ProcessId=$($target.ParentProce
 if (-not $kernel -or [IO.Path]::GetFullPath($kernel.ExecutablePath) -ine [IO.Path]::GetFullPath($kernelExe)) { Fail "parent $($target.ParentProcessId) is not the release kernel" }
 if ($target.CommandLine -notmatch ('-restrict -allow ' + [regex]::Escape($DeviceId) + '( |$)')) { Fail "arguments do not restrict $Name to $DeviceId" }
 if (-not $other -or -not (Get-Process -Id $other.receiver_pid -ErrorAction SilentlyContinue)) { Fail "the other receiver $OtherName is not running" }
-if ($r.receiver_restarts -ge 4) { Fail "supervisor has used $($r.receiver_restarts) of 5 relaunches; keep one spare" }
+if ($r.receiver_restarts -ge 3) { Fail "supervisor has used $($r.receiver_restarts) of 5 relaunches; at least two must remain unused after this trial" }
 $argsBefore = $target.CommandLine.Trim()
 $idBefore = Txt $Name
 $otherBefore = @{ pid = $other.receiver_pid; frames = $other.frames }
@@ -76,6 +77,12 @@ Note "other receiver $OtherName pid $($other.receiver_pid) live=$($other.live) f
 if ($DryRun) { Note 'dry run: nothing signalled'; exit 0 }
 
 # --- stop ------------------------------------------------------------------------------------
+$browse = Join-Path $OutDir "dns-sd-browse-$stamp.txt"
+$ds = Start-Process 'C:\Windows\System32\dns-sd.exe' -ArgumentList '-B', '_airplay._tcp', 'local' -RedirectStandardOutput $browse -WindowStyle Hidden -PassThru
+if ($StartAt -gt (Get-Date)) { Note ("waiting until T0 = {0:HH:mm:ss}" -f $StartAt); while ((Get-Date) -lt $StartAt) { Start-Sleep -Milliseconds 200 } }
+$r = Receiver (Status) $Name
+if ($r.receiver_pid -ne $target.ProcessId -or -not (Get-Process -Id $target.ProcessId -ErrorAction SilentlyContinue)) { Stop-Process -Id $ds.Id -ErrorAction SilentlyContinue; Fail "the receiver changed while waiting for T0" }
+Note "just before T0: $Name live=$($r.live) frames=$($r.frames)"
 $logLinesBefore = (Get-Content $log).Count
 $t0 = Get-Date; Note "T0 stop issued ($Method) to PID $($target.ProcessId)"
 if ($Method -eq 'Forced') { Stop-Process -Id $target.ProcessId -Force }
@@ -123,4 +130,6 @@ while ((Get-Date) -lt $end -and -not $live) {
 }
 $st = Status; $o2 = Receiver $st $OtherName
 Note "other receiver ${OtherName}: pid $($o2.receiver_pid) (unchanged: $($o2.receiver_pid -eq $otherBefore.pid)) live=$($o2.live) frames $($otherBefore.frames) -> $($o2.frames)"
+Stop-Process -Id $ds.Id -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 300
+Get-Content $browse | Where-Object { $_ -match [regex]::Escape($Name) } | ForEach-Object { Note "  dns-sd: $($_.Trim())" }
 Note ("summary: stop->ready {0}; stop->request {1}; stop->live {2}; restarts now {3}" -f $(if ($ready) { $ready } else { 'n/a' }), $(if ($request) { $request } else { "none within $WindowMinutes min" }), $(if ($live) { '{0:N0} s' -f ($live - $t0).TotalSeconds } else { "none within $WindowMinutes min" }), (Receiver $st $Name).receiver_restarts)
