@@ -99,6 +99,34 @@ public static class SelfTests
             "Precise pacing preserves all reset, movement, keyboard, click and swipe packets");
         Check(precisePackets.Reports.Count(r=>r=="A100818100000000")==8,
             "Precise clicks retain both cold-start and post-Home corner resets");
+        // Lower-screen reach (27 Sep): the emitted movement must cover the whole calibrated
+        // height, from a corner reset and from a known position. Sums the relative steps
+        // after the last corner-reset report; says nothing about where iOS puts the pointer.
+        var reach=new RecordingTransport();
+        using(var lower=new InputRouter(new DeviceStore(file),["C24C"],[new("C24C",500,1080,14,14,5.12,5.09)],_=>reach))
+        {
+            (int X,int Y) Moved()
+            {
+                var moves=reach.Reports.Skip(reach.Reports.LastIndexOf("A100818100000000")+1)
+                    .Select(Convert.FromHexString).Where(r=>r[0]==0xA1 && r[1]==0).ToList();
+                return (moves.Sum(r=>(sbyte)r[2]),moves.Sum(r=>(sbyte)r[3]));
+            }
+            var targets=new[]{(310,1002),(163,922),(458,1012),(249,1079),(163,783)};
+            bool fromReset=true;
+            foreach(var (x,y) in targets)
+            {
+                reach.Reports.Clear();
+                await lower.DispatchAsync("/mouse/reset",Data(new{id="test-one"}));
+                await lower.DispatchAsync("/mouse/click",Data(new{id="test-one",x,y}));
+                fromReset&=Moved()==((int)Math.Round((x-14)/5.12),(int)Math.Round((y-14)/5.09));
+            }
+            Check(fromReset,"Clicks down to the bottom row emit the full calibrated movement after a reset");
+            reach.Reports.Clear();
+            await lower.DispatchAsync("/mouse/reset",Data(new{id="test-one"}));
+            foreach(var (x,y) in targets) await lower.DispatchAsync("/mouse/click",Data(new{id="test-one",x,y}));
+            Check(Moved()==((int)Math.Round((163-14)/5.12),(int)Math.Round((783-14)/5.09)),
+                "Chained lower-screen clicks from a known position end at the last target's units");
+        }
         byte[] bmp=new byte[70];bmp[0]=(byte)'B';bmp[1]=(byte)'M';
         BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(2),70);
         BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(10),54);
