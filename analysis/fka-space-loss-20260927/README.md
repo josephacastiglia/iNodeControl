@@ -106,6 +106,109 @@ These were recorded here and not fixed.
 - With a Notes note open for editing, the Tab went into the note.
 - Any text field focused when Home is pressed can receive that Tab.
 
+## Offline review, 27 Sep evening (no live action)
+
+Sources:
+- this session;
+- `KEYBOARD-SPEC.md`;
+- `analysis/text-chunking-candidate-20260925/REPORT.md`;
+- the vendor key capture `analysis/hid-keys-20260914.jsonl` with `hid-key-markers.jsonl` (main checkout);
+- `INDEPENDENT-KERNEL.md`;
+- the 14 Sep frames `analysis/live-notes-space*.bmp`;
+- the C241 FKA diagnostics (`analysis/c241-typing-*`).
+
+### 1. What the console submits (established)
+
+- **The space is in the submitted text.**
+  - The Send text box held exactly `48 69 20 74 68 65 72 65`, read back through UI Automation.
+  - The 25 Sep harness sends (`ApiClient.SendTextAsync`, no UI) lost the same space.
+  - A lone ` ` sent on its own returned code 0 (26 Sep).
+- `Hi there` is one chunk (8 of 12 characters), so chunking cannot split it.
+- **Gap:** the logging proxy recorded each command's timing and code, not its body. The body is inferred from the box contents and the code path, not captured.
+
+### 2. What HID reports the kernel sends (established from code; not captured on the wire for the release kernel)
+
+- **Every space is sent the same way:** `Ascii(' ')` = (0, 44), sent as a `Stroke`:
+  1. `A2 00 00…` (clear);
+  2. 45 ms;
+  3. `A2 00 2C…` (Space down), held 90 ms;
+  4. `A2 00 00…` (release);
+  5. 35 ms settle.
+- The kernel keeps no per-field or per-note state, so every space in a text gets the same reports. The self-test "Space is emitted as USB usage 44 between letters" covers this.
+- **Byte-identical to the vendor's Space.** The 14 Sep capture of `IMService` typing `" Ab Z!"` shows `A2 00 2C` for both spaces. Only the timing differs: the vendor holds a key about 38–46 ms, ours holds Space 90 ms.
+- **The timing does not separate success from failure.**
+  - The 14 Sep kernel already held Space 90 ms (`INDEPENDENT-KERNEL.md`), and C24C Notes then showed `A B`, then `A B Test 123!`, keeping the space after `A`.
+  - The same reports and timing later lost the first space 21/21 (25 Sep) and 4/6 (27 Sep).
+- Code 0 means the HID writes completed, not that the board delivered them or iOS inserted them.
+- A stateless transport has no knowledge of which text field is focused on the phone. A loss tied to "the first space in each newly focused field", with later spaces kept, is not a pattern the PC side can produce except by coincidence. This is an inference, not a capture.
+
+### 3. What iOS visibly inserts (observed)
+
+- **First space lost:**
+  - 21/21 fresh notes (25 Sep, 90 ms hold, sent through the console library);
+  - 4/6 fresh fields at FKA On (27 Sep): lost in every field that was the first one focused after entering the app, kept in 2 Settings search fields refocused after Cancel.
+- **Later spaces in the same field are kept,** including after a 3 s pause.
+- **Lost wherever it falls:** position 3, 6, 7 or 11, first line or body, one lease or fresh leases, with or without a leading Enter. A preceding non-space key does not use up the effect.
+- **A lone space sent as its own command** (26 Sep): the cursor did not move in 4/4 fresh fields. **Once it brought up the text-edit menu** (Select | Select All | AutoFill), which is how iOS answers an activation or tap on an already-active text field.
+- **The fresh-note UI** (Done, undo, formatting bar) looks the same on 14 Sep, when the space was kept, and 27 Sep, when it was lost. The difference is not visible on screen.
+- **FKA state over time:**
+  - C24C's FKA was **On** on 27 Sep (`state-00`), showing "To activate: Space".
+  - Its state on 14 Sep is not recorded.
+  - The 21–22 Sep notes that C24C showed "no FKA ring" are weak evidence of Off, because Auto-Hide is 1 s.
+  - C241, with FKA On, needed Typing Mode for letters to insert into empty Spotlight, and its Space opened the AssistiveTouch menu when the ring was there.
+
+### Remaining explanations (none established)
+
+- **R1: FKA's "Activate" (Space) takes the first Space** on the newly focused text element. After that, the field is in a state where Space types.
+  - Consistent with: FKA On; the listed Activate key; the one edit-menu response; refocused fields keeping the space.
+  - Not shown by any test.
+- **R2: a non-FKA iOS text-input feature consumes the first Space of a text session.** For example, inline predictions (turning them off showed no change, but that did not rule them out), autocorrect, or another keyboard feature.
+- **R3: phone-side keyboard-accessory state.** For example, a state that the 27 Sep Lightning replug may have reset. The current behaviour after the replug is unknown.
+
+The existing trials cannot separate these: all failing trials had FKA On, and the one success has an unknown FKA state.
+
+## Proposed test: FKA comparison with the operator on the toggle (not yet run; for approval)
+
+**Smallest distinguishing test.**
+- One same-session control at FKA On, then two fresh notes at FKA Off, then restore.
+- Every trial sends ` Hi there` (leading space, then an inner space). That tells whether a first space is consumed even with no preceding word, and which space goes.
+- Everything else matches the 27 Sep N1–N3 trials:
+  - focus: Home, long-press Notes, New Note;
+  - timing: 3 s wait, send, 4 s wait, frame.
+- Driven through the release kernel API with C24C's lease. No console, no receiver restart, no HID timing or code change, no other setting touched.
+- **The operator physically operates the FKA switch and its confirmation dialog.** The pointer is never used on the toggle or the alert, because it failed there on 27 Sep.
+
+Procedure (about 10 minutes):
+1. **Preflight, read-only:**
+   - kernel and receiver PIDs;
+   - C24C live and unowned;
+   - C241 not addressed at any point;
+   - operator settings hash;
+   - one frame of C24C.
+2. **Control (FKA On, as it is now):**
+   - acquire the lease;
+   - Home, long-press Notes, then tap New Note (frame checks between steps);
+   - wait 3 s, send ` Hi there`, wait 4 s, take a frame;
+   - release the lease.
+3. **Operator:** on C24C, Settings → Accessibility → Keyboards → Full Keyboard Access → switch **Off**, and confirm the dialog by hand. Then return to the Home Screen (swipe up) and tell me. I confirm Off from a frame only.
+4. **FKA Off:** repeat step 2 twice, one fresh note each.
+5. **Operator:** switch FKA back **On** by hand, confirm any dialog, return Home. I verify On and the original Appearance rows from a read-only frame.
+6. **Finish:**
+   - lease released, C24C unowned;
+   - receivers unchanged;
+   - settings hash unchanged;
+   - frames and text readings preserved.
+
+How the results read:
+
+| Control (On) | Off trials | Reading |
+|---|---|---|
+| a space lost | both exact ` Hi there` (or `Hi there` with only the leading space trimmed by Notes) | FKA implicated (R1). Not yet a fix |
+| a space lost | same loss as On | FKA not responsible; R2 or R3 |
+| nothing lost | — | The current phone state differs from 25–27 Sep, possibly after the replug; R3 gains weight. Stop and report; the FKA trials would not discriminate |
+
+**Side effects:** three new notes containing ` Hi there`. Pressing Home types the vendor Tab into the open note, as recorded earlier; each note's text is read before Home.
+
 ## Evidence
 
 The archive is `iMouseXP-2.0-evidence-archive/20260927-fka-space-loss-b0708e3/`, with `SHA256SUMS.txt` listing 217 files, verified against their sources. It contains:
