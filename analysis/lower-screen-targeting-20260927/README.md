@@ -1,5 +1,10 @@
 # Lower-screen taps stopping at y ≈ 783: offline investigation, 27 Sep 2026
 
+**Status: CLOSED, passed within its tested scope (27 Sep, by the user's decision).**
+- Tested scope: one phone (C24C), three moves (y 922, 1012, 1070), with no bottom-screen tap validation.
+- Evidence preserved in `iMouseXP-2.0-evidence-archive/20260927-lower-screen-move/` (with `SHA256SUMS.txt`).
+- No pointer or product change was made.
+
 **Result.** The software path is not where the cut-off happened. In the 27 Sep FKA session (`analysis/fka-space-loss-20260927`, finding 2):
 - the kernel was asked for y ≈ 783 each time, and the pointer went exactly there;
 - the console computed y ≈ 783 from where the Windows cursor actually was;
