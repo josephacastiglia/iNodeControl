@@ -208,6 +208,12 @@ Spotlight consumes spaces. Usage 44 is still a space in Notes (`A B Test 123!` o
 
 **Open issue: the first space typed into a note goes missing (cause unresolved).** The controlled comparison is in [analysis/text-chunking-candidate-20260925/REPORT.md](analysis/text-chunking-candidate-20260925/REPORT.md).
 
+**Update, 27 Sep 2026: Full Keyboard Access is implicated under the tested conditions.**
+- On C24C, with fresh Notes notes, `Hi there` and identical kernel reports, the first space was lost with FKA On (3 of 3, including after restoring it) and kept with FKA Off (2 of 2).
+- The operator changed the setting by hand, and it was restored to On.
+- The mechanism, other fields and any product change are not established.
+- See [analysis/fka-space-loss-20260927/README.md](analysis/fka-space-loss-20260927/README.md).
+
 *Findings* (C24C, Notes, 25 Sep 2026; sends through the console's `SendTextAsync` and the Send text button):
 
 - 21 of 21 sends containing the first space typed into a note lost that space. In 7 later sends into such notes no space was lost. Examples: `Chunk check` became `Chunkcheck`, `Hi there` became `Hithere`, `A B C` became `AB C`.

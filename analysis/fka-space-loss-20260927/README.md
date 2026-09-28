@@ -1,6 +1,81 @@
 # Fresh-field space loss: Full Keyboard Access experiment, 27 Sep 2026
 
-**Status: ended early.** The FKA Off comparison was **not performed**. Whether Full Keyboard Access causes the lost space is **unresolved**. Fresh-field exact typing remains **failed / open**. The candidate is not promoted.
+## Result of the controlled comparison, 27 Sep 21:37–22:21 (closed after 5 of 6 trials)
+
+**Under these conditions, Full Keyboard Access is implicated.**
+- With FKA On, the first space of `Hi there` was missing in fresh notes: 3 of 3.
+- With FKA Off it was kept: 2 of 2.
+- Restoring On brought the loss back.
+- Scope:
+  - one phone (C24C), one field type (a new Notes note), one string, five trials;
+  - it shows the loss depends on the FKA setting in this setup, not the mechanism inside iOS;
+  - it is not a fix, and other FKA interactions (Home's Tab, Typing Mode) were not tested.
+
+**Setup.**
+- Release kernel 30652 through its API, with C24C's lease held only during each trial (script `fka_trial.py`, copied into the evidence folder). No console, no receiver restart, no code or HID-timing change, no other setting touched. C241 was never addressed.
+- **Every trial ran identically:**
+  1. the operator's physical Home gesture beforehand (never the software Home);
+  2. reset, move to Notes (192, 250), long press (down, 0.95 s, up);
+  3. 1.0 s, then tap New Note (212, 396);
+  4. 3.0 s, then `/key/sendkey key="Hi there"`;
+  5. 4.0 s, then a frame.
+- **The operator changed FKA by hand** on C24C's settings page and handled any dialogs. Each state was captured from the settings page before the operator returned Home.
+
+**Setting state (from frames of the FKA settings page):**
+
+| Time | State | Frame |
+|---|---|---|
+| 21:39:55 | Original: FKA **On**, Auto-Hide 1s, Increase Size Off, High Contrast Off, Color Default ("To activate: Space") | `S0-original-fka-page-b.png` |
+| 21:44:54 | FKA **Off**, Appearance unchanged | `S1-fka-off-page.png` |
+| 21:52:24 | FKA **On** again, Appearance matches the original | `S2-fka-restored-on-page-b.png` |
+
+**Trials.** The three measures are recorded separately:
+- **Submitted** is the exact `key` sent. It was the same in every trial: `Hi there`, bytes `48 69 20 74 68 65 72 65`.
+- **Kernel** is the command's result code. Code 0 means the HID writes completed, not that anything was inserted.
+- **Visible** is what the note shows in the frame 4 s later.
+
+| Trial | FKA | Kernel | Visible | Frame |
+|---|---|---|---|---|
+| ON1, 21:42:29 | On (original) | 0 | `Hithere`: space missing | `ON1-3-after-send.png` |
+| ON2, 21:44:10 | On (original) | 0 | `Hithere`: space missing | `ON2-3-after-send.png` |
+| OFF1, 21:45:23 | Off | 0 | `Hi there`: exact | `OFF1-3-after-send.png` |
+| OFF2, 21:46:00 | Off | 0 | `Hi there`: exact | `OFF2-3-after-send.png` |
+| ON3, 21:56:04 | On (restored) | 0 | `Hithere`: space missing | `ON3-3-after-send.png` |
+| ON4 | On (restored) | not run | not run | `ON4-refused-screen.png` |
+
+- **ON4 was not run.** At 22:12 its preflight found C24C owned by another controller (lease renewing, generation 7), so it sent nothing. The only other controller running was the installed console (30604). The lease was not taken over.
+- The operator then closed the test at 5 of 6 trials.
+
+**What this establishes, and what it does not:**
+- In this setup, the first space in a freshly created note is lost with FKA On and kept with FKA Off. The loss returned when FKA was restored.
+- **Established here:** the same submitted text and the same kernel reports gave different insertion depending only on the FKA setting. The kernel sends identical reports either way (offline review below).
+- **Not established:**
+  - *why.* "FKA's Activate key (Space) takes the first Space in a newly focused field" is consistent with this, but was not shown directly.
+  - whether other fields behave the same (Settings search was not retested);
+  - whether other FKA effects (Home's Tab) share the cause;
+  - what product change, if any, is appropriate.
+- Two trials per condition and one restored-On trial is a small sample. The result is clear-cut within it: 3/3 against 2/2.
+
+**Side effects on C24C.**
+- Five new notes: `Hithere` ×3 and `Hi there` ×2.
+- One empty new note, opened by the operator while trying to type physically before the test.
+- The Notes quick-action menu was opened once for locating (`LOC-*`) and dismissed by the operator.
+- No other setting was changed. FKA was restored to On by the operator and verified.
+
+**Rack after closing (22:21):**
+- kernel 30652 and receivers 6264 / 6100 unchanged, both mirroring, restarts 1 / 0;
+- installed console 30604 running;
+- operator settings `72F51CC0…` unchanged;
+- no test process running;
+- this session holds no lease. The installed console holds C24C's lease; it was left alone.
+
+Evidence: `iMouseXP-2.0-evidence-archive/20260927-fka-comparison/`, containing `run.txt`, 30 frames, `fka_trial.py` and `SHA256SUMS.txt` (32 files).
+
+---
+
+*(Earlier session, 15:47–16:16. Superseded by the operator-toggled comparison at the top of this file.)*
+
+**Status: ended early.** The FKA Off comparison was **not performed** in this session. Whether Full Keyboard Access causes the lost space is **unresolved**. Fresh-field exact typing remains **failed / open**. The candidate is not promoted.
 
 ## Build and setup
 
