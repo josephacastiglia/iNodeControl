@@ -22,7 +22,7 @@ Nothing was unplugged, restarted or changed for this review. The sources were:
   - which end of which cable was unplugged;
   - whether the Lightning cable also powers or charges the phone;
   - whether the phone sees the board as a keyboard/pointer accessory only, or as anything more.
-  - These need the operator's physical details.
+  - The operator answered the first two below: the Lightning plug at the phone, and yes, it charges. The third remains open.
 
 ## Observed (from evidence)
 
@@ -83,21 +83,46 @@ Not supported by the evidence: a PC-side USB, hub or board re-enumeration. Also 
 4. Did C24C show anything on replug, such as the screen waking, an accessory prompt, or a keyboard/trackpad notice?
 5. What is the iPhone that was plugged directly into the PC from 20:01:48 to 20:35:52, and was it unplugged on purpose?
 
-## Next experiment (only if the answers cannot settle it)
+### Operator's answers (27 Sep 2026, after the review)
 
-To be decided after the answers above; not approved, and nothing to be run yet. No unplugging.
+1. The cable was on the 3rd phone from the end of the rack (C24C). It was unplugged **at the phone's Lightning port** and plugged back in.
+2. **The cable charges the phone.** It carries both the board's input (HID) connection and charging power.
+3. The list was empty right before the unplug. After the unplug and replug it showed the receivers.
+4. Nothing special appeared on the phone. **Before the unplug, the operator closed and reopened Screen Mirroring, and the list stayed empty.** Only the replug brought it back.
+5. The iPhone removed from the PC at 20:35:52 was probably the operator's personal phone, which was charging. It is unrelated to the rack.
 
-The next time C24C shows an empty picker, before anyone touches a cable:
-- run the passive listener;
-- the operator closes and reopens C24C's picker once and notes the time;
-- read the PC's ARP entry for 192.168.4.57, read-only.
+### What the answers change
 
-What each outcome would mean:
-- **No burst:** the phone is not browsing; H1 or H2.
-- **A burst but still an empty list:** replies are not reaching the phone.
-- **A normal burst and a listing:** H3.
+- **The unplug removed two things at once:** the input accessory and charging power. Existing evidence cannot say which of the two mattered, or whether the unplug and replug events themselves (wake, accessory session) did.
+- **H3 is weakened.**
+  - The reopen before the replug did not bring the list back.
+  - The listener captured no burst from C24C at that reopen: it ran from 20:34:54, and nothing from .57 appeared until 20:40:02.
+  - Unlike every other phone's picker opening, that reopen produced no captured browse traffic.
+  - This assumes the reopen came after 20:34:54, which fits the 20:36 suggestion to do it; its exact time was not recorded.
+- **So before the replug, C24C either was not sending browse queries (H1) or they were not reaching the PC (H2).** The burst came right after the replug, from the same IP address.
+- **H4 is no longer separable from H1 or H2 with existing evidence:** the replug changed the accessory state and the power source together.
+- **Still not established:**
+  - whether C24C could be reached over unicast while stuck (no ARP or ping record exists);
+  - whether its Wi-Fi reassociated at the replug;
+  - whether a Wi-Fi-only reset would have had the same effect.
 
-This separates "not browsing" from "not reachable" without a cable change.
+## Proposed next experiment (not approved; nothing run)
+
+Existing evidence cannot separate "the phone's network/discovery state" from "the accessory and power change". One experiment would split them without touching a cable. It is to be scheduled only with approval, and only when C24C is next in the stuck state. The stuck state must not be created on purpose; creating it needs a receiver restart, which requires separate approval.
+
+1. **Confirm the stuck state, read-only.**
+   - Run the passive listener.
+   - The operator closes and reopens C24C's picker once and notes the time.
+   - Read the PC's ARP entry for 192.168.4.57.
+   - Continue only if no browse burst from .57 is captured and the list stays empty.
+2. **One intervention:** the operator turns C24C's Wi-Fi off and on in Control Center. No cable, board, receiver or setting on the PC is touched.
+3. **Record separately:** the first browse burst from .57, the list appearing, the connection request and live video.
+
+What the outcomes would mean:
+- **The list returns:** the stuck state lives in the phone's Wi-Fi or discovery path (H1/H2). A cable-free operator recovery exists.
+- **It does not return:** the accessory or power change is implicated (H4 or power). Separating those two would be a later, separate decision.
+
+Unplugging stays off the table until agreed.
 
 ## Evidence
 
