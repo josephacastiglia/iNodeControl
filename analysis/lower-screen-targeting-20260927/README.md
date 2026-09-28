@@ -72,7 +72,47 @@ Added to the kernel self-tests (`src/iMouse.Kernel/SelfTests.cs`, recording tran
 
 All 98 self-tests pass (built to `%TEMP%\claude\imouse-kernel-selftest-lower`, not the release). **This shows the emitted reports only. It is not evidence of where iOS puts the pointer.**
 
-## Proposed short test (C24C only, current release, no restart; not approved)
+## Live result: C24C move-only test, 27 Sep 21:22 (approved and run)
+
+Run against the running release kernel (30652) and receivers (6264 C24C, 6100 C241), with no restart. Script: the scratch `lower_move_test.py`, copied into the evidence folder below.
+
+**Preflight:**
+- both receivers mirroring;
+- C24C unowned, not stopped, generation 0;
+- C24C's screen showed the Screen Mirroring panel open over the Home screen.
+
+**Commands:** lease acquired (60 s) → `/mouse/reset` → `/mouse/move` to (250, 922), (250, 1012), (250, 1070) → `/input/release`.
+- No click, no key, and nothing sent to C241.
+- Every command returned code 0.
+
+| Move | Duration | Steps implied (about 9 ms each) | Calibrated landing | Pointer measured (dot centre, frame diff against baseline) |
+|---|---|---|---|---|
+| (250, 922) from reset | 1608 ms | 178 | (250, 920) | **(249.0, 919.9)** |
+| (250, 1012) | 163 ms | 18 | (250, 1012) | **(249.0, 1011.5)** |
+| (250, 1070) | 100 ms | 11 | (250, 1068) | **(249.1, ≈ 1068)**: the dot was split by the home-indicator bar into parts centred 1060.9 and 1073.1, which puts its centre at about 1068 |
+
+The pointer was not visible after the corner reset: it was at the top-left, and no changed region appeared.
+
+**What it shows:**
+- With the current release kernel and C24C's calibration, the pointer reaches the bottom rows. It landed within 1 px of the calibrated position at y 920, 1012 and about 1068, from a reset and from a known position.
+- The kernel and phone path has no cut-off near y 783. This confirms the offline conclusion: the 27 Sep stop at 783 came from the desktop-automation cursor.
+- Limits:
+  - moves only (no tap, so activation at the bottom rows was not exercised);
+  - one run, one phone, one screen (Control Centre panel open);
+  - the automation-cursor cause is still unexplained.
+
+**After:**
+- C24C unowned and not stopped, generation 1 (one release);
+- C241 untouched, generation 0;
+- both receivers still mirroring with the same PIDs, restarts unchanged (1 and 0);
+- installed console 30604 and kernel 30652 running;
+- operator settings `72F51CC0…` unchanged.
+
+The pointer was left resting at about (250, 1068), over the home indicator.
+
+Evidence: `iMouseXP-2.0-evidence-archive/20260927-lower-screen-move/`, containing `run.txt`, the 5 frames and the script.
+
+## Proposed short test (C24C only, current release, no restart; run 21:22, see above)
 
 This uses the running release kernel and receivers as they are. It takes about 5 minutes and is move-only, so nothing is tapped.
 1. Preflight, read-only: kernel and receiver PIDs, C24C unowned, `live` true.
