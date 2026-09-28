@@ -1,5 +1,30 @@
 # Home inserts a Tab into an active text field: 27 Sep 2026
 
+## Readiness, 27 Sep about 21:00: ready except that it needs receiver restarts
+
+**Ready (checked read-only):**
+- The test kernel build in `%TEMP%\claude\imouse-test-kernel-home\` matches the recorded hashes: exe `162993B5…2A45AF`, dll `83BBF441…32843B`.
+- Its data folder is intact, with `receivers.json` listing C24C only.
+- The method and acceptance protocol below are unchanged.
+- The candidate console was not re-verified in this check.
+
+**Blocker: V1 cannot run without restarting receivers.**
+- The release kernel can emit Command+H only inside the vendor Home sequence, which includes the Tab: `InputRouter` accepts only named `fn_key` values, with no modifier chords. So V1 needs the test kernel on the boards and on port 9913.
+- Stopping the release kernel gracefully ends both receivers it owns. Restoring it starts new ones.
+- A window therefore restarts **C24C's receiver twice** (the test kernel start and the restore) and **C241's once** (the restore). Both phones must rediscover.
+- Rediscovery after today's restarts varied:
+  - C24C recast within about 30 s once (18:29);
+  - C241 took about 3 minutes (18:29–18:32);
+  - neither phone listed the receivers for more than 5 minutes after 18:45:46;
+  - C24C did not list its receiver for 31 minutes after 20:09, until a Lightning replug.
+
+**Options (for decision, none approved):**
+1. **Keep Home pending** until a window is agreed that accepts those restarts, with a recovery plan that states what the operator may do if a phone does not rediscover.
+2. **Run the test kernel with no receiver** and observe C24C through the webcam instead of mirroring.
+   - This removes discovery from the Home trials themselves.
+   - The restore still restarts both release receivers.
+   - It is unverified whether the webcam can resolve the note-text check in trial (a).
+
 ## Second testing window, 27 Sep 18:34–18:46: discovery failed again; release restored; Home not tested
 
 **Outcome.** With a 10-minute discovery allowance, the test receiver was still never connected. The window ended and the release was restored. **No Home trial ran, and no input went to any phone. No firewall, network or receiver code was changed.**

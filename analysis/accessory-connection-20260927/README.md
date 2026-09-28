@@ -99,28 +99,51 @@ Not supported by the evidence: a PC-side USB, hub or board re-enumeration. Also 
   - The listener captured no burst from C24C at that reopen: it ran from 20:34:54, and nothing from .57 appeared until 20:40:02.
   - Unlike every other phone's picker opening, that reopen produced no captured browse traffic.
   - This assumes the reopen came after 20:34:54, which fits the 20:36 suggestion to do it; its exact time was not recorded.
-- **So before the replug, C24C either was not sending browse queries (H1) or they were not reaching the PC (H2).** The burst came right after the replug, from the same IP address.
-- **H4 is no longer separable from H1 or H2 with existing evidence:** the replug changed the accessory state and the power source together.
+- **No browse queries from C24C were observed at the PC between 20:09:14 and 20:40:02.**
+  - That does not prove C24C sent none. They could have been sent and lost before reaching the PC's Ethernet capture.
+  - So H1 (not sent) and H2 (not delivered) both remain open.
+  - The first observed burst came right after the replug, from the same IP address.
+- **H4 cannot be separated from H1 or H2 with existing evidence:** the replug changed the accessory state and the power source together.
 - **Still not established:**
-  - whether C24C could be reached over unicast while stuck (no ARP or ping record exists);
+  - whether C24C was connected to the network while stuck (no reachability record exists);
   - whether its Wi-Fi reassociated at the replug;
-  - whether a Wi-Fi-only reset would have had the same effect.
+  - whether a network-only reset would have had the same effect.
 
-## Proposed next experiment (not approved; nothing run)
+## Finding kept
 
-Existing evidence cannot separate "the phone's network/discovery state" from "the accessory and power change". One experiment would split them without touching a cable. It is to be scheduled only with approval, and only when C24C is next in the stuck state. The stuck state must not be created on purpose; creating it needs a receiver restart, which requires separate approval.
+**A Lightning replug at the phone was followed by recovery once.** At about 20:40, C24C's list was empty after a reopen. After the replug, browse traffic from C24C was observed at 20:40:02, the receivers were listed, and the phone connected at 20:42:49.
+
+- This is a single observed recovery.
+- The charging state and the accessory (input) connection changed together, so the finding does not say which mattered.
+- The finding is not a cause, and not a validated recovery procedure.
+
+## Status: pending until the problem recurs naturally
+
+- No monitoring is running.
+- No receiver will be restarted to reproduce the problem.
+- Both phones are left as they are.
+
+## Possible next experiment (not approved; nothing run)
+
+This is for the next natural recurrence only. It must not be run by creating a failure. Its limits are stated first:
+- **Neither outcome alone identifies the cause.**
+- **Absence of observed traffic at the PC** means none was observed there, not that the phone sent none.
+- **A failed ping or a cached ARP entry alone** cannot establish whether the phone is connected to the network.
 
 1. **Confirm the stuck state, read-only.**
    - Run the passive listener.
    - The operator closes and reopens C24C's picker once and notes the time.
-   - Read the PC's ARP entry for 192.168.4.57.
-   - Continue only if no browse burst from .57 is captured and the list stays empty.
-2. **One intervention:** the operator turns C24C's Wi-Fi off and on in Control Center. No cable, board, receiver or setting on the PC is touched.
-3. **Record separately:** the first browse burst from .57, the list appearing, the connection request and live video.
+   - Record whether any browse traffic from .57 is observed and whether the list stays empty.
+   - A reachability check may be recorded as supporting context only.
+2. **One network-level intervention.** The two forms test different things; only one would be used in a given recurrence:
+   - **Control Centre Wi-Fi toggle.** This disconnects from and reconnects to the current network. It is not a full Wi-Fi off/on: the radio stays on.
+   - **Settings → Wi-Fi off, then on.** This is a full Wi-Fi off/on. It needs a coordinated window.
+   - No cable, board, receiver or PC setting is touched in either case.
+3. **Record separately:** first observed browse traffic from .57, the list appearing, the connection request and live video.
 
-What the outcomes would mean:
-- **The list returns:** the stuck state lives in the phone's Wi-Fi or discovery path (H1/H2). A cable-free operator recovery exists.
-- **It does not return:** the accessory or power change is implicated (H4 or power). Separating those two would be a later, separate decision.
+How the outcomes read:
+- **The list returns:** consistent with the stuck state being in the phone's network or discovery path, and with a cable-free recovery. It does not rule out other contributors. It also does not show why the Lightning replug worked.
+- **It does not return:** consistent with the accessory or power change mattering, but it does not rule out a network cause that the chosen intervention did not reset. Separating accessory from power would be a later, separate decision.
 
 Unplugging stays off the table until agreed.
 
