@@ -16,8 +16,9 @@ import urllib.request
 TILE = (199, 432)
 STOP_ROW = (250, 724)
 PHONES = {
-    "C24C": {"id": "86:1D:4A:04:2F:F6", "name": "iMouse2-C24C", "row": (250, 535)},
-    "C241": {"id": "FE:A9:BC:D7:A0:44", "name": "iMouse2-C241", "row": (250, 661)},
+    # ponytail: vendor-absent grid. +63px per AirPlay name listed above these two.
+    "C24C": {"id": "86:1D:4A:04:2F:F6", "name": "iMouse2-C24C", "row": (250, 472)},
+    "C241": {"id": "FE:A9:BC:D7:A0:44", "name": "iMouse2-C241", "row": (250, 535)},
     "C214": {"id": "8A:23:B5:71:35:8D", "name": "iMouse2-C214", "row": (250, 598)},
     "724E": {"id": "3A:DC:15:FB:DD:EC", "name": "iMouse2-F215", "row": (250, 691)},
 }

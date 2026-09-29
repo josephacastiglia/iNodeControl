@@ -1,0 +1,85 @@
+﻿{
+    "schema":  1,
+    "at":  "2026-09-24T22:59:54.6962102-04:00",
+    "gate":  2,
+    "model":  "Grok 4.7",
+    "pass":  true,
+    "kernel_not_stopped":  true,
+    "initial":  {
+                    "port_owners":  [
+                                        4
+                                    ],
+                    "kernel_pid":  5804,
+                    "console_pid":  7928,
+                    "title":  "iMouse 2.0 — Independent AirPlay"
+                },
+    "shortcut":  {
+                     "path":  "C:\\Users\\joey_\\Desktop\\iMouse 2.0 - Independent AirPlay.lnk",
+                     "arguments":  "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\Open iMouse 2.0.ps1\""
+                 },
+    "single_instance":  {
+                            "pass":  true,
+                            "launches":  [
+                                             {
+                                                 "n":  1,
+                                                 "exit_code":  0,
+                                                 "timed_out":  false,
+                                                 "kernel_pid":  5804,
+                                                 "console_pid":  7928,
+                                                 "console_count":  1
+                                             },
+                                             {
+                                                 "n":  2,
+                                                 "exit_code":  0,
+                                                 "timed_out":  false,
+                                                 "kernel_pid":  5804,
+                                                 "console_pid":  7928,
+                                                 "console_count":  1
+                                             }
+                                         ]
+                        },
+    "branding":  {
+                     "pass":  true,
+                     "title":  "iMouse 2.0 — Independent AirPlay",
+                     "badge":  "v2.0-rc1 · Independent AirPlay",
+                     "diagnostics":  {
+                                         "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\gate2-single-app\\diagnostics\\diagnostics-20260924-225946.json",
+                                         "window_title":  "iMouse 2.0 — Independent AirPlay",
+                                         "build_sha256":  "46b9732947ba21ecfbeb57efe2786b83dea1ff4ddf3c456f1f85efcf5f7aead5",
+                                         "console_pid":  7928
+                                     }
+                 },
+    "settings":  {
+                     "path":  "C:\\Users\\joey_\\AppData\\Roaming\\iMouse2\\settings.json",
+                     "address":  "http://127.0.0.1:9913",
+                     "verifier":  "tools/test_persistent_settings.ps1"
+                 },
+    "startup_failures":  {
+                             "pass":  true,
+                             "cases":  [
+                                           {
+                                               "name":  "missing",
+                                               "error":  "Missing required file: C:\\Users\\joey_\\AppData\\Local\\Temp\\imouse2-gate2-missing-bd1cbb69446245a193ee2eeb428d2438\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+                                               "wrote_launch_error":  true
+                                           },
+                                           {
+                                               "name":  "address",
+                                               "error":  "This app must use http://127.0.0.1:9913. Check its saved connection settings.",
+                                               "wrote_launch_error":  true
+                                           },
+                                           {
+                                               "name":  "compete",
+                                               "error":  "Port 9913 is occupied by an unverified HTTP service or competing kernel build",
+                                               "wrote_launch_error":  true
+                                           }
+                                       ]
+                         },
+    "final":  {
+                  "kernel_pid":  5804,
+                  "console_pid":  7928,
+                  "console_count":  1
+              },
+    "failures":  [
+
+                 ]
+}

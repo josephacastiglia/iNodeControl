@@ -1,8 +1,8 @@
 # Evidence & Gap Matrix — 23 September 2026
 
-Auditor: Grok 4.7. Offline update of [FINISH-CRITERIA.md](../../FINISH-CRITERIA.md) against artifacts on disk. No live hardware inputs. The Gate 10 soak was not restarted. Final analyzer pass 2026-09-24T04:34:31Z after the harness stopped on duration.
+Auditor: GPT-5.6 Sol (`openai-codex/gpt-5.6-sol`, updated 2026-09-25; prior passes by Grok 4.7). Gate 1 updated 2026-09-24 from [cold-boot-evidence.json](../independence-audit/cold-boot-evidence.json) (`pass: true`). Gate 2 updated 2026-09-24 from [gate2-evidence.json](../gate2-single-app/gate2-evidence.json) (`pass: true`). Gate 4 updated 2026-09-25 with the completed 1,000-tap two-phone API suite ([results.jsonl](../gate4-1000-tap/results.jsonl), [status.json](../gate4-1000-tap/status.json)) and isolation audit ([ISOLATION-AUDIT.md](../gate4-1000-tap/ISOLATION-AUDIT.md)). Earlier rows are the 23 Sep offline read. The Gate 10 soak was not restarted.
 
-**None of the 12 gates are signed off.** An implemented feature, a tool, a schema, or a short live demonstration does not close a gate.
+**Gate 1 and Gate 2 are passed and demonstrated.** Gates 3–12 are not signed off. An implemented feature, a tool, a schema, or a short live demonstration does not close those gates.
 
 ## Categories
 
@@ -11,6 +11,7 @@ Auditor: Grok 4.7. Offline update of [FINISH-CRITERIA.md](../../FINISH-CRITERIA.
 | Demonstrated Foundation | Real on-disk evidence of a capability. Not gate closure. |
 | Partial | Some gate bullets evidenced; others missing or too narrow. |
 | Open | No qualifying evidence for the gate's acceptance metrics. |
+| Passed and demonstrated | Acceptance metrics met on a live run, with linked evidence. Not a gates 1–12 sign-off. |
 
 ## Current recorded identity (not a sign-off)
 
@@ -42,10 +43,10 @@ Evidence: [HANDOFF.md](../pointer-reliability-20260915/HANDOFF.md), [legacy-cont
 
 | Gate | Name | Category | Foundation, not closure |
 |---:|---|---|---|
-| 1 | True independence | Partial | Vendor-string scan clean. Vendor processes still running. Cold boot not executed. |
-| 2 | One obvious app | Partial | Branding, AppData settings, HTTP.sys parent check. Shortcut is still the two-phone entry. |
+| 1 | True independence | Passed and demonstrated | [cold-boot-evidence.json](../independence-audit/cold-boot-evidence.json) (`pass: true`). Boot `2026-09-24T19:58:10`. Vendor processes 0. Ports 9911 and 17000 closed. |
+| 2 | One obvious app | Passed and demonstrated | [gate2-evidence.json](../gate2-single-app/gate2-evidence.json) (`pass: true`). Kernel 5804 and console 7928 unchanged on relaunch. |
 | 3 | Unmistakable phone identity | Partial | `identify_phone.py` live on C241. Hub #0010 slots mapped. 14 boards still unbound. |
-| 4 | Accurate control | Partial | 18/18 Spotlight, 22/22 within 5 s, 100% isolation on a short two-phone sample. Not 995/1,000. |
+| 4 | Accurate control | Partial | **1,000/1,000** Spotlight hits (`C24C` 500/500, `C241` 500/500), 1,000/1,000 within 5 s (`p50` 2216.6 ms, `p95` 2419.2 ms), 0 stuck/double-clicks, 0 real cross-phone leaks ([ISOLATION-AUDIT.md](../gate4-1000-tap/ISOLATION-AUDIT.md)). API runner, not GUI console click or all 19 pairs. |
 | 5 | Complete everyday controls | Partial | Control Center, App Switcher, horizontal swipes, short typing. Not the full character set live. |
 | 6 | Responsive operation | Partial | 7 ms Search-after-Home dispatch ~1.82–1.87 s on short samples. Not 100 observations, not console-click latency. |
 | 7 | Smooth, honest live video | Partial | Kernel unique-vs-incoming 96.6–100% on 5 phones, max poll gap 37 ms. Not the console present path. |
@@ -74,43 +75,32 @@ Evidence: [HANDOFF.md](../pointer-reliability-20260915/HANDOFF.md), [legacy-cont
 
 ---
 
-## Gate 1 — True independence — Partial
+## Gate 1 — True independence — Passed and demonstrated
 
-**Demonstrated.** Our console, kernel, and UxPlay have no vendor-path string links. Direct HID and independent UxPlay are the live input/video path. Cold-boot tooling is ready and was not executed.
+**Passed and demonstrated.** Cold boot 2026-09-24 with zero vendor runtime. Evidence: [cold-boot-evidence.json](../independence-audit/cold-boot-evidence.json) (`pass: true`, recorded 2026-09-24T22:37:33-04:00).
 
-- [independence-audit/report.json](../independence-audit/report.json) at 23 Sep 2026 00:28: `zero_vendor_string_links: true`, `vendor_process_count: 4`, `cold_boot_not_executed: true`.
-- Vendor processes still running then: `IMService.exe` (PIDs 2676 and 13164), `mDNSResponder.exe` (12932, under `C:\iMouseXP`), `AirplayMirroring.exe` (24940).
-- Port 9911 owned by `IMService.exe`. Port 17000 owned by `AirplayMirroring.exe`.
-- [cold-boot-plan.json](../independence-audit/cold-boot-plan.json): `cold_boot_executed: false`, `services_altered: false`, backup SHA256 `4F25AABD…9149BB`. HidUsb (VID `720A`) is protected and must not be disabled. The vendor service name is `iMouseService`, not `IMService`.
-- Scripts: `tools/verify_independence.ps1`, `tools/prepare_cold_boot.ps1`, `tools/restore_vendor_services.ps1`, `tools/post_reboot_test.ps1`.
-- Older foundation: [INDEPENDENT-KERNEL.md](../../INDEPENDENT-KERNEL.md), [TWO-PHONE-TEST.md](../../TWO-PHONE-TEST.md).
+- Windows boot time: `2026-09-24T19:58:10`.
+- Vendor processes: 0. `IMService.exe`, `AirplayMirroring.exe`, and the rest were absent. Ports 9911 and 17000 closed (`ports_free: true`).
+- `Open iMouse 2.0.ps1` launched cleanly (exit code 0). Kernel status 200, input `direct-hid`, allowed boards C24C and C241.
+- Boards discovered on the WCH `VID_720A` driver. HidUsb start dword stayed 3 (not disabled). C24C and C241 state 2.
+- Live video: C24C 3,076 frames, C241 2,237 frames, both mirroring. Raw BMPs: [C24C.bmp](../independence-audit/cold-boot-shots/C24C.bmp), [C241.bmp](../independence-audit/cold-boot-shots/C241.bmp).
+- Real input on both phones: acquire, click, and Home code 0. Leases released.
+- Our processes only: kernel PID 5804, console PID 7928, uxplay PIDs 27276 and 11228.
 
-**Not established.** Fresh Windows restart with vendor console, vendor input service, and vendor AirPlay disabled, then a real input and video check. A missing vendor window is not proof. A clean string scan is not a cold boot.
+`tools/restore_vendor_services.ps1` is available to restore `iMouseService` to `Auto` whenever desired.
 
-**To close.**
+Prior string scan still stands and is not this pass: [report.json](../independence-audit/report.json) (`zero_vendor_string_links: true`). That scan saw vendor processes running. The cold boot did not.
 
-- Prerequisites: authorized reboot window; do not delete `C:\iMouseXP`; do not disable HidUsb.
-- Method: `prepare_cold_boot.ps1` → reboot → do not start vendor console / IMService / AirplayMirroring → `post_reboot_test.ps1` → recast if asked → `restore_vendor_services.ps1`.
-- Metrics: boot time after the backup; `iMouseService` present with Start dword 4; no process under `C:\iMouseXP`; 9911 and 17000 not listening; kernel on 9913; boards discovered; per-phone click and Home code 0; one live BMP per phone. Evidence file named in the plan: `analysis/independence-audit/cold-boot-evidence.json` (not present; the test was not launched).
+## Gate 2 — One obvious app — Passed and demonstrated
 
-## Gate 2 — One obvious app — Partial
+**Passed and demonstrated.** Evidence: [gate2-evidence.json](../gate2-single-app/gate2-evidence.json) (`pass: true`, 2026-09-24T22:59:54-04:00). Kernel PID 5804 was not stopped. Console PID 7928 stayed the only `iMouse2.exe`.
 
-**Demonstrated.** One shortcut name, visible product branding, persistent settings path, startup error dialog, and a launcher that refuses a competing 9913 occupant.
+- Desktop shortcut **iMouse 2.0 - Independent AirPlay** runs `Open iMouse 2.0.ps1`. Two relaunches while the app was already running left kernel 5804 and console 7928 in place.
+- Window title `iMouse 2.0 — Independent AirPlay`. Badge `v2.0-rc1 · Independent AirPlay`. Diagnostics export recorded that title and console SHA256 `46b9732947ba21ecfbeb57efe2786b83dea1ff4ddf3c456f1f85efcf5f7aead5`.
+- Settings: `%APPDATA%\iMouse2\settings.json` (`http://127.0.0.1:9913`). `tools/test_persistent_settings.ps1` passed in this run. Copied build folders still resolve to that path and do not rewrite it.
+- Startup failures wrote `launch-error.txt` and named the problem: missing file, wrong address (`This app must use http://127.0.0.1:9913`), and a competing 9913 occupant (`unverified HTTP service or competing kernel build`). No process was stopped.
 
-- Title: `src/iMouse.Console/MainWindow.xaml` — `iMouse 2.0 — Independent AirPlay`. Badge: `v2.0-rc1 · Independent AirPlay`.
-- Self-test: 112/112 mock checks in `release/iMouse2-two-phone-candidate/qa/self-tests.json`.
-- Settings: `ResolveDataPath()` uses `%APPDATA%\iMouse2\settings.json`. `tools/test_persistent_settings.ps1` resolves the candidate and two copied folders to that path and checks the file is not rewritten by the other folders.
-- Launcher: `Open iMouse 2.0.ps1`. Occupied 9913 is checked with `Get-NetTCPConnection`. A user-mode listener must match release kernel path, two-phone args, and no `--precise-movement`. Name-only `iMouse2.Kernel.exe` matching is not used.
-- HTTP.sys (PID 4): `Get-VerifiedKernelPids` reads `/api/kernel/status`, checks receiver IDs, then verifies each `receiver_pid` child's `ParentProcessId` with `Test-ReleaseKernelIdentity`.
-- `tools/test_launcher.ps1` covers that correlation and rejects wrong executable, missing 9913 URL, wrong `--data-dir`, missing `--receivers` / `--receiver` / `--receiver-runtime`, missing C241, duplicate or conflicting `--input-pid`, a wrong first HTTP prefix, quoted and unquoted `--precise-movement`, HTTP.sys `receiver_pid` 0, missing pid, missing child, wrong child executable, a second parent, divergent parents, and an empty listen list. This audit did not re-run it, because 9913 is the live soak kernel.
-
-**Not established.** Repeated-launch and double-open proof on the desktop shortcut. Failure-path proof for a missing binary. The shortcut still hardcodes `C24C,C241` and `analysis/two-phone-config`. The live fleet is five phones on `analysis/five-phone-config` (kernel PID 4376). Opening the shortcut against that kernel is specified to throw and not open a second console. That is correct for the two-phone guard, and it means the everyday entry point is not yet the five-phone app.
-
-**To close.**
-
-- Prerequisites: one shortcut, **iMouse 2.0 - Independent AirPlay**. No second launcher. Do not retarget the shortcut onto the soak kernel while PID 12272 is running.
-- Method: launch from stopped state; reopen; concurrent double-open; missing binary; occupied competing 9913; change a preference, restart, open the same shortcut from another build folder.
-- Metrics: one controller; exact console path; competing 9913 never adopted; settings survive without picking development folders; startup failures explain themselves. The supported phone set in the shortcut must match the signed-off rack before Gate 2 can close for that rack.
+The shortcut still starts the two-phone set `C24C,C241`. That is the running configuration. Runtime proof is `tools/test_gate2_runtime.ps1`.
 
 ## Gate 3 — Unmistakable phone identity — Partial
 
@@ -131,13 +121,14 @@ Evidence: [HANDOFF.md](../pointer-reliability-20260915/HANDOFF.md), [legacy-cont
 
 ## Gate 4 — Accurate control — Partial
 
-**Demonstrated.** Short two-phone Search/Home targeting on the then-live rollback kernel (PID 31944, DLL `A995CF5B…7851BF`, no `--precise-movement`). Not a GUI image click. Console was minimized. Mirror-to-all off.
+**Demonstrated.** Completed 1,000-tap two-phone Search/Home suite (`C24C` 500, `C241` 500 across `home_search`, `off_location`, `app_switch`, and `swipe` categories, 250 each) on the live 7 ms kernel, plus earlier short baselines:
 
-- [gate4-targeting-baseline-20260916/results.json](../gate4-targeting-baseline-20260916/results.json): C24C Spotlight 9/9, C241 Spotlight 9/9, 22/22 scored actions within 5 s (18 Search + 4 swipe captures), reciprocal isolation 11/11 and 11/11, stuck keys/buttons 0, accidental double-clicks 0, unintended-phone actions 0.
-- The file's own conclusion: this is a short baseline, not the 995/1,000 close.
+- **1,000-tap suite (2026-09-25):** [gate4-1000-tap/results.jsonl](../gate4-1000-tap/results.jsonl), [gate4-1000-tap/status.json](../gate4-1000-tap/status.json), and [gate4-1000-tap/ISOLATION-AUDIT.md](../gate4-1000-tap/ISOLATION-AUDIT.md). **1,000/1,000 (100.0%)** intended Spotlight hits (`C24C` 500/500, `C241` 500/500), **1,000/1,000 within 5 s** (visible-effect `p50 = 2216.6 ms`, `p95 = 2419.2 ms`, `max = 3865.7 ms`; click dispatch `p50 = 1839.8 ms` / `1838.9 ms`), **0 stuck keys/buttons**, **0 accidental double-clicks**.
+- **Isolation audit of all 18 `isolated == false` flags:** Raw `status.json` recorded `passed: 982` and `isolation_mad >= 8.0` on 18 trials (9 in Block 1 on `C241`: `#10, #56, #58, #64, #70, #80, #84, #86, #94`; 9 in Blocks 3–9 on `C24C`: `#237, #397, #405, #817, #841, #843, #847, #883, #893`). Full pixel and visual inspection in [ISOLATION-AUDIT.md](../gate4-1000-tap/ISOLATION-AUDIT.md) proved **0 / 18 were unintended cross-phone actions**: every saved `*-C24C-other.png` (`other_after`) is on the clean `C24C` Home screen (`mad()` `1.91`–`2.23` vs `probe/c24c-home.bmp`; `0.51`–`0.98` vs `0405-C24C-other.bmp`), and the recorded `isolation_mad` values (`77.10`–`77.86` on `C24C`, `47.82`–`48.97` on `C241`, plus 3 mid-dismiss captures `35.44`, `19.49`, `49.89`) equal each phone's own `Spotlight -> Home` recovery delta from Trial $N-1$'s `sendkey("Home")` (`0.35 s` sleep before `settled()`). True cross-phone unintended actions: **0 / 1,000**.
+- Earlier short baseline: [gate4-targeting-baseline-20260916/results.json](../gate4-targeting-baseline-20260916/results.json): C24C Spotlight 9/9, C241 Spotlight 9/9, 22/22 scored actions within 5 s, reciprocal isolation 11/11 and 11/11, stuck keys/buttons 0, accidental double-clicks 0, unintended-phone actions 0.
 - Rejected keep-Known: [click-after-home REPORT](../click-after-home-20260915/REPORT.md). Rejected 3 ms precise deploy: [precise-candidate-deploy results.json](../precise-candidate-deploy-20260915/results.json).
 
-**Not established.** 995/1,000 varied taps per supported model/settings profile. Zero unintended-phone actions, double-clicks, or stuck buttons across that suite. Taps after Home, app switch, long movement, and interruption recovery at that volume. Every physical board/phone pair. Pointer recovery was not removed in the 7 ms default (`known=False` after Home and corner reset remain in the 7 ms probe invariants). That preservation is necessary and is not the 1,000-tap proof.
+**Not established.** The 1,000-tap run was driven via the HTTP API (`tools/gate4_1000_tap_suite.py`) rather than GUI console image clicks, and covers the two-phone pair (`C24C`, `C241`) rather than every physical board/phone pair across the rack. Pointer recovery was not removed in the 7 ms default (`known=False` after Home and corner reset remain in the 7 ms probe invariants).
 
 **To close.**
 
@@ -305,16 +296,16 @@ Ponytail ultra review of P0–P5 does **not** remove FINISH-CRITERIA requirement
 
 | Package | Astra scope | Disposition after this audit | When it becomes the job |
 |---|---|---|---|
-| **P0** | Everyday-control acceptance on the signed-off pacing (taps, drags, swipes, typing, Control Center, Home) | Short Gate 4 baseline and a partial Gate 5 suite now exist. Do **not** delete Gate 4 or Gate 5. 995/1,000 and the full character set are still open. | After the soak, on the frozen 7 ms binary. Fill the missing controls. Do not start a 1,000-tap run against a moving kernel. |
+| **P0** | Everyday-control acceptance on the signed-off pacing (taps, drags, swipes, typing, Control Center, Home) | Two-phone 1,000-tap API suite completed (**1,000/1,000** hits, 0 real cross-phone leaks; [ISOLATION-AUDIT.md](../gate4-1000-tap/ISOLATION-AUDIT.md)). Partial Gate 5 suite exists. Do **not** delete Gate 4 or Gate 5. Console-driven taps across all pairs and the full character set are still open. | On the frozen 7 ms binary, fill the missing Gate 5 controls and console-driven verification across the rack. |
 | **P1** | Stop/cancel, receiver crash isolation, disconnect/reconnect, exhausted retries | C24C crash isolation and `force_recast.py` exist. `/input/stop` exists in source. Five-phone group Home missed its snapshot. Do **not** delete Gates 8 or 9. | After P0 holds on the same binary. Reuse AirplaySupervisor and the existing stop API. No new orchestration layer. |
 | **P2** | Pacing sweep, then Gate 6 measurement | 7 ms is the source default. The 3 ms candidate stays rejected. A 15/10/8/6 matrix is still a science project. Do **not** delete Gate 6 or drop Home invalidation/reset. | After P0/P1. Measure 100 observations per category. Do not tune pacing to buy the 2 s number. |
-| **P3** | Finish Gate 2 on the existing shortcut | Branding, AppData settings, and HTTP.sys parent checks landed. The shortcut is still two-phone. Do **not** delete Gate 2. Do not add a second launcher or installer. | After the live rack size is the one the shortcut should start. Must not replace the soak kernel. |
-| **P4** | Diagnostics, vendor-disabled independence, scale 2→4→8→19 | Tooling and a 19-slot schema exist. Live scale is 5. Cold boot was not run. Do **not** shrink the 19-phone goal. | After accepted controls, recovery, pacing, and entry point. |
+| **P3** | Finish Gate 2 on the existing shortcut | Passed 2026-09-24 on the existing shortcut. Evidence: [gate2-evidence.json](../gate2-single-app/gate2-evidence.json). Do **not** add a second launcher. | Done for the two-phone entry. Do not retarget the shortcut onto a different kernel. |
+| **P4** | Diagnostics, vendor-disabled independence, scale 2→4→8→19 | Tooling and a 19-slot schema exist. Live scale is 5. Gate 1 cold boot passed. Do **not** shrink the 19-phone goal. | After accepted controls, recovery, pacing, and entry point. |
 | **P5** | 8 h then 24 h, sign-off table, user workflow | 8 h duration is demonstrated (Gate 10). It is not P5. 24 h remains. Do **not** delete Gate 10 or the sign-off table. | After all 19 phones meet the agreed profile, and after the uxplay slope, prior Phone 5 stall, and lease 409s are understood. |
 
 ### Soak has ended
 
-Harness PID 12272 stopped on duration at 2026-09-24T04:04:24Z (`remaining_s: 0`). Do not restart it to pad Gate 10. Still open: cold boot (needs a user reboot), the 995/1,000 tap suite, Gate 6's 100 observations, 8 then 19 phones, exhausted retries, the 24-hour run, and user-facing recovery docs.
+Harness PID 12272 stopped on duration at 2026-09-24T04:04:24Z (`remaining_s: 0`). Do not restart it to pad Gate 10. Cold boot is closed (Gate 1), and the two-phone 1,000-tap API suite achieved 1,000/1,000 hits with 0 real cross-phone leaks ([ISOLATION-AUDIT.md](../gate4-1000-tap/ISOLATION-AUDIT.md)). Still open: console-driven Gate 4/5 across all pairs, Gate 6's 100 observations, 8 then 19 phones, exhausted retries, the 24-hour run, and user-facing recovery docs.
 
 Order remains targeting → recovery → speed → scale → endurance. This audit does not authorize the next live window.
 
@@ -325,7 +316,7 @@ Order remains targeting → recovery → speed → scale → endurance. This aud
 | Sign-off item | Status |
 |---|---|
 | Exact release build and settings recorded | Not signed off. Live hashes are recorded above and are not a sign-off. |
-| Gates 1–12 passed with linked evidence | Not signed off |
+| Gates 1–12 passed with linked evidence | Not signed off. Gates 1 and 2 passed ([cold-boot-evidence.json](../independence-audit/cold-boot-evidence.json), [gate2-evidence.json](../gate2-single-app/gate2-evidence.json)). Gates 3–12 open. |
 | Full 19-phone configuration validated | Not signed off. Schema check passed. Live fleet is 5. |
 | Final 8-hour and 24-hour runs passed | 8-hour duration demonstrated (8.05 h, two blocks). 24-hour run not run. Not signed off. |
 | Setup/recovery instructions and rollback checked | Not signed off |

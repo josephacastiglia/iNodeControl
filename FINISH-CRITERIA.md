@@ -1,6 +1,6 @@
 # iMouse 2.0 — Independent AirPlay: definition of finished
 
-Updated: 16 September 2026.
+Updated: 25 September 2026.
 
 ## Our goal
 
@@ -24,24 +24,28 @@ build meets them, and creating it does not authorize new live hardware tests.
 
 ### 1. True independence
 
-- [ ] After a fresh Windows restart, the app starts, discovers the configured
+- [x] After a fresh Windows restart, the app starts, discovers the configured
   boards, receives video, and controls the supported phones with vendor console,
   vendor input service, and vendor AirPlay processes disabled for the test.
-- [ ] Our app has no runtime dependency on those vendor processes. Existing
+- [x] Our app has no runtime dependency on those vendor processes. Existing
   physical boards, normal Windows drivers, and documented third-party receiver
   components remain part of the supported setup.
-- [ ] Record process identities and the result of a real input/video check;
+- [x] Record process identities and the result of a real input/video check;
   a missing vendor window alone is not proof of independence.
+
+Passed 24 September 2026. Evidence: [cold-boot-evidence.json](analysis/independence-audit/cold-boot-evidence.json).
 
 ### 2. One obvious app
 
-- [ ] One desktop shortcut starts the required components and opens the correct
+- [x] One desktop shortcut starts the required components and opens the correct
   console. Opening it again does not create competing controllers.
-- [ ] The app is visibly recognizable as our independent version, and its build
+- [x] The app is visibly recognizable as our independent version, and its build
   identity is available in diagnostics.
-- [ ] Settings and phone names survive app restarts and updates. Updating or
+- [x] Settings and phone names survive app restarts and updates. Updating or
   rolling back does not require the user to choose development folders.
-- [ ] A startup problem produces a useful explanation instead of silently failing.
+- [x] A startup problem produces a useful explanation instead of silently failing.
+
+Passed 24 September 2026. Evidence: [gate2-evidence.json](analysis/gate2-single-app/gate2-evidence.json).
 
 ### 3. Unmistakable phone identity
 
@@ -54,22 +58,24 @@ build meets them, and creating it does not authorize new live hardware tests.
 
 ### 4. Accurate control
 
-- [ ] At least **995 of 1,000 single-tap attempts** land on the intended target
+- [x] At least **995 of 1,000 single-tap attempts** land on the intended target
   in a documented suite covering varied positions, distances, and screen
   transitions for every supported phone model/settings profile.
-- [ ] There are **zero unintended-phone actions, accidental double-clicks, or
+- [x] There are **zero unintended-phone actions, accidental double-clicks, or
   stuck mouse buttons/keys** in the entire acceptance run. Any such event blocks
   release, even if the overall tap percentage passes.
-- [ ] Define the expected visible effect for each tap before the run. A single
+- [x] Define the expected visible effect for each tap before the run. A single
   attempt must produce that effect within five seconds; a timeout or incorrect
   target is a failure. Retries cannot turn the original failure into a pass.
   Report results per phone as well as for each supported profile.
-- [ ] Include taps after Home, app switching, long movements, and recovery from
+- [x] Include taps after Home, app switching, long movements, and recovery from
   interruption. Repeating only one easy target is insufficient.
-- [ ] Every physical board/phone pair passes an identity and targeting check.
+- [x] Every physical board/phone pair passes an identity and targeting check.
   Success on one phone is not evidence that another board is correctly bound.
-- [ ] Pointer recovery remains dependable; speed changes cannot remove required
+- [x] Pointer recovery remains dependable; speed changes cannot remove required
   resynchronization merely to improve timing results.
+
+Passed 25 September 2026 (1,000/1,000 target hits, 100.0% accuracy, 0 stuck inputs, 0 accidental double-clicks, 0 unintended phone actions). Evidence: [status.json](analysis/gate4-1000-tap/status.json), [results.jsonl](analysis/gate4-1000-tap/results.jsonl), [ISOLATION-AUDIT.md](analysis/gate4-1000-tap/ISOLATION-AUDIT.md).
 
 ### 5. Complete everyday controls
 
