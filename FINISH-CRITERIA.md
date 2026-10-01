@@ -1,6 +1,6 @@
 # iMouse 2.0 — Independent AirPlay: definition of finished
 
-Updated: 25 September 2026.
+Updated: 1 October 2026.
 
 ## Our goal
 
@@ -58,7 +58,7 @@ Passed 24 September 2026. Evidence: [gate2-evidence.json](analysis/gate2-single-
 
 ### 4. Accurate control
 
-- [x] At least **995 of 1,000 single-tap attempts** land on the intended target
+- [ ] At least **995 of 1,000 single-tap attempts** land on the intended target
   in a documented suite covering varied positions, distances, and screen
   transitions for every supported phone model/settings profile.
 - [x] There are **zero unintended-phone actions, accidental double-clicks, or
@@ -68,14 +68,53 @@ Passed 24 September 2026. Evidence: [gate2-evidence.json](analysis/gate2-single-
   attempt must produce that effect within five seconds; a timeout or incorrect
   target is a failure. Retries cannot turn the original failure into a pass.
   Report results per phone as well as for each supported profile.
-- [x] Include taps after Home, app switching, long movements, and recovery from
+- [ ] Include taps after Home, app switching, long movements, and recovery from
   interruption. Repeating only one easy target is insufficient.
-- [x] Every physical board/phone pair passes an identity and targeting check.
+- [ ] Every physical board/phone pair passes an identity and targeting check.
   Success on one phone is not evidence that another board is correctly bound.
-- [x] Pointer recovery remains dependable; speed changes cannot remove required
+- [ ] Pointer recovery remains dependable; speed changes cannot remove required
   resynchronization merely to improve timing results.
 
-Passed 25 September 2026 (1,000/1,000 target hits, 100.0% accuracy, 0 stuck inputs, 0 accidental double-clicks, 0 unintended phone actions). Evidence: [status.json](analysis/gate4-1000-tap/status.json), [results.jsonl](analysis/gate4-1000-tap/results.jsonl), [ISOLATION-AUDIT.md](analysis/gate4-1000-tap/ISOLATION-AUDIT.md).
+**Passed within its scope on 25 September 2026; the release criterion above is not
+yet met.** Boxes are checked only where this run demonstrates the bullet as written.
+
+*Scope.* Two phones, C24C and C241 (iPhone XR, one settings profile), driven through
+the kernel API at `http://127.0.0.1:9913/api` with one device id per command and
+mirror-to-all off. Every tap aimed at a single target, the Search control at
+(250, 900) on the Home screen, reached from four setups of 250 trials each: straight
+after Home; after a pointer move from one of four start points; after the App
+Switcher; and after horizontal swipes.
+
+*Result.* 1,000 / 1,000 target hits (C24C 500 / 500, C241 500 / 500), all within
+5 s (p50 2,216.6 ms, p95 2,419.2 ms), no retries, 0 stuck inputs, 0 accidental
+double-clicks, 0 wrong-target hits. The run flagged 18 trials as not isolated; the
+suite's isolation audit attributes all 18 to a baseline-capture race in the harness
+(the non-target phone photographed while still dismissing the previous trial), not
+to cross-phone input, which gives 0 unintended phone actions. The run and its audit
+were produced by the same agent and have not been independently reviewed
+(`ACCOUNT-HANDOFF.md` section 2, on branch `claude/input-timeout-integration`).
+
+*What the written criterion still requires:*
+
+1. **Varied tap positions.** All 1,000 taps aimed at one point. The first bullet asks
+   for varied positions, and the fourth states that repeating one easy target is
+   insufficient. The four setups varied the path to the target, not the target.
+2. **Taps after recovery from interruption.** Not among the four setups.
+3. **Every physical board/phone pair.** Two of the rack's 19 pairs were checked; each
+   of the others needs its own identity and targeting check, and every phone model
+   and settings profile in the rack must be covered.
+4. **Pointer recovery, demonstrated.** The run records no pointer resets or
+   resynchronisation, so the sixth bullet is untested rather than failed.
+
+The written gate does not require taps to be issued through the console; that
+requirement belongs to Gates 5 and 6, and an API-driven suite is a valid method here.
+
+Before a qualifying rerun, lengthen the harness's 350 ms pause after dismissing each
+trial (`tools/gate4_1000_tap_suite.py`) so the non-target phone is photographed only
+after it settles. Otherwise the second bullet will again rest on an after-the-fact
+audit rather than on the run itself.
+
+Evidence: [status.json](analysis/gate4-1000-tap/status.json), [results.jsonl](analysis/gate4-1000-tap/results.jsonl), [ISOLATION-AUDIT.md](analysis/gate4-1000-tap/ISOLATION-AUDIT.md).
 
 ### 5. Complete everyday controls
 
