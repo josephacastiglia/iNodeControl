@@ -96,18 +96,33 @@ were produced by the same agent and have not been independently reviewed
 
 *What the written criterion still requires:*
 
-1. **Varied tap positions.** All 1,000 taps aimed at one point. The first bullet asks
-   for varied positions, and the fourth states that repeating one easy target is
-   insufficient. The four setups varied the path to the target, not the target.
+1. **Varied tap positions and distances.** All 1,000 taps aimed at one point. The first
+   bullet asks for varied positions and distances, and the fourth states that repeating
+   one easy target is insufficient. The four setups did not vary the pointer's path
+   either: each ended with Home, which makes the kernel forget the pointer position, so
+   each scored click began with a corner reset and travelled corner → (250, 900). This
+   is inferred from source (the release kernel's `InputRouter.cs` matches the repository)
+   and matches kernel logs of the same path on 15 Sep (`click … known=False … steps=174`
+   after Home); the run's own kernel log was not kept.
 2. **Taps after recovery from interruption.** Not among the four setups.
 3. **Every physical board/phone pair.** Two of the rack's 19 pairs were checked; each
    of the others needs its own identity and targeting check, and every phone model
    and settings profile in the rack must be covered.
-4. **Pointer recovery, demonstrated.** The run records no pointer resets or
-   resynchronisation, so the sixth bullet is untested rather than failed.
+4. **Pointer recovery, demonstrated in the record.** By the same inference, every scored
+   click followed a kernel corner reset, so the run is 1,000 consecutive post-reset hits:
+   evidence for the sixth bullet. It stays unchecked because the run did not record the
+   resets; a run that logs them, or exercises recovery explicitly, would close it.
 
 The written gate does not require taps to be issued through the console; that
 requirement belongs to Gates 5 and 6, and an API-driven suite is a valid method here.
+
+*Provenance.* The harness that produced these results is not in the repository in that
+form. The only copy of `tools/gate4_1000_tap_suite.py` was written at 01:50:35 on 25 Sep,
+after the run finished (01:08) and after its isolation audit (01:48), and the audit quotes
+code the file no longer contains. No earlier version is in git or the 28 Sep backup.
+
+A revised harness addressing items 1-4 and the isolation race, tested offline but not yet
+run on a phone, is on branch `claude/gate4-harness-v2` (`tools/gate4_v2/`).
 
 Before a qualifying rerun, lengthen the harness's 350 ms pause after dismissing each
 trial (`tools/gate4_1000_tap_suite.py`) so the non-target phone is photographed only
