@@ -96,22 +96,31 @@ were produced by the same agent and have not been independently reviewed
 
 *What the written criterion still requires:*
 
-1. **Varied tap positions and distances.** All 1,000 taps aimed at one point. The first
-   bullet asks for varied positions and distances, and the fourth states that repeating
-   one easy target is insufficient. The four setups did not vary the pointer's path
-   either: each ended with Home, which makes the kernel forget the pointer position, so
-   each scored click began with a corner reset and travelled corner → (250, 900). This
-   is inferred from source (the release kernel's `InputRouter.cs` matches the repository)
-   and matches kernel logs of the same path on 15 Sep (`click … known=False … steps=174`
-   after Home); the run's own kernel log was not kept.
+1. **Varied tap positions and distances.** All 1,000 taps aimed at one point
+   (measured: every row of `results.jsonl` has target (250, 900)). The first bullet asks
+   for varied positions and distances, and the fourth states that repeating one easy
+   target is insufficient.
+
+   The four setups may not have varied the pointer's path either. Measured: in every
+   row, Home is the last setup step timed in `setup_ms`. That includes the 250
+   `off_location` rows, whose recorded start points were reached by a move before
+   Home. Inferred, not measured: the kernel's Home handler marks the pointer position
+   unknown (`InputRouter.cs`, `state.Known = false`), so each scored click would have
+   begun with a corner reset and travelled corner → (250, 900). The inference rests on
+   kernel source (the release kernel's `InputRouter.cs` matches the repository) and on
+   kernel logs of the same sequence on another day (15 Sep: `click … known=False …
+   steps=174` after Home). It cannot be checked for this run: the run's kernel log was
+   not kept, the run's harness version is not preserved (see *Provenance*), and the
+   results do not record resets.
 2. **Taps after recovery from interruption.** Not among the four setups.
 3. **Every physical board/phone pair.** Two of the rack's 19 pairs were checked; each
    of the others needs its own identity and targeting check, and every phone model
    and settings profile in the rack must be covered.
-4. **Pointer recovery, demonstrated in the record.** By the same inference, every scored
-   click followed a kernel corner reset, so the run is 1,000 consecutive post-reset hits:
-   evidence for the sixth bullet. It stays unchecked because the run did not record the
-   resets; a run that logs them, or exercises recovery explicitly, would close it.
+4. **Pointer recovery, demonstrated in the record.** The run records no pointer resets
+   or resynchronisation. If the inference in item 1 holds, every scored click followed a
+   corner reset, and the 1,000 hits would bear on the sixth bullet. Because that rests on
+   inference rather than on this run's record, it stays unchecked. A run that logs its
+   resets, or exercises recovery explicitly, would close it.
 
 The written gate does not require taps to be issued through the console; that
 requirement belongs to Gates 5 and 6, and an API-driven suite is a valid method here.
