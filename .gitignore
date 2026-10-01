@@ -21,12 +21,6 @@
 /analysis/led-hardware-20260923/install.log
 
 # Generated captures, screenshots, traces, and machine-specific logs.
-#
-# Run records (*.jsonl) are deliberately NOT in this list. They are the evidence a
-# gate was passed on - FINISH-CRITERIA.md cites gate4-1000-tap/results.jsonl by name -
-# and ignoring them meant three passed gates rested on files that existed only on one
-# machine. All 21 of them together are under 9 MB. Screen captures stay out: they run
-# to 755 MB and are supporting illustration, not the record.
 /analysis/**/*.bmp
 /analysis/**/*.png
 /analysis/**/*.jpg
@@ -43,6 +37,7 @@
 /analysis/**/*.dll
 /analysis/**/*.msi
 /analysis/**/*.log
+/analysis/**/*.jsonl
 /analysis/**/*.lnk
 /analysis/**/caps-data/
 /analysis/**/binary/
@@ -58,3 +53,15 @@
 __pycache__/
 .env
 .env.*
+
+# Reviewed evidence: explicit allowlist, one path per line, no wildcards.
+#
+# Raw run logs (*.jsonl) stay ignored by default and are preserved in the dated
+# handoff backup instead. A log is added here only once it has been reviewed as the
+# evidence a release gate rests on - so a new raw log can never be published by
+# accident, and every tracked one was put here on purpose.
+#
+#   gate4-1000-tap/results.jsonl  The Gate 4 record FINISH-CRITERIA.md cites by name.
+#                                 Reviewed 1 Oct 2026: matches the 28 Sep backup and its
+#                                 SHA256SUMS entry; contains no redacted value.
+!/analysis/gate4-1000-tap/results.jsonl

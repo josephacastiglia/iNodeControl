@@ -1,6 +1,0 @@
-{"time":1789360551277,"action":"/mouse/reset","result":0}
-{"time":1789360552633,"action":"/mouse/move?x=100&y=200","result":0}
-{"time":1789360553425,"action":"/mouse/move?x=300&y=400","result":0}
-{"time":1789360554251,"action":"/mouse/move?x=250&y=820","result":0}
-{"time":1789360555203,"action":"/mouse/down?button=1","result":0}
-{"time":1789360555915,"action":"/mouse/up?button=1","result":0}

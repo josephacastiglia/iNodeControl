@@ -1,0 +1,5 @@
+# Evidence is stored byte-for-byte. With core.autocrlf on, git otherwise rewrites CRLF
+# to LF on commit, and the committed copy no longer matches the hash recorded for it in
+# the backup's SHA256SUMS.txt - so it can no longer be checked against the archive.
+# This only governs files someone deliberately tracks; it does not track anything.
+analysis/**/*.jsonl -text
