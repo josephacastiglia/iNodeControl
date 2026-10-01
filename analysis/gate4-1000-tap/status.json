@@ -1,0 +1,56 @@
+{
+  "model": "openai-codex/gpt-6-sol",
+  "updated": "2026-09-25T05:08:49.788+00:00",
+  "state": "block-complete",
+  "url": "http://127.0.0.1:9913/api",
+  "total_taps": 1000,
+  "block_size": 100,
+  "current_block": 10,
+  "completed": 1000,
+  "target_hits": 1000,
+  "passed": 982,
+  "failed": 0,
+  "accuracy_rate": 1.0,
+  "latency_p50_ms": 2216.6,
+  "latency_p95_ms": 2419.2,
+  "isolation_score": 0.982,
+  "stuck_events": 0,
+  "double_clicks": 0,
+  "unintended_phone_actions": 18,
+  "audited_unintended_phone_actions": 0,
+  "audited_pass": 1000,
+  "isolation_audit": "analysis/gate4-1000-tap/ISOLATION-AUDIT.md",
+  "per_phone": {
+    "C24C": {
+      "n": 500,
+      "hit": 500,
+      "pass": 491
+    },
+    "C241": {
+      "n": 500,
+      "hit": 500,
+      "pass": 491
+    }
+  },
+  "per_category": {
+    "home_search": {
+      "n": 250,
+      "hit": 250
+    },
+    "off_location": {
+      "n": 250,
+      "hit": 250
+    },
+    "app_switch": {
+      "n": 250,
+      "hit": 250
+    },
+    "swipe": {
+      "n": 250,
+      "hit": 250
+    }
+  },
+  "remaining_blocks": [],
+  "remaining_taps": 0,
+  "note": "Timeouts count as 5000 ms. A failed tap is never retried. Mirror-to-all is off: every command uses one device id."
+}

@@ -1,0 +1,305 @@
+{
+  "exported_at": "2026-09-25T02:59:45.852+00:00",
+  "timestamps": {
+    "exported_at": "2026-09-25T02:59:45.852+00:00",
+    "kernel_started_at": "2026-09-25T02:24:30.6543930Z",
+    "soak_at": "2026-09-24T04:04:24.333+00:00"
+  },
+  "kernel": {
+    "endpoint": "http://127.0.0.1:9913/api",
+    "pid": 5804,
+    "uptime_s": 2116.0,
+    "started_at": "2026-09-25T02:24:30.6543930Z",
+    "pacing_ms": 7,
+    "pacing": "high-resolution 7 ms",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "input": "direct-hid",
+    "input_protocol": 1,
+    "input_leases_required": true,
+    "executable": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+    "command": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe\" http://127.0.0.1:9913/api/ --data-dir \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\" --input-pid C24C,C241 --receivers \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\receivers.json\" --receiver \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" --receiver-runtime \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\msys64\\ucrt64\" "
+  },
+  "console": {
+    "pid": 7928,
+    "window_title": "iMouse 2.0 \u2014 Independent AirPlay",
+    "address": "http://127.0.0.1:9913",
+    "theme": "night",
+    "mirror_to_all": false,
+    "executable": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+    "other_pids": []
+  },
+  "receivers": [
+    {
+      "name": "iMouse2-C24C",
+      "pid": 27276,
+      "port": 7110,
+      "device_id": "86:1D:4A:04:2F:F6",
+      "state": "mirroring",
+      "frames": 29396,
+      "restarts": 0
+    },
+    {
+      "name": "iMouse2-C241",
+      "pid": 11228,
+      "port": 7120,
+      "device_id": "FE:A9:BC:D7:A0:44",
+      "state": "mirroring",
+      "frames": 24970,
+      "restarts": 0
+    }
+  ],
+  "boards": [
+    {
+      "pid": "C24C",
+      "uid": "C24CBFBD",
+      "device_id": "86:1D:4A:04:2F:F6",
+      "name": "XR C24C",
+      "usb_state": 2,
+      "calibration": {
+        "width": 500,
+        "height": 1080,
+        "origin": {
+          "x": 14,
+          "y": 14
+        },
+        "scale": {
+          "x": 5.12,
+          "y": 5.09
+        }
+      }
+    },
+    {
+      "pid": "C241",
+      "uid": "C241BFBD",
+      "device_id": "FE:A9:BC:D7:A0:44",
+      "name": "Phone in hand - C241",
+      "usb_state": 2,
+      "calibration": {
+        "width": 500,
+        "height": 1080,
+        "origin": {
+          "x": 15,
+          "y": 14
+        },
+        "scale": {
+          "x": 5.1,
+          "y": 5.1
+        }
+      }
+    }
+  ],
+  "binaries": [
+    {
+      "name": "iMouse2.Kernel.dll",
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.dll",
+      "sha256": "bd1a68168e9270f029336cf8e13ff85e9b15fd67951ef545d1e973c2bfe634fc",
+      "bytes": 200192,
+      "mtime_utc": "2026-09-23T00:36:17+00:00"
+    },
+    {
+      "name": "iMouse2.exe",
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+      "sha256": "46b9732947ba21ecfbeb57efe2786b83dea1ff4ddf3c456f1f85efcf5f7aead5",
+      "bytes": 152064,
+      "mtime_utc": "2026-09-23T04:21:14+00:00"
+    },
+    {
+      "name": "uxplay.exe",
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+      "sha256": "4c1a24f35de00d2c3a8d50a4b0bcfb06a9f5c16bd185810ec54466ac090d2208",
+      "bytes": 711490,
+      "mtime_utc": "2026-09-14T04:49:28+00:00"
+    }
+  ],
+  "system": {
+    "windows": {
+      "name": "Windows 11 Home",
+      "version": "10.0.26200.9457",
+      "display_version": "25H2",
+      "platform": "Windows-11-10.0.26200-SP0"
+    },
+    "logical_cpus": 16,
+    "memory": {
+      "load_percent": 30,
+      "total_bytes": 67772514304,
+      "available_bytes": 46989344768,
+      "used_bytes": 20783169536
+    }
+  },
+  "settings": {
+    "address": "http://127.0.0.1:9913",
+    "theme": "night",
+    "data_dir": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config",
+    "receivers_file": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\receivers.json",
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "mirror_to_all": false
+  },
+  "gate10": {
+    "source": "analysis/gate10-endurance-20260916/status.json",
+    "running": false,
+    "pid": 12272,
+    "at": "2026-09-24T04:04:24.333+00:00",
+    "started_at": "2026-09-23T22:46:24.338+00:00",
+    "elapsed_s": 19080.0,
+    "samples": 1272,
+    "interactions": 64,
+    "error": null,
+    "memory": {
+      "window_s": 600,
+      "rolling": {
+        "window_s": 600,
+        "samples": 40,
+        "total": {
+          "working_set": {
+            "median": 1183541248,
+            "peak": 1188265984,
+            "n": 40
+          },
+          "private": {
+            "median": 1111148544,
+            "peak": 1116082176,
+            "n": 40
+          }
+        }
+      },
+      "by_pid": {
+        "10496": {
+          "working_set": {
+            "median": 173760512,
+            "peak": 174723072,
+            "n": 40
+          },
+          "private": {
+            "median": 156721152,
+            "peak": 157687808,
+            "n": 40
+          }
+        },
+        "21952": {
+          "working_set": {
+            "median": 172564480,
+            "peak": 173449216,
+            "n": 40
+          },
+          "private": {
+            "median": 155541504,
+            "peak": 156467200,
+            "n": 40
+          }
+        },
+        "8868": {
+          "working_set": {
+            "median": 176103424,
+            "peak": 177061888,
+            "n": 40
+          },
+          "private": {
+            "median": 158924800,
+            "peak": 159969280,
+            "n": 40
+          }
+        },
+        "12148": {
+          "working_set": {
+            "median": 172386304,
+            "peak": 173412352,
+            "n": 40
+          },
+          "private": {
+            "median": 155363328,
+            "peak": 156397568,
+            "n": 40
+          }
+        },
+        "11224": {
+          "working_set": {
+            "median": 223428608,
+            "peak": 223444992,
+            "n": 40
+          },
+          "private": {
+            "median": 276168704,
+            "peak": 276201472,
+            "n": 40
+          }
+        },
+        "4376": {
+          "working_set": {
+            "median": 92651520,
+            "peak": 92672000,
+            "n": 40
+          },
+          "private": {
+            "median": 52858880,
+            "peak": 52891648,
+            "n": 40
+          }
+        },
+        "3420": {
+          "working_set": {
+            "median": 172646400,
+            "peak": 173535232,
+            "n": 40
+          },
+          "private": {
+            "median": 155570176,
+            "peak": 156532736,
+            "n": 40
+          }
+        }
+      }
+    },
+    "last_interaction": {
+      "kind": "interaction",
+      "at": "2026-09-24T04:01:26.037+00:00",
+      "cycle": 63,
+      "target": "724E",
+      "ok": false,
+      "input_status_ms": 12.9,
+      "acquire_code": 409,
+      "acquire_ms": 6.6,
+      "error": "A target is owned, stopped, or recovering. No leases acquired.",
+      "latency_s": 0.02,
+      "elapsed_s": 18901.7
+    },
+    "phone_frames": [
+      {
+        "name": "iMouse2-C24C",
+        "frames": 299070,
+        "frame_delta": 183,
+        "restarts": 0
+      },
+      {
+        "name": "iMouse2-C241",
+        "frames": 297825,
+        "frame_delta": 271,
+        "restarts": 0
+      },
+      {
+        "name": "iMouse2-C214",
+        "frames": 388367,
+        "frame_delta": 302,
+        "restarts": 0
+      },
+      {
+        "name": "iMouse2-724E",
+        "frames": 382938,
+        "frame_delta": 301,
+        "restarts": 0
+      },
+      {
+        "name": "iMouse2-Phone5",
+        "frames": 395185,
+        "frame_delta": 302,
+        "restarts": 0
+      }
+    ]
+  },
+  "errors": []
+}

@@ -1,6 +1,6 @@
 ﻿{
     "schema":  1,
-    "at":  "2026-09-24T22:25:23.0962702-04:00",
+    "at":  "2026-09-24T22:37:33.1066244-04:00",
     "gate":  1,
     "boot_time":  "2026-09-24T19:58:10.5000000-04:00",
     "backup_at":  "2026-09-24T01:01:35.0520505-04:00",
@@ -45,30 +45,30 @@
                                                 "C241"
                                             ],
                                 "receiver":  "iMouse2-C24C / iMouse2-C241",
-                                "receiver_state":  "offline",
-                                "receiver_message":  "No live frame. Select iMouse2-C24C in iPhone Screen Mirroring.",
+                                "receiver_state":  "mirroring",
+                                "receiver_message":  "",
                                 "receiver_pid":  27276,
                                 "receiver_restarts":  0,
-                                "frames":  0,
-                                "live":  false,
+                                "frames":  3076,
+                                "live":  true,
                                 "receivers":  [
                                                   {
                                                       "deviceid":  "86:1D:4A:04:2F:F6",
                                                       "name":  "iMouse2-C24C",
                                                       "receiver_pid":  27276,
                                                       "receiver_restarts":  0,
-                                                      "receiver_state":  "offline",
-                                                      "live":  false,
-                                                      "frames":  0
+                                                      "receiver_state":  "mirroring",
+                                                      "live":  true,
+                                                      "frames":  3076
                                                   },
                                                   {
                                                       "deviceid":  "FE:A9:BC:D7:A0:44",
                                                       "name":  "iMouse2-C241",
                                                       "receiver_pid":  11228,
                                                       "receiver_restarts":  0,
-                                                      "receiver_state":  "offline",
-                                                      "live":  false,
-                                                      "frames":  0
+                                                      "receiver_state":  "mirroring",
+                                                      "live":  true,
+                                                      "frames":  2237
                                                   }
                                               ]
                             }
@@ -192,7 +192,7 @@
                                             },
                                             {
                                                 "name":  "iMouse2.exe",
-                                                "pid":  31416,
+                                                "pid":  7928,
                                                 "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe"
                                             }
                                         ]
@@ -218,33 +218,32 @@
     "video":  [
                   {
                       "id":  "86:1D:4A:04:2F:F6",
-                      "live":  false,
-                      "receiver_state":  "offline",
+                      "live":  true,
+                      "receiver_state":  "mirroring",
                       "receiver_pid":  27276,
-                      "frames":  0,
-                      "bmp":  false,
-                      "width":  0,
-                      "height":  0,
-                      "bytes":  0,
-                      "path":  ""
+                      "frames":  3076,
+                      "bmp":  true,
+                      "width":  500,
+                      "height":  1080,
+                      "bytes":  1620054,
+                      "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\independence-audit\\cold-boot-shots\\C24C.bmp"
                   },
                   {
                       "id":  "FE:A9:BC:D7:A0:44",
-                      "live":  false,
-                      "receiver_state":  "offline",
+                      "live":  true,
+                      "receiver_state":  "mirroring",
                       "receiver_pid":  11228,
-                      "frames":  0,
-                      "bmp":  false,
-                      "width":  0,
-                      "height":  0,
-                      "bytes":  0,
-                      "path":  ""
+                      "frames":  2237,
+                      "bmp":  true,
+                      "width":  500,
+                      "height":  1080,
+                      "bytes":  1620054,
+                      "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\independence-audit\\cold-boot-shots\\C241.bmp"
                   }
               ],
     "failures":  [
-                     "86:1D:4A:04:2F:F6 video not live or not a BMP frame",
-                     "FE:A9:BC:D7:A0:44 video not live or not a BMP frame"
+
                  ],
-    "pass":  false,
+    "pass":  true,
     "note":  "Pass requires absent vendor processes, free 9911/17000, disabled iMouseService, kernel on 9913, boards C24C and C241, input code 0, and a real BMP. A missing vendor window is not proof."
 }
