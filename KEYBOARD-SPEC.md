@@ -195,10 +195,11 @@ The phone sees a hardware keyboard. Settings the API cannot read still decide wh
 
 **Full Keyboard Access.** Vendor setup turns it on (Accessibility → Keyboards → Full Keyboard Access, auto-hide 1 s). While it is on, character keys are accessibility commands until Typing Mode. A UIKit insertion cursor is not Typing Mode. Space with the blue ring on AssistiveTouch opens that menu instead of inserting a space.
 
-- C24C (no FKA ring in the Gate 5 Control Center shot) inserted `iMouse2026` into Spotlight directly.
+- C24C inserted `iMouse2026` into Spotlight directly (16 Sep). An earlier version of this line said its Gate 5 Control Center shot showed no FKA ring. It does show one: `analysis/gate5-everyday-controls-20260916/c24c-control-center.bmp` has a blue ring around "+" (262 strongly blue pixels, the same as C241's frame, and 0 in a 1 Oct FKA Off frame). From that ring, C24C's FKA is inferred to have been On that day. The setting itself was not photographed.
 - C241 (FKA on) did not insert `iMouse2026` into an empty Spotlight field. API code was 0. Later, `hello2026` inserted after the field already held selected text, and after a Typing Mode entry (Tab until the blue ring is on the field, then Space).
 - To type with FKA on, the text field must be focused and Typing Mode must be on. The on-screen exit hint is Control+Tab. This kernel has no verified Control+Tab `fn_key`. Escape cleared the Typing Mode banner once.
-- Turning FKA off matches the C24C direct-typing path. Toggling it off and back on left it on. AirPlay reconnect does not change that.
+- This line used to say that turning FKA off matches the C24C direct-typing path. That rested on the "no ring" premise above, which the frame contradicts. If both phones had FKA On, the difference between C24C's 16 Sep Spotlight result and C241's 22 Sep result lay elsewhere. Where the focus ring sat is one untested candidate (it was on AssistiveTouch in C241's failed trials). The same premise appears in `analysis/c241-typing-diagnostic/findings.json` (`root_cause`, `resolution`). That file is left as the 22 Sep record.
+- On C241, toggling FKA off and back on left it on. AirPlay reconnect does not change that.
 
 **Smart Punctuation.** iOS can rewrite ASCII `'` and `"` (usages 52) into curly quotes after delivery, and can rewrite `--` or `...`. Exact expected text requires Smart Punctuation off. The cited alphanumeric captures did not contain quotes, so they do not prove it was off.
 
@@ -213,6 +214,11 @@ Spotlight consumes spaces. Usage 44 is still a space in Notes (`A B Test 123!` o
 - The operator changed the setting by hand, and it was restored to On.
 - The mechanism, other fields and any product change are not established.
 - See [analysis/fka-space-loss-20260927/README.md](analysis/fka-space-loss-20260927/README.md).
+
+**Update, 1 Oct 2026: FKA Off through the console's Send text** (candidate-5, built from `b0708e3`, 12-character chunks; C24C only; evidence archive `20261001-fka-off-compat-b0708e3`, outside the repository). This session had no FKA On control.
+- Measured with FKA Off: `Hi there` was exact in 3/3 fresh Notes notes and 3/3 fresh Settings search fields. A 100-character string was exact in every visible character, across 9 chunks. One space sits at a line wrap, where it cannot be seen. App switcher did nothing in 3/3 trials, although every command returned code 0. Control Centre opened 1/1. Home reached Home but appended a character to an open note (a Home Tab into a note was also seen once with FKA On, 27 Sep).
+- Not established: whether App switcher depends on FKA. It opened on C24C on 16 Sep, when the ring above indicates FKA On. That suggests a dependency but is a historical comparison across different sessions, not a controlled one.
+- Not established: the mechanism of the first-space loss under FKA On. It is conditional: on 27 Sep, two Settings search fields re-focused after Cancel kept their first space. The leading hypothesis is FKA's Typing Mode: the first Space acts as Activate in a field where Typing Mode has not been entered.
 
 *Findings* (C24C, Notes, 25 Sep 2026; sends through the console's `SendTextAsync` and the Send text button):
 
@@ -230,11 +236,11 @@ Spotlight consumes spaces. Usage 44 is still a space in Notes (`A B Test 123!` o
 *Hypotheses:*
 
 - iOS Inline Predictions. An "Inline Predictions — Press space to input predictive text" tip and grey predicted text appeared on screen during these runs, and one Enter accepted a pending prediction and inserted `he` that was never sent. **Tested with no change seen.** With authorization, Settings → General → Keyboard → Show Predictions Inline (originally ON) was turned OFF and then restored to ON. `Hi there` sent with the Send text button became `Hithere` in all nine fresh-note trials, three in each state. This does not definitively rule the setting out: no inline prediction was visible in either state, and Notes was not relaunched after the change.
-- Full Keyboard Access (above). Untested. Testing it means changing that setting, which has not been authorized.
+- Full Keyboard Access (above). Untested when these findings were written. It has since been tested (27 Sep and 1 Oct updates above).
 
-The kernel keeps no per-note state and sends the same reports for every space. That points at the phone, but it is not proven. Because Settings search loses the space too, a Notes-only explanation is unlikely. Full Keyboard Access remains an untested hypothesis. The cause remains unresolved, and exact typing into a fresh text field remains an open requirement.
+The kernel keeps no per-note state and sends the same reports for every space. That points at the phone, but it is not proven. Because Settings search loses the space too, a Notes-only explanation is unlikely. Full Keyboard Access was untested at the time; it is now implicated (27 Sep update), but the mechanism is not established. The cause remains unresolved, and exact typing into a fresh text field with FKA On remains an open requirement.
 
-The older `A B Test 123!` capture kept its first space and is unexplained.
+The older `A B Test 123!` capture (14 Sep) kept its first space and is unexplained. C24C's FKA setting on 14 Sep is not recorded, so this capture says nothing either way about FKA.
 
 Also observed: iOS applied a pending autocorrection (`Hithere` → `Hi there`) when the note was left, so read typed text before navigating away.
 
