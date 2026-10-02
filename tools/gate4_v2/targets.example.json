@@ -1,0 +1,39 @@
+{
+  "_comment": [
+    "Gate 4 v2 target table. Copy this file, then check every position against the phone's CURRENT Home screen before calibrating: layouts differ between phones and change when apps move.",
+    "C24C positions were read from its Home screen on 1 Oct 2026 (500x1080 mirror, page one).",
+    "Targets were chosen to be safe to open repeatedly: nothing that can place a call, send a message, buy or pay, open the camera or personal photos. Live content (Clock, Maps, Podcasts, Safari, Tips, News) is avoided because it never settles into a fixed picture.",
+    "Each enabled phone needs at least 6 targets spanning 3 of 4 columns and 3 of 5 rows. The plan needs total / phones to divide by (targets x 5 categories).",
+    "C241 is the operator's own phone and stays disabled unless the operator says otherwise."
+  ],
+  "skip_categories": [],
+  "phones": [
+    {
+      "tag": "C24C",
+      "id": "86:1D:4A:04:2F:F6",
+      "enabled": true,
+      "profile": "iPhone XR, iOS 18.7.10, FKA On (Auto-Hide 1s), vendor settings",
+      "receiver_name": "iMouse2-C24C",
+      "targets": [
+        {"name": "calendar",            "x": 192, "y": 125},
+        {"name": "notes",               "x": 192, "y": 255},
+        {"name": "reminders",           "x": 307, "y": 255},
+        {"name": "health",              "x": 77,  "y": 510},
+        {"name": "utilities_folder",    "x": 307, "y": 510},
+        {"name": "productivity_folder", "x": 422, "y": 510},
+        {"name": "calculator",          "x": 192, "y": 765},
+        {"name": "freeform",            "x": 307, "y": 765},
+        {"name": "search",              "x": 250, "y": 900},
+        {"name": "settings",            "x": 307, "y": 1000}
+      ]
+    },
+    {
+      "tag": "C241",
+      "id": "FE:A9:BC:D7:A0:44",
+      "enabled": false,
+      "profile": "iPhone XR (operator's phone in hand)",
+      "receiver_name": "iMouse2-C241",
+      "targets": []
+    }
+  ]
+}

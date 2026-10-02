@@ -1,0 +1,8 @@
+{
+  "run_id": "run_5e99b3614305",
+  "task1": "scratch_tool.py",
+  "review_status": "passed",
+  "findings_resolved": 3,
+  "in_turn_continuation": true,
+  "across_turn_persistence": "filesystem_only"
+}
