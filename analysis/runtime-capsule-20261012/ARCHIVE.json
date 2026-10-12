@@ -1,0 +1,9 @@
+{
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261012-runtime-capsule",
+  "files": 30,
+  "zip_sha256": "9874888d28f0f423ba26156baff12fce2d9b9153c76b12d8852c777dc95f5e87",
+  "source_commit": "21c5ac3",
+  "extracted_package": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\runtime-capsule-extracted-20261012",
+  "hashes_verified": true,
+  "portable_verifier_passed": true
+}
