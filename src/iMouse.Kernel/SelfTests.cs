@@ -162,6 +162,10 @@ public static class SelfTests
             using var api = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, frames);
             JsonElement Status() => JsonSerializer.SerializeToElement(api.KernelStatus());
             var initial = Status();
+            frames.Receiver = () => new("running", "Receiver log unavailable: fixture", 123, 0);
+            Check(Status().GetProperty("receivers")[0].GetProperty("receiver_message").GetString()
+                == "Receiver log unavailable: fixture", "Receiver logging failures remain visible in per-phone diagnostics");
+            frames.Receiver = () => new("stopped", "", 0, 0);
             Check(initial.GetProperty("home_sequence").GetString() == router.HomeSequenceName,
                 "Merged status retains the configured Home sequence alongside frame metadata");
             Check(initial.GetProperty("frame_age_ms").ValueKind == JsonValueKind.Null

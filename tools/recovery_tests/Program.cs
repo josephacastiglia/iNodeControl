@@ -78,6 +78,65 @@ var tests = new (string Name, Func<Task> Run)[]
         finally { cancel.Cancel(); await first.WaitAsync(TimeSpan.FromSeconds(2)); }
         Check(refused && starts == 1, "duplicate run allowed");
     }),
+    ("logging warnings do not replace receiver lifecycle state", async () => {
+        var fake = new Fake { DiagnosticWarning = "Receiver log unavailable: fixture" };
+        using var cancel = new CancellationTokenSource();
+        using var s = new AirplaySupervisor(() => fake);
+        var run = s.RunAsync(cancel.Token);
+        Check(s.Info.State == "running" && s.Info.Message.Contains("log unavailable"), "logging failure not reported");
+        fake.DiagnosticWarning = null;
+        Check(s.Info.Message == "" && s.Info.Pid == 123, "logging recovery not reported");
+        cancel.Cancel(); await run;
+    }),
+    ("receiver logs rotate at their byte budget", () => InLogFolder(folder => {
+        string path = Path.Combine(folder,"receiver.log");
+        var log = new ReceiverLog(path,512);
+        for(int i=0;i<30;i++) log.Append("line-"+i+" "+new string('x',30));
+        Check(log.Error is null && File.Exists(path+".1"), "rotation failed: " + log.Error);
+        Check(new FileInfo(path).Length <= 512 && new FileInfo(path+".1").Length <= 512, "log size exceeded");
+        Check(File.ReadAllText(path).Contains("line-29") && Directory.GetFiles(folder).Length==2, "latest output or retention wrong");
+    })),
+    ("receiver logs truncate huge Unicode lines within byte budget", () => InLogFolder(folder => {
+        string path=Path.Combine(folder,"unicode.log"); var log=new ReceiverLog(path,512);
+        log.Append(string.Concat(Enumerable.Repeat("未分组😀",10000)));
+        string text=File.ReadAllText(path);
+        Check(log.Error is null && new FileInfo(path).Length<=512 && text.Contains("[truncated]"),"Unicode bound failed");
+    })),
+    ("concurrent stdout and stderr keep complete lines", async () => {
+        string folder=NewLogFolder();
+        try {
+            string path=Path.Combine(folder,"parallel.log"); var log=new ReceiverLog(path);
+            await Task.WhenAll(Enumerable.Range(0,100).Select(i=>Task.Run(()=>log.Append("record-"+i))));
+            var lines=File.ReadAllLines(path);
+            Check(log.Error is null && lines.Length==100 && lines.Select(x=>x[(x.IndexOf("record-"))..]).Distinct().Count()==100,"concurrent line loss");
+        } finally { Directory.Delete(folder,true); }
+    }),
+    ("unwritable log reports failure and later recovers", () => InLogFolder(folder => {
+        string missing=Path.Combine(folder,"not-yet-created");
+        string path=Path.Combine(missing,"receiver.log"); var log=new ReceiverLog(path);
+        log.Append("first"); Check(log.Error?.Contains("log unavailable")==true,"file failure escaped or hidden");
+        Directory.CreateDirectory(missing); log.Append("second");
+        Check(log.Error is null && File.ReadAllText(path).Contains("second"),"logging did not recover");
+    })),
+    ("failed rotation does not grow or discard active log", () => InLogFolder(folder => {
+        string path=Path.Combine(folder,"blocked.log"); var log=new ReceiverLog(path,256);
+        File.WriteAllText(path,new string('a',250)); Directory.CreateDirectory(path+".1");
+        log.Append("line");
+        Check(log.Error is not null && File.ReadAllText(path)==new string('a',250),"rotation error changed active log");
+        Directory.Delete(path+".1"); log.Append("retry");
+        Check(log.Error is null && File.ReadAllText(path).Contains("retry"),"rotation retry failed: " + log.Error);
+    })),
+    ("pre-existing oversized log is retained for one generation", () => InLogFolder(folder => {
+        string path=Path.Combine(folder,"legacy.log"); var log=new ReceiverLog(path,512);
+        File.WriteAllText(path,new string('a',2000)); log.Append("new generation");
+        Check(log.Error is null,"legacy rotation failed: " + log.Error);
+        Check(File.ReadAllText(path+".1")==new string('a',2000),"legacy evidence truncated");
+        Check(new FileInfo(path).Length<=512 && log.Error is null,"new generation not bounded");
+    })),
+    ("empty callback does not create a log", () => InLogFolder(folder => {
+        string path=Path.Combine(folder,"empty.log"); var log=new ReceiverLog(path);
+        log.Append(null); Check(!File.Exists(path) && log.Error is null,"EOF wrote a line");
+    })),
     ("dispose inside startup cannot publish a running child", async () => {
         var fake = new Fake(); AirplaySupervisor? s = null;
         s = new AirplaySupervisor(() => { s!.Dispose(); return fake; });
@@ -95,6 +154,13 @@ Console.WriteLine($"{passed}/{tests.Length} recovery checks passed; fake handles
 return passed == tests.Length ? 0 : 1;
 
 static void Check(bool value, string message) { if (!value) throw new Exception(message); }
+static string NewLogFolder() { string path=Path.Combine(Path.GetTempPath(),"imouse-log-test-"+Guid.NewGuid().ToString("N")); Directory.CreateDirectory(path); return path; }
+static Task InLogFolder(Action<string> test)
+{
+    string folder=NewLogFolder();
+    try { test(folder); } finally { Directory.Delete(folder,true); }
+    return Task.CompletedTask;
+}
 static async Task Until(Func<bool> ready)
 {
     using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(2));
@@ -107,6 +173,7 @@ sealed class Fake : IReceiverHandle
     public int Disposals;
     public Exception? WaitFailure;
     public bool DisposeFailure;
+    public string? DiagnosticWarning { get; set; }
     public Task WaitForExitAsync(CancellationToken ct) => WaitFailure is {} ex ? Task.FromException(ex) : Exit.Task.WaitAsync(ct);
     public void Dispose() { Interlocked.Increment(ref Disposals); if (DisposeFailure) throw new IOException("fake cleanup"); Exit.TrySetResult(); }
 }

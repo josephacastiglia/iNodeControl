@@ -10,6 +10,10 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Bounded receiver logging, 12 October
+
+The combined candidate now caps each new receiver log at 4 MiB with one retained generation and handles file errors without throwing out of a background callback. Per-phone kernel status reports a logging warning until a later write succeeds. An existing oversized log is retained once. **20 focused recovery/logging checks and 111 kernel self-tests pass**; build is clean. Sandbox rename-denial failures are preserved beside the approved passing run. No real receiver or phone was used. See `analysis/receiver-logging-20261012/REPORT.md`.
+
 ## Combined candidate, 12 October
 
 Active continuation is in `../iMouseXP-2.0-combined-candidate`, branch `local/combined-candidate-20261012`. The original main checkout is preserved. Combined main `01fb669`, Claude integration `d0c4ccf` and the October offline work. Deliberate conflict resolutions preserve both self-test lists and the kernel Home-sequence diagnostic. The text/timeout, isolated startup, frame/recovery and wall changes now coexist.

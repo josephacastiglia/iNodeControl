@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../src/iMouse.Kernel/AirplaySupervisor.cs" Link="AirplaySupervisor.cs" />
+    <Compile Include="../../src/iMouse.Kernel/ReceiverLog.cs" Link="ReceiverLog.cs" />
   </ItemGroup>
 </Project>

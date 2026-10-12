@@ -5,6 +5,8 @@ namespace IMouse2.Kernel;
 public sealed class AirplayProcess : IReceiverHandle
 {
     private readonly Process _process;
+    private readonly ReceiverLog _log;
+    public string? DiagnosticWarning => _log.Error;
     /// <summary>0 if the child has exited. Status used to keep advertising a dead PID.</summary>
     public int Id => LivePid(_process);
     public Task WaitForExitAsync(CancellationToken ct) => _process.WaitForExitAsync(ct);
@@ -39,11 +41,10 @@ public sealed class AirplayProcess : IReceiverHandle
         }
         start.ArgumentList.Add("-m");
         start.ArgumentList.Add(mac);
-        var gate=new object();
+        _log = new ReceiverLog(logPath);
         void Log(object sender,DataReceivedEventArgs e)
         {
-            if(e.Data is null) return;
-            lock(gate) File.AppendAllText(logPath,DateTimeOffset.Now.ToString("O")+" "+e.Data+Environment.NewLine);
+            _log.Append(e.Data);
         }
         _process=new Process { StartInfo=start, EnableRaisingEvents=true };
         _process.OutputDataReceived+=Log;_process.ErrorDataReceived+=Log;

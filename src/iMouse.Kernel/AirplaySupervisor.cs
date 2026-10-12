@@ -3,6 +3,7 @@ namespace IMouse2.Kernel;
 public interface IReceiverHandle : IDisposable
 {
     int Id { get; }
+    string? DiagnosticWarning => null;
     Task WaitForExitAsync(CancellationToken ct);
 }
 
@@ -55,7 +56,7 @@ public sealed class AirplaySupervisor : IDisposable
                     ReceiverPhase.Failed =>
                         new("failed", _failureMessage, 0, _restarts),
                     ReceiverPhase.Running =>
-                        new("running", "", _current?.Id ?? 0, _restarts),
+                        new("running", _current?.DiagnosticWarning ?? "", _current?.Id ?? 0, _restarts),
                     _ => new("stopped", "", 0, _restarts)
                 };
             }
