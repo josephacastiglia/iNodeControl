@@ -10,11 +10,17 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Console diagnostic export, 12 October
+
+The combined console's existing Export diagnostics action now collects a bounded read-only snapshot: build identity, local state/preferences, cached and current phone/board mapping, input ownership, calibration/pacing, per-receiver delivery/restart/error details, bitmap metrics and process resource use. Independent failures produce a partial report; disconnected export makes no service calls. Atomic save preserves an existing report when replacement fails. Unknown API fields, ownership token fields and raw exception bodies are excluded.
+
+**238 console self-tests and 114 kernel self-tests pass**, with clean builds. The 18 new console checks cover collection, failure/cancellation, field filtering and file preservation; three kernel checks cover actual build bytes, process identity and active calibration. No UI/phone test ran; the save-dialog/button workflow and real diagnostic capture remain unverified. Installed console/kernel/receiver hashes are unchanged. See `analysis/console-diagnostics-20261012/REPORT.md` and `docs/OPERATOR-GUIDE.md`. Earlier immutable packages still contain their recorded earlier builds.
+
 ## Isolated native runtime package, 12 October
 
 The combined candidate can include 126 audited native runtime files (168.7 MiB), with receipts from 91 installed packages and their available notices. The existing video probe passed four isolated five-second raw/H.264 scenarios; both bridge cases received all 150 frames and no unexpected library locations were observed. 16 runtime-staging, 22 release-staging and nine probe tests pass. No application/receiver or phone was operated. Twenty-four local notice gaps remain explicit; nothing is published. See `analysis/runtime-capsule-20261012/REPORT.md`.
 
-Next product work is the existing console Export diagnostics button: integrate the complete snapshot rather than requiring the separate developer tool. Physical acceptance remains open.
+The diagnostic export was subsequently integrated as recorded above. Physical acceptance remains open.
 
 ## Runtime prerequisite inventory, 12 October
 

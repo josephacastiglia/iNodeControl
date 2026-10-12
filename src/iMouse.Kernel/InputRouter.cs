@@ -62,6 +62,13 @@ public sealed class InputRouter : IDisposable
         : this(store, allowed, calibrations, open, preciseMovement ? 8 : 0) {}
     public bool Enabled(string pid) => _allowed.Contains(pid) && _calibrations.ContainsKey(pid);
     public string[] Allowed => _allowed.ToArray();
+    internal object DiagnosticConfiguration() => new
+    {
+        precise_movement_delay_ms = _preciseDelayMs,
+        calibrations = _calibrations.Values.Select(c => new { pid = c.Pid, enabled = Enabled(c.Pid),
+            width = c.Width, height = c.Height, origin_x = c.OriginX, origin_y = c.OriginY,
+            pixels_per_unit_x = c.PixelsPerUnitX, pixels_per_unit_y = c.PixelsPerUnitY }).ToArray()
+    };
     public HomeSequence Home { get; init; } = HomeSequence.Vendor;
     public string HomeSequenceName => Home switch { HomeSequence.CommandH => "command-h", HomeSequence.CommandWake => "command-wake", _ => "vendor" };
     public static HomeSequence ParseHomeSequence(string value) => value switch

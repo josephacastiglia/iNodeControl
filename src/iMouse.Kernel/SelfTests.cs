@@ -162,6 +162,20 @@ public static class SelfTests
             using var api = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, frames);
             JsonElement Status() => JsonSerializer.SerializeToElement(api.KernelStatus());
             var initial = Status();
+            int diagnosticWrites = writes.Reports.Count;
+            var inputConfiguration = Status().GetProperty("input_configuration");
+            Check(inputConfiguration.GetProperty("precise_movement_delay_ms").GetInt32() == 0
+                && inputConfiguration.GetProperty("calibrations")[0].GetProperty("pixels_per_unit_x").GetDouble() == 5.12
+                && inputConfiguration.GetProperty("calibrations")[0].GetProperty("enabled").GetBoolean()
+                && writes.Reports.Count == diagnosticWrites,
+                "Kernel diagnostics expose active calibration and pacing without sending input");
+            using (var assemblyFile = File.OpenRead(typeof(KernelDiagnostics).Assembly.Location))
+                Check(initial.GetProperty("build_identity").GetProperty("sha256").GetString()
+                    == Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(assemblyFile)).ToLowerInvariant(),
+                    "Kernel diagnostics identify the actual assembly bytes");
+            Check(initial.GetProperty("process").GetProperty("pid").GetInt32() == Environment.ProcessId
+                && initial.GetProperty("process").GetProperty("private_bytes").GetInt64() > 0,
+                "Kernel diagnostics identify this process and its resource use without hardware calls");
             frames.Receiver = () => new("running", "Receiver log unavailable: fixture", 123, 0);
             Check(Status().GetProperty("receivers")[0].GetProperty("receiver_message").GetString()
                 == "Receiver log unavailable: fixture", "Receiver logging failures remain visible in per-phone diagnostics");

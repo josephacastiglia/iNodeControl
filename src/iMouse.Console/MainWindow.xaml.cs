@@ -1739,13 +1739,6 @@ public partial class MainWindow : Window
         try { using var file = File.Create(dialog.FileName); var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(source)); encoder.Save(file); Log("Screen image saved."); }
         catch (Exception ex) { Log("Save failed: " + ex.Message, true); }
     }
-    private void Export_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new SaveFileDialog { FileName = "iMouse2-diagnostics-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".json", Filter = "JSON report|*.json" };
-        if (dialog.ShowDialog(this) != true) return;
-        try { File.WriteAllText(dialog.FileName, JsonSerializer.Serialize(new { schema_version = 2, build = ConsoleBuildInfo.Current.Version, build_identity = ConsoleBuildInfo.Current, at = DateTime.Now, connected = _connected, devices = _devices.Count, online = _devices.Count(x => x.Online), models = _devices.Select(x => x.Model).Distinct(), activity = _activity }, new JsonSerializerOptions { WriteIndented = true })); Log("Diagnostics exported. Includes build identity and recent activity; review before sharing."); }
-        catch (Exception ex) { Log("Export failed: " + ex.Message, true); }
-    }
     /// <summary>Log from any thread. The input pumps run off the UI thread now.</summary>
     private void LogAsync(string message, bool error = false)
     {

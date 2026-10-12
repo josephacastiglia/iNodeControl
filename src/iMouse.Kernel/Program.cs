@@ -1,6 +1,8 @@
 using System.Net;
 using IMouse2.Kernel;
 
+_ = KernelDiagnostics.BuildIdentity; // Capture before any listener or hardware is started.
+
 if(args.Contains("--self-test")) return await SelfTests.RunAsync();
 
 string Option(string name, string fallback)
