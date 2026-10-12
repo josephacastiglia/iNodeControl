@@ -76,3 +76,17 @@ Keep synthetic results separate from live acceptance. Never copy a scratch
 receiver over the working installation or restart receivers as part of these
 checks. The 12 October investigation is recorded in
 `analysis/receiver-memory-20261012/REPORT.md`.
+# Offline runtime file audit
+
+`runtime_audit.py` uses an explicitly selected `objdump` to read x64 PE import
+tables. It never starts UxPlay or loads GStreamer plugins. Pass `--receiver`,
+`--runtime`, `--system-dir`, `--objdump`, and a new `--out` JSON filename.
+The five seeded plugins match the candidate's software video pipeline. It follows
+non-system DLL imports, records file hashes, and lists unresolved imports.
+
+This is a file inventory, not a Windows loader emulator or launch approval. System
+DLLs are checked for presence; API-set contracts and dynamic dependencies are not
+fully validated. It does not verify networking, discovery, decoding or licenses.
+Run `python tools/receiver_memory_probe/test_runtime_audit.py` for nine offline
+fixture tests. Reports cannot overwrite an existing evidence file.
+

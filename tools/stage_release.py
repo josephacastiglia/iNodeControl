@@ -15,7 +15,7 @@ MANAGED = {"console": "iMouse2", "kernel": "iMouse2.Kernel"}
 SUFFIXES = (".dll", ".exe", ".deps.json", ".runtimeconfig.json", ".pdb")
 BLOCKERS = [
     "Combined source still needs interactive console and physical acceptance on this build; headless tests are not release sign-off.",
-    "Native runtime, GStreamer plugins/scanner, Bonjour and .NET Desktop runtime are external prerequisites, not bundled or attested here.",
+    "Native runtime, GStreamer plugins/scanner and .NET Desktop runtime are external prerequisites; discovery dependencies depend on the recorded receiver build.",
     "Per-phone bindings, calibration, receiver identities/ports and isolated console settings require a reviewed candidate configuration.",
     "Physical display, input, recovery, scale and endurance acceptance remains open; this is not a release sign-off.",
 ]

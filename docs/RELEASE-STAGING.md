@@ -37,7 +37,7 @@ Do not launch the executables in this bundle as a candidate. Complete these step
 2. Build the combined code into a fresh directory. Record its actual source and output bytes; do not reuse these manifests for different files.
 3. Specify an isolated candidate data folder and service endpoint. Confirm normal startup honors both. An empty configuration must not silently target the vendor service. Keep hover tracking off for controlled tests.
 4. Prepare and validate the intended phone/board bindings, calibration, receiver names, pipes, nonoverlapping ports, and receiver MACs. Start from a reviewed copy of the working configuration, never from the source fixtures. Do not alter the working copy.
-5. Check the external runtime requirements on the target PC. The managed binaries require .NET 8; the console needs the Windows Desktop runtime. UxPlay also needs its matching native libraries, GStreamer plugins and plugin scanner, and Bonjour. The kernel sets the receiver's `PATH`, plugin directory, and scanner from its receiver-runtime directory. Directory existence alone does not prove those dependencies work. Dependency redistribution and license notices need review before an installer is published.
+5. Check the external runtime requirements on the target PC. The managed binaries require .NET 8; the console needs the Windows Desktop runtime. UxPlay also needs its matching native libraries, GStreamer plugins and plugin scanner. This recorded Windows receiver uses the built-in mDNS implementation (`USE_MDNS=1`), not Apple Bonjour; other builds may differ. The kernel sets the receiver's `PATH`, plugin directory, and scanner from its receiver-runtime directory. Directory existence alone does not prove those dependencies work. Dependency redistribution and license notices need review before an installer is published.
 6. Produce a candidate-specific launcher with explicit executable paths and configuration. Review ownership, receiver discovery, and restoration behavior before it is run. Leave the installed launcher and shortcuts unchanged.
 7. Complete the coordinated physical checks required by `FINISH-CRITERIA.md`. The remaining typing, Home, App Switcher, discovery, targeting, scale, and endurance issues are not passed by packaging tests.
 
@@ -72,6 +72,12 @@ Use these steps only during the approved window if the candidate fails:
 4. Relaunch the saved working configuration through the original launcher, when no conflicting kernel or receivers remain. Verify paths and identities before operating it.
 5. Have the operator reconnect each phone's mirroring if needed. Verify the intended phone/board/receiver mapping, live video, lease state, and restored settings. If a receiver is missing from the phone's list, preserve the evidence and follow the agreed recovery plan; do not begin repeated restarts.
 6. Record the final state and any unresolved failure. Keep the candidate package and logs for diagnosis. Restoration is complete only when the operator's working setup is confirmed usable again.
+
+## Receiver log retention
+
+The candidate retains `receiver-BOARD.log` plus `receiver-BOARD.log.1`. New output is limited to 4 MiB per generation; unusually long lines are marked truncated. An existing oversized log is retained for one generation before normal rotation replaces it. Archive test evidence separately before another run.
+
+If a log cannot be written or rotated, the receiver keeps running and its per-phone kernel status carries a logging warning. A later successful write clears the warning. Missing lines cannot be recovered from this bounded log. Collect the warning and inspect disk space/permissions; it is not a reason to automatically restart the rack. Any test that reads by file offset must detect log rotation.
 
 ## Next step
 

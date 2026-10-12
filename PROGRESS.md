@@ -10,6 +10,10 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Runtime prerequisite inventory, 12 October
+
+Inspected 127 native files through the patched receiver, scanner and selected plugin import graph; no missing imports in that scope. Nine audit regressions and 22 package tests pass. .NET 8 core/Desktop runtimes are present. Corrected the current guide: this receiver uses built-in mDNS, not an external Bonjour dependency. A dated process snapshot found the rack stopped; nothing was started. File presence is not live acceptance or redistribution permission. See `analysis/runtime-readiness-20261012/REPORT.md`.
+
 ## Bounded receiver logging, 12 October
 
 The combined candidate now caps each new receiver log at 4 MiB with one retained generation and handles file errors without throwing out of a background callback. Per-phone kernel status reports a logging warning until a later write succeeds. An existing oversized log is retained once. **20 focused recovery/logging checks and 111 kernel self-tests pass**; build is clean. Sandbox rename-denial failures are preserved beside the approved passing run. No real receiver or phone was used. See `analysis/receiver-logging-20261012/REPORT.md`.
