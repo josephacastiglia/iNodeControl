@@ -65,14 +65,7 @@ public sealed class ApiServer : IDisposable
                 Write(ctx, Ok(_inputSessions.Status()));
             else if (req.HttpMethod == "GET" && path.EndsWith("/kernel/status",StringComparison.OrdinalIgnoreCase))
             {
-                var rec=_frames.Receiver();
-                Write(ctx,Ok(new {code=0,input="direct-hid",input_protocol=1,input_leases_required=true,allowed=_input.Allowed,receiver=_castName,
-                    receiver_state=VideoState(rec),receiver_message=ScreenshotMessage(),
-                    receiver_pid=rec.Pid,receiver_restarts=rec.Restarts,frames=_frames.Frames,live=_frames.State.Live,
-                    receivers=_sessions.Select(s=>new {deviceid=s.Key,name=s.Value.Name,
-                        receiver_pid=s.Value.Frames.Receiver().Pid,receiver_restarts=s.Value.Frames.Receiver().Restarts,
-                        receiver_state=VideoState(s.Value.Frames.Receiver(),s.Value.Frames),
-                        live=s.Value.Frames.State.Live,frames=s.Value.Frames.Frames}).ToArray()}));
+                Write(ctx, Ok(KernelStatus()));
             }
             else if (req.HttpMethod == "POST")
                 Write(ctx, Ok(await Dispatch(ReadBody(req))));
@@ -91,6 +84,34 @@ public sealed class ApiServer : IDisposable
             Console.WriteLine(ex);
             try { Write(ctx, Envelope(500, new { code = 33, message = ex.Message })); } catch { }
         }
+    }
+
+    // Kept separate from HTTP so diagnostics can be checked without a listener or HID access.
+    internal object KernelStatus()
+    {
+        var rec = _frames.Receiver();
+        var delivery = _frames.Delivery;
+        return new { code = 0, input = "direct-hid", input_protocol = 1, input_leases_required = true,
+            allowed = _input.Allowed, home_sequence = _input.HomeSequenceName, receiver = _castName,
+            receiver_state = VideoState(rec), receiver_message = ScreenshotMessage(),
+            receiver_pid = rec.Pid, receiver_restarts = rec.Restarts,
+            frames = delivery.Sequence, live = delivery.Available,
+            frame_delivery = delivery.Status, frame_age_ms = delivery.AgeMs,
+            frame_session = delivery.Session, frame_message = delivery.Message,
+            frame_pipe_connected = delivery.Connected,
+            receivers = _sessions.Select(s =>
+            {
+                var receiver = s.Value.Frames.Receiver();
+                var frame = s.Value.Frames.Delivery;
+                return new { deviceid = s.Key, name = s.Value.Name,
+                    receiver_pid = receiver.Pid, receiver_restarts = receiver.Restarts,
+                    receiver_state = VideoState(receiver, s.Value.Frames),
+                    receiver_message = receiver.Message,
+                    live = frame.Available, frames = frame.Sequence,
+                    frame_delivery = frame.Status, frame_age_ms = frame.AgeMs,
+                    frame_session = frame.Session, frame_message = frame.Message,
+                    frame_pipe_connected = frame.Connected };
+            }).ToArray() };
     }
 
     internal async Task<object> Dispatch(JsonElement body)

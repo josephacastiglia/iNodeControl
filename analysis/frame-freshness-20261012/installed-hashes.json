@@ -1,0 +1,17 @@
+[
+  {
+    "path": "release/iMouse2-kernel-two-phone/iMouse2.Kernel.dll",
+    "sha256": "BD1A68168E9270F029336CF8E13FF85E9B15FD67951EF545D1E973C2BFE634FC",
+    "matches_previous_release_record": true
+  },
+  {
+    "path": "release/iMouse2-two-phone-candidate/iMouse2.dll",
+    "sha256": "CC8049B444998B1D95E8D8AEC41FB1DFE3552A9D4AA58E92F64D3289A5A038D2",
+    "matches_previous_release_record": true
+  },
+  {
+    "path": "tools/airplay/uxplay/build-imouse/uxplay.exe",
+    "sha256": "4C1A24F35DE00D2C3A8D50A4B0BCFB06A9F5C16BD185810EC54466AC090D2208",
+    "matches_previous_release_record": true
+  }
+]

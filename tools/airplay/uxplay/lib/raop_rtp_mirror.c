@@ -812,6 +812,10 @@ raop_rtp_mirror_thread(void *arg)
                             logger_log(raop_rtp_mirror->logger, LOGGER_INFO, "%s", plist_xml);
                             free(plist_xml);
                         }
+                        /* Each periodic report owns its parsed tree, even when FPS logging is off. */
+                        if (root_node) {
+                            plist_free(root_node);
+                        }
                     }
                 }
                 break;

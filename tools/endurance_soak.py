@@ -1,9 +1,10 @@
-"""8-hour Gate 10 soak. Samples only; never restarts kernel or receivers."""
+"""Gate 10 soak with explicit live/target opt-in. Never restarts kernel or receivers."""
 from __future__ import annotations
 
 import argparse
 import ctypes
 import json
+import math
 import os
 import statistics
 import sys
@@ -305,13 +306,63 @@ def phone_row(receivers: list[dict], label: str) -> dict | None:
     return next((r for r in receivers if str(r.get("name", "")).endswith(label)), None)
 
 
+def selected_receivers(receivers, labels):
+    if not labels or len(set(labels)) != len(labels):
+        raise ValueError("explicit, unique --phone names are required")
+    selected = []
+    for label in labels:
+        matches = [row for row in receivers if row.get("name") == "iMouse2-" + label]
+        if len(matches) != 1:
+            raise ValueError(f"phone {label}: expected one named receiver, found {len(matches)}")
+        row = matches[0]
+        device = row.get("deviceid")
+        if not isinstance(device, str) or not device or device == "*" or device.startswith("unbound-"):
+            raise ValueError(f"phone {label}: unresolved device binding")
+        selected.append(row)
+    if len({row["deviceid"] for row in selected}) != len(selected):
+        raise ValueError("two selected receivers share a device binding")
+    return selected
+
+
+def read_input_status(base):
+    ms, status, raw = http("GET", base + "/input/status", timeout=5)
+    reply = json.loads(raw)
+    data = reply.get("data") if isinstance(reply, dict) else None
+    if status != 200 or not isinstance(reply, dict) or reply.get("code") not in (None, 0) or not isinstance(data, dict) or data.get("code") != 0:
+        raise RuntimeError("input status unavailable or unsuccessful")
+    phones = data.get("phones")
+    if not isinstance(phones, list) or any(not isinstance(row, dict) for row in phones):
+        raise RuntimeError("invalid input status")
+    return ms, phones
+
+
+def require_ready(phones, ids):
+    for device in ids:
+        rows = [row for row in phones if row.get("id") == device]
+        if len(rows) != 1:
+            raise RuntimeError(f"input status missing or ambiguous for {device}")
+        row = rows[0]
+        blocked = [key for key in ("owned", "active", "stopped", "releasing", "release_failed") if row.get(key) is not False]
+        if blocked:
+            raise RuntimeError(f"phone {device} is not ready ({', '.join(blocked)}); no takeover or automatic Resume")
+
+
 def tokens_for(call: dict) -> dict[str, str]:
     return {row["id"]: row["token"] for row in call.get("leases") or [] if row.get("token")}
 
 
+def call_succeeded(call):
+    results = call.get("results")
+    return call.get("code") == 0 and call.get("http") in (None, 200) and (
+        results is None or isinstance(results, list) and all(isinstance(row, dict) and row.get("code") == 0 for row in results))
+
+
 def send(base: str, fun: str, payload: dict, ids: str, tokens: dict[str, str]) -> dict:
     body = {"id": ids, "tokens": {i: tokens[i] for i in ids.split(",")}, **payload}
-    return post(base, fun, body, timeout=20)
+    result = post(base, fun, body, timeout=20)
+    if not call_succeeded(result):
+        raise RuntimeError(f"{fun} refused or failed; outcome unknown, no retry")
+    return result
 
 
 def poll_shot(base: str, device_id: str, before: bytes, threshold: float, budget: float) -> tuple[bytes, float, float]:
@@ -340,21 +391,15 @@ def interact(base: str, receivers: list[dict], label: str, out: Path, cycle: int
     device_id = target["deviceid"]
     tokens: dict[str, str] = {}
     try:
-        status_ms, _, raw = http("GET", base + "/input/status", timeout=5)
-        phones = (json.loads(raw).get("data") or {}).get("phones") or []
+        status_ms, phones = read_input_status(base)
         row["input_status_ms"] = status_ms
-        stopped = [p["id"] for p in phones if p.get("stopped")]
-        if stopped:
-            gens = {p["id"]: p.get("generation", 0) for p in phones}
-            row["resume"] = post(base, "/input/resume", {
-                "id": ",".join(stopped),
-                "expected_generations": {i: gens[i] for i in stopped if i in gens},
-            })
+        require_ready(phones, ids)
         acquired = post(base, "/input/acquire", {"id": group, "lease_ms": 60000}, timeout=8)
-        tokens = tokens_for(acquired)
+        returned = tokens_for(acquired)
+        tokens = {device: token for device, token in returned.items() if device in ids}
         row["acquire_code"] = acquired["code"]
         row["acquire_ms"] = acquired["rtt_ms"]
-        if acquired["code"] != 0 or set(tokens) != set(ids):
+        if acquired["code"] != 0 or set(returned) != set(ids):
             row["error"] = acquired.get("message") or "acquire failed"
             return row
         send(base, "/mouse/reset", {}, device_id, tokens)
@@ -411,7 +456,7 @@ def interact(base: str, receivers: list[dict], label: str, out: Path, cycle: int
     finally:
         if tokens:
             try:
-                row["release"] = post(base, "/input/release", {"id": group, "tokens": tokens}, timeout=8)
+                row["release"] = post(base, "/input/release", {"id": ",".join(tokens), "tokens": tokens}, timeout=8)
             except Exception as ex:
                 row["release"] = {"code": -1, "message": str(ex)}
         row["latency_s"] = round(time.perf_counter() - t0, 3)
@@ -522,7 +567,7 @@ def status_doc(sample_row: dict, args, started_at: str, started: float, n_sample
             "sample_interval_s": args.sample_interval,
             "interaction_interval_s": args.interaction_interval,
             "memory_window_s": WINDOW_S,
-            "rotation": ROTATION,
+            "rotation": args.phone,
             "next_target": ROTATION[rotate % len(ROTATION)],
         },
         "samples": n_sample,
@@ -554,7 +599,12 @@ def refuse_second(pidfile: Path) -> None:
     pidfile.unlink(missing_ok=True)
 
 
-def main() -> int:
+def release_pid_marker(pidfile):
+    if pidfile.is_file() and pidfile.read_text(encoding="utf-8").strip() == str(os.getpid()):
+        pidfile.unlink()
+
+
+def main(argv=None) -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--duration-hours", type=float, default=8)
     p.add_argument("--sample-interval", type=float, default=15)
@@ -562,7 +612,9 @@ def main() -> int:
     p.add_argument("--url", default="http://127.0.0.1:9913/api")
     p.add_argument("--out", default=str(ROOT / "analysis" / "gate10-endurance-20260916"))
     p.add_argument("--self-check", action="store_true")
-    args = p.parse_args()
+    p.add_argument("--live", action="store_true", help="explicitly opt in to a coordinated hardware run")
+    p.add_argument("--phone", action="append", help="approved receiver suffix, e.g. C24C; repeat for group members")
+    args = p.parse_args(argv)
     if args.self_check:
         assert roll([1, 3, 5]) == {"median": 3, "peak": 5, "n": 3}
         kept = trim([{"t": 100}, {"t": 500}, {"t": 900}], 1000, 600)
@@ -574,12 +626,25 @@ def main() -> int:
         assert me["alive"] and me["working_set"] > 0
         print("self-check ok", me["working_set"])
         return 0
+    if not args.live or not args.phone:
+        p.error("hardware runs require --live and explicit --phone names")
+    if len(set(args.phone)) != len(args.phone):
+        p.error("--phone names must be unique")
+    if any(not math.isfinite(value) or value <= 0 for value in (args.duration_hours, args.sample_interval, args.interaction_interval)):
+        p.error("duration and intervals must be finite and positive")
     out = Path(args.out)
+    if any((out / name).exists() for name in ("telemetry.jsonl", "status.json")):
+        p.error("output contains prior evidence; use a new empty run directory")
     out.mkdir(parents=True, exist_ok=True)
     pidfile = out / "soak.pid"
     refuse_second(pidfile)
     expected = bind_fleet(args.url)
-    pidfile.write_text(str(os.getpid()), encoding="utf-8")
+    approved = selected_receivers(kernel_status(args.url).get("receivers") or [], args.phone)
+    approved_ids = {row["name"]: row["deviceid"] for row in approved}
+    _, phones = read_input_status(args.url)
+    require_ready(phones, approved_ids.values())
+    with pidfile.open("x", encoding="utf-8") as marker:
+        marker.write(str(os.getpid()))
     log_path = out / "telemetry.jsonl"
     status_path = out / "status.json"
     started = time.monotonic()
@@ -595,8 +660,13 @@ def main() -> int:
     prev_frames: dict = {}
     prev_cpu: dict = {}
     mem: list[dict] = []
-    log = log_path.open("a", encoding="utf-8", buffering=1)
+    try:
+        log = log_path.open("x", encoding="utf-8", buffering=1)
+    except BaseException:
+        release_pid_marker(pidfile)
+        raise
     print(f"soak pid={os.getpid()} duration_h={args.duration_hours} out={out}", flush=True)
+    failure = None
     try:
         while time.monotonic() < end:
             now = time.monotonic()
@@ -606,6 +676,8 @@ def main() -> int:
                 n_sample += 1
                 write_json(status_path, status_doc(last_sample, args, started_at, started, n_sample, n_ix, last_ix, rotate, expected))
                 print(f"sample {n_sample} phones={len(last_sample.get('receivers') or [])} kernel={last_sample.get('kernel_pid')}", flush=True)
+                if last_sample.get("error") or last_sample.get("fleet_match") is not True:
+                    raise RuntimeError("fleet sampling failed or identity mismatched; recorded, no input sent")
                 next_sample = now + args.sample_interval
             if time.monotonic() >= next_ix:
                 try:
@@ -613,8 +685,11 @@ def main() -> int:
                 except Exception as ex:
                     receivers = []
                     print("status before interact failed", ex, flush=True)
-                label = ROTATION[rotate % len(ROTATION)]
-                last_ix = interact(args.url, receivers, label, out, n_ix)
+                selected = selected_receivers(receivers, args.phone)
+                if {row["name"]: row["deviceid"] for row in selected} != approved_ids:
+                    raise RuntimeError("phone binding changed during the run; no input sent")
+                label = args.phone[rotate % len(args.phone)]
+                last_ix = interact(args.url, selected, label, out, n_ix)
                 last_ix["elapsed_s"] = round(time.monotonic() - started, 1)
                 log.write(json.dumps(last_ix) + "\n")
                 n_ix += 1
@@ -622,18 +697,26 @@ def main() -> int:
                 if last_sample:
                     write_json(status_path, status_doc(last_sample, args, started_at, started, n_sample, n_ix, last_ix, rotate, expected))
                 print(f"interact {n_ix} target={label} ok={last_ix.get('ok')} spotlight={last_ix.get('spotlight_open')}", flush=True)
+                if not last_ix.get("ok") or not call_succeeded(last_ix.get("release") or {}):
+                    raise RuntimeError("interaction failed or release unconfirmed; saved result, no retry or automatic Resume")
                 next_ix = time.monotonic() + args.interaction_interval
             delay = min(next_sample, next_ix, end) - time.monotonic()
             if delay > 0:
                 time.sleep(delay)
+    except BaseException as exc:
+        failure = str(exc)
+        raise
     finally:
-        log.close()
-        if last_sample:
-            doc = status_doc(last_sample, args, started_at, started, n_sample, n_ix, last_ix, rotate, expected)
-            doc["running"] = False
-            doc["stop_reason"] = "duration" if time.monotonic() >= end else "exit"
-            write_json(status_path, doc)
-        pidfile.unlink(missing_ok=True)
+        try:
+            log.close()
+            if last_sample:
+                doc = status_doc(last_sample, args, started_at, started, n_sample, n_ix, last_ix, rotate, expected)
+                doc["running"] = False
+                doc["stop_reason"] = "failure" if failure else ("duration" if time.monotonic() >= end else "exit")
+                doc["failure"] = failure
+                write_json(status_path, doc)
+        finally:
+            release_pid_marker(pidfile)
     return 0
 
 

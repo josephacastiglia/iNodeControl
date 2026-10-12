@@ -1,0 +1,197 @@
+--- snapshot/KEYBOARD-SPEC.md
++++ jovial-0321/KEYBOARD-SPEC.md
+@@ -74,7 +74,7 @@
+ 
+ Anything `Ascii` does not list throws `ArgumentException` with `Unsupported character U+XXXX` (four hex digits). The API returns that as code 36. Unicode, emoji, and DEL (127) are rejected. There is no truncation and no IME path in this kernel. Unicode needs the original console's shortcut / clipboard tools, which this kernel does not implement.
+ 
+-The console blocks before the API when any character is `< 32` or `> 126`, and logs: `Keyboard typing supports English letters, numbers and punctuation. Use the original console's shortcut tools for Unicode text.` An empty box logs `Enter text to send first.` and sends nothing. Text over 200 characters (pasted or set in code; `MaxLength` only stops typing) logs `Send text takes at most 200 characters at a time.` and sends nothing.
++The console blocks before the API when any character is `< 32` or `> 126`, and logs: `Keyboard typing supports English letters, numbers and punctuation. Use the original console's shortcut tools for Unicode text.` An empty box logs `Enter text to send first.` and sends nothing. Text over the temporary 200-character cap logs `Send text takes at most 200 characters at a time; this is N. Nothing was sent.` and sends nothing. The box has no `MaxLength`, because WPF would truncate pasted text to it silently and the shortened text would then send. Instead a counter under the box reads `N / 200` and turns red with `too long to send` above the cap.
+ 
+ ## USB-HID report
+ 
+@@ -159,8 +159,12 @@
+ - **Stop at the first problem, never retry.** The first chunk that fails, times out, or is cut short by Stop ends the text. That chunk is never resent, because its outcome is unknown and it may be partly typed. No later chunk is sent. A failure or timeout pauses input like any failed command (the kernel also stops the phone on its own failures), so Resume is required before more input.
+ - **Report how far it got.** The activity log gives confirmed characters out of the total, then which chunk may be partly typed and which chunks were not sent. For example: `Send text failed: 64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.` Confirmed means the kernel answered code 0 for that chunk. As above, that means the HID writes finished, not that iOS inserted the text. When the send ends before a chunk leaves (for example, Stop before the first chunk), no chunk is reported as partly typed.
+ - **Stopped, timed out and failed are reported separately.** The lease client decides which by checking whether one of its own cancellation sources fired (Stop, a selection change, disconnect, the caller). It does not go by the exception type. A cancellation that none of them requested is the HTTP timeout.
++- **Stop input takes the first click while a drawer is open.** Send text lives in the Controls drawer. The drawer's dimming overlay used to cover the top bar too, so on the rack the first click on Stop input only closed the drawer and the 200-character send ran to completion. The drawer now starts below the top bar. Live on C24C, a single Stop click during chunk 3 left `64 of 200 characters confirmed. Chunk 3 of 7 may be partly typed and was not retried. Chunks 4–7 were not sent.`, matching the phone: 64 characters plus 12 of chunk 3, and nothing afterwards.
++- **Recovery after a timeout is handled only on the text path.** When a text chunk times out, `SendText_Click` marks input paused and enables Resume. A single tap, drag or key that times out is still handled the old way: the phone is paused locally but nothing is logged and Resume stays disabled. A separate change (worktree `vigorous-nightingale-2cc961`) addresses that. It is not integrated into this candidate.
+ 
+-200 characters is seven chunks: about 28 s of typing with no spaces, up to about 34 s with many spaces, plus round trips. The chunking is in the console, not the kernel. Another API client that sends a long `key` in one command still hits the deadline.
++The chunking is in the console, not the kernel. Another API client that sends a long `key` in one command still hits the deadline.
++
++**The 200-character cap is temporary.** Chunking does not require it: every chunk fits the deadline whatever the text length. The cap bounds how long one send holds the phones and blocks other input from this console. 200 characters is seven chunks, about 28 s of typing with no spaces and up to about 34 s with many spaces, plus round trips. Revisit it once Stop and recovery during long sends have more rack time.
+ 
+ Limits:
+ 
+@@ -170,7 +174,7 @@
+ | Console request timeout | 8 s per HTTP request | `ApiClient` (`HttpClient.Timeout`) |
+ | Kernel `key` length | 1–1000 characters | `InputRouter`. Longer, or empty `key` with empty `fn_key`: `Provide a key or 1–1000 ASCII characters.` Anything over roughly 50 characters in one command can outlast the deadline |
+ | Console chunk | 32 characters per `/key/sendkey` | `ApiClient.TextChunk` |
+-| UI text box | 200 characters (seven chunks) | `SendTextBox.MaxLength` and `MainWindow.MaxSendText`. Longer pasted or programmatic text is refused before anything is sent |
++| Send text cap (temporary) | 200 characters (seven chunks) | `MainWindow.MaxSendText`, checked in `SendText_Click`. Longer text stays whole in the box, the counter turns red, and nothing is sent. There is no `MaxLength` on the box, so nothing is truncated |
+ | UI alphabet | codes 32–126 only | `SendText_Click`. `AcceptsReturn` is false |
+ 
+ ## Required iOS settings
+@@ -192,7 +196,30 @@
+ 
+ Spotlight consumes spaces. Usage 44 is still a space in Notes (`A B Test 123!` on C24C). Do not score spaces in Spotlight.
+ 
+-**New notes drop the first space.** On C24C (25 Sep 2026), the same 100-character text typed as the first line of a brand-new note arrived as `Chunkcheck 2026 …` twice in a row. The space after the first word was missing, and iOS underlined the merged word as misspelled. Typed again as the second paragraph of that note, it arrived exactly. The kernel confirmed every chunk each time, and the dropped space was mid-chunk, so this is Notes at the start of a new note, not the transport or the chunking. These runs did not separate note creation from title-line handling. Score exact text in the body of an existing note.
++**Open issue: the first space typed into a note goes missing (cause unresolved).** The controlled comparison is in [analysis/text-chunking-candidate-20260925/REPORT.md](analysis/text-chunking-candidate-20260925/REPORT.md).
++
++*Findings* (C24C, Notes, 25 Sep 2026; sends through the console's `SendTextAsync` and the Send text button):
++
++- 21 of 21 sends containing the first space typed into a note lost that space. In 7 later sends into such notes no space was lost. Examples: `Chunk check` became `Chunkcheck`, `Hi there` became `Hithere`, `A B C` became `AB C`.
++- The kernel answered code 0 for every chunk.
++- The loss did not depend on:
++  - multi-chunk sending: one 11-character chunk lost it too;
++  - where the space fell in the text: position 3, 6, 7 or 11;
++  - first line versus body;
++  - one lease versus a fresh lease per send;
++  - whether the send began with Enter.
++- Once a note had lost its first space, later sends into it arrived exactly, including after a 3 s pause. Every exact result in these runs was typed into such a note.
++
++*Hypotheses, not tested:*
++
++- iOS Inline Predictions. An "Inline Predictions — Press space to input predictive text" tip and grey predicted text appeared on screen during these runs, and one Enter accepted a pending prediction and inserted `he` that was never sent.
++- Full Keyboard Access (above).
++
++Testing either means changing keyboard settings on the phone, which was deliberately not done. The kernel keeps no per-note state and sends the same reports for every space. That points at the phone, but it is not proven.
++
++The older `A B Test 123!` capture kept its first space and is unexplained.
++
++Also observed: iOS applied a pending autocorrection (`Hithere` → `Hi there`) when the note was left, so read typed text before navigating away.
+ 
+ ## Evidence
+ 
+@@ -203,6 +230,7 @@
+ | C241 clean typing, 22 Sep 2026 | Spotlight exactly `hello2026`, then four Backspaces left `hello` | [analysis/c241-clean-typing/](analysis/c241-clean-typing/) `c241-02-typed.png`, `c241-03-backspaced.png` |
+ | C24C Notes (older kernel) | Spaces, digits, and `!` visible as `A B Test 123!` | [INDEPENDENT-KERNEL.md](INDEPENDENT-KERNEL.md), `analysis/live-notes-space.bmp` |
+ | FKA diagnosis | Typing Mode required on C241; Escape cleared the banner | [analysis/c241-typing-diagnostic/findings.json](analysis/c241-typing-diagnostic/findings.json) |
+-| C24C text chunking, 25 Sep 2026 | `ApiClient.SendTextAsync` against the two-phone kernel. 100 characters in 4 chunks, about 15.4 s each run, every chunk confirmed, no Stop, lease released. Second-paragraph run exactly `Chunk check 2026 on C24C types 100 characters in four chunks of 32 with one lease (no Stop) #78 & OK`. Both new-note runs dropped the first space (see above) | [analysis/c24c-text-chunking-20260925/](analysis/c24c-text-chunking-20260925/) `c24c-01-new-note.png`, `c24c-02-new-note-repeat.png`, `c24c-03-second-paragraph.png` |
++| C24C text chunking, 25 Sep 2026 | `ApiClient.SendTextAsync` against the two-phone kernel. 100 characters in 4 chunks, about 15.4 s each run, every chunk confirmed, no Stop, lease released. Second-paragraph run exactly `Chunk check 2026 on C24C types 100 characters in four chunks of 32 with one lease (no Stop) #78 & OK`. Both new-note first-line runs arrived without the first space (open issue above). These runs used a test harness, not the Send text button |
++| Text-chunking candidate, 25 Sep 2026 | 17 controlled sends on C24C, plus the candidate console's real Send text, Stop input, Resume input and Disconnect. Exact 100 characters through the button only in a note that had already lost its first space. Stop, recovery and release worked | [analysis/text-chunking-candidate-20260925/REPORT.md](analysis/text-chunking-candidate-20260925/REPORT.md), `trials/`, `ui/` | [analysis/c24c-text-chunking-20260925/](analysis/c24c-text-chunking-20260925/) `c24c-01-new-note.png`, `c24c-02-new-note-repeat.png`, `c24c-03-second-paragraph.png` |
+ 
+ Those captures do not include a live Enter newline, a live punctuation string on both phones, or a recorded Settings screenshot of English (US) / Smart Punctuation / Auto-Capitalization. Those remain open Gate 5 checks. This file only closes the documentation requirement.
+--- snapshot/src/iMouse.Console/MainWindow.xaml
++++ jovial-0321/src/iMouse.Console/MainWindow.xaml
+@@ -11,7 +11,7 @@
+       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+ 
+       <!-- ================= top bar ================= -->
+-      <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,0,0,1" Padding="12,7">
++      <Border x:Name="TopBar" Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,0,0,1" Padding="12,7">
+         <Grid>
+           <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+@@ -295,8 +295,11 @@
+                   </UniformGrid>
+ 
+                   <TextBlock Text="TYPING" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
+-                  <TextBox x:Name="SendTextBox" Height="54" TextWrapping="Wrap" AcceptsReturn="False" VerticalScrollBarVisibility="Auto" MaxLength="200"
+-                           AutomationProperties.Name="Text to type on target phones"/>
++                  <!-- No MaxLength: WPF truncates pasted text to it silently. Over-limit text stays visible and Send text refuses it. -->
++                  <TextBox x:Name="SendTextBox" Height="54" TextWrapping="Wrap" AcceptsReturn="False" VerticalScrollBarVisibility="Auto"
++                           TextChanged="SendTextBox_TextChanged" AutomationProperties.Name="Text to type on target phones"/>
++                  <TextBlock x:Name="SendTextCount" Text="0 / 200" Style="{StaticResource Muted}" FontSize="11" HorizontalAlignment="Right" Margin="0,3,0,0"
++                             AutomationProperties.Name="Characters in the text box and the Send text limit"/>
+                   <Button Content="Send text" Click="SendText_Click" Style="{StaticResource Primary}" HorizontalAlignment="Stretch" Margin="0,6,0,0"/>
+                   <UniformGrid Columns="3">
+                     <Button Content="Enter" Tag="key|ENTER" Click="Action_Click"/><Button Content="Bksp" Tag="key|BACKSPACE" Click="Action_Click"/><Button Content="Paste" Tag="key|WIN+v" Click="Action_Click"/>
+--- snapshot/src/iMouse.Console/MainWindow.xaml.cs
++++ jovial-0321/src/iMouse.Console/MainWindow.xaml.cs
+@@ -158,6 +158,10 @@
+         ControlsPane.Visibility = ReferenceEquals(pane, ControlsPane) ? Visibility.Visible : Visibility.Collapsed;
+         SettingsPane.Visibility = ReferenceEquals(pane, SettingsPane) ? Visibility.Visible : Visibility.Collapsed;
+         ActivityPane.Visibility = ReferenceEquals(pane, ActivityPane) ? Visibility.Visible : Visibility.Collapsed;
++        // Start below the top bar. Covering it made the first click on Stop input only close
++        // the drawer, and Send text lives in a drawer, so a long send could not be stopped
++        // with one click.
++        DrawerHost.Margin = new Thickness(0, TopBar.ActualHeight, 0, 0);
+         DrawerHost.Visibility = Visibility.Visible;
+     }
+     private void OpenControls_Click(object sender, RoutedEventArgs e) { ShowDrawer("Controls", ControlsPane); UpdateControls(); }
+@@ -1555,18 +1559,26 @@
+         await SendInputAsync(button.Content.ToString()!, function, data);
+     }
+     /// <summary>
+-    /// Longest text Send text accepts; SendTextBox.MaxLength matches. It goes out as seven
+-    /// 32-character chunks (<see cref="ApiClient.TextChunk"/>), roughly 30 s of typing.
++    /// Temporary cap on one Send text, not a chunking requirement: chunks keep each command
++    /// inside the kernel deadline at any length. It bounds how long one send holds the phones
++    /// (200 characters is seven chunks, roughly 30 s). The box has no MaxLength, because WPF
++    /// truncates pasted text to it silently; over-limit text stays visible and is refused.
+     /// </summary>
+     internal const int MaxSendText = 200;
+     private bool _sendingText;
++    private void SendTextBox_TextChanged(object sender, TextChangedEventArgs e)
++    {
++        if (SendTextCount is null) return;
++        int length = SendTextBox.Text.Length;
++        SendTextCount.Text = length > MaxSendText ? $"{length} / {MaxSendText} · too long to send" : $"{length} / {MaxSendText}";
++        SendTextCount.SetResourceReference(TextBlock.ForegroundProperty, length > MaxSendText ? "BadBrush" : "MutedBrush");
++    }
+     private async void SendText_Click(object sender, RoutedEventArgs e)
+     {
+         string text = SendTextBox.Text;
+         if (string.IsNullOrEmpty(text)) { Log("Enter text to send first.", true); return; }
+         if (text.Any(c => c < 32 || c > 126)) { Log("Keyboard typing supports English letters, numbers and punctuation. Use the original console's shortcut tools for Unicode text.", true); return; }
+-        // MaxLength only limits typing; pasted or programmatic text still has to be checked.
+-        if (text.Length > MaxSendText) { Log($"Send text takes at most {MaxSendText} characters at a time.", true); return; }
++        if (text.Length > MaxSendText) { Log($"Send text takes at most {MaxSendText} characters at a time; this is {text.Length}. Nothing was sent.", true); return; }
+         if (_sendingText) { Log("Still typing the previous text. Wait for it to finish, or use Stop input.", true); return; }
+         if (!_controlReady) return;
+         var api = _api; var ids = InputTargetIds();
+@@ -2554,6 +2566,25 @@
+         UpdateControls();
+ 
+         Check("Stop button enabled under ownership", StopInputButton.IsEnabled);
++        // Send text runs from the Controls drawer, so Stop must take the first click while it
++        // is open. On the rack the drawer's scrim swallowed that click and typing carried on.
++        // Geometric hit test: the test window is never shown, and InputHitTest skips
++        // elements that are not on screen.
++        string hitDetail = "";
++        bool Hits(Button button)
++        {
++            var root = (UIElement)Content; root.UpdateLayout();
++            var centre = button.TranslatePoint(new Point(button.ActualWidth / 2, button.ActualHeight / 2), root);
++            var hit = VisualTreeHelper.HitTest(root, centre)?.VisualHit;
++            hitDetail = $" (hit {hit?.GetType().Name ?? "nothing"} at {centre})";
++            for (DependencyObject? d = hit; d is not null; d = VisualTreeHelper.GetParent(d))
++                if (ReferenceEquals(d, button)) return true;
++            return false;
++        }
++        ShowDrawer("Controls", ControlsPane);
++        bool stopReachable = Hits(StopInputButton);
++        Check("Stop input takes the first click while the Send text drawer is open" + (stopReachable ? "" : hitDetail), stopReachable);
++        CloseDrawer_Click(this, new RoutedEventArgs());
+         Check("Stop button tooltip lists master and all checked phones",
+             StopInputButton.ToolTip.ToString()!.Contains("Test phone 01") &&
+             StopInputButton.ToolTip.ToString()!.Contains("Test phone 04") &&
+@@ -2586,7 +2617,8 @@
+         }
+         JsonElement[] KeysSince(int index) => handler.Commands.ToArray().Skip(index).Where(c => c.GetProperty("fun").GetString() == "/key/sendkey").ToArray();
+         string text = SelfTests.LongText;
+-        Check("Send text box limit is the documented 200 characters", SendTextBox.MaxLength == MaxSendText && MaxSendText == 200);
++        Check("Send text cap is the documented 200 characters", MaxSendText == 200);
++        Check("The text box never truncates, so paste cannot shorten text silently", SendTextBox.MaxLength == 0);
+ 
+         int beforeLong = handler.Commands.Count;
+         await SendTextAndWait(text);
+@@ -2602,10 +2634,14 @@
+         Check("A complete Send text is logged as such", _activity.Any(s => s.Contains("Send text -> 2 phones: 200 characters in 7 chunk(s)")));
+         Check("Long text leaves input ready, not stopped", _controlReady && InputStateText.Text.Contains("ready"));
+ 
++        Check("The counter shows a full box as within the cap", SendTextCount.Text == "200 / 200");
+         int beforeOver = handler.Commands.Count;
+         await SendTextAndWait(new string('a', MaxSendText + 1));
+-        Check("Text over the limit is refused before transmission",
+-            handler.Commands.Count == beforeOver && _activity.Any(s => s.Contains($"at most {MaxSendText} characters")));
++        Check("Over-limit text stays whole in the box", SendTextBox.Text.Length == MaxSendText + 1);
++        Check("The counter flags over-limit text before sending", SendTextCount.Text.Contains("201 / 200") && SendTextCount.Text.Contains("too long"));
++        // Count keys only: the 50 ms renewal heartbeat adds /input/renew while this runs.
++        Check("Text over the limit is refused before transmission, not truncated and sent",
++            KeysSince(beforeOver).Length == 0 && _activity.Any(s => s.Contains($"at most {MaxSendText} characters at a time; this is 201. Nothing was sent.")));
+ 
+         int beforeFail = handler.Commands.Count;
+         handler.FailSendKeyNumber = handler.SendKeyCount + 3;

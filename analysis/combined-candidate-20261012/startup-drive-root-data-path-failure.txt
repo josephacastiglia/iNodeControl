@@ -1,0 +1,3 @@
+System.ArgumentException: --data-dir must name a dedicated folder below a drive or share root.
+   at IMouse2.App.DataDirArgument(String[] args) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\App.xaml.cs:line 53
+   at IMouse2.App.OnStartup(StartupEventArgs e) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\App.xaml.cs:line 131

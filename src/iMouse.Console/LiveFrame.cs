@@ -12,6 +12,7 @@ public sealed class PreparedFrame
 {
     public byte[] Pixels = [];
     public int Width, Height, Stride, Bits;
+    public PreviewStamp? PreviewStamp;
     public PixelFormat Format => Bits == 32 ? PixelFormats.Bgra32 : PixelFormats.Bgr24;
 }
 
@@ -234,69 +235,4 @@ public static class FrameRegion
         bits = BitConverter.ToInt16(d, 28);
         return width > 0 && height > 0 && (bits == 24 || bits == 32) && offset >= 54 && offset < d.Length;
     }
-}
-
-/// <summary>Rolling frame-rate estimate for the live view status line.</summary>
-public sealed class RateMeter
-{
-    private readonly Queue<DateTime> _stamps = new();
-    public void Mark()
-    {
-        var now = DateTime.UtcNow;
-        _stamps.Enqueue(now);
-        while (_stamps.Count > 0 && (now - _stamps.Peek()).TotalSeconds > 2) _stamps.Dequeue();
-    }
-    public double Fps
-    {
-        get
-        {
-            if (_stamps.Count < 2) return 0;
-            double span = (_stamps.Last() - _stamps.Peek()).TotalSeconds;
-            return span <= 0 ? 0 : (_stamps.Count - 1) / span;
-        }
-    }
-    public void Reset() => _stamps.Clear();
-}
-
-/// <summary>
-/// How EVENLY frames reach the screen, which is a different question from how many.
-/// <see cref="RateMeter"/> averages over two seconds, so a stream alternating 7 ms and
-/// 60 ms reports the same figure as a metronomic one - and it is the unevenness, not
-/// the count, that reads as stutter while the phone is scrolling. Intervals are
-/// recorded in a fixed ring so the hot path neither allocates nor sorts; the sort only
-/// happens when the status line refreshes.
-///
-/// Touched only from the UI thread (PresentPending and the status line), matching
-/// RateMeter, so it needs no lock.
-/// </summary>
-public sealed class JitterMeter
-{
-    private readonly double[] _gaps = new double[240];
-    private int _count, _next;
-    private long _last;
-
-    public void Mark()
-    {
-        long now = System.Diagnostics.Stopwatch.GetTimestamp();
-        if (_last != 0)
-        {
-            double ms = (now - _last) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
-            if (ms is > 0 and < 5000) { _gaps[_next] = ms; _next = (_next + 1) % _gaps.Length; if (_count < _gaps.Length) _count++; }
-        }
-        _last = now;
-    }
-
-    /// <summary>Median, 95th percentile, worst interval, and how many exceeded 45 ms.</summary>
-    public (double P50, double P95, double Max, int Long) Summary()
-    {
-        if (_count < 4) return (0, 0, 0, 0);
-        var window = new double[_count];
-        Array.Copy(_gaps, window, _count);
-        Array.Sort(window);
-        int over = 0;
-        foreach (var g in window) if (g > 45) over++;
-        return (window[_count / 2], window[Math.Min(_count - 1, (int)(_count * 0.95))], window[_count - 1], over);
-    }
-
-    public void Reset() { _count = 0; _next = 0; _last = 0; }
 }

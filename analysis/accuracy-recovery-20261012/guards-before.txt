@@ -1,0 +1,69 @@
+test_error_blocks_following_inputs (__main__.Guards.test_error_blocks_following_inputs) ... FAIL
+test_existing_run_refused_before_service_access (__main__.Guards.test_existing_run_refused_before_service_access) ... ok
+test_missing_release_confirmation_raises (__main__.Guards.test_missing_release_confirmation_raises) ... ERROR
+test_partial_acquire_releases_only_returned_approved_token (__main__.Guards.test_partial_acquire_releases_only_returned_approved_token) ... FAIL
+test_path_escape_run_id_refused (__main__.Guards.test_path_escape_run_id_refused) ... ok
+test_pending_release_refuses_preflight (__main__.Guards.test_pending_release_refuses_preflight) ... FAIL
+test_small_synthetic_run_cannot_pass_1000_trial_gate (__main__.Guards.test_small_synthetic_run_cannot_pass_1000_trial_gate) ... FAIL
+test_unknown_ownership_refuses_preflight (__main__.Guards.test_unknown_ownership_refuses_preflight) ... FAIL
+
+======================================================================
+ERROR: test_missing_release_confirmation_raises (__main__.Guards.test_missing_release_confirmation_raises)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\tools\gate4_v2\test_guards.py", line 58, in test_missing_release_confirmation_raises
+    with self.assertRaises(RuntimeError): k.release({"one": "token"})
+                                          ^^^^^^^^^
+AttributeError: 'Kernel' object has no attribute 'release'
+
+======================================================================
+FAIL: test_error_blocks_following_inputs (__main__.Guards.test_error_blocks_following_inputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\tools\gate4_v2\test_guards.py", line 53, in test_error_blocks_following_inputs
+    self.assertIsNotNone(g.blocking_reason({"error": "request outcome unknown"}))
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_partial_acquire_releases_only_returned_approved_token (__main__.Guards.test_partial_acquire_releases_only_returned_approved_token)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\tools\gate4_v2\test_guards.py", line 65, in test_partial_acquire_releases_only_returned_approved_token
+    self.assertEqual(post.call_args_list[-1].args, ("/input/release", {"id": "one", "tokens": {"one": "a"}}))
+AssertionError: Tuples differ: ('/input/acquire', {'id': 'one,two', 'lease_ms': 120000}) != ('/input/release', {'id': 'one', 'tokens': {'one': 'a'}})
+
+First differing element 0:
+'/input/acquire'
+'/input/release'
+
+- ('/input/acquire', {'id': 'one,two', 'lease_ms': 120000})
++ ('/input/release', {'id': 'one', 'tokens': {'one': 'a'}})
+
+======================================================================
+FAIL: test_pending_release_refuses_preflight (__main__.Guards.test_pending_release_refuses_preflight)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\tools\gate4_v2\test_guards.py", line 29, in test_pending_release_refuses_preflight
+    with self.assertRaises(SystemExit):
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_small_synthetic_run_cannot_pass_1000_trial_gate (__main__.Guards.test_small_synthetic_run_cannot_pass_1000_trial_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\tools\gate4_v2\test_guards.py", line 50, in test_small_synthetic_run_cannot_pass_1000_trial_gate
+    self.assertIsNone(g.summarize(rows, 60, "complete", None)["criterion_995_of_1000"])
+AssertionError: True is not None
+
+======================================================================
+FAIL: test_unknown_ownership_refuses_preflight (__main__.Guards.test_unknown_ownership_refuses_preflight)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\tools\gate4_v2\test_guards.py", line 20, in test_unknown_ownership_refuses_preflight
+    with self.assertRaises(SystemExit):
+AssertionError: SystemExit not raised
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.009s
+
+FAILED (failures=5, errors=1)

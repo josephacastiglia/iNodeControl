@@ -1,0 +1,22 @@
+[
+  {
+    "case": "isolated path",
+    "exit": 0,
+    "data_directory_created": false
+  },
+  {
+    "case": "relative path",
+    "exit": 1,
+    "data_directory_created": false
+  },
+  {
+    "case": "drive root",
+    "exit": 1,
+    "data_directory_created": false
+  },
+  {
+    "case": "duplicate path",
+    "exit": 1,
+    "data_directory_created": false
+  }
+]

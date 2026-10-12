@@ -1,0 +1,46 @@
+[
+  {
+    "test": "tools/test_export_diagnostics.py",
+    "exit": 0,
+    "seconds": 0.5
+  },
+  {
+    "test": "tools/test_build_manifest.py",
+    "exit": 0,
+    "seconds": 1.14
+  },
+  {
+    "test": "tools/test_analyze_endurance.py",
+    "exit": 0,
+    "seconds": 0.28
+  },
+  {
+    "test": "tools/test_endurance_soak.py",
+    "exit": 0,
+    "seconds": 0.31
+  },
+  {
+    "test": "tools/test_stage_release.py",
+    "exit": 0,
+    "seconds": 21.91
+  },
+  {
+    "test": "analysis/gate6-release-validation-20260916/test_run_gate6.py",
+    "exit": 0,
+    "seconds": 1.08
+  },
+  {
+    "test": "tools/gate4_v2/test_guards.py",
+    "exit": 0,
+    "seconds": 0.27
+  },
+  {
+    "test": "tools/gate4_v2/test_gate4_v2.py",
+    "exit": 0,
+    "seconds": 90.34
+  },
+  {
+    "test": "tools/receiver_memory_probe/test_probe.py",
+    "state": "path missing"
+  }
+]

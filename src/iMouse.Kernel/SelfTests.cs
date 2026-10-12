@@ -99,6 +99,34 @@ public static class SelfTests
             "Precise pacing preserves all reset, movement, keyboard, click and swipe packets");
         Check(precisePackets.Reports.Count(r=>r=="A100818100000000")==8,
             "Precise clicks retain both cold-start and post-Home corner resets");
+        // Lower-screen reach (27 Sep): the emitted movement must cover the whole calibrated
+        // height, from a corner reset and from a known position. Sums the relative steps
+        // after the last corner-reset report; says nothing about where iOS puts the pointer.
+        var reach=new RecordingTransport();
+        using(var lower=new InputRouter(new DeviceStore(file),["C24C"],[new("C24C",500,1080,14,14,5.12,5.09)],_=>reach))
+        {
+            (int X,int Y) Moved()
+            {
+                var moves=reach.Reports.Skip(reach.Reports.LastIndexOf("A100818100000000")+1)
+                    .Select(Convert.FromHexString).Where(r=>r[0]==0xA1 && r[1]==0).ToList();
+                return (moves.Sum(r=>(sbyte)r[2]),moves.Sum(r=>(sbyte)r[3]));
+            }
+            var targets=new[]{(310,1002),(163,922),(458,1012),(249,1079),(163,783)};
+            bool fromReset=true;
+            foreach(var (x,y) in targets)
+            {
+                reach.Reports.Clear();
+                await lower.DispatchAsync("/mouse/reset",Data(new{id="test-one"}));
+                await lower.DispatchAsync("/mouse/click",Data(new{id="test-one",x,y}));
+                fromReset&=Moved()==((int)Math.Round((x-14)/5.12),(int)Math.Round((y-14)/5.09));
+            }
+            Check(fromReset,"Clicks down to the bottom row emit the full calibrated movement after a reset");
+            reach.Reports.Clear();
+            await lower.DispatchAsync("/mouse/reset",Data(new{id="test-one"}));
+            foreach(var (x,y) in targets) await lower.DispatchAsync("/mouse/click",Data(new{id="test-one",x,y}));
+            Check(Moved()==((int)Math.Round((163-14)/5.12),(int)Math.Round((783-14)/5.09)),
+                "Chained lower-screen clicks from a known position end at the last target's units");
+        }
         byte[] bmp=new byte[70];bmp[0]=(byte)'B';bmp[1]=(byte)'M';
         BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(2),70);
         BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(10),54);
@@ -116,6 +144,14 @@ public static class SelfTests
         string pipeName="imouse-frame-test-"+Guid.NewGuid().ToString("N");
         using(var frames=new FrameStore(pipeName,"test-one"))
         {
+            using var api = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, frames);
+            JsonElement Status() => JsonSerializer.SerializeToElement(api.KernelStatus());
+            var initial = Status();
+            Check(initial.GetProperty("home_sequence").GetString() == router.HomeSequenceName,
+                "Merged status retains the configured Home sequence alongside frame metadata");
+            Check(initial.GetProperty("frame_age_ms").ValueKind == JsonValueKind.Null
+                && initial.GetProperty("frame_delivery").GetString() == "waiting",
+                "Status distinguishes no frame from a fresh frame without starting a listener");
             var pump=frames.RunAsync();
             using(var client=new NamedPipeClientStream(".",pipeName,PipeDirection.Out,PipeOptions.Asynchronous))
             {
@@ -132,9 +168,24 @@ public static class SelfTests
                 await client.WriteAsync(length);await client.WriteAsync(bmp);await client.FlushAsync();
                 await WaitFor(()=>frames.Frames==2);
                 Check(frames.State.Live,"Identical live frames remain usable");
+                var status = Status();
+                var receiver = status.GetProperty("receivers")[0];
+                Check(status.GetProperty("frames").GetInt64() == 2
+                    && status.GetProperty("frame_age_ms").GetDouble() >= 0
+                    && status.GetProperty("frame_delivery").GetString() == "flowing",
+                    "Status reports delivered sequence and monotonic age");
+                Check(receiver.GetProperty("frame_session").GetString() == status.GetProperty("frame_session").GetString()
+                    && receiver.GetProperty("frame_pipe_connected").GetBoolean()
+                    && receiver.GetProperty("receiver_message").ValueKind == JsonValueKind.String,
+                    "Per-phone status includes delivery identity and recovery message");
                 await client.WriteAsync(new byte[4]);await client.FlushAsync();
                 await WaitFor(()=>!frames.State.Live);
                 Check(!frames.State.Live,"Receiver stop marker clears stale picture");
+                var stopped = Status();
+                Check(!stopped.GetProperty("live").GetBoolean()
+                    && stopped.GetProperty("frame_delivery").GetString() == "stopped"
+                    && stopped.GetProperty("frames").GetInt64() == 2,
+                    "Stop marker preserves received count but never reports live");
             }
             frames.Dispose();await pump;
         }
@@ -223,6 +274,7 @@ public static class SelfTests
             await run;
         }
         await InputSessionTests.RunAsync(Check);
+        await InputSessionTests.HomeSequenceAsync(Check);
         File.Delete(file);Directory.Delete(testDir);
         Console.WriteLine($"{passed} tests passed; no real HID transport opened.");
         return 0;

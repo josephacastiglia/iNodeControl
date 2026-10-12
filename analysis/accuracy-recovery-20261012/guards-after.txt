@@ -1,0 +1,13 @@
+test_error_blocks_following_inputs (__main__.Guards.test_error_blocks_following_inputs) ... ok
+test_existing_run_refused_before_service_access (__main__.Guards.test_existing_run_refused_before_service_access) ... ok
+test_missing_release_confirmation_raises (__main__.Guards.test_missing_release_confirmation_raises) ... ok
+test_partial_acquire_releases_only_returned_approved_token (__main__.Guards.test_partial_acquire_releases_only_returned_approved_token) ... ok
+test_path_escape_run_id_refused (__main__.Guards.test_path_escape_run_id_refused) ... ok
+test_pending_release_refuses_preflight (__main__.Guards.test_pending_release_refuses_preflight) ... ok
+test_small_synthetic_run_cannot_pass_1000_trial_gate (__main__.Guards.test_small_synthetic_run_cannot_pass_1000_trial_gate) ... ok
+test_unknown_ownership_refuses_preflight (__main__.Guards.test_unknown_ownership_refuses_preflight) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.005s
+
+OK

@@ -1,0 +1,10 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  iMouse.Console -> C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\combined-candidate-20261012\sdk-launcher-build\iMouse2.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.64
+Built C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\combined-candidate-20261012\sdk-launcher-build\iMouse2.exe using the project SDK apphost. Nothing was started.

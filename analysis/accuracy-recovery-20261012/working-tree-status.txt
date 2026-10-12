@@ -1,0 +1,27 @@
+ M PROGRESS.md
+ M analysis/gate6-release-validation-20260916/run_gate6.py
+ M src/iMouse.Kernel/AirplaySupervisor.cs
+ M tools/airplay/uxplay/lib/raop_rtp_mirror.c
+ M tools/analyze_endurance.py
+ M tools/endurance_soak.py
+ M tools/export_diagnostics.py
+ M tools/gate4_1000_tap_suite.py
+?? WORK-REMAINING.md
+?? analysis/accuracy-recovery-20261012/
+?? analysis/fka-typing-mode-20261011/
+?? analysis/gate6-release-validation-20260916/OFFLINE-UPDATE-20261011.md
+?? analysis/gate6-release-validation-20260916/OFFLINE-VALIDATION-20261011.txt
+?? analysis/gate6-release-validation-20260916/README.md
+?? analysis/gate6-release-validation-20260916/test_run_gate6.py
+?? analysis/offline-backlog-20261011/
+?? analysis/receiver-memory-20261012/
+?? launch-error.txt
+?? tools/OFFLINE-VERIFICATION.md
+?? tools/build_manifest.py
+?? tools/gate4_v2/
+?? tools/receiver_memory_probe/
+?? tools/recovery_tests/
+?? tools/test_analyze_endurance.py
+?? tools/test_build_manifest.py
+?? tools/test_endurance_soak.py
+?? tools/test_export_diagnostics.py
