@@ -1,0 +1,9 @@
+{
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261012-console-diagnostics",
+  "files": 20,
+  "zip_sha256": "49bbd3c63509dc6dfe816f41b6647decf3da43435e64d2ac01fa5e483e73c2be",
+  "source_commit": "559fdbe79ba56bf992503407dcbe2ed31988b4cf",
+  "extracted_package": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\diagnostics-extracted-20261012",
+  "hashes_verified": true,
+  "portable_verifier_passed": true
+}
