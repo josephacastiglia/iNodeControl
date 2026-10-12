@@ -1,0 +1,10 @@
+{
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261012-combined-candidate",
+  "files_hashed": 74,
+  "archive_hashes_verified": true,
+  "package_files": 133,
+  "zip_sha256": "ef2e6963c5f8ce594a97bb192953d4a216463ac31b545b7e00ffed76e98117cd",
+  "git_checkpoint": "2c29852",
+  "installed_release_changed": false,
+  "source_equivalence_note": "Native source in package uses exact original build bytes; combined checkout differs only in CRLF/LF for all 79 native inputs."
+}

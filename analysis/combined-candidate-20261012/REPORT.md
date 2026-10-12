@@ -58,3 +58,9 @@ The combined candidate remains unpromoted. Packaging is review-only until runtim
 ## Local checkpoint
 
 The source integration merge is `f5c70ec`. Follow-up calibration/readiness fixes are committed separately. The final console build passes 220 self-tests; the final kernel passes 110. No-window probes and non-product harness results above retain their individual build records; this total is not a claim that every test was rerun on every binary. Imported October evidence is stored without Git newline conversion.
+
+## Review package and preservation
+
+Checkpoints `f5c70ec` and `2c29852` are local only. `output/staging/combined-review-20261012/` contains 132 verified files plus its manifest. Its ZIP passes the included verifier after extraction (SHA-256 `ef2e6963c5f8ce594a97bb192953d4a216463ac31b545b7e00ffed76e98117cd`). See `ARCHIVE.json` for the 74-file external archive, tested binaries and Git bundle. The receiver build sources in the package use exact original bytes; all 79 combined-checkout native inputs differ only by CRLF/LF encoding. An initial staging refusal correctly caught that byte difference.
+
+The original working source and installed DLLs/receiver were rechecked unchanged. Only a continuation pointer was then intentionally added to the original checkout's PROGRESS.md. The archive was created before this final packaging addendum; this addendum and final archive metadata remain in Git. No live readiness or product acceptance is implied by file integrity.

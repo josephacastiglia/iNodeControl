@@ -1,0 +1,558 @@
+{
+  "sources": [
+    {
+      "path": "CMakeLists.txt",
+      "build_source_sha256": "2df0270815c9a9b3aee5868101cf54f6b1104b628ddc12212fd056fe322c46f1",
+      "combined_sha256": "6c1a0885d91b953360f483c5c293c69aa02dc6de80f1cc8bf2cce08d94c24559",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "uxplay.cpp",
+      "build_source_sha256": "c8a5a9e1f5ab182414db022f32197994b5c04018fadd79780e9368b9296debf0",
+      "combined_sha256": "280d2a771377a3f5d3ffa4733c3add4728afc0f04d7a11f93f4764bc799b68ff",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/airplay_video.c",
+      "build_source_sha256": "9e90d6c533b469a331403441c6d9541ff3ca40d594fc7adea93e8e74913c1f31",
+      "combined_sha256": "8b717076e39724419be8b5c5da21fbaa665d015459f5c93c89359b3d60fc3e4b",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/airplay_video.h",
+      "build_source_sha256": "8bc25cc91f4c7d3951ae1c4c398f4d81f6a8e13e1897a17f5e41583a45678dfb",
+      "combined_sha256": "acc0437f73196c0c8651261f30981e6655547301e6fb7b418d04da0fa0117d0b",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/byteutils.c",
+      "build_source_sha256": "837d0d4f140b62fa3535c22ecfeefa01a1c97904b104a52021267cab438842ee",
+      "combined_sha256": "65eca9cef1455bbd396ae19f18b8421a19142446aeb7732efb8501b885dd8dd1",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/byteutils.h",
+      "build_source_sha256": "37b7a8604c901ac2504b66c3bea2942ff4f77bb28f5ffdeb31243585f54d342d",
+      "combined_sha256": "7f8c6f95c47e3aff446fcdde074c9fe2529897369f150fed1f3145cf14fe3ca6",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/CMakeLists.txt",
+      "build_source_sha256": "e42340163cc39b1b7c393ea84da8e70fb6d130d0bf72ff6516512f4fed6220c8",
+      "combined_sha256": "6c0d307c4ad037069c25943ed48e345582fe06d7b25a09563cf5b43002594e46",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/compat.c",
+      "build_source_sha256": "75eb83b482111906a958bca977ce5c434f8161c5e4d307e32babd661bf1d4abc",
+      "combined_sha256": "ff16304266fd355a7c0e52fb69ffe083435f884d29386c1ce3873ec1d2a763f9",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/compat.h",
+      "build_source_sha256": "24903d1c92137c23be90abf2dce80c281fd2b75cf5954a9fd968a05d0b5e5204",
+      "combined_sha256": "4a88831c8f117f17e3dff7baddf21dc5e342c64494c063c03247a5370f3ddcfc",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/crypto.c",
+      "build_source_sha256": "6265ec5526942bba4b517698085abb9e664f112aa4774f8564d05d732b50df1e",
+      "combined_sha256": "3912b4630cb3718e182224ca4f94770cfc2df00f73d17da2cce875a5ee4718fe",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/crypto.h",
+      "build_source_sha256": "6e380f79d689a4ffcfdbc32471ab08b9fa36568c495b1be56b402f2b218eca36",
+      "combined_sha256": "dabb48066c85eba1d59eb0805161dfabac5f23e35ab117e4bb3e687ae45c74c9",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/dnssd.c",
+      "build_source_sha256": "a9ec3650b1ec9cd3ecd599dfcea5cf3461c3a813e9a2f73ed7db7d53da511c08",
+      "combined_sha256": "1323281b0a33bfdf1ee30b093cf366cf37f8d161381fb90bce073dfd5d736c4a",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/dnssd.h",
+      "build_source_sha256": "8c728968453f9020b1b23e7628bdefdd32cc6823e4d81124625c0d306b577aaf",
+      "combined_sha256": "4852a6b6f6324ddd551207fc00b34e48e72035e4c98428d7db82d4c454ce7cf8",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/dnssdint.h",
+      "build_source_sha256": "d791eedc92d276537670f16ef2f49c9694e69024e474d306c2a324bb49c525d7",
+      "combined_sha256": "4f7d16620525ea035947e9503581d1bc618b2368497bc1fc0014261e94ae8710",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/fairplay.h",
+      "build_source_sha256": "1d1c0443a968f886a80c655cf1fa0890c0c9c4e7bb5f6262d4077814d5334217",
+      "combined_sha256": "0df6926b53b74b2f9dd511695a55859c13b2bc7f3f889689e4f6c9de6dbd5685",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/fairplay_playfair.c",
+      "build_source_sha256": "5a7c123bba599bfca553e815c2ff1fed947636999a1deb44c2fa640e86b2a90a",
+      "combined_sha256": "772fde4a79f460f28db7d8f12a788b8669936ffd7b1de6af692d7d93a6c9963e",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/fcup_request.h",
+      "build_source_sha256": "8738f196954f4fe2afdaf02eeb4e8982a4ab569f2aaafdfed2f0504441d322eb",
+      "combined_sha256": "27a0cf7fd82b030e011d965b7060437936dfaa4fddeaa1b849fec179d6be125c",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/global.h",
+      "build_source_sha256": "7093864cf044f0fc28f2f4e31676e92d93ec23502363dc2ed7e0d9ca5caf9917",
+      "combined_sha256": "190a1976d4e88b6e02aac2cb67b0e71a3ca6a71a67aeeb01aa7c20b7c467aa4a",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/httpd.c",
+      "build_source_sha256": "448ca5b3ba0139d82ac9239af00470d69c654137ceeaba6f0bdfbc3e19304cd9",
+      "combined_sha256": "e6a6fab2f40925d3afa3d16660d7bb8330c7190f7ee63ed85991d1b118c419fa",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/httpd.h",
+      "build_source_sha256": "ada5767083ef16899bace3962b61aea2cb4df66d6f42875f4ff37aa8192e73e6",
+      "combined_sha256": "1fb313e368c050fb5ca6c18be8ab498e71d84fe853c03e41ba087001d6475b67",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/http_handlers.h",
+      "build_source_sha256": "71578629439518ff8a34bba24274db7804e99563e42c9b3992f4027b2994aba5",
+      "combined_sha256": "2a4b75c51747c59200a89125c29dd4a78883ddecf106138166f6c09b0a4dc9aa",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/http_request.c",
+      "build_source_sha256": "5ade0d6c8d1e978aa5c0f7bc8229bd1e681ebfeb05e14ab6b60049cdda4fed59",
+      "combined_sha256": "86ae4def3b2a1dc88b246d311e74f42a9a384f30230dc47aa4fe008810a63af7",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/http_request.h",
+      "build_source_sha256": "2562f4c16f410504e3d4b97f1cb1605135fd2a06591d8c371bbb362e533e6bb2",
+      "combined_sha256": "0720236eee16581fc381ae57c490f2eb9c5cfd82797895fdbd7d3318f6b611ef",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/http_response.c",
+      "build_source_sha256": "1d7fa3f6cd6226a97dbd70aa267be854e5bf04c2763fd87c987cf65d8f5093e2",
+      "combined_sha256": "6159594a4c2d2d5482dfb920a930b09ca60c17850a6f368bd606734689dbcee9",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/http_response.h",
+      "build_source_sha256": "59699deb1bc3e6242de72389bbfaf9f215f414743aa372deeb150e5953e8690f",
+      "combined_sha256": "e9b14b46ebd6fbf8991e731ca77dbcfb87c5af944436958de88ca2b9ba53caf5",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/logger.c",
+      "build_source_sha256": "4f1767dd0ec176ca0718a0b4a6e6ab59fa2d1d97b7a184a2f9760b7e9028690b",
+      "combined_sha256": "a6e3bebe94adda6459f4f831e7a1a37ed6127d857af26112d1813eb3f37f74d3",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/logger.h",
+      "build_source_sha256": "bad1178211f6c3341bf4a9a278c49d0dc96191bd1c5c524d95e344d75a541043",
+      "combined_sha256": "11c5c9ab74700917c0612a2eaa4cbdb2d86584db663e01e0ce121d6f1b822c7a",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/mirror_buffer.c",
+      "build_source_sha256": "519f7af8e825bc5dcc2229a7d154ac7f8d0b3303a2ec1712a5db7c25d4acc9d2",
+      "combined_sha256": "bee324167e7790589f779ffce9070333614085e17954ed7c1c1b9b1ca1059b31",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/mirror_buffer.h",
+      "build_source_sha256": "b70754d814e707af15dbb49b74e3aa39f0a3f69c04c89d917bf77b4b63eadc81",
+      "combined_sha256": "7793776d1108dc86432f3af8969ad33e79538fc2e3c50f3efe90159efa83c853",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/netutils.c",
+      "build_source_sha256": "6afc84f23c25e0563abf63852f470799eeb7adb877a57ab03df1156f1202f944",
+      "combined_sha256": "b0dc1cd952e5d1ae1664fed9300dcaa9de1d3af8144fb596d5ecb7bed6e4aca2",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/netutils.h",
+      "build_source_sha256": "bf986c92b40a0514a4bcf5a3835358943cae6009519744d5d7a7fec6c6bbdf90",
+      "combined_sha256": "324399495b80a056785c3b6935f5af3609e5df53f2e0774b13b36c0742b9d729",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/pairing.c",
+      "build_source_sha256": "bdae8f6cadf4ab8e9b24923b3fa0319a00b2a4e4a667ce6a1b8d5b25b3f6df8d",
+      "combined_sha256": "c05894ec0bac668dde4c795f62d53885e7f7278be61f3ea32e97d2b9e036368b",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/pairing.h",
+      "build_source_sha256": "e23c08a671dee7915c600b11f86a808666230789c1450e963033283dea4f495e",
+      "combined_sha256": "5e9efe90785c12f897bba379c0fe1a1c467619732fd22cf3f95756297c40fe5a",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop.c",
+      "build_source_sha256": "0d61950c61bf54834a364a1bfa2219ae931c6ad98fe8e01fa41ac605c087bf77",
+      "combined_sha256": "296d2bd7735267285f86c18132c34385cabc00b2ff75c7a0803654b5c1e9c8af",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop.h",
+      "build_source_sha256": "b080e17701620a872ef57eb51a69dc50dbb1bd5219a05f9776a1223842ee347d",
+      "combined_sha256": "a82d973d7b7e00983e140ab0547f8c0d6143eb1fa93a94b6695801e089c56db0",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop_buffer.c",
+      "build_source_sha256": "2b41e46fd435512648fae8ce0404c762eae636c17fed39c56d547fcf49cec62f",
+      "combined_sha256": "ecb3cdf0be5550247c092f56fb4fb0cf51871f25122f1e9d825f918fd000ccac",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop_buffer.h",
+      "build_source_sha256": "9a4856cb793577558ddbe8aeb795a8ebb511f91a763937a2283473c1b16b3954",
+      "combined_sha256": "2f0452fe2754976b6031071f4385c03223c199ba7bec4b611954701be36009e1",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop_handlers.h",
+      "build_source_sha256": "01c1671f99e77f1d62c62fac948092f675561951ef90adc1b0fb39bcb10ab7fa",
+      "combined_sha256": "71892b8faba433576cfa744a16cde7032bf192ec28e1ee6e43a0cf3fd3ef4b7b",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop_ntp.c",
+      "build_source_sha256": "f52236ebe6ec4640cdf20f7a7737215ba7f82d91ea4908269f57860885b7b2ec",
+      "combined_sha256": "d88c0609de3286cab896e073c308d2db89b064bb44878ce8a82fbc6e74c6c0e6",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop_ntp.h",
+      "build_source_sha256": "22e92491628d2e97e0901666686456a6d77c1ba03a53d5cf328e5ce3dd84f646",
+      "combined_sha256": "739d59e02348a8b43d7eab22b0ca4d1479ac07e2d220af3d063c6af4c45a45b8",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop_rtp.c",
+      "build_source_sha256": "05f84fa90e97eefb68119e8cb65316fc0d6cae1e727083bce14a1a07f50b19ee",
+      "combined_sha256": "3a6138691879b1d2de481356d8b9e691ee45d977b10eab61232a04bfc099512a",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop_rtp.h",
+      "build_source_sha256": "1f17be7557598602b7902987c4895beaea7fa052ec6881b1636cdcb55a80d97f",
+      "combined_sha256": "9f97c7e3dcc583ec26c8197c2541ff84314bc0302eb1960bdec844ee22edd4a4",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop_rtp_mirror.c",
+      "build_source_sha256": "523129f2fa75fbf8024102c732e02f1827e46948e253779d5d7e62270ecca1ff",
+      "combined_sha256": "b2f3b26884707f14658cbc88068d831c8b881901c4feda41a0a7f897f2017428",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/raop_rtp_mirror.h",
+      "build_source_sha256": "d3c51fcb5c02792eabe71ca5c62f4b0bd1e645b5dd93932d805a30312349f3db",
+      "combined_sha256": "22bee50c5bb409ed8d4bc1028a6cd53dfa9411194f351580ba23ccc0e5483b31",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/sockets.h",
+      "build_source_sha256": "fd9d9047d9b564ab469776bb891377633e8467b8d8004cbc3f8bca09f9e117d3",
+      "combined_sha256": "56a4e8deb74c43c52c781ecd22c87e685f660facc6bb33ac087916079f5f078c",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/srp.c",
+      "build_source_sha256": "64c3970e37b5c1f7feeffe62636938211308d7b3a9afc0f2217cca35546a3e08",
+      "combined_sha256": "3ec7b0cb04045591b39acab5bad91e70865c8fa0bc8cf1555ec44cb10e67ebd8",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/srp.h",
+      "build_source_sha256": "8ed980db30783717694d83a010988831ef48847cadf2b8d0dc12ecda45ce3d3c",
+      "combined_sha256": "559b6040f8f1e10ec52f796b8f1aa227f48d4ca9c1a0308cd6a64ac3b56e2974",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/stream.h",
+      "build_source_sha256": "7eacbcf8ab20c375e88bde7610ef47a815b7a6d8902e9876a7ca008aabac5539",
+      "combined_sha256": "9e30835d14f15f72932d9a8fa99c07e5a89b58af0c4a20ba0ac10483c62305a0",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/threads.h",
+      "build_source_sha256": "b61705a31a0959261f65bb1285a3ea16a7b16dcf5477bd805d339db6ceaf9665",
+      "combined_sha256": "93adc43e5a453ef280f731e11a0350593b533edf7a78825a5cfe848d60f80ca7",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/utils.c",
+      "build_source_sha256": "b7df5e78328495c21ecba50616b4a5fc17028984e1a6df0a097bad75adf86d8a",
+      "combined_sha256": "a102c2193a4376db536c1defed1e1838d1391f58757c2729748f6a37e17fc822",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/utils.h",
+      "build_source_sha256": "61bef49b8176e94f2830e1c756147bba062ef2ac17eb3971d6e512b96a3be7d6",
+      "combined_sha256": "31eacf89f3103061824db0bd8064c7c5457bbbfd2baf8cade1021b4aca58ab36",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/dns_sd/CMakeLists.txt",
+      "build_source_sha256": "9fa28a70582a134b46224400288f47ca36e77c72a3ae2c9883b22dd49c7906fb",
+      "combined_sha256": "c1a6d2241e9f38b272eb18ab6c28be1a28ee8c4ce3da8332fedf238144885f58",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/dns_sd/dns_sd.c",
+      "build_source_sha256": "da872eba46ef4da2101920e8a1518d5c2f147e7b0473094eb381109d2f4753b0",
+      "combined_sha256": "7d32e60c20a12b286270851ea388db69e7cb8aafc817d5c9ba47e022378271c3",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/llhttp/api.c",
+      "build_source_sha256": "0f8590206fe2f264db2825401b5fb856b979ee1363dc88b06f36dc9577afb941",
+      "combined_sha256": "c4c1599434d5e10c1bba4fc509c2b9599911ed2edafb6c17048c0820aa2c4074",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/llhttp/CMakeLists.txt",
+      "build_source_sha256": "c638871eb05992ee50904aaf2f66aab455b44108820442bf30ef5ec87c2d34c4",
+      "combined_sha256": "e6b9e4beca9f8d72bfb9b6e225d378103fdcd51c54df744bb00190f91082b8d9",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/llhttp/http.c",
+      "build_source_sha256": "a1f2b23168f8e9b5bfa464c89027d3ca259fc649ae3d7e72bfff997d1aeb5d72",
+      "combined_sha256": "924ef08d9fbdfa5ae1ede5a2d50dad1365b9b9ff8acdac2d9681b54a34ae98e3",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/llhttp/llhttp.c",
+      "build_source_sha256": "d8299eb3d717a73fe9a27e72cc4ccdf84d9b04f2456e6845bf66a73cf83985ef",
+      "combined_sha256": "69cfa5b970bc187d29d877a6f67bff95afce9546c7e8ff6f279d5e8cc261adf5",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/llhttp/llhttp.h",
+      "build_source_sha256": "044bf4adf449d2565cd25c845dee1fc23706b97b52113bc73f667b05e2bdfdfa",
+      "combined_sha256": "cd6f993087012f087034e0a28b2e26aafaf63664ab262f1481b37c6c2e39a910",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/mdnsd/CMakeLists.txt",
+      "build_source_sha256": "bf3b2235c596326449385cde1b921c0112e597e7898b83807eed3901168cc0ec",
+      "combined_sha256": "264c3d256fa9b1e29ec20a9368b5564ef44ae571a03d889ae9012c3a30914cb8",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/mdnsd/dnssd_mdnsd.c",
+      "build_source_sha256": "fe7400efd2b8f5051cc61a88ecdedb023834c45f9075ef4fa64bcb9e22dc21b6",
+      "combined_sha256": "80bda29118218659af141e54c06710ac96b4ef1f154094ab2432b1e7828588e0",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/mdnsd/mdnsd.c",
+      "build_source_sha256": "9e4762352e0379fbc3ea3eef1ee92c41bade4fd184bda7f167b7672cdc00309b",
+      "combined_sha256": "1b71b89d3b97cc0bd02362c00882dd327e280064b489d4dce2b4280b449090a7",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/mdnsd/mdnsd.h",
+      "build_source_sha256": "06a5cb5ef0d668ddafd75773531e13ac831812be3318d47dd9ef16ef976badcc",
+      "combined_sha256": "6e742785b8479bfff0e91bd3bcceb3ad883ea1120d18077295e3f781b166c341",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/playfair/CMakeLists.txt",
+      "build_source_sha256": "70ecc4531ef7f695390265a8ef400552c4f22bfaf291140cde187ea47203da03",
+      "combined_sha256": "27827bef8685d9e7aa39a145e94dad4710589ad431875d831865e2c9c90f9539",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/playfair/hand_garble.c",
+      "build_source_sha256": "cac6be5bb721e07d36d44577d112de63b40b8a12dd663495cd7cd600ab8743e4",
+      "combined_sha256": "a6e3f762d8e9925323a364b34239432c9e480a6473d067f124a178880ff33d17",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/playfair/modified_md5.c",
+      "build_source_sha256": "850c815fd99c9f8459e2ff323c25963e20873328b838cda33fff88400fba2667",
+      "combined_sha256": "10035fa90f19f5f977afbcf2517ebc4d66e6358ea75986f7271cd93cbde53c1d",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/playfair/omg_hax.c",
+      "build_source_sha256": "1bfdce59d4b462cf3b5c39f3d8b3f0f6a9c20eccf003128f972bcc7572f50823",
+      "combined_sha256": "5064be7e2ee1645d16c7d826da9dd7458dec5cd525d42de90573b01cd16ab18f",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/playfair/omg_hax.h",
+      "build_source_sha256": "839517a07a208435bce0f789f3c7a3b10d698f65509fdb6a2e601249ac4e3e88",
+      "combined_sha256": "9b3f2737decae330d8b1fc1b8f6b83b9c35b3a96de65606a3181f2c69a93ac27",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/playfair/playfair.c",
+      "build_source_sha256": "322077cfb1f4ca555c302ec4f4f718c7daa42fbb358f9c7738e95d522263b707",
+      "combined_sha256": "f512a3442d24a937060aa303a806e308f1dbad436c212266430885be25fd4374",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/playfair/playfair.h",
+      "build_source_sha256": "5160ba53c5557f207d81998cc17a126ecb07842dc157c002ed54b397c536e613",
+      "combined_sha256": "fdf9191687a0d13a90635bd689b7c229f612f12c38ad8a1e52d9ce77d4e33736",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "lib/playfair/sap_hash.c",
+      "build_source_sha256": "ec90021e184776e825582486588d3edf61f70b494bf74915e28bd6d37870a70d",
+      "combined_sha256": "b6366cf49dea6cfdaea10806ee4b93e615106a255cdf4ed5532e7f59c0a03def",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "renderers/audio_renderer.c",
+      "build_source_sha256": "82a1a1f7964a5d73b4ed48f054e249cd3e253ff4a5dc9b2c894e46da091d9fa3",
+      "combined_sha256": "e428f152847d81c997daee20dd138c8704fd977170311a9eb262ca5f164311ba",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "renderers/audio_renderer.h",
+      "build_source_sha256": "ad1814a85281235b7af74afe24d86db698ef3bfb6c461552fdbd1b3a1fe0787f",
+      "combined_sha256": "dfc8644dacd63b2cee5654b110aa11c4b78b0280801260a88147bfa055698001",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "renderers/CMakeLists.txt",
+      "build_source_sha256": "47166bf64b01365e1169841194695e01c2c95c2be0f0d42c659499fd6575d906",
+      "combined_sha256": "ced57887d9d2b77e0ddb59f64d6d453dc5b351f9095614bd31b88d5747df6e97",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "renderers/imouse_frame_pipe.h",
+      "build_source_sha256": "da40f93b3ee92096d2a46ed5f98e5bd352e638598fc893fffdf4a71ba71e192d",
+      "combined_sha256": "ab0f7f95ae4959f5e847275a57c30b3710d175f23504aa926883d1c5c0193389",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "renderers/mux_renderer.c",
+      "build_source_sha256": "bed150c3e6f18f3615a5a69bac383de43445a4e0bcb78aa69053ce19ab95674d",
+      "combined_sha256": "d1293e599dc830b3050938017748ab4226b3af9a65e1107ab2f37fe9842cc82f",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "renderers/mux_renderer.h",
+      "build_source_sha256": "53e785905d4f28dd5f8639bd2ecd1b2730583f4238be105e5531ec4e84de2407",
+      "combined_sha256": "b0ec2ac83fbcc1b08c53aa4dbe5991866d3b68fa51e7287fa23cdd59a05d5ed2",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "renderers/video_renderer.c",
+      "build_source_sha256": "fa7ffa780661a990488be6e34398fe138400f8c2703e9c5a6a268b5a339bd016",
+      "combined_sha256": "241760c51facebfa92b4772ea46d12d6fdaa1215e825465f07b882b0d255dc5c",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "renderers/video_renderer.h",
+      "build_source_sha256": "43466b89534adb838915477d1ccc1b9776360a38d3992dcf5f3e5216131ea401",
+      "combined_sha256": "ac9a25511233f767e3484945b8c9680830c19a0721211c622e74a0f8e0092f38",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    },
+    {
+      "path": "renderers/x_display_fix.h",
+      "build_source_sha256": "8c28794760a09f137494f6c866139847d3d005c0987b827a5f8d690461b8edd9",
+      "combined_sha256": "bf2e89027f41d6750e360b88d0b59ca3e8a87391bbf68d2895c68c3ecdd89520",
+      "identical_except_newlines": true,
+      "byte_identical": false
+    }
+  ],
+  "scope": "Only CRLF/LF normalization permitted. Package includes original exact build-source bytes."
+}
