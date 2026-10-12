@@ -76,6 +76,16 @@ The soak runner requires `--live` and explicit, repeated `--phone` names. Use an
 
 Check the test exit codes and review manifest differences before treating the tooling as ready for a hardware window. See [the offline run report](../analysis/offline-backlog-20261011/REPORT.md) for measured results and the preserved test-isolation incident. The missing-space investigation remains deferred.
 
+## Check saved rack configuration
+
+Run `python tools/validate_rack_config.py` to inspect the planned 19-slot configuration without contacting hardware. Use `--config-dir "FOLDER"` for another saved candidate configuration, and `--report "NEW_FILE.json"` to preserve the result. Existing report files are never overwritten.
+
+Exit `0` means structurally valid with explicit saved bindings; `1` means invalid input; `2` means structurally valid but containing discovery or placeholder identities. `--structure-only` explicitly permits placeholders in the exit status while retaining the incomplete state in the report. The current template has five explicit bindings and 14 placeholders, so the default check exits `2`.
+
+The check catches duplicate phone/board mappings and calibrations, malformed identities, overlapping port windows and invalid calibration arithmetic. It does not establish physical identity, targeting accuracy, available ports, installed runtimes, video, or Gate 11 acceptance. Different valid calibration values are allowed; copying one phone's values across the rack is not verification.
+
+Run `python tools/test_validate_rack_config.py` for the offline regressions.
+
 ## Verify release staging
 
 Run the packaging and manifest regressions without starting apps:

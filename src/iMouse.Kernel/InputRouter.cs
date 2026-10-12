@@ -43,9 +43,19 @@ public sealed class InputRouter : IDisposable
         _preciseDelayMs = preciseDelayMs;
         _allowed = new(allowed, StringComparer.OrdinalIgnoreCase);
         _calibrations = calibrations.ToDictionary(c => c.Pid, StringComparer.OrdinalIgnoreCase);
-        if (_calibrations.Values.Any(c => c.Width < 2 || c.Height < 2 || !double.IsFinite(c.PixelsPerUnitX)
-            || !double.IsFinite(c.PixelsPerUnitY) || c.PixelsPerUnitX <= 0 || c.PixelsPerUnitY <= 0))
+        if (_calibrations.Values.Any(c => !ValidAxis(c.Width,c.OriginX,c.PixelsPerUnitX)
+            || !ValidAxis(c.Height,c.OriginY,c.PixelsPerUnitY)))
             throw new ArgumentException("Invalid pointer calibration.");
+    }
+    private static bool ValidAxis(int size,double origin,double pixelsPerUnit)
+    {
+        if(size < 2 || !double.IsFinite(origin) || !double.IsFinite(pixelsPerUnit) || pixelsPerUnit <= 0) return false;
+        // Movement converts calibrated endpoints to int before stepping. Reject overflow
+        // at startup rather than turning a valid on-screen target into an unrelated move.
+        double first = Math.Round(-origin / pixelsPerUnit);
+        double last = Math.Round((size-1-origin) / pixelsPerUnit);
+        return double.IsFinite(first) && double.IsFinite(last)
+            && first > int.MinValue && last < int.MaxValue;
     }
     public InputRouter(DeviceStore store, IEnumerable<string> allowed, IEnumerable<PointerCalibration> calibrations,
         Func<string,IHidTransport>? open, bool preciseMovement)

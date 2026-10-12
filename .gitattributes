@@ -3,3 +3,12 @@
 # the backup's SHA256SUMS.txt - so it can no longer be checked against the archive.
 # This only governs files someone deliberately tracks; it does not track anything.
 analysis/**/*.jsonl -text
+# Imported October evidence must also retain its recorded bytes through checkout.
+analysis/offline-backlog-20261011/** -text
+analysis/receiver-memory-20261012/** -text
+analysis/accuracy-recovery-20261012/** -text
+analysis/frame-freshness-20261012/** -text
+analysis/preview-freshness-20261012/** -text
+analysis/wall-freshness-20261012/** -text
+analysis/release-staging-20261012/** -text
+analysis/combined-candidate-20261012/** -text

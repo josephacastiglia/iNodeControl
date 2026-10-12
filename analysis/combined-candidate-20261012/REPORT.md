@@ -16,12 +16,15 @@ Two text conflicts were resolved deliberately: both sets of console self-tests a
 - The visible console build label and exported diagnostics identify the actual managed DLL and loaded module. The identity is captured at startup; a fixed label no longer makes different builds indistinguishable. The old string `build` field is retained with the actual version and an additional structured `build_identity` field (diagnostics schema 2).
 - `build-console.ps1` builds the authored SDK project and its standard apphost. The legacy custom launcher dropped isolation arguments and used separately generated XAML. The script now produces the same managed bytes as the direct SDK build and forwards arguments unchanged. It requires the .NET SDK and does not launch an application. Its historical output default is unchanged; this work passes only scratch output paths.
 
+- Invalid pointer origins and scales that overflow the movement coordinate conversion are now rejected before any hardware handle opens. The regression failed against the old constructor; seven new kernel checks pass. Normal calibration/pointer behavior is unchanged.
+- The existing rack checker now distinguishes structural validity, incomplete bindings and physical acceptance. It checks duplicate mappings, port collisions, malformed JSON and calibration arithmetic, permits per-phone calibration values, and never rewrites configuration. Its default planned-rack run exits 2: 19 receivers, five explicit saved bindings, 14 unbound. Physical readiness remains unassessed.
+
 ## Validation
 
 | Suite | Passing checks |
 |---|---:|
 | Combined console self-tests | 220 |
-| Combined kernel self-tests | 103 |
+| Combined kernel self-tests | 110 |
 | Selected-preview parser/API | 36 |
 | Wall lifecycle and simulated 19-phone scheduler | 22 |
 | Frame store and metrics | 25 |
@@ -36,10 +39,11 @@ Two text conflicts were resolved deliberately: both sets of console self-tests a
 | Accuracy evidence guards | 17 |
 | Accuracy scenarios | 14 |
 | Receiver analysis tools | 8 |
+| Rack configuration validation | 18 |
 | No-window data-path probes | 4 |
 | No-window startup-validation probes through SDK apphost | 8 |
 
-606 checks in total, with test scopes as named. No physical phone was addressed. Kernel self-tests use fake HID transports and synthetic frame pipes. The sandbox refused a private pipe; the same suite passed under the approved unrestricted test invocation. The cleanup harness uses private loopback listeners, synthetic video and simulated boards; all nine scenarios pass, including delayed/failed answers, confirmed/unconfirmed cleanup, lease expiry and stale-release isolation. An initial parallel harness build failed without a diagnostic; its serial build passed with zero warnings/errors. Those logs are retained.
+631 checks in total, with test scopes as named. No physical phone was addressed. Kernel self-tests use fake HID transports and synthetic frame pipes. The sandbox refused a private pipe; the same suite passed under the approved unrestricted test invocation. The cleanup harness uses private loopback listeners, synthetic video and simulated boards; all nine scenarios pass, including delayed/failed answers, confirmed/unconfirmed cleanup, lease expiry and stale-release isolation. An initial parallel harness build failed without a diagnostic; its serial build passed with zero warnings/errors. Those logs are retained.
 
 The Python driver initially named a nonexistent receiver `test_probe.py`; it was not counted as a pass. The actual `test_tools.py` was subsequently run and passes eight checks. Existing native leak tests are preserved from the previous source-equivalent record, not claimed as rerun here.
 
@@ -50,3 +54,7 @@ No UI automation suite was run: it opens windows. The displayed label, layout, r
 The original main working files and three installed binaries were hash-checked unchanged. No screen control, phone input, receiver advertisement, operator settings change, installed-process restart, upload, or push. Test processes finish; no development server is left intentionally running.
 
 The combined candidate remains unpromoted. Packaging is review-only until runtime/configuration and interactive/physical acceptance are complete. Continue offline with rack-configuration validation and release readiness, preserving the written gate requirements. Source/build manifests and an external archive record the final checkpoint separately.
+
+## Local checkpoint
+
+The source integration merge is `f5c70ec`. Follow-up calibration/readiness fixes are committed separately. The final console build passes 220 self-tests; the final kernel passes 110. No-window probes and non-product harness results above retain their individual build records; this total is not a claim that every test was rerun on every binary. Imported October evidence is stored without Git newline conversion.

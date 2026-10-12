@@ -37,6 +37,21 @@ public static class SelfTests
         string file=Path.Combine(testDir,"devices.json");
         File.WriteAllText(file,JsonSerializer.Serialize(new[]{new Phone{deviceid="test-one",pid="C24C"},new Phone{deviceid="test-two",pid="C214"}}));
         var writes=new RecordingTransport();
+        var validCalibration = new PointerCalibration("C24C",500,1080,14,14,5.12,5.09);
+        foreach (var bad in new[] {
+            validCalibration with { OriginX = double.NaN },
+            validCalibration with { OriginY = double.PositiveInfinity },
+            validCalibration with { OriginX = double.NegativeInfinity },
+            validCalibration with { OriginY = double.NaN },
+            validCalibration with { PixelsPerUnitX = double.Epsilon },
+            validCalibration with { OriginX = -double.MaxValue },
+            validCalibration with { OriginY = double.MaxValue } })
+        {
+            bool rejected = false; int opens = 0;
+            try { using var invalidRouter = new InputRouter(new DeviceStore(file),["C24C"],[bad],_=>{opens++;return writes;}); }
+            catch (ArgumentException) { rejected = true; }
+            Check(rejected && opens == 0, "Invalid or unrepresentable calibration rejected before opening hardware: " + passed);
+        }
         using var router=new InputRouter(new DeviceStore(file),["C24C"],[new("C24C",500,1080,14,14,5.12,5.09)],_=>writes);
         JsonElement Data(object obj)=>JsonSerializer.SerializeToElement(obj);
         Check(Convert.ToHexString(HidProtocol.Mouse(1))=="A101000000000000","Down matches captured packet");
