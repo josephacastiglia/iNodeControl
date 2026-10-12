@@ -89,4 +89,3 @@ DLLs are checked for presence; API-set contracts and dynamic dependencies are no
 fully validated. It does not verify networking, discovery, decoding or licenses.
 Run `python tools/receiver_memory_probe/test_runtime_audit.py` for nine offline
 fixture tests. Reports cannot overwrite an existing evidence file.
-
