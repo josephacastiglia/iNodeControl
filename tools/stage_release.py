@@ -148,7 +148,7 @@ def verify(bundle):
     return issues
 
 
-def stage(repo, output, managed, native_exe, native_record, native_source, guide, runtime_bundle=None):
+def stage(repo, output, managed, native_exe, native_record, native_source, guide, runtime_bundle=None, operator_guide=None):
     repo, output = Path(repo).resolve(), Path(output)
     # All creation stays in a new child of this checkout's output/staging directory.
     staging = safe(repo, "output/staging")
@@ -198,6 +198,9 @@ def stage(repo, output, managed, native_exe, native_record, native_source, guide
     add(native_exe, "payload/receiver/uxplay.exe")
     add(native_record, "provenance/receiver.json")
     add(guide, "README.md")
+    if operator_guide is not None:
+        add(operator_guide, "OPERATOR-GUIDE.md")
+        add(guide, "RELEASE-STAGING.md")  # Preserve the operator guide's relative reference.
     add(Path(__file__), "verify_package.py")
     add(Path(bm.__file__), "build_manifest.py")
     runtime_prefix = None
@@ -249,6 +252,7 @@ def main(argv=None):
     for key in ("repo", "out", "console-build", "console-manifest", "kernel-build", "kernel-manifest", "receiver-exe", "receiver-record", "receiver-source", "guide"):
         s.add_argument("--" + key, type=Path, required=True)
     s.add_argument("--runtime-bundle", type=Path, help="verified local-test-only native runtime capsule")
+    s.add_argument("--operator-guide", type=Path, help="include the current operator guide alongside the preparation guide")
     args = parser.parse_args(argv)
     try:
         if args.mode == "verify":
@@ -258,7 +262,7 @@ def main(argv=None):
             print("Integrity FAILED" if issues else "Integrity verified. REVIEW ONLY: startup and deployment remain blocked.")
             return 1 if issues else 0
         result = stage(args.repo, args.out, {c: (getattr(args, c+"_build"), getattr(args, c+"_manifest")) for c in MANAGED},
-                       args.receiver_exe, args.receiver_record, args.receiver_source, args.guide, args.runtime_bundle)
+                       args.receiver_exe, args.receiver_record, args.receiver_source, args.guide, args.runtime_bundle, args.operator_guide)
         print(f"Staged {len(result['files'])} verified files. REVIEW ONLY: no process was started.")
         return 0
     except (ValueError, OSError, KeyError, TypeError) as error:

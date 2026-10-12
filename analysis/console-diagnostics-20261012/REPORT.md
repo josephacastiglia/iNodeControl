@@ -32,3 +32,7 @@ Restricted runs first hit sandbox rename/pipe denials. Those observations are pr
 No live app window, save dialog or physical-phone test was run. UI integration compiles but its real button workflow remains a later check. No gate is signed off by this report. The native-runtime package archived earlier is immutable and retains its earlier console/kernel; it does not inherit this change. New build manifests and a separate review package identify these bytes.
 
 The deferred typing issue, Home Tab, FKA-Off App Switcher, phone discovery and full-rack acceptance remain open. No candidate was pushed, installed or promoted.
+
+## Review package
+
+`output/staging/combined-diagnostics-final-20261012/` contains 550 verified files plus its inventory, including the native runtime capsule and both operator/preparation guides. The release stager accepts `--operator-guide` to keep that documentation with the exact binaries. All 22 existing staging tests pass. The console and kernel manifests match every recorded source input and build artifact. This remains a review package, not an installed or live-accepted release.
