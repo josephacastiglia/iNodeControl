@@ -62,6 +62,21 @@ Matching output establishes reproduction with the current local dependencies.
 It does not authenticate an upstream download or establish which dynamic DLLs
 were loaded during a historical rack run.
 
+## Test a staged runtime
+
+The existing generated-video probe accepts `--toolchain-runtime` for compilation
+and a different `--test-runtime` for execution. Set `--reference-receiver` to the
+installed executable to hash it before/after without running it. With a reduced
+runtime, keep the synthetic `videotestsrc`/OpenH264 encoder plugins and encoder
+DLL in separate `--test-plugins` and `--test-dlls` folders. They are test support,
+not product dependencies. Duplicate runtime DLL names in the test folder fail.
+
+Each child's PATH contains only the chosen runtime, explicit test DLLs and Windows
+folders. GStreamer uses a private registry and the selected scanner/plugins.
+Loaded modules outside the declared runtime/support/Windows/executable are a test
+failure. Source, runtime path and actual loaded-library hashes are recorded.
+Five-second runs are functional smoke checks, not memory-slope evidence.
+
 ## Tool checks
 
 ```powershell

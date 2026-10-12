@@ -22,7 +22,8 @@ The package contains these areas:
 |---|---|
 | `payload/console/` | SDK-built console assembly, executable, symbols, dependency file, and runtime declaration |
 | `payload/kernel/` | SDK-built kernel assembly, executable, symbols, dependency file, and runtime declaration |
-| `payload/receiver/` | Patched native UxPlay executable; external libraries are not included |
+| `payload/receiver/` | Patched native UxPlay executable |
+| `dependencies/receiver-runtime/` (optional) | Audited native DLLs, scanner/plugins, package records and available notices for local tests |
 | `source/` | Exact recorded project/native source snapshots; includes source fixtures, not copied operator settings |
 | `provenance/` | Original managed build manifests and native build comparison |
 | `package.json` | File checksums, review-only status, and unresolved release requirements |
@@ -72,6 +73,29 @@ Use these steps only during the approved window if the candidate fails:
 4. Relaunch the saved working configuration through the original launcher, when no conflicting kernel or receivers remain. Verify paths and identities before operating it.
 5. Have the operator reconnect each phone's mirroring if needed. Verify the intended phone/board/receiver mapping, live video, lease state, and restored settings. If a receiver is missing from the phone's list, preserve the evidence and follow the agreed recovery plan; do not begin repeated restarts.
 6. Record the final state and any unresolved failure. Keep the candidate package and logs for diagnosis. Restoration is complete only when the operator's working setup is confirmed usable again.
+
+## Included native runtime for local tests
+
+A package with `native_runtime` in `package.json` includes its verified dependency
+copy under `dependencies/receiver-runtime/runtime/`. Point a future candidate's
+receiver-runtime setting there, only during an authorized acceptance window.
+It includes the selected software-video pipeline, scanner and audited DLLs;
+it does not include the Windows/.NET runtime, phone configuration or test sources.
+
+The parent verifier checks the nested inventory and that its audit covers the
+packaged receiver. The nested `verify_runtime.py verify --bundle .` also works
+independently inside `dependencies/receiver-runtime/`.
+
+`metadata/receipts.json` preserves the installed package versions, declared
+licenses, upstream URLs and available notices. `runtime.json` lists missing
+local notices. These are evidence records, not distribution clearance; obtaining
+the corresponding source/notices and reviewing release obligations remain open.
+Local synthetic video tests do not establish clean-PC or physical rack acceptance.
+
+To create this dependency copy, run `tools/stage_receiver_runtime.py stage` with
+the recorded audit, matching receiver and source MSYS folder. Then pass the new
+capsule as `--runtime-bundle` to `tools/stage_release.py stage`. Both outputs must
+be new folders below `output/staging/`; neither tool launches or installs anything.
 
 ## Receiver log retention
 

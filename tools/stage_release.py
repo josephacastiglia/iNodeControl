@@ -15,7 +15,7 @@ MANAGED = {"console": "iMouse2", "kernel": "iMouse2.Kernel"}
 SUFFIXES = (".dll", ".exe", ".deps.json", ".runtimeconfig.json", ".pdb")
 BLOCKERS = [
     "Combined source still needs interactive console and physical acceptance on this build; headless tests are not release sign-off.",
-    "Native runtime, GStreamer plugins/scanner and .NET Desktop runtime are external prerequisites; discovery dependencies depend on the recorded receiver build.",
+    "Runtime completeness, external .NET Desktop runtime and clean-PC behavior require verification; included native dependencies remain local-test-only.",
     "Per-phone bindings, calibration, receiver identities/ports and isolated console settings require a reviewed candidate configuration.",
     "Physical display, input, recovery, scale and endurance acceptance remains open; this is not a release sign-off.",
 ]
@@ -56,7 +56,7 @@ def load(path):
     return json.loads(Path(path).read_text(encoding="utf-8-sig"), object_pairs_hook=unique)
 
 
-def inventory(root):
+def inventory(root, manifest_name="package.json"):
     result, names = {}, set()
     for p in sorted(Path(root).rglob("*")):
         relative = p.relative_to(root).as_posix()
@@ -66,7 +66,7 @@ def inventory(root):
         if relative.casefold() in names:
             raise ValueError(f"case-colliding path: {relative}")
         names.add(relative.casefold())
-        if relative != "package.json":
+        if relative != manifest_name:
             result[relative] = row(p)
     return result
 
@@ -123,10 +123,32 @@ def verify(bundle):
             issues.append(f"native source provenance mismatch: {target}")
     permitted_payload = {p for p in required if p.startswith("payload/")}
     issues += [f"unapproved runtime asset: {name}" for name in expected if name.startswith("payload/") and name not in permitted_payload]
+    capsule_name = manifest.get("native_runtime")
+    if capsule_name is None and any(name.startswith("dependencies/") for name in expected):
+        issues.append("Undeclared dependency payload")
+    if capsule_name is not None:
+        if capsule_name != "dependencies/receiver-runtime":
+            raise ValueError("Unexpected native runtime location")
+        capsule = load(safe(bundle, capsule_name + "/runtime.json"))
+        if (capsule.get("status") != "local_test_only" or capsule.get("schema_version") != 1
+                or capsule.get("installation_allowed") is not False or capsule.get("redistribution_cleared") is not False):
+            raise ValueError("Included native runtime must remain local-test-only")
+        declared = capsule.get("files")
+        if not isinstance(declared, dict) or not declared:
+            raise ValueError("Empty native runtime inventory")
+        actual = {name[len(capsule_name)+1:]: data for name, data in expected.items()
+                  if name.startswith(capsule_name + "/") and name != capsule_name + "/runtime.json"}
+        for name in declared:
+            safe(bundle / capsule_name, name)
+        issues += bm.compare_rows(declared, actual, "native runtime provenance")
+        audit = load(safe(bundle, capsule_name + "/metadata/native-audit.json"))
+        if (audit.get("files_consistent") is not True or audit.get("errors") != []
+                or not any(value.get("sha256") == native["rebuilt_sha256"] for value in audit.get("files", {}).values())):
+            issues.append("Native runtime audit does not cover this receiver build")
     return issues
 
 
-def stage(repo, output, managed, native_exe, native_record, native_source, guide):
+def stage(repo, output, managed, native_exe, native_record, native_source, guide, runtime_bundle=None):
     repo, output = Path(repo).resolve(), Path(output)
     # All creation stays in a new child of this checkout's output/staging directory.
     staging = safe(repo, "output/staging")
@@ -178,6 +200,22 @@ def stage(repo, output, managed, native_exe, native_record, native_source, guide
     add(guide, "README.md")
     add(Path(__file__), "verify_package.py")
     add(Path(bm.__file__), "build_manifest.py")
+    runtime_prefix = None
+    if runtime_bundle is not None:
+        # Import only when staging dependencies. The standalone verifier checks the
+        # embedded inventory directly and needs no extra module or installed runtime.
+        import stage_receiver_runtime
+        runtime_bundle = Path(runtime_bundle).resolve()
+        issues = stage_receiver_runtime.verify(runtime_bundle)
+        if issues:
+            raise ValueError("Native runtime capsule failed verification: " + "; ".join(issues))
+        audit = load(safe(runtime_bundle, "metadata/native-audit.json"))
+        if not any(value.get("sha256") == native["rebuilt_sha256"] for value in audit.get("files", {}).values()):
+            raise ValueError("Native runtime capsule was audited for a different receiver")
+        runtime_prefix = "dependencies/receiver-runtime"
+        for name, data in inventory(runtime_bundle, "runtime.json").items():
+            add(safe(runtime_bundle, name), runtime_prefix + "/" + name, data)
+        add(safe(runtime_bundle, "runtime.json"), runtime_prefix + "/runtime.json")
     if len({name.casefold() for name in copies}) != len(copies):
         raise ValueError("Case-colliding package paths")
     # Preflight is complete. On copy failure leave the incomplete folder for inspection;
@@ -192,6 +230,8 @@ def stage(repo, output, managed, native_exe, native_record, native_source, guide
     manifest = {"schema_version": 1, "status": "review_only", "launch_allowed": False,
                 "blockers": BLOCKERS, "files": {name: data for name, (_, data) in sorted(copies.items())},
                 "scope": "Integrity and recorded local provenance; not a signature, dependency attestation or physical acceptance."}
+    if runtime_prefix:
+        manifest["native_runtime"] = runtime_prefix
     with (resolved / "package.json").open("x", encoding="utf-8") as handle:
         json.dump(manifest, handle, indent=2)
     issues = verify(resolved)
@@ -208,6 +248,7 @@ def main(argv=None):
     s = sub.add_parser("stage")
     for key in ("repo", "out", "console-build", "console-manifest", "kernel-build", "kernel-manifest", "receiver-exe", "receiver-record", "receiver-source", "guide"):
         s.add_argument("--" + key, type=Path, required=True)
+    s.add_argument("--runtime-bundle", type=Path, help="verified local-test-only native runtime capsule")
     args = parser.parse_args(argv)
     try:
         if args.mode == "verify":
@@ -217,7 +258,7 @@ def main(argv=None):
             print("Integrity FAILED" if issues else "Integrity verified. REVIEW ONLY: startup and deployment remain blocked.")
             return 1 if issues else 0
         result = stage(args.repo, args.out, {c: (getattr(args, c+"_build"), getattr(args, c+"_manifest")) for c in MANAGED},
-                       args.receiver_exe, args.receiver_record, args.receiver_source, args.guide)
+                       args.receiver_exe, args.receiver_record, args.receiver_source, args.guide, args.runtime_bundle)
         print(f"Staged {len(result['files'])} verified files. REVIEW ONLY: no process was started.")
         return 0
     except (ValueError, OSError, KeyError, TypeError) as error:

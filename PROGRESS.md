@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Isolated native runtime package, 12 October
+
+The combined candidate can include 126 audited native runtime files (168.7 MiB), with receipts from 91 installed packages and their available notices. The existing video probe passed four isolated five-second raw/H.264 scenarios; both bridge cases received all 150 frames and no unexpected library locations were observed. 16 runtime-staging, 22 release-staging and nine probe tests pass. No application/receiver or phone was operated. Twenty-four local notice gaps remain explicit; nothing is published. See `analysis/runtime-capsule-20261012/REPORT.md`.
+
+Next product work is the existing console Export diagnostics button: integrate the complete snapshot rather than requiring the separate developer tool. Physical acceptance remains open.
+
 ## Runtime prerequisite inventory, 12 October
 
 Inspected 127 native files through the patched receiver, scanner and selected plugin import graph; no missing imports in that scope. Nine audit regressions and 22 package tests pass. .NET 8 core/Desktop runtimes are present. Corrected the current guide: this receiver uses built-in mDNS, not an external Bonjour dependency. A dated process snapshot found the rack stopped; nothing was started. File presence is not live acceptance or redistribution permission. See `analysis/runtime-readiness-20261012/REPORT.md`.

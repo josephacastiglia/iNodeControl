@@ -44,6 +44,15 @@ class AnalysisTests(unittest.TestCase):
             self.assertEqual(env["GST_REGISTRY_1_0"], str(Path("scratch/registry.bin")))
             self.assertEqual(os.environ["IMOUSE2_FRAME_PIPE"], "real-pipe")
 
+    def test_staged_runtime_never_inherits_toolchain_path(self):
+        with patch.dict(os.environ, {"PATH": "wrong-toolchain", "SystemRoot": r"C:\Windows"}):
+            runtime = Path("isolated-runtime")
+            env = environment(Path("scratch"), runtime, Path("test/plugins"), Path("test/bin"))
+            self.assertNotIn("wrong-toolchain", env["PATH"])
+            self.assertTrue(env["PATH"].startswith(str(runtime / "bin")))
+            self.assertEqual(env["GST_PLUGIN_SYSTEM_PATH_1_0"], str(runtime / "lib/gstreamer-1.0"))
+            self.assertEqual(env["GST_PLUGIN_PATH_1_0"], str(Path("test/plugins")))
+
 
 class NormalizationTests(unittest.TestCase):
     def image(self):
