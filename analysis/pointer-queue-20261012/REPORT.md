@@ -66,6 +66,13 @@ replaced. Installed kernel/console/receiver and operator-settings content hashes
 still match the preceding record (`protected-files.json`). No phone state was
 read or changed, and no physical gate was signed off.
 
+Source/evidence commit: `8f09856`. The external archive
+`../iMouseXP-2.0-evidence-archive/20261012-pointer-queue/` holds 138 files
+(21,087,328 bytes) plus its checksum inventory. Every checksum verifies, including
+exact tested source bytes, component builds, negative controls and isolated
+preparation. Its verified Git bundle contains only the active candidate branch.
+See `archive-verification.json`. Nothing was pushed.
+
 ## Next
 
 The drag worker has separate shared pending/release fields and captures control
