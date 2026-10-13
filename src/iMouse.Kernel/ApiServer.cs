@@ -7,6 +7,7 @@ namespace IMouse2.Kernel;
 public sealed class ApiServer : IDisposable
 {
     private readonly HttpListener _http = new();
+    private readonly Action _startListening;
     private readonly DeviceStore _store;
     private readonly string _castName;
     private readonly InputRouter _input;
@@ -18,7 +19,12 @@ public sealed class ApiServer : IDisposable
         : this(prefix,store,input,[(castName,frames)]) { }
 
     public ApiServer(string prefix,DeviceStore store,InputRouter input,IEnumerable<(string Name,FrameStore Frames)> sessions)
+        : this(prefix,store,input,sessions,null) { }
+
+    // Listener failure/cancellation can be tested without reserving an OS port.
+    internal ApiServer(string prefix,DeviceStore store,InputRouter input,IEnumerable<(string Name,FrameStore Frames)> sessions,Action? startListening)
     {
+        _startListening = startListening ?? _http.Start;
         _store = store;
         _input = input;
         _inputSessions = new(store, input);
@@ -28,9 +34,13 @@ public sealed class ApiServer : IDisposable
         _http.Prefixes.Add(prefix);
     }
 
-    public async Task RunAsync(CancellationToken ct)
+    public async Task RunAsync(CancellationToken ct, Action? afterListening = null)
     {
-        _http.Start();
+        ct.ThrowIfCancellationRequested();
+        _startListening();
+        ct.ThrowIfCancellationRequested();
+        // Start frame readers/receivers only after the endpoint has been claimed.
+        afterListening?.Invoke();
         Console.WriteLine("Listening on " + string.Join(", ", _http.Prefixes.Cast<string>()));
         while (!ct.IsCancellationRequested)
         {

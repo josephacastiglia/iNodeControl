@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Kernel startup checks, 12 October
+
+The combined kernel rejects invalid startup options/configuration before hardware work, including malformed timing, duplicate/null records and input-enabled boards without explicit receiver bindings/calibration. Its new `--validate-startup` reads saved configuration and exits without boards, sockets, frame pipes, receivers or settings writes. Normal startup claims the HTTP endpoint before board enumeration and receiver startup.
+
+**167 kernel self-tests, seven actual validation-mode checks and all nine cleanup-harness scenarios pass.** Separate negative controls reintroducing silent timing fallback or pre-bind receiver startup failed the intended checks. Final build/source bytes are recorded, and a new immutable review package pairs the kernel with the existing combined console/runtime. Installed hashes remain unchanged. No physical gate was passed. See `analysis/kernel-startup-20261012/REPORT.md`. Next: failed binding-save consistency and atomic persistence in DeviceStore.
+
 ## Recorded candidate preparation, 12 October
 
 The existing candidate launcher now defaults to a read-only check, prepares a fresh isolated copy only when requested, and requires an explicit launch mode. It validates source/build records, endpoint, hover-off profile and the console's no-window startup result. Optional proxy startup verifies its port, own-process readiness receipt, response PID header and upstream identity; failure cleanup is scoped to that process and records unresolved cleanup. Installed startup files are unchanged.

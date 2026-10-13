@@ -1,0 +1,1 @@
+Startup refused: Could not find a part of the path 'C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\kernel-startup-20261012\must-not-be-created\devices.json'.

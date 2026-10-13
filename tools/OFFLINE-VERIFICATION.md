@@ -86,6 +86,13 @@ The check catches duplicate phone/board mappings and calibrations, malformed ide
 
 Run `python tools/test_validate_rack_config.py` for the offline regressions.
 
+The combined kernel also supports `--validate-startup`, using its own production
+option/configuration checks without hardware enumeration, sockets, frame pipes,
+receiver processes or settings writes. Use only the newly recorded kernel build,
+with explicit data/configuration paths. [Release preparation](../docs/RELEASE-STAGING.md)
+has the command and exit codes. This validates saved values and runtime file
+presence, not physical identity, available ports or successful dependency loading.
+
 ## Verify release staging
 
 Run the packaging and manifest regressions without starting apps:

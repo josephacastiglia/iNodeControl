@@ -1,0 +1,31 @@
+{
+  "valid": true,
+  "scope": "saved configuration only",
+  "hardware_accessed": false,
+  "listener_started": false,
+  "receivers_started": false,
+  "settings_written": false,
+  "build": {
+    "version": "1.0.0.0",
+    "informational_version": "1.0.0\u002B7f35140237f99e5d9125933f540beffd37686eaf",
+    "module_id": "279929db-717d-45a9-baef-ee91998726b0",
+    "sha256": "41c01cad2d5819b358609193a3b619e064c53868461a6e42cb3890614466bf95"
+  },
+  "data_directory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\two-phone-config",
+  "address": "http://127.0.0.1:9913/api/",
+  "allowed": [
+    "C24C",
+    "C241"
+  ],
+  "precise_delay_ms": 7,
+  "home_sequence": "vendor",
+  "receiver_count": 2,
+  "receiver_executable": "",
+  "receiver_runtime": "",
+  "bindings_complete": true,
+  "limitations": [
+    "Physical bindings, targeting and mirroring are not assessed.",
+    "Available ports, URL permissions and dependency loading are not tested.",
+    "No receiver executable: frame-pipe hosting only."
+  ]
+}

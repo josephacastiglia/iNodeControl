@@ -54,6 +54,36 @@ For a built combined console, use its offline preflight before considering a can
 
 The example folder and port are illustrative; choose your intended candidate folder and endpoint. This command opens no window, creates no candidate settings directory, and makes no connection. It writes `startup-validation.json` beside the executable and exits zero only if the isolated folder and explicit address are structurally valid. It does not prove the service is reachable or the receiver configuration is correct. Run it from a disposable copy of the payload: its generated report would correctly count as an extra file during strict package verification.
 
+## Validate kernel configuration without starting hardware
+
+Before a later kernel test window, validate a reviewed copy of its configuration
+with the newly recorded candidate kernel (older installed builds do not support
+this option):
+
+```powershell
+dotnet .\payload\kernel\iMouse2.Kernel.dll --validate-startup --data-dir "C:\iMouse candidate\data" --receivers "C:\iMouse candidate\data\receivers.json" --input-pid C24C --receiver "C:\iMouse candidate\uxplay.exe" --receiver-runtime "C:\iMouse candidate\runtime"
+```
+
+These paths are examples, not a configuration to install. The command checks the
+same options and saved records normal startup uses, prints JSON and exits without
+enumerating/opening boards, starting listeners/receivers or writing settings.
+Exit `0` means the saved configuration passes; exit `2` reports the reason for
+refusal on stderr. `bindings_complete` is separate from structural validity:
+read-only discovery/placeholder receivers may exist, but cannot be enabled for
+input. Available ports, URL permissions, runtime loading and physical identity
+are not tested. Use the existing package verifiers for dependency integrity.
+
+Normal startup now rejects missing/repeated/unknown options and invalid explicit
+movement timing before hardware work. Each enabled board needs a saved receiver
+binding and valid calibration. A child receiver needs an explicit runtime with
+its bin, plugin directory and scanner. The default movement pacing remains 7 ms;
+`--legacy` explicitly requests the old pacing. `--precise-delay` cannot be combined
+with it. Kernel values accept either `--name value` or `--name=value`.
+
+Normal startup claims its HTTP endpoint before board enumeration and receiver
+startup. A listener error or cancellation before that point starts no receivers.
+This does not guarantee that every later receiver start or phone recast succeeds.
+
 ## Prepare a rollback record
 
 For the operator managing a later approved test window, record the following before changing running services:

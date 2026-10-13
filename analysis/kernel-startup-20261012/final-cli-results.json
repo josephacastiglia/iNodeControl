@@ -1,0 +1,50 @@
+{
+  "tests": [
+    {
+      "case": "saved-two-phone",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "passed": true
+    },
+    {
+      "case": "invalid-delay",
+      "exit_code": 2,
+      "expected_exit": 2,
+      "passed": true
+    },
+    {
+      "case": "unknown-option",
+      "exit_code": 2,
+      "expected_exit": 2,
+      "passed": true
+    },
+    {
+      "case": "missing-directory",
+      "exit_code": 2,
+      "expected_exit": 2,
+      "passed": true
+    },
+    {
+      "case": "missing-runtime",
+      "exit_code": 2,
+      "expected_exit": 2,
+      "passed": true
+    },
+    {
+      "case": "saved-config-and-local-runtime",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "passed": true
+    },
+    {
+      "case": "unbound-rack-read-only",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "passed": true
+    }
+  ],
+  "all_passed": true,
+  "config_files_unchanged": true,
+  "missing_directory_created": false,
+  "kernel_dll_sha256": "41c01cad2d5819b358609193a3b619e064c53868461a6e42cb3890614466bf95"
+}

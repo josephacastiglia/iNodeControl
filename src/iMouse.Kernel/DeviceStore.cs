@@ -32,6 +32,14 @@ public sealed class DeviceStore
             : [];
     }
 
+    // Startup has already read and validated these bytes; do not reread a file
+    // that another process could replace between validation and use.
+    internal DeviceStore(string path, IEnumerable<Phone> phones)
+    {
+        _path = path;
+        _phones = phones.Select(Clone).ToList();
+    }
+
     public List<Phone> All()
     {
         lock (_gate) return _phones.Select(Clone).ToList();
