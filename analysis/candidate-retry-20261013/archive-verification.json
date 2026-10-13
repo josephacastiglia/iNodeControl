@@ -1,0 +1,16 @@
+{
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261013-candidate-retry",
+  "source_commit": "52eb0736f7a0410f298f37fd7977dbec817d0e40",
+  "files": 107,
+  "bytes": 63444729,
+  "all_hashes_verified": true,
+  "git_bundle_verified": true,
+  "candidate_archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261013-runtime-startup-guard",
+  "candidate_package_reverified": true,
+  "tested_managed_binaries_match_package": true,
+  "release_restored_both_live_and_free": true,
+  "restoration_record": "record/restoration-final.json",
+  "C241_input_sent": false,
+  "upward_home_gesture_failed": true,
+  "release_acceptance_complete": false
+}
