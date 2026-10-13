@@ -88,13 +88,64 @@ function Get-VerifiedKernelPids {
     @($verified | Select-Object -Unique)
 }
 
+function Start-ReleaseKernel {
+    param([string]$Exe,[string[]]$Arguments,[string]$WorkingDirectory)
+    # One file per attempt: never confuse an earlier refusal with this start.
+    $logDir = Join-Path $WorkingDirectory 'launch-logs'
+    [void][IO.Directory]::CreateDirectory($logDir)
+    $errorLog = Join-Path $logDir ('kernel-' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N') + '.stderr.txt')
+    $process = Start-Process -FilePath $Exe -ArgumentList $Arguments -WorkingDirectory $WorkingDirectory -WindowStyle Hidden -RedirectStandardError $errorLog -PassThru
+    [pscustomobject]@{ Process=$process; ErrorLog=$errorLog }
+}
+
+function Read-ReleaseStartupError {
+    param([string]$Path)
+    if (!$Path) { return '' }
+    $stream = $null
+    try {
+        $stream = [IO.File]::Open($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite)
+        # Keep a large crash report out of the dialog; the full file is preserved.
+        $count = [int][Math]::Min(8192, $stream.Length)
+        [void]$stream.Seek(-$count, [IO.SeekOrigin]::End)
+        $bytes = New-Object byte[] $count
+        $read = $stream.Read($bytes, 0, $count)
+        $detail = [Text.Encoding]::UTF8.GetString($bytes, 0, $read).Trim()
+        if ($stream.Length -gt $count) { return "[Last 8 KiB of startup error]`r`n$detail" }
+        $detail
+    } catch {
+        "Startup error log could not be read: $($_.Exception.Message)"
+    } finally { if ($stream) { $stream.Dispose() } }
+}
+
+function Wait-ReleaseKernel {
+    param($Start)
+    for ($attempt = 0; $attempt -lt 20; $attempt++) {
+        try { return Invoke-RestMethod 'http://127.0.0.1:9913/api/kernel/status' -TimeoutSec 2 }
+        catch {
+            if (!$Start) { throw 'The existing AirPlay service is not responding. No additional service was started. See OPEN-THIS-APP.md.' }
+            if ($Start.Process.HasExited) {
+                [void]$Start.Process.WaitForExit(1000)
+                $reason = Read-ReleaseStartupError $Start.ErrorLog
+                $exitDetail = if ($null -eq $Start.Process.ExitCode) { 'exit code unavailable' } else { "exit $($Start.Process.ExitCode)" }
+                $message = "Our AirPlay service exited before it was ready ($exitDetail)."
+                if ($reason) { $message += "`r`n`r`n$reason" }
+                else { $message += "`r`nNo startup error was written. See OPEN-THIS-APP.md." }
+                $message += "`r`n`r`nStartup log: $($Start.ErrorLog)"
+                throw $message
+            }
+            if ($attempt -lt 19) { Start-Sleep -Milliseconds 300 }
+        }
+    }
+    throw "Our AirPlay service did not finish starting. It may still be running (PID $($Start.Process.Id)); it was not stopped or restarted. See OPEN-THIS-APP.md. Startup log: $($Start.ErrorLog)"
+}
+
 try {
     foreach ($required in @($consoleExe,$kernelExe,$receiverExe,$runtimeRoot,
         (Join-Path $configRoot 'receivers.json'),(Join-Path $configRoot 'pointer-calibration.json'))) {
         if (!(Test-Path -LiteralPath $required)) { throw "Missing required file: $required" }
     }
     $settingsPath = Join-Path (Split-Path $consoleExe) 'data\settings.json'
-    $settings = Get-Content -LiteralPath $settingsPath -Raw | ConvertFrom-Json
+    $settings = Get-Content -LiteralPath $settingsPath -Raw -Encoding UTF8 | ConvertFrom-Json
     if ($settings.address.TrimEnd('/') -ne 'http://127.0.0.1:9913') {
         throw 'This app must use http://127.0.0.1:9913. Check its saved connection settings.'
     }
@@ -119,17 +170,9 @@ try {
         $kernelArgs = @('http://127.0.0.1:9913/api/','--data-dir',('"'+$configRoot+'"'),
             '--input-pid','C24C,C241','--receivers',('"'+(Join-Path $configRoot 'receivers.json')+'"'),
             '--receiver',('"'+$receiverExe+'"'),'--receiver-runtime',('"'+$runtimeRoot+'"'))
-        $started = Start-Process -FilePath $kernelExe -ArgumentList $kernelArgs -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru
+        $started = Start-ReleaseKernel -Exe $kernelExe -Arguments $kernelArgs -WorkingDirectory $projectRoot
     }
-    $status = $null
-    for ($attempt = 0; $attempt -lt 20; $attempt++) {
-        try { $status = Invoke-RestMethod 'http://127.0.0.1:9913/api/kernel/status' -TimeoutSec 2; break }
-        catch {
-            if ($occupied -or ($started -and $started.HasExited)) { throw }
-            Start-Sleep -Milliseconds 300
-        }
-    }
-    if (!$status) { throw 'Our AirPlay service did not finish starting. See the connection notes in OPEN-THIS-APP.md.' }
+    $status = Wait-ReleaseKernel -Start $(if ($occupied) { $null } else { $started })
     $ids = @($status.data.receivers.deviceid | Sort-Object)
     if (($ids -join ',') -ne $expectedIds) {
         throw 'Port 9913 belongs to a different phone configuration. No console was opened and no process was stopped.'
@@ -144,7 +187,8 @@ try {
 } catch {
     if ($CheckOnly) { throw }
     $message = $_.Exception.Message
-    $message | Set-Content -LiteralPath (Join-Path $projectRoot 'launch-error.txt')
+    try { [IO.File]::WriteAllText((Join-Path $projectRoot 'launch-error.txt'), $message, [Text.UTF8Encoding]::new($false)) }
+    catch { $message += "`r`n`r`nThe failure report could not be saved: $($_.Exception.Message)" }
     Add-Type -AssemblyName System.Windows.Forms
     [System.Windows.Forms.MessageBox]::Show($message, 'iMouse 2.0 - Independent AirPlay') | Out-Null
     exit 1

@@ -1,0 +1,5 @@
+Write-Error: C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_launcher.ps1:295
+Line |
+ 295 |      $failed | ForEach-Object { Write-Error $_ }
+     |                                 ~~~~~~~~~~~~~~
+     | An early exit shows the kernel refusal, exit code and exact log path

@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Launcher preserves startup refusals, 13 October
+
+The candidate launcher now retains its own kernel's stderr in a separate file per start and includes the refusal in its early-exit message. This exposes the missing-plugin names instead of losing them behind a connection error. Error text is bounded in the message; full files remain preserved. A missing Windows PowerShell exit code is explicitly unknown, and timeout messages identify a possibly still-running process without killing or relaunching it. Failed saving of the latest failure report no longer hides the original message.
+
+**47 offline launcher checks pass in each PowerShell runtime**, including existing identity checks. The real guarded kernel's validation-only refusal is captured in both runtimes; a deliberately stripped-diagnostic copy fails the intended checks. Synthetic children preserve redirected errors across parent exit. No installed file, managed binary, review package, service or phone was changed; no real API, UI or live-startup acceptance occurred. The root launcher source still needs inclusion in a future approved release assembly. See `analysis/launcher-startup-errors-20261013/REPORT.md` and its exact scope/limitations. No gate advanced.
+
 ## Repaired candidate starts and mirrors; API smoke recorded, 13 October
 
 The operator authorized a second C24C-only window. The guarded candidate kernel and repaired receiver runtime started successfully, received 6,715 frames and had zero receiver restarts. Upper/lower pointer moves, opening Calculator, left/right Home-page swipes and API Stop/Resume/release passed their small smoke checks. Stop acknowledged in 4.15 ms; this is not measured physical release latency. A bottom-edge upward swipe returned code 0 but did **not** return Calculator to Home; that visible-effect failure is preserved, and the operator returned Home physically. No retry was substituted for the failure.

@@ -35,6 +35,21 @@ The current connection also disables **Cast**, **Disc**, **Start casting**,
 or in the button tooltip. Start or stop mirroring on the phone itself. Board
 restart is not implemented in this version; export diagnostics if control stops.
 
+## If the app will not start
+
+If the candidate launcher cannot start the service, its error explains the
+reported refusal and points to that attempt's file under `launch-logs/`. For
+example, a missing receiver plugin is listed by name. Each attempt has a separate
+file; an earlier error is not reused. The dialog shows at most the last 8 KiB,
+while the full error file is kept for diagnosis. `launch-error.txt` contains the
+latest launch failure. These are local records; inspect them before sharing.
+
+A readiness timeout does not stop or restart the service. The message includes
+its process ID and says it may still be running. Do not repeatedly relaunch to
+try to clear it. If the process exits without reporting a reason, or Windows
+cannot return its exit code, the message says so. This launcher change is in the
+candidate source only; the installed shortcut has not been changed.
+
 ## Control and stop
 
 Use the phone preview to click, drag or hold. Controls also contains **Send text**

@@ -1,0 +1,16 @@
+{
+  "at_utc": "2026-10-13T05:19:51.9097418Z",
+  "powershell": "7.6.5",
+  "passed": true,
+  "exit_code": 2,
+  "kernel_sha256": "e0f00fa86c217e2c00913e22adc04c7c9c5477e670078b7a94f19e9d5af92e16",
+  "launcher_sha256": "516d1744f3a779e428f2a1cc63bbef72d7246986d8a6a9e863d1b66001ed1335",
+  "pid": 27124,
+  "process_exited": true,
+  "validation_only": true,
+  "service_reads_mocked": true,
+  "no_dialog_shown": true,
+  "protected_hashes_unchanged": true,
+  "error_log": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\launcher-startup-errors-20261013\\actual-pwsh\\launch-logs\\kernel-20261013-051951-23ce047761ed4b86a0245775899c5c5d.stderr.txt",
+  "limitation": "Actual kernel validation and launcher capture; no normal service startup, receiver, hardware or dialog interaction."
+}
