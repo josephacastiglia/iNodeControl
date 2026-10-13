@@ -5,6 +5,7 @@
   "bytes": 88202446,
   "checksums_verified": true,
   "git_bundle_verified": true,
-  "zip_extraction_verified": false,
-  "installed_or_launched": false
+  "zip_extraction_verified": true,
+  "installed_or_launched": false,
+  "extracted_verification": "Integrity verified. REVIEW ONLY: startup and deployment remain blocked."
 }
