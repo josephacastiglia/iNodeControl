@@ -3,6 +3,8 @@ using System.Net;
 using System.Text.Json;
 using IMouse2;
 
+if (args.Contains("--loopback")) return await LoopbackTransferProbe.Run();
+
 var tests = new List<(string, Func<Task>)>();
 void Test(string name, Action test) => tests.Add((name, () => { test(); return Task.CompletedTask; }));
 void Async(string name, Func<Task> test) => tests.Add((name, test));
@@ -159,10 +161,13 @@ Test("late failed request cannot mark newer successful preview failed", () => {
     Check(t.Observe(0, true, Meta(), requestSerial: 2) is null);
     Check(t.Status.FetchFailed);
 });
+tests.AddRange(ScreenshotTransferTests.Cases());
 int passed = 0;
 foreach (var (name, run) in tests)
 {
-    try { await run().WaitAsync(TimeSpan.FromSeconds(3)); passed++; Console.WriteLine("PASS " + name); }
+    // Transfer cases exercise the real eight-second HTTP deadline. Each owns
+    // its cancellation/cleanup; this outer bound is only a failed-test guard.
+    try { await run().WaitAsync(TimeSpan.FromSeconds(20)); passed++; Console.WriteLine("PASS " + name); }
     catch (Exception ex) { Console.WriteLine("FAIL " + name + ": " + ex); }
 }
 Console.WriteLine($"{passed}/{tests.Count} passed"); return passed == tests.Count ? 0 : 1;

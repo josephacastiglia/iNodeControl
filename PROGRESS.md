@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Console image downloads bounded and buffer growth repaired, 13 October
+
+The preview reader previously stopped enforcing its HTTP timeout after headers arrived. A simulated stalled body outlasted eight seconds and needed the test's 13-second escape. Unknown-length images over the initial buffer size also lost their first bytes during growth. The reader now keeps one eight-second deadline through the entire response, preserves the received prefix and enforces a 64 MiB response limit, clearing partial evidence on failure.
+
+The old source fails six of eight added transfer cases; all **44 preview checks, 22 wall checks and 382 console self-tests pass** after repair. An explicit local HTTP probe confirms body timeout at about eight seconds, a clean HTTP-503 failure and exact recovery through a larger chunked response. No real service, desktop or phone was operated. Sandbox restrictions on localhost access and temporary file replacement were recorded; the bounded offline verification succeeded after permission review. See `analysis/screenshot-client-20261013/REPORT.md`. This is a separately recorded console build; the package below remains unchanged and does not contain this later repair. Actual display/physical acceptance remains open.
+
 ## Accumulated recovery repairs packaged and prepared offline, 13 October
 
 `output/staging/combined-recovery-20261013` now preserves the latest kernel, unchanged console/receiver/runtime and the launcher's error-reporting source as inert text. Its 689-file inventory, embedded source provenance and native-runtime checks pass; 615 console/receiver/runtime entries are byte-identical to the previous package. All 28 packaging checks pass, including six new launcher-source preservation checks. Nothing was installed or launched on the rack.

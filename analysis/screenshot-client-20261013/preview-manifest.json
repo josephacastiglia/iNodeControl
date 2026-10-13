@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-13T07:00:49.346706+00:00",
+  "project": "tools/preview_tests/PreviewTests.csproj",
+  "metadata": {
+    "scope": "headless test tool with explicit linked source inventory"
+  },
+  "sources": {
+    "tools/preview_tests/LoopbackTransferProbe.cs": {
+      "sha256": "e7c4391c640e22eba84c88993c3a7e173b74917e60ebccd094e2352287f10cef",
+      "bytes": 5531
+    },
+    "tools/preview_tests/PreviewTests.csproj": {
+      "sha256": "09ac2cdf13a612a857986107d64dd41fa0f4eddf65504cac5dd832009c4c2a91",
+      "bytes": 511
+    },
+    "tools/preview_tests/Program.cs": {
+      "sha256": "6150d097c33876ce517a8e3895d126a90c7f6b0d4e88154e49e78c2ffc2aa113",
+      "bytes": 12352
+    },
+    "tools/preview_tests/README.md": {
+      "sha256": "b51b57e2fa07f998bff0ec5f8a41185cc543270ef6152179afde9d9fa8bed488",
+      "bytes": 2828
+    },
+    "tools/preview_tests/ScreenshotTransferTests.cs": {
+      "sha256": "ce292ec2ef69d784603aaed22258d73080042b730e245379bbbaf2d308f0e352",
+      "bytes": 11483
+    },
+    "NuGet.config": {
+      "sha256": "e2a0716cbd1a016e568a2d466192c1b00244da147eb835707b5eb5f4e3bc1e17",
+      "bytes": 114
+    },
+    "src/iMouse.Console/ApiClient.cs": {
+      "sha256": "0814eda0920eeacfad527d29d403197c6719a1afbad3a232bd4d274e11d451fa",
+      "bytes": 32684
+    },
+    "src/iMouse.Console/InputLeaseClient.cs": {
+      "sha256": "2d7b26725f4704c5aee7608c02995d7446a773af9a7406fdeb52c9c83a1f7cf5",
+      "bytes": 27297
+    },
+    "src/iMouse.Console/PreviewFreshness.cs": {
+      "sha256": "b71a55e1a63007ab96aeb8c31308cfd7f916bd83c3d430089c2199aabb1103a3",
+      "bytes": 5465
+    }
+  },
+  "artifacts": {
+    "PreviewTests.deps.json": {
+      "sha256": "27d731f80185f5ae02d652edc3d3b14b76cd4e09194005a7098884db9f079ad3",
+      "bytes": 428
+    },
+    "PreviewTests.dll": {
+      "sha256": "31147d49dd4ab190f9dcf52fc610031978fc5371a36ab3e5543e63b7c80e9952",
+      "bytes": 158208
+    },
+    "PreviewTests.exe": {
+      "sha256": "6c1dd99d8b592b10419d98eb14d1cef08071ba804f3a130a40d3cbc0e0194702",
+      "bytes": 151552
+    },
+    "PreviewTests.pdb": {
+      "sha256": "edb3f896ad8983755aeaea7be8a24eff3ec7352621e13cb919aa26b7b56bbd9b",
+      "bytes": 38532
+    },
+    "PreviewTests.runtimeconfig.json": {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "bytes": 340
+    }
+  },
+  "scope": "project files, common build inputs and output bytes; external dependencies are not independently attested"
+}

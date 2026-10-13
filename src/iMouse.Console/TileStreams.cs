@@ -88,7 +88,8 @@ public sealed class TileStreams
 public readonly record struct TileFetchResult(bool Success, bool Cancelled);
 
 /// <summary>Shared bound on tile screenshot requests. Holds a slot only during fetch,
-/// never during decoding, presentation or retry delay. HTTP itself supplies the timeout.</summary>
+/// never during decoding, presentation or retry delay. ApiClient bounds the full
+/// screenshot transfer, including its body, with the request deadline.</summary>
 public sealed class TileFetchScheduler
 {
     private readonly SemaphoreSlim _slots;

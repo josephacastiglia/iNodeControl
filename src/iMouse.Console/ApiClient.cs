@@ -343,9 +343,11 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         if (!IsImage(bytes)) throw new ApiException("No screen image is available. Start mirroring on the phone.");
         return bytes;
     }
+    public const int MaxScreenshotBytes = 64 * 1024 * 1024;
     /// <summary>
     /// Fetches one frame into a reusable buffer instead of a fresh array. Same contract as
     /// <see cref="ScreenshotAsync"/>; see <see cref="FrameBuffer"/> for why it matters.
+    /// The full response has one eight-second deadline and a 64 MiB byte limit.
     /// </summary>
     public async Task ScreenshotIntoAsync(string id, bool jpeg, FrameBuffer buffer, CancellationToken ct = default)
     {
@@ -353,42 +355,65 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         buffer.Length = 0;
         buffer.Metadata = null; // Reused buffers must never retain another response's evidence.
         long requestStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+        // With ResponseHeadersRead, HttpClient's timeout ends at the headers.
+        // Keep the same deadline through the complete body; stalled previews must
+        // release their request/tile slot even while the connection stays open.
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        deadline.CancelAfter(_http.Timeout);
+        var token = deadline.Token;
         var url = Endpoint.AbsoluteUri.TrimEnd('/') + "/pic/screenshot?id=" + Uri.EscapeDataString(id) + "&binary=true" + (jpeg ? "&jpg=true" : "");
         // ResponseHeadersRead, so HttpClient does not buffer the body into an array of its
         // own before handing it over - that would put the allocation straight back.
-        using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
+        using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, token);
         response.EnsureSuccessStatusCode();
-        if (response.Content.Headers.ContentLength is > 0 and < 64L * 1024 * 1024)
+        if (response.Content.Headers.ContentLength > MaxScreenshotBytes)
+            throw new ApiException("The screen image exceeds the 64 MiB response limit.");
+        if (response.Content.Headers.ContentLength is > 0)
             buffer.Ensure((int)response.Content.Headers.ContentLength.Value);
-        using var stream = await response.Content.ReadAsStreamAsync(ct);
-        int total = 0;
-        while (true)
+        try
         {
-            if (total == buffer.Data.Length) buffer.Ensure(total + (1 << 20));
-            int read = await stream.ReadAsync(buffer.Data.AsMemory(total), ct);
-            if (read == 0) break;
-            total += read;
-        }
-        buffer.Length = total;
-        if (IsImage(buffer.Span))
-        {
+            using var stream = await response.Content.ReadAsStreamAsync(token);
+            int total = 0;
+            while (true)
+            {
+                if (total == MaxScreenshotBytes)
+                {
+                    // Distinguish an exact-size image from overflow without
+                    // growing the reusable buffer beyond its bound.
+                    if (await stream.ReadAsync(new byte[1].AsMemory(), token) != 0)
+                        throw new ApiException("The screen image exceeds the 64 MiB response limit.");
+                    break;
+                }
+                if (total == buffer.Data.Length) buffer.Ensure(Math.Min(MaxScreenshotBytes, total + (1 << 20)));
+                int read = await stream.ReadAsync(buffer.Data.AsMemory(total, Math.Min(buffer.Data.Length, MaxScreenshotBytes) - total), token);
+                if (read == 0) break;
+                total += read;
+                // Ensure copies Length bytes when growing. A chunked response
+                // without Content-Length must retain the already-read prefix.
+                buffer.Length = total;
+            }
+            token.ThrowIfCancellationRequested();
+            if (!IsImage(buffer.Span))
+            {
+                // JSON/base64 is a legacy fallback, outside the hot path.
+                var data = ReadResult(Encoding.UTF8.GetString(buffer.Data, 0, total));
+                byte[] decoded;
+                try { decoded = Convert.FromBase64String(JsonValue.Text(data, "image")); }
+                catch (FormatException) { throw new ApiException("The service did not return an image. Start mirroring in iMouse first."); }
+                if (!IsImage(decoded)) throw new ApiException("No screen image is available. Start mirroring on the phone.");
+                buffer.Ensure(decoded.Length);
+                decoded.CopyTo(buffer.Data, 0);
+                buffer.Length = decoded.Length;
+            }
+            token.ThrowIfCancellationRequested();
             buffer.Metadata = ScreenshotMetadata.Parse(response.Headers,
                 System.Diagnostics.Stopwatch.GetElapsedTime(requestStarted).TotalMilliseconds);
-            return;
         }
-
-        // The service can answer with JSON carrying a base64 image instead. That is rare
-        // and never on the hot path, so this branch is allowed to allocate.
-        var data = ReadResult(Encoding.UTF8.GetString(buffer.Data, 0, total));
-        byte[] decoded;
-        try { decoded = Convert.FromBase64String(JsonValue.Text(data, "image")); }
-        catch (FormatException) { throw new ApiException("The service did not return an image. Start mirroring in iMouse first."); }
-        if (!IsImage(decoded)) throw new ApiException("No screen image is available. Start mirroring on the phone.");
-        buffer.Ensure(decoded.Length);
-        decoded.CopyTo(buffer.Data, 0);
-        buffer.Length = decoded.Length;
-        buffer.Metadata = ScreenshotMetadata.Parse(response.Headers,
-            System.Diagnostics.Stopwatch.GetElapsedTime(requestStarted).TotalMilliseconds);
+        catch
+        {
+            buffer.Length = 0; buffer.Metadata = null;
+            throw;
+        }
     }
 
     public static bool IsImage(ReadOnlySpan<byte> bytes) => bytes.Length > 8 &&

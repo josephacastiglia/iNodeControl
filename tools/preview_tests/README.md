@@ -4,7 +4,25 @@
 dotnet run --project tools/preview_tests/PreviewTests.csproj -c Release
 ```
 
-36 tests link the actual `ApiClient`, ownership client and `PreviewFreshness` source. Every HTTP handler is injected and refuses anything except a mock screenshot GET. No ownership client is activated, no socket fallback exists and no WPF window, phone or installed settings are used.
+44 tests link the actual `ApiClient`, ownership client and `PreviewFreshness` source. In the default suite every HTTP handler is injected and refuses anything except a mock screenshot GET. No ownership client is activated, no socket fallback exists and no WPF window, phone or installed settings are used.
+
+The eight transfer checks cover a stalled body, a single deadline across headers
+and body, caller cancellation, unknown-length buffer growth, advertised and
+unadvertised overflow, body failure and the exact 64 MiB limit. Stalled requests
+use the actual eight-second deadline, with a separate 13-second test escape.
+The fixtures verify transport bytes and freshness evidence; they do not decode
+or display a real image. They also verify response disposal and next-fetch recovery.
+
+An explicit optional real HTTP probe uses only its own ephemeral loopback server:
+
+```powershell
+dotnet run --project tools/preview_tests/PreviewTests.csproj -c Release -- --loopback
+```
+
+It stalls one image body, returns HTTP 503 for the next request, then sends a
+larger chunked response. It checks timeout, cleared evidence, byte integrity and
+recovery, and awaits server shutdown. It does not start a kernel or prove UI
+retry timing, physical frame presentation or rack performance.
 
 The parser validates all four delivery headers. Invalid, missing, duplicate or partial metadata leaves the image usable with unknown age. Request elapsed time is added conservatively to the server-reported delivery age; this is not a phone capture timestamp or exact network latency.
 

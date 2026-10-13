@@ -2,6 +2,13 @@
 
 This is the next-test record for the combined candidate, not release sign-off.
 
+**Later console repair:** `analysis/screenshot-client-20261013/` records a
+separate console build that bounds image-body downloads and preserves bytes
+during unknown-length buffer growth. Its offline/loopback tests pass. It is not
+included in the package below; preserve that package unchanged and assemble a
+new one before testing these repairs together. No physical/UI acceptance is
+implied by either preparation.
+
 **Current offline package:** `output/staging/combined-recovery-20261013` includes
 the accumulated repairs and a fresh, unused C24C-only preparation at
 `output/candidate-runs/recovery-20261013`. Its complete file inventory, embedded

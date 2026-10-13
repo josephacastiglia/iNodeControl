@@ -1,0 +1,12 @@
+{
+  "preview-tests": {
+    "exit_code": 0
+  },
+  "loopback-tests": {
+    "exit_code": 0
+  },
+  "self-tests": {
+    "exit_code": 0
+  },
+  "installed_static_files_unchanged": true
+}

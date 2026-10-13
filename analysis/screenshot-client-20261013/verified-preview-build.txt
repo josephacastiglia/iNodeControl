@@ -1,0 +1,7 @@
+  PreviewTests -> C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\screenshot-client-20261013\verified-preview\PreviewTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.55

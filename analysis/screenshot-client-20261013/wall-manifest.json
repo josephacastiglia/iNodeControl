@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-13T07:00:49.576702+00:00",
+  "project": "tools/wall_tests/WallTests.csproj",
+  "metadata": {
+    "scope": "headless test tool with explicit linked source inventory"
+  },
+  "sources": {
+    "tools/wall_tests/Program.cs": {
+      "sha256": "ac4b2084557e73dd2c855b14da7a265be37a56aa87414509f924983f9719573e",
+      "bytes": 11875
+    },
+    "tools/wall_tests/README.md": {
+      "sha256": "55ae543d3103988815e868a0698c43c317c7ded1140c8de94ffe8ff3c0939046",
+      "bytes": 1206
+    },
+    "tools/wall_tests/WallTests.csproj": {
+      "sha256": "cbbcdd8f9e5cc0c064efdc69f9e123a58928a4c739f303bef4328ab6bf815d6b",
+      "bytes": 683
+    },
+    "NuGet.config": {
+      "sha256": "e2a0716cbd1a016e568a2d466192c1b00244da147eb835707b5eb5f4e3bc1e17",
+      "bytes": 114
+    },
+    "src/iMouse.Console/ApiClient.cs": {
+      "sha256": "0814eda0920eeacfad527d29d403197c6719a1afbad3a232bd4d274e11d451fa",
+      "bytes": 32684
+    },
+    "src/iMouse.Console/InputLeaseClient.cs": {
+      "sha256": "2d7b26725f4704c5aee7608c02995d7446a773af9a7406fdeb52c9c83a1f7cf5",
+      "bytes": 27297
+    },
+    "src/iMouse.Console/PreviewFreshness.cs": {
+      "sha256": "b71a55e1a63007ab96aeb8c31308cfd7f916bd83c3d430089c2199aabb1103a3",
+      "bytes": 5465
+    },
+    "src/iMouse.Console/TileStreams.cs": {
+      "sha256": "f047f6d9fe7a167f72bc5b14a34178cc01006ed8ca51d03e1cccb52d9c3050f0",
+      "bytes": 5312
+    },
+    "src/iMouse.Console/FrameMetrics.cs": {
+      "sha256": "ddecc12a670a5f1490b2772c85bc133f532c4901484afb944f296efeca2c2830",
+      "bytes": 2905
+    }
+  },
+  "artifacts": {
+    "WallTests.deps.json": {
+      "sha256": "583ba9eb0eef1fd076fe6db236dc4ca3fe886e5190214016799329d8636b2ca6",
+      "bytes": 419
+    },
+    "WallTests.dll": {
+      "sha256": "ba0a3d2f216bb4b16f740f0bdc89819f93d5886d863d4baae27aa6f69e14b6d6",
+      "bytes": 141824
+    },
+    "WallTests.exe": {
+      "sha256": "c51815864f390cf7ee574f9d52988429a8276ee4a46c3a8b84ee15854cb077a5",
+      "bytes": 151552
+    },
+    "WallTests.pdb": {
+      "sha256": "8d0877bb10916b613c21a808867420f5ec392e58888aaeb966e269b8a2a6deb7",
+      "bytes": 36880
+    },
+    "WallTests.runtimeconfig.json": {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "bytes": 340
+    }
+  },
+  "scope": "project files, common build inputs and output bytes; external dependencies are not independently attested"
+}

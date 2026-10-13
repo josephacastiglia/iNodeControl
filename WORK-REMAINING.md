@@ -56,6 +56,8 @@ The two-phone system has working foundations: independent kernel and mirroring, 
 
 35. **Completed offline:** accumulated recovery repairs are assembled in `combined-recovery-20261013`, with exact launcher source preserved as inert text. All 28 package checks pass. Both binaries validate a fresh C24C-only configuration; the strict prepared-launcher check passes after keeping generated validation reports in a separate copy. See `analysis/consolidated-package-20261013/REPORT.md`. No candidate window, listener or receiver was started, and no settings or installed files changed. The fresh package still needs physical/console acceptance and clean-PC/runtime release work.
 
+36. **Completed offline:** the console now bounds the entire image response to eight seconds and 64 MiB, preserves partial bytes during unknown-length buffer growth and clears failed evidence. Six new cases fail on the old reader; all 44 preview, 22 wall and 382 console checks pass, plus a real loopback stalled-body/503/chunked-recovery probe. See `analysis/screenshot-client-20261013/REPORT.md`. This later console build is separate from `combined-recovery-20261013`; combine it in a new immutable package before claiming validation of all fixes together. Physical display, actual console retry timing and full-rack behavior remain open.
+
 Offline work can prepare and repair these areas. Full-rack behavior, physical targeting, real display latency and final endurance acceptance still require later coordinated hardware runs. No desktop-control window, restart, deployment or promotion is authorized by this document.
 
 The detailed requirements remain in [FINISH-CRITERIA.md](FINISH-CRITERIA.md); current evidence and history are in [PROGRESS.md](PROGRESS.md).
