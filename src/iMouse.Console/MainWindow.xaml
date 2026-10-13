@@ -331,8 +331,8 @@
                   <TextBlock x:Name="MirroringActionHelp" Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Visibility="Collapsed"/>
 
                   <TextBlock Text="POINTER" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
-                  <CheckBox x:Name="PointerEnabled" IsChecked="True"><TextBlock Text="Click / drag to control" TextWrapping="Wrap"/></CheckBox>
-                  <CheckBox x:Name="TrackPointer" IsChecked="True" Margin="0,3,0,0"><TextBlock Text="Move phone pointer with mouse" TextWrapping="Wrap"/></CheckBox>
+                  <CheckBox x:Name="PointerEnabled" IsChecked="True" Unchecked="PointerTrackingDisabled"><TextBlock Text="Click / drag to control" TextWrapping="Wrap"/></CheckBox>
+                  <CheckBox x:Name="TrackPointer" IsChecked="True" Unchecked="PointerTrackingDisabled" Margin="0,3,0,0"><TextBlock Text="Move phone pointer with mouse" TextWrapping="Wrap"/></CheckBox>
                   <CheckBox x:Name="AutoPreview" IsChecked="True" Margin="0,3,0,0" Checked="Live_Changed" Unchecked="Live_Changed"><TextBlock Text="Live view" TextWrapping="Wrap"/></CheckBox>
                   <ComboBox x:Name="CoordSpace" SelectedIndex="0" Margin="0,6,0,0" AutomationProperties.Name="Coordinate space used for taps">
                     <ComboBoxItem Content="Taps: image pixels" Tag="image"/><ComboBoxItem Content="Taps: iOS points" Tag="points"/>

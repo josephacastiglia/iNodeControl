@@ -1,0 +1,7 @@
+{
+  "kind": "separate scratch copies; no product mutation",
+  "controls": [
+    "clear pending after sending a previous move",
+    "erase another control scope after old failure"
+  ]
+}

@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Hover queue ordering and cancellation, 12 October
+
+The console now captures coordinates, mirror targets, client and cancellation tokens in one request. Its hover pump atomically coalesces pending moves and goes idle, prevents an old scope's failure from dropping a new phone's work, and clears unsent hover before a gesture or when tracking is disabled. Dispatched moves retain the existing ownership queue; no fixed drag delay or automatic retry was added.
+
+**289 console self-tests pass**, including 18 new checks. Two deliberately broken scratch copies fail the intended new checks. The exact console component and isolated, unlaunched preparation are recorded in `analysis/pointer-queue-20261012/REPORT.md`. This addresses source-level races, not a claimed reproduction of an earlier physical pointer incident. No UI or hardware test ran. Next: audit the drag worker's shared pending/release fields and delayed capture of control lifetimes with simulated input.
+
 ## Unsupported service actions, 12 October
 
 The console now disables live binding, remote casting and board-restart controls for its ownership connection, shows the supported setup/mirroring path, and blocks stale action requests locally. Auto-bind no longer mistakes the kernel's refusal for a cable or pointer failure. Explicit legacy/test behavior and supported input paths are retained.

@@ -92,7 +92,7 @@ public partial class MainWindow : Window
         StateChanged += (_, _) => { SyncPumpTarget(); if (WindowState != WindowState.Minimized) StartPump(); };
         // Fit once the first real layout pass has happened; before that the viewport is zero.
         ContentRendered += (_, _) => { FitMaster(); UpdateWallWidth(); };
-        Closed += (_, _) => { _closing = true; _tileStreams.Stop(); _refreshTimer.Stop(); CompositionTarget.Rendering -= PresentPending; _lifetime.Cancel(); _api?.Dispose(); _lifetime.Dispose(); if (_timerRaised) { try { timeEndPeriod(1); } catch { } _timerRaised = false; } };
+        Closed += (_, _) => { _closing = true; _pointerMoves.Close(); _tileStreams.Stop(); _refreshTimer.Stop(); CompositionTarget.Rendering -= PresentPending; _lifetime.Cancel(); _api?.Dispose(); _lifetime.Dispose(); if (_timerRaised) { try { timeEndPeriod(1); } catch { } _timerRaised = false; } };
         UpdateControls();
     }
 
@@ -920,7 +920,7 @@ public partial class MainWindow : Window
         _dragStarted = false; _dragRelease = false; _dragWanted = null; _holdGesture = false;
         // Stop hover tracking. A queued hover move that lands after the button goes down
         // starts the drag from wherever the mouse last rested instead of from the press.
-        _wantedPoint = null;
+        _pointerMoves.ClearPending();
         _ = HoldWatchAsync(++_gestureSeq);
     }
 
@@ -1006,15 +1006,9 @@ public partial class MainWindow : Window
         _lastDragIds = ids; _lastDragMoves = 0; _lastDragTrace = ""; _lastDragX = -1;
         try
         {
-            // No waiting for the hover pump here. It used to pause up to 100 ms so that an
-            // in-flight hover move could not land after the press - but that race is not
-            // real: the mouse goes down where it was hovering, so a late hover move carries
-            // the same coordinate the press does. Meanwhile the wait sat on the critical
-            // path of every drag, and the cost was severe. Measured with it in place, a
-            // 250 ms swipe reached the phone as TWO positions - the setup swallowed the
-            // first half of the stroke and the newest-wins queue discarded the rest - and
-            // iOS read the remainder as a jump rather than a swipe, so the gesture did
-            // nothing at all.
+            // BeginGesture clears unsent hover moves. Any dispatched hover has
+            // already entered the ownership client's per-phone queue, so the setup
+            // follows it without introducing a fixed delay on every drag.
             var phase = System.Diagnostics.Stopwatch.StartNew();
             await api.MoveAsync(ids, x, y, ct).ConfigureAwait(false);
             long tMove = phase.ElapsedMilliseconds;
@@ -1129,53 +1123,18 @@ public partial class MainWindow : Window
         if (TrackPointer.IsChecked == true) TrackPointerTo(mapped.Value);
     }
 
-    // Drives the phone's own pointer so it follows the mouse. A fixed throttle was
-    // wrong here twice over: it capped the rate below what the board sustains
-    // (measured 44 moves/sec at 10 ms median), and it *discarded* moves that arrived
-    // while one was in flight - so the pointer stopped at a stale position whenever
-    // the mouse came to rest. This coalesces instead: the newest position always
-    // wins, and the last one is always delivered.
-    private (int X, int Y)? _wantedPoint;
-    private volatile string _wantedIds = "";
-    private bool _pumpingPointer;
+    // Capture the complete request on the UI thread; the worker coalesces positions
+    // without mixing selection, connection or cancellation state between requests.
+    private readonly PointerMovePump _pointerMoves = new();
     private void TrackPointerTo((int X, int Y) point)
     {
-        if (!_controlReady) return;
-        // While a gesture owns the pointer, the drag loop is the only thing allowed to
-        // move it - two writers would fight over the same phone-side cursor.
+        if (_closing || !_controlReady || !_connected || _api is not { } api) return;
         if (_gesture is not null || _dragLoopRunning) return;
-        // The target list is read here, on the UI thread, because working it out means
-        // reading the selection and the tick boxes. The pump itself must never touch them.
-        _wantedIds = InputTargetIds();
-        _wantedPoint = point;
-        if (_pumpingPointer) return;
-        _pumpingPointer = true;
-        _ = Task.Run(PumpPointerAsync);
+        _pointerMoves.Post(new(api, InputTargetIds(), point.X, point.Y,
+            _lifetime.Token, _controlCancellation.Token));
     }
-    private async Task PumpPointerAsync()
-    {
-        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, _controlCancellation.Token);
-        var inputToken = inputLifetime.Token;
-        // Started on the pool by the caller, for the same reason the drag loop is: a hover
-        // move that has to queue behind a render pass arrives after the mouse has moved on.
-        try
-        {
-            while (!_closing && !inputToken.IsCancellationRequested)
-            {
-                var target = _wantedPoint;
-                var api = _api;
-                // Address the whole mirror set. Tracking only the master left the followers'
-                // pointers wherever they happened to be, so the phones were not in the same
-                // state when the click arrived. The list is prepared on the UI thread.
-                var ids = _wantedIds;
-                if (target is null || api is null || ids.Length == 0) break;
-                _wantedPoint = null;
-                try { await api.CommandAsync("/mouse/move", new() { ["id"] = ids, ["x"] = target.Value.X, ["y"] = target.Value.Y }, inputToken).ConfigureAwait(false); }
-                catch { break; /* Pointer tracking is cosmetic; never interrupt the live view for it. */ }
-            }
-        }
-        finally { _pumpingPointer = false; }
-    }
+
+    private void PointerTrackingDisabled(object sender, RoutedEventArgs e) => _pointerMoves.ClearPending();
 
     private void Preview_Leave(object sender, MouseEventArgs e)
     {
@@ -2649,7 +2608,7 @@ public partial class MainWindow : Window
         Check("Hover tracking moves the pointer on every mirrored phone",
             handler.Commands[^1].GetProperty("fun").GetString() == "/mouse/move" &&
             handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
-        for (int i = 0; _pumpingPointer && i < 100; i++) await Task.Delay(10);
+        for (int i = 0; _pointerMoves.IsRunning && i < 100; i++) await Task.Delay(10);
 
         // And it must stay out of the way once a gesture owns the pointer.
         BeginGesture(pressPoint);

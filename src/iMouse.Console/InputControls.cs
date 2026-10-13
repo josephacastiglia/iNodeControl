@@ -23,7 +23,7 @@ public partial class MainWindow
         _controlReady = false;
         _controlCancellation.Cancel();
         _gestureSeq++; _gesture = null;
-        _wantedPoint = null; _wantedIds = "";
+        _pointerMoves.ClearPending();
         _dragWanted = null; _dragRelease = true;
         if (PhoneImage.IsMouseCaptured) PhoneImage.ReleaseMouseCapture();
     }

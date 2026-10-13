@@ -1,0 +1,22 @@
+[
+  {
+    "path": "C:\\Users\\joey_\\AppData\\Roaming\\iMouse2\\settings.json",
+    "sha256": "72f51cc0bee805f722d73bc024cad771b19a68e2e7c04d9d47f8e9e4a8a5e5ba",
+    "matches_previous_record": true
+  },
+  {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.dll",
+    "sha256": "bd1a68168e9270f029336cf8e13ff85e9b15fd67951ef545d1e973c2bfe634fc",
+    "matches_previous_record": true
+  },
+  {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.dll",
+    "sha256": "cc8049b444998b1d95e8d8aec41fb1dfe3552a9d4aa58e92f64d3289a5a038d2",
+    "matches_previous_record": true
+  },
+  {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+    "sha256": "4c1a24f35de00d2c3a8d50a4b0bcfb06a9f5c16bd185810ec54466ac090d2208",
+    "matches_previous_record": true
+  }
+]

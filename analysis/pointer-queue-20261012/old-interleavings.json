@@ -1,0 +1,48 @@
+{
+  "scope": "deterministic source model; no UI, service or hardware",
+  "cases": [
+    {
+      "case": "newest point cleared",
+      "sent": [
+        [
+          "A",
+          [
+            10,
+            20
+          ]
+        ]
+      ],
+      "latest_requested": [
+        30,
+        40
+      ],
+      "pending": null
+    },
+    {
+      "case": "empty-worker exit strands a move",
+      "pending": [
+        50,
+        60
+      ],
+      "running": false
+    },
+    {
+      "case": "coordinates mixed with another scope",
+      "sent": [
+        [
+          "new connection",
+          "B",
+          [
+            70,
+            80
+          ]
+        ]
+      ]
+    },
+    {
+      "case": "worker captures replacement control lifetime",
+      "queued_control": "cancelled by Stop",
+      "worker_control": "fresh after Resume"
+    }
+  ]
+}

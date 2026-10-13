@@ -1,0 +1,14 @@
+[
+  {
+    "expected_failure": "The last hover received during a send is delivered exactly once",
+    "control": "negative-lost-move",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "expected_failure": "Failure of an old scope does not erase a new phone's pending hover",
+    "control": "negative-cross-scope",
+    "exit_code": 1,
+    "detected": true
+  }
+]
