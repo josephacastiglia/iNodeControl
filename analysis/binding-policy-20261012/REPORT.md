@@ -78,6 +78,14 @@ Installed kernel/console/receiver hashes and operator settings content/timestamp
 remain unchanged. See protected-files.json. No physical release gate was signed
 off and nothing was promoted.
 
+Source and evidence are committed locally as `1b35159`. The archive
+`../iMouseXP-2.0-evidence-archive/20261012-service-actions/` contains 155 files
+(23,312,450 bytes) plus its checksum inventory. It preserves the exact tested
+source bytes, component builds, negative controls, prepared-but-unlaunched copy,
+operator guide and a verified single-branch Git bundle. All hashes verify. It
+does not duplicate the earlier full native runtime package. See
+archive-verification.json. No backup branch was bundled and nothing was pushed.
+
 ## Next investigation
 
 The hover-move pump shares pending coordinates, target IDs and its running flag
