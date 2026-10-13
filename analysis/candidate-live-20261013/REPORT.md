@@ -99,3 +99,12 @@ running before requesting a recast. Then perform the existing C24C-only API
 smoke plan. Keep typing deferred, FKA unchanged and C241 free of input. Actual
 console-button acceptance remains distinct from API tests. Restore the original
 release as before. Do not relaunch the known-incomplete package.
+
+## Preservation
+
+Fix and primary records are committed locally as `80a181b`, not pushed.
+`../iMouseXP-2.0-evidence-archive/20261013-candidate-runtime-startup` preserves
+864 files (225,676,996 bytes), plus its checksum inventory: the failed window,
+all probe attempts, exact source inputs, the corrected package, prepared run,
+restoration snapshot and single-branch Git bundle. All copied hashes, the
+bundle and the archived package verify. See `archive-verification.json`.

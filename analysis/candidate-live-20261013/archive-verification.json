@@ -1,0 +1,14 @@
+{
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261013-candidate-runtime-startup",
+  "source_commit": "80a181babffbd0fec856d013fdeac06608d4b13e",
+  "files": 864,
+  "bytes": 225676996,
+  "all_hashes_verified": true,
+  "probe_source_snapshot_verified": true,
+  "prepared_run_inventory_verified": true,
+  "git_bundle_verified": true,
+  "archived_review_package_verified": true,
+  "corrected_package_launched": false,
+  "old_candidate_window_failed_before_input": true,
+  "release_restoration_record": "record/restoration-confirmed.json"
+}
