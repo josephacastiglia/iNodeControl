@@ -1,0 +1,19 @@
+Receiver running, pid 123
+Receiver wait failed: monitor fixture
+PASS replacement waits for confirmed child exit
+PASS stdout initialization failure cleans up the started child
+PASS stderr initialization failure cleans up after stdout began
+PASS failed start before child creation disposes only the wrapper
+PASS start failure after child creation also confirms cleanup
+PASS startup cleanup failure stops all retries and retains both errors
+Receiver running, pid 123
+PASS exit deadline failure blocks replacement
+PASS ordinary disposal is idempotent
+PASS already exited child needs no kill
+Receiver start failed: stderr reader fixture
+PASS confirmed partial-start cleanup permits a later retry
+PASS cancelled startup still reports unconfirmed cleanup
+PASS exit racing the kill request is confirmed successfully
+PASS false Start result cannot initialize readers
+PASS concurrent disposal waits once and releases once
+14/14 receiver lifetime checks passed; fake processes only.

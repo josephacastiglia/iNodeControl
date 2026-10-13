@@ -52,6 +52,8 @@ The two-phone system has working foundations: independent kernel and mirroring, 
 
 33. **Completed offline:** receiver supervision now reports actual attempted replacements, retains startup/wait failure reasons and preserves terminal failure/last known cleanup identity. The old code fails seven new regressions; 29 recovery/logging checks and 207 kernel checks pass after repair. See `analysis/receiver-retry-status-20261013/REPORT.md`. Actual child-exit confirmation and partial-startup cleanup are the next offline review; physical recasting and release acceptance remain open.
 
+34. **Completed offline:** confirmed receiver root exit before successful disposal/replacement; partial-start cleanup now blocks retries when unconfirmed. 14 fake lifetime cases, six real hidden-child cases, 29 recovery/logging checks and 207 kernel checks pass. The test-runner cleanup flaw is corrected and recorded; every final helper exited. See `analysis/receiver-process-cleanup-20261013/REPORT.md`. Descendant-tree containment, phone rediscovery, native crash/recast and physical release acceptance are not established by these tests. Assemble and verify the accumulated repairs in a fresh review package before another approved live window.
+
 Offline work can prepare and repair these areas. Full-rack behavior, physical targeting, real display latency and final endurance acceptance still require later coordinated hardware runs. No desktop-control window, restart, deployment or promotion is authorized by this document.
 
 The detailed requirements remain in [FINISH-CRITERIA.md](FINISH-CRITERIA.md); current evidence and history are in [PROGRESS.md](PROGRESS.md).

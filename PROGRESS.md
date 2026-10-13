@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Receiver exit and partial-start cleanup confirmed, 13 October
+
+The candidate now waits up to five seconds for the receiver root to exit before disposal succeeds. Startup owns its child even if attaching stdout/stderr fails; confirmed cleanup permits the usual bounded retry, while unconfirmed cleanup preserves both errors and blocks every replacement. The original behavior failed eight of nine initial fake-process cases. **14 deterministic lifetime cases, six real hidden-child cases, 29 recovery/logging checks and 207 kernel checks pass.** All six final helper exits were verified from retained handles. No rack process, receiver, API, desktop or phone was operated.
+
+The first real-test runner had a cleanup-scope bug; that run is retained and not accepted. Two deliberately unconfirmed children had a 20-second failsafe; a later process inventory was empty. The corrected runner explicitly cleans all helpers and requires matching created/exited inventories. Process-tree termination remains requested, but the wait attests the receiver root only, not all descendants or phone rediscovery. See `analysis/receiver-process-cleanup-20261013/REPORT.md`. Installed files are unchanged; this is another separately recorded scratch kernel, not a promotion or gate sign-off.
+
 ## Receiver retries retain accurate counts and failure reasons, 13 October
 
 The supervisor no longer reports a phantom retry at exhaustion or counts a wait cancelled before replacement. It retains the latest startup/wait failure, preserves an exhausted failure during disposal, and keeps a clearly labelled last known PID when cleanup fails. Nine focused cases now cover these paths; seven of the first eight failed on the old product. **29 recovery/logging checks and 207 kernel checks pass**, including status serialization. No rack API, receiver, desktop or phone was operated. The kernel is a separate scratch build, not a replacement of the previously tested package. See `analysis/receiver-retry-status-20261013/REPORT.md`.

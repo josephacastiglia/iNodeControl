@@ -1,0 +1,39 @@
+{
+  "scope": "initial extraction preserves original startup/dispose order; nine fake cases",
+  "sources": {
+    "AirplaySupervisor-before.cs.txt": {
+      "sha256": "c175bfe03680f87a2f914d2ab6c4db8fe020a2d161b3a2294fe888e558f6147e",
+      "bytes": 7877
+    },
+    "Program-before.cs.txt": {
+      "sha256": "e8d1d0880bd036ca02a0404a7911ecc3fcab745e1ac25198c73771099e8406d4",
+      "bytes": 6964
+    },
+    "ReceiverProcessLifetime-before.cs.txt": {
+      "sha256": "f6c824b26fff42baa6b52fee3734da64f7ff7c26a94a60b6ca7189b76aec7bec",
+      "bytes": 2024
+    }
+  },
+  "artifacts": {
+    "ReceiverProcessTests.deps.json": {
+      "sha256": "d90d7b8daff49d0a2a4e5902d05db319238cfb28687b47efdb4b5b8f097dab89",
+      "bytes": 452
+    },
+    "ReceiverProcessTests.dll": {
+      "sha256": "4b05195dcebbfc545d2f6dc1e0d3c077b69853e077372ea195a540df33ecc04c",
+      "bytes": 28160
+    },
+    "ReceiverProcessTests.exe": {
+      "sha256": "46285efb6737daf4513ef343adf0d5c9eb1233526949f3ef881d584e0b864c1c",
+      "bytes": 152064
+    },
+    "ReceiverProcessTests.pdb": {
+      "sha256": "330d0bf43f4d5773fd4879e5779523ec27f5aa43fc29a526e2d76558540dad51",
+      "bytes": 16240
+    },
+    "ReceiverProcessTests.runtimeconfig.json": {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "bytes": 340
+    }
+  }
+}

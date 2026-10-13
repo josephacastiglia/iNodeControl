@@ -4,12 +4,12 @@ namespace IMouse2.Kernel;
 
 public sealed class AirplayProcess : IReceiverHandle
 {
-    private readonly Process _process;
+    private readonly ReceiverProcessLifetime _lifetime;
     private readonly ReceiverLog _log;
     public string? DiagnosticWarning => _log.Error;
     /// <summary>0 if the child has exited. Status used to keep advertising a dead PID.</summary>
-    public int Id => LivePid(_process);
-    public Task WaitForExitAsync(CancellationToken ct) => _process.WaitForExitAsync(ct);
+    public int Id => _lifetime.Id;
+    public Task WaitForExitAsync(CancellationToken ct) => _lifetime.WaitForExitAsync(ct);
 
     public static int LivePid(Process? process)
     {
@@ -46,13 +46,12 @@ public sealed class AirplayProcess : IReceiverHandle
         {
             _log.Append(e.Data);
         }
-        _process=new Process { StartInfo=start, EnableRaisingEvents=true };
-        _process.OutputDataReceived+=Log;_process.ErrorDataReceived+=Log;
-        _process.Start();_process.BeginOutputReadLine();_process.BeginErrorReadLine();
+        var process=new Process { StartInfo=start, EnableRaisingEvents=true };
+        process.OutputDataReceived+=Log;process.ErrorDataReceived+=Log;
+        _lifetime = new ReceiverProcessLifetime(new SystemReceiverProcess(process));
     }
     public void Dispose()
     {
-        if(!_process.HasExited) _process.Kill(entireProcessTree:true);
-        _process.Dispose();
+        _lifetime.Dispose();
     }
 }

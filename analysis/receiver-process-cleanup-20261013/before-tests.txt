@@ -1,0 +1,23 @@
+Receiver running, pid 123
+Receiver wait failed: monitor fixture
+FAIL replacement waits for confirmed child exit: replacement started or handle discarded before exit
+FAIL stdout initialization failure cleans up the started child: stdout failure orphaned the child
+FAIL stderr initialization failure cleans up after stdout began: stderr failure orphaned the child
+FAIL failed start before child creation disposes only the wrapper: unstarted wrapper leaked or killed
+FAIL start failure after child creation also confirms cleanup: partially started process leaked
+Receiver start failed: stderr reader fixture
+Receiver start failed: stderr reader fixture
+Receiver start failed: stderr reader fixture
+Receiver retry limit reached (2).
+FAIL startup cleanup failure stops all retries and retains both errors: unconfirmed startup cleanup retried
+Receiver running, pid 123
+Receiver wait failed: monitor fixture
+Receiver running, pid 123
+Receiver wait failed: monitor fixture
+Receiver running, pid 123
+Receiver wait failed: monitor fixture
+Receiver retry limit reached (2).
+FAIL exit deadline failure blocks replacement: unconfirmed exit retried
+FAIL ordinary disposal is idempotent: duplicate termination/disposal
+PASS already exited child needs no kill
+1/9 receiver lifetime checks passed; fake processes only.

@@ -1,0 +1,52 @@
+{
+  "project": "tools/recovery_tests/RecoveryTests.csproj",
+  "linked_sources_included": true,
+  "sources": {
+    "tools/recovery_tests/Program.cs": {
+      "sha256": "0f2339d8567d6a868f09f3ee5594df3e48ebca127b39aa7e527ba95aede94eaf",
+      "bytes": 16878
+    },
+    "tools/recovery_tests/README.md": {
+      "sha256": "b5cd0655653395a430d4d3fcff08d524c737fa192197e7b4d1bde45326c38641",
+      "bytes": 2777
+    },
+    "tools/recovery_tests/RecoveryTests.csproj": {
+      "sha256": "36572a753a65b47083b6740940e912deda840dc000abcd72934be4ee4b92c2be",
+      "bytes": 452
+    },
+    "NuGet.config": {
+      "sha256": "e2a0716cbd1a016e568a2d466192c1b00244da147eb835707b5eb5f4e3bc1e17",
+      "bytes": 114
+    },
+    "src/iMouse.Kernel/AirplaySupervisor.cs": {
+      "sha256": "9c77383a04b7739d104c237ec05472533bee99231ff9f48b622b2f13f6409d42",
+      "bytes": 8603
+    },
+    "src/iMouse.Kernel/ReceiverLog.cs": {
+      "sha256": "7dadd1835a4ad82a54e8b80e8b0c7b0aa3635fe7345da9e984dd95ed6b0ed1b9",
+      "bytes": 2436
+    }
+  },
+  "artifacts": {
+    "RecoveryTests.deps.json": {
+      "sha256": "208b46f4b357a0a78e37c2558976dd10dd451d618ac584de0af85b25841a052a",
+      "bytes": 431
+    },
+    "RecoveryTests.dll": {
+      "sha256": "db756650bd2da5fa21d14077d0698ac6c35efbf539a5f73022e4ce2f38134179",
+      "bytes": 55808
+    },
+    "RecoveryTests.exe": {
+      "sha256": "b250f6f9a497bbaebdb782a17d14881079b492ffab2aec803eaad492ce6f02e7",
+      "bytes": 151552
+    },
+    "RecoveryTests.pdb": {
+      "sha256": "08bd16655360dc5b460bd4960a0077945dae8c18ea4ed610f802f5065ecd8e63",
+      "bytes": 20896
+    },
+    "RecoveryTests.runtimeconfig.json": {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "bytes": 340
+    }
+  }
+}

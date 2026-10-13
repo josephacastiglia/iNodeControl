@@ -6,8 +6,10 @@ This is the next-test record for the combined candidate, not release sign-off.
 kernel's screenshot writer isolates stalled clients from frame delivery with
 bounded copies and transfer timeouts. Receiver supervision also reports actual
 replacement attempts, preserves failure reasons and retains the last known PID
-when cleanup fails. The newest recorded kernel is under
-`analysis/receiver-retry-status-20261013/final-kernel`; it is not the kernel used
+when cleanup fails. Child-process ownership now waits for confirmed root exit
+and cleans partial starts, blocking retries when cleanup is unknown. The newest
+recorded kernel is under
+`analysis/receiver-process-cleanup-20261013/final-kernel`; it is not the kernel used
 in the live window below and has not been assembled into a new runtime review
 package. Its verification is recorded in that folder's report. The screenshot
 repair's separate 206-check kernel, 34 frame checks, loopback transport probe and

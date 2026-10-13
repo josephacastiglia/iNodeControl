@@ -2,6 +2,7 @@ namespace IMouse2.Kernel;
 
 public interface IReceiverHandle : IDisposable
 {
+    // Successful disposal must confirm receiver exit. Throw if cleanup is unknown.
     int Id { get; }
     string? DiagnosticWarning => null;
     Task WaitForExitAsync(CancellationToken ct);
@@ -12,6 +13,13 @@ public enum ReceiverPhase { Starting, Running, Restarting, Failed, Stopped }
 // Restarts counts replacement attempts actually begun, including failed starts.
 // A failed cleanup retains the last known PID; it is not proof the child is alive.
 public sealed record ReceiverInfo(string State, string Message, int Pid, int Restarts);
+
+/// <summary>A partially started child could not be cleaned up; its factory must not be retried.</summary>
+public sealed class ReceiverCleanupException(int processId, string message, Exception innerException)
+    : Exception(message, innerException)
+{
+    public int ProcessId { get; } = processId;
+}
 
 /// <summary>
 /// Restarts a crashed UxPlay child a bounded number of times. Does not recast the
@@ -89,6 +97,11 @@ public sealed class AirplaySupervisor : IDisposable
                 replacement = true;
                 IReceiverHandle handle;
                 try { handle = _start(); }
+                catch (ReceiverCleanupException ex)
+                {
+                    RecordCleanupFailure(ex.ProcessId, ex);
+                    return;
+                }
                 catch (Exception ex)
                 {
                     string reason = "Receiver start failed: " + ex.Message;
@@ -150,15 +163,20 @@ public sealed class AirplaySupervisor : IDisposable
         try { handle.Dispose(); return true; }
         catch (Exception ex)
         {
-            lock (_gate)
-            {
-                _cleanupFailed = true;
-                _phase = ReceiverPhase.Failed;
-                _failurePid = pid;
-                _failureMessage = "Receiver cleanup failed; no replacement started. Last known receiver PID: " +
-                    (pid == 0 ? "unknown" : pid.ToString()) + ". Inspect the receiver process. " + ex.Message;
-            }
+            RecordCleanupFailure(ex is ReceiverCleanupException cleanup ? cleanup.ProcessId : pid, ex);
             return false;
+        }
+    }
+
+    private void RecordCleanupFailure(int pid, Exception ex)
+    {
+        lock (_gate)
+        {
+            _cleanupFailed = true;
+            _phase = ReceiverPhase.Failed;
+            _failurePid = pid;
+            _failureMessage = "Receiver cleanup failed; no replacement started. Last known receiver PID: " +
+                (pid == 0 ? "unknown" : pid.ToString()) + ". Inspect the receiver process. " + ex.Message;
         }
     }
 

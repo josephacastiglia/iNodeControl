@@ -112,6 +112,12 @@ explicitly last known, not confirmation that the process is still running.
 Preserve the diagnostic record and verify process identity before any recovery
 action; a failed cleanup must not trigger another replacement.
 
+The candidate now waits up to five seconds to confirm the receiver process has
+exited after requesting termination. It also cleans up a child if startup fails
+while attaching its log readers. Unconfirmed cleanup stops automatic retries and
+retains both the startup and cleanup errors. This confirms the receiver's own
+exit, not phone rediscovery or the exit of every descendant process.
+
 Receiver discovery can be delayed after a restart. A cable replug restored it in
 one recorded trial, but that is not a confirmed cause or a dependable recovery
 procedure. Record a missing receiver and use the agreed recovery window.

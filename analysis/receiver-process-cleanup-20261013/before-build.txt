@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\receiver_process_tests\ReceiverProcessTests.csproj (in 63 ms).
+  ReceiverProcessTests -> C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\receiver-process-cleanup-20261013\before\ReceiverProcessTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.59

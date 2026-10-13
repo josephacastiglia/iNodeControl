@@ -1,0 +1,20 @@
+  created fixture PID=17952
+  fixture exit confirmed PID=17952
+PASS production AirplayProcess attaches both logs and confirms exit
+  created fixture PID=44868
+PASS partial reader setup failure leaves no running child
+  created fixture PID=21020
+Receiver running, pid 21020
+Receiver wait failed: monitor fixture
+  delayed termination elapsed ms=224.3
+PASS replacement follows delayed real child termination
+  created fixture PID=3532
+PASS failed partial-start cleanup is visible and never retried
+  created fixture PID=16844
+Receiver running, pid 16844
+  refused exit elapsed ms=5007.6
+PASS real five-second exit deadline blocks replacement
+  created fixture PID=44316
+Receiver running, pid 44316
+PASS normal requested cancellation confirms child exit
+6/6 real child-process checks passed; own hidden helpers only; no rack or UI.
