@@ -1,6 +1,7 @@
 """Offline evidence-integrity regressions. Never start UIA or contact the rack."""
 import importlib.util
 import contextlib
+import copy
 import io
 import json
 import subprocess
@@ -369,6 +370,98 @@ class RunLifecycleTests(unittest.TestCase):
         self.assertEqual(self.record("run-state.json")["status"], "aborted")
         self.assertIn("operator stop", self.record("run-state.json")["error"])
         self.assertEqual(self.record("cleanup.json")["api_release"], "confirmed")
+
+
+class ConsoleTimingReaderTests(unittest.TestCase):
+    def setUp(self):
+        self.stack = contextlib.ExitStack()
+        self.addCleanup(self.stack.close)
+        for name in ("api", "bind_console", "live"):
+            boundary = self.stack.enter_context(patch.object(gate6, name, side_effect=AssertionError("offline only")))
+            self.addCleanup(boundary.assert_not_called)
+
+    @staticmethod
+    def fixture():
+        def event(index, time, kind, **extra):
+            return {"index":index, "timestamp":time, "kind":kind, "epoch":1, "targets":"TEST:A", **extra}
+        action = {"action_id":1, "origin":"button_handler", "operation":"Home"}
+        events = [event(1, 0, "action_requested", **action), event(2, 25, "command_started", **action),
+                  event(3, 125, "bitmap_applied", frame_sequence=42, frame_session="test"),
+                  event(4, 325, "action_finished", **action, outcome="command_completed")]
+        return {"console":{"response_timing":{"schema_version":1, "recording_id":"test",
+                "timestamp_frequency":1000, "captured_at":400, "capacity":4096, "dropped_events":0, "events":events}}}
+
+    def test_command_completion_is_separate_from_bitmap_update_and_correctness(self):
+        result = gate6.summarize_console_timing(self.fixture())
+        row = result["actions"][0]
+        self.assertEqual((row["queue_ms"], row["command_ms"], row["handler_to_finish_ms"]), (25, 300, 325))
+        self.assertEqual(row["first_bitmap_after_handler_ms"], 125)
+        self.assertEqual(row["frame_sequence"], 42)
+        self.assertFalse(row["correctness_verified"])
+        self.assertFalse(result["gate6_acceptance"])
+
+    def test_uses_declared_clock_frequency(self):
+        report = self.fixture()
+        report["console"]["response_timing"]["timestamp_frequency"] = 1000000
+        row = gate6.summarize_console_timing(report)["actions"][0]
+        self.assertEqual(row["first_bitmap_after_handler_ms"], .125)
+
+    def test_dropped_events_refuse_metrics(self):
+        report = self.fixture()
+        report["console"]["response_timing"]["dropped_events"] = 1
+        with self.assertRaisesRegex(ValueError, "dropped"):
+            gate6.summarize_console_timing(report)
+
+    def test_wrong_phone_or_epoch_is_not_matched(self):
+        for field, value in (("targets", "TEST:B"), ("epoch", 2)):
+            with self.subTest(field=field):
+                report = self.fixture()
+                report["console"]["response_timing"]["events"][2][field] = value
+                row = gate6.summarize_console_timing(report)["actions"][0]
+                self.assertIsNone(row["first_bitmap_after_handler_ms"])
+
+    def test_frames_before_handler_are_not_matched(self):
+        report = self.fixture()
+        events = report["console"]["response_timing"]["events"]
+        events.insert(0, events.pop(2))
+        for i, event in enumerate(events, 1):
+            event["index"] = i
+            event["timestamp"] = i * 10
+        self.assertIsNone(gate6.summarize_console_timing(report)["actions"][0]["first_bitmap_after_handler_ms"])
+
+    def test_group_target_has_no_selected_preview_metric(self):
+        report = self.fixture()
+        for e in report["console"]["response_timing"]["events"]:
+            if e["kind"] != "bitmap_applied": e["targets"] = "TEST:A,TEST:B"
+        self.assertIsNone(gate6.summarize_console_timing(report)["actions"][0]["first_bitmap_after_handler_ms"])
+
+    def test_incomplete_action_is_retained(self):
+        report = self.fixture()
+        report["console"]["response_timing"]["events"].pop()
+        row = gate6.summarize_console_timing(report)["actions"][0]
+        self.assertEqual(row["outcome"], "incomplete")
+        self.assertIsNone(row["handler_to_finish_ms"])
+
+    def test_malformed_and_mismatched_events_are_refused(self):
+        edits = [lambda t: t.update(timestamp_frequency=0),
+                 lambda t: t["events"][2].update(timestamp=20),
+                 lambda t: t["events"][2].update(index=1),
+                 lambda t: t["events"][1].update(targets="TEST:B"),
+                 lambda t: t["events"][1].update(action_id=2),
+                 lambda t: t.update(capacity=2),
+                 lambda t: t.update(captured_at=100)]
+        for edit in edits:
+            report = copy.deepcopy(self.fixture()); edit(report["console"]["response_timing"])
+            with self.assertRaises(ValueError): gate6.summarize_console_timing(report)
+
+    def test_cli_analysis_never_enters_live_path(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "diagnostics.json"
+            path.write_text(json.dumps(self.fixture()), encoding="utf-8")
+            with patch.object(sys, "argv", ["run_gate6.py", "--analyze-console-trace", str(path)]), \
+                 contextlib.redirect_stdout(io.StringIO()) as output:
+                gate6.main()
+            self.assertFalse(json.loads(output.getvalue())["gate6_acceptance"])
 
 
 class ConsoleHelperDeadlineTests(unittest.TestCase):

@@ -4,4 +4,6 @@
 <Compile Include="../../src/iMouse.Console/PreviewFreshness.cs" Link="PreviewFreshness.cs" />
 <Compile Include="../../src/iMouse.Console/ApiClient.cs" Link="ApiClient.cs" />
 <Compile Include="../../src/iMouse.Console/InputLeaseClient.cs" Link="InputLeaseClient.cs" />
+<Compile Include="../../src/iMouse.Console/ResponseTiming.cs" Link="ResponseTiming.cs" />
+<Compile Include="../../src/iMouse.Console/ResponseTimingTests.cs" Link="ResponseTimingTests.cs" />
 </ItemGroup></Project>

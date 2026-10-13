@@ -61,6 +61,7 @@ public partial class MainWindow
             selected_device = Selected?.Id,
             checked_devices = _devices.Where(d => d.IsChecked).Select(d => d.Id).ToArray(),
             input = new { locally_ready = _controlReady, state_text = InputStateText.Text, sending_text = _sendingText },
+            response_timing = _responseTiming?.Snapshot(),
             // These are cached UI observations; fresh service lists are timestamped separately.
             cached_devices = _devices.Select(d => new { d.Id, d.Name, d.Model, d.Group, board_uid = d.Hardware,
                 d.BoardState, d.Online, d.VideoState, d.ReceiverName, d.ImageWidth, d.ImageHeight }).ToArray(),

@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Console response timeline implemented offline, 13 October
+
+An opt-in, bounded in-memory timeline now records console input-dispatch/command phases and successful selected-preview bitmap updates on one monotonic clock, with phone/epoch and receiver frame identity. It is included in the existing diagnostic export; it records no pixels, text payloads or lease tokens. The existing Gate 6 runner can analyze that export offline, rejects dropped/inconsistent events and does not infer correctness or physical display latency.
+
+402 console checks, 56 preview/timing checks and 44 Python runner checks pass, plus the runner self-check and actual headless-console export/readback. Counts overlap for shared recorder cases. No native window, rack request, phone input or screen control was used. See `analysis/response-timing-20261013/REPORT.md`. The new standalone console is not yet in the immutable combined package below. Gate 6, live instrumentation overhead and physical release acceptance remain open.
+
 ## Timing-runner failure handling repaired, 13 October
 
 The existing Gate 6 runner now stops on visual misses even when the API command succeeded, records renewal failures before any action, and cleans up known API tokens after partial acquisition. Run/cleanup records distinguish confirmed, unknown and unmanaged outcomes. Existing run folders and neighboring run evidence cannot be overwritten. All 35 offline tests and its self-check pass; ten initial new cases fail on the saved old runner. See `analysis/gate6-failure-handling-20261013/REPORT.md`.

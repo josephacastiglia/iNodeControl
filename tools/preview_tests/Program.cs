@@ -162,6 +162,7 @@ Test("late failed request cannot mark newer successful preview failed", () => {
     Check(t.Status.FetchFailed);
 });
 tests.AddRange(ScreenshotTransferTests.Cases());
+ResponseTimingTests.Register(Test);
 int passed = 0;
 foreach (var (name, run) in tests)
 {

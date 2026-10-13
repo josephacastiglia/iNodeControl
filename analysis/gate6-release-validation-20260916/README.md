@@ -40,7 +40,15 @@ python analysis/gate6-release-validation-20260916/run_gate6.py --self-check
 
 ## Remaining work before live acceptance
 
-1. Measure the console's actual presentation path and validate that the changed region represents the requested result. The current broad frame classifier is insufficient for general layouts, wallpapers and animations.
+An opt-in console timeline is now available; see [response timing preparation](../response-timing-20261013/REPORT.md). It records actual successful selected-preview bitmap application and command phases in a bounded diagnostic snapshot. The existing runner can read a saved export offline:
+
+```powershell
+python analysis/gate6-release-validation-20260916/run_gate6.py --analyze-console-trace "PATH-TO-DIAGNOSTICS.json"
+```
+
+All 44 current runner regressions and its self-check pass. This new mode never contacts the rack. Its first-bitmap interval is observational, not proof of a correct response, physical click timing or scan-out; it never declares Gate 6 passed. Captures with dropped events are refused. UIA/live limitations below remain.
+
+1. Validate physical-click-to-display timing and that the changed region represents the requested result. The new bitmap timeline covers an internal component of that path, not the complete visible-response criterion. The current broad frame classifier is insufficient for general layouts, wallpapers and animations.
 2. Prepare every UIA Home trial through the intended console workflow, without mixing in API input. At present, another Home trial stops unless Search is prepared again.
 3. Complete and validate release/restoration for leases owned by the console, including uncertain helper outcomes. The helper's stdout and process waits are now bounded; this does not cancel an action already accepted by the console or release its lease.
 4. Verify candidate identity, isolated settings, ownership, per-phone targeting and the required second streaming phone in a coordinated live window. The existing preflight checks target receiver frames, not all these conditions.

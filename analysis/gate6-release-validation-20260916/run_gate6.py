@@ -7,6 +7,7 @@ change and first heuristically correct frame separately. Misses are not retried.
 from __future__ import annotations
 
 import argparse
+from bisect import bisect_right
 import json
 import queue
 import re
@@ -1318,9 +1319,98 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
     }
 
 
+def summarize_console_timing(report):
+    """Read an opt-in console diagnostic snapshot. No UI/transport, no pass verdict.
+
+    A frame after a handler may be an unrelated animation. Preserve that temporal
+    relationship without calling it a correct response or physical display time.
+    """
+    trace = report.get("console", {}).get("response_timing")
+    if not isinstance(trace, dict) or trace.get("schema_version") != 1:
+        raise ValueError("missing or unsupported console response timing snapshot")
+
+    def integer(value, name, minimum=0):
+        if type(value) is not int or value < minimum:
+            raise ValueError(f"invalid {name}")
+        return value
+
+    frequency = integer(trace.get("timestamp_frequency"), "timestamp frequency", 1)
+    captured = integer(trace.get("captured_at"), "capture timestamp")
+    capacity = integer(trace.get("capacity"), "capacity", 1)
+    dropped = integer(trace.get("dropped_events"), "dropped event count")
+    if dropped:
+        raise ValueError("timing snapshot dropped events; cannot summarize incomplete capture")
+    events = trace.get("events")
+    if capacity > 65536 or not isinstance(events, list) or len(events) > capacity:
+        raise ValueError("invalid timing event list or capacity")
+    requests, starts, endings, frames = {}, {}, {}, {}
+    last_time = 0
+    for expected_index, event in enumerate(events, 1):
+        if not isinstance(event, dict) or type(event.get("index")) is not int or event["index"] != expected_index:
+            raise ValueError("missing, reordered or duplicate timing event")
+        tick = integer(event.get("timestamp"), "event timestamp")
+        integer(event.get("epoch"), "event epoch")
+        if tick < last_time or tick > captured:
+            raise ValueError("non-monotonic timing event")
+        last_time = tick
+        kind = event.get("kind")
+        targets = event.get("targets")
+        if not isinstance(targets, str):
+            raise ValueError("invalid event targets")
+        if kind == "bitmap_applied":
+            indices, entries = frames.setdefault((targets, event["epoch"]), ([], []))
+            indices.append(event["index"])
+            entries.append(event)
+        elif kind == "preview_reset":
+            continue
+        elif kind in ("action_requested", "command_started", "action_finished"):
+            action = integer(event.get("action_id"), "action id", 1)
+            collection = {"action_requested": requests, "command_started": starts, "action_finished": endings}[kind]
+            if action in collection:
+                raise ValueError("duplicate action phase")
+            if kind != "action_requested":
+                request = requests.get(action)
+                if request is None or action in endings or any(event.get(k) != request.get(k)
+                        for k in ("epoch", "targets", "operation", "origin")):
+                    raise ValueError("action phase does not match its original request")
+                if kind == "action_finished" and event.get("outcome") == "command_completed" and action not in starts:
+                    raise ValueError("completed action has no command start")
+            collection[action] = event
+        else:
+            raise ValueError("unsupported timing event kind")
+
+    rows = []
+    for action, request in requests.items():
+        start, end = starts.get(action), endings.get(action)
+        single_phone = bool(request["targets"]) and "," not in request["targets"]
+        indices, entries = frames.get((request["targets"], request["epoch"]), ([], []))
+        after = bisect_right(indices, request["index"])
+        frame = entries[after] if single_phone and after < len(entries) else None
+        def elapsed(event, origin=request):
+            return None if event is None else round((event["timestamp"] - origin["timestamp"]) * 1000 / frequency, 3)
+        rows.append({
+            "action_id": action, "epoch": request["epoch"], "targets": request["targets"],
+            "origin": request.get("origin"), "operation": request.get("operation"),
+            "outcome": end.get("outcome") if end else "incomplete",
+            "queue_ms": elapsed(start), "handler_to_finish_ms": elapsed(end),
+            "command_ms": elapsed(end, start) if start is not None else None,
+            "first_bitmap_after_handler_ms": elapsed(frame),
+            "frame_session": frame.get("frame_session") if frame else None,
+            "frame_sequence": frame.get("frame_sequence") if frame else None,
+            "correctness_verified": False,
+        })
+    return {"schema_version": 1, "recording_id": trace.get("recording_id"), "gate6_acceptance": False,
+            "metric_scope": "Console handler to selected-preview bitmap application, not physical click or display scan-out. "
+                            "A later bitmap does not establish causation or correct response; group display is not covered.",
+            "actions": rows}
+
+
 def main():
     p = argparse.ArgumentParser(description="Gate 6 preparation: action-to-kernel-frame timing (not gate acceptance)")
-    p.add_argument("--self-check", action="store_true")
+    offline = p.add_mutually_exclusive_group()
+    offline.add_argument("--self-check", action="store_true")
+    offline.add_argument("--analyze-console-trace", type=Path, metavar="DIAGNOSTICS_JSON",
+                         help="offline only: summarize an opt-in console timing snapshot; never contact the rack")
     p.add_argument("--n", type=int, default=5, help="observations per category per phone; gate wants >= 100")
     p.add_argument("--category", action="append", choices=["search", "home", "appswitch", "controlcenter"])
     p.add_argument("--api-only", action="store_true", help="hold the lease and drive via HTTP; skip UIA")
@@ -1330,6 +1420,17 @@ def main():
     args = p.parse_args()
     if args.self_check:
         raise SystemExit(self_check())
+    if args.analyze_console_trace is not None:
+        # Cap the read itself, even if the file grows after a stat call.
+        with args.analyze_console_trace.open("rb") as source:
+            raw = source.read(32 * 1024 * 1024 + 1)
+        if len(raw) > 32 * 1024 * 1024:
+            raise SystemExit("diagnostic input exceeds 32 MiB")
+        try:
+            print(json.dumps(summarize_console_timing(json.loads(raw)), indent=2))
+        except (ValueError, TypeError, AttributeError) as ex:
+            raise SystemExit(f"invalid console timing evidence: {ex}") from ex
+        return
     if args.n < 1:
         raise SystemExit("--n must be >= 1")
     live(args.n, args.category, args.api_only, args.allow_c241, args.console_pid, args.console_path)

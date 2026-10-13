@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-13T22:46:26.600892+00:00",
+  "project": "tools/preview_tests/PreviewTests.csproj",
+  "metadata": {
+    "git_head": "c50b1e88ebe2301c47655ebd6eb2842a1ffe29d0",
+    "includes_uncommitted_source": true,
+    "build_exit_code": 0,
+    "warnings": 0,
+    "errors": 0
+  },
+  "sources": {
+    "tools/preview_tests/LoopbackTransferProbe.cs": {
+      "sha256": "e7c4391c640e22eba84c88993c3a7e173b74917e60ebccd094e2352287f10cef",
+      "bytes": 5531
+    },
+    "tools/preview_tests/PreviewTests.csproj": {
+      "sha256": "a1cf65403ef3f5bb65aab241a76d4a34b874c8f93ffcef63c5a83c9b1c00c1fa",
+      "bytes": 703
+    },
+    "tools/preview_tests/Program.cs": {
+      "sha256": "f6d0c2c4001b70faf9f6fa5a694a2829aab9a051935c01920a15a499d2e5e31f",
+      "bytes": 12389
+    },
+    "tools/preview_tests/README.md": {
+      "sha256": "b51b57e2fa07f998bff0ec5f8a41185cc543270ef6152179afde9d9fa8bed488",
+      "bytes": 2828
+    },
+    "tools/preview_tests/ScreenshotTransferTests.cs": {
+      "sha256": "ce292ec2ef69d784603aaed22258d73080042b730e245379bbbaf2d308f0e352",
+      "bytes": 11483
+    },
+    "NuGet.config": {
+      "sha256": "e2a0716cbd1a016e568a2d466192c1b00244da147eb835707b5eb5f4e3bc1e17",
+      "bytes": 114
+    }
+  },
+  "artifacts": {
+    "PreviewTests.deps.json": {
+      "sha256": "27d731f80185f5ae02d652edc3d3b14b76cd4e09194005a7098884db9f079ad3",
+      "bytes": 428
+    },
+    "PreviewTests.dll": {
+      "sha256": "fea42425b14675d74319880f605aa577f392490bf250e883d5db40212a5f8c5a",
+      "bytes": 178688
+    },
+    "PreviewTests.exe": {
+      "sha256": "b7bff9f27b53cf65d60f9a5ca8f435c1d11d2111cb22a70c6c7eadb989f0e485",
+      "bytes": 151552
+    },
+    "PreviewTests.pdb": {
+      "sha256": "0df844cf0a92f801120466e7e86d81ca5980d5e9328a453b8aa49fd7659f8d50",
+      "bytes": 42320
+    },
+    "PreviewTests.runtimeconfig.json": {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "bytes": 340
+    }
+  },
+  "scope": "project files, common build inputs and output bytes; external dependencies are not independently attested",
+  "linked_sources": {
+    "src/iMouse.Console/PreviewFreshness.cs": {
+      "sha256": "b71a55e1a63007ab96aeb8c31308cfd7f916bd83c3d430089c2199aabb1103a3",
+      "bytes": 5465
+    },
+    "src/iMouse.Console/ApiClient.cs": {
+      "sha256": "0814eda0920eeacfad527d29d403197c6719a1afbad3a232bd4d274e11d451fa",
+      "bytes": 32684
+    },
+    "src/iMouse.Console/InputLeaseClient.cs": {
+      "sha256": "2d7b26725f4704c5aee7608c02995d7446a773af9a7406fdeb52c9c83a1f7cf5",
+      "bytes": 27297
+    },
+    "src/iMouse.Console/ResponseTiming.cs": {
+      "sha256": "31ed6c0930d5281de9a9753995fd1e7cda98aea37afe359ff01e334224dc9817",
+      "bytes": 4514
+    },
+    "src/iMouse.Console/ResponseTimingTests.cs": {
+      "sha256": "b9156cf8b0c98cb6ecd6ac0dcce5591a68584991015f10edffbe1f0fa8fd01a4",
+      "bytes": 6139
+    }
+  }
+}
