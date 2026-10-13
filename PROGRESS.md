@@ -11,13 +11,21 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Candidate window: runtime startup repaired, 13 October
+
+The user explicitly authorized the C24C-only API window. The candidate kernel started, but the reduced receiver runtime omitted UxPlay's mandatory playback/autodetect plugins and its audio pipeline plugins. The receiver exhausted its initial start plus five retries before video; no phone input or candidate console test occurred. The candidate was stopped gracefully and the original launcher restored the release. Both phones were confirmed mirroring at 04:31 UTC, unowned and generation 0. C241 initially did not list its receiver, then reappeared without another restart or setting/cable change. Installed/configuration/settings bytes are unchanged; ordinary release receiver logs grew.
+
+The runtime audit now seeds six additional plugins. A new bounded **offline production-renderer startup check** fails with the old runtime and passes with the repaired one using exact preserved renderer source, without server/discovery/HID code. Ten audit tests, 22 runtime-staging tests and nine probe-helper tests pass. The 132-file runtime preserves the previous 126 binary hashes and all 104 supplemental provenance/notice files. Added files match two signed local package archives; the extra gst-plugins-good notice/source gap remains explicit.
+
+`output/staging/combined-runtime-startup-final-20261013` contains 686 verified files plus its manifest; both standalone verifiers pass. Its console/kernel/receiver executables are unchanged. A fresh C24C-only run is prepared at `output/candidate-runs/runtime-startup-20261013`, with isolated hover-off settings and both no-hardware startup validations passing. It is **not launched or physically accepted**. The failed package and all attempts remain preserved. See `analysis/candidate-live-20261013/REPORT.md`, preparation, final restoration and archive records. This turn made packaging/regression/restoration progress; no gate was advanced. The next live dependency is confirming the repaired receiver starts and then completing the existing short API smoke checks. Typing remains deferred; no C241 input or FKA changes.
+
 ## Retryable scope release, 12–13 October
 
 Reproduced a lost-release recovery failure: the client discarded its token before the reply, so Resume could not finish releasing a still-owned phone. The test transport also omitted the real kernel's refusal to resume while owned; that simulation is corrected. Scope release now retains unconfirmed ownership, shares duplicate attempts, releases independent phones together and applies replies only to the original token/lifetime. Normal close and explicit Resume can retry their own release; input is never replayed.
 
 **382 console checks pass**, including ten new checks. The original product fails the new Resume test, and a separate copy with the stale-token guard removed fails the newer-Stop test. Exact source/output records, a 677-file review package and a prepared but unlaunched C24C configuration are under `analysis/scope-release-20261012/`. The kernel/receiver/runtime and installed content hashes are unchanged. These are offline lifetime checks, not physical recovery acceptance or a claim that every delayed UI notice ordering is verified. See its `REPORT.md` and verified 852-file archive receipt.
 
-The 13 October 00:05 local process/listener check found the rack still stopped (zero relevant processes and zero port-9913 listeners). A specific C24C candidate window was requested through the pending user question; it includes temporary kernel/receiver startup and mirroring interruption/restoration, no C241 input, no FKA changes and no typing investigation. Do not treat elapsed time or this request as approval. This goal turn made product/evidence progress; the release remains incomplete, with the coordinated physical dependency pending.
+The 13 October 00:05 local process/listener check found the rack stopped (zero relevant processes and zero port-9913 listeners). The user subsequently authorized the C24C window; its startup failure, repair and restoration are recorded above. This earlier offline preparation does not imply physical acceptance.
 
 ## Cleanup history in one diagnostic export, 12 October
 

@@ -96,11 +96,34 @@ checks. The 12 October investigation is recorded in
 `runtime_audit.py` uses an explicitly selected `objdump` to read x64 PE import
 tables. It never starts UxPlay or loads GStreamer plugins. Pass `--receiver`,
 `--runtime`, `--system-dir`, `--objdump`, and a new `--out` JSON filename.
-The five seeded plugins match the candidate's software video pipeline. It follows
-non-system DLL imports, records file hashes, and lists unresolved imports.
+The seeded plugins cover the configured software video and fakesink audio
+pipelines, including UxPlay's unconditional playback/autodetect startup checks.
+It follows non-system DLL imports, records hashes, and lists unresolved imports.
 
 This is a file inventory, not a Windows loader emulator or launch approval. System
 DLLs are checked for presence; API-set contracts and dynamic dependencies are not
 fully validated. It does not verify networking, discovery, decoding or licenses.
-Run `python tools/receiver_memory_probe/test_runtime_audit.py` for nine offline
+Run `python tools/receiver_memory_probe/test_runtime_audit.py` for ten offline
 fixture tests. Reports cannot overwrite an existing evidence file.
+
+## Renderer startup check (no receiver or phone)
+
+Before a live window, test the reduced runtime with the production renderer
+initialization code, not only the generated-video pipeline:
+
+```powershell
+python tools/receiver_memory_probe/check_startup.py --out analysis/my-renderer-startup --toolchain-runtime <ucrt64> --test-runtime <capsule>/runtime --receiver-source <package>/source/receiver
+```
+
+This builds a small executable linked to the selected receiver's unchanged audio/video
+renderers and logger. It calls `gstreamer_init`, initializes the AAC/ALAC fakesink
+audio pipelines and H.264 appsink video pipeline, starts the video renderer and
+tears down. It does not link UxPlay's server, advertise a name, contact a phone,
+play sound, open a window or connect to the installed frame pipe. Children have
+bounded timeouts, restricted runtime search paths and a private plugin registry.
+The result records source and loaded-module hashes; unexpected modules fail it.
+
+The 13 October live startup exposed playback/autodetect missing from the earlier
+video-only capsule. The check reproduces that failure offline. A passing result
+checks renderer initialization only; it does not prove discovery, transport,
+live audio/video decoding, or clean-PC compatibility. Keep the old failure record.

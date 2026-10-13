@@ -1,0 +1,29 @@
+{
+  "package": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-runtime-startup-final-20261013",
+  "package_manifest": {
+    "sha256": "d819f789cb463c2c61a6beaeaca257166207224df10445f3cffa8dd97ad62c0f",
+    "bytes": 142220
+  },
+  "files": 686,
+  "old_package_unchanged": true,
+  "all_product_binaries_and_source_unchanged": true,
+  "runtime_files": 132,
+  "added_runtime_plugins": 6,
+  "prior_runtime_binaries_preserved": 126,
+  "prior_supplemental_files_preserved": 104,
+  "runtime_archive_packages_verified": 2,
+  "source_notice_gap_added": "gst-plugins-good",
+  "exact_renderer_old_runtime_exit": 2,
+  "exact_renderer_repaired_runtime_exit": 0,
+  "loaded_runtime_files_verified_in_final_package": 127,
+  "audit_tests": 10,
+  "runtime_staging_tests": 22,
+  "probe_helper_tests": 9,
+  "actual_receiver_started_from_corrected_package": false,
+  "live_window": {
+    "failed_before_input": true,
+    "phone_input_sent": false,
+    "restored_release_both_mirroring": true,
+    "restoration_record": "restoration-confirmed.json"
+  }
+}

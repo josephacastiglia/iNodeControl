@@ -1,0 +1,15 @@
+test_bad_import_name_cannot_escape_search_roots (test_runtime_audit.RuntimeAudit.test_bad_import_name_cannot_escape_search_roots) ... ok
+test_consistency_never_claims_launch_readiness (test_runtime_audit.RuntimeAudit.test_consistency_never_claims_launch_readiness) ... ok
+test_cpp_runtime_name_is_valid (test_runtime_audit.RuntimeAudit.test_cpp_runtime_name_is_valid) ... ok
+test_cycles_are_inspected_once (test_runtime_audit.RuntimeAudit.test_cycles_are_inspected_once) ... ok
+test_inspector_failure_is_not_a_pass (test_runtime_audit.RuntimeAudit.test_inspector_failure_is_not_a_pass) ... ok
+test_missing_plugin_fails (test_runtime_audit.RuntimeAudit.test_missing_plugin_fails) ... ok
+test_receiver_startup_requirements_are_not_just_video_decoding (test_runtime_audit.RuntimeAudit.test_receiver_startup_requirements_are_not_just_video_decoding) ... ok
+test_system_presence_and_contracts_are_explicit (test_runtime_audit.RuntimeAudit.test_system_presence_and_contracts_are_explicit) ... ok
+test_transitive_missing_import_fails (test_runtime_audit.RuntimeAudit.test_transitive_missing_import_fails) ... ok
+test_wrong_architecture_is_refused (test_runtime_audit.RuntimeAudit.test_wrong_architecture_is_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.646s
+
+OK

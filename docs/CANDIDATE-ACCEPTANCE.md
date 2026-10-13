@@ -1,15 +1,26 @@
 # Acceptance of the consolidated candidate
 
 This is the next-test record for the combined candidate, not release sign-off.
-The exact prepared files are recorded in
-`analysis/scope-release-20261012/preparation.json`. The setup script only
+
+**13 October update:** the first authorized candidate window failed before
+phone input: UxPlay's startup checks required playback/autodetect plugins absent
+from the reduced runtime. The original release was restored and both phones
+were confirmed mirroring at 04:31 UTC, unowned at generation 0. No C24C/C241
+input or FKA change was sent. See `analysis/candidate-live-20261013/REPORT.md`.
+The corrected package is `output/staging/combined-runtime-startup-final-20261013`;
+its console, kernel and receiver executables are unchanged. Six runtime plugins
+were added and production renderer startup now passes offline. That is not a
+successful live receiver run. The older preparation below remains historical;
+do not launch its incomplete runtime again.
+The latest prepared files are recorded in
+`analysis/candidate-live-20261013/preparation.json`. The setup script only
 copies files and invokes explicit offline validation modes. It cannot launch a
 normal kernel, receiver or console window.
 
 ## Prepared scope
 
-- Immutable review package: `output/staging/combined-scope-release-20261012`.
-- Disposable run: `output/candidate-runs/scope-release-20261012`.
+- Immutable review package: `output/staging/combined-runtime-startup-final-20261013`.
+- Disposable run: `output/candidate-runs/runtime-startup-20261013`.
 - Kernel configuration: a reviewed structural copy of the installed launcher's
   saved C24C records, selected without changing its identity or calibration.
   One receiver, C24C input only; C241 is absent from this candidate configuration.
@@ -18,7 +29,8 @@ normal kernel, receiver or console window.
   cleanup history in diagnostic exports. Earlier prepared runs retain their older
   console and remain historical.
 - Receiver: the preserved report-parser memory fix and its verified runtime.
-  No receiver process has been started from this package.
+  The older runtime's live launch on 13 October failed before video due
+  to missing startup plugins; the corrected runtime still awaits a live window.
 
 Preparation does not grant a test window. Starting this kernel uses the working
 port and receiver identity, so it cannot coexist with the installed kernel. A

@@ -1,0 +1,20 @@
+{
+  "console_started": false,
+  "pid": 41732,
+  "executable": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\scope-release-20261012\\kernel\\bin\\iMouse2.Kernel.exe",
+  "arguments": [
+    "http://127.0.0.1:9913/api/",
+    "--data-dir",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\scope-release-20261012\\kernel\\data",
+    "--input-pid",
+    "C24C",
+    "--receivers",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\scope-release-20261012\\kernel\\data\\receivers.json",
+    "--receiver",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-scope-release-20261012\\payload\\receiver\\uxplay.exe",
+    "--receiver-runtime",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-scope-release-20261012\\dependencies\\receiver-runtime\\runtime"
+  ],
+  "human_authorized": true,
+  "time_utc": "2026-10-13T04:18:11.9608119Z"
+}

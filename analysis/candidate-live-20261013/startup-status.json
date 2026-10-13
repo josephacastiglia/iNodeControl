@@ -1,0 +1,72 @@
+{
+  "status": 200,
+  "message": "ok",
+  "data": {
+    "code": 0,
+    "input": "direct-hid",
+    "input_protocol": 1,
+    "input_leases_required": true,
+    "build_identity": {
+      "version": "1.0.0.0",
+      "informational_version": "1.0.0+3d3883f58a671a45ada8d4bdda0b79e61132fbc4",
+      "module_id": "f149cab9-ae34-41b6-b421-3998c367dac8",
+      "sha256": "6585cd5ceb2d2e8762a3a863e536b3f66d94621446864b67b9e3c01e90d2601f"
+    },
+    "process": {
+      "pid": 41732,
+      "started_utc": "2026-10-13T04:18:11.9499412Z",
+      "uptime_seconds": 0.6104474,
+      "working_set_bytes": 44158976,
+      "private_bytes": 12718080,
+      "cpu_seconds": 0.21875
+    },
+    "input_configuration": {
+      "precise_movement_delay_ms": 7,
+      "calibrations": [
+        {
+          "pid": "C24C",
+          "enabled": true,
+          "width": 500,
+          "height": 1080,
+          "origin_x": 14,
+          "origin_y": 14,
+          "pixels_per_unit_x": 5.12,
+          "pixels_per_unit_y": 5.09
+        }
+      ]
+    },
+    "allowed": [
+      "C24C"
+    ],
+    "home_sequence": "vendor",
+    "receiver": "iMouse2-C24C",
+    "receiver_state": "offline",
+    "receiver_message": "No live frame. Select iMouse2-C24C in iPhone Screen Mirroring.",
+    "receiver_pid": 36196,
+    "receiver_restarts": 0,
+    "frames": 0,
+    "live": false,
+    "frame_delivery": "waiting",
+    "frame_age_ms": null,
+    "frame_session": "aaa86822eb8a44e7856a47a9d72460d4",
+    "frame_message": "Waiting for the receiver frame pipe.",
+    "frame_pipe_connected": false,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 36196,
+        "receiver_restarts": 0,
+        "receiver_state": "offline",
+        "receiver_message": "",
+        "live": false,
+        "frames": 0,
+        "frame_delivery": "waiting",
+        "frame_age_ms": null,
+        "frame_session": "aaa86822eb8a44e7856a47a9d72460d4",
+        "frame_message": "Waiting for the receiver frame pipe.",
+        "frame_pipe_connected": false
+      }
+    ]
+  }
+}

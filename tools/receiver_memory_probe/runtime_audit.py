@@ -10,8 +10,14 @@ from pathlib import Path
 import re
 import subprocess
 
+# The deployed appsink/fakesink mode still runs audio_renderer.c:gstreamer_init
+# and initializes AAC/ALAC pipelines. A video-only synthetic probe misses these
+# dynamic requirements (observed in the 13 October candidate startup failure).
 PLUGIN_FILES = ("libgstapp.dll", "libgstcoreelements.dll", "libgstlibav.dll",
-                "libgstvideoparsersbad.dll", "libgstvideoconvertscale.dll")
+                "libgstvideoparsersbad.dll", "libgstvideoconvertscale.dll",
+                "libgstplayback.dll", "libgstautodetect.dll",
+                "libgstaudioconvert.dll", "libgstaudioresample.dll",
+                "libgstvolume.dll", "libgstlevel.dll")
 
 
 def sha(path):
@@ -95,7 +101,7 @@ def audit(receiver, runtime, system_dir, inspect):
             "files": files, "dependencies": dependencies, "windows_api_contracts": sorted(contracts),
             "limits": ["This is a bounded file/dependency inventory, not Windows loader emulation.",
                        "System files and API-set contracts are not recursively validated or attested.",
-                       "Only the selected software-video pipeline plugins are seeded; dynamic/optional plugins can need more files.",
+                       "Seeds include receiver startup checks and the configured appsink/fakesink pipelines; other modes can need more plugins.",
                        "No discovery, networking, plugin loading, decoding, phone input or license acceptance is tested."]}
 
 

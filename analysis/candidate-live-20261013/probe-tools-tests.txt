@@ -1,0 +1,14 @@
+test_child_environment_overrides_receiver_state (test_tools.AnalysisTests.test_child_environment_overrides_receiver_state) ... ok
+test_flat_is_not_acceptance (test_tools.AnalysisTests.test_flat_is_not_acceptance) ... ok
+test_known_growth (test_tools.AnalysisTests.test_known_growth) ... ok
+test_short_run_is_inconclusive (test_tools.AnalysisTests.test_short_run_is_inconclusive) ... ok
+test_staged_runtime_never_inherits_toolchain_path (test_tools.AnalysisTests.test_staged_runtime_never_inherits_toolchain_path) ... ok
+test_warmup_and_teardown_excluded (test_tools.AnalysisTests.test_warmup_and_teardown_excluded) ... ok
+test_code_changes_remain_visible (test_tools.NormalizationTests.test_code_changes_remain_visible) ... ok
+test_export_content_changes_remain_visible (test_tools.NormalizationTests.test_export_content_changes_remain_visible) ... ok
+test_only_metadata_ignored (test_tools.NormalizationTests.test_only_metadata_ignored) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.074s
+
+OK

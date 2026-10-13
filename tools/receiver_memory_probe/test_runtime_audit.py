@@ -34,7 +34,7 @@ class RuntimeAudit(unittest.TestCase):
     def test_consistency_never_claims_launch_readiness(self):
         result = self.audit()
         self.assertTrue(result["files_consistent"])
-        self.assertEqual(len(result["files"]), 7)
+        self.assertEqual(len(result["files"]), 2 + len(r.PLUGIN_FILES))
         self.assertFalse(result["launch_ready"])
         self.assertFalse(result["receiver_started"])
         self.assertFalse(result["dlls_loaded"])
@@ -42,6 +42,21 @@ class RuntimeAudit(unittest.TestCase):
     def test_missing_plugin_fails(self):
         (self.runtime / "lib/gstreamer-1.0" / r.PLUGIN_FILES[0]).unlink()
         self.assertFalse(self.audit()["files_consistent"])
+
+    def test_receiver_startup_requirements_are_not_just_video_decoding(self):
+        # UxPlay checks playback/autodetect even with appsink/fakesink, then
+        # initializes its audio pipelines. These are not ordinary PE imports.
+        required = ("libgstplayback.dll", "libgstautodetect.dll",
+                    "libgstaudioconvert.dll", "libgstaudioresample.dll",
+                    "libgstvolume.dll", "libgstlevel.dll")
+        for name in required:
+            with self.subTest(plugin=name):
+                path = self.runtime / "lib/gstreamer-1.0" / name
+                path.unlink(missing_ok=True)
+                result = self.audit()
+                self.assertFalse(result["files_consistent"])
+                self.assertIn(f"Missing file: {path}", result["errors"])
+                path.write_bytes(b"fixture")
 
     def test_transitive_missing_import_fails(self):
         (self.runtime / "bin/a.dll").write_bytes(b"fixture")
@@ -73,7 +88,7 @@ class RuntimeAudit(unittest.TestCase):
             raise ValueError("unreadable PE")
         result = r.audit(self.receiver, self.runtime, self.system, broken)
         self.assertFalse(result["files_consistent"])
-        self.assertEqual(len(result["errors"]), 7)
+        self.assertEqual(len(result["errors"]), 2 + len(r.PLUGIN_FILES))
 
     def test_wrong_architecture_is_refused(self):
         class Result:
