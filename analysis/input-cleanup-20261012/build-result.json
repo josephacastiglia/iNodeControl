@@ -1,0 +1,12 @@
+{
+  "build": "lifecycle-build",
+  "warnings": 0,
+  "errors": 0,
+  "self_tests": 348,
+  "new_checks": 34,
+  "shown_windows": 0,
+  "native_window_handles_created_by_lifecycle_tests": 0,
+  "live_calls": 0,
+  "sha256": "54a9d20b4aafa553978b5fb87c2eaa7e34c9ae9d769ec0b76440065d3e93a1fd",
+  "kernel_changed": false
+}

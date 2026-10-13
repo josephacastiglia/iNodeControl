@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Awaited disconnect, reconnect and close, 12 October
+
+The console now waits for retired clients to finish bounded, ownership-scoped cleanup. A release already in flight remains tracked after its token is detached; failed or missing confirmation is recorded rather than mistaken for success. Rapid reconnect activates only the newest client after prior cleanup. Normal window close and test exits await cleanup, with isolated atomic receipts and visible warnings for unresolved normal closure.
+
+**348 console checks pass**, including 34 new checks and actual window-lifecycle tests that never show a window or create its native handle. Both deliberately broken copies fail the intended checks. See `analysis/input-cleanup-20261012/REPORT.md`. The latest console, unchanged kernel and preserved native runtime are consolidated in `output/staging/combined-input-cleanup-20261012/`, review-only and unlaunched. Installed hashes remain unchanged; no hardware gate was advanced. Next: read-only current rack readiness and remaining acceptance preparation using the consolidated candidate, without resuming the deferred typing investigation.
+
 ## Drag lifetime and complete-action ordering, 12 October
 
 Each drag now owns its pending coordinate and release state. A newer press cannot reset the older stroke; final coordinates are published before mouse capture is released. Complete console input actions are ordered through button-up, so a following drag, tap or key cannot interleave inside a held stroke. Stop and Resume remain outside that queue, and every queued action retains its original cancellation context. Failed owned input reports later queued work as not sent; the pause notice's own cancellation does not disguise the timeout.

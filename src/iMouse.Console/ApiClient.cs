@@ -27,6 +27,16 @@ public enum InputEnd { Completed, Cancelled, TimedOut, Failed }
 /// </summary>
 public sealed record PhoneCleanup(string Id, bool Confirmed, string Detail);
 
+/// <summary>Managed-input cleanup, not proof of what the phone displayed.</summary>
+public sealed record InputCloseResult(IReadOnlyList<PhoneCleanup> Phones, string? Failure = null)
+{
+    public bool Confirmed => Failure is null && Phones.All(p => p.Confirmed);
+    public string Summary => Confirmed
+        ? Phones.Count == 0 ? "No managed input leases were held." : "Input release confirmed for this connection."
+        : "Input release NOT confirmed: " + string.Join("; ", Phones.Where(p => !p.Confirmed).Select(p => p.Id + ": " + p.Detail)
+            .Concat(Failure is null ? [] : new[] { Failure })) + ". Check the affected phones.";
+}
+
 /// <summary>
 /// The release this console sends at once when a command fails or times out while a button may be
 /// down, instead of leaving it held until the lease expires. Elapsed runs from the failure being
@@ -149,6 +159,9 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
     private readonly HttpClient _http;
     private long _screenshotRequest;
     private readonly InputLeaseClient? _input;
+    private readonly object _closeGate = new();
+    private readonly TimeSpan _closeTimeout;
+    private Task<InputCloseResult>? _closeTask;
     private bool _ownershipVerified;
     public event Action<string>? InputNotice;
     /// <summary>Raised on a pool thread when the release after an input failure has an answer.</summary>
@@ -169,8 +182,12 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         _ => null
     };
     public Uri Endpoint { get; }
-    public ApiClient(string address, HttpMessageHandler? handler = null, bool? ownership = null, TimeSpan? renewalInterval = null)
+    public ApiClient(string address, HttpMessageHandler? handler = null, bool? ownership = null, TimeSpan? renewalInterval = null,
+        TimeSpan? closeTimeout = null)
     {
+        _closeTimeout = closeTimeout ?? TimeSpan.FromSeconds(15);
+        if (_closeTimeout <= TimeSpan.Zero || _closeTimeout > TimeSpan.FromSeconds(30))
+            throw new ArgumentOutOfRangeException(nameof(closeTimeout), "Cleanup timeout must be positive and no more than 30 seconds.");
         Endpoint = NormalizeEndpoint(address);
         _http = handler is null ? new HttpClient(new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false }) : new HttpClient(handler);
         _http.Timeout = TimeSpan.FromSeconds(8);
@@ -402,18 +419,35 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
     };
     public void Dispose()
     {
-        if (_input is null) { _http.Dispose(); return; }
         _ = CloseAsync();
     }
     public async ValueTask DisposeAsync()
     {
-        if (_input is null) { _http.Dispose(); return; }
         await CloseAsync().ConfigureAwait(false);
     }
-    private async Task CloseAsync()
+    /// <summary>Idempotent, bounded cleanup. Callers must await it before exiting.</summary>
+    public Task<InputCloseResult> CloseAsync()
     {
-        try { if (_input is not null) await _input.DisposeAsync().ConfigureAwait(false); }
-        finally { _http.Dispose(); }
+        lock (_closeGate) return _closeTask ??= CloseCoreAsync();
+    }
+    private async Task<InputCloseResult> CloseCoreAsync()
+    {
+        InputCloseResult result;
+        try
+        {
+            result = _input is null ? new([])
+                : await _input.CloseAsync().WaitAsync(_closeTimeout).ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            // Disposing HTTP below aborts outstanding network work. A transport that
+            // ignores cancellation may finish later; never turn that into a success.
+            result = new([], $"cleanup did not finish within {_closeTimeout.TotalSeconds:0.###} seconds");
+        }
+        catch (Exception ex) { result = new([], "cleanup failed (" + ex.Message + ")"); }
+        try { _http.Dispose(); }
+        catch (Exception ex) { result = result with { Failure = "HTTP cleanup failed (" + ex.Message + ")" }; }
+        return result;
     }
 }
 

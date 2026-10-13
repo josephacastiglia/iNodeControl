@@ -7,12 +7,14 @@ namespace IMouse2;
 public partial class App : Application
 {
     private string? _testData;
+    private MainWindow? _testWindow;
 
     // Test modes run on a throwaway data folder so they never read or save the operator's
     // %APPDATA%\iMouse2. That also means a live mode cannot pick up the saved service address,
     // so it has to be given one: guessing could point a test that sends taps at the wrong service.
     private MainWindow CreateTestWindow(string[] args, bool live, Func<string, ApiClient>? factory = null)
     {
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
         var address = args.FirstOrDefault(a => a.StartsWith("--address="))?["--address=".Length..];
         if (live && string.IsNullOrWhiteSpace(address))
             throw new Exception("Live test modes need --address=<service url>, for example --address=http://127.0.0.1:9913. They use their own data folder and do not read the address saved in %APPDATA%\\iMouse2.");
@@ -20,7 +22,29 @@ public partial class App : Application
         Directory.CreateDirectory(_testData);
         var window = new MainWindow(factory, _testData);
         if (!string.IsNullOrWhiteSpace(address)) window.AddressBox.Text = address;
-        return window;
+        return _testWindow = window;
+    }
+
+    private async Task FinishTestWindowAsync()
+    {
+        if (_testWindow is null) return;
+        await _testWindow.CloseSafelyAsync();
+        // The isolated profile is removed on exit. Keep cleanup evidence with the
+        // test results, including when the test itself failed before normal closure.
+        string qa = Path.Combine(AppContext.BaseDirectory, "qa");
+        Directory.CreateDirectory(qa);
+        foreach (string name in new[] { "last-input-cleanup.json", "last-input-cleanup-warning.json" })
+            if (_testData is not null && File.Exists(Path.Combine(_testData, name)))
+                File.Copy(Path.Combine(_testData, name), Path.Combine(qa, name), overwrite: true);
+        if (!string.IsNullOrEmpty(_testWindow.CleanupWarning)) throw new IOException(_testWindow.CleanupWarning);
+    }
+
+    private async Task FailTestAsync(string file, Exception failure)
+    {
+        try { await FinishTestWindowAsync(); }
+        catch (Exception cleanup) { failure = new AggregateException(failure, cleanup); }
+        File.WriteAllText(Path.Combine(AppContext.BaseDirectory, file), failure.ToString());
+        Shutdown(1);
     }
 
     /// <summary>
@@ -173,10 +197,10 @@ public partial class App : Application
                 window.Show();
                 var tileArg = e.Args.FirstOrDefault(a => a.StartsWith("--tile-ms="));
                 await window.RunWallAsync(tileArg is null ? 0 : int.Parse(tileArg["--tile-ms=".Length..]));
-                window.Close();
+                await FinishTestWindowAsync();
                 Shutdown(0);
             }
-            catch (Exception ex) { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "wall-test-failure.txt"), ex.ToString()); Shutdown(1); }
+            catch (Exception ex) { await FailTestAsync("wall-test-failure.txt", ex); }
             return;
         }
         if (e.Args.Contains("--mirror-test"))
@@ -186,10 +210,10 @@ public partial class App : Application
                 var window = CreateTestWindow(e.Args, live: true);
                 window.Show();
                 await window.RunMirrorAsync();
-                window.Close();
+                await FinishTestWindowAsync();
                 Shutdown(0);
             }
-            catch (Exception ex) { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "mirror-test-failure.txt"), ex.ToString()); Shutdown(1); }
+            catch (Exception ex) { await FailTestAsync("mirror-test-failure.txt", ex); }
             return;
         }
         if (e.Args.Contains("--fps-test"))
@@ -199,10 +223,10 @@ public partial class App : Application
                 var window = CreateTestWindow(e.Args, live: true);
                 window.Show();
                 await window.RunFpsAsync();
-                window.Close();
+                await FinishTestWindowAsync();
                 Shutdown(0);
             }
-            catch (Exception ex) { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "fps-test-failure.txt"), ex.ToString()); Shutdown(1); }
+            catch (Exception ex) { await FailTestAsync("fps-test-failure.txt", ex); }
             return;
         }
         if (e.Args.Contains("--smoke-test") || e.Args.Contains("--ui-test"))
@@ -213,10 +237,10 @@ public partial class App : Application
                 var handler = fake ? new TestHandler() : null;
                 var window = CreateTestWindow(e.Args, live: !fake, handler is null ? null : address => new ApiClient(address, handler));
                 await window.RunSmokeAsync(fake, handler);
-                window.Close();
+                await FinishTestWindowAsync();
                 Shutdown(0);
             }
-            catch (Exception ex) { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "smoke-test-failure.txt"), ex.ToString()); Shutdown(1); }
+            catch (Exception ex) { await FailTestAsync("smoke-test-failure.txt", ex); }
             return;
         }
         MainWindow main;

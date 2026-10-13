@@ -1,0 +1,91 @@
+{
+  "RunDir": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\input-cleanup-20261012",
+  "DataDir": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\input-cleanup-20261012\\data",
+  "ConsoleExe": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\input-cleanup-20261012\\bin\\iMouse2.exe",
+  "Service": "http://127.0.0.1:9913",
+  "ConsoleAddress": "http://127.0.0.1:9913",
+  "ViaProxy": false,
+  "ProxyExe": null,
+  "Files": [
+    {
+      "Relative": "bin/iMouse2.exe",
+      "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.exe",
+      "Sha256": "27780699a635f2019b0013a8b65090a0aeab8d1dc38e592f471b1ce2bf94b1f7",
+      "Bytes": 152064
+    },
+    {
+      "Relative": "bin/iMouse2.dll",
+      "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.dll",
+      "Sha256": "54a9d20b4aafa553978b5fb87c2eaa7e34c9ae9d769ec0b76440065d3e93a1fd",
+      "Bytes": 662016
+    },
+    {
+      "Relative": "bin/iMouse2.deps.json",
+      "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.deps.json",
+      "Sha256": "037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc",
+      "Bytes": 413
+    },
+    {
+      "Relative": "bin/iMouse2.runtimeconfig.json",
+      "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.runtimeconfig.json",
+      "Sha256": "c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782",
+      "Bytes": 458
+    },
+    {
+      "Relative": "bin/iMouse2.pdb",
+      "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.pdb",
+      "Sha256": "8f8b08cde22c84dc6d9eda9dd5326736519e6d812b7faa7e751b28713e278b1c",
+      "Bytes": 135336
+    }
+  ],
+  "Profile": "{\"address\":\"http://127.0.0.1:9913\",\"theme\":\"light\",\"trackPointer\":false}",
+  "Identity": {
+    "schema_version": 1,
+    "source_root": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate",
+    "run_dir": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\input-cleanup-20261012",
+    "service": "http://127.0.0.1:9913",
+    "console_address": "http://127.0.0.1:9913",
+    "console_manifest_sha256": "583C01C0D2FF7279BF4C5C5B8621C36E679AB352AAA8917375F8F4AC23BAF478",
+    "proxy_manifest_sha256": null,
+    "files": [
+      {
+        "Relative": "bin/iMouse2.exe",
+        "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.exe",
+        "Sha256": "27780699a635f2019b0013a8b65090a0aeab8d1dc38e592f471b1ce2bf94b1f7",
+        "Bytes": 152064
+      },
+      {
+        "Relative": "bin/iMouse2.dll",
+        "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.dll",
+        "Sha256": "54a9d20b4aafa553978b5fb87c2eaa7e34c9ae9d769ec0b76440065d3e93a1fd",
+        "Bytes": 662016
+      },
+      {
+        "Relative": "bin/iMouse2.deps.json",
+        "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.deps.json",
+        "Sha256": "037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc",
+        "Bytes": 413
+      },
+      {
+        "Relative": "bin/iMouse2.runtimeconfig.json",
+        "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.runtimeconfig.json",
+        "Sha256": "c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782",
+        "Bytes": 458
+      },
+      {
+        "Relative": "bin/iMouse2.pdb",
+        "Source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\input-cleanup-20261012\\candidate-console\\iMouse2.pdb",
+        "Sha256": "8f8b08cde22c84dc6d9eda9dd5326736519e6d812b7faa7e751b28713e278b1c",
+        "Bytes": 135336
+      }
+    ],
+    "settings": {
+      "address": "http://127.0.0.1:9913",
+      "theme": "light",
+      "trackPointer": false
+    }
+  },
+  "Fingerprint": "6e9173e9663d07d8e74017e3e4252ad69f63d98fba9ee8e9c69a2b23176cc759",
+  "OfflineOnly": true,
+  "Prepared": true
+}

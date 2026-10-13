@@ -31,7 +31,7 @@ internal static class SettingsPersistence
         }
     }
 
-    private static void WriteAtomic(string path, byte[] bytes)
+    internal static void WriteAtomic(string path, byte[] bytes)
     {
         string folder = Path.GetDirectoryName(path)!;
         Directory.CreateDirectory(folder);

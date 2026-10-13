@@ -53,6 +53,23 @@ uses it, finish the current work and use **Settings → Disconnect**, or close t
 console normally. Disconnect affects this console's phones; it does not stop the
 separate kernel or mirroring receivers.
 
+The combined candidate waits for input cleanup before disconnecting, reconnecting
+or finishing a normal close. Cleanup has a 15-second limit per retired connection;
+independent phones release together. An unanswered release remains unconfirmed.
+On disconnect, read the status and Activity. On a normal close, an unresolved
+release or failure to save its record produces a warning before the window exits.
+Inspect the affected phones before taking further control; closing a window is
+not proof that a physical button was released.
+
+The active data folder holds `last-input-cleanup.json`. If any release was
+unconfirmed, `last-input-cleanup-warning.json` preserves that historical warning
+even after a later clean close. These bounded records contain service addresses,
+phone IDs and confirmation states, without lease tokens or raw service-error
+bodies. Include them with a diagnostic export when investigating shutdown.
+Isolated candidates write only to their isolated folder. Automated window tests
+copy the records into `qa` before deleting their temporary profile. Forced process
+termination, a crash or OS shutdown can bypass normal awaited cleanup.
+
 ## If something stops working
 
 | What you see | What to check |

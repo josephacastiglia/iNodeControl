@@ -93,19 +93,28 @@ public partial class MainWindow : Window
         StateChanged += (_, _) => { SyncPumpTarget(); if (WindowState != WindowState.Minimized) StartPump(); };
         // Fit once the first real layout pass has happened; before that the viewport is zero.
         ContentRendered += (_, _) => { FitMaster(); UpdateWallWidth(); };
-        Closed += (_, _) => { _closing = true; _pointerMoves.Close(); _tileStreams.Stop(); _refreshTimer.Stop(); CompositionTarget.Rendering -= PresentPending; _lifetime.Cancel(); _api?.Dispose(); _lifetime.Dispose(); if (_timerRaised) { try { timeEndPeriod(1); } catch { } _timerRaised = false; } };
+        Closing += (_, e) => { if (!_closeAllowed) { e.Cancel = true; _ = CloseSafelyAsync(showWarning: true); } };
+        Closed += (_, _) => { _lifetime.Dispose(); if (_timerRaised) { try { timeEndPeriod(1); } catch { } _timerRaised = false; } };
         UpdateControls();
     }
 
     public async Task ConnectAsync()
     {
-        if (_commandBusy) return;
+        if (_commandBusy || _closing) return;
         ApiClient next;
         try { next = _factory(AddressBox.Text.Trim()); }
         catch (Exception ex) { Log(ex.Message, true); return; }
-        _session++; _tileStreams.Stop();
-        _lifetime.Cancel(); _lifetime.Dispose(); _lifetime = new();
-        _api?.Dispose(); _api = next;
+        DetachConnection();
+        int session = _session;
+        _pendingConnection = next;
+        ConnectionStatus.Text = "Releasing previous input…";
+        UpdateControls();
+        await FinishConnectionCleanupAsync();
+        if (_closing || session != _session || _pendingConnection != next) return;
+        _pendingConnection = null;
+        _lifetime.Dispose(); _lifetime = new();
+        _api = next;
+        if (!next.UsesInputOwnership) { _controlCancellation = new(); _controlReady = true; }
         next.InputNotice += message => Dispatcher.BeginInvoke(() =>
         {
             if (_closing || _api != next) return;
@@ -128,7 +137,7 @@ public partial class MainWindow : Window
         _refreshTimer.Start(); StartPump();
         UpdateControls();
         await RefreshDevicesAsync(true);
-        if (_connected)
+        if (_connected && !_closing && session == _session && _api == next)
         {
             AddressBox.Text = next.Endpoint.GetLeftPart(UriPartial.Authority);
             try { SaveSettings(); }
@@ -336,17 +345,22 @@ public partial class MainWindow : Window
     }
 
     private async void Connect_Click(object sender, RoutedEventArgs e) => await ConnectAsync();
-    private void Disconnect_Click(object sender, RoutedEventArgs e)
+    private async void Disconnect_Click(object sender, RoutedEventArgs e)
     {
-        if (_commandBusy) return;
-        _session++; _tileStreams.Stop(); _lifetime.Cancel(); _api?.Dispose(); _api = null; _connected = false; _castName = "";
-        _refreshTimer.Stop();
-        ConnectionStatus.Text = "Disconnected";
-        _devices.Clear(); DeviceList.ItemsSource = null;
+        if (_commandBusy || _closing) return;
+        DetachConnection();
+        int session = _session;
+        ConnectionStatus.Text = "Disconnecting · releasing input…";
         Totals.Text = "Connect to your iMouse service";
         EmptyList.Text = "Connect to load your iPhones."; EmptyList.Visibility = Visibility.Visible;
         ClearFrame("Disconnected", "Phone mirroring was left unchanged.");
-        Log("Console disconnected. Phone mirroring was left unchanged."); UpdateControls();
+        UpdateControls();
+        var records = await FinishConnectionCleanupAsync();
+        if (_closing || session != _session) return;
+        bool confirmed = records.All(r => r.Result.Confirmed);
+        ConnectionStatus.Text = confirmed ? "Disconnected" : "Disconnected · input release unconfirmed";
+        InputStateText.Text = confirmed ? "Input released" : "Input release not confirmed. Check the affected phones.";
+        Log("Console disconnected. Phone mirroring was left unchanged.");
     }
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshDevicesAsync(true);
 
@@ -494,7 +508,7 @@ public partial class MainWindow : Window
         }
         ActionPanel.IsEnabled = _connected && !_commandBusy && !_autoBinding && (BatchMode.IsChecked == true ? count > 0 : Selected is not null);
         ConnectButton.IsEnabled = !_commandBusy;
-        DisconnectButton.IsEnabled = !_commandBusy && _api is not null;
+        DisconnectButton.IsEnabled = !_commandBusy && (_api is not null || _pendingConnection is not null);
         RefreshButton.IsEnabled = _api is not null;
         AddressBox.IsEnabled = !_commandBusy;
         SaveFrameButton.IsEnabled = _frame is not null && _frameId == Selected?.Id;
@@ -2206,14 +2220,14 @@ public partial class MainWindow : Window
         off.SaveSettings();
         Check("A saved trackPointer setting is kept when settings are saved",
             File.ReadAllText(trackFile) == "{\"address\":\"http://localhost:9923\",\"theme\":\"light\",\"trackPointer\":false}");
-        off.Close();
+        await off.CloseSafelyAsync();
         File.WriteAllText(trackFile, "{\"address\":\"http://localhost:9923\",\"theme\":\"light\"}");
         var on = new MainWindow(_factory, trackDir);
         Check("Hover tracking stays on by default", on.TrackPointer.IsChecked == true);
         on.SaveSettings();
         Check("A settings file without trackPointer is saved without it",
             File.ReadAllText(trackFile) == "{\"address\":\"http://localhost:9923\",\"theme\":\"light\"}");
-        on.Close();
+        await on.CloseSafelyAsync();
         Directory.Delete(trackDir, true);
         AutoPreview.IsChecked = false;
         Check("Footer uses live receiver names, not a stale imserver name",

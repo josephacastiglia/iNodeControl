@@ -18,17 +18,19 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         public bool PausedByFailure;
         // A /mouse/down may have reached the phone and no release has been confirmed since.
         public bool ButtonMaybeDown;
+        public PhoneCleanup? LastRelease;
         // The release started after a failure; Resume and release wait for it before reusing the lease.
         public Task Cleanup = Task.CompletedTask;
     }
     private readonly object _sync = new();
     private readonly Dictionary<string, Phone> _phones = new();
+    private readonly HashSet<Task> _operatorTasks = [];
     private readonly SemaphoreSlim _acquire = new(1, 1);
     private readonly Func<string, Dictionary<string, object>, CancellationToken, Task<JsonElement>> _send;
     private readonly Func<CancellationToken, Task> _verify;
     private readonly CancellationTokenSource _shutdown = new();
     private readonly Task _heartbeat;
-    private Task? _dispose;
+    private Task<InputCloseResult>? _dispose;
     private bool _closed;
     private long _operatorEpoch;
     public event Action<string>? Notice;
@@ -103,7 +105,17 @@ internal sealed class InputLeaseClient : IAsyncDisposable
                     }
                     if (obsolete)
                     {
-                        try { await _send("/input/release", Payload(missing, leases), CancellationToken.None).ConfigureAwait(false); } catch { }
+                        // Even a cancelled acquire can return a lease. Preserve its
+                        // release outcome so shutdown cannot call an unknown hold clean.
+                        foreach (var id in missing)
+                        {
+                            var release = await ReleaseHeldAsync(id, leases[id]).ConfigureAwait(false);
+                            lock (_sync)
+                            {
+                                var p = Get(id); p.LastRelease = release.Phone;
+                                if (!release.LeaseGone) p.Token = leases[id];
+                            }
+                        }
                         ct.ThrowIfCancellationRequested();
                     }
                 }
@@ -203,6 +215,7 @@ internal sealed class InputLeaseClient : IAsyncDisposable
                 if (p.Life.Token != held[i].Life || p.Token != held[i].Token) continue;   // released or resumed since
                 if (results[i].LeaseGone) p.Token = null;
                 if (results[i].Phone.Confirmed) p.ButtonMaybeDown = false;
+                p.LastRelease = results[i].Phone;
             }
             current = epoch == Interlocked.Read(ref _operatorEpoch) && held.All(h => Get(h.Id).Life.Token == h.Life);
         }
@@ -257,7 +270,26 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         }
         catch (Exception ex) { return new(id, false, "status unavailable after the release was refused (" + ex.Message + ")"); }
     }
-    public async Task StopAsync(string ids)
+    private Task OperatorAsync(Func<Task> action)
+    {
+        var finished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        lock (_sync)
+        {
+            if (_closed) return Task.FromException(new ObjectDisposedException(nameof(InputLeaseClient)));
+            _operatorTasks.Add(finished.Task);
+        }
+        return RunAsync();
+        async Task RunAsync()
+        {
+            try { await action().ConfigureAwait(false); }
+            finally
+            {
+                lock (_sync) { _operatorTasks.Remove(finished.Task); finished.TrySetResult(); }
+            }
+        }
+    }
+    public Task StopAsync(string ids) => OperatorAsync(() => StopCoreAsync(ids));
+    private async Task StopCoreAsync(string ids)
     {
         Interlocked.Increment(ref _operatorEpoch);
         var targets = Ids(ids); if (targets.Length == 0) return;
@@ -266,7 +298,11 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         await _verify(CancellationToken.None).ConfigureAwait(false);
         await _send("/input/stop", Payload(targets), CancellationToken.None).ConfigureAwait(false);
         await DrainAsync(targets).ConfigureAwait(false);
-        lock (_sync) foreach (var id in targets) Get(id).Token = null;
+        lock (_sync) foreach (var id in targets)
+        {
+            var p = Get(id); p.Token = null; p.ButtonMaybeDown = false;
+            p.LastRelease = new(id, true, "the kernel confirmed Stop and released input");
+        }
     }
     private async Task DrainAsync(string[] ids)
     {
@@ -276,14 +312,15 @@ internal sealed class InputLeaseClient : IAsyncDisposable
             await p.Gate.WaitAsync().ConfigureAwait(false); p.Gate.Release();
         }
     }
-    public async Task ResumeAsync(string ids)
+    public Task ResumeAsync(string ids) => OperatorAsync(() => ResumeCoreAsync(ids));
+    private async Task ResumeCoreAsync(string ids)
     {
         long epoch = Interlocked.Read(ref _operatorEpoch);
         lock (_sync) if (_closed) throw new ObjectDisposedException(nameof(InputLeaseClient));
         var targets = Ids(ids); if (targets.Length == 0) return;
         Pause(targets);
         await DrainAsync(targets).ConfigureAwait(false);
-        await ReleaseAsync(ids, invalidateResume: false).ConfigureAwait(false);
+        await ReleaseCoreAsync(ids, invalidateResume: false).ConfigureAwait(false);
         await _verify(CancellationToken.None).ConfigureAwait(false);
         var status = await _send("/input/status", new(), CancellationToken.None).ConfigureAwait(false);
         var generations = status.GetProperty("phones").EnumerateArray().Where(p => targets.Contains(p.GetProperty("id").GetString()))
@@ -294,7 +331,8 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         if (epoch != Interlocked.Read(ref _operatorEpoch)) throw new ApiException("A newer Stop cancelled Resume.");
         lock (_sync) foreach (var id in targets) { var p = Get(id); p.Token = null; p.Life = new(); p.Paused = p.PausedByFailure = false; }
     }
-    public async Task ReleaseAsync(string ids, bool invalidateResume = true)
+    public Task ReleaseAsync(string ids) => OperatorAsync(() => ReleaseCoreAsync(ids));
+    private async Task ReleaseCoreAsync(string ids, bool invalidateResume = true)
     {
         if (invalidateResume) Interlocked.Increment(ref _operatorEpoch);
         var targets = Ids(ids); if (targets.Length == 0) return;
@@ -307,10 +345,29 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         // Release individually: one expired token must not prevent release of others.
         foreach (var id in targets)
         {
-            string? token; lock (_sync) { token = Get(id).Token; Get(id).Token = null; }
+            string? token; CancellationToken life;
+            lock (_sync) { var p = Get(id); token = p.Token; life = p.Life.Token; p.Token = null; }
             if (token is not null)
-                try { await _send("/input/release", new() { ["id"] = id, ["token"] = token }, CancellationToken.None).ConfigureAwait(false); }
-                catch (Exception ex) { Notice?.Invoke("Release not confirmed; inspect input status: " + ex.Message); }
+                try
+                {
+                    await _send("/input/release", new() { ["id"] = id, ["token"] = token }, CancellationToken.None).ConfigureAwait(false);
+                    lock (_sync)
+                    {
+                        var p = Get(id);
+                        if (p.Life.Token == life && p.Token is null)
+                        { p.ButtonMaybeDown = false; p.LastRelease = new(id, true, "the kernel confirmed the release"); }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lock (_sync)
+                    {
+                        var p = Get(id);
+                        if (p.Life.Token == life && p.Token is null)
+                            p.LastRelease = new(id, false, "release was not confirmed (" + ex.Message + ")");
+                    }
+                    Notice?.Invoke("Release not confirmed; inspect input status: " + ex.Message);
+                }
         }
     }
     public void ReadyScope(string ids)
@@ -347,12 +404,53 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         }
         catch (OperationCanceledException) { }
     }
-    public ValueTask DisposeAsync() { lock (_sync) return new(_dispose ??= CloseAsync()); }
-    private async Task CloseAsync()
+    public ValueTask DisposeAsync() => new(CloseAsync());
+    internal Task<InputCloseResult> CloseAsync()
     {
-        string ids; lock (_sync) { _closed = true; ids = string.Join(',', _phones.Keys); }
+        lock (_sync)
+        {
+            if (_dispose is not null) return _dispose;
+            _closed = true;
+            Interlocked.Increment(ref _operatorEpoch);
+            return _dispose = Task.Run(async () =>
+            {
+                try { return await CloseCoreAsync().ConfigureAwait(false); }
+                catch (Exception) { return new InputCloseResult([], "input cleanup failed before it could be confirmed"); }
+            });
+        }
+    }
+    private async Task<InputCloseResult> CloseCoreAsync()
+    {
         _shutdown.Cancel();
-        await ReleaseAsync(ids).ConfigureAwait(false);
+        Task[] operators; lock (_sync) operators = _operatorTasks.ToArray();
+        await Task.WhenAll(operators).ConfigureAwait(false);
+        string[] ids; lock (_sync) ids = _phones.Keys.ToArray();
+        Pause(ids);
+        await DrainAsync(ids).ConfigureAwait(false);
+        Task[] cleanups; lock (_sync) cleanups = ids.Select(id => Get(id).Cleanup).ToArray();
+        await Task.WhenAll(cleanups).ConfigureAwait(false);
+        // Independent phone releases run together, instead of taking up to eight
+        // seconds per phone. Every request still carries only that phone's own token.
+        var results = await Task.WhenAll(ids.Select(async id =>
+        {
+            string? token; PhoneCleanup? previous; bool buttonMaybeDown;
+            lock (_sync) { var p = Get(id); token = p.Token; previous = p.LastRelease; buttonMaybeDown = p.ButtonMaybeDown; }
+            if (token is null) return previous ?? new(id, !buttonMaybeDown,
+                buttonMaybeDown ? "no release confirmation is available" : "no managed input lease remains");
+            var released = await ReleaseHeldAsync(id, token).ConfigureAwait(false);
+            lock (_sync)
+            {
+                var p = Get(id);
+                if (p.Token == token)
+                {
+                    if (released.LeaseGone) p.Token = null;
+                    if (released.Phone.Confirmed) p.ButtonMaybeDown = false;
+                    p.LastRelease = released.Phone;
+                }
+            }
+            return released.Phone;
+        })).ConfigureAwait(false);
         await _heartbeat.ConfigureAwait(false);
+        return new(results);
     }
 }

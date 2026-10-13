@@ -39,7 +39,7 @@ public partial class MainWindow
     private void RefreshInputOwnershipUi()
     {
         if (StopInputButton is null || ResumeInputButton is null || InputStateText is null) return;
-        bool managed = _api?.UsesInputOwnership == true;
+        bool managed = !_closing && _api?.UsesInputOwnership == true;
         var ids = managed ? InputTargetIds() : "";
         if (managed && (_controlApi != _api || ids != _controlScope))
         {
@@ -87,7 +87,7 @@ public partial class MainWindow
             if (revision == _controlRevision) InputStateText.Text = "Input stopped · choose Resume input to continue";
             Log("Input stopped: " + ids);
         }
-        catch (Exception ex) { InputStateText.Text = "Stop not confirmed: " + Friendly(ex); Log(InputStateText.Text, true); }
+        catch (Exception ex) { if (!_closing && revision == _controlRevision) { InputStateText.Text = "Stop not confirmed: " + Friendly(ex); Log(InputStateText.Text, true); } }
         finally { _stopPending = false; RefreshInputOwnershipUi(); }
     }
     private async void ResumeInput_Click(object sender, RoutedEventArgs e)

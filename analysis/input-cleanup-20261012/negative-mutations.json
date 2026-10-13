@@ -1,0 +1,16 @@
+[
+  {
+    "name": "operator-wait",
+    "file": "InputLeaseClient.cs",
+    "removed": "await Task.WhenAll(operators).ConfigureAwait(false);",
+    "replacement": "// Negative control: ignore in-flight operators.",
+    "built": true
+  },
+  {
+    "name": "reconnect-wait",
+    "file": "MainWindow.xaml.cs",
+    "removed": "await FinishConnectionCleanupAsync();\n        if (_closing || session != _session || _pendingConnection != next)",
+    "replacement": "_ = FinishConnectionCleanupAsync(); // Negative control: connect too early.\n        if (_closing || session != _session || _pendingConnection != next)",
+    "built": true
+  }
+]
