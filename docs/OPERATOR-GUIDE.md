@@ -56,6 +56,11 @@ separate kernel or mirroring receivers.
 The combined candidate waits for input cleanup before disconnecting, reconnecting
 or finishing a normal close. Cleanup has a 15-second limit per retired connection;
 independent phones release together. An unanswered release remains unconfirmed.
+The console retains its own release information so explicit Resume or normal
+close can finish that cleanup. It does not replay the interrupted click or key.
+Repeated requests for the same release wait for its result; selecting that phone
+again cannot bypass an unanswered release. A later successful Stop takes priority
+over an older failed reply.
 On disconnect, read the status and Activity. On a normal close, an unresolved
 release or failure to save its record produces a warning before the window exits.
 Inspect the affected phones before taking further control; closing a window is

@@ -2,20 +2,21 @@
 
 This is the next-test record for the combined candidate, not release sign-off.
 The exact prepared files are recorded in
-`analysis/cleanup-diagnostics-20261012/preparation.json`. The setup script only
+`analysis/scope-release-20261012/preparation.json`. The setup script only
 copies files and invokes explicit offline validation modes. It cannot launch a
 normal kernel, receiver or console window.
 
 ## Prepared scope
 
-- Immutable review package: `output/staging/combined-cleanup-diagnostics-20261012`.
-- Disposable run: `output/candidate-runs/cleanup-diagnostics-20261012`.
+- Immutable review package: `output/staging/combined-scope-release-20261012`.
+- Disposable run: `output/candidate-runs/scope-release-20261012`.
 - Kernel configuration: a reviewed structural copy of the installed launcher's
   saved C24C records, selected without changing its identity or calibration.
   One receiver, C24C input only; C241 is absent from this candidate configuration.
 - Console: a fresh data folder, explicit `http://127.0.0.1:9913`, hover tracking
-  off. It uses the recorded console with cleanup history included in diagnostic
-  exports. Earlier prepared runs retain their older console and remain historical.
+  off. It uses the recorded console with retryable ownership-scoped release and
+  cleanup history in diagnostic exports. Earlier prepared runs retain their older
+  console and remain historical.
 - Receiver: the preserved report-parser memory fix and its verified runtime.
   No receiver process has been started from this package.
 

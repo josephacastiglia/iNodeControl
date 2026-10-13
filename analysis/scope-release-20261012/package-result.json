@@ -1,0 +1,14 @@
+{
+  "package": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-scope-release-20261012",
+  "files": 677,
+  "console_sha256": "a49c5100aa24cf504a033b121380f3734101518b69e3212a8b244f1fc5a2b743",
+  "console_tests_passed": 382,
+  "source_inputs": 36,
+  "negative_controls_detected": 2,
+  "unchanged_kernel_receiver_runtime": true,
+  "prior_package_unchanged": true,
+  "all_hashes_verified": true,
+  "installed_hashes_unchanged": true,
+  "status": "review_only",
+  "launched": false
+}

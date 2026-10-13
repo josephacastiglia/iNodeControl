@@ -1,0 +1,6 @@
+{
+  "change": "Deliberately stop checking the retained lease token before applying an old release outcome.",
+  "before_sha256": "2d7b26725f4704c5aee7608c02995d7446a773af9a7406fdeb52c9c83a1f7cf5",
+  "after_sha256": "671e657034e4042b53c8ca4febf4fc1661229cc249bd5723b7cd74d813cdbc15",
+  "expected_failure": "An older failed release cannot overwrite a newer confirmed Stop"
+}

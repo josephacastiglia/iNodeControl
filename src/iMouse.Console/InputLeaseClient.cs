@@ -7,6 +7,7 @@ namespace IMouse2;
 /// <summary>Private controller tokens; independent serialization per phone.</summary>
 internal sealed class InputLeaseClient : IAsyncDisposable
 {
+    private sealed record ScopeRelease(string Token, CancellationToken Life, Task<PhoneCleanup> Task);
     private sealed class Phone
     {
         public readonly SemaphoreSlim Gate = new(1, 1);
@@ -21,6 +22,7 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         public PhoneCleanup? LastRelease;
         // The release started after a failure; Resume and release wait for it before reusing the lease.
         public Task Cleanup = Task.CompletedTask;
+        public ScopeRelease? Releasing;
     }
     private readonly object _sync = new();
     private readonly Dictionary<string, Phone> _phones = new();
@@ -342,32 +344,44 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         // so its result stands and the same token is not released twice. Resume comes through here.
         Task[] cleanups; lock (_sync) cleanups = targets.Select(id => Get(id).Cleanup).ToArray();
         await Task.WhenAll(cleanups).ConfigureAwait(false);
-        // Release individually: one expired token must not prevent release of others.
-        foreach (var id in targets)
+        // Independent phones release together. Concurrent calls for the same
+        // lease share its answer rather than returning before cleanup finishes.
+        await Task.WhenAll(targets.Select(ReleaseScopePhoneAsync)).ConfigureAwait(false);
+    }
+    private Task<PhoneCleanup> ReleaseScopePhoneAsync(string id)
+    {
+        lock (_sync)
         {
-            string? token; CancellationToken life;
-            lock (_sync) { var p = Get(id); token = p.Token; life = p.Life.Token; p.Token = null; }
-            if (token is not null)
-                try
+            var p = Get(id);
+            if (p.Token is not { } token) return Task.FromResult(p.LastRelease ?? new(id, !p.ButtonMaybeDown,
+                p.ButtonMaybeDown ? "no release confirmation is available" : "no managed input lease remains"));
+            var life = p.Life.Token;
+            if (p.Releasing is { } existing && existing.Token == token && existing.Life == life && !existing.Task.IsCompleted)
+                return existing.Task;
+            var task = Task.Run(async () =>
+            {
+                var released = await ReleaseHeldAsync(id, token).ConfigureAwait(false);
+                bool current;
+                lock (_sync)
                 {
-                    await _send("/input/release", new() { ["id"] = id, ["token"] = token }, CancellationToken.None).ConfigureAwait(false);
-                    lock (_sync)
+                    current = p.Token == token && p.Life.Token == life;
+                    if (current)
                     {
-                        var p = Get(id);
-                        if (p.Life.Token == life && p.Token is null)
-                        { p.ButtonMaybeDown = false; p.LastRelease = new(id, true, "the kernel confirmed the release"); }
+                        // Keep an unanswered lease available for an explicit
+                        // Resume or normal close. Never replay its input command.
+                        if (released.LeaseGone) p.Token = null;
+                        if (released.Phone.Confirmed) p.ButtonMaybeDown = false;
+                        p.LastRelease = released.Phone;
                     }
                 }
-                catch (Exception ex)
-                {
-                    lock (_sync)
-                    {
-                        var p = Get(id);
-                        if (p.Life.Token == life && p.Token is null)
-                            p.LastRelease = new(id, false, "release was not confirmed (" + ex.Message + ")");
-                    }
-                    Notice?.Invoke("Release not confirmed; inspect input status: " + ex.Message);
-                }
+                // A Stop or a newer lease can supersede this attempt. Its old
+                // failure must not replace that newer state's confirmation.
+                if (current && !released.Phone.Confirmed)
+                    Notice?.Invoke("Release not confirmed; inspect input status: " + released.Phone.Detail);
+                return released.Phone;
+            });
+            p.Releasing = new(token, life, task);
+            return task;
         }
     }
     public void ReadyScope(string ids)

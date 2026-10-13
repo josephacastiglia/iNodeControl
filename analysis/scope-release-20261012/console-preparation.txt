@@ -1,0 +1,32 @@
+
+
+RunDir         : C:\Users\joey_\Desktop\Claude 
+                 Code\iMouseXP-2.0-combined-candidate\output\candidate-runs\scope-release-20261012\console
+DataDir        : C:\Users\joey_\Desktop\Claude 
+                 Code\iMouseXP-2.0-combined-candidate\output\candidate-runs\scope-release-20261012\console\data
+ConsoleExe     : C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\output\candidate-runs\scope-release
+                 -20261012\console\bin\iMouse2.exe
+Service        : http://127.0.0.1:9913
+ConsoleAddress : http://127.0.0.1:9913
+ViaProxy       : False
+ProxyExe       : 
+Files          : {@{Relative=bin/iMouse2.exe; Source=C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate
+                 \output\staging\combined-scope-release-20261012\payload\console\iMouse2.exe; 
+                 Sha256=19c0bd22ceb64c447f645b68f12671c42adc8bffdc92713b3045258911db641d; Bytes=152064}, 
+                 @{Relative=bin/iMouse2.dll; Source=C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\
+                 output\staging\combined-scope-release-20261012\payload\console\iMouse2.dll; 
+                 Sha256=a49c5100aa24cf504a033b121380f3734101518b69e3212a8b244f1fc5a2b743; Bytes=731648}, 
+                 @{Relative=bin/iMouse2.deps.json; Source=C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-cand
+                 idate\output\staging\combined-scope-release-20261012\payload\console\iMouse2.deps.json; 
+                 Sha256=037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc; Bytes=413}, 
+                 @{Relative=bin/iMouse2.runtimeconfig.json; Source=C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-comb
+                 ined-candidate\output\staging\combined-scope-release-20261012\payload\console\iMouse2.runtimeconfig.js
+                 on; Sha256=c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782; Bytes=458}...}
+Profile        : {"address":"http://127.0.0.1:9913","theme":"light","trackPointer":false}
+Identity       : {schema_version, source_root, run_dir, service...}
+Fingerprint    : 0d127a6b1672eceb6cea7470309b369cfaa15936a034d0e487deeb0e310d7b03
+OfflineOnly    : True
+Prepared       : True
+
+
+

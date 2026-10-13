@@ -93,7 +93,7 @@ internal static class ConnectionCleanupTests
         bool resumeRejected = false;
         try { await releasing.ResumeInputAsync("TEST:01"); } catch (ObjectDisposedException) { resumeRejected = true; }
         await Task.Delay(40);
-        check("Close observes a release already in flight after its token was detached", !retireClose.IsCompleted && retiring.Disposals == 0 && resumeRejected);
+        check("Close observes a scope release already in flight", !retireClose.IsCompleted && retiring.Disposals == 0 && resumeRejected);
         finishRelease.SetResult(); await scopeRelease;
         check("An in-flight scope release is counted once by shutdown", (await retireClose).Confirmed && retiring.Releases == 1);
 
@@ -101,6 +101,103 @@ internal static class ConnectionCleanupTests
         await using var unknown = new ApiClient("http://localhost:9923", lost, ownership: true);
         await Hold(unknown); lost.Model.ReleaseTimeout = true;
         check("A missing release answer is never reported as confirmed shutdown", !(await unknown.CloseAsync()).Confirmed && lost.Disposals == 1);
+
+        var retry = new Transport();
+        await using var retryApi = new ApiClient("http://localhost:9923", retry, ownership: true);
+        await Hold(retryApi); string retryToken = retry.Model.ActiveLeases["TEST:01"];
+        retry.Model.ReleaseTimeout = true;
+        await retryApi.ReleaseInputAsync("TEST:01");
+        retryApi.ReadyInputScope("TEST:01");
+        bool failedScopePaused = false;
+        try { await retryApi.MoveAsync("TEST:01", 20, 30); } catch (ApiException) { failedScopePaused = true; }
+        check("An unconfirmed scope release cannot be bypassed by reselecting the phone", failedScopePaused
+            && retry.Requests.Count(r => r.Fun == "/input/acquire") == 1 && !retry.Requests.Any(r => r.Fun == "/mouse/move"));
+        retry.Model.ReleaseTimeout = false;
+        bool resumed = false;
+        try { await retryApi.ResumeInputAsync("TEST:01"); resumed = true; } catch (ApiException) { }
+        check("Resume retries its own unconfirmed scope release before resuming", resumed && retry.Releases == 2
+            && retry.Requests.Where(r => r.Fun == "/input/release").All(r => r.Data.GetProperty("token").GetString() == retryToken)
+            && !retry.Model.ActiveLeases.ContainsKey("TEST:01"));
+
+        var retryClose = new Transport();
+        await using var closeRetryApi = new ApiClient("http://localhost:9923", retryClose, ownership: true);
+        await Hold(closeRetryApi); retryClose.Model.ReleaseTimeout = true;
+        await closeRetryApi.ReleaseInputAsync("TEST:01"); retryClose.Model.ReleaseTimeout = false;
+        check("Normal close can finish an earlier unconfirmed scope release", (await closeRetryApi.CloseAsync()).Confirmed
+            && retryClose.Releases == 2 && !retryClose.Model.ActiveLeases.ContainsKey("TEST:01"));
+
+        var shared = new Transport();
+        await using var sharedApi = new ApiClient("http://localhost:9923", shared, ownership: true);
+        await Hold(sharedApi); var sharedArrived = Signal(); var sharedAnswer = Signal();
+        shared.Before = async (fun, _, ct) => { if (fun == "/input/release") { sharedArrived.TrySetResult(); await sharedAnswer.Task.WaitAsync(ct); } };
+        var firstRelease = sharedApi.ReleaseInputAsync("TEST:01"); await Wait(sharedArrived.Task);
+        var secondRelease = sharedApi.ReleaseInputAsync("TEST:01");
+        sharedApi.ReadyInputScope("TEST:01");
+        bool paused = false;
+        try { await sharedApi.MoveAsync("TEST:01", 20, 30); } catch (ApiException) { paused = true; }
+        bool bothWaiting = !firstRelease.IsCompleted && !secondRelease.IsCompleted;
+        sharedAnswer.TrySetResult(); await Task.WhenAll(firstRelease, secondRelease);
+        check("Concurrent scope releases share one answer and neither finishes early", bothWaiting && shared.Releases == 1);
+        check("Selecting the same phone cannot send input through an unanswered release", paused
+            && shared.Requests.Count(r => r.Fun == "/input/acquire") == 1 && !shared.Requests.Any(r => r.Fun == "/mouse/move"));
+
+        var overtaken = new Transport();
+        await using var overtakenApi = new ApiClient("http://localhost:9923", overtaken, ownership: true);
+        await Hold(overtakenApi); var olderArrived = Signal(); var olderAnswer = Signal();
+        overtaken.Before = async (fun, _, ct) =>
+        {
+            if (fun != "/input/release") return;
+            olderArrived.TrySetResult(); await olderAnswer.Task.WaitAsync(ct);
+            throw new TaskCanceledException("The older release reply was lost.");
+        };
+        int lateNotices = 0; overtakenApi.InputNotice += _ => lateNotices++;
+        var olderRelease = overtakenApi.ReleaseInputAsync("TEST:01"); await Wait(olderArrived.Task);
+        await overtakenApi.StopInputAsync("TEST:01"); olderAnswer.TrySetResult(); await olderRelease;
+        check("An older failed release cannot overwrite a newer confirmed Stop", (await overtakenApi.CloseAsync()).Confirmed
+            && overtaken.Releases == 1 && lateNotices == 0);
+
+        var replaced = new Transport();
+        await using var replacedApi = new ApiClient("http://localhost:9923", replaced, ownership: true);
+        await Hold(replacedApi); string oldToken = replaced.Model.ActiveLeases["TEST:01"];
+        var oldArrived = Signal(); var allowOldAnswer = Signal();
+        replaced.Before = async (fun, data, ct) =>
+        {
+            if (fun != "/input/release" || data.GetProperty("token").GetString() != oldToken) return;
+            oldArrived.TrySetResult(); await allowOldAnswer.Task.WaitAsync(ct);
+            throw new TaskCanceledException("Obsolete release reply was lost.");
+        };
+        var oldRelease = replacedApi.ReleaseInputAsync("TEST:01"); await Wait(oldArrived.Task);
+        try
+        {
+            await replacedApi.StopInputAsync("TEST:01"); await replacedApi.ResumeInputAsync("TEST:01");
+            await Hold(replacedApi); string newToken = replaced.Model.ActiveLeases["TEST:01"];
+            await Wait(replacedApi.ReleaseInputAsync("TEST:01"));
+            check("A new lease releases independently of an obsolete pending release", oldToken != newToken && !oldRelease.IsCompleted
+                && replaced.Requests.Count(r => r.Fun == "/input/release" && r.Data.GetProperty("token").GetString() == newToken) == 1);
+        }
+        finally { allowOldAnswer.TrySetResult(); await oldRelease; }
+        check("An obsolete release never restores or clears the newer lease state", (await replacedApi.CloseAsync()).Confirmed && replaced.Releases == 2);
+
+        var group = new Transport();
+        await using var groupApi = new ApiClient("http://localhost:9923", group, ownership: true);
+        await Hold(groupApi, "TEST:01,TEST:04");
+        var groupArrived = Signal(); var groupAnswer = Signal(); int groupCount = 0;
+        group.Before = async (fun, _, ct) =>
+        {
+            if (fun != "/input/release") return;
+            if (Interlocked.Increment(ref groupCount) == 2) groupArrived.TrySetResult();
+            await groupAnswer.Task.WaitAsync(ct);
+        };
+        var groupRelease = groupApi.ReleaseInputAsync("TEST:01,TEST:04");
+        try
+        {
+            await Wait(groupArrived.Task);
+            check("Scope release starts every selected phone independently", groupCount == 2 && !groupRelease.IsCompleted);
+        }
+        finally { groupAnswer.TrySetResult(); await groupRelease; }
+        check("Scope release never sends an unscoped Stop or replays phone input", group.Releases == 2
+            && group.Requests.Count(r => r.Fun == "/mouse/down") == 1
+            && !group.Requests.Any(r => r.Fun is "/input/stop" or "/input/resume" or "/mouse/up"));
 
         var stopped = new Transport();
         await using var afterStop = new ApiClient("http://localhost:9923", stopped, ownership: true);

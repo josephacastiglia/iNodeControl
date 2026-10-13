@@ -1,14 +1,21 @@
 # iNodeControl / iMouse 2.0: Durable Project Progress Record
 
-- **Updated:** 12 October 2026
+- **Updated:** 13 October 2026
 - **Latest session:** Codex; resumed the saved Omp/Orca and Claude work
 - **Repository:** `https://github.com/josephacastiglia/iNodeControl`
 - **Local Root:** `C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0`
 - **Active Worktrees:**
+  - Combined candidate: `../iMouseXP-2.0-combined-candidate`, branch `local/combined-candidate-20261012`; authoritative for the current offline repairs
   - Main Checkout: `local/coordinator-work` (`01fb669`, with the 10 October harness changes uncommitted)
   - Integration: `.claude/worktrees/keyboard-spec-reconcile` (`claude/input-timeout-integration`, `d0c4ccf`)
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
+
+## Retryable scope release, 12–13 October
+
+Reproduced a lost-release recovery failure: the client discarded its token before the reply, so Resume could not finish releasing a still-owned phone. The test transport also omitted the real kernel's refusal to resume while owned; that simulation is corrected. Scope release now retains unconfirmed ownership, shares duplicate attempts, releases independent phones together and applies replies only to the original token/lifetime. Normal close and explicit Resume can retry their own release; input is never replayed.
+
+**382 console checks pass**, including ten new checks. The original product fails the new Resume test, and a separate copy with the stale-token guard removed fails the newer-Stop test. Exact source/output records, a 677-file review package and a prepared but unlaunched C24C configuration are under `analysis/scope-release-20261012/`. The kernel/receiver/runtime and installed content hashes are unchanged. These are offline lifetime checks, not physical recovery acceptance or a claim that every delayed UI notice ordering is verified. See its `REPORT.md` and archive receipt.
 
 ## Cleanup history in one diagnostic export, 12 October
 
@@ -16,7 +23,7 @@ The real Export diagnostics collector now reads both bounded cleanup receipts fr
 
 **372 console self-tests pass**, including 24 new checks and a window-collector test with no shown window/native handle or network access. A separate copy with the active profile deliberately omitted fails the intended check. The exact console is recorded with 36 source inputs and five output files. `output/staging/combined-cleanup-diagnostics-20261012` contains 677 files plus its manifest and reuses the unchanged kernel, receiver and runtime. See `analysis/cleanup-diagnostics-20261012/REPORT.md`, its preparation and verified 808-file archive receipt. The real export dialog and physical candidate acceptance remain pending. Installed hashes are unchanged; typing remains deferred.
 
-Next offline audit: trace operator-initiated scope release separately from failure cleanup and normal close. `ReleaseCoreAsync` detaches the token before the release reply and catches failure; test whether a lost reply can leave recovery unable to retry its own release or overwrite an unconfirmed outcome. This is a source concern to reproduce with fake transport, not a claimed live defect. Do not repeat the completed export/package checks without a change.
+The subsequent scope-release reproduction and repair are recorded above. Do not repeat the completed export/package checks without a change.
 
 ## Exact candidate acceptance preparation, 12 October
 

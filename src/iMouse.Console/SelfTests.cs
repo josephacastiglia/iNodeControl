@@ -216,6 +216,10 @@ public sealed class TestHandler : HttpMessageHandler
             {
                 string idStr = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
                 var ids = idStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                // Match InputSessions.Resume: a still-owned phone or failed board
+                // release cannot resume merely because its generation matches.
+                if (ids.Any(id => ActiveLeases.ContainsKey(id) || ReleaseFailed.Contains(id)))
+                    return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 409, message = "Cleanup must finish successfully before resuming." } }));
                 if (data.TryGetProperty("expected_generations", out var genProp) && genProp.ValueKind == JsonValueKind.Object)
                 {
                     foreach (var id in ids)
