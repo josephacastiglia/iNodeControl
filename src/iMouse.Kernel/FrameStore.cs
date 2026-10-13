@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Buffers;
 using System.IO.Pipes;
 using System.Net;
 using System.Globalization;
@@ -11,10 +12,13 @@ namespace IMouse2.Kernel;
 public sealed record FrameDelivery(string Session, long Sequence, bool Connected, bool Available,
     int Width, int Height, double? AgeMs, string Status, string Message);
 
+public enum FrameWriteResult { Unavailable, Busy, Written }
+
 /// <summary>One explicitly assigned receiver session. Reuses two raw BMP buffers.</summary>
 public sealed class FrameStore : IDisposable
 {
     private readonly object _gate = new();
+    private readonly SemaphoreSlim _transfers = new(2, 2);
     private readonly CancellationTokenSource _stop = new();
     private readonly string _pipeName;
     private byte[] _current = [], _incoming = [];
@@ -27,6 +31,7 @@ public sealed class FrameStore : IDisposable
     private string _deliveryState = "waiting", _deliveryMessage = "Waiting for the receiver frame pipe.";
     private int _runStarted;
     public const double QuietAfterMs = 2000;
+    public static readonly TimeSpan ScreenshotTimeout = TimeSpan.FromSeconds(5);
     public string DeviceId { get; }
     public Func<int> ReceiverPid { get; set; } = () => 0;
     public Func<ReceiverInfo> Receiver { get; set; } = () => new("stopped", "", 0, 0);
@@ -153,19 +158,67 @@ public sealed class FrameStore : IDisposable
     {
         lock (_gate) { _deliveryState = state; _deliveryMessage = message; }
     }
-    public bool WriteFrame(HttpListenerContext ctx,string id)
-    {
-        lock(_gate)
+    public Task<FrameWriteResult> WriteFrameAsync(HttpListenerContext ctx, string id, CancellationToken ct)
+        => TransferFrameAsync(id, async (delivery, bytes, token) =>
         {
-            if(id!=DeviceId || !_connected || _length==0) return false;
-            var delivery = Snapshot();
-            WriteMetadata(delivery, ctx.Response.Headers);
-            ctx.Response.ContentType="image/bmp";
-            ctx.Response.Headers["Cache-Control"]="no-store";
-            ctx.Response.ContentLength64=_length;
-            ctx.Response.OutputStream.Write(_current,0,_length);
-            ctx.Response.Close();
-            return true;
+            // Aborting the response also interrupts a peer that stopped reading.
+            using var cancelled = token.Register(() =>
+            {
+                try { ctx.Response.Abort(); }
+                catch (ObjectDisposedException) { }
+                catch (HttpListenerException) { }
+            });
+            try
+            {
+                token.ThrowIfCancellationRequested();
+                WriteMetadata(delivery, ctx.Response.Headers);
+                ctx.Response.ContentType="image/bmp";
+                ctx.Response.Headers["Cache-Control"]="no-store";
+                ctx.Response.ContentLength64=bytes.Length;
+                await ctx.Response.OutputStream.WriteAsync(bytes, token);
+                ctx.Response.Close();
+            }
+            catch (Exception ex) when (token.IsCancellationRequested)
+            {
+                // Http.sys can report abort as an I/O/listener error instead of OCE.
+                throw new OperationCanceledException("Screenshot transfer cancelled.", ex, token);
+            }
+        }, ct);
+
+    // One bounded copy pairs metadata with immutable bytes. No response writer
+    // runs under the delivery lock or keeps one of the producer's two buffers.
+    // A slow client never queues unbounded copies or blocks another phone.
+    internal async Task<FrameWriteResult> TransferFrameAsync(string id,
+        Func<FrameDelivery, ReadOnlyMemory<byte>, CancellationToken, Task> send, CancellationToken ct)
+    {
+        using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(ct, _stop.Token);
+        var token = lifetime.Token;
+        token.ThrowIfCancellationRequested();
+        if (id != DeviceId) return FrameWriteResult.Unavailable;
+        if (!_transfers.Wait(0)) return FrameWriteResult.Busy;
+        byte[]? copy = null;
+        try
+        {
+            FrameDelivery delivery;
+            int length;
+            lock (_gate)
+            {
+                token.ThrowIfCancellationRequested();
+                if (!_connected || _length == 0) return FrameWriteResult.Unavailable;
+                delivery = Snapshot(); length = _length;
+                copy = ArrayPool<byte>.Shared.Rent(length);
+                _current.AsSpan(0, length).CopyTo(copy);
+            }
+            lifetime.CancelAfter(ScreenshotTimeout);
+            await send(delivery, copy.AsMemory(0, length), token);
+            return FrameWriteResult.Written;
+        }
+        finally
+        {
+            // Never return the buffer before the writer has actually finished,
+            // including on cancellation: an abandoned async write could still use it.
+            if (copy is not null) ArrayPool<byte>.Shared.Return(copy);
+            _transfers.Release();
         }
     }
     internal static void WriteMetadata(FrameDelivery delivery, WebHeaderCollection headers)

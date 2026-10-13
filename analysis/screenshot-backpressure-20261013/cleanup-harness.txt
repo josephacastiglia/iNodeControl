@@ -1,0 +1,121 @@
+S1 command completed, answer lost
+Listening on http://localhost:43436/api/
+/input/acquire
+/mouse/move
+/mouse/down
+/mouse/move
+  PASS the kernel finished the move and the button is held
+/input/release
+  PASS the move with a lost answer ends as the console's timeout
+  PASS the tap queued behind it is reported as not sent
+  PASS the queued tap never reached the kernel
+  PASS the release is confirmed and the board's button is up
+  PASS after the failure only /input/release went out: no replay, no /mouse/up, no acquire, renewal or Resume
+  PASS the phone stays paused: the next tap is refused before it leaves
+S2 kernel command deadline
+Listening on http://localhost:43468/api/
+/input/acquire
+/mouse/move
+/mouse/down
+/mouse/move
+/input/release
+/input/status
+  PASS the hung move ends as a timeout or a kernel failure
+  PASS the release is confirmed and the board's button is up
+  PASS after the failure only /input/release and /input/status went out: no replay, no /mouse/up, no acquire, renewal or Resume
+S3 kernel command failure
+Listening on http://localhost:36155/api/
+/input/acquire
+/mouse/move
+/mouse/down
+/mouse/move
+/input/release
+/input/status
+  PASS the failed move ends as a kernel failure
+  PASS the refused release is confirmed from the kernel's status
+  PASS after the failure only /input/release and /input/status went out: no replay, no /mouse/up, no acquire, renewal or Resume
+S4 release refused, explicit Resume retries it
+Listening on http://localhost:36158/api/
+/input/acquire
+/mouse/move
+/mouse/down
+/mouse/move
+  PASS a refused release is reported as attempted, not confirmed
+  PASS the button is still down on the kernel
+  PASS after the failure only /input/release went out: no replay, no /mouse/up, no acquire, renewal or Resume
+/input/release
+/input/status
+/input/resume
+  PASS the operator's Resume releases the kept lease and the button comes up
+/input/acquire
+/mouse/click
+click pid=F001 known=False reset=64ms steps=3 send=0ms delay=46ms settle=126ms button=94ms total=331ms
+  PASS input works again after Resume
+/input/release
+S5 stale release after ownership changed
+Listening on http://localhost:36216/api/
+/input/acquire
+/mouse/move
+/mouse/down
+/mouse/move
+/input/stop
+/input/status
+/input/resume
+/input/acquire
+/mouse/move
+/mouse/down
+/input/release
+/input/status
+  PASS the newer controller's button is still held and the board saw nothing more
+/mouse/move
+  PASS the newer controller's lease still works
+  PASS the stale release is reported as confirmed by the kernel's earlier close
+/input/release
+S6 release lost, lease-expiry fallback
+Listening on http://localhost:36261/api/
+/input/acquire
+/mouse/move
+/mouse/down
+/mouse/move
+  PASS a release with no answer is reported as attempted, not confirmed
+  PASS the kernel's lease expiry lifts the button within 30 s of the last renewal
+  PASS after the failure only /input/release went out: no replay, no /mouse/up, no acquire, renewal or Resume
+/input/release
+/input/status
+S7 mock kernel refuses a port another listener holds
+  PASS an http.sys listener for /api/ on the port: startup refused (exit 3)
+mock kernel: port 36359 is already in use; refusing to start.
+mock kernel: port 36360 is already in use; refusing to start.
+  PASS a plain socket on the port: startup refused (exit 3)
+S8 mock kernel starts, self-checks and serves only the simulated board
+Listening on http://localhost:36362/98ccda24b8054d0f8500c36a96427ac3/api/
+mock kernel on http://localhost:36361/api/ (simulated board F001, phone SIM:01; self-check passed; no real board is enumerated)
+  PASS the board list is exactly the simulated board
+  PASS kernel status answers through the front
+  PASS stops cleanly when cancelled (exit 0)
+  PASS the port is free again afterwards
+S9 Home: emitted HID reports under a simplified text-field model (not iOS behaviour)
+Listening on http://localhost:36366/api/
+/input/acquire
+/key/sendkey
+/key/sendkey
+/key/sendkey
+  PASS vendor (release default): the emitted Home includes a Tab, which a focused field would type
+/key/sendkey
+/key/sendkey
+/input/release
+Listening on http://localhost:36368/api/
+/input/acquire
+/key/sendkey
+/key/sendkey
+/key/sendkey
+  PASS command-h: the emitted Home has no typed key, only GUI+H
+/input/release
+Listening on http://localhost:36370/api/
+/input/acquire
+/key/sendkey
+/key/sendkey
+/key/sendkey
+  PASS command-wake: the emitted Home has no typed key, only GUI+H
+/input/release
+ALL PASSED; results in analysis/screenshot-backpressure-20261013/cleanup-harness-results.json

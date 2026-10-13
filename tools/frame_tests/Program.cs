@@ -3,6 +3,8 @@ using System.Threading.Channels;
 using IMouse2;
 using IMouse2.Kernel;
 
+if (args.Contains("--http-self-test")) return await ScreenshotHttpTests.RunAsync();
+
 var tests = new (string, Func<Task>)[] {
     ("idle presentation rate expires without another frame", () => {
         var c = new Clock(); var r = new RateMeter(c); r.Mark(); c.Advance(20); r.Mark();
@@ -129,6 +131,105 @@ var tests = new (string, Func<Task>)[] {
         try { await f.RunAsync(); } catch (InvalidOperationException) { rejected = true; }
         Check(rejected);
     }),
+    ("a stalled screenshot client does not block frame delivery or status", async () => {
+        await using var r = new Rig(); await r.Send(Bmp());
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var transfer = r.Store.TransferFrameAsync("fake", async (_, _, ct) => { entered.SetResult(); await release.Task.WaitAsync(ct); }, CancellationToken.None);
+        Task? progress = null;
+        try {
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(1));
+            progress = Task.Run(async () => { await r.Send(Bmp()); Check(r.Store.Delivery.Sequence == 2); });
+            await progress.WaitAsync(TimeSpan.FromMilliseconds(500));
+        } finally {
+            release.TrySetResult(); await transfer.WaitAsync(TimeSpan.FromSeconds(2));
+            if (progress is not null) await progress.WaitAsync(TimeSpan.FromSeconds(2));
+        }
+    }),
+    ("in-flight screenshot keeps its exact bytes and matching metadata as producer buffers change", async () => {
+        await using var r = new Rig(); var first = Bmp(); first[^1]=17; await r.Send(first);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        FrameDelivery? captured=null; ReadOnlyMemory<byte> pending=default;
+        var transfer=r.Store.TransferFrameAsync("fake", async (metadata, bytes, ct) => {
+            captured=metadata; pending=bytes; await release.Task.WaitAsync(ct);
+            Check(bytes.Span.SequenceEqual(first));
+        }, CancellationToken.None);
+        try {
+            for (int i=0;i<5;i++) { var next=Bmp(); next[^1]=(byte)(50+i); await r.Send(next); }
+            Check(captured is {Sequence:1, Width:2, Height:2, AgeMs:0} && pending.Span.SequenceEqual(first));
+            Check(r.Store.Delivery.Sequence==6);
+        } finally { release.TrySetResult(); await transfer; }
+    }),
+    ("two stalled transfers bound copies and a third is refused without queueing or affecting peers", async () => {
+        await using var r=new Rig(); await using var peer=new Rig(); await r.Send(Bmp()); await peer.Send(Bmp());
+        var release=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int entered=0;
+        Task Send(FrameDelivery d, ReadOnlyMemory<byte> b, CancellationToken ct) { entered++; return release.Task.WaitAsync(ct); }
+        var first=r.Store.TransferFrameAsync("fake",Send,CancellationToken.None);
+        var second=r.Store.TransferFrameAsync("fake",Send,CancellationToken.None);
+        try {
+            var third=await r.Store.TransferFrameAsync("fake",Send,CancellationToken.None);
+            Check(third==FrameWriteResult.Busy && entered==2);
+            await r.Send(Bmp()); await peer.Send(Bmp());
+            Check(r.Store.Frames==2 && peer.Store.Frames==2);
+            Check(await peer.Store.TransferFrameAsync("fake",(_,_,_)=>Task.CompletedTask,CancellationToken.None)==FrameWriteResult.Written);
+        } finally { release.TrySetResult(); await Task.WhenAll(first,second); }
+        Check(await r.Store.TransferFrameAsync("fake",(_,_,_)=>Task.CompletedTask,CancellationToken.None)==FrameWriteResult.Written);
+    }),
+    ("missing or stopped frames never invoke writers or consume transfer slots", async () => {
+        await using var r=new Rig(); int called=0;
+        Task Send(FrameDelivery d,ReadOnlyMemory<byte> b,CancellationToken ct) { called++;return Task.CompletedTask; }
+        for(int i=0;i<3;i++) Check(await r.Store.TransferFrameAsync("fake",Send,CancellationToken.None)==FrameWriteResult.Unavailable);
+        await r.Send(Bmp());
+        Check(await r.Store.TransferFrameAsync("other-phone",Send,CancellationToken.None)==FrameWriteResult.Unavailable && called==0);
+        r.Pipe.Put(new byte[4]);await r.Wait(d=>d.Status=="stopped");
+        Check(await r.Store.TransferFrameAsync("fake",Send,CancellationToken.None)==FrameWriteResult.Unavailable && called==0);
+        await r.Send(Bmp());
+        Check(await r.Store.TransferFrameAsync("fake",Send,CancellationToken.None)==FrameWriteResult.Written && called==1);
+    }),
+    ("writer failure returns its slot and cannot stop receiver delivery", async () => {
+        await using var r=new Rig();await r.Send(Bmp());
+        for(int i=0;i<3;i++) {
+            bool failed=false;
+            try { await r.Store.TransferFrameAsync("fake",(_,_,_)=>Task.FromException(new IOException("broken client")),CancellationToken.None); }
+            catch(IOException) { failed=true; }
+            Check(failed);await r.Send(Bmp());
+        }
+        Check(await r.Store.TransferFrameAsync("fake",(_,_,_)=>Task.CompletedTask,CancellationToken.None)==FrameWriteResult.Written);
+    }),
+    ("caller cancellation interrupts its transfer and permits a later request", async () => {
+        await using var r=new Rig();await r.Send(Bmp());using var caller=new CancellationTokenSource();
+        var transfer=r.Store.TransferFrameAsync("fake",(_,_,ct)=>Task.Delay(Timeout.Infinite,ct),caller.Token);
+        caller.Cancel();await MustCancel(transfer);
+        Check(await r.Store.TransferFrameAsync("fake",(_,_,_)=>Task.CompletedTask,CancellationToken.None)==FrameWriteResult.Written);
+        bool called=false;
+        await MustCancel(r.Store.TransferFrameAsync("fake",(_,_,_)=>{called=true;return Task.CompletedTask;},caller.Token));
+        Check(!called);
+    }),
+    ("store shutdown cancels pending screenshot transfers", async () => {
+        await using var r=new Rig();await r.Send(Bmp());
+        var transfer=r.Store.TransferFrameAsync("fake",(_,_,ct)=>Task.Delay(Timeout.Infinite,ct),CancellationToken.None);
+        r.Store.Dispose();await MustCancel(transfer);
+    }),
+    ("a timed-out writer is cancelled and frees its slot", async () => {
+        await using var r=new Rig();await r.Send(Bmp());
+        var elapsed=System.Diagnostics.Stopwatch.StartNew();
+        var transfer=r.Store.TransferFrameAsync("fake",(_,_,ct)=>Task.Delay(Timeout.Infinite,ct),CancellationToken.None);
+        await MustCancel(transfer,TimeSpan.FromSeconds(8));
+        Check(elapsed.Elapsed>=FrameStore.ScreenshotTimeout-TimeSpan.FromMilliseconds(100));
+        Check(await r.Store.TransferFrameAsync("fake",(_,_,_)=>Task.CompletedTask,CancellationToken.None)==FrameWriteResult.Written);
+    }),
+    ("cancellation does not return a buffer while a writer is still using it", async () => {
+        await using var r=new Rig();await r.Send(Bmp());using var caller=new CancellationTokenSource();
+        var release=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var first=r.Store.TransferFrameAsync("fake",(_,_,_)=>release.Task,caller.Token);
+        var second=r.Store.TransferFrameAsync("fake",(_,_,_)=>release.Task,caller.Token);
+        try {
+            caller.Cancel(); Check(!first.IsCompleted && !second.IsCompleted);
+            Check(await r.Store.TransferFrameAsync("fake",(_,_,_)=>Task.CompletedTask,CancellationToken.None)==FrameWriteResult.Busy);
+        } finally { release.TrySetResult();await Task.WhenAll(first,second); }
+        Check(await r.Store.TransferFrameAsync("fake",(_,_,_)=>Task.CompletedTask,CancellationToken.None)==FrameWriteResult.Written);
+    }),
     ("independent stores have distinct identities and failure isolation", async () => {
         await using var a = new Rig(); await using var b = new Rig();
         await a.Send(Bmp()); await b.Send(Bmp()); a.Pipe.End(); await a.Run;
@@ -139,13 +240,20 @@ var tests = new (string, Func<Task>)[] {
 int passed = 0;
 foreach (var (name, test) in tests)
 {
-    try { await test().WaitAsync(TimeSpan.FromSeconds(5)); Console.WriteLine("PASS " + name); passed++; }
+    try { await test().WaitAsync(TimeSpan.FromSeconds(10)); Console.WriteLine("PASS " + name); passed++; }
     catch (Exception ex) { Console.WriteLine("FAIL " + name + ": " + ex); }
 }
 Console.WriteLine($"{passed}/{tests.Length} passed");
 return passed == tests.Length ? 0 : 1;
 
 static void Check(bool yes) { if (!yes) throw new Exception("Assertion failed"); }
+static async Task MustCancel(Task task,TimeSpan? timeout=null)
+{
+    bool cancelled=false;
+    try { await task.WaitAsync(timeout??TimeSpan.FromSeconds(2)); }
+    catch(OperationCanceledException) { cancelled=true; }
+    Check(cancelled);
+}
 static async Task Until(Func<bool> ready)
 {
     using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));

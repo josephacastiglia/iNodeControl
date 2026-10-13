@@ -48,6 +48,8 @@ The two-phone system has working foundations: independent kernel and mirroring, 
 
 31. **Completed offline:** the candidate launcher preserves per-start kernel refusal logs and shows the reason instead of losing it behind a connection error. All 47 launcher checks pass in both PowerShell runtimes; actual validation-only children and deliberately broken reporting copies verify the repair. No binaries, installed launcher or live services changed. See `analysis/launcher-startup-errors-20261013/REPORT.md`; actual launch/dialog acceptance and future release assembly remain open.
 
+32. **Completed offline:** reproduced and removed screenshot writes from the frame-publication lock. Two bounded copies per phone, asynchronous writes and five-second transfer cancellation isolate stalled clients. 34 frame checks, 206 kernel checks, nine simulated cleanup scenarios and the real loopback transport probe pass. The aliasing negative control fails as intended. See `analysis/screenshot-backpressure-20261013/REPORT.md`; the rebuilt kernel is not the previously live-tested package, and physical/load acceptance remains open.
+
 Offline work can prepare and repair these areas. Full-rack behavior, physical targeting, real display latency and final endurance acceptance still require later coordinated hardware runs. No desktop-control window, restart, deployment or promotion is authorized by this document.
 
 The detailed requirements remain in [FINISH-CRITERIA.md](FINISH-CRITERIA.md); current evidence and history are in [PROGRESS.md](PROGRESS.md).

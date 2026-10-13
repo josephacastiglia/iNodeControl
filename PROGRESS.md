@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Stalled screenshot clients no longer block frame delivery, 13 October
+
+Reproduced a delivery-lock stall: the old screenshot path performed synchronous network output while holding the producer/status lock. The added test failed before repair. The kernel now captures a matching image/metadata snapshot into a pooled copy under the short lock and sends it asynchronously outside the lock. Two transfers per phone may retain copies; excess requests get HTTP 503 with a retry hint. Each transfer has a five-second deadline and responds to request/store cancellation. Buffers are returned only after writers finish, preventing reuse while bytes are still being sent.
+
+**34 frame tests and 206 kernel self-tests pass**, plus all nine existing mock input-cleanup scenarios. A real loopback probe with two readers that stop consuming their 12 MiB image bodies keeps publishing frames, cancels both responses at about 5.06 seconds and then serves the correct new image. A deliberately aliased-buffer build fails the new byte/metadata integrity check (33/34). The fixed kernel/source manifest is recorded separately; it has not run against phones or been placed in a replacement release package. No rack API, receiver restart, screen control, FKA change or C241 input occurred. See `analysis/screenshot-backpressure-20261013/REPORT.md`. Full-rack load, physical display and live recovery acceptance remain open; no gate advanced.
+
 ## Launcher preserves startup refusals, 13 October
 
 The candidate launcher now retains its own kernel's stderr in a separate file per start and includes the refusal in its early-exit message. This exposes the missing-plugin names instead of losing them behind a connection error. Error text is bounded in the message; full files remain preserved. A missing Windows PowerShell exit code is explicitly unknown, and timeout messages identify a possibly still-running process without killing or relaunching it. Failed saving of the latest failure report no longer hides the original message.

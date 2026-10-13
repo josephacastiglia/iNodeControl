@@ -2,6 +2,16 @@
 
 This is the next-test record for the combined candidate, not release sign-off.
 
+**Later offline changes:** the launcher now preserves startup refusals, and the
+kernel's screenshot writer isolates stalled clients from frame delivery with
+bounded copies and transfer timeouts. The latter's recorded kernel is under
+`analysis/screenshot-backpressure-20261013/final-kernel`; it is not the kernel
+used in the live window below and has not been assembled into a new runtime
+review package. Its 206 kernel checks, 34 frame checks, loopback transport probe
+and nine simulated input-cleanup scenarios pass. Prepare and verify a new package
+before any later approved live test. Do not modify or relaunch the used run below
+to imply that it includes these changes. See the screenshot and launcher reports.
+
 **13 October update:** the first authorized candidate window failed before
 phone input: UxPlay's startup checks required playback/autodetect plugins absent
 from the reduced runtime. The original release was restored and both phones

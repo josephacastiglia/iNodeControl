@@ -100,6 +100,7 @@ termination, a crash or OS shutdown can bypass normal awaited cleanup.
 | Board missing / no phone on board | The intended board and its USB/phone cables. Confirm the phone's identity before changing a binding. |
 | Input paused | Read the reason, inspect the phone, then use Resume input when ready. |
 | Preview may be old / not updating | Look at the physical phone before acting on the image. A still screen can also produce few bitmap updates. |
+| Screenshot transfers busy | Let pending requests finish and close duplicate viewers if it persists. This is temporary image-transfer congestion; restarting a phone or its receiver is not the remedy. |
 | Not mirroring | Reopen the phone's Screen Mirroring list and select its assigned receiver. |
 | Receiver failed | Export diagnostics, including its restart count. Do not repeatedly restart services to erase the failure. |
 | Taps land off target | Confirm the right phone and current preview, then use Reset pointer on that phone before retrying. |

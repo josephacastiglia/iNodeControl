@@ -47,12 +47,13 @@ public sealed class ApiServer : IDisposable
             HttpListenerContext ctx;
             try { ctx = await _http.GetContextAsync().WaitAsync(ct); }
             catch (OperationCanceledException) { break; }
-            _ = Task.Run(() => Handle(ctx));
+            _ = Task.Run(() => Handle(ctx, ct));
         }
     }
 
-    private async Task Handle(HttpListenerContext ctx)
+    private async Task Handle(HttpListenerContext ctx, CancellationToken ct)
     {
+        bool writingScreenshot = false;
         try
         {
             var req = ctx.Request;
@@ -68,8 +69,18 @@ public sealed class ApiServer : IDisposable
                 string id=req.QueryString["id"] ?? "";
                 if(!_sessions.TryGetValue(id,out var session))
                     Write(ctx,Ok(new {code=1,message="Unknown receiver device."}));
-                else if(!session.Frames.WriteFrame(ctx,id))
-                    Write(ctx, Ok(new { code = 25, message = ScreenshotMessage(session.Frames,session.Name) }));
+                else
+                {
+                    writingScreenshot = true;
+                    var result = await session.Frames.WriteFrameAsync(ctx, id, ct);
+                    if (result == FrameWriteResult.Unavailable)
+                        Write(ctx, Ok(new { code = 25, message = ScreenshotMessage(session.Frames,session.Name) }));
+                    else if (result == FrameWriteResult.Busy)
+                    {
+                        ctx.Response.Headers["Retry-After"] = "1";
+                        Write(ctx, Envelope(503, new { code = 503, message = "Screenshot transfers busy; try again shortly." }), 503);
+                    }
+                }
             }
             else if (req.HttpMethod == "GET" && path.EndsWith("/input/status", StringComparison.OrdinalIgnoreCase))
                 Write(ctx, Ok(_inputSessions.Status()));
@@ -81,6 +92,10 @@ public sealed class ApiServer : IDisposable
                 Write(ctx, Ok(await Dispatch(ReadBody(req))));
             else
                 Write(ctx, Envelope(404, new { code = 41, message = "Unknown path." }));
+        }
+        catch (OperationCanceledException) when (writingScreenshot)
+        {
+            try { ctx.Response.Abort(); } catch (ObjectDisposedException) { } catch (HttpListenerException) { }
         }
         catch (KeyNotFoundException ex)
         {
@@ -231,10 +246,10 @@ public sealed class ApiServer : IDisposable
     private static object Envelope(int status, object data) => new { status, message = status == 200 ? "ok" : "error", data };
     private static object Ok(object data) => Envelope(200, data);
 
-    private static void Write(HttpListenerContext ctx, object payload)
+    private static void Write(HttpListenerContext ctx, object payload, int httpStatus = 200)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload));
-        ctx.Response.StatusCode = 200;
+        ctx.Response.StatusCode = httpStatus;
         ctx.Response.ContentType = "application/json; charset=utf-8";
         ctx.Response.ContentLength64 = bytes.Length;
         ctx.Response.OutputStream.Write(bytes);
