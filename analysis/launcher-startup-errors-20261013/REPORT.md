@@ -73,3 +73,11 @@ Actual console controls, physical recovery, the failed upward Home gesture,
 varied-target accuracy, full-rack performance and endurance remain open. Typing
 stays deferred. The previous turn's confirmed restored rack state remains
 historical; this offline work made no rack API calls or phone observations.
+
+The final preservation check compares installed binaries, launcher, configuration
+and operator settings with the previous restoration snapshot. The two active
+receiver logs are explicitly excluded: their own running processes append to
+them. The initial archive attempt incorrectly included those dynamic logs in
+the unchanged-files assertion and stopped before creating an archive. No working
+file was reverted. Raw Windows probe files retain CRLF byte-for-byte; Git may
+flag those carriage returns as whitespace, so they were not normalized.
