@@ -326,8 +326,9 @@
 
                   <TextBlock Text="SCREEN MIRRORING" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
                   <UniformGrid Columns="2">
-                    <Button Content="Start casting" Tag="cast|connect" Click="Action_Click"/><Button Content="Stop casting" Tag="cast|disconnect" Click="Action_Click"/>
+                    <Button x:Name="StartCastingButton" Content="Start casting" Tag="cast|connect" Click="Action_Click"/><Button x:Name="StopCastingButton" Content="Stop casting" Tag="cast|disconnect" Click="Action_Click"/>
                   </UniformGrid>
+                  <TextBlock x:Name="MirroringActionHelp" Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Visibility="Collapsed"/>
 
                   <TextBlock Text="POINTER" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
                   <CheckBox x:Name="PointerEnabled" IsChecked="True"><TextBlock Text="Click / drag to control" TextWrapping="Wrap"/></CheckBox>
@@ -357,14 +358,15 @@
                   <Button x:Name="BindButton" Content="Bind board" Click="Bind_Click"/><Button x:Name="UnbindButton" Content="Unbind" Click="Unbind_Click"/>
                 </UniformGrid>
                 <Button x:Name="AutoBindButton" Content="Auto-bind unbound phones" Click="AutoBind_Click" HorizontalAlignment="Stretch"/>
-                <TextBlock Text="Auto-bind identifies each phone by moving its pointer and watching which screen reacts, so it cannot mis-assign a board."
+                <TextBlock Text="Where supported, Auto-bind moves a pointer to look for a matching phone. Verify the physical phone before using a new assignment."
                            Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap"/>
 
                 <TextBlock Text="RECOVERY" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>
                 <UniformGrid Columns="2">
-                  <Button Content="Restart board" Tag="usb|restart" Click="Action_Click"/>
+                  <Button x:Name="RecoveryRestartButton" Content="Restart board" Tag="usb|restart" Click="Action_Click"/>
                   <Button x:Name="SaveFrameButton" Content="Save image" Click="SaveImage_Click"/>
                 </UniformGrid>
+                <TextBlock x:Name="BoardRestartHelp" Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Visibility="Collapsed"/>
                 <Button Content="Export diagnostics" Click="Export_Click" HorizontalAlignment="Stretch"/>
 
                 <TextBlock Text="DEVICE LIST" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>

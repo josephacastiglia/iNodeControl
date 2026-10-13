@@ -344,7 +344,7 @@ public partial class MainWindow : Window
         _devices.Clear(); DeviceList.ItemsSource = null;
         Totals.Text = "Connect to your iMouse service";
         EmptyList.Text = "Connect to load your iPhones."; EmptyList.Visibility = Visibility.Visible;
-        ClearFrame("Disconnected", "The original iMouse service and phones keep running.");
+        ClearFrame("Disconnected", "Phone mirroring was left unchanged.");
         Log("Console disconnected. Phone mirroring was left unchanged."); UpdateControls();
     }
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshDevicesAsync(true);
@@ -436,7 +436,7 @@ public partial class MainWindow : Window
         DeviceList.SelectedItem = visible.FirstOrDefault(x => x.Id == selectedId)
             ?? visible.FirstOrDefault(x => x.Online);
         EmptyList.Visibility = visible.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        EmptyList.Text = _devices.Count == 0 ? "No devices returned. Add and bind your phones in the original iMouse console." : "No devices match these filters.";
+        EmptyList.Text = _devices.Count == 0 ? "No phones returned. Check your phone setup and service address." : "No devices match these filters.";
         UpdateControls();
     }
     private void Device_Changed(object sender, SelectionChangedEventArgs e)
@@ -500,6 +500,7 @@ public partial class MainWindow : Window
         SyncPumpTarget();
         SyncWall();
         RefreshBindingUi();
+        RefreshServiceActionUi();
         SyncSelectAll();
         UpdateStripTarget();
         UpdateSelectedHeader();
@@ -1183,6 +1184,28 @@ public partial class MainWindow : Window
 
     // ---- control-board binding ----
 
+    private void RefreshServiceActionUi()
+    {
+        if (StartCastingButton is null || RecoveryRestartButton is null || BoardRestartHelp is null) return;
+        void Update(Button button, string function, string normalTip)
+        {
+            var reason = _api?.UnavailableCommandReason(function);
+            button.IsEnabled = _connected && !_commandBusy && reason is null;
+            button.ToolTip = reason ?? normalTip;
+            ToolTipService.SetShowOnDisabled(button, true);
+        }
+        Update(CastButton, "/device/airplay/connect", "Ask this phone to start screen mirroring");
+        Update(StartCastingButton, "/device/airplay/connect", "Ask the target phones to start screen mirroring");
+        Update(DiscButton, "/device/airplay/disconnect", "Stop this phone's screen mirroring");
+        Update(StopCastingButton, "/device/airplay/disconnect", "Stop the target phones' screen mirroring");
+        Update(RestartButton, "/device/usb/restart", "Restart this phone's control board. Control drops for a few seconds.");
+        Update(RecoveryRestartButton, "/device/usb/restart", "Restart the target phones' control boards");
+        bool independent = _connected && _api?.UsesInputOwnership == true;
+        MirroringActionHelp.Text = ApiClient.MirroringActionUnavailable;
+        BoardRestartHelp.Text = ApiClient.BoardRestartUnavailable;
+        MirroringActionHelp.Visibility = BoardRestartHelp.Visibility = independent ? Visibility.Visible : Visibility.Collapsed;
+    }
+
     private sealed record BoardOption(Board Board, string Label)
     {
         public override string ToString() => Label;
@@ -1197,9 +1220,21 @@ public partial class MainWindow : Window
 
     private void RefreshBindingUi()
     {
-        // Rebuilding the list while the user has it open would snap the dropdown shut.
-        if (BoardPicker is null || BoardPicker.IsDropDownOpen) return;
+        if (BoardPicker is null) return;
         var device = Selected;
+        if (_api?.LiveBindingEnabled != true || !_connected)
+        {
+            BoardPicker.IsEnabled = BindButton.IsEnabled = UnbindButton.IsEnabled = AutoBindButton.IsEnabled = false;
+            BoardPicker.IsDropDownOpen = false;
+            BoardPicker.ItemsSource = null;
+            BindStatus.Text = !_connected ? "Connect to view phone and board assignments."
+                : (device is null ? "" : device.Hardware.Length == 0 ? "No board assigned. " : $"Bound to {device.Hardware} · {device.ControlStatus}. ")
+                    + ApiClient.LiveBindingUnavailable;
+            return;
+        }
+        // Rebuilding an enabled picker while it is open would snap it shut.
+        BoardPicker.IsEnabled = !_commandBusy && !_autoBinding;
+        if (BoardPicker.IsDropDownOpen) return;
         if (device is null)
         {
             BindStatus.Text = "Select a phone to bind it to a control board.";
@@ -1249,6 +1284,9 @@ public partial class MainWindow : Window
     private async void AutoBind_Click(object sender, RoutedEventArgs e)
     {
         if (_api is null || _autoBinding || _commandBusy) return;
+        // Guard the handler as well as its button: stale queued UI actions must
+        // not stop video, probe boards or misdiagnose a refused binding as wiring.
+        if (!_api.LiveBindingEnabled) { Log(ApiClient.LiveBindingUnavailable, true); RefreshBindingUi(); return; }
         var api = _api; var ct = _lifetime.Token; int session = _session;
         var pending = _devices.Where(d => d.Online && d.Hardware.Length == 0).ToList();
         if (pending.Count == 0) { Log("Every mirroring phone already has a board bound."); return; }
@@ -1674,7 +1712,7 @@ public partial class MainWindow : Window
     {
         string text = SendTextBox.Text;
         if (string.IsNullOrEmpty(text)) { Log("Enter text to send first.", true); return; }
-        if (text.Any(c => c < 32 || c > 126)) { Log("Keyboard typing supports English letters, numbers and punctuation. Use the original console's shortcut tools for Unicode text.", true); return; }
+        if (text.Any(c => c < 32 || c > 126)) { Log("This version types English letters, numbers and punctuation only. Unsupported text was not sent.", true); return; }
         if (text.Length > MaxSendText) { Log($"Send text takes at most {MaxSendText} characters at a time; this is {text.Length}. Nothing was sent.", true); return; }
         if (_sendingText) { Log("Still typing the previous text. Wait for it to finish, or use Stop input.", true); return; }
         if (!_controlReady) return;
@@ -1705,6 +1743,7 @@ public partial class MainWindow : Window
     private async Task ExecuteAsync(string label, string function, Dictionary<string, object> data, List<Device> targets, bool allowOffline)
     {
         if (_commandBusy || !_connected || _api is null || targets.Count == 0) return;
+        if (_api.UnavailableCommandReason(function) is { } reason) { Log(reason, true); return; }
         _commandBusy = true; UpdateControls();
         var api = _api; var ct = _lifetime.Token; int session = _session;
         int success = 0, failed = 0, skipped = 0;
@@ -2686,6 +2725,22 @@ public partial class MainWindow : Window
         UpdateControls();
 
         Check("Stop button enabled under ownership", StopInputButton.IsEnabled);
+        Check("Ownership connection disables every live binding control", !BindButton.IsEnabled
+            && !UnbindButton.IsEnabled && !AutoBindButton.IsEnabled && !BoardPicker.IsEnabled);
+        Check("Read-only assignment still identifies the selected board and maintenance requirement",
+            BindStatus.Text.Contains("TEST-BOARD-01") && BindStatus.Text.Contains(ApiClient.LiveBindingUnavailable));
+        int beforeUnsupportedBinding = handler.PostAttempts;
+        bool? previewBeforeBinding = AutoPreview.IsChecked;
+        AutoBind_Click(this, new RoutedEventArgs());
+        Check("Queued Auto-bind cannot send commands or interrupt preview under ownership",
+            handler.PostAttempts == beforeUnsupportedBinding && !_autoBinding && AutoPreview.IsChecked == previewBeforeBinding
+            && _activity[0].Contains(ApiClient.LiveBindingUnavailable));
+        Check("Unsupported remote mirroring and board restart controls are disabled in both locations",
+            !CastButton.IsEnabled && !DiscButton.IsEnabled && !RestartButton.IsEnabled
+            && !StartCastingButton.IsEnabled && !StopCastingButton.IsEnabled && !RecoveryRestartButton.IsEnabled);
+        Check("Unsupported service actions show actionable help", MirroringActionHelp.Visibility == Visibility.Visible
+            && BoardRestartHelp.Visibility == Visibility.Visible && MirroringActionHelp.Text == ApiClient.MirroringActionUnavailable
+            && BoardRestartHelp.Text == ApiClient.BoardRestartUnavailable);
         // Send text runs from the Controls drawer, so Stop must take the first click while it
         // is open. On the rack the drawer's scrim swallowed that click and typing carried on.
         // Geometric hit test: the test window is never shown, and InputHitTest skips

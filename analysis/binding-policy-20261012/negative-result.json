@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "expected": "Unexpected write in read-only binding check",
+  "verified": true
+}

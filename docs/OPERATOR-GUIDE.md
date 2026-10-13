@@ -18,6 +18,18 @@ until a candidate has been approved for installation.
 **Move phone pointer with mouse** can take control and move the phone pointer when
 you hover over the preview. Turn it off in Controls when you only want to observe.
 
+Board assignments are view-only on the current independent connection. Settings
+shows the saved assignment, but **Bind board**, **Unbind** and **Auto-bind** are
+disabled. A missing assignment needs a verified phone/board/receiver setup update
+during maintenance. It is not proof of a bad cable, and the console does not try
+other boards automatically. Physical identification of the remaining rack is
+still required before those phones can be enabled.
+
+The current connection also disables **Cast**, **Disc**, **Start casting**,
+**Stop casting**, and **Restart board**, with an explanation beside the settings
+or in the button tooltip. Start or stop mirroring on the phone itself. Board
+restart is not implemented in this version; export diagnostics if control stops.
+
 ## Control and stop
 
 Use the phone preview to click, drag or hold. Controls also contains **Send text**

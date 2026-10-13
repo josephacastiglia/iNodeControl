@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Unsupported service actions, 12 October
+
+The console now disables live binding, remote casting and board-restart controls for its ownership connection, shows the supported setup/mirroring path, and blocks stale action requests locally. Auto-bind no longer mistakes the kernel's refusal for a cable or pointer failure. Explicit legacy/test behavior and supported input paths are retained.
+
+**271 console self-tests pass**, including 15 new service-policy checks. A deliberately unguarded copy fails the expected transport check. Five prepared UI checks are compiled but unrun; no window or hardware was used. The exact tested console component and isolated preparation are recorded in `analysis/binding-policy-20261012/REPORT.md`. The prior full review package retains its older console. Next: reproduce and repair any unsynchronized hover-pump lost-update or stale-target interleavings with fake transport.
+
 ## Atomic preference and binding saves, 12 October
 
 Console preferences are now replaced from a complete, flushed sibling file. Primary-save failure preserves the old file; failure of the separate launcher copy is reported as a partial save. Isolated profiles and the legacy optional-hover setting remain unchanged. DeviceStore publishes new bindings only after saving successfully; the ownership API still disables live rebinding.

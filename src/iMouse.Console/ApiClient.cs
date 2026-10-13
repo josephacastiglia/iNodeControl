@@ -154,6 +154,20 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
     /// <summary>Raised on a pool thread when the release after an input failure has an answer.</summary>
     public event Action<InputCleanup>? InputCleaned;
     public bool UsesInputOwnership => _input is not null;
+    // This console's ownership mode uses saved, verified phone/board/receiver
+    // assignments. Its kernel deliberately refuses live /device/set changes.
+    // This is client policy, not a capability inferred from a reachable port.
+    public bool LiveBindingEnabled => !UsesInputOwnership;
+    public const string LiveBindingUnavailable = "Board assignments are view-only for this connection. Changes require a verified setup update during maintenance.";
+    public const string MirroringActionUnavailable = "Start or stop mirroring on the iPhone using Control Center > Screen Mirroring. Choose that phone's assigned receiver.";
+    public const string BoardRestartUnavailable = "Board restart is unavailable in this version. Export diagnostics if control has stopped.";
+    public string? UnavailableCommandReason(string function) => !UsesInputOwnership ? null : function switch
+    {
+        "/device/set" => LiveBindingUnavailable,
+        "/device/airplay/connect" or "/device/airplay/disconnect" => MirroringActionUnavailable,
+        "/device/usb/restart" => BoardRestartUnavailable,
+        _ => null
+    };
     public Uri Endpoint { get; }
     public ApiClient(string address, HttpMessageHandler? handler = null, bool? ownership = null, TimeSpan? renewalInterval = null)
     {
@@ -197,9 +211,13 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
             throw new ApiException("This console needs the ownership-enabled kernel. Input was not sent; keep using the validated desktop app until paired validation.");
         _ownershipVerified = true;
     }
-    public Task<JsonElement> CommandAsync(string function, Dictionary<string, object> data, CancellationToken ct = default) =>
-        _input is not null && (function.StartsWith("/mouse/") || function == "/key/sendkey")
+    public Task<JsonElement> CommandAsync(string function, Dictionary<string, object> data, CancellationToken ct = default)
+    {
+        if (UnavailableCommandReason(function) is { } reason)
+            return Task.FromException<JsonElement>(new ApiException(reason, 41));
+        return _input is not null && (function.StartsWith("/mouse/") || function == "/key/sendkey")
             ? _input.CommandAsync(function, data, ct) : RawCommandAsync(function, data, ct);
+    }
     private async Task<JsonElement> RawCommandAsync(string function, Dictionary<string, object> data, CancellationToken ct)
     {
         using var body = new StringContent(JsonSerializer.Serialize(new { fun = function, data }), Encoding.UTF8, "application/json");
