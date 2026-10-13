@@ -1,0 +1,29 @@
+{
+  "control-current": {
+    "DeviceStore.cs": "1e724e87b56bb377413f2100c80b8a4a8e7fbe49868c59b0839cc980fafd7624",
+    "DeviceStoreTests.cs": "28c857956f80d5f20e2a725f8da25be13cb9b570a37a0aa9d0dedc0089a01b40",
+    "NuGet.Config": "e497501960554d323eef45860c14474958accd1ae7f3ae6f95b10e4c1d340401",
+    "PersistenceChecks.csproj": "fe4e7d913bdd971de46f392a0202d0d3a453ada1d564f84249b2ff3b4b4efa25",
+    "Program.cs": "4d20539cafbc31ab3b2e41da5b9c61d3612ef0a569815b749699dc1ea64b02b2",
+    "SettingsPersistence.cs": "32713df33c52f7735e0ee0c7d85a34fa506cd1d0ca552a08b110f8d334001f8e",
+    "SettingsPersistenceTests.cs": "911605637f7c7fcab1ec47af01bc2177a652ebedf43a7ce154162904183d458e"
+  },
+  "negative-settings-overwrite": {
+    "DeviceStore.cs": "1e724e87b56bb377413f2100c80b8a4a8e7fbe49868c59b0839cc980fafd7624",
+    "DeviceStoreTests.cs": "28c857956f80d5f20e2a725f8da25be13cb9b570a37a0aa9d0dedc0089a01b40",
+    "NuGet.Config": "e497501960554d323eef45860c14474958accd1ae7f3ae6f95b10e4c1d340401",
+    "PersistenceChecks.csproj": "fe4e7d913bdd971de46f392a0202d0d3a453ada1d564f84249b2ff3b4b4efa25",
+    "Program.cs": "4d20539cafbc31ab3b2e41da5b9c61d3612ef0a569815b749699dc1ea64b02b2",
+    "SettingsPersistence.cs": "3ceaf96a86a3f2cddbf32d43cb5cc6868d8e5efbc6fb14898493c5c975bacf0f",
+    "SettingsPersistenceTests.cs": "911605637f7c7fcab1ec47af01bc2177a652ebedf43a7ce154162904183d458e"
+  },
+  "negative-binding-publish": {
+    "DeviceStore.cs": "a3055bb87f866456ff207a63d0204a07de3d6a17f2cf72c214f7e9dfd71c54eb",
+    "DeviceStoreTests.cs": "28c857956f80d5f20e2a725f8da25be13cb9b570a37a0aa9d0dedc0089a01b40",
+    "NuGet.Config": "e497501960554d323eef45860c14474958accd1ae7f3ae6f95b10e4c1d340401",
+    "PersistenceChecks.csproj": "fe4e7d913bdd971de46f392a0202d0d3a453ada1d564f84249b2ff3b4b4efa25",
+    "Program.cs": "4d20539cafbc31ab3b2e41da5b9c61d3612ef0a569815b749699dc1ea64b02b2",
+    "SettingsPersistence.cs": "32713df33c52f7735e0ee0c7d85a34fa506cd1d0ca552a08b110f8d334001f8e",
+    "SettingsPersistenceTests.cs": "911605637f7c7fcab1ec47af01bc2177a652ebedf43a7ce154162904183d458e"
+  }
+}

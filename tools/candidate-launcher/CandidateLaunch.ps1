@@ -114,7 +114,7 @@ function Assert-CandidatePrepared($Plan) {
     }
 }
 function Initialize-CandidateRun($Plan) {
-    if (Test-Path -LiteralPath $Plan.RunDir) { Assert-CandidatePrepared $Plan; return }
+    if (Test-Path -LiteralPath $Plan.RunDir) { Assert-CandidatePrepared $Plan; $Plan.Prepared=$true; return }
     [void][IO.Directory]::CreateDirectory($Plan.RunDir)
     foreach ($file in $Plan.Files) {
         Assert-CandidateHash $file.Source $file
@@ -126,6 +126,7 @@ function Initialize-CandidateRun($Plan) {
     Write-CandidateNew (Join-Path $Plan.DataDir 'settings.json') $Plan.Profile
     Write-CandidateNew (Join-Path $Plan.RunDir 'prepared.json') (@{ fingerprint=$Plan.Fingerprint; prepared_utc=[DateTime]::UtcNow.ToString('o'); configuration=$Plan.Identity } | ConvertTo-Json -Depth 16)
     Assert-CandidatePrepared $Plan
+    $Plan.Prepared=$true
 }
 function Read-CandidateService([string]$Base,$Client=$null) {
     Add-Type -AssemblyName System.Net.Http

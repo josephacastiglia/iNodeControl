@@ -1,0 +1,13 @@
+PASS: Unknown phone binding leaves the saved file unchanged
+PASS: Binding replacement failure is reported to the caller
+PASS: Failed binding save preserves the in-memory assignment
+PASS: Failed binding save preserves the complete previous file
+PASS: Failed binding save removes its own temporary file
+PASS: Binding save recovers after the replacement lock is released
+PASS: Successful binding save publishes the same memory and disk snapshot
+PASS: Binding replacement preserves Unicode names and phone metadata
+PASS: Binding replacement leaves other phones unchanged
+PASS: Caller snapshots cannot change saved or in-memory assignments
+PASS: Validated binding snapshots can create a fresh saved file
+PASS: Successful binding saves leave no temporary files
+12 persistence checks passed; temporary files only.

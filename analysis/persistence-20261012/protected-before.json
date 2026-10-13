@@ -1,0 +1,26 @@
+[
+  {
+    "path": "C:\\Users\\joey_\\AppData\\Roaming\\iMouse2\\settings.json",
+    "sha256": "72F51CC0BEE805F722D73BC024CAD771B19A68E2E7C04D9D47F8E9E4A8A5E5BA",
+    "bytes": 51,
+    "last_write_utc": "2026-10-11T07:20:01.8387807Z"
+  },
+  {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.dll",
+    "sha256": "BD1A68168E9270F029336CF8E13FF85E9B15FD67951EF545D1E973C2BFE634FC",
+    "bytes": 200192,
+    "last_write_utc": "2026-09-23T00:36:17.4465589Z"
+  },
+  {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.dll",
+    "sha256": "CC8049B444998B1D95E8D8AEC41FB1DFE3552A9D4AA58E92F64D3289A5A038D2",
+    "bytes": 324096,
+    "last_write_utc": "2026-09-24T01:08:21.5485939Z"
+  },
+  {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+    "sha256": "4C1A24F35DE00D2C3A8D50A4B0BCFB06A9F5C16BD185810EC54466AC090D2208",
+    "bytes": 711490,
+    "last_write_utc": "2026-09-14T04:49:28.6266107Z"
+  }
+]

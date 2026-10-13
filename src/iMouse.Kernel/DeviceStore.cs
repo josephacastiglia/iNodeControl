@@ -49,17 +49,36 @@ public sealed class DeviceStore
     {
         lock (_gate)
         {
-            var phone = _phones.FirstOrDefault(p => p.deviceid == id);
+            var next = _phones.Select(Clone).ToList();
+            var phone = next.FirstOrDefault(p => p.deviceid == id);
             if (phone is null) throw new KeyNotFoundException(id);
             phone.vid = vid; phone.pid = pid; phone.uid = uid;
-            Save();
+            Save(next);
+            _phones = next;
         }
     }
 
-    private void Save()
+    private void Save(List<Phone> phones)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
-        File.WriteAllText(_path, JsonSerializer.Serialize(_phones, new JsonSerializerOptions { WriteIndented = true }));
+        string path = Path.GetFullPath(_path);
+        string folder = Path.GetDirectoryName(path)!;
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(phones, new JsonSerializerOptions { WriteIndented = true });
+        Directory.CreateDirectory(folder);
+        string temp = Path.Combine(folder, ".imouse-bindings-" + Guid.NewGuid().ToString("N") + ".tmp");
+        try
+        {
+            using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                stream.Write(bytes);
+                stream.Flush(flushToDisk: true);
+            }
+            File.Move(temp, path, overwrite: true);
+        }
+        finally
+        {
+            try { File.Delete(temp); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+        }
     }
 
     private static Phone Clone(Phone p) => new()

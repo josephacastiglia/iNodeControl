@@ -10,11 +10,17 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Atomic preference and binding saves, 12 October
+
+Console preferences are now replaced from a complete, flushed sibling file. Primary-save failure preserves the old file; failure of the separate launcher copy is reported as a partial save. Isolated profiles and the legacy optional-hover setting remain unchanged. DeviceStore publishes new bindings only after saving successfully; the ownership API still disables live rebinding.
+
+**256 console self-tests and 179 kernel self-tests pass**, including 30 new persistence checks. Separate deliberately broken copies fail the intended regression checks. The launcher preparation result now reports successful preparation accurately; all 49 launcher checks pass in each PowerShell runtime. Exact builds and a new immutable 555-file review package are recorded. Installed binaries and operator settings hashes/timestamps are unchanged. See `analysis/persistence-20261012/REPORT.md`. Next: binding controls must reflect the ownership kernel's disabled live-binding capability rather than offering commands it refuses.
+
 ## Kernel startup checks, 12 October
 
 The combined kernel rejects invalid startup options/configuration before hardware work, including malformed timing, duplicate/null records and input-enabled boards without explicit receiver bindings/calibration. Its new `--validate-startup` reads saved configuration and exits without boards, sockets, frame pipes, receivers or settings writes. Normal startup claims the HTTP endpoint before board enumeration and receiver startup.
 
-**167 kernel self-tests, seven actual validation-mode checks and all nine cleanup-harness scenarios pass.** Separate negative controls reintroducing silent timing fallback or pre-bind receiver startup failed the intended checks. Final build/source bytes are recorded, and a new immutable review package pairs the kernel with the existing combined console/runtime. Installed hashes remain unchanged. No physical gate was passed. See `analysis/kernel-startup-20261012/REPORT.md`. Next: failed binding-save consistency and atomic persistence in DeviceStore.
+**167 kernel self-tests, seven actual validation-mode checks and all nine cleanup-harness scenarios pass.** Separate negative controls reintroducing silent timing fallback or pre-bind receiver startup failed the intended checks. Final build/source bytes are recorded, and a new immutable review package pairs the kernel with the existing combined console/runtime. Installed hashes remain unchanged. No physical gate was passed. See `analysis/kernel-startup-20261012/REPORT.md`. The persistence follow-up is completed above; the live binding API remains disabled.
 
 ## Recorded candidate preparation, 12 October
 

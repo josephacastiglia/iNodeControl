@@ -143,7 +143,7 @@ try {
     $operator=Join-Path ([Environment]::GetFolderPath('ApplicationData')) 'iMouse2/candidate'
     Reject 'Operator settings descendants are refused before writes' { New-CandidatePlan $c.Exe $c.Manifest $source $operator 'http://localhost:9913' } 'operator settings'
     Initialize-CandidateRun $plan
-    Check 'Preparation only copies recorded binaries and writes an isolated profile' ($events.Count -eq 0 -and (Get-ChildItem -LiteralPath $plan.RunDir -Recurse -File).Count -eq 7 -and (Get-Content -LiteralPath (Join-Path $plan.DataDir 'settings.json') -Raw | ConvertFrom-Json).trackPointer -ceq $false)
+    Check 'Preparation reports ready with only recorded binaries and an isolated profile' ($plan.Prepared -ceq $true -and $events.Count -eq 0 -and (Get-ChildItem -LiteralPath $plan.RunDir -Recurse -File).Count -eq 7 -and (Get-Content -LiteralPath (Join-Path $plan.DataDir 'settings.json') -Raw | ConvertFrom-Json).trackPointer -ceq $false)
     $profilePath=Join-Path $plan.DataDir 'settings.json'; $stamp=(Get-Item -LiteralPath $profilePath).LastWriteTimeUtc
     Initialize-CandidateRun $plan
     Check 'Repeated preparation preserves the existing verified profile bytes and timestamp' ((Get-Item -LiteralPath $profilePath).LastWriteTimeUtc -eq $stamp)

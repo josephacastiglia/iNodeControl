@@ -51,6 +51,14 @@ Receiver discovery can be delayed after a restart. A cable replug restored it in
 one recorded trial, but that is not a confirmed cause or a dependable recovery
 procedure. Record a missing receiver and use the agreed recovery window.
 
+Preferences are saved when connecting or changing the theme. If Activity says
+preferences could not be saved, the choice still applies to the current session;
+the previous saved file remains in place. If it instead says preferences were
+saved but the launcher settings copy could not be updated, the main preferences
+file succeeded and the separate launcher copy remains older. Resolve the file or
+folder access problem before relying on that copy for startup. Isolated candidates
+save only to their own data folder.
+
 ## Export a problem report
 
 1. Open **Settings → Export diagnostics**.

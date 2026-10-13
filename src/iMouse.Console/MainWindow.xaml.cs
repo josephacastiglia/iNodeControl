@@ -164,17 +164,10 @@ public partial class MainWindow : Window
     {
         // trackPointer is written back only when the file named it, so a file without it is
         // rewritten exactly as before.
-        var values = new Dictionary<string, object> { ["address"] = AddressBox.Text, ["theme"] = Theme.IsNight ? "night" : "light" };
-        if (_savedTrackPointer is not null) values["trackPointer"] = TrackPointer.IsChecked == true;
-        var json = JsonSerializer.Serialize(values);
-        Directory.CreateDirectory(_dataPath);
-        File.WriteAllText(Path.Combine(_dataPath, "settings.json"), json);
-        // The local mirror is what launcher scripts check and what seeds %APPDATA%, so a test run leaves it alone.
-        if (!_mirrorLocal) return;
-        var local = Path.Combine(AppContext.BaseDirectory, "data");
-        if (string.Equals(Path.GetFullPath(local), Path.GetFullPath(_dataPath), StringComparison.OrdinalIgnoreCase)) return;
-        Directory.CreateDirectory(local);
-        File.WriteAllText(Path.Combine(local, "settings.json"), json);
+        var warning = SettingsPersistence.Save(_dataPath,
+            _mirrorLocal ? Path.Combine(AppContext.BaseDirectory, "data") : null,
+            AddressBox.Text, Theme.IsNight, _savedTrackPointer is null ? null : TrackPointer.IsChecked == true);
+        if (warning is not null) Log(warning, true);
     }
 
     private void ApplyTheme(bool night)
@@ -186,7 +179,8 @@ public partial class MainWindow : Window
     private void Theme_Click(object sender, RoutedEventArgs e)
     {
         ApplyTheme(!Theme.IsNight);
-        try { SaveSettings(); } catch { /* a theme choice is not worth failing over */ }
+        try { SaveSettings(); }
+        catch (Exception ex) { Log("Theme changed for this session. Preferences could not be saved: " + ex.Message, true); }
     }
 
     // ---- shell: drawer, size sliders, status line ----

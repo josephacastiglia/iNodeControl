@@ -1,0 +1,26 @@
+[
+  {
+    "name": "current-settings",
+    "exit_code": 0,
+    "expected": "18 persistence checks passed",
+    "verified": true
+  },
+  {
+    "name": "current-bindings",
+    "exit_code": 0,
+    "expected": "12 persistence checks passed",
+    "verified": true
+  },
+  {
+    "name": "negative-settings",
+    "exit_code": -532462766,
+    "expected": "FAIL: Failed primary replacement reports a save failure",
+    "verified": true
+  },
+  {
+    "name": "negative-bindings",
+    "exit_code": -532462766,
+    "expected": "FAIL: Failed binding save preserves the in-memory assignment",
+    "verified": true
+  }
+]
