@@ -1,0 +1,12 @@
+{
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261013-screenshot-backpressure",
+  "commit": "587e595fc2d83a9e1b33f484e3cb0c4e4100b337",
+  "files": 117,
+  "bytes": 4728505,
+  "all_hashes_verified": true,
+  "installed_static_hashes_unchanged": true,
+  "kernel_sha256": "62371502123f45af0649804a60ff01774143088a63de2fd9dad4fcc458127565",
+  "candidate_physically_tested": false,
+  "rebuilt_kernel_packaged_for_live": false,
+  "full_release_acceptance": false
+}
