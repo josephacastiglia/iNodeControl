@@ -1,0 +1,10 @@
+[
+  {
+    "control": "negative-order",
+    "target_source_matches_final_except_mutation": true
+  },
+  {
+    "control": "negative-final-point",
+    "target_source_matches_final_except_mutation": true
+  }
+]

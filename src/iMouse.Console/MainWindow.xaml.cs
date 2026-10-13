@@ -44,6 +44,7 @@ public partial class MainWindow : Window
     // operator's %APPDATA%\iMouse2, which every console build on this machine shares.
     public MainWindow(Func<string, ApiClient>? factory = null, string? dataPath = null)
     {
+        _inputActions = new(context => CancelledHere(context.Connection, context.Control));
         _dataPath = dataPath ?? ResolveDataPath();
         _mirrorLocal = dataPath is null;
         _factory = factory ?? (address => new ApiClient(address));
@@ -524,7 +525,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void ResetJoinedPointers()
     {
-        if (!_connected || _api is null || _gesture is not null || _dragLoopRunning) return;
+        if (!_connected || _api is null || _gesture is not null || _inputActions.IsRunning) return;
         var ids = BatchMode.IsChecked == true ? InputTargetIds() : "";
         if (ids == _pointersResetFor) return;
         _pointersResetFor = ids;
@@ -533,7 +534,8 @@ public partial class MainWindow : Window
     }
     private void ClearFrame(string heading, string message)
     {
-        PhoneImage.Source = null; _frame = null; _frameId = null; _frameAt = DateTime.MinValue; _gesture = null;
+        ReleaseCurrentGesture();
+        PhoneImage.Source = null; _frame = null; _frameId = null; _frameAt = DateTime.MinValue;
         _live.Reset(); _rate.Reset(); _jitter.Reset(); _frameEpoch++; _lastFrameAt = DateTime.MinValue; _lastDelivered = DateTime.MinValue; _idleStreak = 0; _errorStreak = 0;
         _previewFreshness.Reset(_frameEpoch);
         PreparedFrame? obsolete;
@@ -895,9 +897,10 @@ public partial class MainWindow : Window
     // into the drag path, which is exactly how a finger moves an icon.
     private const int HoldThresholdMs = 250;
     private int _gestureSeq;
-    private bool _holdGesture;
-    private (int X, int Y)? _dragWanted;
-    private bool _dragLoopRunning, _dragRelease, _dragStarted;
+    private readonly InputActionQueue _inputActions;
+    private DragGesture? _drag;
+    private bool _dragStarted => _drag is not null;
+    private bool _holdGesture => _drag?.Hold == true;
 
     private void Preview_Down(object sender, MouseButtonEventArgs e)
     {
@@ -916,8 +919,8 @@ public partial class MainWindow : Window
         var mapped = MapPreview(point);
         if (mapped is null) { Log("Refresh the preview before controlling the phone.", true); return; }
         var size = TargetSize(Selected, image);
+        ReleaseCurrentGesture();
         _gesture = (Selected.Id, _session, mapped.Value.X, mapped.Value.Y, point, size.W, size.H);
-        _dragStarted = false; _dragRelease = false; _dragWanted = null; _holdGesture = false;
         // Stop hover tracking. A queued hover move that lands after the button goes down
         // starts the drag from wherever the mouse last rested instead of from the press.
         _pointerMoves.ClearPending();
@@ -934,23 +937,23 @@ public partial class MainWindow : Window
     private async Task HoldWatchAsync(int seq)
     {
         await Task.Delay(HoldThresholdMs);   // resumes on the UI thread, which owns the gesture state
-        if (seq != _gestureSeq || _gesture is not { } gesture || _dragStarted || _dragLoopRunning) return;
+        if (seq != _gestureSeq || _gesture is not { } gesture || _dragStarted || !_controlReady) return;
         if (PointerEnabled.IsChecked != true || _api is not { } api || Selected is not { } device
             || device.Id != gesture.Id || _session != gesture.Session) return;
-        _holdGesture = true; _dragStarted = true; _dragLoopRunning = true; _dragWanted = null;
+        StartDrag(api, gesture.X, gesture.Y, hold: true);
         if (PointerReadout is not null) PointerReadout.Text = $"x {gesture.X}, y {gesture.Y} — holding";
-        var ids = InputTargetIds();
-        _ = Task.Run(() => DragLoopAsync(ids, api, gesture.X, gesture.Y));
     }
 
     private async void Preview_Up(object sender, MouseButtonEventArgs e) => await EndGestureAsync(e.GetPosition(PhoneImage));
 
     private async Task EndGestureAsync(Point raw)
     {
-        var gesture = _gesture; _gesture = null; PhoneImage.ReleaseMouseCapture();
-        if (gesture is null) return;
+        var gesture = _gesture;
+        var drag = _drag;
+        _gesture = null; _drag = null; _gestureSeq++;
+        if (gesture is null) { PhoneImage.ReleaseMouseCapture(); return; }
 
-        if (_dragStarted)
+        if (drag is not null)
         {
             // Hand the final position to the drag loop and let it release the button. The
             // loop owns ordering, so every queued move lands before /mouse/up and a drag
@@ -958,11 +961,14 @@ public partial class MainWindow : Window
             var last = MapPreviewClamped(raw);
             // A long press released where it began must not tack a jittery one-pixel move
             // onto the end of the hold; only a real movement is delivered before release.
-            if (last is not null && (raw - gesture.Value.View).Length > DragThreshold) _dragWanted = last;
-            _dragRelease = true;
+            drag.Release((raw - gesture.Value.View).Length > DragThreshold ? last : null);
+            // Publish final coordinates before releasing capture; LostCapture may run
+            // synchronously and must not release this drag before its final move.
+            PhoneImage.ReleaseMouseCapture();
             return;
         }
 
+        PhoneImage.ReleaseMouseCapture();
         if (PointerEnabled.IsChecked != true || Selected?.Id != gesture.Value.Id || _session != gesture.Value.Session) return;
         if (PhoneImage.Source is not BitmapSource image) return;
         if (TargetSize(Selected, image) != (gesture.Value.W, gesture.Value.H)) { Log("Phone orientation changed. Try again.", true); return; }
@@ -984,96 +990,57 @@ public partial class MainWindow : Window
     private int _lastDragX = -1;
     private string _lastDragTrace = "";
 
-    /// <summary>
-    /// Runs entirely off the UI thread.
-    ///
-    /// It did not, and that was the single worst thing about how a drag felt. The loop is
-    /// started from a mouse handler, so without ConfigureAwait every await resumed on the
-    /// WPF dispatcher - which is simultaneously presenting the live view at thirty frames
-    /// a second and painting wall tiles. Each step of the stroke queued behind a render
-    /// pass. Measured: a request the service answers in 3.7 ms took 106, 286 and 126 ms,
-    /// so a 250 ms swipe reached the phone as two positions and iOS read it as a jump
-    /// rather than a swipe. The frame pumps already used ConfigureAwait(false); the input
-    /// paths were the ones left behind the paint.
-    /// </summary>
-    private async Task DragLoopAsync(string ids, ApiClient api, int x, int y)
+    private void StartDrag(ApiClient api, int x, int y, bool hold, (int X, int Y)? point = null)
     {
-        var lifetime = _lifetime.Token; var control = _controlCancellation;
-        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(lifetime, control.Token);
-        var ct = inputLifetime.Token;
-        bool pressed = false, hold = _holdGesture, paused = false;
-        var held = System.Diagnostics.Stopwatch.StartNew();
-        _lastDragIds = ids; _lastDragMoves = 0; _lastDragTrace = ""; _lastDragX = -1;
+        var context = new InputContext(api, InputTargetIds(), _lifetime.Token, _controlCancellation);
+        var drag = new DragGesture(context, x, y, hold);
+        if (point is { } target) drag.Move(target);
+        _drag = drag;
+        _ = RunDragAsync(drag);
+    }
+
+    private async Task RunDragAsync(DragGesture drag)
+    {
+        var context = drag.Context;
+        DragResult? result = null;
         try
         {
-            // BeginGesture clears unsent hover moves. Any dispatched hover has
-            // already entered the ownership client's per-phone queue, so the setup
-            // follows it without introducing a fixed delay on every drag.
-            var phase = System.Diagnostics.Stopwatch.StartNew();
-            await api.MoveAsync(ids, x, y, ct).ConfigureAwait(false);
-            long tMove = phase.ElapsedMilliseconds;
-            await api.CommandAsync("/mouse/down", new() { ["id"] = ids, ["button"] = "1" }, ct).ConfigureAwait(false);
-            long tDown = phase.ElapsedMilliseconds;
-            _lastDragTrace = $"[setup move {tMove} ms, down {tDown - tMove} ms] ";
-            pressed = true;
-            while (!_dragRelease && !_closing && !ct.IsCancellationRequested)
+            await _inputActions.Enqueue(context, async ct =>
             {
-                var target = _dragWanted; _dragWanted = null;
-                if (target is not null)
+                result = await DragInput.RunAsync(drag, ct).ConfigureAwait(false);
+                _lastDragIds = context.Ids; _lastDragMoves = result.Moves;
+                _lastDragTrace = result.Trace; _lastDragX = result.LastX;
+                if (result.Failure is not null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw(result.Failure);
+                if (result.ReleaseFailure is not null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw(result.ReleaseFailure);
+                if (drag.Hold && result.Released)
                 {
-                    long t0 = phase.ElapsedMilliseconds;
-                    await api.MoveAsync(ids, target.Value.X, target.Value.Y, ct).ConfigureAwait(false);
-                    _lastDragMoves++; _lastDragX = target.Value.X;
-                    if (_lastDragTrace.Length < 400) _lastDragTrace += $"({target.Value.X},{target.Value.Y})+{phase.ElapsedMilliseconds - t0}ms ";
+                    int count = context.Ids.Count(c => c == ',') + 1;
+                    string what = result.Moves > 0 ? "Long press, then drag" : "Long press";
+                    LogAsync(count > 1 ? $"{what} ({result.DurationMs} ms) -> {count} phones" : $"{what} ({result.DurationMs} ms)");
                 }
-                else await Task.Delay(3, ct).ConfigureAwait(false);
-            }
-            var final = _dragWanted; _dragWanted = null;
-            if (final is not null)
-            {
-                long tf = phase.ElapsedMilliseconds;
-                await api.MoveAsync(ids, final.Value.X, final.Value.Y, ct).ConfigureAwait(false);
-                _lastDragMoves++; _lastDragX = final.Value.X;
-                if (_lastDragTrace.Length < 400) _lastDragTrace += $"final({final.Value.X},{final.Value.Y})+{phase.ElapsedMilliseconds - tf}ms ";
-            }
+            }).ConfigureAwait(false);
         }
-        catch (OperationCanceledException) when (CancelledHere(lifetime, control)) { }
+        catch (OperationCanceledException) when (CancelledHere(context.Connection, context.Control)) { }
+        catch (InputNotSentException ex) { LogAsync("Drag: " + ex.Message, true); }
         catch (Exception ex)
         {
-            // A failure or timeout has paused the phones under the lease client, which would
-            // only refuse the release below and log that as a second error.
-            paused = api.UsesInputOwnership;
-            LogAsync("Drag: " + Friendly(ex), true);
-        }
-        finally
-        {
-            // The button must come up even if a move failed mid-gesture, or the phone is
-            // left with a stuck press and every later tap lands inside a drag.
-            // After Stop or cancellation, the kernel has already released all held buttons;
-            // sending /mouse/up would be rejected and log a spurious release failure.
-            if (pressed && !paused && !ct.IsCancellationRequested && !_controlCancellation.IsCancellationRequested && !_closing)
-            {
-                try { await api.CommandAsync("/mouse/up", new() { ["id"] = ids, ["button"] = "1" }, ct).ConfigureAwait(false); }
-                catch (OperationCanceledException) when (CancelledHere(lifetime, control)) { }
-                catch (Exception ex) { LogAsync("Drag release failed: " + Friendly(ex), true); }
-                if (hold)
-                {
-                    // Long presses are deliberate and rare, so say what was held and for how
-                    // long; ordinary drags stay quiet, as before, or the log fills with strokes.
-                    int count = ids.Count(c => c == ',') + 1;
-                    string what = _lastDragMoves > 0 ? "Long press, then drag" : "Long press";
-                    LogAsync(count > 1 ? $"{what} ({held.ElapsedMilliseconds} ms) -> {count} phones" : $"{what} ({held.ElapsedMilliseconds} ms)");
-                }
-            }
-            _dragLoopRunning = false; _dragStarted = false; _dragRelease = false; _dragWanted = null;
+            bool releaseOnly = result is { Failure: null, ReleaseFailure: not null };
+            LogAsync((releaseOnly ? "Drag release failed: " : "Drag: ") + Friendly(ex), true);
+            if (result is { Failure: not null, ReleaseFailure: not null })
+                LogAsync("Drag release failed: " + Friendly(result.ReleaseFailure), true);
         }
     }
 
-    private void Preview_LostCapture(object sender, MouseEventArgs e)
+    private void ReleaseCurrentGesture()
     {
-        _gesture = null;
-        if (_dragStarted) _dragRelease = true;   // losing capture must still lift the button
+        _gestureSeq++;
+        var drag = _drag;
+        _gesture = null; _drag = null;
+        drag?.Release();
+        if (PhoneImage.IsMouseCaptured) PhoneImage.ReleaseMouseCapture();
     }
+
+    private void Preview_LostCapture(object sender, MouseEventArgs e) => ReleaseCurrentGesture();
 
     /// <summary>
     /// Reports the coordinate a click would send, and drives the phone's own pointer
@@ -1097,17 +1064,13 @@ public partial class MainWindow : Window
         {
             var held = MapPreviewClamped(raw);
             if (held is null) return;
-            if (!_dragStarted && !_dragLoopRunning
+            if (!_dragStarted && _controlReady
                 && (raw - gesture.View).Length > DragThreshold
                 && _api is { } dragApi && Selected is { } dragDevice && dragDevice.Id == gesture.Id)
             {
-                _dragStarted = true; _dragLoopRunning = true; _dragWanted = held.Value;
-                // The target list must be worked out here, on the UI thread; the loop then
-                // runs on the pool so no step of the stroke waits for a render pass.
-                var dragIds = InputTargetIds();
-                _ = Task.Run(() => DragLoopAsync(dragIds, dragApi, gesture.X, gesture.Y));
+                StartDrag(dragApi, gesture.X, gesture.Y, hold: false, held.Value);
             }
-            else if (_dragStarted) _dragWanted = held.Value;
+            else _drag?.Move(held.Value);
             PointerReadout.Text = $"x {held.Value.X}, y {held.Value.Y}";
             return;
         }
@@ -1129,12 +1092,16 @@ public partial class MainWindow : Window
     private void TrackPointerTo((int X, int Y) point)
     {
         if (_closing || !_controlReady || !_connected || _api is not { } api) return;
-        if (_gesture is not null || _dragLoopRunning) return;
+        if (_gesture is not null || _inputActions.IsRunning) return;
         _pointerMoves.Post(new(api, InputTargetIds(), point.X, point.Y,
             _lifetime.Token, _controlCancellation.Token));
     }
 
-    private void PointerTrackingDisabled(object sender, RoutedEventArgs e) => _pointerMoves.ClearPending();
+    private void PointerTrackingDisabled(object sender, RoutedEventArgs e)
+    {
+        _pointerMoves.ClearPending();
+        if (PointerEnabled.IsChecked != true) ReleaseCurrentGesture();
+    }
 
     private void Preview_Leave(object sender, MouseEventArgs e)
     {
@@ -1616,16 +1583,19 @@ public partial class MainWindow : Window
     {
         if (!_controlReady) return;
         var lifetime = _lifetime.Token; var control = _controlCancellation;
-        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(lifetime, control.Token);
         var api = _api;
         var ids = InputTargetIds();
         if (api is null || !_connected || ids.Length == 0) return;
+        if (api.UnavailableCommandReason(function) is { } reason) { Log(reason, true); return; }
         int count = ids.Count(c => c == ',') + 1;
         try
         {
             // ConfigureAwait(false): a tap must not wait for the live view to finish
             // painting before it is sent, nor again before it is logged.
-            await api.CommandAsync(function, new Dictionary<string, object>(data) { ["id"] = ids }, inputLifetime.Token).ConfigureAwait(false);
+            var context = new InputContext(api, ids, lifetime, control);
+            var payload = new Dictionary<string, object>(data) { ["id"] = ids };
+            _pointerMoves.ClearPending();
+            await _inputActions.Enqueue(context, ct => api.CommandAsync(function, payload, ct)).ConfigureAwait(false);
             if (!quiet) LogAsync(count > 1 ? $"{label} -> {count} phones" : label);
         }
         catch (OperationCanceledException) when (CancelledHere(lifetime, control)) { }
@@ -1677,13 +1647,24 @@ public partial class MainWindow : Window
         if (!_controlReady) return;
         var api = _api; var ids = InputTargetIds();
         if (api is null || !_connected || ids.Length == 0) return;
-        using var inputLifetime = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, _controlCancellation.Token);
+        var context = new InputContext(api, ids, _lifetime.Token, _controlCancellation);
         int count = ids.Count(c => c == ',') + 1;
         string label = count > 1 ? $"Send text -> {count} phones" : "Send text";
         _sendingText = true;
         try
         {
-            var r = await api.SendTextAsync(ids, text, inputLifetime.Token);
+            TextDelivery? r = null;
+            _pointerMoves.ClearPending();
+            try
+            {
+                await _inputActions.Enqueue(context, async ct =>
+                {
+                    r = await api.SendTextAsync(ids, text, ct).ConfigureAwait(false);
+                    if (r.Failure is not null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw(r.Failure);
+                });
+            }
+            catch (Exception) when (r is not null) { /* Accepted text reports its own complete outcome below. */ }
+            if (r is null) throw new InvalidOperationException("Text operation did not report an outcome.");
             if (r.End == InputEnd.Completed) { Log($"{label}: {r.Total} characters in {r.Chunks} chunk(s)"); return; }
             string progress = $"{r.ConfirmedCharacters} of {r.Total} characters confirmed.";
             string partial = r.Sent > r.Confirmed ? $" Chunk {r.Sent} of {r.Chunks} may be partly typed and was not retried." : "";
@@ -1697,6 +1678,9 @@ public partial class MainWindow : Window
                 default: Log($"{label} failed: {progress}{partial}{rest} {Friendly(r.Failure!)}", true); break;
             }
         }
+        catch (OperationCanceledException) when (CancelledHere(context.Connection, context.Control)) { Log($"{label} stopped before sending."); }
+        catch (InputNotSentException ex) { Log($"{label}: {ex.Message}", true); }
+        catch (Exception ex) { Log($"{label} failed: {Friendly(ex)}", true); }
         finally { _sendingText = false; }
     }
     private async Task ExecuteAsync(string label, string function, Dictionary<string, object> data, List<Device> targets, bool allowOffline)
@@ -1802,7 +1786,7 @@ public partial class MainWindow : Window
         await Task.Delay(600);
         Note("sendInputLog", _activity.Take(Math.Max(1, _activity.Count - before)).ToList());
 
-        // and the drag path: DragLoopAsync is handed the id list up front
+        // and the drag path: each gesture captures the id list up front
         Note("dragWouldAddress", InputTargetIds());
 
         // --- end to end on the real phones ---
@@ -1927,7 +1911,7 @@ public partial class MainWindow : Window
                 await Task.Delay(16);
             }
             await EndGestureAsync(new Point(-40, ph * 0.55));
-            for (int i = 0; _dragLoopRunning && i < 300; i++) await Task.Delay(10);
+            for (int i = 0; _inputActions.IsRunning && i < 300; i++) await Task.Delay(10);
             await Task.Delay(1200);
             var afterStroke = await Shots();
 
@@ -2535,8 +2519,8 @@ public partial class MainWindow : Window
         TrackGesture(outside, true);
         for (int i = 0; !handler.Commands.Skip(beforeDrag).Any(c => c.GetProperty("fun").GetString() == "/mouse/down") && i < 100; i++) await Task.Delay(10);
         await EndGestureAsync(outside);
-        for (int i = 0; _dragLoopRunning && i < 200; i++) await Task.Delay(10);
-        Check("The drag loop finishes", !_dragLoopRunning && !_dragStarted);
+        for (int i = 0; _inputActions.IsRunning && i < 200; i++) await Task.Delay(10);
+        Check("The drag loop finishes", !_inputActions.IsRunning && !_dragStarted);
 
         var stroke = handler.Commands.Skip(beforeDrag).ToList();
         var down = stroke.Where(c => c.GetProperty("fun").GetString() == "/mouse/down").ToList();
@@ -2573,7 +2557,7 @@ public partial class MainWindow : Window
             !handler.Commands.Skip(beforeHold).Any(c => c.GetProperty("fun").GetString() == "/mouse/up"));
         await Task.Delay(300);
         await EndGestureAsync(new Point(pressPoint.X + 1, pressPoint.Y + 1));
-        for (int i = 0; _dragLoopRunning && i < 200; i++) await Task.Delay(10);
+        for (int i = 0; _inputActions.IsRunning && i < 200; i++) await Task.Delay(10);
         var holdCmds = handler.Commands.Skip(beforeHold).ToList();
         Check("A long press is one press and one release and never a click",
             holdCmds.Count(c => c.GetProperty("fun").GetString() == "/mouse/down") == 1 &&
@@ -2596,7 +2580,7 @@ public partial class MainWindow : Window
         TrackGesture(outside, true);
         for (int i = 0; !_dragStarted && i < 100; i++) await Task.Delay(10);
         await EndGestureAsync(outside);
-        for (int i = 0; _dragLoopRunning && i < 200; i++) await Task.Delay(10);
+        for (int i = 0; _inputActions.IsRunning && i < 200; i++) await Task.Delay(10);
         Check("A flick straight out of the picture still sends a gesture", handler.Commands.Count > beforeFlick);
 
         // Hover tracking moves the phone's own pointer. It has to move every mirrored
@@ -2861,15 +2845,15 @@ public partial class MainWindow : Window
             handler.Commands.Skip(beforeHeld).Any(c => c.GetProperty("fun").GetString() == "/mouse/down"));
         handler.TimeoutFun = "/mouse/move";
         TrackGesture(new Point(dragFrom.X + 60, dragFrom.Y), true);
-        await WaitFor(() => !_dragLoopRunning && _activity.Any(s => s.Contains("Drag: Request timed out")));
+        await WaitFor(() => !_inputActions.IsRunning && _activity.Any(s => s.Contains("Drag: Request timed out")));
         await EndGestureAsync(new Point(dragFrom.X + 60, dragFrom.Y));
-        await WaitFor(() => !_dragLoopRunning && _activity.Any(s => s.Contains("Held button released after the request timed out")));
+        await WaitFor(() => !_inputActions.IsRunning && _activity.Any(s => s.Contains("Held button released after the request timed out")));
         handler.TimeoutFun = null;
         var heldCommands = handler.Commands.Skip(beforeHeld).ToList();
         var heldStroke = heldCommands.Select(c => c.GetProperty("fun").GetString()).ToList();
         var pressTokens = heldCommands.First(c => c.GetProperty("fun").GetString() == "/mouse/down").GetProperty("data").GetProperty("tokens");
         var releases = heldCommands.Where(c => c.GetProperty("fun").GetString() == "/input/release").Select(c => c.GetProperty("data")).ToList();
-        Check("A drag whose move timed out sends no /mouse/up", !heldStroke.Contains("/mouse/up") && !_dragLoopRunning);
+        Check("A drag whose move timed out sends no /mouse/up", !heldStroke.Contains("/mouse/up") && !_inputActions.IsRunning);
         Check("A drag timeout is logged once, with no refused release after it",
             _activity.Count(s => s.Contains("Drag: Request timed out")) == 1 && !_activity.Any(s => s.Contains("Drag release failed")));
         Check("A drag timeout releases each mirrored phone's own lease at once",

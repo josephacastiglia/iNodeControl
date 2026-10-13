@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-13T01:55:52.396571+00:00",
+  "project": "src/iMouse.Console/iMouse.Console.csproj",
+  "metadata": {
+    "git_head": "c82df82e2016c4b9a753b8812f0366ef3bebfbc3",
+    "sdk_version": "8.0.424",
+    "source_snapshot_includes_uncommitted_files": true
+  },
+  "sources": {
+    "src/iMouse.Console/ApiClient.cs": {
+      "sha256": "c43b8c77ce45fba1a44d7863e7a2121f248d7bbc7de4f4e0d3b7ae41b12e3b3c",
+      "bytes": 29239
+    },
+    "src/iMouse.Console/app.manifest": {
+      "sha256": "2dbdca4ab891d6499055ba2889641d7baa4a16afcaccd3d3e9c5459bb2fe26c2",
+      "bytes": 691
+    },
+    "src/iMouse.Console/App.xaml": {
+      "sha256": "4f8e2789f471ea6fb9e644a3425d69352b2b35c65f906882ccdee3c3c9d47d82",
+      "bytes": 12462
+    },
+    "src/iMouse.Console/App.xaml.cs": {
+      "sha256": "93f114ae0c04ff8d11e6bc9be470d577241c03068fdf6c0f739965e4ca460aeb",
+      "bytes": 14017
+    },
+    "src/iMouse.Console/ConsoleBuildInfo.cs": {
+      "sha256": "37b2d1627565d65a32929fce535f974bc6ac3c8cfd01552d2c4ec6d2337f25c3",
+      "bytes": 1679
+    },
+    "src/iMouse.Console/ConsoleDiagnostics.cs": {
+      "sha256": "a936b64d6082b538014865553e5bf3e36bbc386ff0215c7bc2371458f4f9da67",
+      "bytes": 9177
+    },
+    "src/iMouse.Console/DiagnosticsTests.cs": {
+      "sha256": "6084acb14fed63889498058d89821eec48bd5fdefdfe0adcceb952c3d347ba17",
+      "bytes": 9867
+    },
+    "src/iMouse.Console/DragInput.cs": {
+      "sha256": "5253826e7d9a3d83d2c0e11e8197ec5d372319b2fc88d21052032e5c87167580",
+      "bytes": 4357
+    },
+    "src/iMouse.Console/DragInputTests.cs": {
+      "sha256": "23376ea8992fbbf9c48cff95907a1f63420e65ac31dd19a2a6d512af68565863",
+      "bytes": 14660
+    },
+    "src/iMouse.Console/FrameMetrics.cs": {
+      "sha256": "ddecc12a670a5f1490b2772c85bc133f532c4901484afb944f296efeca2c2830",
+      "bytes": 2905
+    },
+    "src/iMouse.Console/iMouse.Console.csproj": {
+      "sha256": "2b1c46287413f38c5eebce1994cde38752486cbffc3ae3faab4f4c1505a17f41",
+      "bytes": 581
+    },
+    "src/iMouse.Console/InputActionQueue.cs": {
+      "sha256": "d1b1bf212faa8e196296130c28cd2edc2d96b3e361594500294b9e8c25f1b463",
+      "bytes": 2794
+    },
+    "src/iMouse.Console/InputControls.cs": {
+      "sha256": "301121e14cb3e2f8b7bf5b757a144865f753c632fbb8f551b6ee2e5d39b6aafa",
+      "bytes": 5700
+    },
+    "src/iMouse.Console/InputLeaseClient.cs": {
+      "sha256": "c3714d7b386a3e446d325ac2a1b700b924cad897e32456a5648933a337f2352c",
+      "bytes": 21855
+    },
+    "src/iMouse.Console/InputTrace.cs": {
+      "sha256": "42f1363ef98c44ef088090d9cecb14c59cdf24c123f82c65349d7995d513e5d6",
+      "bytes": 6166
+    },
+    "src/iMouse.Console/LiveFrame.cs": {
+      "sha256": "e46aab21a8a7060ba20b875dfeebe99ba985010ac942aad970218f9b120429b9",
+      "bytes": 10913
+    },
+    "src/iMouse.Console/MainWindow.xaml": {
+      "sha256": "66d9772e221ac98a3af6a5b85f9021f3d0a31f95a343c8b066263edbbe8daede",
+      "bytes": 33200
+    },
+    "src/iMouse.Console/MainWindow.xaml.cs": {
+      "sha256": "91b60e23d77c53eb71cb5337d1a1322b2403c0cd54e325c42c6df8af5d4f59c0",
+      "bytes": 166900
+    },
+    "src/iMouse.Console/MainWindowDiagnostics.cs": {
+      "sha256": "48b9916f7b831c9bdf6ef46193d6a61fbe9dd6b243644265962e820dd265eaa1",
+      "bytes": 4249
+    },
+    "src/iMouse.Console/PhoneWall.cs": {
+      "sha256": "b138b62f66fc17381d0fb88cb28639bd45ad0d0737cdba02ef9ef5d426acd11d",
+      "bytes": 5003
+    },
+    "src/iMouse.Console/PointerMovePump.cs": {
+      "sha256": "397fe98b13436ed3d20b56684840034420160900c5488d14ff2f449d12eb6c8c",
+      "bytes": 4365
+    },
+    "src/iMouse.Console/PointerMovePumpTests.cs": {
+      "sha256": "84dde5ae2bac5a6be4d168ebeaf039fc3c8e78ee9c854a070578db1a9ad3a3c6",
+      "bytes": 9652
+    },
+    "src/iMouse.Console/PreviewFreshness.cs": {
+      "sha256": "b71a55e1a63007ab96aeb8c31308cfd7f916bd83c3d430089c2199aabb1103a3",
+      "bytes": 5465
+    },
+    "src/iMouse.Console/SelfTests.cs": {
+      "sha256": "c48e7028cf3859f1a1df113e26e14cb7f41223facc71b69d44f16acf8508335b",
+      "bytes": 90132
+    },
+    "src/iMouse.Console/ServicePolicyTests.cs": {
+      "sha256": "35e046f2cbd5f5827fb33184abc6a40742d644e611c638757878917b7276108d",
+      "bytes": 4155
+    },
+    "src/iMouse.Console/SettingsPersistence.cs": {
+      "sha256": "32713df33c52f7735e0ee0c7d85a34fa506cd1d0ca552a08b110f8d334001f8e",
+      "bytes": 2479
+    },
+    "src/iMouse.Console/SettingsPersistenceTests.cs": {
+      "sha256": "911605637f7c7fcab1ec47af01bc2177a652ebedf43a7ce154162904183d458e",
+      "bytes": 5422
+    },
+    "src/iMouse.Console/Theme.cs": {
+      "sha256": "7d6e6ff19ddc852d9041cfab8f209b1f18e5df01d2fe983292fd16e8bc2a3478",
+      "bytes": 2786
+    },
+    "src/iMouse.Console/TileStreams.cs": {
+      "sha256": "046a042b29db93249fc98527e8563cf8eace4b445cbe37ffb4a599acf476b0e5",
+      "bytes": 5247
+    },
+    "NuGet.config": {
+      "sha256": "e2a0716cbd1a016e568a2d466192c1b00244da147eb835707b5eb5f4e3bc1e17",
+      "bytes": 114
+    }
+  },
+  "artifacts": {
+    "iMouse2.deps.json": {
+      "sha256": "037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc",
+      "bytes": 413
+    },
+    "iMouse2.dll": {
+      "sha256": "f322a3b85efc04ef2c25a7fc5673f23e3cd049c2d188d0a7a4c3c90689322cfb",
+      "bytes": 604672
+    },
+    "iMouse2.exe": {
+      "sha256": "f65854b11467b3733ffda3c618e40bc4f6943116f2a2224dec08597b1da46027",
+      "bytes": 152064
+    },
+    "iMouse2.pdb": {
+      "sha256": "31cfab3d30e126e68efba314ed522584f5d7364cd4078d7ebb5c9c1b9c258843",
+      "bytes": 125492
+    },
+    "iMouse2.runtimeconfig.json": {
+      "sha256": "c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782",
+      "bytes": 458
+    }
+  },
+  "scope": "project files, common build inputs and output bytes; external dependencies are not independently attested"
+}

@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Drag lifetime and complete-action ordering, 12 October
+
+Each drag now owns its pending coordinate and release state. A newer press cannot reset the older stroke; final coordinates are published before mouse capture is released. Complete console input actions are ordered through button-up, so a following drag, tap or key cannot interleave inside a held stroke. Stop and Resume remain outside that queue, and every queued action retains its original cancellation context. Failed owned input reports later queued work as not sent; the pause notice's own cancellation does not disguise the timeout.
+
+**314 console self-tests pass**, including 25 new checks. Two separate negative builds fail the intended ordering/final-coordinate checks. Exact source/build evidence is in `analysis/drag-ordering-20261012/REPORT.md`. No window or hardware test ran, and no installed file changed. Next: audit asynchronous console-client disposal on disconnect/reconnect/close, including whether cleanup completion is observed before the app exits.
+
 ## Hover queue ordering and cancellation, 12 October
 
 The console now captures coordinates, mirror targets, client and cancellation tokens in one request. Its hover pump atomically coalesces pending moves and goes idle, prevents an old scope's failure from dropping a new phone's work, and clears unsent hover before a gesture or when tracking is disabled. Dispatched moves retain the existing ownership queue; no fixed drag delay or automatic retry was added.

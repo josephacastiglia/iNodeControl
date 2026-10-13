@@ -18,6 +18,11 @@ until a candidate has been approved for installation.
 **Move phone pointer with mouse** can take control and move the phone pointer when
 you hover over the preview. Turn it off in Controls when you only want to observe.
 
+Input actions run in order. A following tap, key or text send waits for a drag's
+button release to finish. **Stop input** can interrupt that work; it does not
+wait behind the queued actions. Resume discards cancelled work rather than
+replaying it.
+
 Board assignments are view-only on the current independent connection. Settings
 shows the saved assignment, but **Bind board**, **Unbind** and **Auto-bind** are
 disabled. A missing assignment needs a verified phone/board/receiver setup update
