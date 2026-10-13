@@ -11,6 +11,10 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Paused for operator shutdown, 13 October
+
+All completed changes are saved on `local/combined-candidate-20261012`. Start the next session with `RESUME-NEXT.md`. The unfinished fleet-shutdown investigation is preserved separately in `analysis/fleet-shutdown-20261013/`; its draft compiled but was not executed and has a known test-fixture lifetime bug. No product fix or reproduced result is claimed. The ordinary recovery suite was restored to its committed source after byte-verifying the draft copy. No further tests, live actions, pushes or deployment occurred during this checkpoint. Development is paused at the operator's request.
+
 ## Console image downloads bounded and buffer growth repaired, 13 October
 
 The preview reader previously stopped enforcing its HTTP timeout after headers arrived. A simulated stalled body outlasted eight seconds and needed the test's 13-second escape. Unknown-length images over the initial buffer size also lost their first bytes during growth. The reader now keeps one eight-second deadline through the entire response, preserves the received prefix and enforces a 64 MiB response limit, clearing partial evidence on failure.
