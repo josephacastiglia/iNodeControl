@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Cleanup history in one diagnostic export, 12 October
+
+The real Export diagnostics collector now reads both bounded cleanup receipts from the active profile, including after Disconnect has cancelled the old connection token. It preserves historical timestamps and confirmation scope, reports missing/invalid/unreadable sections independently, and strips unknown fields, URL credentials and raw errors. No current phone state is inferred from an old receipt.
+
+**372 console self-tests pass**, including 24 new checks and a window-collector test with no shown window/native handle or network access. A separate copy with the active profile deliberately omitted fails the intended check. The exact console is recorded with 36 source inputs and five output files. `output/staging/combined-cleanup-diagnostics-20261012` contains 677 files plus its manifest and reuses the unchanged kernel, receiver and runtime. See `analysis/cleanup-diagnostics-20261012/REPORT.md`, its preparation and archive receipts. The real export dialog and physical candidate acceptance remain pending. Installed hashes are unchanged; typing remains deferred.
+
 ## Exact candidate acceptance preparation, 12 October
 
 The consolidated review package now has a separate prepared C24C-only kernel configuration and hover-off console profile. Both exact binaries pass their actual no-window startup validation modes. Saved configuration, kernel files, isolated settings and installed hashes are unchanged. No service, receiver or app window was started. See `analysis/candidate-acceptance-20261012/REPORT.md`, `preparation.json` and `docs/CANDIDATE-ACCEPTANCE.md`.

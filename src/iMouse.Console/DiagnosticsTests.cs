@@ -105,7 +105,7 @@ internal static class DiagnosticsTests
             string path = Path.Combine(folder, "report.json");
             await ConsoleDiagnostics.SaveAsync(path, report);
             using var parsed = JsonDocument.Parse(await File.ReadAllTextAsync(path));
-            check("Diagnostic JSON round trips the selected snapshot and service health", parsed.RootElement.GetProperty("schema_version").GetInt32() == 3
+            check("Diagnostic JSON round trips the selected snapshot and service health", parsed.RootElement.GetProperty("schema_version").GetInt32() == 4
                 && parsed.RootElement.GetProperty("service").GetProperty("kernel").GetProperty("data").GetProperty("receivers")[0].GetProperty("receiver_state").GetString() == "failed");
             string original = await File.ReadAllTextAsync(path);
             bool refused = false;

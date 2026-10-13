@@ -1,0 +1,9 @@
+{
+  "change": "Withhold the active profile from the real window diagnostic collector.",
+  "changed_files": [
+    "MainWindowDiagnostics.cs"
+  ],
+  "before_sha256": "841046b21f5d3b797c3ea90812a5a2bbd5e84acc0e40f15bf1a149ed0a15d9aa",
+  "after_sha256": "c0b7352834a7340789fc60073215961c9d93c531a0ca3fbe46e03ca7def3e899",
+  "expected_failure": "The actual window export reads its isolated receipt after disconnect"
+}

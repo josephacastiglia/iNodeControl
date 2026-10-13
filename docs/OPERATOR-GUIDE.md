@@ -65,7 +65,10 @@ The active data folder holds `last-input-cleanup.json`. If any release was
 unconfirmed, `last-input-cleanup-warning.json` preserves that historical warning
 even after a later clean close. These bounded records contain service addresses,
 phone IDs and confirmation states, without lease tokens or raw service-error
-bodies. Include them with a diagnostic export when investigating shutdown.
+bodies. The candidate's diagnostic export includes both records from its active
+data folder automatically, including while disconnected. Each is labelled as
+historical; an earlier confirmation is not proof of current control or button
+state. Missing, unreadable or invalid records are identified explicitly.
 Isolated candidates write only to their isolated folder. Automated window tests
 copy the records into `qa` before deleting their temporary profile. Forced process
 termination, a crash or OS shutdown can bypass normal awaited cleanup.
@@ -97,15 +100,17 @@ save only to their own data folder.
 
 1. Open **Settings → Export diagnostics**.
 2. Choose where to save the JSON report. Collection takes at most about five
-   seconds for service requests; writing the file can take longer on slow storage.
+   seconds for collection; writing the file can take longer on slow storage.
 3. Read Activity for the result. A partial report is still useful: unavailable
    sections are marked, while the local console snapshot is preserved.
 
 The candidate report includes build identities, phone/board/receiver mapping,
 current console preferences, calibration and movement settings when the kernel
 supports them, video delivery information, restart counts, input state, resource
-use and recent activity. It works while disconnected, with service sections
-marked unavailable. It does not acquire control or send phone input.
+use, recent activity and the active profile's saved cleanup history. It works
+while disconnected, with service requests marked skipped and local history still
+available. A new profile with no cleanup history is reported as missing, not as
+a successful release. The report does not acquire control or send phone input.
 
 Review it before sharing: phone identifiers, names, the service address and recent
 activity are included. Screen images and the Send text box contents are not

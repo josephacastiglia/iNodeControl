@@ -8,7 +8,8 @@ namespace IMouse2;
 public sealed record DiagnosticSection(string State, DateTimeOffset ObservedUtc, double ElapsedMs,
     JsonElement? Data, string? Error);
 public sealed record DiagnosticReport(int SchemaVersion, DateTimeOffset StartedUtc, DateTimeOffset FinishedUtc,
-    bool Partial, string Notice, JsonElement Console, IReadOnlyDictionary<string, DiagnosticSection> Service);
+    bool Partial, string Notice, JsonElement Console, IReadOnlyDictionary<string, DiagnosticSection> Service,
+    IReadOnlyDictionary<string, DiagnosticSection> Local);
 
 /// <summary>Bounded, read-only collection. Each section retains its own outcome: a missing
 /// service is useful diagnostic evidence and must not prevent saving the local snapshot.</summary>
@@ -21,11 +22,12 @@ public static class ConsoleDiagnostics
 
     public static async Task<DiagnosticReport> CollectAsync(JsonElement snapshot,
         Func<string, CancellationToken, Task<JsonElement>>? get,
-        CancellationToken ct = default, TimeSpan? timeout = null)
+        CancellationToken ct = default, TimeSpan? timeout = null, string? dataPath = null)
     {
         var started = DateTimeOffset.UtcNow;
         using var budget = CancellationTokenSource.CreateLinkedTokenSource(ct);
         budget.CancelAfter(timeout ?? TimeSpan.FromSeconds(5));
+        var localTask = CleanupDiagnostics.CollectAsync(dataPath, budget.Token);
         var sections = new (string Name, string Route, Func<JsonElement, object> Project)[]
         {
             ("kernel", "/kernel/status", Kernel),
@@ -62,10 +64,11 @@ public static class ConsoleDiagnostics
             }
         }
         var results = (await Task.WhenAll(sections.Select(Read)).ConfigureAwait(false)).ToDictionary(x => x.Key, x => x.Value);
-        return new(3, started, DateTimeOffset.UtcNow, results.Values.Any(x => x.State != "ok"),
+        var local = await localTask.ConfigureAwait(false);
+        return new(4, started, DateTimeOffset.UtcNow, results.Values.Any(x => x.State != "ok") || local.Values.Any(x => x.State == "unavailable"),
             "Includes device identifiers, service address and recent activity; review before sharing. No screenshots or Send text box contents are collected. " +
-            "Sections are sampled separately, not atomically. Missing fields are unknown. Video timings describe receiver delivery and console bitmap updates, not physical display latency.",
-            snapshot.Clone(), results);
+            "Sections are sampled separately, not atomically. Missing fields are unknown. Cleanup receipts are historical, not current input state. Video timings describe receiver delivery and console bitmap updates, not physical display latency.",
+            snapshot.Clone(), results, local);
     }
 
     public static async Task SaveAsync(string path, DiagnosticReport report, CancellationToken ct = default)

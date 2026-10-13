@@ -1,0 +1,30 @@
+{
+  "valid": true,
+  "scope": "saved configuration only",
+  "hardware_accessed": false,
+  "listener_started": false,
+  "receivers_started": false,
+  "settings_written": false,
+  "build": {
+    "version": "1.0.0.0",
+    "informational_version": "1.0.0\u002B3d3883f58a671a45ada8d4bdda0b79e61132fbc4",
+    "module_id": "f149cab9-ae34-41b6-b421-3998c367dac8",
+    "sha256": "6585cd5ceb2d2e8762a3a863e536b3f66d94621446864b67b9e3c01e90d2601f"
+  },
+  "data_directory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\cleanup-diagnostics-20261012\\kernel\\data",
+  "address": "http://127.0.0.1:9913/api/",
+  "allowed": [
+    "C24C"
+  ],
+  "precise_delay_ms": 7,
+  "home_sequence": "vendor",
+  "receiver_count": 1,
+  "receiver_executable": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-cleanup-diagnostics-20261012\\payload\\receiver\\uxplay.exe",
+  "receiver_runtime": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-cleanup-diagnostics-20261012\\dependencies\\receiver-runtime\\runtime",
+  "bindings_complete": true,
+  "limitations": [
+    "Physical bindings, targeting and mirroring are not assessed.",
+    "Available ports, URL permissions and dependency loading are not tested.",
+    "Runtime file presence is not a dependency or build attestation."
+  ]
+}

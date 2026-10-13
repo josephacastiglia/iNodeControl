@@ -2,19 +2,20 @@
 
 This is the next-test record for the combined candidate, not release sign-off.
 The exact prepared files are recorded in
-`analysis/candidate-acceptance-20261012/preparation.json`. The setup script only
+`analysis/cleanup-diagnostics-20261012/preparation.json`. The setup script only
 copies files and invokes explicit offline validation modes. It cannot launch a
 normal kernel, receiver or console window.
 
 ## Prepared scope
 
-- Immutable review package: `output/staging/combined-runtime-provenance-final-20261012`.
-- Disposable run: `output/candidate-runs/combined-acceptance-checked-20261012`.
+- Immutable review package: `output/staging/combined-cleanup-diagnostics-20261012`.
+- Disposable run: `output/candidate-runs/cleanup-diagnostics-20261012`.
 - Kernel configuration: a reviewed structural copy of the installed launcher's
   saved C24C records, selected without changing its identity or calibration.
   One receiver, C24C input only; C241 is absent from this candidate configuration.
 - Console: a fresh data folder, explicit `http://127.0.0.1:9913`, hover tracking
-  off. It uses the current recorded cleanup console, not a historical candidate.
+  off. It uses the recorded console with cleanup history included in diagnostic
+  exports. Earlier prepared runs retain their older console and remain historical.
 - Receiver: the preserved report-parser memory fix and its verified runtime.
   No receiver process has been started from this package.
 
@@ -50,7 +51,7 @@ scope and configuration. Record each case as passed, failed, blocked or unrun.
 | 2 | Basic targeting and gestures | Taps reach predeclared varied targets; drag final point is retained; button release, long press and both swipe directions behave as expected |
 | 3 | Stop and timeout | First Stop cancels queued work; no replay; one accurate timeout/not-sent notice; explicit Resume; recorded held-input release confirmation or an honest unknown result |
 | 4 | Disconnect/reconnect/close | Old control is released before a new client becomes usable; closing waits for cleanup; a failed release is visible and the receipt survives; no stale action reaches a later session |
-| 5 | Video and diagnostics | Fresh/old/unavailable states match actual delivery; export through the real button contains matching build, mapping, input, video and error evidence |
+| 5 | Video and diagnostics | Fresh/old/unavailable states match actual delivery; export through the real button contains matching build, mapping, input, video and error evidence; after disconnect, historical cleanup remains available and clearly separate from current state |
 | 6 | Restoration | Candidate leases/processes accounted for; original files match the saved hashes; original launcher and required mirroring are usable again |
 
 Do not infer success from HTTP code 0 alone. Capture the visible result and

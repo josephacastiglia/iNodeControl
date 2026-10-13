@@ -615,6 +615,8 @@ public static class SelfTests
         await RunOwnershipTestsAsync(passed);
         await RunTextChunkTestsAsync(passed);
         await DiagnosticsTests.RunAsync(Check);
+        await CleanupDiagnosticsTests.RunAsync(Check);
+        await MainWindow.CheckCleanupDiagnosticWindowAsync(Check);
         SettingsPersistenceTests.Run(Check);
         await ServicePolicyTests.RunAsync(Check);
         await PointerMovePumpTests.RunAsync(Check);

@@ -20,15 +20,12 @@ public partial class MainWindow
         {
             // Snapshot UI-owned values before awaiting; never enumerate a changing wall or
             // activity collection on a worker, or read a phone screen for this export.
-            var snapshot = DiagnosticSnapshot();
-            var api = _connected ? _api : null;
             Log("Collecting diagnostics…");
-            var report = await ConsoleDiagnostics.CollectAsync(snapshot,
-                api is null ? null : api.GetAsync, _lifetime.Token);
+            var report = await CollectDiagnosticReportAsync();
             if (_closing) return;
             await ConsoleDiagnostics.SaveAsync(dialog.FileName, report);
             Log(report.Partial
-                ? "Diagnostics saved with unavailable service sections marked. Review before sharing."
+                ? "Diagnostics saved with unavailable sections marked. Review before sharing."
                 : "Diagnostics saved with phone, video and recovery details. Review before sharing.");
         }
         catch (Exception ex) { Log("Export failed: " + ex.Message, true); }
@@ -37,6 +34,14 @@ public partial class MainWindow
             _exporting = false;
             if (!_closing && sender is Button completed) completed.IsEnabled = true;
         }
+    }
+
+    internal Task<DiagnosticReport> CollectDiagnosticReportAsync()
+    {
+        var snapshot = DiagnosticSnapshot();
+        var api = _connected ? _api : null;
+        return ConsoleDiagnostics.CollectAsync(snapshot,
+            api is null ? null : api.GetAsync, api is null ? CancellationToken.None : _lifetime.Token, dataPath: _dataPath);
     }
 
     private JsonElement DiagnosticSnapshot()

@@ -1,0 +1,15 @@
+{
+  "valid": true,
+  "dataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\cleanup-diagnostics-20261012\\console\\data",
+  "address": "http://127.0.0.1:9913",
+  "connected": false,
+  "settingsWritten": false,
+  "build": {
+    "Version": "2.0.0.0",
+    "InformationalVersion": "2.0.0\u002B4b013fa56326647cd6726d05fed6b0d1ff257a5f",
+    "ModuleId": "82dc479e-1be3-4fe2-8a30-fe73b9fa910e",
+    "Sha256": "fc6f39b2db3cad3185e673d7b5794444a78b5ef6f867ef7549159e4e0720bcde",
+    "Label": "Build fc6f39b2",
+    "Detail": "Console version 2.0.0.0\nModule 82dc479e-1be3-4fe2-8a30-fe73b9fa910e\nSHA-256: fc6f39b2db3cad3185e673d7b5794444a78b5ef6f867ef7549159e4e0720bcde\nRecorded when this console started; this identifies bytes, not release acceptance."
+  }
+}
