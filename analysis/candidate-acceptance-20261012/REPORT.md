@@ -64,3 +64,12 @@ requirement or gate checkbox was weakened or marked newly passed.
 The Home Tab and FKA-Off App Switcher defects remain open, and the typing issue
 stays deferred. A later kernel swap still needs an approved interruption and
 restoration window. Historical release evidence cannot sign off the new build.
+
+## Preservation
+
+Preparation and the acceptance guide are committed locally as `5dec369`, not
+pushed. The external `20261012-candidate-acceptance` archive contains 67 files,
+18,198,792 bytes plus its inventory. All hashes, the prepared-run inventory and
+the active-branch Git bundle verify. It includes both preliminary attempts and
+a reference to the separately archived full review package. The final read-only
+check found zero rack processes and no port-9913 listener; nothing was started.
