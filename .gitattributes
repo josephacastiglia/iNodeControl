@@ -29,3 +29,4 @@ analysis/cleanup-diagnostics-20261012/** -text
 analysis/scope-release-20261012/** -text
 analysis/candidate-live-20261013/** -text
 analysis/runtime-startup-guard-20261013/** -text
+analysis/candidate-retry-20261013/** -text

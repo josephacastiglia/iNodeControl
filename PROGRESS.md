@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Repaired candidate starts and mirrors; API smoke recorded, 13 October
+
+The operator authorized a second C24C-only window. The guarded candidate kernel and repaired receiver runtime started successfully, received 6,715 frames and had zero receiver restarts. Upper/lower pointer moves, opening Calculator, left/right Home-page swipes and API Stop/Resume/release passed their small smoke checks. Stop acknowledged in 4.15 ms; this is not measured physical release latency. A bottom-edge upward swipe returned code 0 but did **not** return Calculator to Home; that visible-effect failure is preserved, and the operator returned Home physically. No retry was substituted for the failure.
+
+The candidate console was not opened: these results do not close console-button, timeout-notice, diagnostic-export or latency acceptance. No typing, FKA changes or C241 input occurred. Candidate processes stopped gracefully; the original launcher restored the release. At **05:08:09 UTC**, both original receivers were live, zero restarts; both phones were free/inactive at generation 0. Installed/settings/configuration hashes are unchanged. C241 had initially been left disconnected and the operator connected it; no missing-name report in this retry restoration. See `analysis/candidate-retry-20261013/REPORT.md`, visual review and final restoration record. No gate advanced; startup is now tested for this exact package, and it should not be rerun without a relevant reason.
+
 ## Incomplete receiver runtimes refused before startup, 13 October
 
 The kernel now checks the scanner and all eleven startup/pipeline plugin files for presence and nonzero length before normal startup can open hardware, bind a listener or start a receiver. It names missing files and asks for dependency-package repair. The check also applies to `--validate-startup`; external frame-pipe hosting still needs no local runtime. This is file validation, not native DLL loading or dependency attestation.

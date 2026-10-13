@@ -1,0 +1,109 @@
+{
+  "time_utc": "2026-10-13T05:08:09.9983553Z",
+  "both_mirroring": true,
+  "both_free": true,
+  "status": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "input": "direct-hid",
+      "input_protocol": 1,
+      "input_leases_required": true,
+      "allowed": [
+        "C24C",
+        "C241"
+      ],
+      "receiver": "iMouse2-C24C / iMouse2-C241",
+      "receiver_state": "mirroring",
+      "receiver_message": "",
+      "receiver_pid": 4260,
+      "receiver_restarts": 0,
+      "frames": 3106,
+      "live": true,
+      "receivers": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "iMouse2-C24C",
+          "receiver_pid": 4260,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 3106
+        },
+        {
+          "deviceid": "FE:A9:BC:D7:A0:44",
+          "name": "iMouse2-C241",
+          "receiver_pid": 42612,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 896
+        }
+      ]
+    }
+  },
+  "input": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "protocol": 1,
+      "phones": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "owned": false,
+          "active": false,
+          "stopped": false,
+          "releasing": false,
+          "release_failed": false,
+          "message": "",
+          "generation": 0,
+          "lease_remaining_ms": 0
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "owned": false,
+          "active": false,
+          "stopped": false,
+          "releasing": false,
+          "release_failed": false,
+          "message": "",
+          "generation": 0,
+          "lease_remaining_ms": 0
+        }
+      ]
+    }
+  },
+  "processes": [
+    {
+      "ProcessId": 9152,
+      "ParentProcessId": 36288,
+      "Name": "iMouse2.Kernel.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+      "CreationDate": "2026-10-13T01:05:17.349662-04:00"
+    },
+    {
+      "ProcessId": 4260,
+      "ParentProcessId": 9152,
+      "Name": "uxplay.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+      "CreationDate": "2026-10-13T01:05:17.537688-04:00"
+    },
+    {
+      "ProcessId": 42612,
+      "ParentProcessId": 9152,
+      "Name": "uxplay.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+      "CreationDate": "2026-10-13T01:05:17.551322-04:00"
+    },
+    {
+      "ProcessId": 33532,
+      "ParentProcessId": 36288,
+      "Name": "iMouse2.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+      "CreationDate": "2026-10-13T01:05:17.959157-04:00"
+    }
+  ],
+  "operator_note": "C241 was disconnected when checked; operator reconnected it. No missing-name report in this retry restoration."
+}

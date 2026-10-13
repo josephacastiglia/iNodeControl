@@ -11,9 +11,18 @@ Six runtime plugins were added and production renderer startup now passes
 offline. The latest package, `output/staging/combined-runtime-guard-20261013`,
 also includes a kernel guard that refuses missing/empty startup plugins before
 hardware or receiver startup. Its 206 kernel checks and actual CLI comparisons
-pass; console, receiver and repaired runtime bytes are unchanged. That is not
-a successful live receiver run. Do not launch the original incomplete runtime
-again. See `analysis/runtime-startup-guard-20261013/REPORT.md`.
+pass; console, receiver and repaired runtime bytes are unchanged. See
+`analysis/runtime-startup-guard-20261013/REPORT.md`.
+
+**Second window, 04:56–05:08 UTC:** this exact package started and mirrored C24C
+with zero receiver restarts. Pointer moves, Calculator tap, left/right page
+swipes and API Stop/Resume/release passed scoped smoke checks. The upward
+bottom-edge swipe did not achieve Home and is recorded as failed. The operator
+returned Home physically. Both original receivers were restored live/free at
+05:08 UTC; no typing, FKA changes or C241 input. Candidate console UI/timeout/
+diagnostic-export checks remain unrun. See
+`analysis/candidate-retry-20261013/REPORT.md`. Do not launch the original
+incomplete runtime again or treat these scoped results as full acceptance.
 The latest prepared files are recorded in
 `analysis/runtime-startup-guard-20261013/preparation.json`. The setup script only
 copies files and invokes explicit offline validation modes. It cannot launch a
@@ -22,7 +31,9 @@ normal kernel, receiver or console window.
 ## Prepared scope
 
 - Immutable review package: `output/staging/combined-runtime-guard-20261013`.
-- Disposable run: `output/candidate-runs/runtime-guard-20261013`.
+- Recorded test run: `output/candidate-runs/runtime-guard-20261013`. It is now
+  used and contains receiver logs; preserve it. Prepare a fresh run for a later
+  window rather than assuming its original preparation inventory still matches.
 - Kernel configuration: a reviewed structural copy of the installed launcher's
   saved C24C records, selected without changing its identity or calibration.
   One receiver, C24C input only; C241 is absent from this candidate configuration.
@@ -32,7 +43,7 @@ normal kernel, receiver or console window.
   console and remain historical.
 - Receiver: the preserved report-parser memory fix and its verified runtime.
   The older runtime's live launch on 13 October failed before video due
-  to missing startup plugins; the corrected runtime still awaits a live window.
+  to missing startup plugins; the corrected runtime passed the scoped C24C retry.
 
 Preparation does not grant a test window. Starting this kernel uses the working
 port and receiver identity, so it cannot coexist with the installed kernel. A
