@@ -10,11 +10,20 @@ From the repository root:
 dotnet run --project tools/recovery_tests/RecoveryTests.csproj -c Release --property:UseSharedCompilation=false
 ```
 
-The 20 cases cover cancelled startup, running cancellation, repeated disposal,
+The 29 cases cover cancelled startup, running cancellation, repeated disposal,
 startup failure/retry exhaustion, wait failure recovery, unrelated cancellation
 exceptions, cancellation during backoff, invalid delay, healthy-peer isolation,
 cleanup failure, duplicate supervision, and disposal during startup. Every
 asynchronous assertion has a bounded wait.
+
+Retry counts mean replacement attempts begun, including attempts whose factory
+throws. The initial launch and cancelled waits do not count; exhaustion at a
+budget of five reports five, not six. The failure reason stays visible during
+backoff and after exhaustion, then clears when a replacement starts successfully.
+Disposing a failed supervisor preserves its diagnostic record. Failed cleanup
+retains a last known PID when available, explicitly marked as unconfirmed; that
+PID is not evidence the process is alive and must not be used alone to kill it.
+Failure to read an identity cannot prevent the cleanup attempt.
 
 Logging checks cover bounded rotation, Unicode truncation, simultaneous callbacks,
 failed writes and recovery, failed rotation without active-log loss, preserving one

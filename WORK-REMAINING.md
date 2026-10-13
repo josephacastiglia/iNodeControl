@@ -50,6 +50,8 @@ The two-phone system has working foundations: independent kernel and mirroring, 
 
 32. **Completed offline:** reproduced and removed screenshot writes from the frame-publication lock. Two bounded copies per phone, asynchronous writes and five-second transfer cancellation isolate stalled clients. 34 frame checks, 206 kernel checks, nine simulated cleanup scenarios and the real loopback transport probe pass. The aliasing negative control fails as intended. See `analysis/screenshot-backpressure-20261013/REPORT.md`; the rebuilt kernel is not the previously live-tested package, and physical/load acceptance remains open.
 
+33. **Completed offline:** receiver supervision now reports actual attempted replacements, retains startup/wait failure reasons and preserves terminal failure/last known cleanup identity. The old code fails seven new regressions; 29 recovery/logging checks and 207 kernel checks pass after repair. See `analysis/receiver-retry-status-20261013/REPORT.md`. Actual child-exit confirmation and partial-startup cleanup are the next offline review; physical recasting and release acceptance remain open.
+
 Offline work can prepare and repair these areas. Full-rack behavior, physical targeting, real display latency and final endurance acceptance still require later coordinated hardware runs. No desktop-control window, restart, deployment or promotion is authorized by this document.
 
 The detailed requirements remain in [FINISH-CRITERIA.md](FINISH-CRITERIA.md); current evidence and history are in [PROGRESS.md](PROGRESS.md).

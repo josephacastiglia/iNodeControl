@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Receiver retries retain accurate counts and failure reasons, 13 October
+
+The supervisor no longer reports a phantom retry at exhaustion or counts a wait cancelled before replacement. It retains the latest startup/wait failure, preserves an exhausted failure during disposal, and keeps a clearly labelled last known PID when cleanup fails. Nine focused cases now cover these paths; seven of the first eight failed on the old product. **29 recovery/logging checks and 207 kernel checks pass**, including status serialization. No rack API, receiver, desktop or phone was operated. The kernel is a separate scratch build, not a replacement of the previously tested package. See `analysis/receiver-retry-status-20261013/REPORT.md`.
+
+Next offline recovery boundary: verify actual child-process exit before replacement. `AirplayProcess.Dispose` currently requests termination without an explicit confirmation wait, and partial startup cleanup needs review. These are source findings, not a proved cause of phone rediscovery failures. No gate advanced.
+
 ## Stalled screenshot clients no longer block frame delivery, 13 October
 
 Reproduced a delivery-lock stall: the old screenshot path performed synchronous network output while holding the producer/status lock. The added test failed before repair. The kernel now captures a matching image/metadata snapshot into a pooled copy under the short lock and sends it asynchronously outside the lock. Two transfers per phone may retain copies; excess requests get HTTP 503 with a retry hint. Each transfer has a five-second deadline and responds to request/store cancellation. Buffers are returned only after writers finish, preventing reuse while bytes are still being sent.

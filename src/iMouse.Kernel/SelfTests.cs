@@ -277,7 +277,18 @@ public static class SelfTests
         using(var failing=new AirplaySupervisor(() => { launches++; var fake=new FakeReceiver(launches); fake.Exit.TrySetResult(); return fake; }, 2, TimeSpan.FromMilliseconds(1)))
         {
             await failing.RunAsync(CancellationToken.None);
-            Check(failing.Info.State=="failed" && launches==3 && failing.Info.Restarts==3,"Retry limit stops after initial start plus two restarts");
+            Check(failing.Info.State=="failed" && launches==3 && failing.Info.Restarts==2,"Retry limit stops after initial start plus two restarts");
+            using var failedFrames = new FrameStore("unused-recovery-test-" + Guid.NewGuid().ToString("N"), "test-one");
+            failedFrames.Receiver = () => failing.Info;
+            using var failedApi = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, failedFrames);
+            var failureStatus = JsonSerializer.SerializeToElement(failedApi.KernelStatus());
+            var failureReceiver = failureStatus.GetProperty("receivers")[0];
+            Check(failureStatus.GetProperty("receiver_restarts").GetInt32() == 2
+                && failureReceiver.GetProperty("receiver_restarts").GetInt32() == 2
+                && failureReceiver.GetProperty("receiver_state").GetString() == "failed"
+                && failureReceiver.GetProperty("receiver_message").GetString() == failing.Info.Message
+                && failureStatus.GetProperty("receiver_message").GetString() == failing.Info.Message,
+                "Kernel diagnostics preserve exhausted retry counts and cause without a listener");
         }
         var held=new FakeReceiver(9);
         using var stay=new CancellationTokenSource();

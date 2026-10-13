@@ -9,6 +9,8 @@ public interface IReceiverHandle : IDisposable
 
 public enum ReceiverPhase { Starting, Running, Restarting, Failed, Stopped }
 
+// Restarts counts replacement attempts actually begun, including failed starts.
+// A failed cleanup retains the last known PID; it is not proof the child is alive.
 public sealed record ReceiverInfo(string State, string Message, int Pid, int Restarts);
 
 /// <summary>
@@ -29,7 +31,9 @@ public sealed class AirplaySupervisor : IDisposable
     private int _runStarted;
     private bool _disposed;
     private bool _cleanupFailed;
-    private string _failureMessage = "Receiver failed after repeated crashes. Restart the independent kernel.";
+    private int _failurePid;
+    private string _failureMessage = "";
+    private string _retryReason = "";
     private ReceiverPhase _phase = ReceiverPhase.Starting;
     private readonly CancellationTokenSource _stop = new();
 
@@ -52,9 +56,9 @@ public sealed class AirplaySupervisor : IDisposable
                 return _phase switch
                 {
                     ReceiverPhase.Starting or ReceiverPhase.Restarting =>
-                        new("restarting", "Receiver restarting", _current?.Id ?? 0, _restarts),
+                        new("restarting", "Receiver restarting" + (_retryReason.Length == 0 ? "" : ". " + _retryReason), 0, _restarts),
                     ReceiverPhase.Failed =>
-                        new("failed", _failureMessage, 0, _restarts),
+                        new("failed", _failureMessage, _failurePid, _restarts),
                     ReceiverPhase.Running =>
                         new("running", _current?.DiagnosticWarning ?? "", _current?.Id ?? 0, _restarts),
                     _ => new("stopped", "", 0, _restarts)
@@ -69,24 +73,34 @@ public sealed class AirplaySupervisor : IDisposable
             throw new InvalidOperationException("A receiver supervisor can run only once.");
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct, _stop.Token);
         var token = linked.Token;
+        bool replacement = false;
         try
         {
             while (!token.IsCancellationRequested)
             {
-                Set(ReceiverPhase.Starting);
+                lock (_gate)
+                {
+                    // A cancelled delay must not spend a retry. Claim an attempt
+                    // just before invoking the factory, also checking Dispose.
+                    if (_disposed || token.IsCancellationRequested || _cleanupFailed) break;
+                    if (replacement) _restarts++;
+                    _phase = ReceiverPhase.Starting;
+                }
+                replacement = true;
                 IReceiverHandle handle;
                 try { handle = _start(); }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Receiver start failed: " + ex.Message);
-                    if (token.IsCancellationRequested || !await BackoffAsync(token)) return;
+                    string reason = "Receiver start failed: " + ex.Message;
+                    Console.WriteLine(reason);
+                    if (token.IsCancellationRequested || !await BackoffAsync(token, reason)) return;
                     continue;
                 }
                 bool published;
                 lock (_gate)
                 {
                     published = !_disposed && !token.IsCancellationRequested;
-                    if (published) { _current = handle; _phase = ReceiverPhase.Running; }
+                    if (published) { _current = handle; _phase = ReceiverPhase.Running; _retryReason = ""; }
                 }
                 if (!published)
                 {
@@ -94,25 +108,26 @@ public sealed class AirplaySupervisor : IDisposable
                     break;
                 }
                 bool released = false;
+                string exitReason = "Receiver exited unexpectedly.";
                 try
                 {
                     Console.WriteLine("Receiver running, pid " + handle.Id);
                     await handle.WaitForExitAsync(token);
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested) { break; }
-                catch (Exception ex) { Console.WriteLine("Receiver wait failed: " + ex.Message); }
+                catch (Exception ex) { exitReason = "Receiver wait failed: " + ex.Message; }
                 finally { released = Release(handle); }
                 if (!released) return;
                 if (token.IsCancellationRequested) break;
-                Console.WriteLine("Receiver exited.");
-                if (!await BackoffAsync(token)) return;
+                Console.WriteLine(exitReason);
+                if (!await BackoffAsync(token, exitReason)) return;
             }
         }
         finally
         {
             lock (_gate)
                 if (_cleanupFailed) _phase = ReceiverPhase.Failed;
-                else if (token.IsCancellationRequested || _phase != ReceiverPhase.Failed)
+                else if (_phase != ReceiverPhase.Failed)
                     _phase = ReceiverPhase.Stopped;
         }
     }
@@ -129,6 +144,9 @@ public sealed class AirplaySupervisor : IDisposable
 
     private bool DisposeHandle(IReceiverHandle handle)
     {
+        int pid = 0;
+        try { pid = handle.Id; }
+        catch (Exception) { } // Identity lookup must never prevent the cleanup attempt.
         try { handle.Dispose(); return true; }
         catch (Exception ex)
         {
@@ -136,20 +154,24 @@ public sealed class AirplaySupervisor : IDisposable
             {
                 _cleanupFailed = true;
                 _phase = ReceiverPhase.Failed;
-                _failureMessage = "Receiver cleanup failed; no replacement started. Inspect the receiver process. " + ex.Message;
+                _failurePid = pid;
+                _failureMessage = "Receiver cleanup failed; no replacement started. Last known receiver PID: " +
+                    (pid == 0 ? "unknown" : pid.ToString()) + ". Inspect the receiver process. " + ex.Message;
             }
             return false;
         }
     }
 
-    private async Task<bool> BackoffAsync(CancellationToken ct)
+    private async Task<bool> BackoffAsync(CancellationToken ct, string reason)
     {
         lock (_gate)
         {
-            _restarts++;
-            if (_restarts > _maxRestarts)
+            if (_disposed || ct.IsCancellationRequested || _cleanupFailed) return false;
+            _retryReason = reason;
+            if (_restarts >= _maxRestarts)
             {
                 _phase = ReceiverPhase.Failed;
+                _failureMessage = $"Receiver restart limit reached ({_maxRestarts}). {reason} Inspect the receiver log before restarting the kernel.";
                 Console.WriteLine("Receiver retry limit reached (" + _maxRestarts + ").");
                 return false;
             }
@@ -160,8 +182,6 @@ public sealed class AirplaySupervisor : IDisposable
         return true;
     }
 
-    private void Set(ReceiverPhase phase) { lock (_gate) if (!_disposed) _phase = phase; }
-
     public void Dispose()
     {
         IReceiverHandle? current;
@@ -170,7 +190,7 @@ public sealed class AirplaySupervisor : IDisposable
             if (_disposed) return;
             _disposed = true;
             current = _current; _current = null;
-            _phase = _cleanupFailed ? ReceiverPhase.Failed : ReceiverPhase.Stopped;
+            if (_phase != ReceiverPhase.Failed) _phase = ReceiverPhase.Stopped;
         }
         _stop.Cancel();
         if (current is not null) DisposeHandle(current);

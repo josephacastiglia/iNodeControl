@@ -105,6 +105,13 @@ termination, a crash or OS shutdown can bypass normal awaited cleanup.
 | Receiver failed | Export diagnostics, including its restart count. Do not repeatedly restart services to erase the failure. |
 | Taps land off target | Confirm the right phone and current preview, then use Reset pointer on that phone before retrying. |
 
+The candidate counts only replacement attempts begun; waiting to retry does not
+consume an attempt. The initial start is separate. A startup or monitoring error
+is retained in the failure message. If cleanup fails, a reported process ID is
+explicitly last known, not confirmation that the process is still running.
+Preserve the diagnostic record and verify process identity before any recovery
+action; a failed cleanup must not trigger another replacement.
+
 Receiver discovery can be delayed after a restart. A cable replug restored it in
 one recorded trial, but that is not a confirmed cause or a dependable recovery
 procedure. Record a missing receiver and use the agreed recovery window.

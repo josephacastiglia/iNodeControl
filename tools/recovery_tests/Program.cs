@@ -25,6 +25,74 @@ var tests = new (string Name, Func<Task> Run)[]
         await s.RunAsync(CancellationToken.None);
         Check(starts == 3 && s.Info is { State: "failed", Pid: 0 }, "start budget");
     }),
+    ("zero retry budget reports no replacement attempts", async () => {
+        int starts = 0;
+        using var s = new AirplaySupervisor(() => { starts++; throw new IOException("launch fixture"); }, 0, TimeSpan.Zero);
+        await s.RunAsync(CancellationToken.None);
+        Check(starts == 1 && s.Info is { State: "failed", Restarts: 0 }, $"one launch, reported retries {s.Info.Restarts}");
+    }),
+    ("retry exhaustion reports actual attempts and the latest startup failure", async () => {
+        int starts = 0; var counts = new List<int>(); AirplaySupervisor? s = null;
+        s = new AirplaySupervisor(() => { counts.Add(s!.Info.Restarts); throw new IOException("launch fixture " + ++starts); }, 2, TimeSpan.Zero);
+        using (s) {
+            await s.RunAsync(CancellationToken.None);
+            Check(counts.SequenceEqual(new[] { 0, 1, 2 }), "counter must be visible when an attempt starts");
+            Check(s.Info.Restarts == 2, $"two replacement attempts, reported {s.Info.Restarts}");
+            Check(s.Info.Message.Contains("launch fixture 3") && !s.Info.Message.Contains("launch fixture 1"), "latest startup cause lost: " + s.Info.Message);
+        }
+    }),
+    ("startup failure stays visible while waiting without consuming a retry", async () => {
+        int starts = 0; using var cancel = new CancellationTokenSource();
+        using var s = new AirplaySupervisor(() => { starts++; throw new IOException("missing dependency fixture"); }, 2, TimeSpan.FromSeconds(10));
+        var run = s.RunAsync(cancel.Token);
+        try {
+            await Until(() => s.Info.State == "restarting");
+            Check(s.Info.Message.Contains("missing dependency fixture"), "backoff hides startup reason: " + s.Info.Message);
+            Check(s.Info.Restarts == 0, "backoff is not a launch");
+        } finally { cancel.Cancel(); await run.WaitAsync(TimeSpan.FromSeconds(2)); }
+        Check(starts == 1 && s.Info is { State: "stopped", Restarts: 0 }, "cancelled backoff consumed a retry");
+    }),
+    ("wait failure retains its cause after retry exhaustion", async () => {
+        using var s = new AirplaySupervisor(() => new Fake { WaitFailure = new IOException("exit monitor fixture") }, 0, TimeSpan.Zero);
+        await s.RunAsync(CancellationToken.None);
+        Check(s.Info.State == "failed" && s.Info.Message.Contains("exit monitor fixture"), "wait failure cause lost: " + s.Info.Message);
+    }),
+    ("disposing an exhausted supervisor preserves its failure record", async () => {
+        var s = new AirplaySupervisor(() => throw new IOException("launch fixture"), 0, TimeSpan.Zero);
+        await s.RunAsync(CancellationToken.None);
+        var failed = s.Info; s.Dispose(); s.Dispose();
+        Check(s.Info == failed && failed.State == "failed", "Dispose erased exhausted failure state");
+    }),
+    ("cleanup failure retains the last receiver identity", async () => {
+        var fake = new Fake { DisposeFailure = true }; fake.Exit.TrySetResult();
+        using var s = new AirplaySupervisor(() => fake, 2, TimeSpan.Zero);
+        await s.RunAsync(CancellationToken.None);
+        Check(s.Info is { State: "failed", Pid: 123, Restarts: 0 } && s.Info.Message.Contains("123"), "unconfirmed cleanup lost its last known PID");
+        s.Dispose(); Check(s.Info.Pid == 123, "shutdown erased unconfirmed receiver identity");
+    }),
+    ("a recovered receiver clears the previous startup error", async () => {
+        int starts = 0; var healthy = new Fake(); using var cancel = new CancellationTokenSource();
+        using var s = new AirplaySupervisor(() => ++starts == 1 ? throw new IOException("old fixture") : healthy, 1, TimeSpan.Zero);
+        var run = s.RunAsync(cancel.Token);
+        try {
+            await Until(() => s.Info.State == "running");
+            Check(s.Info is { Restarts: 1, Message: "", Pid: 123 }, "old error leaked into healthy state");
+        } finally { cancel.Cancel(); await run.WaitAsync(TimeSpan.FromSeconds(2)); }
+    }),
+    ("unavailable process identity cannot skip cleanup", async () => {
+        var fake = new Fake { IdFailure = new IOException("identity unavailable"), DisposeFailure = true };
+        using var s = new AirplaySupervisor(() => fake, 0, TimeSpan.Zero);
+        await s.RunAsync(CancellationToken.None);
+        Check(fake.Disposals == 1 && s.Info is { State: "failed", Pid: 0 } && s.Info.Message.Contains("PID: unknown"), "identity failure prevented cleanup or invented a PID");
+    }),
+    ("cleanup failure during cancelled startup remains visible", async () => {
+        var fake = new Fake { DisposeFailure = true }; AirplaySupervisor? s = null;
+        s = new AirplaySupervisor(() => { s!.Dispose(); return fake; });
+        using (s) {
+            await s.RunAsync(CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(2));
+            Check(fake.Disposals == 1 && s.Info is { State: "failed", Pid: 123, Restarts: 0 }, "unpublished child cleanup failure lost");
+        }
+    }),
     ("wait failure cleans up and recovers", async () => {
         var first = new Fake { WaitFailure = new IOException("fake wait") }; var second = new Fake(); int starts = 0;
         using var cancel = new CancellationTokenSource();
@@ -168,10 +236,11 @@ static async Task Until(Func<bool> ready)
 }
 sealed class Fake : IReceiverHandle
 {
-    public int Id => 123;
+    public int Id => IdFailure is {} ex ? throw ex : 123;
     public TaskCompletionSource Exit { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
     public int Disposals;
     public Exception? WaitFailure;
+    public Exception? IdFailure;
     public bool DisposeFailure;
     public string? DiagnosticWarning { get; set; }
     public Task WaitForExitAsync(CancellationToken ct) => WaitFailure is {} ex ? Task.FromException(ex) : Exit.Task.WaitAsync(ct);
