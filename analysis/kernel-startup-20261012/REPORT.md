@@ -83,3 +83,14 @@ Next offline source issue: DeviceStore currently edits its in-memory binding
 before saving and writes the destination JSON directly. A failed save can leave
 the reported binding inconsistent with disk; investigate atomic save/failure
 handling with temporary files and simulated failures before any live change.
+
+## Preservation
+
+Implementation and evidence are committed locally as `bdb34d3`, not pushed.
+`../iMouseXP-2.0-evidence-archive/20261012-kernel-startup/` holds 139 files
+(88,526,053 bytes) plus its checksum inventory. It includes exact build/test
+records, the deliberately broken negative controls, the zipped 552-file review
+package and a bundle of only the active candidate branch. All archived checksums
+verified. Extracting the ZIP to a separate scratch folder and running its own
+included verifier also passed; `archive-verification.json` records the result.
+The working source/build manifest still matches after the commit.
