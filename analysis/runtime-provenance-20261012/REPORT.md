@@ -107,3 +107,13 @@ The package stays local-test/review-only. Clean-PC dependency loading, complete
 release obligations, physical controls/video/recovery, rack scale and endurance
 remain open. The typing investigation stays deferred. The installed app,
 operator settings and previous review packages are preserved unchanged.
+
+## Preservation
+
+Implementation and primary evidence are committed locally as `9badafb`, not
+pushed. The new review package contains **675 files plus its manifest**; both
+standalone verifiers pass. The external archive
+`../iMouseXP-2.0-evidence-archive/20261012-runtime-provenance/` contains **1,549
+files, 411,183,775 bytes**, plus its checksum inventory. All copies match their
+originals, the complete binary-package inventory verifies, and the single-branch
+Git bundle and archived review package verify. See `archive-verification.json`.
