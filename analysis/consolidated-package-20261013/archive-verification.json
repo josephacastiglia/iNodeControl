@@ -1,0 +1,21 @@
+{
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261013-consolidated-package",
+  "commit": "ef8283d0512ddf1d53fb649804cc20c4d70abbda",
+  "files": 746,
+  "bytes": 189022179,
+  "all_hashes_verified": true,
+  "relocated_package_verifier_passed": true,
+  "prepared_inventory_preserved": true,
+  "installed_static_hashes_unchanged": true,
+  "package_manifest": {
+    "sha256": "3d9ea9cf85eb570f9b4154621bca1610f9e4aa4a4b9d1c50d5c375c2d1250106",
+    "bytes": 143049
+  },
+  "kernel_dll": {
+    "sha256": "a45b38a3c628acee07310345ac638c1cfdf553fa32927fd92bc73b6649828877",
+    "bytes": 286720
+  },
+  "candidate_launched": false,
+  "phone_input_sent": false,
+  "physical_acceptance": false
+}
