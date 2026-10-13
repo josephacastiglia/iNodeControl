@@ -2,36 +2,31 @@
 
 This is the next-test record for the combined candidate, not release sign-off.
 
-**Later console repair:** `analysis/screenshot-client-20261013/` records a
-separate console build that bounds image-body downloads and preserves bytes
-during unknown-length buffer growth. Its offline/loopback tests pass. It is not
-included in the package below; preserve that package unchanged and assemble a
-new one before testing these repairs together. No physical/UI acceptance is
-implied by either preparation.
+**Current offline package:** `output/staging/combined-shutdown-20261013`, with
+fresh unused preparation at `output/candidate-runs/shutdown-20261013`.
+This combines the receiver fleet shutdown repair with the screenshot-client
+console repair and earlier recovery work. The complete 689-file inventory,
+embedded source/build records, native runtime and prepared-launcher check pass.
+Both exact binaries validate saved C24C-only configuration without windows,
+connections, listeners, receivers or settings writes. No physical acceptance
+has been performed on this combination. See
+`analysis/combined-shutdown-package-20261013/REPORT.md`.
 
-**Current offline package:** `output/staging/combined-recovery-20261013` includes
-the accumulated repairs and a fresh, unused C24C-only preparation at
-`output/candidate-runs/recovery-20261013`. Its complete file inventory, embedded
-source records, native-runtime inventory and final prepared-launcher check pass.
-Both exact binaries validate saved configuration without windows, listeners,
-receivers, settings writes or rack contact. The new kernel has not run on phones.
-See `analysis/consolidated-package-20261013/REPORT.md`.
+The kernel now joins receiver cleanup already in progress, stops peers
+independently, waits for frame/supervisor tasks and reports unknown cleanup.
+Its final checks pass: 41 recovery, 207 kernel, 34 frame and 14 fake lifetime.
+See `analysis/fleet-shutdown-20261013/RESUMED-REPORT.md` for exact hashes and limits.
+The console image reader preserves bytes during growth and bounds the whole
+response by eight seconds and 64 MiB. Its exact earlier tests pass: 382 console,
+44 preview, 22 wall and the real local transfer probe. See
+`analysis/screenshot-client-20261013/REPORT.md`; those suites were not rerun
+merely to assemble this package. Neither repair establishes real display,
+receiver rediscovery, arbitrary native-startup bounds or descendant cleanup.
 
-The launcher now preserves startup refusals, and the
-kernel's screenshot writer isolates stalled clients from frame delivery with
-bounded copies and transfer timeouts. Receiver supervision also reports actual
-replacement attempts, preserves failure reasons and retains the last known PID
-when cleanup fails. Child-process ownership now waits for confirmed root exit
-and cleans partial starts, blocking retries when cleanup is unknown. The newest
-recorded kernel is under
-`analysis/receiver-process-cleanup-20261013/final-kernel` and is preserved in the
-current package; it is not the kernel used in the live window below. Its
-verification is recorded in that folder's report. The screenshot
-repair's separate 206-check kernel, 34 frame checks, loopback transport probe and
-nine simulated input-cleanup scenarios remain historical for that build.
-The root launcher's repair is included as inert source, not installed or used as
-the candidate launcher. Do not modify or relaunch the used run below
-to imply that it includes these changes. See the receiver, screenshot and launcher reports.
+The previous `combined-recovery-20261013` package and its unused preparation
+remain unchanged. They lack these later combined repairs. The root launcher
+is preserved as inert source, not installed or used to start the candidate.
+Keep all earlier live results tied to their original binaries.
 
 **13 October update:** the first authorized candidate window failed before
 phone input: UxPlay's startup checks required playback/autodetect plugins absent
@@ -55,14 +50,14 @@ diagnostic-export checks remain unrun. See
 `analysis/candidate-retry-20261013/REPORT.md`. Do not launch the original
 incomplete runtime again or treat these scoped results as full acceptance.
 The current prepared files are recorded in
-`analysis/consolidated-package-20261013/preparation.json`. The setup script only
+`analysis/combined-shutdown-package-20261013/preparation.json`. The setup script only
 copies files and invokes explicit offline validation modes. It cannot launch a
 normal kernel, receiver or console window.
 
 ## Prepared scope
 
-- Immutable review package: `output/staging/combined-recovery-20261013`.
-- Fresh unused run: `output/candidate-runs/recovery-20261013`. Both binaries pass
+- Immutable review package: `output/staging/combined-shutdown-20261013`.
+- Fresh unused run: `output/candidate-runs/shutdown-20261013`. Both binaries pass
   offline validation; console validation runs from a separate matching copy so
   its generated report cannot invalidate the prepared run. The final launcher
   `-CheckOnly` passes. Preserve this inventory until an approved launch.

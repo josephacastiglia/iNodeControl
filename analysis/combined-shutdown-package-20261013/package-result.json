@@ -1,0 +1,37 @@
+{
+  "package": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-shutdown-20261013",
+  "files": 689,
+  "bytes": 185999726,
+  "manifest": {
+    "sha256": "74b04d5f41a59a734f141d1e0661694916c741ee7269f4620129f3ed0c57ccdd",
+    "bytes": 143049
+  },
+  "kernel_dll": {
+    "sha256": "cd0f2129993f93158f7fcf183e590a9c1fe1be4c329de0903a2aef3de1dd7486",
+    "bytes": 293376
+  },
+  "console_dll": {
+    "sha256": "1eaaf9beb41987c21f70a1ab5f79529bb1eb5d5f0ce753a4aae3078221b9e554",
+    "bytes": 732160
+  },
+  "launcher_source": {
+    "source_path": "Open iMouse 2.0.ps1",
+    "archive_path": "source/launcher/Open iMouse 2.0.ps1.txt",
+    "scope": "source_only_not_a_candidate_launcher",
+    "file": {
+      "sha256": "e7f8127b09581cabd3003b00028a089a274f54d4ea992500f227bebf39d6ddf9",
+      "bytes": 12203
+    }
+  },
+  "unchanged_receiver_runtime_files": 610,
+  "previous_package_manifest": {
+    "sha256": "3d9ea9cf85eb570f9b4154621bca1610f9e4aa4a4b9d1c50d5c375c2d1250106",
+    "bytes": 143049
+  },
+  "previous_package_unchanged": true,
+  "integrity_and_sources_verified": true,
+  "review_only": true,
+  "launched": false,
+  "services_started": false,
+  "physical_acceptance": false
+}

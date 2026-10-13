@@ -11,11 +11,15 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Latest combined review package prepared, 13 October
+
+`output/staging/combined-shutdown-20261013` now brings the fleet shutdown kernel and screenshot-client console repair together. All 689 inventory entries, embedded source records and native runtime verify; 610 receiver/runtime entries are unchanged from the prior package. A fresh unused C24C-only run at `output/candidate-runs/shutdown-20261013` passes both offline startup validations and the final launcher check, with isolated settings and hover tracking off. No window, service, receiver or phone was operated. See `analysis/combined-shutdown-package-20261013/REPORT.md`. The earlier package and pause archive remain intact. Physical acceptance and release clearance remain open.
+
 ## Receiver fleet shutdown joined and failures surfaced, 13 October
 
 Work resumed at the operator's request. After repairing its fixture lifetime, the saved draft reproduced all five suspected lifecycle defects against the old source. The fleet now waits for disposal already in progress, starts peer cleanup independently, joins supervisor/frame tasks, shares shutdown completion and reports unconfirmed cleanup by receiver. Startup after disposal or a second Start is refused. The kernel closes API/input sessions before awaiting fleet shutdown and reports failure instead of success when cleanup is unknown.
 
-All 41 recovery, 207 kernel, 34 frame and 14 fake receiver-lifetime checks pass. Exact source/builds and limits are in `analysis/fleet-shutdown-20261013/RESUMED-REPORT.md`. No live receiver, rack request, screen control or phone input was used; installed static hashes and settings match the restoration baseline. A fresh combined package is still required before later physical acceptance.
+All 41 recovery, 207 kernel, 34 frame and 14 fake receiver-lifetime checks pass. Exact source/builds and limits are in `analysis/fleet-shutdown-20261013/RESUMED-REPORT.md`. No live receiver, rack request, screen control or phone input was used; installed static hashes and settings match the restoration baseline. The combined review package above preserves this kernel for later acceptance.
 
 ## Historical pause for operator shutdown, 13 October
 
