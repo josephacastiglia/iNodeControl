@@ -31,13 +31,18 @@ static class Proxy
 
     static async Task<int> Main(string[] args)
     {
+        if (args.Contains("--self-test")) return ProxyStartup.SelfTest();
         string Arg(string name, string fallback) { int i = Array.IndexOf(args, name); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
         string listen = Arg("--listen", "http://localhost:9923/");
         _upstream = Arg("--upstream", "http://127.0.0.1:9913").TrimEnd('/');
+        string readyFile = Arg("--ready-file", "");
+        if (readyFile.Length > 0 && !Path.IsPathFullyQualified(readyFile)) throw new ArgumentException("--ready-file needs an absolute path.");
         _log = new StreamWriter(Arg("--log", Path.Combine(AppContext.BaseDirectory, "proxy-log.jsonl")), append: true) { AutoFlush = true };
         using var http = new HttpListener();
         http.Prefixes.Add(listen);
         http.Start();
+        // Publish only after this process has successfully registered its listener.
+        if (readyFile.Length > 0) ProxyStartup.Write(readyFile, listen, _upstream);
         Console.WriteLine($"Forwarding {listen} to {_upstream}. Arm with GET {listen}proxy/lose?fun=/mouse/move&skip=0");
         Log("start", "", 0, "", $"listening on {listen}, upstream {_upstream}", 0);
         while (true)
@@ -49,6 +54,7 @@ static class Proxy
 
     static async Task HandleAsync(HttpListenerContext ctx)
     {
+        ctx.Response.Headers["X-iMouse-FaultProxy-Pid"] = Environment.ProcessId.ToString(System.Globalization.CultureInfo.InvariantCulture);
         var request = ctx.Request;
         long started = Stopwatch.GetTimestamp();
         string path = request.Url!.PathAndQuery, fun = "";

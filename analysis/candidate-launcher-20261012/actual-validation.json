@@ -1,0 +1,22 @@
+{
+  "window_started": false,
+  "startup": {
+    "valid": true,
+    "dataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\offline validation 20261012\\data",
+    "address": "http://127.0.0.1:9913",
+    "connected": false,
+    "settingsWritten": false,
+    "build": {
+      "Version": "2.0.0.0",
+      "InformationalVersion": "2.0.0+5cf98f33a0fe74a22272c909d9ff6d1865020371",
+      "ModuleId": "06510e0c-3e84-4eae-9628-717dd9f6215a",
+      "Sha256": "620093229ac345c640b3d5173d7b1000fc82887435b16a88ecf30c19830d82b7",
+      "Label": "Build 62009322",
+      "Detail": "Console version 2.0.0.0\nModule 06510e0c-3e84-4eae-9628-717dd9f6215a\nSHA-256: 620093229ac345c640b3d5173d7b1000fc82887435b16a88ecf30c19830d82b7\nRecorded when this console started; this identifies bytes, not release acceptance."
+    }
+  },
+  "process_id": 21292,
+  "exit_code": 0,
+  "evidence": "Verified --validate-startup branch; no Show or Connect path executed.",
+  "settings_unchanged": true
+}

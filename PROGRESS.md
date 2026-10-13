@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Recorded candidate preparation, 12 October
+
+The existing candidate launcher now defaults to a read-only check, prepares a fresh isolated copy only when requested, and requires an explicit launch mode. It validates source/build records, endpoint, hover-off profile and the console's no-window startup result. Optional proxy startup verifies its port, own-process readiness receipt, response PID header and upstream identity; failure cleanup is scoped to that process and records unresolved cleanup. Installed startup files are unchanged.
+
+**49 launcher checks pass in each of PowerShell 5.1 and 7; two proxy receipt checks pass.** The actual combined console passed its no-window validation on a separate copy, with no settings writes or connection. Fresh direct/proxy run folders are prepared and verified but not launched. Existing console/kernel manifests and all three installed binary hashes still match. No new physical gate passes. See `analysis/candidate-launcher-20261012/REPORT.md` and `tools/candidate-launcher/README.md`. Next: kernel candidate configuration/readiness using the existing tools.
+
 ## Console diagnostic export, 12 October
 
 The combined console's existing Export diagnostics action now collects a bounded read-only snapshot: build identity, local state/preferences, cached and current phone/board mapping, input ownership, calibration/pacing, per-receiver delivery/restart/error details, bitmap metrics and process resource use. Independent failures produce a partial report; disconnected export makes no service calls. Atomic save preserves an existing report when replacement fails. Unknown API fields, ownership token fields and raw exception bodies are excluded.
