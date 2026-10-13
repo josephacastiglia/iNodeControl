@@ -83,8 +83,9 @@ Console.WriteLine("Direct HID input enabled only for: " + string.Join(",", input
 Console.WriteLine("Home sequence: " + input.HomeSequenceName + (options.Home == HomeSequence.Vendor ? "" : " (test option; not the release default)"));
 Console.WriteLine("Pointer movement pacing: " + (options.PreciseDelayMs > 0 ? $"high-resolution {options.PreciseDelayMs} ms; reset/drag/settle unchanged" : "legacy Task.Delay"));
 Console.WriteLine("Video waits on an independent AirPlay receiver.");
-using var fleet = new ReceiverFleet(config.Receivers, config.Store, config.ReceiverPath, config.RuntimePath, options.DataDir);
-using var server = new ApiServer(options.Prefix, config.Store, input, fleet.Sessions.Select(s => (s.Config.Name, s.Frames)));
+var fleet = new ReceiverFleet(config.Receivers, config.Store, config.ReceiverPath, config.RuntimePath, options.DataDir);
+var server = new ApiServer(options.Prefix, config.Store, input, fleet.Sessions.Select(s => (s.Config.Name, s.Frames)));
+int exitCode = 0;
 try
 {
     await server.RunAsync(cts.Token, () =>
@@ -99,8 +100,22 @@ catch (HttpListenerException ex)
 {
     Console.WriteLine("HTTP listen failed: " + ex.Message);
     Console.WriteLine("No receiver is started before this listener succeeds. Check the address, port and URL permission.");
-    return 1;
+    exitCode = 1;
 }
-return 0;
+finally
+{
+    // Stop accepting input and release its sessions before retiring receivers.
+    try { server.Dispose(); }
+    finally
+    {
+        try { await fleet.ShutdownAsync(); }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine("Receiver shutdown incomplete: " + ex);
+            exitCode = 1;
+        }
+    }
+}
+return exitCode;
 
 record ReplayReport(string Hex, int DelayMs);

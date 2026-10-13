@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-13T18:51:32.177707+00:00",
+  "project": "tools/frame_tests/FrameTests.csproj",
+  "metadata": {
+    "base_commit": "e82117e65c92feb2c6caa1b812d15b7037b8a2bd",
+    "includes_working_changes": true
+  },
+  "sources": {
+    "tools/frame_tests/FrameTests.csproj": {
+      "sha256": "59ed1ed51bb25d6695c5b180280d0135ae26d41125451d3c3725b38b04e00118",
+      "bytes": 499
+    },
+    "tools/frame_tests/Program.cs": {
+      "sha256": "3e2a6422607796d96504d86dfec0a8835813243d44bf1a7dab6078346533d80d",
+      "bytes": 20823
+    },
+    "tools/frame_tests/README.md": {
+      "sha256": "89a4702dad0621b84d4d7b40cd77b9b36bb82a2f48c3f00c385f55746e43e7f0",
+      "bytes": 4295
+    },
+    "tools/frame_tests/ScreenshotHttpTests.cs": {
+      "sha256": "1ed7e472f5d13f20162e021616060c5e7a3cfe47f57a1d00db572f1aa0eb536b",
+      "bytes": 7386
+    },
+    "NuGet.config": {
+      "sha256": "e2a0716cbd1a016e568a2d466192c1b00244da147eb835707b5eb5f4e3bc1e17",
+      "bytes": 114
+    },
+    "src/iMouse.Console/FrameMetrics.cs": {
+      "sha256": "ddecc12a670a5f1490b2772c85bc133f532c4901484afb944f296efeca2c2830",
+      "bytes": 2905
+    },
+    "src/iMouse.Kernel/FrameStore.cs": {
+      "sha256": "d2e2092a6f17b97aad534c2e7d5a0fadf99510dc2553fd911e7123e4534ec225",
+      "bytes": 11824
+    },
+    "src/iMouse.Kernel/AirplaySupervisor.cs": {
+      "sha256": "4e469654cfb0f4e223bd84116281cf68ed2bcb557f7ae3cc92c87059127fa84b",
+      "bytes": 8886
+    }
+  },
+  "artifacts": {
+    "FrameTests.deps.json": {
+      "sha256": "54fe60c322463700d4ae2d41d4800ccb3435218cf70f0c5457e80e9026d65c27",
+      "bytes": 422
+    },
+    "FrameTests.dll": {
+      "sha256": "2f4e07d7d77a10de6388daa05b5ea505f69bddc93e1a0733656559222a7915f4",
+      "bytes": 98816
+    },
+    "FrameTests.exe": {
+      "sha256": "4641cd8254a7cd7afcb2956ccda88fd23edeb396d07752bf73f31a02f6ba4639",
+      "bytes": 151552
+    },
+    "FrameTests.pdb": {
+      "sha256": "4d6a980bf2bc761a4691c9610177f67a49791ae34fd3f176964731454cea6638",
+      "bytes": 29032
+    },
+    "FrameTests.runtimeconfig.json": {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "bytes": 340
+    }
+  },
+  "scope": "project files, common build inputs and output bytes; external dependencies are not independently attested"
+}

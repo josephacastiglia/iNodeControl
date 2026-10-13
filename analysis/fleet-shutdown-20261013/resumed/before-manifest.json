@@ -1,0 +1,66 @@
+{
+  "before-source/src/iMouse.Kernel/AirplayProcess.cs": {
+    "sha256": "964b1dd38cc40441f1aea1e1f23e55b2f1542f40380d2579f06150ccd620f189",
+    "bytes": 2625
+  },
+  "before-source/src/iMouse.Kernel/AirplaySupervisor.cs": {
+    "sha256": "9c77383a04b7739d104c237ec05472533bee99231ff9f48b622b2f13f6409d42",
+    "bytes": 8603
+  },
+  "before-source/src/iMouse.Kernel/DeviceStore.cs": {
+    "sha256": "1e724e87b56bb377413f2100c80b8a4a8e7fbe49868c59b0839cc980fafd7624",
+    "bytes": 3076
+  },
+  "before-source/src/iMouse.Kernel/FrameStore.cs": {
+    "sha256": "d2e2092a6f17b97aad534c2e7d5a0fadf99510dc2553fd911e7123e4534ec225",
+    "bytes": 11824
+  },
+  "before-source/src/iMouse.Kernel/Program.cs": {
+    "sha256": "e0e7d6ede54a57ac69ba9c000ae83fef2d38a87b22700e6ee5908fa7dce43260",
+    "bytes": 4879
+  },
+  "before-source/src/iMouse.Kernel/ReceiverFleet.cs": {
+    "sha256": "6ca9683074fc8146964784069609ecbf7d72eee4195711904e58428966fa9037",
+    "bytes": 3359
+  },
+  "before-source/src/iMouse.Kernel/ReceiverLog.cs": {
+    "sha256": "7dadd1835a4ad82a54e8b80e8b0c7b0aa3635fe7345da9e984dd95ed6b0ed1b9",
+    "bytes": 2436
+  },
+  "before-source/src/iMouse.Kernel/ReceiverProcessLifetime.cs": {
+    "sha256": "eab669132248a70b3199a3349b1700cae849db6d091501e50334cead29953d04",
+    "bytes": 3926
+  },
+  "before-source/tools/recovery_tests/FleetShutdownTests.cs": {
+    "sha256": "467f040ff642b88b384e5312627df334ccdc1da813e586a5e8776e362d8eaf31",
+    "bytes": 7420
+  },
+  "before-source/tools/recovery_tests/Program.cs": {
+    "sha256": "f33e1f2c0edc1e3b86ed5ca83e10944c720b7d0125536ba77e3972c75d979a1a",
+    "bytes": 16972
+  },
+  "before-source/tools/recovery_tests/RecoveryTests.csproj": {
+    "sha256": "399121fd14e47dce3c95388f41b839f4ebdb9f33af1c3d5b5b16ef882909418f",
+    "bytes": 919
+  },
+  "before-recovery/RecoveryTests.deps.json": {
+    "sha256": "208b46f4b357a0a78e37c2558976dd10dd451d618ac584de0af85b25841a052a",
+    "bytes": 431
+  },
+  "before-recovery/RecoveryTests.dll": {
+    "sha256": "b38edad410012301906d075ba6878ba06b46331ce1820f126c004791fca8b78d",
+    "bytes": 104448
+  },
+  "before-recovery/RecoveryTests.exe": {
+    "sha256": "c0bedac1c707ecb43dbbe29d61fe4d75c3f852f1e3729f0d97cda24250a44f8b",
+    "bytes": 151552
+  },
+  "before-recovery/RecoveryTests.pdb": {
+    "sha256": "1bdd20a4a6a63e8c27f027075b209d7e342e3ffd63801347a70d21a0ed967c30",
+    "bytes": 31064
+  },
+  "before-recovery/RecoveryTests.runtimeconfig.json": {
+    "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+    "bytes": 340
+  }
+}

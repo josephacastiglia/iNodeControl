@@ -213,13 +213,14 @@ var tests = new (string Name, Func<Task> Run)[]
     })
 };
 int passed = 0;
-foreach (var (name, run) in tests)
+var allTests = tests.Concat(FleetShutdownTests.Cases()).ToArray();
+foreach (var (name, run) in allTests)
 {
     try { await run(); Console.WriteLine("PASS " + name); passed++; }
     catch (Exception ex) { Console.WriteLine("FAIL " + name + ": " + ex.Message); }
 }
-Console.WriteLine($"{passed}/{tests.Length} recovery checks passed; fake handles only; no sockets, HID, receivers or UI.");
-return passed == tests.Length ? 0 : 1;
+Console.WriteLine($"{passed}/{allTests.Length} recovery checks passed; fake handles and private test pipes; no sockets, HID, receivers or UI.");
+return passed == allTests.Length ? 0 : 1;
 
 static void Check(bool value, string message) { if (!value) throw new Exception(message); }
 static string NewLogFolder() { string path=Path.Combine(Path.GetTempPath(),"imouse-log-test-"+Guid.NewGuid().ToString("N")); Directory.CreateDirectory(path); return path; }

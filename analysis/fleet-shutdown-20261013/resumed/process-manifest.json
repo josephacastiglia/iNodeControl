@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-13T18:51:32.315156+00:00",
+  "project": "tools/receiver_process_tests/ReceiverProcessTests.csproj",
+  "metadata": {
+    "base_commit": "e82117e65c92feb2c6caa1b812d15b7037b8a2bd",
+    "includes_working_changes": true
+  },
+  "sources": {
+    "tools/receiver_process_tests/Program.cs": {
+      "sha256": "10e2535fd5636809dd911d3a8ae78b68bf0b02fa2038eae1d938a5a8b46c1900",
+      "bytes": 10475
+    },
+    "tools/receiver_process_tests/README.md": {
+      "sha256": "24c1fb3b30dff176fa7fbd2229ac57867e070062ce9563cf15077521bf59d22b",
+      "bytes": 2081
+    },
+    "tools/receiver_process_tests/RealProcessTests.cs": {
+      "sha256": "70e89b5114b233ec458f0354388d834277fe71e8dbde87041cb4c136719e38c6",
+      "bytes": 10070
+    },
+    "tools/receiver_process_tests/ReceiverProcessTests.csproj": {
+      "sha256": "d3bc2feedc022419054753948720f483d00c896eb970399ff0c2fa8237f9c4f9",
+      "bytes": 656
+    },
+    "NuGet.config": {
+      "sha256": "e2a0716cbd1a016e568a2d466192c1b00244da147eb835707b5eb5f4e3bc1e17",
+      "bytes": 114
+    },
+    "src/iMouse.Kernel/ReceiverProcessLifetime.cs": {
+      "sha256": "eab669132248a70b3199a3349b1700cae849db6d091501e50334cead29953d04",
+      "bytes": 3926
+    },
+    "src/iMouse.Kernel/AirplaySupervisor.cs": {
+      "sha256": "4e469654cfb0f4e223bd84116281cf68ed2bcb557f7ae3cc92c87059127fa84b",
+      "bytes": 8886
+    },
+    "src/iMouse.Kernel/AirplayProcess.cs": {
+      "sha256": "964b1dd38cc40441f1aea1e1f23e55b2f1542f40380d2579f06150ccd620f189",
+      "bytes": 2625
+    },
+    "src/iMouse.Kernel/ReceiverLog.cs": {
+      "sha256": "7dadd1835a4ad82a54e8b80e8b0c7b0aa3635fe7345da9e984dd95ed6b0ed1b9",
+      "bytes": 2436
+    }
+  },
+  "artifacts": {
+    "ReceiverProcessTests.deps.json": {
+      "sha256": "d90d7b8daff49d0a2a4e5902d05db319238cfb28687b47efdb4b5b8f097dab89",
+      "bytes": 452
+    },
+    "ReceiverProcessTests.dll": {
+      "sha256": "974f02fe8d7d00ffe1e252b8e7aad8be679fac2f358afd8b7450464cd16ef48d",
+      "bytes": 54784
+    },
+    "ReceiverProcessTests.exe": {
+      "sha256": "a1cbe830536137500e7a5dc260933b88656f67417178e5dfd707d182f4abf67c",
+      "bytes": 152064
+    },
+    "ReceiverProcessTests.pdb": {
+      "sha256": "896055ad0564be07b8b0db51844c5e66ae685a702e068378532c04a7bfefc3c5",
+      "bytes": 21728
+    },
+    "ReceiverProcessTests.runtimeconfig.json": {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "bytes": 340
+    }
+  },
+  "scope": "project files, common build inputs and output bytes; external dependencies are not independently attested"
+}

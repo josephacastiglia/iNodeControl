@@ -1,5 +1,7 @@
 # Fleet shutdown investigation — paused, not validated
 
+**Later status:** resumed and repaired offline on 13 October. See [RESUMED-REPORT.md](RESUMED-REPORT.md) for the reproduced failures, exact final build and verification. The text below preserves the earlier pause checkpoint; it is not the current completion status.
+
 Paused on 13 October 2026 at the operator's request before machine shutdown. Base: `1df57c9`, branch `local/combined-candidate-20261012`.
 
 ## What source inspection suggests

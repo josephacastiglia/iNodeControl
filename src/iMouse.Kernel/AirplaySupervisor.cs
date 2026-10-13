@@ -75,6 +75,13 @@ public sealed class AirplaySupervisor : IDisposable
         }
     }
 
+    // Retry exhaustion is not an unconfirmed child exit. Fleet shutdown needs
+    // this separate outcome after joining both the run and disposal paths.
+    internal ReceiverInfo? CleanupFailure
+    {
+        get { lock (_gate) return _cleanupFailed ? Info : null; }
+    }
+
     public async Task RunAsync(CancellationToken ct)
     {
         if (Interlocked.Exchange(ref _runStarted, 1) != 0)

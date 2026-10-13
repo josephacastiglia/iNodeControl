@@ -8,5 +8,10 @@
   <ItemGroup>
     <Compile Include="../../src/iMouse.Kernel/AirplaySupervisor.cs" Link="AirplaySupervisor.cs" />
     <Compile Include="../../src/iMouse.Kernel/ReceiverLog.cs" Link="ReceiverLog.cs" />
+    <Compile Include="../../src/iMouse.Kernel/ReceiverFleet.cs" Link="ReceiverFleet.cs" />
+    <Compile Include="../../src/iMouse.Kernel/FrameStore.cs" Link="FrameStore.cs" />
+    <Compile Include="../../src/iMouse.Kernel/DeviceStore.cs" Link="DeviceStore.cs" />
+    <Compile Include="../../src/iMouse.Kernel/AirplayProcess.cs" Link="AirplayProcess.cs" />
+    <Compile Include="../../src/iMouse.Kernel/ReceiverProcessLifetime.cs" Link="ReceiverProcessLifetime.cs" />
   </ItemGroup>
 </Project>

@@ -11,9 +11,15 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
-## Paused for operator shutdown, 13 October
+## Receiver fleet shutdown joined and failures surfaced, 13 October
 
-All completed changes are saved on `local/combined-candidate-20261012`. Start the next session with `RESUME-NEXT.md`. The unfinished fleet-shutdown investigation is preserved separately in `analysis/fleet-shutdown-20261013/`; its draft compiled but was not executed and has a known test-fixture lifetime bug. No product fix or reproduced result is claimed. The ordinary recovery suite was restored to its committed source after byte-verifying the draft copy. No further tests, live actions, pushes or deployment occurred during this checkpoint. Development is paused at the operator's request.
+Work resumed at the operator's request. After repairing its fixture lifetime, the saved draft reproduced all five suspected lifecycle defects against the old source. The fleet now waits for disposal already in progress, starts peer cleanup independently, joins supervisor/frame tasks, shares shutdown completion and reports unconfirmed cleanup by receiver. Startup after disposal or a second Start is refused. The kernel closes API/input sessions before awaiting fleet shutdown and reports failure instead of success when cleanup is unknown.
+
+All 41 recovery, 207 kernel, 34 frame and 14 fake receiver-lifetime checks pass. Exact source/builds and limits are in `analysis/fleet-shutdown-20261013/RESUMED-REPORT.md`. No live receiver, rack request, screen control or phone input was used; installed static hashes and settings match the restoration baseline. A fresh combined package is still required before later physical acceptance.
+
+## Historical pause for operator shutdown, 13 October
+
+At the earlier shutdown checkpoint, all completed changes were saved on `local/combined-candidate-20261012`, with an unexecuted draft preserved separately and the ordinary recovery suite restored. That checkpoint and its archive remain intact. The later resume and repair above supersede its paused status. Start future continuation with `RESUME-NEXT.md`.
 
 ## Console image downloads bounded and buffer growth repaired, 13 October
 
