@@ -1,6 +1,6 @@
 # Gate 6 timing tool — preparation, not acceptance
 
-Updated 11 October 2026. The historical September files in this directory are unchanged. Current work extends `run_gate6.py`; it does not replace the old evidence or create a second harness.
+Updated 13 October 2026. The historical September files in this directory are unchanged. Current work extends `run_gate6.py`; it does not replace the old evidence or create a second harness.
 
 ## What the tool measures
 
@@ -26,6 +26,10 @@ UIA uses InvokePattern rather than a physical mouse click. Kernel screenshots do
 The 10 October repair had seven regressions fail before it and 12 passing tests afterward. The 11 October extension adds 10 helper-lifecycle tests: two failed before the new repair, and **all 22 offline tests now pass**, along with the built-in self-check. Tests replace phone/action boundaries; two cases launch only harmless Python child processes to exercise real pipes. No phone input, live services, Windows UI helper or desktop automation is used.
 
 The console helper now has one 20-second deadline covering streamed stdout and process exit, with bounded cleanup of that helper only. A hung pipe cannot bypass the deadline. Invocation time is retained before process completion. Success requires a timestamp, zero exit code and an exact `ok` line; `not ok` is rejected. Timeout or incomplete output is an unknown input outcome, never an instruction to retry or switch to the API. Terminating a helper does not cancel input already accepted by the console. See [OFFLINE-UPDATE-20261011.md](OFFLINE-UPDATE-20261011.md).
+
+The 13 October repair extends failure handling to **visual misses without transport errors**: these now stop the run, retain the missed sample and send no Home dismissal. A renewal failure is saved as an unsent trial. Acquisition is inside cleanup coverage, so tokens parsed before a malformed response are still released. `run-state.json` records completion/abort and phase; `cleanup.json` distinguishes confirmed release, unconfirmed release and unknown acquisition without storing tokens. Console-owned leases remain outside that cleanup path and are labelled explicitly. New run directories cannot reuse earlier evidence, and output cannot escape into another run.
+
+All **35 offline regressions** and the built-in self-check pass. Ten initial new cases fail against the preserved old runner; three additional checks cover normal completion, real partial-response parsing and operator interruption. See [the failure-handling report](../gate6-failure-handling-20261013/REPORT.md). No live workload or release gate was passed by this work.
 
 From the repository root:
 

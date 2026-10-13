@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Timing-runner failure handling repaired, 13 October
+
+The existing Gate 6 runner now stops on visual misses even when the API command succeeded, records renewal failures before any action, and cleans up known API tokens after partial acquisition. Run/cleanup records distinguish confirmed, unknown and unmanaged outcomes. Existing run folders and neighboring run evidence cannot be overwritten. All 35 offline tests and its self-check pass; ten initial new cases fail on the saved old runner. See `analysis/gate6-failure-handling-20261013/REPORT.md`.
+
+This is tooling work only. It does not measure the console's actual presentation path, add missing correctness classifiers or release console-owned leases. No rack calls, screen control or phone input ran. The packaged candidate below is unchanged; current-build physical acceptance, scale/endurance and release clearance remain open.
+
 ## Latest combined review package prepared, 13 October
 
 `output/staging/combined-shutdown-20261013` now brings the fleet shutdown kernel and screenshot-client console repair together. All 689 inventory entries, embedded source records and native runtime verify; 610 receiver/runtime entries are unchanged from the prior package. A fresh unused C24C-only run at `output/candidate-runs/shutdown-20261013` passes both offline startup validations and the final launcher check, with isolated settings and hover tracking off. No window, service, receiver or phone was operated. See `analysis/combined-shutdown-package-20261013/REPORT.md`. The earlier package and pause archive remain intact. Physical acceptance and release clearance remain open.

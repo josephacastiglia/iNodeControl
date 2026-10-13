@@ -1,6 +1,6 @@
 # iNodeControl — continuation checkpoint, 13 October 2026
 
-Work resumed at the operator's request. The saved fleet shutdown investigation is now repaired and verified offline; do not repeat its paused-draft setup. Nothing is promoted, deployed or pushed.
+Work resumed at the operator's request. Fleet shutdown is repaired and packaged; the later Gate 6 failure-handling work is now verified offline. Do not repeat either completed investigation. Nothing is promoted, deployed or pushed.
 
 ## Current work
 
@@ -9,6 +9,8 @@ Work resumed at the operator's request. The saved fleet shutdown investigation i
 - Shutdown repair commit: `8cc4678`. Read `analysis/fleet-shutdown-20261013/RESUMED-REPORT.md`.
 - Five targeted failures reproduced on the old source. Final results: 41 recovery, 207 kernel, 34 frame and 14 fake receiver-lifetime checks pass.
 - Screenshot-client repair is still verified: 382 console, 44 preview, 22 wall checks and the recorded local transfer probe. See `analysis/screenshot-client-20261013/REPORT.md`.
+- Latest tool repair: visual misses stop the Gate 6 runner, lease failures and cleanup are recorded, and evidence cannot overwrite earlier runs. All 35 regressions and its self-check pass. Read `analysis/gate6-failure-handling-20261013/REPORT.md`.
+- Next useful offline work: actual console-presentation timing/correctness in the existing runner, including explicit UIA preparation and console-owned lease cleanup. The current runner still measures kernel screenshot arrival and is not ready for unattended acceptance. No missing-space experiments should resume.
 
 ## One current candidate
 

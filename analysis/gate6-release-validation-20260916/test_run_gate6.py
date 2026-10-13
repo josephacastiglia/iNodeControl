@@ -169,6 +169,208 @@ class EvidenceIntegrityTests(unittest.TestCase):
         self.assertIn("409", row["error"])
 
 
+class RunLifecycleTests(unittest.TestCase):
+    """Drive the runner with fake frames/leases; forbid transport and UI children."""
+
+    def setUp(self):
+        self.stack = contextlib.ExitStack()
+        self.addCleanup(self.stack.close)
+        transport = self.stack.enter_context(patch.object(gate6, "api", side_effect=AssertionError("network forbidden")))
+        child = self.stack.enter_context(patch.object(gate6.subprocess, "Popen", side_effect=AssertionError("UI forbidden")))
+        self.addCleanup(transport.assert_not_called)
+        self.addCleanup(child.assert_not_called)
+        self.stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+        self.folder = self.stack.enter_context(tempfile.TemporaryDirectory())
+        self.stack.enter_context(patch.object(gate6, "OUT", Path(self.folder)))
+        self.stack.enter_context(patch.object(gate6.time, "sleep"))
+        states = [{"receivers": [{"name": "iMouse2-C24C", "frames": count,
+                                 "live": True, "receiver_pid": 1}]} for count in (1, 2, 3)]
+        self.stack.enter_context(patch.object(gate6, "status", side_effect=states))
+        self.stack.enter_context(patch.object(gate6, "input_status", return_value={}))
+        gate6.HELD.clear()
+        self.addCleanup(gate6.HELD.clear)
+        self.addCleanup(setattr, gate6, "RUN", None)
+        self.addCleanup(gate6.UIA_OWNS.update, {"on": False})
+
+    def fake_acquire(self, ids):
+        gate6.HELD[gate6.C24C] = "mock-token"
+
+    def fake_release(self):
+        gate6.HELD.clear()
+
+    def record(self, name):
+        return json.loads((gate6.RUN / name).read_text(encoding="utf-8"))
+
+    @staticmethod
+    def observation(miss=True):
+        return {"miss": miss, "error": None, "frame": gate6.solid(0), "via": "api",
+                "first_visible_ms": None if miss else 10, "first_correct_ms": None,
+                "settled_ms": None, "dispatch_ms": 1, "visual": "other",
+                "visual_ok": False, "poll_count": 1, "polls": [], "code": 0}
+
+    def test_visual_miss_is_saved_and_stops_before_next_trial(self):
+        self.stack.enter_context(patch.object(gate6, "hold_lease", side_effect=self.fake_acquire))
+        self.stack.enter_context(patch.object(gate6, "post", return_value=(1, {"code": 0})))
+        release = self.stack.enter_context(patch.object(gate6, "drop_lease", side_effect=self.fake_release))
+        trial = self.stack.enter_context(patch.object(gate6, "run_cycle", return_value={
+            **self.observation(), "frame": None, "phone": "C24C", "category": "home",
+            "correctness_checked": True, "cycle": 1}))
+        with self.assertRaisesRegex(SystemExit, "trial aborted"):
+            gate6.live(2, ["home"], True)
+        trial.assert_called_once()
+        release.assert_called_once()
+        self.assertEqual(len(self.record("rows.json")), 1)
+        self.assertEqual(self.record("summary.json")["home"]["p95"], gate6.MISS_MS)
+        self.assertEqual(self.record("run-state.json")["status"], "aborted")
+
+    def test_missed_transition_never_sends_dismiss_api_or_uia(self):
+        for api_only in (True, False):
+            with self.subTest(api_only=api_only), contextlib.ExitStack() as stack:
+                stack.enter_context(patch.object(gate6, "need_token", return_value="mock-token"))
+                stack.enter_context(patch.object(gate6, "home_pair"))
+                home = stack.enter_context(patch.object(gate6, "home_via"))
+                stack.enter_context(patch.object(gate6, "fetch_shot", return_value=gate6.solid(0)))
+                stack.enter_context(patch.object(gate6, "observe", return_value=self.observation()))
+                stack.enter_context(patch.object(gate6, "save_frame"))
+                post = stack.enter_context(patch.object(gate6, "post"))
+                row = gate6.run_cycle("C24C", gate6.C24C, "C241", gate6.C241,
+                                      "appswitch", 1, api_only, Path(self.folder))
+                self.assertTrue(row["miss"])
+                post.assert_not_called()
+                self.assertEqual(home.call_count, 0 if api_only else 1, "setup only; no dismissal")
+
+    def test_missed_search_never_sends_dismiss(self):
+        self.stack.enter_context(patch.object(gate6, "need_token", return_value="mock-token"))
+        self.stack.enter_context(patch.object(gate6, "fetch_shot", return_value=gate6.solid(0)))
+
+        def observe(fetch, before, act, **kwargs):
+            if kwargs.get("expect") == "home":
+                act([None])
+                return {**self.observation(False), "visual_ok": True}
+            return self.observation()
+
+        self.stack.enter_context(patch.object(gate6, "observe", side_effect=observe))
+        self.stack.enter_context(patch.object(gate6, "home_pair", return_value=(1, 1)))
+        self.stack.enter_context(patch.object(gate6, "save_frame", return_value=0))
+        post = self.stack.enter_context(patch.object(gate6, "post", return_value=(1, {})))
+        row = gate6.run_cycle("C24C", gate6.C24C, "C241", gate6.C241,
+                              "search", 1, True, Path(self.folder))
+        self.assertTrue(row["miss"])
+        post.assert_not_called()
+
+    def test_renewal_failure_records_unsent_trial_and_releases(self):
+        self.stack.enter_context(patch.object(gate6, "hold_lease", side_effect=self.fake_acquire))
+        self.stack.enter_context(patch.object(gate6, "post", side_effect=RuntimeError("renew refused")))
+        release = self.stack.enter_context(patch.object(gate6, "drop_lease", side_effect=self.fake_release))
+        trial = self.stack.enter_context(patch.object(gate6, "run_cycle"))
+        with self.assertRaisesRegex(SystemExit, "renew refused"):
+            gate6.live(2, ["home"], True)
+        trial.assert_not_called()
+        release.assert_called_once()
+        row = self.record("rows.json")[0]
+        self.assertEqual(row["failure_stage"], "renew")
+        self.assertFalse(row["action_attempted"])
+        self.assertEqual(self.record("cleanup.json")["api_release"], "confirmed")
+
+    def test_partial_acquire_failure_still_releases_known_token(self):
+        def partial(ids):
+            self.fake_acquire(ids)
+            raise RuntimeError("incomplete acquire response")
+        self.stack.enter_context(patch.object(gate6, "hold_lease", side_effect=partial))
+        release = self.stack.enter_context(patch.object(gate6, "drop_lease", side_effect=self.fake_release))
+        with self.assertRaisesRegex(RuntimeError, "incomplete acquire"):
+            gate6.live(1, ["home"], True)
+        release.assert_called_once()
+        state = self.record("run-state.json")
+        self.assertEqual((state["status"], state["phase"]), ("aborted", "acquire"))
+        self.assertNotIn("mock-token", (gate6.RUN / "cleanup.json").read_text(encoding="utf-8"))
+
+    def test_unknown_acquire_does_not_guess_token_or_claim_release(self):
+        self.stack.enter_context(patch.object(gate6, "hold_lease", side_effect=TimeoutError("acquire outcome unknown")))
+        release = self.stack.enter_context(patch.object(gate6, "drop_lease"))
+        with self.assertRaises(TimeoutError):
+            gate6.live(1, ["home"], True)
+        release.assert_not_called()
+        self.assertEqual(self.record("cleanup.json")["api_acquire"], "unconfirmed")
+        self.assertEqual(self.record("cleanup.json")["api_release"], "no_known_tokens")
+
+    def test_failed_release_is_recorded_alongside_original_failure(self):
+        self.stack.enter_context(patch.object(gate6, "hold_lease", side_effect=self.fake_acquire))
+        self.stack.enter_context(patch.object(gate6, "post", side_effect=RuntimeError("renew refused")))
+        self.stack.enter_context(patch.object(gate6, "drop_lease", side_effect=RuntimeError("release unreachable")))
+        with self.assertRaisesRegex(RuntimeError, "release.*unreachable"):
+            gate6.live(1, ["home"], True)
+        self.assertIn("renew refused", self.record("run-state.json")["error"])
+        self.assertEqual(self.record("cleanup.json")["api_release"], "unconfirmed")
+        self.assertEqual(self.record("cleanup.json")["remaining_known_phones"], [gate6.C24C])
+
+    def test_existing_run_cannot_be_reused_or_overwritten(self):
+        root = Path(self.folder)
+        dest = gate6.open_run(root, "recorded")
+        gate6.dump(root, dest, "rows.json", ["original"])
+        with self.assertRaises(SystemExit):
+            gate6.open_run(root, "recorded")
+        self.assertEqual(json.loads((dest / "rows.json").read_text(encoding="utf-8")), ["original"])
+
+    def test_output_escape_is_refused_before_creating_directory(self):
+        root = Path(self.folder)
+        with self.assertRaises(SystemExit):
+            gate6.open_run(root, "../escaped")
+        self.assertFalse((root / "escaped").exists())
+
+    def test_artifact_cannot_escape_into_a_different_run(self):
+        root = Path(self.folder)
+        first = gate6.open_run(root, "first")
+        second = gate6.open_run(root, "second")
+        gate6.dump(root, second, "rows.json", ["original"])
+        with self.assertRaises(SystemExit):
+            gate6.dump(root, first, "../second/rows.json", ["replacement"])
+        self.assertEqual(json.loads((second / "rows.json").read_text(encoding="utf-8")), ["original"])
+
+    def test_successful_run_records_confirmed_api_release_without_tokens(self):
+        post = self.stack.enter_context(patch.object(gate6, "post", side_effect=[
+            (1, {"leases": [{"id": gate6.C24C, "token": "mock-token"}]}),
+            (1, {"code": 0}), (1, {"code": 0}),
+        ]))
+        self.stack.enter_context(patch.object(gate6, "run_cycle", return_value={
+            "phone": "C24C", "category": "home", "cycle": 1, "via": "api",
+            "miss": False, "correctness_checked": True, "first_correct_ms": 100,
+        }))
+        gate6.live(1, ["home"], True)
+        self.assertEqual([c.args[0] for c in post.call_args_list],
+                         ["/input/acquire", "/input/renew", "/input/release"])
+        self.assertEqual(self.record("run-state.json")["status"], "complete")
+        self.assertEqual(self.record("cleanup.json")["api_release"], "confirmed")
+        self.assertFalse(gate6.HELD)
+        self.assertFalse(self.record("manifest.json")["gate6_acceptance"])
+        self.assertNotIn("mock-token", (gate6.RUN / "cleanup.json").read_text(encoding="utf-8"))
+
+    def test_malformed_acquire_reply_releases_token_parsed_before_error(self):
+        post = self.stack.enter_context(patch.object(gate6, "post", side_effect=[
+            (1, {"leases": [{"id": gate6.C24C, "token": "mock-token"}, {}]}),
+            (1, {"code": 0}),
+        ]))
+        with self.assertRaises(KeyError):
+            gate6.live(1, ["home"], True)
+        self.assertEqual([c.args[0] for c in post.call_args_list], ["/input/acquire", "/input/release"])
+        self.assertEqual(post.call_args_list[1].args[1]["tokens"], {gate6.C24C: "mock-token"})
+        self.assertEqual(self.record("cleanup.json")["api_acquire"], "unconfirmed")
+        self.assertEqual(self.record("cleanup.json")["api_release"], "confirmed")
+        self.assertFalse(gate6.HELD)
+
+    def test_interrupt_preserves_abort_and_releases_known_lease(self):
+        self.stack.enter_context(patch.object(gate6, "hold_lease", side_effect=self.fake_acquire))
+        self.stack.enter_context(patch.object(gate6, "post", return_value=(1, {"code": 0})))
+        self.stack.enter_context(patch.object(gate6, "run_cycle", side_effect=KeyboardInterrupt("operator stop")))
+        release = self.stack.enter_context(patch.object(gate6, "drop_lease", side_effect=self.fake_release))
+        with self.assertRaises(KeyboardInterrupt):
+            gate6.live(1, ["home"], True)
+        release.assert_called_once()
+        self.assertEqual(self.record("run-state.json")["status"], "aborted")
+        self.assertIn("operator stop", self.record("run-state.json")["error"])
+        self.assertEqual(self.record("cleanup.json")["api_release"], "confirmed")
+
+
 class ConsoleHelperDeadlineTests(unittest.TestCase):
     """Fake child processes only; never launch PowerShell or touch a window."""
 

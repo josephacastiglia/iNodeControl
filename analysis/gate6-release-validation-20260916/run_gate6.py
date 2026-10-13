@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import queue
+import re
 import struct
 import subprocess
 import threading
@@ -131,20 +132,29 @@ def note_invoked(invoked_ms, t_box=None, now_ms=None, now_perf=None):
 
 
 def open_run(root, run_id):
-    dest = Path(root) / "runs" / run_id
-    if dest.resolve() == Path(root).resolve():
-        raise SystemExit("refusing to write artifacts at evidence root")
-    dest.mkdir(parents=True, exist_ok=True)
+    root = Path(root).resolve()
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,99}", run_id):
+        raise SystemExit("run id must be a single directory name")
+    runs = (root / "runs").resolve()
+    dest = runs / run_id
+    if runs.parent != root or dest.resolve().parent != runs:
+        raise SystemExit("refusing run directory outside evidence runs/")
+    try:
+        dest.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        raise SystemExit(f"refusing to reuse existing run: {dest}") from None
     return dest
 
 
 def guard(root, dest, name):
     root = Path(root).resolve()
-    path = (Path(dest) / name).resolve()
+    dest = Path(dest).resolve()
+    runs = (root / "runs").resolve()
+    path = (dest / name).resolve()
     if path == (root / name).resolve() and name in PROTECTED:
         raise SystemExit(f"refusing to overwrite historical evidence: {name}")
-    if root not in path.parents or "runs" not in path.parts:
-        raise SystemExit(f"refusing artifact outside runs/: {name}")
+    if runs.parent != root or dest.parent != runs or path.parent != dest:
+        raise SystemExit(f"refusing artifact outside this run: {name}")
     return path
 
 
@@ -1102,20 +1112,32 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
         "action_origin": "API request" if api_only else "UI Automation InvokePattern, not physical click",
         "gate6_acceptance": False,
     })
-    if api_only:
-        hold_lease(ids)
+    state = {"status": "running", "phase": "acquire" if api_only else "trial"}
+    cleanup = {"api_acquire": "unconfirmed" if api_only else "not_attempted",
+               "api_release": "no_known_tokens",
+               "console_release": "not_applicable" if api_only else "not_managed_by_runner"}
     try:
+        dump(OUT, dest, "run-state.json", state)
+        if api_only:
+            # Acquisition can store some returned tokens before failing. Cleanup
+            # must cover that partial result, without guessing any missing token.
+            hold_lease(ids)
+            cleanup["api_acquire"] = "confirmed"
         for name, pid, oname, oid in plan:
             CONSOLE["phone"] = name
             for category in cats:
                 for cycle in range(1, n + 1):
-                    if api_only and HELD:
-                        post("/input/renew", {"id": ",".join(HELD), "tokens": dict(HELD)})
                     try:
+                        state["phase"] = "renew"
+                        if api_only and HELD:
+                            post("/input/renew", {"id": ",".join(HELD), "tokens": dict(HELD)})
+                        state["phase"] = "trial"
                         row = run_cycle(name, pid, oname, oid, category, cycle, api_only, dest)
                     except (Exception, SystemExit) as ex:
                         row = {"phone": name, "category": category, "cycle": cycle,
                                "via": "api" if api_only else "uia", "miss": True,
+                               "failure_stage": state["phase"],
+                               "action_attempted": False if state["phase"] == "renew" else None,
                                "error": str(ex)[:200], "first_visible_ms": None,
                                "first_correct_ms": None, "correctness_checked": category in ("home", "search")}
                     keep(rows, row)
@@ -1127,21 +1149,43 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
                         f"settled={row.get('settled_ms')} miss={row.get('miss')}",
                         flush=True,
                     )
-                    if row.get("error"):
-                        raise SystemExit(f"trial aborted; saved failure in {dest}: {row['error']}")
+                    if row.get("error") or row.get("miss"):
+                        reason = row.get("error") or "expected visual response was not confirmed"
+                        raise SystemExit(f"trial aborted; saved failure in {dest}: {reason}")
+        state["phase"] = "end-status"
         end = status()
         stuck = input_status()
         summary = summarize(rows)
         dump(OUT, dest, "end-status.json", {"kernel": end, "input": stuck, "summary": summary})
         print("done", len(rows), json.dumps(summary), flush=True)
+        state.update(status="complete", phase="complete")
+    except BaseException as ex:
+        state.update(status="aborted", error=str(ex)[:500])
+        raise
     finally:
+        release_error = None
+        cleanup["known_phones_before_release"] = sorted(HELD)
         if HELD:
             try:
                 drop_lease()
+                cleanup["api_release"] = "confirmed"
                 print("released", flush=True)
             except Exception as ex:
+                release_error = ex
+                cleanup.update(api_release="unconfirmed", error=str(ex)[:500])
                 print("RELEASE FAILED", ex, flush=True)
-                raise
+        cleanup["remaining_known_phones"] = sorted(HELD)
+        state["trial_rows"] = len(rows)
+        state["cleanup_failed"] = release_error is not None
+        if release_error is not None and state["status"] == "complete":
+            state["status"] = "cleanup_failed"
+        # Release is attempted before evidence writes, even if the disk is full.
+        # A missing acquisition reply cannot establish that no lease was granted;
+        # a console-owned lease is also explicitly outside this cleanup path.
+        dump(OUT, dest, "run-state.json", state)
+        dump(OUT, dest, "cleanup.json", cleanup)
+        if release_error is not None:
+            raise RuntimeError(f"lease release unconfirmed: {release_error}") from release_error
 
 
 def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
@@ -1179,7 +1223,7 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
         else:
             o_len = shot(oid, other, dest)
         dismiss_ms = None
-        if not click.get("error"):
+        if not click.get("error") and not click["miss"]:
             try:
                 dismiss_ms, _ = post("/key/sendkey", {"id": pid, "token": token, "fn_key": "Home"}, timeout=8)
             except Exception as ex:
@@ -1245,7 +1289,7 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
     obs["via"] = "api" if api_only else "uia"
     target = f"{name.lower()}-c{cycle}-{category}.bmp"
     save_frame(target, obs["frame"], dest)
-    if category != "home" and not obs.get("error"):
+    if category != "home" and not obs.get("error") and not obs["miss"]:
         try:
             if api_only:
                 post("/key/sendkey", {"id": pid, "token": token, "fn_key": "Home"}, timeout=8)
