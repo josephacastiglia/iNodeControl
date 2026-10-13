@@ -76,7 +76,12 @@ C24C-only, hover-off candidate copy validated only through the no-window startup
 modes. It is not launched. Installed files and operator settings retain their
 recorded hashes.
 
-The external archive receipt is `archive-verification.json` once completed.
+Implementation and primary evidence are committed locally as `cd60bbb`, not
+pushed. The external archive
+`../iMouseXP-2.0-evidence-archive/20261012-scope-release/` contains **852 files,
+206,334,281 bytes**, plus its checksum inventory. All copies match, including
+both fault controls, tested source/build, prepared run, standalone-verified review
+package and single-branch Git bundle. See `archive-verification.json`.
 No promotion, deployment, push, rack restart or phone-setting change is included.
 Typing stays deferred. The actual candidate's physical accuracy, controls,
 video/recovery, scale and endurance acceptance remain open.
