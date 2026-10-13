@@ -95,6 +95,55 @@ internal static class KernelStartupTests
             Reject(() => KernelConfiguration.Load(Options("--receiver", dummy)), "Receiver startup needs an explicit runtime");
             Reject(() => KernelConfiguration.Load(Options("--receiver", dummy, "--receiver-runtime", folder)), "Incomplete native runtime is refused without starting its executable");
 
+            // These are deliberately inert fixtures: validation checks presence,
+            // not native loading. Exercise every plugin used by appsink/fakesink.
+            string runtime = Path.Combine(folder, "runtime with spaces");
+            Directory.CreateDirectory(Path.Combine(runtime, "bin"));
+            var requiredFiles = new[] {
+                "libexec/gstreamer-1.0/gst-plugin-scanner.exe",
+                "lib/gstreamer-1.0/libgstapp.dll", "lib/gstreamer-1.0/libgstcoreelements.dll",
+                "lib/gstreamer-1.0/libgstlibav.dll", "lib/gstreamer-1.0/libgstvideoparsersbad.dll",
+                "lib/gstreamer-1.0/libgstvideoconvertscale.dll", "lib/gstreamer-1.0/libgstplayback.dll",
+                "lib/gstreamer-1.0/libgstautodetect.dll", "lib/gstreamer-1.0/libgstaudioconvert.dll",
+                "lib/gstreamer-1.0/libgstaudioresample.dll", "lib/gstreamer-1.0/libgstvolume.dll",
+                "lib/gstreamer-1.0/libgstlevel.dll" };
+            foreach (string relative in requiredFiles)
+            {
+                string path = Path.Combine(runtime, relative);
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                File.WriteAllText(path, "Presence fixture; never load");
+            }
+            var receiverOptions = Options("--receiver", dummy, "--receiver-runtime", runtime);
+            var complete = KernelConfiguration.Load(receiverOptions);
+            var completeReport = JsonSerializer.SerializeToElement(complete.ValidationReport());
+            check(complete.RuntimePath == runtime && complete.ReceiverPath == dummy
+                && completeReport.GetProperty("limitations").EnumerateArray().Any(item => item.GetString()!.Contains("dependency loading"))
+                && !completeReport.GetProperty("receivers_started").GetBoolean(),
+                "Complete runtime file fixture validates without executing or claiming native loading");
+            foreach (string relative in requiredFiles)
+            {
+                string path = Path.Combine(runtime, relative);
+                byte[] saved = File.ReadAllBytes(path);
+                bool MissingIsReported()
+                {
+                    try { KernelConfiguration.Load(receiverOptions); return false; }
+                    catch (ArgumentException ex) { return ex.Message.Contains(relative) && ex.Message.Contains("Verify the dependency package"); }
+                }
+                try
+                {
+                    File.Delete(path);
+                    check(MissingIsReported(), "Missing runtime file is identified before receiver startup: " + relative);
+                    File.WriteAllBytes(path, []);
+                    check(MissingIsReported(), "Empty runtime file is refused before receiver startup: " + relative);
+                }
+                finally { File.WriteAllBytes(path, saved); }
+            }
+            string pluginAsDirectory = Path.Combine(runtime, "lib/gstreamer-1.0/libgstplayback.dll");
+            File.Delete(pluginAsDirectory); Directory.CreateDirectory(pluginAsDirectory);
+            Reject(() => KernelConfiguration.Load(receiverOptions), "A directory cannot stand in for a receiver plugin");
+            check(KernelConfiguration.Load(Options()).RuntimePath.Length == 0,
+                "External frame-pipe mode does not need a local receiver runtime");
+
             using var input = new InputRouter(config.Store, [], config.Calibrations, _ => throw new Exception("Unexpected HID access"));
             using var frames = new FrameStore("startup-tests-never-opened", "test-phone");
             int binds = 0, starts = 0;

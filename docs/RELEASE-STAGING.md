@@ -76,7 +76,13 @@ are not tested. Use the existing package verifiers for dependency integrity.
 Normal startup now rejects missing/repeated/unknown options and invalid explicit
 movement timing before hardware work. Each enabled board needs a saved receiver
 binding and valid calibration. A child receiver needs an explicit runtime with
-its bin, plugin directory and scanner. The default movement pacing remains 7 ms;
+its bin and plugin directories, a nonempty scanner, and the eleven nonempty
+GStreamer plugins used by the configured video and silent-audio pipelines.
+Missing or empty files are listed in the refusal before any hardware, listener
+or receiver starts. Repair the dependency package; do not retry the same
+incomplete copy. This check does not load or attest the DLLs, and a present file
+can still be incompatible. Keep the package verification and offline renderer
+startup checks as separate evidence. The default movement pacing remains 7 ms;
 `--legacy` explicitly requests the old pacing. `--precise-delay` cannot be combined
 with it. Kernel values accept either `--name value` or `--name=value`.
 

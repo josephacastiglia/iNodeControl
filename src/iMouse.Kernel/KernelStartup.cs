@@ -140,9 +140,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
             if (!File.Exists(executable)) throw new FileNotFoundException("Receiver executable is missing.", executable);
             if (runtime.Length == 0) throw new ArgumentException("--receiver requires an explicit --receiver-runtime directory.");
             runtime = Path.GetFullPath(runtime);
-            if (!Directory.Exists(Path.Combine(runtime, "bin")) || !Directory.Exists(Path.Combine(runtime, "lib", "gstreamer-1.0"))
-                || !File.Exists(Path.Combine(runtime, "libexec", "gstreamer-1.0", "gst-plugin-scanner.exe")))
-                throw new ArgumentException("Receiver runtime is missing its bin, plugins or scanner. Verify the dependency package.");
+            ReceiverRuntime.ValidateFiles(runtime);
         }
         else if (runtime.Length > 0) throw new ArgumentException("--receiver-runtime requires --receiver.");
         return new(options, store, calibrations, receivers, executable, runtime);

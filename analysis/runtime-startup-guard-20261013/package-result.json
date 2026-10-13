@@ -1,0 +1,28 @@
+{
+  "package": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-runtime-guard-20261013",
+  "files": 687,
+  "package_manifest": {
+    "sha256": "8a22ca7b5dd081f8e723ccb8430dad29ff28d58a6c65d9424260e7e12ed44561",
+    "bytes": 142388
+  },
+  "kernel_manifest": {
+    "sha256": "c7e54aee549c467206babc89c3f843933c0336081ce6bd97a7c3207a9ffcf22f",
+    "bytes": 5008
+  },
+  "kernel_dll": {
+    "sha256": "e0f00fa86c217e2c00913e22adc04c7c9c5477e670078b7a94f19e9d5af92e16",
+    "bytes": 279040
+  },
+  "source_verified": true,
+  "console_receiver_and_runtime_unchanged": true,
+  "review_only": true,
+  "launched": false,
+  "kernel_self_tests_passed": 206,
+  "new_kernel_checks": 27,
+  "negative_self_test_failed_as_expected": true,
+  "cli_checks_passed": 3,
+  "limitations": [
+    "File presence is not native loading or full dependency validation.",
+    "The repaired runtime and guarded kernel still require physical candidate acceptance."
+  ]
+}

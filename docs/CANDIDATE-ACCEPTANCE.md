@@ -7,20 +7,22 @@ phone input: UxPlay's startup checks required playback/autodetect plugins absent
 from the reduced runtime. The original release was restored and both phones
 were confirmed mirroring at 04:31 UTC, unowned at generation 0. No C24C/C241
 input or FKA change was sent. See `analysis/candidate-live-20261013/REPORT.md`.
-The corrected package is `output/staging/combined-runtime-startup-final-20261013`;
-its console, kernel and receiver executables are unchanged. Six runtime plugins
-were added and production renderer startup now passes offline. That is not a
-successful live receiver run. The older preparation below remains historical;
-do not launch its incomplete runtime again.
+Six runtime plugins were added and production renderer startup now passes
+offline. The latest package, `output/staging/combined-runtime-guard-20261013`,
+also includes a kernel guard that refuses missing/empty startup plugins before
+hardware or receiver startup. Its 206 kernel checks and actual CLI comparisons
+pass; console, receiver and repaired runtime bytes are unchanged. That is not
+a successful live receiver run. Do not launch the original incomplete runtime
+again. See `analysis/runtime-startup-guard-20261013/REPORT.md`.
 The latest prepared files are recorded in
-`analysis/candidate-live-20261013/preparation.json`. The setup script only
+`analysis/runtime-startup-guard-20261013/preparation.json`. The setup script only
 copies files and invokes explicit offline validation modes. It cannot launch a
 normal kernel, receiver or console window.
 
 ## Prepared scope
 
-- Immutable review package: `output/staging/combined-runtime-startup-final-20261013`.
-- Disposable run: `output/candidate-runs/runtime-startup-20261013`.
+- Immutable review package: `output/staging/combined-runtime-guard-20261013`.
+- Disposable run: `output/candidate-runs/runtime-guard-20261013`.
 - Kernel configuration: a reviewed structural copy of the installed launcher's
   saved C24C records, selected without changing its identity or calibration.
   One receiver, C24C input only; C241 is absent from this candidate configuration.

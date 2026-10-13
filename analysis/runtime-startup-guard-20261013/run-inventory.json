@@ -1,0 +1,70 @@
+{
+  "console/bin/iMouse2.deps.json": {
+    "sha256": "037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc",
+    "bytes": 413
+  },
+  "console/bin/iMouse2.dll": {
+    "sha256": "a49c5100aa24cf504a033b121380f3734101518b69e3212a8b244f1fc5a2b743",
+    "bytes": 731648
+  },
+  "console/bin/iMouse2.exe": {
+    "sha256": "19c0bd22ceb64c447f645b68f12671c42adc8bffdc92713b3045258911db641d",
+    "bytes": 152064
+  },
+  "console/bin/iMouse2.pdb": {
+    "sha256": "4c72783b76ef6529683fb0361067851d40da987c1b717d127d70d91eae4d7b02",
+    "bytes": 142188
+  },
+  "console/bin/iMouse2.runtimeconfig.json": {
+    "sha256": "c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782",
+    "bytes": 458
+  },
+  "console/bin/startup-validation.json": {
+    "sha256": "1d1c58a2db6760783572730b87a6cdc6619fc7b17f164a2540ad0b86bd2a694f",
+    "bytes": 818
+  },
+  "console/data/settings.json": {
+    "sha256": "02af37d189dad5b49ce4e074f6f1c8d1c3157a30f5bea070ca086153beb32e7b",
+    "bytes": 72
+  },
+  "console/prepared.json": {
+    "sha256": "a1704289b7abf78bc6a02cb7ff041cf491b6d2d2f3b799d31ae06e3f24e17947",
+    "bytes": 4072
+  },
+  "kernel/bin/iMouse2.Kernel.deps.json": {
+    "sha256": "2324e47bde304034773364751a620b0290f52f3d36bf74ec44a14d48928db0d8",
+    "bytes": 434
+  },
+  "kernel/bin/iMouse2.Kernel.dll": {
+    "sha256": "e0f00fa86c217e2c00913e22adc04c7c9c5477e670078b7a94f19e9d5af92e16",
+    "bytes": 279040
+  },
+  "kernel/bin/iMouse2.Kernel.exe": {
+    "sha256": "41cd26d89f1d3dac87a99503879bd697e1ce9703a45c822f7ce875f74213a12c",
+    "bytes": 152064
+  },
+  "kernel/bin/iMouse2.Kernel.pdb": {
+    "sha256": "6439477dfc7ffc4f4382c4b5872648989b21f1d85ca430f475f8b28df729e605",
+    "bytes": 56660
+  },
+  "kernel/bin/iMouse2.Kernel.runtimeconfig.json": {
+    "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+    "bytes": 340
+  },
+  "kernel/data/devices.json": {
+    "sha256": "30a49e2ef0638c1fbf6dd2715c9986931390e484076092559dedb62459fb045c",
+    "bytes": 307
+  },
+  "kernel/data/pointer-calibration.json": {
+    "sha256": "3c0cb25b5a4add1df67a51b341660cbd30be720258af84e8e7b3eea413e1c9f0",
+    "bytes": 171
+  },
+  "kernel/data/receivers.json": {
+    "sha256": "1a8f387245700d0e4325c5087814b7bc2b59ffc6e8416ad51c1abca88c7721ab",
+    "bytes": 193
+  },
+  "PREPARED-NOT-LAUNCHED.json": {
+    "sha256": "7e285bfa0629f89307e9ef8932be7374110797d95e6426e6401d0a61eadd9d02",
+    "bytes": 4832
+  }
+}

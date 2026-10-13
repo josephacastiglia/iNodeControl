@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Incomplete receiver runtimes refused before startup, 13 October
+
+The kernel now checks the scanner and all eleven startup/pipeline plugin files for presence and nonzero length before normal startup can open hardware, bind a listener or start a receiver. It names missing files and asks for dependency-package repair. The check also applies to `--validate-startup`; external frame-pipe hosting still needs no local runtime. This is file validation, not native DLL loading or dependency attestation.
+
+**206 kernel checks pass**, including 27 new checks. The old kernel accepts the actual broken runtime in its validation mode; the guarded kernel refuses it with all six missing plugins named, and accepts the repaired runtime. The new tests fail on the old product. A fresh review package and isolated C24C-only run are recorded under `analysis/runtime-startup-guard-20261013/`. Console, receiver and repaired runtime bytes are unchanged. No service/window/hardware input was started in this offline follow-up. Physical candidate acceptance and recasting reliability remain open; no gate was advanced.
+
 ## Candidate window: runtime startup repaired, 13 October
 
 The user explicitly authorized the C24C-only API window. The candidate kernel started, but the reduced receiver runtime omitted UxPlay's mandatory playback/autodetect plugins and its audio pipeline plugins. The receiver exhausted its initial start plus five retries before video; no phone input or candidate console test occurred. The candidate was stopped gracefully and the original launcher restored the release. Both phones were confirmed mirroring at 04:31 UTC, unowned and generation 0. C241 initially did not list its receiver, then reappeared without another restart or setting/cable change. Installed/configuration/settings bytes are unchanged; ordinary release receiver logs grew.
