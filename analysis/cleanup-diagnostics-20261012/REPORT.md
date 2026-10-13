@@ -75,4 +75,11 @@ Home, App Switcher, real accuracy/latency/video/recovery, all-rack identificatio
 scale, clean-PC loading and final endurance still require their recorded work.
 No finish criterion is marked passed by this change.
 
-The external preservation receipt is `archive-verification.json` once completed.
+## Preservation
+
+Implementation and primary evidence are committed locally as `b5f6fdf`, not
+pushed. The external archive
+`../iMouseXP-2.0-evidence-archive/20261012-cleanup-diagnostics/` contains **808
+files, 204,535,120 bytes**, plus its checksum inventory. All copies match, including
+the tested source, deliberately broken copy, standalone-verified full review
+package, prepared run and single-branch Git bundle. See `archive-verification.json`.
