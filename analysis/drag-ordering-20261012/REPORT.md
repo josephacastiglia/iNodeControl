@@ -84,6 +84,13 @@ the preceding record (`protected-files.json`). The existing full persistence
 review package remains unchanged and still contains its earlier console. This
 new component is not an installed or promoted release.
 
+Source/evidence commit: `b42b8a2`. The external archive
+`../iMouseXP-2.0-evidence-archive/20261012-drag-ordering/` holds 168 files
+(24,118,796 bytes) plus its checksum inventory. Every hash verifies, including
+the exact reviewed source bytes, component builds, negative controls and
+prepared-but-unlaunched copy. The verified Git bundle contains only the active
+candidate branch. See `archive-verification.json`. Nothing was pushed.
+
 ## Next
 
 The console currently initiates asynchronous API cleanup from synchronous
