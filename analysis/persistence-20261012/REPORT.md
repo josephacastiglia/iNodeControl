@@ -91,6 +91,14 @@ the retained earlier self-test failure report.
 
 ## Next work
 
+Source and test evidence are committed locally as af81c28. The external archive
+`../iMouseXP-2.0-evidence-archive/20261012-persistence/` preserves 115 files
+(88,202,446 bytes) plus a SHA-256 inventory, including the tested binaries,
+negative controls, prepared-but-unlaunched console and a single-branch source
+bundle. All file hashes and the Git bundle verify. The review ZIP also verifies
+after extraction using its included verifier. See archive-verification.json.
+No backup branch was bundled and nothing was pushed.
+
 The console still offers Bind, Unbind and Auto-bind while the ownership kernel
 explicitly refuses /device/set. Auto-bind can consequently misreport this
 unsupported operation as a cable or pointer problem. Reconcile those controls
