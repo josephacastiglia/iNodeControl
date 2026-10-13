@@ -1,0 +1,12 @@
+{
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261013-receiver-retry-status",
+  "commit": "ffa54ef926210a8eaa442c6c2289798c6a53f2b4",
+  "files": 65,
+  "bytes": 1450095,
+  "all_hashes_verified": true,
+  "installed_static_hashes_unchanged": true,
+  "kernel_sha256": "83f7e6edd82286bb48f76ce4a20a9eb52377d5155801499589609b5aae97aa57",
+  "candidate_physically_tested": false,
+  "rebuilt_kernel_packaged_for_live": false,
+  "full_release_acceptance": false
+}
