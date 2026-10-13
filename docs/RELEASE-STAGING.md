@@ -117,9 +117,18 @@ packaged receiver. The nested `verify_runtime.py verify --bundle .` also works
 independently inside `dependencies/receiver-runtime/`.
 
 `metadata/receipts.json` preserves the installed package versions, declared
-licenses, upstream URLs and available notices. `runtime.json` lists missing
-local notices. These are evidence records, not distribution clearance; obtaining
-the corresponding source/notices and reviewing release obligations remain open.
+licenses, upstream URLs and available notices, including package-listed notices
+under `share/doc`. `runtime.json` lists missing local notices. A supplemental
+`metadata/source-notice-index.json`, when present, maps version-matched source
+notices to those packages; it does not erase the installed-notice gaps.
+
+The October provenance capsule also includes recorded checks of exact signed
+binary archives and source recipes. Full archives and their detached signatures
+are preserved separately in the evidence archive. Signatures were checked
+against the selected local public keyring, without a fresh revocation/trust-chain
+review. Do not interpret a matching recipe as a reproduced dependency build.
+These records and collected notices do not establish complete corresponding
+source or permission to distribute an installer. Those release checks remain open.
 Local synthetic video tests do not establish clean-PC or physical rack acceptance.
 
 To create this dependency copy, run `tools/stage_receiver_runtime.py stage` with

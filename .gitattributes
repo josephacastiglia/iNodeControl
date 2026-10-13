@@ -23,3 +23,4 @@ analysis/binding-policy-20261012/** -text
 analysis/pointer-queue-20261012/** -text
 analysis/drag-ordering-20261012/** -text
 analysis/input-cleanup-20261012/** -text
+analysis/runtime-provenance-20261012/** -text

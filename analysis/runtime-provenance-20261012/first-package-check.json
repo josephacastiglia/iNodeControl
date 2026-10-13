@@ -1,0 +1,10 @@
+{
+  "result": "failed",
+  "stage": "standalone runtime verification",
+  "extra_files": [
+    "dependencies/receiver-runtime/__pycache__/stage_release.cpython-311.pyc"
+  ],
+  "cause": "Python imported stage_release before bytecode caching was disabled; verifier wrote an unrecorded cache file.",
+  "package_retained": "output\\staging\\combined-runtime-provenance-20261012",
+  "phone_or_service_work": false
+}

@@ -2,6 +2,8 @@
 import json
 from pathlib import Path
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -53,6 +55,45 @@ class RuntimeStageTests(unittest.TestCase):
         self.notice.unlink()
         result = self.stage()
         self.assertEqual(result["notice_gaps"], ["fixture"])
+
+    def test_package_listed_doc_notice_is_preserved(self):
+        notice = self.msys / "ucrt64/share/doc/fixture/COPYING"
+        notice.parent.mkdir(parents=True)
+        notice.write_text("the package's actual notice")
+        (self.db / "files").write_text("%FILES%\nucrt64/bin/fixture.dll\nucrt64/share/doc/fixture/COPYING\n")
+        result = self.stage()
+        self.assertEqual(result["notice_gaps"], [])
+        self.assertEqual(r.verify(self.out), [])
+        saved = next((self.out / "metadata/packages").rglob("COPYING"))
+        self.assertEqual(saved.read_bytes(), notice.read_bytes())
+
+    def test_missing_doc_notice_remains_a_gap(self):
+        (self.db / "files").write_text("%FILES%\nucrt64/bin/fixture.dll\nucrt64/share/doc/fixture/COPYING\n")
+        result = self.stage()
+        self.assertEqual(result["notice_gaps"], ["fixture"])
+        receipt = r.package.load(self.out / "metadata/receipts.json")["packages"][0]
+        self.assertEqual(receipt["missing_listed_notices"], ["ucrt64/share/doc/fixture/COPYING"])
+
+    def test_translations_and_unlisted_documents_do_not_fill_notice_gap(self):
+        self.notice.write_text("unlisted notice")
+        translation = self.msys / "ucrt64/share/doc/fixture/license-translations.dict"
+        translation.parent.mkdir(parents=True)
+        translation.write_text("not a license text")
+        (self.db / "files").write_text("%FILES%\nucrt64/bin/fixture.dll\nucrt64/share/doc/fixture/license-translations.dict\n")
+        self.assertEqual(self.stage()["notice_gaps"], ["fixture"])
+
+    def test_notice_summary_cannot_hide_a_gap(self):
+        self.notice.unlink()
+        manifest = self.stage()
+        manifest["notice_gaps"] = []
+        (self.out / "runtime.json").write_text(json.dumps(manifest))
+        self.assertIn("Notice-gap summary disagrees with package receipts", r.verify(self.out))
+
+    def test_runtime_summary_counts_are_checked(self):
+        manifest = self.stage()
+        manifest["package_count"] = 0
+        (self.out / "runtime.json").write_text(json.dumps(manifest))
+        self.assertIn("Runtime summary counts disagree with package receipts", r.verify(self.out))
 
     def test_changed_runtime_refused_before_output_creation(self):
         self.library.write_bytes(b"changed")
@@ -125,6 +166,19 @@ class RuntimeStageTests(unittest.TestCase):
         shutil.copytree(self.out, relocated)
         self.library.unlink()
         self.assertEqual(r.verify(relocated), [])
+
+    def test_standalone_verifier_never_changes_the_package_it_verifies(self):
+        self.stage()
+        relocated = Path(self.tmp.name) / "standalone"
+        shutil.copytree(self.out, relocated)
+        before = r.package.inventory(relocated, "not-an-existing-manifest")
+        for _ in range(2):
+            # Ignore inherited Python environment, particularly bytecode settings.
+            result = subprocess.run([sys.executable, "-E", "-s", str(relocated / "verify_runtime.py"),
+                                     "verify", "--bundle", str(relocated)], cwd=self.tmp.name,
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(r.package.inventory(relocated, "not-an-existing-manifest"), before)
 
     def test_malicious_notice_path_refused(self):
         (self.db / "files").write_text("%FILES%\nucrt64/bin/fixture.dll\nucrt64/share/licenses/../../../../outside\n")

@@ -1,0 +1,27 @@
+test_changed_during_copy_never_writes_manifest (test_stage_release.StageTests.test_changed_during_copy_never_writes_manifest) ... ok
+test_changed_managed_build_refused (test_stage_release.StageTests.test_changed_managed_build_refused) ... ok
+test_changed_native_executable_refused (test_stage_release.StageTests.test_changed_native_executable_refused) ... ok
+test_changed_native_source_refused (test_stage_release.StageTests.test_changed_native_source_refused) ... ok
+test_copy_failure_never_writes_completion_manifest (test_stage_release.StageTests.test_copy_failure_never_writes_completion_manifest) ... ok
+test_destination_cannot_be_release_or_source_or_outside_repo (test_stage_release.StageTests.test_destination_cannot_be_release_or_source_or_outside_repo) ... ok
+test_duplicate_json_key_rejected (test_stage_release.StageTests.test_duplicate_json_key_rejected) ... ok
+test_existing_empty_directory_is_not_overwritten (test_stage_release.StageTests.test_existing_empty_directory_is_not_overwritten) ... ok
+test_extra_file_fails (test_stage_release.StageTests.test_extra_file_fails) ... ok
+test_launchable_status_is_rejected (test_stage_release.StageTests.test_launchable_status_is_rejected) ... ok
+test_missing_file_fails (test_stage_release.StageTests.test_missing_file_fails) ... ok
+test_missing_required_build_artifact_refused_even_with_updated_record (test_stage_release.StageTests.test_missing_required_build_artifact_refused_even_with_updated_record) ... ok
+test_missing_review_blocker_rejected (test_stage_release.StageTests.test_missing_review_blocker_rejected) ... ok
+test_rehashed_payload_must_match_embedded_build_record (test_stage_release.StageTests.test_rehashed_payload_must_match_embedded_build_record) ... ok
+test_relocated_bundle_is_independent_of_original_repo (test_stage_release.StageTests.test_relocated_bundle_is_independent_of_original_repo) ... ok
+test_required_file_cannot_be_deleted_from_both_inventory_and_payload (test_stage_release.StageTests.test_required_file_cannot_be_deleted_from_both_inventory_and_payload) ... ok
+test_stale_managed_source_refused_before_output_created (test_stage_release.StageTests.test_stale_managed_source_refused_before_output_created) ... ok
+test_tampered_payload_fails (test_stage_release.StageTests.test_tampered_payload_fails) ... ok
+test_unapproved_asset_refused_even_if_in_inventory (test_stage_release.StageTests.test_unapproved_asset_refused_even_if_in_inventory) ... ok
+test_unexpected_framework_is_rejected (test_stage_release.StageTests.test_unexpected_framework_is_rejected) ... ok
+test_unsafe_manifest_paths_rejected (test_stage_release.StageTests.test_unsafe_manifest_paths_rejected) ... ok
+test_valid_bundle_and_no_runtime_settings (test_stage_release.StageTests.test_valid_bundle_and_no_runtime_settings) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 35.229s
+
+OK

@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Native package notices and provenance, 12 October
+
+The runtime stager now includes package-listed notices under `share/doc` and verifies its receipt/count summaries. All 91 exact cached binary packages have valid signatures against the selected local public keyring; 229 payload/notice members match the staged bytes. Twenty-two signed source archives have recipes matching the binary build metadata. Fifty-five supplemental source notices cover all 23 remaining local-notice gaps, without erasing those gaps or claiming complete distribution clearance.
+
+**58 tooling checks pass.** Product/runtime binaries and source are unchanged. A reproduced standalone-verifier cache-write defect is also fixed; checking a package leaves its bytes unchanged. The new `output/staging/combined-runtime-provenance-final-20261012/` package adds notices, provenance and updated preparation guidance; it remains review-only and unlaunched. See `analysis/runtime-provenance-20261012/REPORT.md` and its preservation receipt. Physical acceptance, clean-PC loading and complete release obligations remain open. Next: exact candidate configuration and acceptance preparation; typing stays deferred.
+
 ## Awaited disconnect, reconnect and close, 12 October
 
 The console now waits for retired clients to finish bounded, ownership-scoped cleanup. A release already in flight remains tracked after its token is detached; failed or missing confirmation is recorded rather than mistaken for success. Rapid reconnect activates only the newest client after prior cleanup. Normal window close and test exits await cleanup, with isolated atomic receipts and visible warnings for unresolved normal closure.

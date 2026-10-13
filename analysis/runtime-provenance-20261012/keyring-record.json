@@ -1,0 +1,12 @@
+{
+  "installed_public_armored": {
+    "sha256": "1257d4ccc536c53333445a618039af4c3ea3f56b96601de9af89151ea529c19a",
+    "bytes": 54878
+  },
+  "converted_binary_public": {
+    "sha256": "d5efcc13a6d394ec3726078a6bcae331f4fa61d74bb787521bab0789e533d102",
+    "bytes": 39167
+  },
+  "conversion": "gpg --no-options --batch --no-tty --homedir <isolated-empty-home> --output <scratch-public-keyring> --dearmor <installed-public-keyring>",
+  "scope": "Public key material only; no imported private keys, signing, network or trust database refresh."
+}

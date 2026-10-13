@@ -1,0 +1,15 @@
+test_standalone_verifier_never_changes_the_package_it_verifies (test_stage_receiver_runtime.RuntimeStageTests.test_standalone_verifier_never_changes_the_package_it_verifies) ... FAIL
+
+======================================================================
+FAIL: test_standalone_verifier_never_changes_the_package_it_verifies (test_stage_receiver_runtime.RuntimeStageTests.test_standalone_verifier_never_changes_the_package_it_verifies)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_stage_receiver_runtime.py", line 180, in test_standalone_verifier_never_changes_the_package_it_verifies
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : runtime unrecorded: __pycache__/stage_release.cpython-311.pyc
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.366s
+
+FAILED (failures=1)

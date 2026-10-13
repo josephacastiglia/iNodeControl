@@ -4,7 +4,10 @@ import json
 import os
 from pathlib import Path
 import shutil
+import sys
 
+# Set before importing a local helper: import may cache it before its code runs.
+sys.dont_write_bytecode = True
 import stage_release as package
 
 
@@ -23,6 +26,16 @@ def fields(path):
         elif key and line:
             result[key].append(line)
     return result
+
+
+def is_notice(item):
+    """Recognize package-listed notices, including projects that install them in doc/."""
+    if item.endswith("/"):
+        return False
+    if "/share/licenses/" in item:
+        return True
+    basename = item.rsplit("/", 1)[-1].split(".", 1)[0].upper()
+    return "/share/doc/" in item and basename in {"COPYING", "COPYRIGHT", "LICENSE", "LICENCE", "NOTICE"}
 
 
 def verify(root):
@@ -51,6 +64,11 @@ def verify(root):
                 issues.append(f"Missing package record: {name}")
     if described != {name for name in expected if name.startswith("runtime/")}:
         issues.append("Runtime files and package ownership records disagree")
+    gaps = [item["name"][0] for item in receipt["packages"] if not item["notices"] or item["missing_listed_notices"]]
+    if manifest.get("notice_gaps") != gaps:
+        issues.append("Notice-gap summary disagrees with package receipts")
+    if manifest.get("package_count") != len(receipt["packages"]) or manifest.get("runtime_file_count") != len(described):
+        issues.append("Runtime summary counts disagree with package receipts")
     return issues
 
 
@@ -119,7 +137,7 @@ def stage(repo, out, msys, audit_path, receiver):
             add(package.safe(directory, key), prefix + key)
         notices, missing = [], []
         for item in listed:
-            if "/share/licenses/" not in item or item.endswith("/"):
+            if not is_notice(item):
                 continue
             path = package.safe(msys, item)
             if not path.is_file():
