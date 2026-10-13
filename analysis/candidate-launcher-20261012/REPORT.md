@@ -80,3 +80,20 @@ build attestation or a signature. No release gate is newly signed off.
 
 Next offline work is the combined kernel's candidate configuration and readiness
 checks using existing tools. The deferred first-space investigation stays deferred.
+
+## Preservation
+
+Checkpoint `738af17` contains the implementation and evidence; `b980f6d` preserves
+the evidence bytes across Git line-ending conversion. Neither was pushed.
+`../iMouseXP-2.0-evidence-archive/20261012-candidate-launcher/` holds 117 files
+(18,160,245 bytes) plus its checksum inventory: exact source snapshots, both
+prepared copies, the no-window probe copy, proxy build, logs and a bundle of only
+the active candidate branch. Every copied file and archived checksum verified.
+The prior console-diagnostics archive still holds the complete review package
+and native runtime. No backup branch was included or published.
+
+The next source review found two startup gaps: the kernel silently falls back
+when movement timing is malformed, and starts its receiver fleet before trying
+to bind the HTTP endpoint. Configuration validation also occurs after board
+enumeration. These are source observations to address offline, not failures
+reproduced on the live rack. No kernel change is included in this checkpoint.
