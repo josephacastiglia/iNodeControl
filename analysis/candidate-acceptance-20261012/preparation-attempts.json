@@ -1,0 +1,12 @@
+[
+  {
+    "run": "combined-acceptance-20261012",
+    "result": "refused during console preparation",
+    "cause": "Windows PowerShell inherited a PowerShell 7 module path from Python; Get-FileHash unavailable. Fixed child environment only."
+  },
+  {
+    "run": "combined-acceptance-final-20261012",
+    "result": "both offline startup validations passed; record assembly failed",
+    "cause": "Recorder expected build.sha256 instead of the console schema build.Sha256. Product output was valid; recorder corrected."
+  }
+]

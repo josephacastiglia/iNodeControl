@@ -10,6 +10,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Exact candidate acceptance preparation, 12 October
+
+The consolidated review package now has a separate prepared C24C-only kernel configuration and hover-off console profile. Both exact binaries pass their actual no-window startup validation modes. Saved configuration, kernel files, isolated settings and installed hashes are unchanged. No service, receiver or app window was started. See `analysis/candidate-acceptance-20261012/REPORT.md`, `preparation.json` and `docs/CANDIDATE-ACCEPTANCE.md`.
+
+The acceptance guide retains the written thresholds and identifies the remaining physical window, scale and endurance work. Gate 4's narrative now points to the already consolidated harness; no gate checkbox changed. A fresh read-only process/listener check confirms the rack is still stopped. Live candidate acceptance therefore remains pending, typing stays deferred, and the installed release is untouched.
+
 ## Native package notices and provenance, 12 October
 
 The runtime stager now includes package-listed notices under `share/doc` and verifies its receipt/count summaries. All 91 exact cached binary packages have valid signatures against the selected local public keyring; 229 payload/notice members match the staged bytes. Twenty-two signed source archives have recipes matching the binary build metadata. Fifty-five supplemental source notices cover all 23 remaining local-notice gaps, without erasing those gaps or claiming complete distribution clearance.

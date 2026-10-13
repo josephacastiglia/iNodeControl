@@ -130,13 +130,18 @@ form. The only copy of `tools/gate4_1000_tap_suite.py` was written at 01:50:35 o
 after the run finished (01:08) and after its isolation audit (01:48), and the audit quotes
 code the file no longer contains. No earlier version is in git or the 28 Sep backup.
 
-A revised harness addressing items 1-4 and the isolation race, tested offline but not yet
-run on a phone, is on branch `claude/gate4-harness-v2` (`tools/gate4_v2/`).
+The revised harness originally preserved on `claude/gate4-harness-v2` is now
+consolidated into `tools/gate4_1000_tap_suite.py`; `tools/gate4_v2/gate4_suite.py`
+is a compatibility entry point to that same implementation. It addresses the
+isolation-baseline race with explicit settled-Home checks and stops when that
+baseline cannot be established. Its mock tests do not change this historical run.
+See [the current harness guide](tools/gate4_v2/README.md) and
+[the consolidation record](analysis/accuracy-recovery-20261012/REPORT.md).
 
-Before a qualifying rerun, lengthen the harness's 350 ms pause after dismissing each
-trial (`tools/gate4_1000_tap_suite.py`) so the non-target phone is photographed only
-after it settles. Otherwise the second bullet will again rest on an after-the-fact
-audit rather than on the run itself.
+Before a qualifying rerun, calibrate and review varied targets on the intended
+phones/settings profile, record the exact harness and candidate build, and
+demonstrate the updated settling/recovery checks physically. The revised suite
+has not yet run on a phone; all release requirements above remain unchanged.
 
 Evidence: [status.json](analysis/gate4-1000-tap/status.json), [results.jsonl](analysis/gate4-1000-tap/results.jsonl), [ISOLATION-AUDIT.md](analysis/gate4-1000-tap/ISOLATION-AUDIT.md).
 
