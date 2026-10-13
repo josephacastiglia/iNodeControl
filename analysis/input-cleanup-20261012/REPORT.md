@@ -91,7 +91,17 @@ acceptance remain open. Earlier packages remain unchanged.
 
 ## Next
 
-Use the consolidated candidate for the remaining acceptance preparation. Recheck
-current rack availability read-only before deciding which API-only acceptance
-work can run within existing permissions. Keep the installed release unchanged,
-the first-space investigation deferred, and physical gates explicitly open.
+The consolidated package contains 565 inventoried files plus `package.json`.
+Source/evidence commit: `e267c1e`. The external archive
+`../iMouseXP-2.0-evidence-archive/20261012-input-cleanup/` holds 717 files
+(204,057,950 bytes) plus its checksum inventory. Every hash, the exact tested
+source, the standalone package verifier and the active-branch Git bundle verify.
+The local archive does not publish the package or clear its release blockers.
+See `archive-verification.json`.
+
+The subsequent read-only readiness check at 22:39 local time found no iMouse
+console/kernel/receiver process and no listener on port 9913. No service was
+started and no API request was sent. `rack-readiness.json` records this separately
+from the archive's earlier source snapshot. Continue offline with native-runtime
+notice/provenance gaps and candidate acceptance preparation. Keep the installed
+release unchanged, the first-space investigation deferred and physical gates open.
