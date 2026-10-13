@@ -45,8 +45,50 @@ class StageTests(unittest.TestCase):
         self.guide = self.repo / 'guide.md'
         self.guide.write_text('# Review only')
 
-    def stage(self):
-        return s.stage(self.repo,self.output,self.managed,self.exe,self.native_record,self.native,self.guide)
+    def stage(self, **kwargs):
+        return s.stage(self.repo,self.output,self.managed,self.exe,self.native_record,self.native,self.guide, **kwargs)
+
+    def launcher_fixture(self):
+        source = self.repo / s.LAUNCHER_SOURCE
+        source.write_bytes(b'param([switch]$CheckOnly)\r\n# source fixture only\r\n')
+        return source
+
+    def test_launcher_source_is_preserved_as_text_not_an_entry_point(self):
+        source = self.launcher_fixture()
+        with patch('subprocess.Popen', side_effect=AssertionError('must not start anything')):
+            result = self.stage(include_launcher_source=True)
+        self.assertEqual((self.output / s.LAUNCHER_ARCHIVE).read_bytes(), source.read_bytes())
+        self.assertEqual(result['launcher_source']['file'], s.row(source))
+        self.assertFalse((self.output / s.LAUNCHER_SOURCE).exists())
+        self.assertFalse(list((self.output / 'source/launcher').glob('*.ps1')))
+        self.assertEqual(s.verify(self.output), [])
+
+    def test_missing_requested_launcher_refused_before_output(self):
+        with self.assertRaises(OSError): self.stage(include_launcher_source=True)
+        self.assertFalse(self.output.exists())
+
+    def test_rehashed_launcher_must_match_its_source_record(self):
+        self.launcher_fixture(); self.stage(include_launcher_source=True)
+        (self.output / s.LAUNCHER_ARCHIVE).write_bytes(b'changed')
+        self.edit_manifest(lambda m: m['files'].update({s.LAUNCHER_ARCHIVE: s.row(self.output / s.LAUNCHER_ARCHIVE)}))
+        self.assertIn('Launcher source provenance mismatch', s.verify(self.output))
+
+    def test_declared_launcher_cannot_be_removed_from_inventory_and_disk(self):
+        self.launcher_fixture(); self.stage(include_launcher_source=True)
+        (self.output / s.LAUNCHER_ARCHIVE).unlink()
+        self.edit_manifest(lambda m: m['files'].pop(s.LAUNCHER_ARCHIVE))
+        self.assertIn('Missing or unexpected launcher source files', s.verify(self.output))
+
+    def test_launcher_source_verifies_after_repository_is_unavailable(self):
+        self.launcher_fixture(); self.stage(include_launcher_source=True)
+        relocated = Path(self.tmp.name) / 'relocated source bundle'
+        shutil.copytree(self.output, relocated); shutil.rmtree(self.repo)
+        self.assertEqual(s.verify(relocated), [])
+
+    def test_launcher_archive_cannot_be_relabelled_as_executable(self):
+        self.launcher_fixture(); self.stage(include_launcher_source=True)
+        self.edit_manifest(lambda m: m['launcher_source'].update(archive_path='Open iMouse 2.0.ps1'))
+        with self.assertRaisesRegex(ValueError, 'launcher source'): s.verify(self.output)
 
     def test_valid_bundle_and_no_runtime_settings(self):
         with patch('subprocess.Popen', side_effect=AssertionError('must not start processes')):

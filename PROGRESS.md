@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Accumulated recovery repairs packaged and prepared offline, 13 October
+
+`output/staging/combined-recovery-20261013` now preserves the latest kernel, unchanged console/receiver/runtime and the launcher's error-reporting source as inert text. Its 689-file inventory, embedded source provenance and native-runtime checks pass; 615 console/receiver/runtime entries are byte-identical to the previous package. All 28 packaging checks pass, including six new launcher-source preservation checks. Nothing was installed or launched on the rack.
+
+A fresh C24C-only run at `output/candidate-runs/recovery-20261013` passes both binaries' saved-configuration validation and the candidate launcher's final `-CheckOnly`. Preparation exposed an old problem: console validation writes a report beside its executable, causing the strict launcher to reject the intended run. The new script validates a separate byte-identical copy and leaves the prepared run pristine. It uses package-contained source/build records, an explicit address, isolated settings and hover tracking off. Installed files, operator settings and source configuration remain unchanged. See `analysis/consolidated-package-20261013/REPORT.md`. Physical candidate acceptance, clean-PC loading and release obligations remain open; no gate advanced.
+
 ## Receiver exit and partial-start cleanup confirmed, 13 October
 
 The candidate now waits up to five seconds for the receiver root to exit before disposal succeeds. Startup owns its child even if attaching stdout/stderr fails; confirmed cleanup permits the usual bounded retry, while unconfirmed cleanup preserves both errors and blocks every replacement. The original behavior failed eight of nine initial fake-process cases. **14 deterministic lifetime cases, six real hidden-child cases, 29 recovery/logging checks and 207 kernel checks pass.** All six final helper exits were verified from retained handles. No rack process, receiver, API, desktop or phone was operated.

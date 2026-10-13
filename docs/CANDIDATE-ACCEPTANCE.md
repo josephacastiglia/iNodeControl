@@ -2,20 +2,28 @@
 
 This is the next-test record for the combined candidate, not release sign-off.
 
-**Later offline changes:** the launcher now preserves startup refusals, and the
+**Current offline package:** `output/staging/combined-recovery-20261013` includes
+the accumulated repairs and a fresh, unused C24C-only preparation at
+`output/candidate-runs/recovery-20261013`. Its complete file inventory, embedded
+source records, native-runtime inventory and final prepared-launcher check pass.
+Both exact binaries validate saved configuration without windows, listeners,
+receivers, settings writes or rack contact. The new kernel has not run on phones.
+See `analysis/consolidated-package-20261013/REPORT.md`.
+
+The launcher now preserves startup refusals, and the
 kernel's screenshot writer isolates stalled clients from frame delivery with
 bounded copies and transfer timeouts. Receiver supervision also reports actual
 replacement attempts, preserves failure reasons and retains the last known PID
 when cleanup fails. Child-process ownership now waits for confirmed root exit
 and cleans partial starts, blocking retries when cleanup is unknown. The newest
 recorded kernel is under
-`analysis/receiver-process-cleanup-20261013/final-kernel`; it is not the kernel used
-in the live window below and has not been assembled into a new runtime review
-package. Its verification is recorded in that folder's report. The screenshot
+`analysis/receiver-process-cleanup-20261013/final-kernel` and is preserved in the
+current package; it is not the kernel used in the live window below. Its
+verification is recorded in that folder's report. The screenshot
 repair's separate 206-check kernel, 34 frame checks, loopback transport probe and
 nine simulated input-cleanup scenarios remain historical for that build.
-Prepare and verify a new package
-before any later approved live test. Do not modify or relaunch the used run below
+The root launcher's repair is included as inert source, not installed or used as
+the candidate launcher. Do not modify or relaunch the used run below
 to imply that it includes these changes. See the receiver, screenshot and launcher reports.
 
 **13 October update:** the first authorized candidate window failed before
@@ -24,7 +32,7 @@ from the reduced runtime. The original release was restored and both phones
 were confirmed mirroring at 04:31 UTC, unowned at generation 0. No C24C/C241
 input or FKA change was sent. See `analysis/candidate-live-20261013/REPORT.md`.
 Six runtime plugins were added and production renderer startup now passes
-offline. The latest package, `output/staging/combined-runtime-guard-20261013`,
+offline. The package used for that retry, `output/staging/combined-runtime-guard-20261013`,
 also includes a kernel guard that refuses missing/empty startup plugins before
 hardware or receiver startup. Its 206 kernel checks and actual CLI comparisons
 pass; console, receiver and repaired runtime bytes are unchanged. See
@@ -39,17 +47,22 @@ returned Home physically. Both original receivers were restored live/free at
 diagnostic-export checks remain unrun. See
 `analysis/candidate-retry-20261013/REPORT.md`. Do not launch the original
 incomplete runtime again or treat these scoped results as full acceptance.
-The latest prepared files are recorded in
-`analysis/runtime-startup-guard-20261013/preparation.json`. The setup script only
+The current prepared files are recorded in
+`analysis/consolidated-package-20261013/preparation.json`. The setup script only
 copies files and invokes explicit offline validation modes. It cannot launch a
 normal kernel, receiver or console window.
 
 ## Prepared scope
 
-- Immutable review package: `output/staging/combined-runtime-guard-20261013`.
-- Recorded test run: `output/candidate-runs/runtime-guard-20261013`. It is now
-  used and contains receiver logs; preserve it. Prepare a fresh run for a later
-  window rather than assuming its original preparation inventory still matches.
+- Immutable review package: `output/staging/combined-recovery-20261013`.
+- Fresh unused run: `output/candidate-runs/recovery-20261013`. Both binaries pass
+  offline validation; console validation runs from a separate matching copy so
+  its generated report cannot invalidate the prepared run. The final launcher
+  `-CheckOnly` passes. Preserve this inventory until an approved launch.
+- Historical live run: `output/candidate-runs/runtime-guard-20261013`. It contains
+  receiver logs and is not the new candidate. Its console preparation also has
+  a validation report that the strict launcher correctly rejects; the new
+  preparation avoids that problem without weakening the guard or altering the old run.
 - Kernel configuration: a reviewed structural copy of the installed launcher's
   saved C24C records, selected without changing its identity or calibration.
   One receiver, C24C input only; C241 is absent from this candidate configuration.

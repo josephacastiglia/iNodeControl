@@ -1,0 +1,30 @@
+{
+  "valid": true,
+  "scope": "saved configuration only",
+  "hardware_accessed": false,
+  "listener_started": false,
+  "receivers_started": false,
+  "settings_written": false,
+  "build": {
+    "version": "1.0.0.0",
+    "informational_version": "1.0.0\u002B61e7d4d92fc5fe700574c8e9730b27a5572af855",
+    "module_id": "2446fe84-ac45-4460-8468-f085c1d5d558",
+    "sha256": "a45b38a3c628acee07310345ac638c1cfdf553fa32927fd92bc73b6649828877"
+  },
+  "data_directory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\recovery-20261013\\kernel\\data",
+  "address": "http://127.0.0.1:9913/api/",
+  "allowed": [
+    "C24C"
+  ],
+  "precise_delay_ms": 7,
+  "home_sequence": "vendor",
+  "receiver_count": 1,
+  "receiver_executable": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-recovery-20261013\\payload\\receiver\\uxplay.exe",
+  "receiver_runtime": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-recovery-20261013\\dependencies\\receiver-runtime\\runtime",
+  "bindings_complete": true,
+  "limitations": [
+    "Physical bindings, targeting and mirroring are not assessed.",
+    "Available ports, URL permissions and dependency loading are not tested.",
+    "Runtime file presence is not a dependency or build attestation."
+  ]
+}

@@ -25,10 +25,17 @@ The package contains these areas:
 | `payload/receiver/` | Patched native UxPlay executable |
 | `dependencies/receiver-runtime/` (optional) | Audited native DLLs, scanner/plugins, package records and available notices for local tests |
 | `source/` | Exact recorded project/native source snapshots; includes source fixtures, not copied operator settings |
+| `source/launcher/Open iMouse 2.0.ps1.txt` (optional) | Byte-identical launcher source preserved as inert text for review, with its own source record; not a runnable candidate launcher |
 | `provenance/` | Original managed build manifests and native build comparison |
 | `package.json` | File checksums, review-only status, and unresolved release requirements |
 
 Runtime folders deliberately exclude copied `data/`, operator settings, test results, logs, and machine-specific receiver configuration. Source fixtures under `source/` are evidence; do not use them as live configuration. Local paths and device identifiers can appear in source, symbols, and provenance. Review the bundle before publishing it.
+
+Use `--include-launcher-source` when staging to preserve the current root launcher
+without creating an executable entry point in the package. Its fixed release
+paths are still source for a later reviewed installation, not a candidate launch
+configuration. This option records the source bytes and verifies them after
+relocation; it does not run the script or install its startup-error handling.
 
 ## Resolve the release requirements
 

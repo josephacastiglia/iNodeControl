@@ -13,6 +13,8 @@ import build_manifest as bm
 
 MANAGED = {"console": "iMouse2", "kernel": "iMouse2.Kernel"}
 SUFFIXES = (".dll", ".exe", ".deps.json", ".runtimeconfig.json", ".pdb")
+LAUNCHER_SOURCE = "Open iMouse 2.0.ps1"
+LAUNCHER_ARCHIVE = "source/launcher/Open iMouse 2.0.ps1.txt"
 BLOCKERS = [
     "Combined source still needs interactive console and physical acceptance on this build; headless tests are not release sign-off.",
     "Runtime completeness, external .NET Desktop runtime and clean-PC behavior require verification; included native dependencies remain local-test-only.",
@@ -123,6 +125,20 @@ def verify(bundle):
             issues.append(f"native source provenance mismatch: {target}")
     permitted_payload = {p for p in required if p.startswith("payload/")}
     issues += [f"unapproved runtime asset: {name}" for name in expected if name.startswith("payload/") and name not in permitted_payload]
+    launcher = manifest.get("launcher_source")
+    launcher_files = {name for name in expected if name.startswith("source/launcher/")}
+    if launcher is None:
+        if launcher_files:
+            issues.append("Undeclared launcher source")
+    else:
+        if (not isinstance(launcher, dict) or launcher.get("source_path") != LAUNCHER_SOURCE
+                or launcher.get("archive_path") != LAUNCHER_ARCHIVE
+                or launcher.get("scope") != "source_only_not_a_candidate_launcher"):
+            raise ValueError("Unexpected launcher source declaration")
+        if launcher_files != {LAUNCHER_ARCHIVE}:
+            issues.append("Missing or unexpected launcher source files")
+        if expected.get(LAUNCHER_ARCHIVE) != launcher.get("file"):
+            issues.append("Launcher source provenance mismatch")
     capsule_name = manifest.get("native_runtime")
     if capsule_name is None and any(name.startswith("dependencies/") for name in expected):
         issues.append("Undeclared dependency payload")
@@ -148,7 +164,7 @@ def verify(bundle):
     return issues
 
 
-def stage(repo, output, managed, native_exe, native_record, native_source, guide, runtime_bundle=None, operator_guide=None):
+def stage(repo, output, managed, native_exe, native_record, native_source, guide, runtime_bundle=None, operator_guide=None, include_launcher_source=False):
     repo, output = Path(repo).resolve(), Path(output)
     # All creation stays in a new child of this checkout's output/staging directory.
     staging = safe(repo, "output/staging")
@@ -203,6 +219,12 @@ def stage(repo, output, managed, native_exe, native_record, native_source, guide
         add(guide, "RELEASE-STAGING.md")  # Preserve the operator guide's relative reference.
     add(Path(__file__), "verify_package.py")
     add(Path(bm.__file__), "build_manifest.py")
+    launcher = None
+    if include_launcher_source:
+        source = safe(repo, LAUNCHER_SOURCE)
+        add(source, LAUNCHER_ARCHIVE)
+        launcher = {"source_path": LAUNCHER_SOURCE, "archive_path": LAUNCHER_ARCHIVE,
+                    "scope": "source_only_not_a_candidate_launcher", "file": row(source)}
     runtime_prefix = None
     if runtime_bundle is not None:
         # Import only when staging dependencies. The standalone verifier checks the
@@ -235,6 +257,8 @@ def stage(repo, output, managed, native_exe, native_record, native_source, guide
                 "scope": "Integrity and recorded local provenance; not a signature, dependency attestation or physical acceptance."}
     if runtime_prefix:
         manifest["native_runtime"] = runtime_prefix
+    if launcher:
+        manifest["launcher_source"] = launcher
     with (resolved / "package.json").open("x", encoding="utf-8") as handle:
         json.dump(manifest, handle, indent=2)
     issues = verify(resolved)
@@ -253,6 +277,7 @@ def main(argv=None):
         s.add_argument("--" + key, type=Path, required=True)
     s.add_argument("--runtime-bundle", type=Path, help="verified local-test-only native runtime capsule")
     s.add_argument("--operator-guide", type=Path, help="include the current operator guide alongside the preparation guide")
+    s.add_argument("--include-launcher-source", action="store_true", help="preserve the root launcher as inert .ps1.txt source, never as a runnable entry point")
     args = parser.parse_args(argv)
     try:
         if args.mode == "verify":
@@ -262,7 +287,7 @@ def main(argv=None):
             print("Integrity FAILED" if issues else "Integrity verified. REVIEW ONLY: startup and deployment remain blocked.")
             return 1 if issues else 0
         result = stage(args.repo, args.out, {c: (getattr(args, c+"_build"), getattr(args, c+"_manifest")) for c in MANAGED},
-                       args.receiver_exe, args.receiver_record, args.receiver_source, args.guide, args.runtime_bundle, args.operator_guide)
+                       args.receiver_exe, args.receiver_record, args.receiver_source, args.guide, args.runtime_bundle, args.operator_guide, args.include_launcher_source)
         print(f"Staged {len(result['files'])} verified files. REVIEW ONLY: no process was started.")
         return 0
     except (ValueError, OSError, KeyError, TypeError) as error:

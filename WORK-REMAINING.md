@@ -54,6 +54,8 @@ The two-phone system has working foundations: independent kernel and mirroring, 
 
 34. **Completed offline:** confirmed receiver root exit before successful disposal/replacement; partial-start cleanup now blocks retries when unconfirmed. 14 fake lifetime cases, six real hidden-child cases, 29 recovery/logging checks and 207 kernel checks pass. The test-runner cleanup flaw is corrected and recorded; every final helper exited. See `analysis/receiver-process-cleanup-20261013/REPORT.md`. Descendant-tree containment, phone rediscovery, native crash/recast and physical release acceptance are not established by these tests. Assemble and verify the accumulated repairs in a fresh review package before another approved live window.
 
+35. **Completed offline:** accumulated recovery repairs are assembled in `combined-recovery-20261013`, with exact launcher source preserved as inert text. All 28 package checks pass. Both binaries validate a fresh C24C-only configuration; the strict prepared-launcher check passes after keeping generated validation reports in a separate copy. See `analysis/consolidated-package-20261013/REPORT.md`. No candidate window, listener or receiver was started, and no settings or installed files changed. The fresh package still needs physical/console acceptance and clean-PC/runtime release work.
+
 Offline work can prepare and repair these areas. Full-rack behavior, physical targeting, real display latency and final endurance acceptance still require later coordinated hardware runs. No desktop-control window, restart, deployment or promotion is authorized by this document.
 
 The detailed requirements remain in [FINISH-CRITERIA.md](FINISH-CRITERIA.md); current evidence and history are in [PROGRESS.md](PROGRESS.md).
