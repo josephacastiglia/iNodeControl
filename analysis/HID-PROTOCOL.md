@@ -1,5 +1,12 @@
 # HID protocol — WCH boards (VID 720A)
 
+**14 October 2026 update:** static analysis of the original vendor DLL now
+identifies the separate Fn field, the shortcut Tab prelude, movement reply
+handlers and an unvalidated alternate absolute mode. Read
+[the vendor protocol report](vendor-protocol-rea-20261014/REPORT.md).
+Those findings extend the historical capture below; they do not establish new
+phone-side acceptance. The saved-byte decoder is `tools/vendor_hid_decode.py`.
+
 Captured 13 Sep 2026 23:43:51–23:45:42 local, Windows USB ETW (`tools/hid-capture.ps1`),
 19 boards present, IMService still running. File: `analysis/hid-captures/vid720a-20260913-234351`.
 
@@ -69,7 +76,7 @@ Our transport awaits completion of each write.
 | 2 | signed 8-bit relative X displacement | USB keyboard usage, e.g. 04 A, 2B Tab, 2C Space |
 | 3 | signed 8-bit relative Y displacement | zero in captures |
 | 4–6 | zero in captures; other meanings unverified | zero in captures |
-| 7 | zero in mouse captures; meaning unverified | 02 participates in vendor AppSwitch/ControlBar chord; exact semantics not generalized |
+| 7 | zero in mouse captures; meaning unverified | 02 is the vendor Fn field (14 Oct static confirmation); values other than 00/02 remain unknown |
 
 | Operation | Observed/replayed data |
 |---|---|

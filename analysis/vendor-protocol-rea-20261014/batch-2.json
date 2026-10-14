@@ -1,0 +1,61 @@
+[
+  {
+    "tool": "open_binary",
+    "args": {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\.tooling\\imouse-rea-20261014\\targets\\MouseKeyItem.dll",
+      "provider_id": "ghidra"
+    },
+    "output": "mousekey-open-2.json"
+  },
+  {
+    "tool": "batch_decompile",
+    "args": {
+      "addresses": [
+        "0x100024b0",
+        "0x100044f0",
+        "0x1000b7a0",
+        "0x10002810",
+        "0x10013b40",
+        "0x10013600",
+        "0x100031b0",
+        "0x1000ca70"
+      ]
+    },
+    "output": "mousekey-paths.json"
+  },
+  {
+    "tool": "procedure_references",
+    "args": {
+      "procedure": "hid_ReadBuffer",
+      "direction": "incoming"
+    },
+    "output": "hid_ReadBuffer-callers.json"
+  },
+  {
+    "tool": "procedure_references",
+    "args": {
+      "procedure": "hid_read_event",
+      "direction": "incoming"
+    },
+    "output": "hid_read_event-callers.json"
+  },
+  {
+    "tool": "procedure_references",
+    "args": {
+      "procedure": "hid_read_timeout",
+      "direction": "incoming"
+    },
+    "output": "hid_read_timeout-callers.json"
+  },
+  {
+    "tool": "export_evidence_bundle",
+    "args": {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\vendor-protocol-rea-20261014\\mousekey-evidence-2.json"
+    },
+    "output": "mousekey-export-2.json"
+  },
+  {
+    "tool": "close_binary",
+    "output": "mousekey-close-2.json"
+  }
+]

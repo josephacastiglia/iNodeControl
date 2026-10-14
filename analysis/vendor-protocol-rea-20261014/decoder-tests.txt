@@ -1,0 +1,18 @@
+test_completion_never_claims_ios_success_or_position (test_vendor_hid_decode.VendorHidDecodeTests.test_completion_never_claims_ios_success_or_position) ... ok
+test_direction_changes_meaning (test_vendor_hid_decode.VendorHidDecodeTests.test_direction_changes_meaning) ... ok
+test_fn_is_separate_from_shift (test_vendor_hid_decode.VendorHidDecodeTests.test_fn_is_separate_from_shift) ... ok
+test_identifier_is_six_bytes_and_retains_unknown_tail (test_vendor_hid_decode.VendorHidDecodeTests.test_identifier_is_six_bytes_and_retains_unknown_tail) ... ok
+test_rejects_nonzero_report_id (test_vendor_hid_decode.VendorHidDecodeTests.test_rejects_nonzero_report_id) ... ok
+test_rejects_wrong_sizes (test_vendor_hid_decode.VendorHidDecodeTests.test_rejects_wrong_sizes) ... ok
+test_requires_explicit_valid_direction_and_framing (test_vendor_hid_decode.VendorHidDecodeTests.test_requires_explicit_valid_direction_and_framing) ... ok
+test_shift_does_not_imply_fn (test_vendor_hid_decode.VendorHidDecodeTests.test_shift_does_not_imply_fn) ... ok
+test_status_cause_remains_unknown (test_vendor_hid_decode.VendorHidDecodeTests.test_status_cause_remains_unknown) ... ok
+test_unknown_family_is_preserved (test_vendor_hid_decode.VendorHidDecodeTests.test_unknown_family_is_preserved) ... ok
+test_unknown_keyboard_bits_survive (test_vendor_hid_decode.VendorHidDecodeTests.test_unknown_keyboard_bits_survive) ... ok
+test_unknown_mouse_fields_survive (test_vendor_hid_decode.VendorHidDecodeTests.test_unknown_mouse_fields_survive) ... ok
+test_windows_report_id_is_removed_exactly_once (test_vendor_hid_decode.VendorHidDecodeTests.test_windows_report_id_is_removed_exactly_once) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.000s
+
+OK

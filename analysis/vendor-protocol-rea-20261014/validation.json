@@ -1,0 +1,8 @@
+{
+  "verified_at_utc": "2026-10-14T23:24:50.990449+00:00",
+  "vendor_originals_and_copies_verified": 3,
+  "static_checks": 14,
+  "decoder_tests": 13,
+  "historical_output_reports": 221,
+  "scope": "Saved files and synthetic cases only; no vendor execution, rack access or physical tests"
+}

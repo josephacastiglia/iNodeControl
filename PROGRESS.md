@@ -1,6 +1,6 @@
 # iNodeControl / iMouse 2.0: Durable Project Progress Record
 
-- **Updated:** 13 October 2026
+- **Updated:** 14 October 2026
 - **Latest session:** Codex; resumed the saved Omp/Orca and Claude work
 - **Repository:** `https://github.com/josephacastiglia/iNodeControl`
 - **Local Root:** `C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0`
@@ -10,6 +10,22 @@
   - Integration: `.claude/worktrees/keyboard-spec-reconcile` (`claude/input-timeout-integration`, `d0c4ccf`)
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
+
+## Original vendor protocol investigated offline, 14 October
+
+REA 6.5.0 and Ghidra decompiled 27 targeted functions from a hash-verified copy
+of the original `MouseKeyItem.dll`. The investigation resolved the separate Fn
+field, traced the generic Tab prelude, and identified movement/identifier reply
+handlers plus an unvalidated absolute-coordinate path. The new saved-packet
+decoder passes 13 offline tests and parses 221 historical output reports;
+14 independent static checks verify cited DLL offsets. Read
+`analysis/vendor-protocol-rea-20261014/REPORT.md` for provenance and limits.
+
+No vendor code, device handle, rack API or desktop control ran. Product sources
+and staged binaries are unchanged; no physical defect or release gate is closed.
+Raw evidence and target copies are preserved outside the repository. The next
+protocol step is controlled validation of incoming reports before adding reply
+handling; typing/FKA remains deferred.
 
 ## Latest combined timing candidate preserved, 13 October
 

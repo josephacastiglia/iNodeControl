@@ -1,4 +1,4 @@
-# iNodeControl continuation checkpoint — 13 October 2026
+# iNodeControl continuation checkpoint — 14 October 2026
 
 Continue in `C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate`,
 branch `local/combined-candidate-20261012`. The user requested continued progress;
@@ -7,6 +7,11 @@ change or unresolved concern. Nothing is pushed, installed or promoted.
 
 ## Latest completed work
 
+- Original vendor HID protocol investigated with REA/Ghidra, entirely offline.
+  Read `analysis/vendor-protocol-rea-20261014/REPORT.md`: Fn field and Tab
+  prelude resolved; incoming movement/identifier handlers identified; absolute
+  mode unvalidated. Decoder: 13 tests, 221 saved output reports; DLL: 14 static
+  evidence checks. No runtime source or packaged binary changed, no rack calls.
 - Candidate isolation, actual connected-service hint and two-stream timing
   preflight: 89 runner, 20 diagnostics and 409 headless console checks pass.
   Five unsafe preflights fail on the old runner. Both UIA helper scripts parse;
