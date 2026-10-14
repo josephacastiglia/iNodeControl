@@ -12,7 +12,8 @@ Work resumed at the operator's request. Fleet shutdown is repaired and packaged;
 - Latest tool repair: visual misses stop the Gate 6 runner, lease failures and cleanup are recorded, and evidence cannot overwrite earlier runs. All 35 regressions and its self-check pass. Read `analysis/gate6-failure-handling-20261013/REPORT.md`.
 - Latest implementation: opt-in console response timeline, bounded diagnostic export and offline reader in the existing Gate 6 runner. Console 402, preview/timing 56 and runner 44 checks pass; shared cases overlap. Read `analysis/response-timing-20261013/REPORT.md`.
 - Its exact standalone console is `analysis/response-timing-20261013/console-final/`, with source/build manifest. It is not yet in the combined package below. No live or UI-control test ran.
-- Next useful offline work: explicit UIA preparation/console-owned lease cleanup and reviewed correctness evidence for timing. Physical click-to-display timing is still not established by the opt-in bitmap timeline. Keep extending the existing runner rather than adding a parallel harness. No missing-space experiments should resume.
+- Latest tooling: console-owned cleanup through normal Disconnect, including uncertain helper outcomes and process-lifetime checks; 65 runner checks pass. Read `analysis/gate6-console-cleanup-20261013/REPORT.md`. This is offline preparation, not validated desktop cleanup.
+- Next useful offline work: explicit candidate-isolation/preflight checks, UIA preparation and reviewed correctness evidence for timing. Physical click-to-display timing is still not established by the opt-in bitmap timeline. Keep extending the existing runner rather than adding a parallel harness. No missing-space experiments should resume.
 
 ## One current candidate
 

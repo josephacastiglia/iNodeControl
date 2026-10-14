@@ -11,6 +11,12 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Timing-runner console cleanup prepared offline, 13 October
+
+The Gate 6 runner now treats an incomplete UIA reply as possible console ownership and attempts normal Disconnect once during finalization. Both explicit console completion and read-only target release status are needed for confirmed cleanup. Process identity includes the exact executable and creation FILETIME, checked within every helper. Failed or unavailable cleanup never triggers forced release, input replay or automatic reconnect. Original trial failure and cleanup uncertainty are recorded separately.
+
+All 65 offline checks pass, with six initial cases failing on the prior runner, plus syntax-only parsing of both generated PowerShell helpers. No UI control, phone requests or new product build ran. See `analysis/gate6-console-cleanup-20261013/REPORT.md`. Desktop execution and isolation/preparation requirements remain open; the combined package remains unchanged.
+
 ## Console response timeline implemented offline, 13 October
 
 An opt-in, bounded in-memory timeline now records console input-dispatch/command phases and successful selected-preview bitmap updates on one monotonic clock, with phone/epoch and receiver frame identity. It is included in the existing diagnostic export; it records no pixels, text payloads or lease tokens. The existing Gate 6 runner can analyze that export offline, rejects dropped/inconsistent events and does not infer correctness or physical display latency.

@@ -4,6 +4,7 @@ import contextlib
 import copy
 import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -372,6 +373,209 @@ class RunLifecycleTests(unittest.TestCase):
         self.assertEqual(self.record("cleanup.json")["api_release"], "confirmed")
 
 
+class ConsoleRunCleanupTests(unittest.TestCase):
+    setUp = RunLifecycleTests.setUp
+    record = RunLifecycleTests.record
+
+    def prepare(self, failure=None, cleanup_error=None):
+        self.stack.enter_context(patch.object(gate6, "bind_console"))
+        def trial(*args):
+            gate6.UIA_OWNS["on"] = True
+            if failure:
+                raise failure
+            return {"phone": "C24C", "category": "home", "cycle": 1, "via": "uia", "miss": False}
+        self.stack.enter_context(patch.object(gate6, "run_cycle", side_effect=trial))
+        return self.stack.enter_context(patch.object(gate6, "release_console", create=True,
+            side_effect=cleanup_error, return_value={"console_disconnect": "confirmed", "target_free": True}))
+
+    def test_console_success_releases_through_console(self):
+        release = self.prepare()
+        gate6.live(1, ["home"], False, console_pid=999999)
+        release.assert_called_once_with([gate6.C24C])
+        self.assertEqual(self.record("cleanup.json")["console_release"], "confirmed")
+
+    def test_uncertain_helper_still_releases_without_replay(self):
+        release = self.prepare(TimeoutError("helper outcome unknown"))
+        with self.assertRaisesRegex(SystemExit, "outcome unknown"):
+            gate6.live(2, ["home"], False, console_pid=999999)
+        release.assert_called_once()
+        self.assertEqual(len(self.record("rows.json")), 1)
+
+    def test_console_release_failure_preserves_trial_failure(self):
+        self.prepare(RuntimeError("original trial failed"), RuntimeError("disconnect unknown"))
+        with self.assertRaisesRegex(RuntimeError, "disconnect unknown"):
+            gate6.live(1, ["home"], False, console_pid=999999)
+        self.assertIn("original trial failed", self.record("run-state.json")["error"])
+        self.assertEqual(self.record("cleanup.json")["console_release"], "unconfirmed")
+
+    def test_interrupt_still_disconnects(self):
+        release = self.prepare(KeyboardInterrupt("operator interruption"))
+        with self.assertRaises(KeyboardInterrupt):
+            gate6.live(1, ["home"], False, console_pid=999999)
+        release.assert_called_once()
+
+    def test_fire_marks_possible_ownership_before_helper_returns(self):
+        with self.assertRaises(TimeoutError):
+            gate6.fire("home", gate6.C24C, None, [None], uia=Mock(side_effect=TimeoutError()))
+        self.assertTrue(gate6.UIA_OWNS["on"])
+
+    def test_setup_marks_possible_ownership_before_helper_returns(self):
+        gate6.UIA_OWNS["on"] = False
+        with self.assertRaises(TimeoutError):
+            gate6.home_via(gate6.C24C, None, False, uia=Mock(side_effect=TimeoutError()))
+        self.assertTrue(gate6.UIA_OWNS["on"])
+
+    def test_no_uia_action_does_not_disconnect_a_console(self):
+        self.stack.enter_context(patch.object(gate6, "bind_console"))
+        self.stack.enter_context(patch.object(gate6, "run_cycle", side_effect=RuntimeError("preparation failed")))
+        release = self.stack.enter_context(patch.object(gate6, "release_console"))
+        gate6.UIA_OWNS["on"] = False
+        with self.assertRaises(SystemExit):
+            gate6.live(1, ["home"], False, console_pid=999999)
+        release.assert_not_called()
+        self.assertEqual(self.record("cleanup.json")["console_release"], "no_action_attempted")
+
+    def test_free_status_does_not_override_failed_disconnect(self):
+        release = self.prepare()
+        release.return_value = {"console_disconnect": "unconfirmed", "target_free": True}
+        with self.assertRaisesRegex(RuntimeError, "not confirmed"):
+            gate6.live(1, ["home"], False, console_pid=999999)
+        state = self.record("run-state.json")
+        self.assertEqual(state["status"], "cleanup_failed")
+        self.assertTrue(state["cleanup_failed"])
+        self.assertTrue(gate6.UIA_OWNS["on"])
+
+    def test_owned_status_does_not_override_successful_disconnect(self):
+        release = self.prepare()
+        release.return_value = {"console_disconnect": "confirmed", "target_free": False}
+        with self.assertRaisesRegex(RuntimeError, "not confirmed"):
+            gate6.live(1, ["home"], False, console_pid=999999)
+        self.assertEqual(self.record("cleanup.json")["console_release"], "unconfirmed")
+
+    def test_failed_cleanup_never_prints_successful_completion(self):
+        self.prepare(cleanup_error=RuntimeError("disconnect unknown"))
+        with contextlib.redirect_stdout(io.StringIO()) as output, self.assertRaises(RuntimeError):
+            gate6.live(1, ["home"], False, console_pid=999999)
+        self.assertNotIn("done ", output.getvalue())
+
+
+class ConsoleReleaseProtocolTests(unittest.TestCase):
+    def setUp(self):
+        self.stack = contextlib.ExitStack()
+        self.addCleanup(self.stack.close)
+        self.stack.enter_context(patch.dict(gate6.CONSOLE, {"pid": 999999, "phone": "C24C",
+            "exe": r"C:\scratch\candidate's folder\imouse-candidate-5\iMouse2.exe", "started": 123456789}))
+        self.child = self.stack.enter_context(patch.object(gate6.subprocess, "Popen", side_effect=AssertionError("UI forbidden")))
+        self.addCleanup(self.child.assert_not_called)
+        self.network = self.stack.enter_context(patch.object(gate6, "api", side_effect=AssertionError("network forbidden")))
+
+    @staticmethod
+    def status():
+        return {"code": 0, "protocol": 1, "phones": [{"id": gate6.C24C, "owned": False,
+            "active": False, "releasing": False, "release_failed": False}]}
+
+    def reply(self, status=None):
+        self.network.side_effect = None
+        self.network.return_value = (1, json.dumps({"data": self.status() if status is None else status}).encode())
+
+    def test_release_checks_current_status_after_completed_disconnect(self):
+        self.reply()
+        with patch.object(gate6, "run_uia_helper") as helper:
+            result = gate6.release_console([gate6.C24C])
+        helper.assert_called_once()
+        self.network.assert_called_once_with("GET", gate6.BASE + "/input/status", timeout=3)
+        self.assertEqual(result, {"console_disconnect": "confirmed", "target_free": True})
+
+    def test_failed_helper_only_reads_status_never_force_releases_or_retries(self):
+        self.reply()
+        with patch.object(gate6, "run_uia_helper", side_effect=TimeoutError("unknown")) as helper:
+            result = gate6.release_console([gate6.C24C])
+        self.assertEqual(result["console_disconnect"], "unconfirmed")
+        self.assertTrue(result["target_free"])
+        helper.assert_called_once()
+        self.network.assert_called_once_with("GET", gate6.BASE + "/input/status", timeout=3)
+
+    def test_unreachable_status_is_preserved_as_unknown(self):
+        self.network.side_effect = TimeoutError("status timed out")
+        with patch.object(gate6, "run_uia_helper"):
+            result = gate6.release_console([gate6.C24C])
+        self.assertEqual(result["console_disconnect"], "confirmed")
+        self.assertFalse(result["target_free"])
+        self.assertEqual(result["status_error"], "status timed out")
+
+    def test_free_status_requires_exact_unambiguous_boolean_fields(self):
+        variants = [None, {}, {"code": 1, "protocol": 1, "phones": []},
+                    {"code": 0, "protocol": 1, "phones": []}]
+        for flag in ("owned", "active", "releasing", "release_failed"):
+            for value in (True, None, 0, "false"):
+                snapshot = self.status(); snapshot["phones"][0][flag] = value; variants.append(snapshot)
+            snapshot = self.status(); del snapshot["phones"][0][flag]; variants.append(snapshot)
+        snapshot = self.status(); snapshot["phones"] *= 2; variants.append(snapshot)
+        snapshot = self.status(); snapshot["phones"][0]["id"] = gate6.C241; variants.append(snapshot)
+        for snapshot in variants:
+            with self.subTest(snapshot=snapshot):
+                self.assertFalse(gate6.released_targets(snapshot, [gate6.C24C]))
+        self.assertFalse(gate6.released_targets(self.status(), []))
+        self.assertTrue(gate6.released_targets(self.status(), [gate6.C24C]))
+
+    def test_bound_identity_records_creation_time_and_exact_executable(self):
+        exe = gate6.CONSOLE["exe"]
+        identity = Mock(return_value={"exe": exe, "started": 987654321})
+        self.assertEqual(gate6.bind_console(999999, exe, read_identity=identity), exe)
+        identity.assert_called_once_with(999999)
+        self.assertEqual(gate6.CONSOLE["started"], 987654321)
+        self.network.assert_not_called()
+
+    def test_explicit_path_mismatch_cannot_use_legacy_candidate_exception(self):
+        with self.assertRaisesRegex(SystemExit, "does not match"):
+            gate6.bind_console(999999, r"C:\different\iMouse2.exe", read_identity=lambda _: {
+                "exe": gate6.CONSOLE["exe"], "started": 1})
+
+    def test_unverified_creation_time_cannot_bind_or_create_helper(self):
+        for started in (None, 0, -1, True, "123"):
+            with self.subTest(started=started), self.assertRaises(SystemExit):
+                gate6.bind_console(999999, read_identity=lambda _: {"exe": gate6.CONSOLE["exe"], "started": started})
+        with patch.dict(gate6.CONSOLE, {"started": None}), self.assertRaises(SystemExit):
+            gate6.uia_invoke("HomeButton")
+
+    def test_installed_path_is_refused_even_if_explicit(self):
+        exe = r"C:\project\release\iMouse2-two-phone-candidate\iMouse2.exe"
+        with self.assertRaisesRegex(SystemExit, "installed"):
+            gate6.bind_console(999999, exe, read_identity=lambda _: {"exe": exe, "started": 1})
+
+    def test_script_limits_cleanup_to_disconnect_and_rechecks_process_lifetime(self):
+        script = gate6.disconnect_script()
+        self.assertIn("$p.StartTime.ToUniversalTime().ToFileTimeUtc() -ne 123456789", script)
+        self.assertIn("candidate''s folder", script)
+        self.assertIn("$p.Path -ine", script)
+        self.assertIn("Current.ProcessId -ne 999999", script)
+        self.assertIn("Input released", script)
+        self.assertIn("-ceq 'Disconnected'", script)
+        self.assertIn("AddSeconds(12)", script)
+        self.assertEqual(script.count(".Invoke();"), 2)  # Settings, Disconnect only
+        for forbidden in ("HomeButton", "StopInputButton", "ResumeInputButton", "Stop-Process", "/input/release"):
+            self.assertNotIn(forbidden, script)
+        self.assertIn("*C24C*", script)
+        self.assertIn("*C241*", script)
+
+    def test_action_helper_also_checks_process_lifetime(self):
+        with patch.object(gate6, "run_uia_helper") as helper:
+            gate6.uia_invoke("HomeButton")
+        script = helper.call_args.args[0][-1]
+        self.assertIn("ToFileTimeUtc() -ne 123456789", script)
+        self.assertIn("button unavailable", script)
+        self.network.assert_not_called()
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows process metadata")
+    def test_native_identity_reads_only_this_test_process(self):
+        identity = gate6.process_identity(os.getpid())
+        self.assertEqual(Path(identity["exe"]).resolve(), Path(sys.executable).resolve())
+        unix_start = identity["started"] / 10_000_000 - 11644473600
+        self.assertLessEqual(unix_start, time.time())
+        self.assertGreater(unix_start, time.time() - 600)
+        self.network.assert_not_called()
+
+
 class ConsoleTimingReaderTests(unittest.TestCase):
     def setUp(self):
         self.stack = contextlib.ExitStack()
@@ -468,7 +672,8 @@ class ConsoleHelperDeadlineTests(unittest.TestCase):
     """Fake child processes only; never launch PowerShell or touch a window."""
 
     def setUp(self):
-        self.console = patch.dict(gate6.CONSOLE, {"pid": 999999, "phone": "C24C"})
+        self.console = patch.dict(gate6.CONSOLE, {"pid": 999999, "phone": "C24C",
+            "exe": r"C:\scratch\imouse-candidate-5\iMouse2.exe", "started": 1})
         self.console.start()
         self.addCleanup(self.console.stop)
 

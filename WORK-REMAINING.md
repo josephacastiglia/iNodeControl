@@ -66,6 +66,8 @@ The two-phone system has working foundations: independent kernel and mirroring, 
 
 40. **Completed offline:** opt-in console response timeline and read-only analysis in the existing Gate 6 runner. Actual input/bitmap/export methods are checked without a window or hardware; 402 console, 56 preview/timing and 44 runner checks pass, with shared cases counted in both C# suites. See `analysis/response-timing-20261013/REPORT.md`. This records dispatch/bitmap timing, not physical-click-to-correct-display acceptance. The standalone console is not assembled into the prior package; actual correctness, display timing and overhead remain unverified.
 
+41. **Completed offline:** timing-runner console cleanup now calls the candidate's normal Disconnect after any attempted UIA action, including helper timeout/interruption. It requires both console confirmation and a free target status, preserves failures and checks process lifetime before UI actions. All 65 runner checks pass; six targeted cases fail on the old source. See `analysis/gate6-console-cleanup-20261013/REPORT.md`. Actual desktop cleanup, complete candidate preflight and correct-response timing still need validation. No product build or release package changed.
+
 Offline work can prepare and repair these areas. Full-rack behavior, physical targeting, real display latency and final endurance acceptance still require later coordinated hardware runs. No desktop-control window, restart, deployment or promotion is authorized by this document.
 
 The detailed requirements remain in [FINISH-CRITERIA.md](FINISH-CRITERIA.md); current evidence and history are in [PROGRESS.md](PROGRESS.md).

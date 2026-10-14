@@ -63,9 +63,11 @@ def accept_console(exe, console_path=None):
         raise SystemExit(f"refusing installed console: {exe}")
     if not norm.endswith("\\imouse2.exe"):
         raise SystemExit(f"not iMouse2.exe: {exe}")
-    if CANDIDATE_MARK in norm:
+    if console_path:
+        if norm != norm_path(console_path):
+            raise SystemExit("console path does not match the explicitly selected candidate")
         return exe
-    if console_path and norm == norm_path(console_path):
+    if CANDIDATE_MARK in norm:
         return exe
     raise SystemExit(f"pid is not a candidate console: {exe}")
 
@@ -76,19 +78,22 @@ def check_console(api_only, console_pid, exe=None, console_path=None):
     if not console_pid:
         raise SystemExit("UIA mode requires --console-pid")
     return accept_console(exe, console_path)
-def bind_console(console_pid, console_path=None, read_exe=None):
+def bind_console(console_pid, console_path=None, read_identity=None):
     if not console_pid:
         raise SystemExit("UIA mode requires --console-pid")
-    read_exe = process_exe if read_exe is None else read_exe
-    exe = read_exe(console_pid)
+    read_identity = process_identity if read_identity is None else read_identity
+    identity = read_identity(console_pid)
+    exe = identity["exe"]
     check_console(False, console_pid, exe, console_path)
-    CONSOLE["pid"] = int(console_pid)
+    if type(identity.get("started")) is not int or identity["started"] <= 0:
+        raise SystemExit("console process start time is not verified")
+    CONSOLE.update(pid=int(console_pid), exe=exe, started=identity["started"])
     return exe
 
 
 
 
-def process_exe(pid):
+def process_identity(pid):
     import ctypes
     from ctypes import wintypes
 
@@ -100,6 +105,8 @@ def process_exe(pid):
     ]
     kernel.QueryFullProcessImageNameW.restype = wintypes.BOOL
     kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel.GetProcessTimes.argtypes = [wintypes.HANDLE] + [ctypes.POINTER(wintypes.FILETIME)] * 4
+    kernel.GetProcessTimes.restype = wintypes.BOOL
     handle = kernel.OpenProcess(0x1000, False, int(pid))
     if not handle:
         raise SystemExit(f"cannot open console pid {pid}")
@@ -108,7 +115,11 @@ def process_exe(pid):
         size = wintypes.DWORD(len(buf))
         if not kernel.QueryFullProcessImageNameW(handle, 0, buf, ctypes.byref(size)):
             raise SystemExit(f"cannot read path for pid {pid}")
-        return buf.value
+        times = [wintypes.FILETIME() for _ in range(4)]
+        if not kernel.GetProcessTimes(handle, *(ctypes.byref(t) for t in times)):
+            raise SystemExit(f"cannot read start time for pid {pid}")
+        created = times[0]
+        return {"exe": buf.value, "started": (created.dwHighDateTime << 32) | created.dwLowDateTime}
     finally:
         kernel.CloseHandle(handle)
 
@@ -264,8 +275,9 @@ def home_via(pid, token, api_only, n=1, uia=None, api=None):
         for i in range(n):
             if i:
                 time.sleep(0.15)
+            # An incomplete helper reply cannot prove the console received nothing.
+            UIA_OWNS["on"] = True
             press("HomeButton")
-        UIA_OWNS["on"] = True
         return (0, 0) if n > 1 else 0
     times = []
     for i in range(n):
@@ -483,35 +495,54 @@ def run_uia_helper(command, t_box=None, timeout=None):
             proc.stdout.close()
 
 
-def uia_invoke(automation_id, t_box=None):
-    if not automation_id.isalnum():
-        raise ValueError(automation_id)
+def console_root_ps():
+    """Bind each helper to the same process lifetime, not merely a reusable PID."""
     pid = CONSOLE.get("pid")
+    exe, started = CONSOLE.get("exe"), CONSOLE.get("started")
+    if not pid or not exe or type(started) is not int or started <= 0:
+        raise SystemExit("console identity must be bound before UIA")
+    accept_console(exe, exe)
+    literal = "'" + exe.replace("'", "''") + "'"
+    return (
+        "$ErrorActionPreference='Stop';"
+        "Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes;"
+        "function Assert-Console{"
+        f"$p=Get-Process -Id {int(pid)} -EA Stop;"
+        f"if($p.Path -ine {literal} -or $p.StartTime.ToUniversalTime().ToFileTimeUtc() -ne {started})"
+        "{throw 'console identity changed; no action sent'};"
+        "if($p.MainWindowHandle -eq 0){throw 'console has no window'};"
+        "$script:root=[System.Windows.Automation.AutomationElement]::FromHandle($p.MainWindowHandle);"
+        f"if($script:root.Current.ProcessId -ne {int(pid)}){{throw 'wrong window process'}}"
+        "};Assert-Console;"
+        "function Find-Id($id){"
+        "$c=New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::AutomationIdProperty,$id);"
+        "return $script:root.FindFirst([System.Windows.Automation.TreeScope]::Descendants,$c)};"
+    )
+
+
+def console_scope_ps():
     phone = CONSOLE.get("phone") or "C24C"
-    if not pid:
-        raise SystemExit("UIA mode requires --console-pid")
     if phone not in ("C24C", "C241"):
         raise SystemExit(f"refusing UIA for {phone}")
     if phone == "C241":
         assert_target(C241)
     other = "C241" if phone == "C24C" else "C24C"
-    script = (
-        "$ErrorActionPreference='Stop';"
-        "Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes;"
-        f"$p=Get-Process -Id {int(pid)} -EA Stop;"
-        "if($p.MainWindowHandle -eq 0){throw 'console has no window'};"
-        "$script:root=[System.Windows.Automation.AutomationElement]::FromHandle($p.MainWindowHandle);"
-        "function Find-Id($id){"
-        "$c=New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::AutomationIdProperty,$id);"
-        "return $script:root.FindFirst([System.Windows.Automation.TreeScope]::Descendants,$c)};"
+    return (
         "$title=Find-Id 'SelectedTitle';"
         "if($null -eq $title){throw 'no SelectedTitle'};"
         "$name=$title.Current.Name;"
         f"if($name -notlike '*{phone}*' -or $name -like '*{other}*'){{throw ('selected ' + $name)}}; "
         + mirror_guard_ps()
-        +
+    )
+
+
+def uia_invoke(automation_id, t_box=None):
+    if automation_id not in BUTTONS.values():
+        raise ValueError(automation_id)
+    script = console_root_ps() + console_scope_ps() + (
+        "Assert-Console;"
         f"$el=Find-Id '{automation_id}';"
-        "if($null -eq $el){throw 'no button'};"
+        "if($null -eq $el -or -not $el.Current.IsEnabled){throw 'button unavailable'};"
         "$inv=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds();"
         "Write-Output $inv;"
         "[Console]::Out.Flush();"
@@ -522,6 +553,67 @@ def uia_invoke(automation_id, t_box=None):
         ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
         t_box,
     )
+
+
+def disconnect_script():
+    # Disconnect cancels the console queue and awaits its token-scoped releases.
+    # Opening Settings is a local UI action; there is no Home/Stop/API fallback.
+    return console_root_ps() + console_scope_ps() + (
+        "Assert-Console;$settings=Find-Id 'SettingsButton';"
+        "if($null -eq $settings -or -not $settings.Current.IsEnabled){throw 'Settings unavailable'};"
+        "$settings.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke();"
+        "$until=[DateTime]::UtcNow.AddSeconds(2);$el=$null;"
+        "do{Assert-Console;$el=Find-Id 'DisconnectButton';"
+        "if($null -ne $el -and $el.Current.IsEnabled -and -not $el.Current.IsOffscreen){break};"
+        "Start-Sleep -Milliseconds 50}while([DateTime]::UtcNow -lt $until);"
+        "if($null -eq $el -or -not $el.Current.IsEnabled -or $el.Current.IsOffscreen){throw 'Disconnect unavailable'};"
+        + console_scope_ps() +
+        "Assert-Console;"
+        "Write-Output ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds());[Console]::Out.Flush();"
+        "$el.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke();"
+        "$until=[DateTime]::UtcNow.AddSeconds(12);"
+        "do{Assert-Console;$status=Find-Id 'ConnectionStatus';$input=Find-Id 'InputStateText';"
+        "$disconnect=Find-Id 'DisconnectButton';"
+        "if($null -ne $status -and $null -ne $input -and $null -ne $disconnect -and "
+        "$status.Current.Name -ceq 'Disconnected' -and $input.Current.Name -ceq 'Input released' "
+        "-and -not $disconnect.Current.IsEnabled){'ok';exit 0};"
+        "Start-Sleep -Milliseconds 100}while([DateTime]::UtcNow -lt $until);"
+        "throw 'Disconnect did not confirm input release'"
+    )
+
+
+def released_targets(snapshot, targets):
+    """A missing/malformed/owned row is unknown, never evidence of release."""
+    if not isinstance(snapshot, dict) or snapshot.get("code") != 0 or snapshot.get("protocol") != 1:
+        return False
+    rows = snapshot.get("phones")
+    if not isinstance(rows, list):
+        return False
+    for target in targets:
+        matches = [row for row in rows if isinstance(row, dict) and row.get("id") == target]
+        if len(matches) != 1 or any(matches[0].get(k) is not False
+                for k in ("owned", "active", "releasing", "release_failed")):
+            return False
+    return bool(targets)
+
+
+def release_console(targets):
+    # UIA timeout still permits a read-only status check, but a free target alone
+    # cannot prove the console disconnected (it might reacquire on its next action).
+    outcome = {"console_disconnect": "unconfirmed", "target_free": False}
+    try:
+        run_uia_helper(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
+                        "-Command", disconnect_script()])
+        outcome["console_disconnect"] = "confirmed"
+    except (Exception, SystemExit) as ex:
+        outcome["disconnect_error"] = str(ex)[:500]
+    try:
+        _, raw = api("GET", BASE + "/input/status", timeout=3)
+        snapshot = json.loads(raw)["data"]
+        outcome["target_free"] = released_targets(snapshot, targets)
+    except Exception as ex:
+        outcome["status_error"] = str(ex)[:500]
+    return outcome
 
 
 def api_action(category, pid, token):
@@ -549,10 +641,10 @@ def fire(category, pid, token, t_box, api_only=False, uia=None, api=None, releas
             raise ValueError(f"{category} requires --api-only; no console action is implemented")
         if pid in HELD:
             release(pid)
+        UIA_OWNS["on"] = True
         invoked = uia(button, t_box)
         if t_box[0] is None:
             raise RuntimeError("console invocation did not provide its start time")
-        UIA_OWNS["on"] = True
         return {
             "via": "uia",
             # InvokePattern completion is not a kernel acknowledgement.
@@ -1012,12 +1104,12 @@ def self_check():
         raise AssertionError("process_exe ran")
 
     try:
-        bind_console(None, read_exe=spy_exe)
+        bind_console(None, read_identity=spy_exe)
         raise AssertionError("missing console pid")
     except SystemExit as ex:
         assert "console-pid" in str(ex)
     assert seen == []
-    assert bind_console(1, read_exe=lambda pid: cand) == cand
+    assert bind_console(1, read_identity=lambda pid: {"exe": cand, "started": 1}) == cand
 
     guard_ps = mirror_guard_ps()
     for key in ("BatchMode", "SelectAllBox", "Mirror*", "-ne 'Off'"):
@@ -1109,6 +1201,7 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
     dump(OUT, dest, "manifest.json", {
         "run_id": run_id, "phones": [name for name, *_ in plan], "categories": cats,
         "api_only": api_only, "allow_c241": ALLOW_C241, "console_pid": console_pid,
+        "console_identity": None if api_only else {key: CONSOLE.get(key) for key in ("pid", "exe", "started")},
         "out": str(dest), "frame_source": "kernel screenshot endpoint, not console presentation",
         "action_origin": "API request" if api_only else "UI Automation InvokePattern, not physical click",
         "gate6_acceptance": False,
@@ -1116,7 +1209,7 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
     state = {"status": "running", "phase": "acquire" if api_only else "trial"}
     cleanup = {"api_acquire": "unconfirmed" if api_only else "not_attempted",
                "api_release": "no_known_tokens",
-               "console_release": "not_applicable" if api_only else "not_managed_by_runner"}
+               "console_release": "not_applicable" if api_only else "no_action_attempted"}
     try:
         dump(OUT, dest, "run-state.json", state)
         if api_only:
@@ -1158,7 +1251,6 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
         stuck = input_status()
         summary = summarize(rows)
         dump(OUT, dest, "end-status.json", {"kernel": end, "input": stuck, "summary": summary})
-        print("done", len(rows), json.dumps(summary), flush=True)
         state.update(status="complete", phase="complete")
     except BaseException as ex:
         state.update(status="aborted", error=str(ex)[:500])
@@ -1176,17 +1268,31 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
                 cleanup.update(api_release="unconfirmed", error=str(ex)[:500])
                 print("RELEASE FAILED", ex, flush=True)
         cleanup["remaining_known_phones"] = sorted(HELD)
+        cleanup["console_action_attempted"] = UIA_OWNS["on"] if not api_only else False
+        if not api_only and UIA_OWNS["on"]:
+            cleanup["console_release"] = "unconfirmed"
+            try:
+                result = release_console([pid for _, pid, *_ in plan])
+                cleanup["console_cleanup"] = result
+                if result.get("console_disconnect") != "confirmed" or result.get("target_free") is not True:
+                    raise RuntimeError("console disconnect or target release was not confirmed")
+                cleanup["console_release"] = "confirmed"
+                UIA_OWNS["on"] = False
+            except (Exception, SystemExit) as ex:
+                cleanup["console_error"] = str(ex)[:500]
+                release_error = ex
         state["trial_rows"] = len(rows)
         state["cleanup_failed"] = release_error is not None
         if release_error is not None and state["status"] == "complete":
             state["status"] = "cleanup_failed"
         # Release is attempted before evidence writes, even if the disk is full.
-        # A missing acquisition reply cannot establish that no lease was granted;
-        # a console-owned lease is also explicitly outside this cleanup path.
+        # A missing acquisition reply cannot establish that no lease was granted.
+        # Console release needs both a completed Disconnect and free target status.
         dump(OUT, dest, "run-state.json", state)
         dump(OUT, dest, "cleanup.json", cleanup)
         if release_error is not None:
             raise RuntimeError(f"lease release unconfirmed: {release_error}") from release_error
+    print("done", len(rows), json.dumps(summarize(rows)), flush=True)
 
 
 def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
@@ -1415,7 +1521,7 @@ def main():
     p.add_argument("--category", action="append", choices=["search", "home", "appswitch", "controlcenter"])
     p.add_argument("--api-only", action="store_true", help="hold the lease and drive via HTTP; skip UIA")
     p.add_argument("--allow-c241", action="store_true", help="allow live commands to C241")
-    p.add_argument("--console-pid", type=int, help="candidate console PID; required unless --api-only")
+    p.add_argument("--console-pid", type=int, help="dedicated candidate PID; UIA runs disconnect it on completion or failure")
     p.add_argument("--console-path", help="expected console exe if it is not imouse-candidate-5")
     args = p.parse_args()
     if args.self_check:

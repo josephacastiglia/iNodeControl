@@ -1,0 +1,15 @@
+{
+  "base_commit": "1a4926d",
+  "source": [
+    {
+      "source": "analysis/gate6-release-validation-20260916/run_gate6.py",
+      "snapshot": "final-run_gate6.py",
+      "sha256": "95b8860235ca2ab42cbe3b6de53c33d25fb16062b9da23ad8612d43cc03328bc"
+    },
+    {
+      "source": "analysis/gate6-release-validation-20260916/test_run_gate6.py",
+      "snapshot": "final-test_run_gate6.py",
+      "sha256": "c8bbdbb38d14e17ead9314bab1a2729c525fa6da6f019b2000c340debc6f0d92"
+    }
+  ]
+}
