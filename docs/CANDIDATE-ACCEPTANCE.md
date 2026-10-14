@@ -1,32 +1,35 @@
 # Acceptance of the consolidated candidate
 
 This is the next-test record for the combined candidate, not release sign-off.
+Package pointers updated 14 October 2026; the recorded checks ran 13 October.
 
-**Current offline package:** `output/staging/combined-shutdown-20261013`, with
-fresh unused preparation at `output/candidate-runs/shutdown-20261013`.
-This combines the receiver fleet shutdown repair with the screenshot-client
-console repair and earlier recovery work. The complete 689-file inventory,
-embedded source/build records, native runtime and prepared-launcher check pass.
-Both exact binaries validate saved C24C-only configuration without windows,
-connections, listeners, receivers or settings writes. No physical acceptance
-has been performed on this combination. See
-`analysis/combined-shutdown-package-20261013/REPORT.md`.
+**Current offline package:** `output/staging/combined-timing-20261013`, with
+fresh unused preparation at `output/candidate-runs/timing-20261013`.
+This combines the preserved shutdown/recovery kernel with the latest console
+response timeline, actual-service tooltip/accessibility hint, image-reader
+repair and earlier input/recovery changes. All 692 package inventory entries,
+embedded source/build records and native runtime verify. Both exact binaries
+validate saved C24C-only configuration without windows, connections, listeners,
+receivers or settings writes. The strict prepared-launcher and saved-profile
+checks pass. See `analysis/combined-timing-package-20261013/REPORT.md`.
 
-The kernel now joins receiver cleanup already in progress, stops peers
-independently, waits for frame/supervisor tasks and reports unknown cleanup.
-Its final checks pass: 41 recovery, 207 kernel, 34 frame and 14 fake lifetime.
-See `analysis/fleet-shutdown-20261013/RESUMED-REPORT.md` for exact hashes and limits.
-The console image reader preserves bytes during growth and bounds the whole
-response by eight seconds and 64 MiB. Its exact earlier tests pass: 382 console,
-44 preview, 22 wall and the real local transfer probe. See
-`analysis/screenshot-client-20261013/REPORT.md`; those suites were not rerun
-merely to assemble this package. Neither repair establishes real display,
-receiver rediscovery, arbitrary native-startup bounds or descendant cleanup.
+The console has 409 headless self-tests; the existing Gate 6 runner has 89
+regressions and diagnostics has 20. The unchanged kernel retains recorded
+41 recovery, 207 kernel, 34 frame and 14 fake lifetime checks. These results
+belong to their recorded builds; they are not a combined physical acceptance
+count. Read `analysis/gate6-preflight-20261013/REPORT.md` and
+`analysis/fleet-shutdown-20261013/RESUMED-REPORT.md` for exact scope and limits.
 
-The previous `combined-recovery-20261013` package and its unused preparation
-remain unchanged. They lack these later combined repairs. The root launcher
-is preserved as inert source, not installed or used to start the candidate.
-Keep all earlier live results tied to their original binaries.
+The prepared kernel remains C24C-only. It does not satisfy the Gate 6 runner's
+separate requirement for both declared phones to stream during timing trials.
+UIA invocation, kernel screenshots and internal bitmap timings do not prove
+physical-click-to-correct-display latency. No UIA helper was executed in the
+latest offline checks.
+
+The previous `combined-shutdown-20261013` and `combined-recovery-20261013`
+packages/preparations remain unchanged as historical evidence. The root
+launcher is preserved as inert source, not installed or used to start this
+candidate. Keep all earlier live results tied to their original binaries.
 
 **13 October update:** the first authorized candidate window failed before
 phone input: UxPlay's startup checks required playback/autodetect plugins absent
@@ -50,14 +53,14 @@ diagnostic-export checks remain unrun. See
 `analysis/candidate-retry-20261013/REPORT.md`. Do not launch the original
 incomplete runtime again or treat these scoped results as full acceptance.
 The current prepared files are recorded in
-`analysis/combined-shutdown-package-20261013/preparation.json`. The setup script only
+`analysis/combined-timing-package-20261013/preparation.json`. The setup script only
 copies files and invokes explicit offline validation modes. It cannot launch a
 normal kernel, receiver or console window.
 
 ## Prepared scope
 
-- Immutable review package: `output/staging/combined-shutdown-20261013`.
-- Fresh unused run: `output/candidate-runs/shutdown-20261013`. Both binaries pass
+- Immutable review package: `output/staging/combined-timing-20261013`.
+- Fresh unused run: `output/candidate-runs/timing-20261013`. Both binaries pass
   offline validation; console validation runs from a separate matching copy so
   its generated report cannot invalidate the prepared run. The final launcher
   `-CheckOnly` passes. Preserve this inventory until an approved launch.
