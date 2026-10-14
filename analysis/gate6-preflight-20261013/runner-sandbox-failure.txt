@@ -1,0 +1,324 @@
+.EEEEE..E.EEEEEEEEEEE.........................................................................
+======================================================================
+ERROR: test_explicit_profile_pins_directory_address_hover_and_binary (__main__.CandidateProfileTests.test_explicit_profile_pins_directory_address_hover_and_binary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 568, in test_explicit_profile_pins_directory_address_hover_and_binary
+    result=self.validate()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmp4p_1xju8\\isolated data'
+
+======================================================================
+ERROR: test_hover_must_be_explicitly_boolean_false (__main__.CandidateProfileTests.test_hover_must_be_explicitly_boolean_false) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 605, in test_hover_must_be_explicitly_boolean_false
+    with self.subTest(value=value),self.assertRaisesRegex(ValueError,"hover"): self.validate()
+                                                                               ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmp819i6_8w\\isolated data'
+
+======================================================================
+ERROR: test_hover_must_be_explicitly_boolean_false (__main__.CandidateProfileTests.test_hover_must_be_explicitly_boolean_false) (value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 605, in test_hover_must_be_explicitly_boolean_false
+    with self.subTest(value=value),self.assertRaisesRegex(ValueError,"hover"): self.validate()
+                                                                               ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmp819i6_8w\\isolated data'
+
+======================================================================
+ERROR: test_hover_must_be_explicitly_boolean_false (__main__.CandidateProfileTests.test_hover_must_be_explicitly_boolean_false) (value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 605, in test_hover_must_be_explicitly_boolean_false
+    with self.subTest(value=value),self.assertRaisesRegex(ValueError,"hover"): self.validate()
+                                                                               ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmp819i6_8w\\isolated data'
+
+======================================================================
+ERROR: test_hover_must_be_explicitly_boolean_false (__main__.CandidateProfileTests.test_hover_must_be_explicitly_boolean_false) (value='false')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 605, in test_hover_must_be_explicitly_boolean_false
+    with self.subTest(value=value),self.assertRaisesRegex(ValueError,"hover"): self.validate()
+                                                                               ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmp819i6_8w\\isolated data'
+
+======================================================================
+ERROR: test_profile_change_prevents_any_uia_helper (__main__.CandidateProfileTests.test_profile_change_prevents_any_uia_helper)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 627, in test_profile_change_prevents_any_uia_helper
+    profile=self.validate()
+            ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmpzkafkb2z\\isolated data'
+
+======================================================================
+ERROR: test_relative_or_different_profile_is_refused (__main__.CandidateProfileTests.test_relative_or_different_profile_is_refused) (folder='C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmpn3op_sfe\\candidate with spaces')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 600, in test_relative_or_different_profile_is_refused
+    with self.subTest(folder=folder),self.assertRaises(ValueError): self.validate(args=args,folder=folder)
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmpn3op_sfe\\isolated data'
+
+======================================================================
+ERROR: test_settings_and_command_line_must_both_match_runner_service (__main__.CandidateProfileTests.test_settings_and_command_line_must_both_match_runner_service) (address='http://127.0.0.1:9911')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 616, in test_settings_and_command_line_must_both_match_runner_service
+    with self.subTest(address=address),self.assertRaises(ValueError): self.validate()
+                                                                      ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmpcnzod4sw\\isolated data'
+
+======================================================================
+ERROR: test_settings_and_command_line_must_both_match_runner_service (__main__.CandidateProfileTests.test_settings_and_command_line_must_both_match_runner_service) (address='http://127.0.0.1:9988')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 616, in test_settings_and_command_line_must_both_match_runner_service
+    with self.subTest(address=address),self.assertRaises(ValueError): self.validate()
+                                                                      ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmpcnzod4sw\\isolated data'
+
+======================================================================
+ERROR: test_settings_and_command_line_must_both_match_runner_service (__main__.CandidateProfileTests.test_settings_and_command_line_must_both_match_runner_service) (address='http://127.0.0.1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 616, in test_settings_and_command_line_must_both_match_runner_service
+    with self.subTest(address=address),self.assertRaises(ValueError): self.validate()
+                                                                      ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmpcnzod4sw\\isolated data'
+
+======================================================================
+ERROR: test_settings_and_command_line_must_both_match_runner_service (__main__.CandidateProfileTests.test_settings_and_command_line_must_both_match_runner_service)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 618, in test_settings_and_command_line_must_both_match_runner_service
+    with self.assertRaises(ValueError): self.validate(args=self.args[:-1]+["--address=http://localhost:9988"])
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmpcnzod4sw\\isolated data'
+
+======================================================================
+ERROR: test_shared_or_adjacent_data_folders_are_refused_before_read (__main__.CandidateProfileTests.test_shared_or_adjacent_data_folders_are_refused_before_read) (folder=WindowsPath('C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0-combined-candidate/analysis/gate6-preflight-20261013/scratch/tmptamk2h_g/appdata/iMouse2'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 595, in test_shared_or_adjacent_data_folders_are_refused_before_read
+    self.validate(args=[str(self.exe),"--data-dir="+str(folder)],folder=str(folder))
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmptamk2h_g\\appdata\\iMouse2'
+
+======================================================================
+ERROR: test_shared_or_adjacent_data_folders_are_refused_before_read (__main__.CandidateProfileTests.test_shared_or_adjacent_data_folders_are_refused_before_read) (folder=WindowsPath('C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0-combined-candidate/analysis/gate6-preflight-20261013/scratch/tmptamk2h_g/appdata/iMouse2/child'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 595, in test_shared_or_adjacent_data_folders_are_refused_before_read
+    self.validate(args=[str(self.exe),"--data-dir="+str(folder)],folder=str(folder))
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmptamk2h_g\\appdata\\iMouse2\\child'
+
+======================================================================
+ERROR: test_shared_or_adjacent_data_folders_are_refused_before_read (__main__.CandidateProfileTests.test_shared_or_adjacent_data_folders_are_refused_before_read) (folder=WindowsPath('C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0-combined-candidate/analysis/gate6-preflight-20261013/scratch/tmptamk2h_g/candidate with spaces/data'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 595, in test_shared_or_adjacent_data_folders_are_refused_before_read
+    self.validate(args=[str(self.exe),"--data-dir="+str(folder)],folder=str(folder))
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmptamk2h_g\\candidate with spaces\\data'
+
+======================================================================
+ERROR: test_unknown_wrong_or_changed_binary_is_refused (__main__.CandidateProfileTests.test_unknown_wrong_or_changed_binary_is_refused) (digest='0000000000000000000000000000000000000000000000000000000000000000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 609, in test_unknown_wrong_or_changed_binary_is_refused
+    with self.subTest(digest=digest),self.assertRaises(ValueError): self.validate(digest=digest)
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmp3jvve2di\\isolated data'
+
+======================================================================
+ERROR: test_unknown_wrong_or_changed_binary_is_refused (__main__.CandidateProfileTests.test_unknown_wrong_or_changed_binary_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 611, in test_unknown_wrong_or_changed_binary_is_refused
+    with self.assertRaisesRegex(ValueError,"hash"): self.validate()
+                                                    ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmp3jvve2di\\isolated data'
+
+======================================================================
+ERROR: test_windows_quoted_paths_round_trip_with_both_data_dir_forms (__main__.CandidateProfileTests.test_windows_quoted_paths_round_trip_with_both_data_dir_forms)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 581, in test_windows_quoted_paths_round_trip_with_both_data_dir_forms
+    self.validate(args=parsed)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 564, in validate
+    return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\run_gate6.py", line 193, in validate_candidate_profile
+    folder = Path(actual).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 993, in resolve
+    s = os.path.realpath(self, strict=strict)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen ntpath>", line 696, in realpath
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\gate6-preflight-20261013\\scratch\\tmp_nli5vjm\\isolated data'
+
+----------------------------------------------------------------------
+Ran 85 tests in 4.447s
+
+FAILED (errors=17)

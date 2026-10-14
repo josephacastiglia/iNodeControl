@@ -20,6 +20,13 @@ python analysis/gate6-release-validation-20260916/test_run_gate6.py
 
 The recorded 11 October run passes 18, nine, 15, 16, and 22 tests respectively: 80 in total. Each command returns exit code zero and prints `OK`. These tests establish tool behavior, not physical release acceptance.
 
+The latest focused 13 October timing-preflight run passes **89 runner** and
+**20 diagnostics** regressions. The current console passes **409 headless
+self-tests** using fake HTTP. These supersede the corresponding earlier counts,
+not the dates or scope of the other suites. Generated UIA scripts are parsed
+only; no Windows input or rack request runs in these checks. Read
+[the preflight record](../analysis/gate6-preflight-20261013/REPORT.md).
+
 ## Verify an existing build record
 
 To compare source inputs and output bytes with a recorded manifest, run:

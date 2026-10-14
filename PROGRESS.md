@@ -11,6 +11,18 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Latest combined timing candidate preserved, 13 October
+
+`output/staging/combined-timing-20261013` now includes the latest console response timeline and actual-service hint with the preserved shutdown kernel. All 692 inventory files and embedded source/runtime records verify; the 610 native entries and previous package are unchanged. Both exact binaries pass no-window validation in a new isolated, hover-off C24C-only preparation, followed by the strict launcher and saved-profile checks. Read `analysis/combined-timing-package-20261013/REPORT.md`.
+
+No app window, service, receiver or phone input started. This C24C-only smoke profile is not the two-stream Gate 6 workload. The exact package and unused run are archived separately with hashes; no physical release gate advances from this preparation.
+
+## Candidate isolation and actual connection verification, 13 October
+
+The existing Gate 6 runner now refuses unsafe ownership, wrong/stale receiver identity, missing second-phone streaming, mismatched candidate binaries/profiles and observer-phone activity. UIA requires the exact dedicated candidate and checks its actual connected service and hover-off state before actions. The console now exposes its active service origin through its connection tooltip/accessibility hint, clearing it during disconnect/reconnect/failure.
+
+All 89 runner, 20 diagnostics and 409 headless console checks pass; five unsafe preflights fail on the old runner. Both generated helpers parse without execution. All 25 protected installed file hashes match the baseline. See `analysis/gate6-preflight-20261013/REPORT.md`. No screen control, live rack requests, phone input or release acceptance ran; snapshots do not establish continuous exclusivity or physical identity.
+
 ## Timing-runner console cleanup prepared offline, 13 October
 
 The Gate 6 runner now treats an incomplete UIA reply as possible console ownership and attempts normal Disconnect once during finalization. Both explicit console completion and read-only target release status are needed for confirmed cleanup. Process identity includes the exact executable and creation FILETIME, checked within every helper. Failed or unavailable cleanup never triggers forced release, input replay or automatic reconnect. Original trial failure and cleanup uncertainty are recorded separately.

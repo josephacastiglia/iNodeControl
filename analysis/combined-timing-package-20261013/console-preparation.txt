@@ -1,0 +1,32 @@
+
+
+RunDir         : C:\Users\joey_\Desktop\Claude 
+                 Code\iMouseXP-2.0-combined-candidate\output\candidate-runs\timing-20261013\console
+DataDir        : C:\Users\joey_\Desktop\Claude 
+                 Code\iMouseXP-2.0-combined-candidate\output\candidate-runs\timing-20261013\console\data
+ConsoleExe     : C:\Users\joey_\Desktop\Claude 
+                 Code\iMouseXP-2.0-combined-candidate\output\candidate-runs\timing-20261013\console\bin\iMouse2.exe
+Service        : http://127.0.0.1:9913
+ConsoleAddress : http://127.0.0.1:9913
+ViaProxy       : False
+ProxyExe       : 
+Files          : {@{Relative=bin/iMouse2.exe; Source=C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate
+                 \output\staging\combined-timing-20261013\payload\console\iMouse2.exe; 
+                 Sha256=5bc6b840576c691f246b58201d74babc27f4cd6be3fa0876e33b763309c743c2; Bytes=152064}, 
+                 @{Relative=bin/iMouse2.dll; Source=C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\
+                 output\staging\combined-timing-20261013\payload\console\iMouse2.dll; 
+                 Sha256=ebf52cd77bc55e2a5ee4790ffdcd1c47d78783a9e6bf73a44d4500b6597eccc4; Bytes=763392}, 
+                 @{Relative=bin/iMouse2.deps.json; Source=C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-cand
+                 idate\output\staging\combined-timing-20261013\payload\console\iMouse2.deps.json; 
+                 Sha256=037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc; Bytes=413}, 
+                 @{Relative=bin/iMouse2.runtimeconfig.json; Source=C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-comb
+                 ined-candidate\output\staging\combined-timing-20261013\payload\console\iMouse2.runtimeconfig.json; 
+                 Sha256=c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782; Bytes=458}...}
+Profile        : {"address":"http://127.0.0.1:9913","theme":"light","trackPointer":false}
+Identity       : {schema_version, source_root, run_dir, service...}
+Fingerprint    : f5b715aee4e8a620c640b867f44313ea8f36ae91fd660e5d6460ae3e9a248dfd
+OfflineOnly    : True
+Prepared       : True
+
+
+

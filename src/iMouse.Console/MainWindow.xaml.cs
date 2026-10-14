@@ -481,6 +481,7 @@ public partial class MainWindow : Window
     private void UpdateControls()
     {
         if (ActionPanel is null || _bulkChecking) return;
+        UpdateConnectionHint();
         RefreshInputOwnershipUi();
         int count = _devices.Count(x => x.IsChecked);
         CheckedCount.Text = $"{count} checked across all groups";

@@ -2,6 +2,7 @@
 import importlib.util
 import contextlib
 import copy
+import hashlib
 import io
 import json
 import os
@@ -103,12 +104,12 @@ class EvidenceIntegrityTests(unittest.TestCase):
         self.assertEqual(result["measurements"]["C241/api"]["p95"], 360)
 
     def test_failed_live_trial_is_saved_and_aborts_remaining_trials(self):
-        states = [{"receivers": [{"name": "iMouse2-C24C", "frames": count,
-                                  "live": True, "receiver_pid": 1}]} for count in (1, 2)]
+        states = [ready_kernel(count) for count in (1, 2)]
         with tempfile.TemporaryDirectory() as folder, contextlib.ExitStack() as stack:
             stack.enter_context(patch.object(gate6, "OUT", Path(folder)))
             stack.enter_context(patch.object(gate6, "status", side_effect=states))
             stack.enter_context(patch.object(gate6.time, "sleep"))
+            stack.enter_context(patch.object(gate6, "input_status", return_value=ready_input()))
             stack.enter_context(patch.object(gate6, "hold_lease"))
             trial = stack.enter_context(patch.object(gate6, "run_cycle", side_effect=RuntimeError("refused")))
             stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
@@ -185,10 +186,9 @@ class RunLifecycleTests(unittest.TestCase):
         self.folder = self.stack.enter_context(tempfile.TemporaryDirectory())
         self.stack.enter_context(patch.object(gate6, "OUT", Path(self.folder)))
         self.stack.enter_context(patch.object(gate6.time, "sleep"))
-        states = [{"receivers": [{"name": "iMouse2-C24C", "frames": count,
-                                 "live": True, "receiver_pid": 1}]} for count in (1, 2, 3)]
+        states = [ready_kernel(count) for count in (1, 2, 3)]
         self.stack.enter_context(patch.object(gate6, "status", side_effect=states))
-        self.stack.enter_context(patch.object(gate6, "input_status", return_value={}))
+        self.stack.enter_context(patch.object(gate6, "input_status", return_value=ready_input()))
         gate6.HELD.clear()
         self.addCleanup(gate6.HELD.clear)
         self.addCleanup(setattr, gate6, "RUN", None)
@@ -378,7 +378,7 @@ class ConsoleRunCleanupTests(unittest.TestCase):
     record = RunLifecycleTests.record
 
     def prepare(self, failure=None, cleanup_error=None):
-        self.stack.enter_context(patch.object(gate6, "bind_console"))
+        self.stack.enter_context(patch.object(gate6, "prepare_console", return_value={"test": True}))
         def trial(*args):
             gate6.UIA_OWNS["on"] = True
             if failure:
@@ -426,7 +426,7 @@ class ConsoleRunCleanupTests(unittest.TestCase):
         self.assertTrue(gate6.UIA_OWNS["on"])
 
     def test_no_uia_action_does_not_disconnect_a_console(self):
-        self.stack.enter_context(patch.object(gate6, "bind_console"))
+        self.stack.enter_context(patch.object(gate6, "prepare_console", return_value={"test": True}))
         self.stack.enter_context(patch.object(gate6, "run_cycle", side_effect=RuntimeError("preparation failed")))
         release = self.stack.enter_context(patch.object(gate6, "release_console"))
         gate6.UIA_OWNS["on"] = False
@@ -457,6 +457,225 @@ class ConsoleRunCleanupTests(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()) as output, self.assertRaises(RuntimeError):
             gate6.live(1, ["home"], False, console_pid=999999)
         self.assertNotIn("done ", output.getvalue())
+
+
+def ready_kernel(frames=1):
+    return {"code": 0, "input_protocol": 1, "input_leases_required": True, "receivers": [
+        {"name": "iMouse2-" + name, "deviceid": device, "frames": frames,
+         "live": True, "receiver_pid": pid, "frame_session": name + "-session"}
+        for name, device, pid in (("C24C", gate6.C24C, 101), ("C241", gate6.C241, 102))]}
+
+
+def ready_input():
+    return {"code": 0, "protocol": 1, "phones": [{"id": device, "owned": False, "active": False,
+        "releasing": False, "release_failed": False, "stopped": False, "generation": 0}
+        for device in (gate6.C24C, gate6.C241)]}
+
+
+class UnsafePreflightTests(unittest.TestCase):
+    setUp = RunLifecycleTests.setUp
+    record = RunLifecycleTests.record
+
+    def attempt(self, first, second, ownership):
+        self.stack.enter_context(patch.object(gate6, "status", side_effect=[first, second, second]))
+        self.stack.enter_context(patch.object(gate6, "input_status", return_value=ownership))
+        acquire = self.stack.enter_context(patch.object(gate6, "hold_lease"))
+        trial = self.stack.enter_context(patch.object(gate6, "run_cycle", return_value={"miss": False}))
+        with self.assertRaises((SystemExit, ValueError)):
+            gate6.live(1, ["home"], True)
+        acquire.assert_not_called()
+        trial.assert_not_called()
+
+    def test_owned_phone_refuses_before_acquisition(self):
+        state = ready_input(); state["phones"][0]["owned"] = True
+        self.attempt(ready_kernel(1), ready_kernel(2), state)
+
+    def test_stopped_phone_is_not_automatically_resumed(self):
+        state = ready_input(); state["phones"][0]["stopped"] = True
+        self.attempt(ready_kernel(1), ready_kernel(2), state)
+
+    def test_wrong_device_under_right_receiver_name_is_refused(self):
+        first, second = ready_kernel(1), ready_kernel(2)
+        first["receivers"][0]["deviceid"] = second["receivers"][0]["deviceid"] = "wrong-phone"
+        self.attempt(first, second, ready_input())
+
+    def test_nonstreaming_second_phone_refuses_workload(self):
+        first, second = ready_kernel(1), ready_kernel(2)
+        second["receivers"][1]["frames"] = 1
+        self.attempt(first, second, ready_input())
+
+    def test_receiver_replacement_during_preflight_is_refused(self):
+        first, second = ready_kernel(1), ready_kernel(2)
+        second["receivers"][0]["receiver_pid"] += 10
+        self.attempt(first, second, ready_input())
+
+    def test_failed_preflight_is_saved_without_cleanup_or_input(self):
+        state = ready_input(); state["phones"][1]["owned"] = True
+        self.attempt(ready_kernel(1), ready_kernel(2), state)
+        self.assertEqual(self.record("run-state.json")["phase"], "preflight")
+        self.assertEqual(self.record("run-state.json")["status"], "aborted")
+        self.assertEqual(self.record("cleanup.json")["api_acquire"], "not_attempted")
+        self.assertEqual(self.record("cleanup.json")["api_release"], "no_known_tokens")
+        self.assertTrue(self.record("preflight-frames.json")["input"]["phones"][1]["owned"])
+
+    def test_missing_or_ambiguous_state_never_passes(self):
+        cases = []
+        for flag in ("owned", "active", "releasing", "release_failed", "stopped"):
+            for value in (True, None, 0, "false"):
+                state = ready_input(); state["phones"][0][flag] = value
+                cases.append((ready_kernel(1), ready_kernel(2), state))
+        state = ready_input(); state["phones"].append(state["phones"][0]); cases.append((ready_kernel(1), ready_kernel(2), state))
+        for field,value in (("frame_session","changed"),("live",False),("frames",True),("deviceid",gate6.C24C)):
+            state = ready_kernel(2); state["receivers"][1][field] = value
+            cases.append((ready_kernel(1),state,ready_input()))
+        for first,second,ownership in cases:
+            with self.subTest(second=second,ownership=ownership), self.assertRaises(ValueError):
+                gate6.validate_preflight(first,second,ownership)
+
+    def test_valid_two_phone_preflight_does_not_claim_gate_acceptance(self):
+        result = gate6.validate_preflight(ready_kernel(1), ready_kernel(2), ready_input())
+        self.assertTrue(result["input_idle"])
+        self.assertFalse(result["gate6_acceptance"])
+        self.assertFalse(result["physical_identity_verified"])
+        self.assertEqual([r["id"] for r in result["verified_receivers"]], [gate6.C24C,gate6.C241])
+
+    def test_other_phone_becoming_owned_aborts_before_next_action(self):
+        taken = ready_input();taken["phones"][1]["owned"] = True
+        self.stack.enter_context(patch.object(gate6,"input_status",side_effect=[ready_input(),taken]))
+        self.stack.enter_context(patch.object(gate6,"hold_lease",side_effect=lambda ids: gate6.HELD.update({gate6.C24C:"test-token"})))
+        release=self.stack.enter_context(patch.object(gate6,"drop_lease",side_effect=gate6.HELD.clear))
+        trial=self.stack.enter_context(patch.object(gate6,"run_cycle"))
+        with self.assertRaisesRegex(SystemExit,"another phone"):
+            gate6.live(1,["home"],True)
+        trial.assert_not_called();release.assert_called_once()
+        row=self.record("rows.json")[0]
+        self.assertEqual(row["failure_stage"],"ownership-check")
+        self.assertFalse(row["action_attempted"])
+
+    def test_intervening_other_phone_release_is_detected_by_generation(self):
+        pre=gate6.validate_preflight(ready_kernel(1),ready_kernel(2),ready_input())
+        for generation in (1, None, False, "0"):
+            changed=ready_input();changed["phones"][1]["generation"]=generation
+            with self.subTest(generation=generation), self.assertRaisesRegex(ValueError,"generation changed"):
+                gate6.require_idle_observers(changed,pre,[gate6.C24C])
+
+    def test_target_ownership_does_not_look_like_other_phone_interference(self):
+        pre=gate6.validate_preflight(ready_kernel(1),ready_kernel(2),ready_input())
+        changed=ready_input();changed["phones"][0]["owned"]=True
+        gate6.require_idle_observers(changed,pre,[gate6.C24C])
+
+    def test_unknown_extra_receiver_is_not_a_declared_two_phone_load(self):
+        extra=ready_kernel(2);extra["receivers"].append({"name":"unreviewed"})
+        with self.assertRaisesRegex(ValueError,"exactly"):
+            gate6.validate_preflight(ready_kernel(1),extra,ready_input())
+
+
+class CandidateProfileTests(unittest.TestCase):
+    def setUp(self):
+        self.stack = contextlib.ExitStack(); self.addCleanup(self.stack.close)
+        self.root = Path(self.stack.enter_context(tempfile.TemporaryDirectory()))
+        self.exe = self.root / "candidate with spaces" / "iMouse2.exe"
+        self.exe.parent.mkdir(); self.exe.write_bytes(b"fake apphost")
+        self.exe.with_suffix(".dll").write_bytes(b"fake managed binary")
+        self.digest = hashlib.sha256(b"fake managed binary").hexdigest()
+        self.folder = self.root / "isolated data"; self.folder.mkdir()
+        self.settings = self.folder / "settings.json"
+        self.settings.write_text(json.dumps({"address":gate6.BASE,"trackPointer":False}),encoding="utf-8")
+        self.shared = self.root / "appdata"; self.shared.mkdir()
+        self.stack.enter_context(patch.dict(os.environ,{"APPDATA":str(self.shared)}))
+        for name in ("api","process_identity","read_console_command"):
+            boundary=self.stack.enter_context(patch.object(gate6,name,side_effect=AssertionError("offline only")))
+            self.addCleanup(boundary.assert_not_called)
+        self.child=self.stack.enter_context(patch.object(gate6.subprocess,"Popen",side_effect=AssertionError("no process")))
+        self.addCleanup(self.child.assert_not_called)
+        self.args=[str(self.exe),"--data-dir="+str(self.folder),"--address="+gate6.BASE]
+
+    def validate(self,args=None,folder=None,digest=None):
+        return gate6.validate_candidate_profile(str(self.exe),self.args if args is None else args,
+            str(self.folder) if folder is None else folder,self.digest if digest is None else digest)
+
+    def test_explicit_profile_pins_directory_address_hover_and_binary(self):
+        result=self.validate()
+        self.assertEqual(result["data_directory"],str(self.folder.resolve()))
+        self.assertEqual(result["assembly_sha256"],self.digest)
+        self.assertEqual(result["address"],"http://127.0.0.1:9913")
+        self.assertFalse(result["saved_track_pointer"])
+        self.assertFalse(result["active_connection_verified"])
+        self.assertNotIn("settings",result)
+
+    @unittest.skipUnless(sys.platform=="win32","Windows command line")
+    def test_windows_quoted_paths_round_trip_with_both_data_dir_forms(self):
+        for args in (self.args,[str(self.exe),"--data-dir",str(self.folder)]):
+            parsed=gate6.command_args(subprocess.list2cmdline(args))
+            self.assertEqual(parsed,args)
+            self.validate(args=parsed)
+
+    def test_empty_duplicate_testmode_and_unknown_options_are_refused(self):
+        cases=[[str(self.exe)],self.args+["--ui-test"],self.args+["--data-dir=x"],
+               [str(self.exe),"--data-dir"],[str(self.exe),"--data-dir="],
+               self.args+["--address=http://localhost:9999"],self.args+["--address","http://localhost:9999"]]
+        for args in cases:
+            with self.subTest(args=args),self.assertRaises(ValueError): self.validate(args=args)
+
+    def test_shared_or_adjacent_data_folders_are_refused_before_read(self):
+        for folder in (self.shared/"iMouse2",self.shared/"iMouse2"/"child",self.exe.parent/"data"):
+            folder.mkdir(parents=True)
+            # No settings file there: refusal must happen before reading one.
+            with self.subTest(folder=folder),self.assertRaisesRegex(ValueError,"dedicated"):
+                self.validate(args=[str(self.exe),"--data-dir="+str(folder)],folder=str(folder))
+
+    def test_relative_or_different_profile_is_refused(self):
+        for args,folder in (([str(self.exe),"--data-dir=data"],str(self.folder)),
+                            (self.args,"relative"),(self.args,str(self.exe.parent))):
+            with self.subTest(folder=folder),self.assertRaises(ValueError): self.validate(args=args,folder=folder)
+
+    def test_hover_must_be_explicitly_boolean_false(self):
+        for value in (None,True,0,"false"):
+            self.settings.write_text(json.dumps({"address":gate6.BASE,"trackPointer":value}),encoding="utf-8")
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,"hover"): self.validate()
+
+    def test_unknown_wrong_or_changed_binary_is_refused(self):
+        for digest in ("", "not-a-hash", "0"*64):
+            with self.subTest(digest=digest),self.assertRaises(ValueError): self.validate(digest=digest)
+        self.exe.with_suffix(".dll").write_bytes(b"changed")
+        with self.assertRaisesRegex(ValueError,"hash"): self.validate()
+
+    def test_settings_and_command_line_must_both_match_runner_service(self):
+        for address in ("http://127.0.0.1:9911","http://127.0.0.1:9988","http://127.0.0.1"):
+            self.settings.write_text(json.dumps({"address":address,"trackPointer":False}),encoding="utf-8")
+            with self.subTest(address=address),self.assertRaises(ValueError): self.validate()
+        self.settings.write_text(json.dumps({"address":gate6.BASE,"trackPointer":False}),encoding="utf-8")
+        with self.assertRaises(ValueError): self.validate(args=self.args[:-1]+["--address=http://localhost:9988"])
+
+    def test_invalid_endpoint_shapes_are_refused(self):
+        for value in (None,"file:///tmp","http://user:pass@localhost:9913","http://localhost:9913/other",
+                      "http://localhost:9913/api?token=x","http://localhost:9913/#x","http://localhost:99999"):
+            with self.subTest(value=value),self.assertRaises(ValueError): gate6.endpoint(value)
+        self.assertEqual(gate6.endpoint("https://[::1]:9443/api/"),"https://[::1]:9443")
+
+    def test_profile_change_prevents_any_uia_helper(self):
+        profile=self.validate()
+        with patch.dict(gate6.CONSOLE,{"exe":str(self.exe),"args":self.args,"profile":profile}):
+            self.settings.write_text(json.dumps({"address":gate6.BASE,"trackPointer":True}),encoding="utf-8")
+            with self.assertRaisesRegex(ValueError,"hover"): gate6.uia_invoke("HomeButton")
+
+    def test_managed_process_replacement_during_command_query_is_refused(self):
+        def bind(*args): gate6.CONSOLE.update(exe=str(self.exe),started=1); return str(self.exe)
+        with patch.object(gate6,"bind_console",side_effect=bind), \
+             patch.object(gate6,"read_console_command",return_value=self.args), \
+             patch.object(gate6,"process_identity",return_value={"exe":str(self.exe),"started":2}):
+            with self.assertRaisesRegex(ValueError,"process changed"):
+                gate6.prepare_console(999999,str(self.exe),str(self.folder),self.digest)
+
+    def test_profile_failure_stops_before_any_service_preflight(self):
+        with patch.object(gate6,"prepare_console",side_effect=ValueError("profile refused")), \
+             patch.object(gate6,"status") as status,patch.object(gate6,"OUT",self.root), \
+             patch.object(gate6,"release_console") as release,contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(ValueError,"profile refused"):
+                gate6.live(1,["home"],False,console_pid=999999)
+        status.assert_not_called();release.assert_not_called()
+        record=json.loads((gate6.RUN/"run-state.json").read_text(encoding="utf-8"))
+        self.assertEqual(record["phase"],"preflight")
 
 
 class ConsoleReleaseProtocolTests(unittest.TestCase):
@@ -536,7 +755,7 @@ class ConsoleReleaseProtocolTests(unittest.TestCase):
             with self.subTest(started=started), self.assertRaises(SystemExit):
                 gate6.bind_console(999999, read_identity=lambda _: {"exe": gate6.CONSOLE["exe"], "started": started})
         with patch.dict(gate6.CONSOLE, {"started": None}), self.assertRaises(SystemExit):
-            gate6.uia_invoke("HomeButton")
+            gate6.console_root_ps()
 
     def test_installed_path_is_refused_even_if_explicit(self):
         exe = r"C:\project\release\iMouse2-two-phone-candidate\iMouse2.exe"
@@ -559,7 +778,7 @@ class ConsoleReleaseProtocolTests(unittest.TestCase):
         self.assertIn("*C241*", script)
 
     def test_action_helper_also_checks_process_lifetime(self):
-        with patch.object(gate6, "run_uia_helper") as helper:
+        with patch.object(gate6, "run_uia_helper") as helper, patch.object(gate6, "verify_bound_profile"):
             gate6.uia_invoke("HomeButton")
         script = helper.call_args.args[0][-1]
         self.assertIn("ToFileTimeUtc() -ne 123456789", script)
@@ -676,6 +895,8 @@ class ConsoleHelperDeadlineTests(unittest.TestCase):
             "exe": r"C:\scratch\imouse-candidate-5\iMouse2.exe", "started": 1})
         self.console.start()
         self.addCleanup(self.console.stop)
+        profile = patch.object(gate6, "verify_bound_profile")
+        profile.start(); self.addCleanup(profile.stop)
 
     def test_stdout_that_never_closes_has_a_deadline_and_is_reaped(self):
         unblocked = threading.Event()

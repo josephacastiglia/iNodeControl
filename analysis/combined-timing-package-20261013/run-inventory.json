@@ -1,0 +1,66 @@
+{
+  "console/bin/iMouse2.deps.json": {
+    "sha256": "037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc",
+    "bytes": 413
+  },
+  "console/bin/iMouse2.dll": {
+    "sha256": "ebf52cd77bc55e2a5ee4790ffdcd1c47d78783a9e6bf73a44d4500b6597eccc4",
+    "bytes": 763392
+  },
+  "console/bin/iMouse2.exe": {
+    "sha256": "5bc6b840576c691f246b58201d74babc27f4cd6be3fa0876e33b763309c743c2",
+    "bytes": 152064
+  },
+  "console/bin/iMouse2.pdb": {
+    "sha256": "d3271312a5ac76f85b326978e8948e2203b10eb83b6a313526a25f6d21187f7f",
+    "bytes": 147676
+  },
+  "console/bin/iMouse2.runtimeconfig.json": {
+    "sha256": "c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782",
+    "bytes": 458
+  },
+  "console/data/settings.json": {
+    "sha256": "02af37d189dad5b49ce4e074f6f1c8d1c3157a30f5bea070ca086153beb32e7b",
+    "bytes": 72
+  },
+  "console/prepared.json": {
+    "sha256": "0e4feb806867d56f575d085c5d897d9adefbcd1410ddfd61aefacab980ac365d",
+    "bytes": 4081
+  },
+  "kernel/bin/iMouse2.Kernel.deps.json": {
+    "sha256": "2324e47bde304034773364751a620b0290f52f3d36bf74ec44a14d48928db0d8",
+    "bytes": 434
+  },
+  "kernel/bin/iMouse2.Kernel.dll": {
+    "sha256": "cd0f2129993f93158f7fcf183e590a9c1fe1be4c329de0903a2aef3de1dd7486",
+    "bytes": 293376
+  },
+  "kernel/bin/iMouse2.Kernel.exe": {
+    "sha256": "ed69ff68bbed9c4a273f8389820448359409f99c3ed510ca0d6e3b1db07b1a8b",
+    "bytes": 152064
+  },
+  "kernel/bin/iMouse2.Kernel.pdb": {
+    "sha256": "ad0512bec70ccef87f027b3c2e0483a9215f65537e3e4eb33934eb7d5f856c4f",
+    "bytes": 60120
+  },
+  "kernel/bin/iMouse2.Kernel.runtimeconfig.json": {
+    "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+    "bytes": 340
+  },
+  "kernel/data/devices.json": {
+    "sha256": "30a49e2ef0638c1fbf6dd2715c9986931390e484076092559dedb62459fb045c",
+    "bytes": 307
+  },
+  "kernel/data/pointer-calibration.json": {
+    "sha256": "3c0cb25b5a4add1df67a51b341660cbd30be720258af84e8e7b3eea413e1c9f0",
+    "bytes": 171
+  },
+  "kernel/data/receivers.json": {
+    "sha256": "1a8f387245700d0e4325c5087814b7bc2b59ffc6e8416ad51c1abca88c7721ab",
+    "bytes": 193
+  },
+  "PREPARED-NOT-LAUNCHED.json": {
+    "sha256": "f170a7528621fb57d13144b5250a9184a126cd19f08f21379971c0fe760f2edd",
+    "bytes": 5051
+  }
+}

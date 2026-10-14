@@ -11,6 +11,15 @@ public partial class MainWindow
     private bool _closeAllowed;
     internal string? CleanupWarning { get; private set; }
 
+    // The editable address may differ from the active client. Show only the
+    // connected endpoint, including through accessibility, without making a request.
+    private void UpdateConnectionHint()
+    {
+        string address = _connected && _api is not null ? _api.Endpoint.GetLeftPart(UriPartial.Authority) : "";
+        ConnectionStatus.ToolTip = address.Length > 0 ? address : null;
+        System.Windows.Automation.AutomationProperties.SetHelpText(ConnectionStatus, address);
+    }
+
     // UI-thread transition: stop accepting work before waiting for any network response.
     // Retired clients remain tracked even if another Connect or Disconnect overtakes us.
     private void DetachConnection()
@@ -24,6 +33,7 @@ public partial class MainWindow
         _api = _pendingConnection = _controlApi = null;
         _scopeTail = Task.CompletedTask;
         _controlScope = ""; _connected = false; _castName = "";
+        UpdateConnectionHint();
         _devices.Clear(); DeviceList.ItemsSource = null;
         ClearFrame("Disconnected", "Phone mirroring was left unchanged.");
     }

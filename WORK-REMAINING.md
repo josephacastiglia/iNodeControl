@@ -68,6 +68,10 @@ The two-phone system has working foundations: independent kernel and mirroring, 
 
 41. **Completed offline:** timing-runner console cleanup now calls the candidate's normal Disconnect after any attempted UIA action, including helper timeout/interruption. It requires both console confirmation and a free target status, preserves failures and checks process lifetime before UI actions. All 65 runner checks pass; six targeted cases fail on the old source. See `analysis/gate6-console-cleanup-20261013/REPORT.md`. Actual desktop cleanup, complete candidate preflight and correct-response timing still need validation. No product build or release package changed.
 
+42. **Completed offline:** strict candidate profile/binary/service verification and two-stream idle preflight in the existing Gate 6 runner, with between-trial observer checks. The console exposes the actual connected service as a tooltip/accessibility hint. All 89 runner, 20 diagnostics and 409 headless console checks pass; five original unsafe preflights fail their regressions. See `analysis/gate6-preflight-20261013/REPORT.md`. Real UIA cleanup and physical click-to-correct-display acceptance remain open; this does not fix the deferred typing issue.
+
+43. **Prepared offline:** `combined-timing-20261013` consolidates the latest console timeline/service hint with the preserved shutdown kernel. All 692 package entries verify; both exact binaries pass no-window validation, strict launcher and saved-profile checks in a new C24C-only profile. See `analysis/combined-timing-package-20261013/REPORT.md`. No services or screens were started. This is not the required two-stream latency workload, and all physical/clean-PC acceptance remains open.
+
 Offline work can prepare and repair these areas. Full-rack behavior, physical targeting, real display latency and final endurance acceptance still require later coordinated hardware runs. No desktop-control window, restart, deployment or promotion is authorized by this document.
 
 The detailed requirements remain in [FINISH-CRITERIA.md](FINISH-CRITERIA.md); current evidence and history are in [PROGRESS.md](PROGRESS.md).

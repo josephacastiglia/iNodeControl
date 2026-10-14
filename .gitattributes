@@ -41,3 +41,5 @@ analysis/combined-shutdown-package-20261013/** -text
 analysis/gate6-failure-handling-20261013/** -text
 analysis/response-timing-20261013/** -text
 analysis/gate6-console-cleanup-20261013/** -text
+analysis/gate6-preflight-20261013/** -text
+analysis/combined-timing-package-20261013/** -text

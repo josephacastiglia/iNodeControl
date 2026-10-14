@@ -8,15 +8,22 @@ from __future__ import annotations
 
 import argparse
 from bisect import bisect_right
+import hashlib
 import json
+import os
 import queue
 import re
 import struct
 import subprocess
+import sys
 import threading
 import time
 import urllib.request
+from urllib.parse import urlsplit
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
+from windows_command_line import command_args
 
 BASE = "http://127.0.0.1:9913/api"
 OUT = Path(__file__).resolve().parent
@@ -122,6 +129,175 @@ def process_identity(pid):
         return {"exe": buf.value, "started": (created.dwHighDateTime << 32) | created.dwLowDateTime}
     finally:
         kernel.CloseHandle(handle)
+
+
+def read_console_command(pid):
+    """Read one process command line, never enumerate windows or start an app."""
+    script = ("$ErrorActionPreference='Stop';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);"
+              f"$p=Get-CimInstance Win32_Process -Filter 'ProcessId={int(pid)}';"
+              "if($null -eq $p -or -not $p.CommandLine){throw 'command line unavailable'};"
+              "$p.CommandLine | ConvertTo-Json -Compress")
+    done = subprocess.run(["powershell", "-NoProfile", "-Command", script],
+                          capture_output=True, text=True, encoding="utf-8", timeout=10)
+    if done.returncode:
+        raise ValueError("candidate command line could not be verified")
+    command = json.loads(done.stdout)
+    if not isinstance(command, str) or not command:
+        raise ValueError("candidate command line unavailable")
+    return command_args(command)
+
+
+def endpoint(url):
+    """Explicit origin only; never allow an implicit/vendor-service port."""
+    if not isinstance(url, str) or any(ord(c) < 32 for c in url) or url.strip() != url:
+        raise ValueError("explicit service URL required")
+    parsed = urlsplit(url)
+    if (parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.port in (None, 9911)
+            or not 1 <= parsed.port <= 65535 or parsed.username is not None or parsed.password is not None
+            or parsed.path not in ("", "/", "/api", "/api/") or parsed.query or parsed.fragment):
+        raise ValueError("service URL needs an explicit non-vendor port and no credentials or extra path")
+    host = parsed.hostname.lower()
+    if ":" in host:
+        host = "[" + host + "]"
+    return f"{parsed.scheme}://{host}:{parsed.port}"
+
+
+def candidate_args(args):
+    values = {}
+    for i in range(1, len(args)):
+        arg = args[i]
+        if i > 1 and args[i - 1] == "--data-dir":
+            continue
+        if arg == "--data-dir":
+            value = args[i + 1] if i + 1 < len(args) else ""
+            key = arg
+        elif arg.startswith("--data-dir=") or arg.startswith("--address="):
+            key, value = arg.split("=", 1)
+        else:
+            raise ValueError("candidate must use normal startup with only data-dir/address options")
+        if not value.strip() or value.startswith("--") or key in values:
+            raise ValueError("empty or duplicate candidate startup option")
+        values[key] = value
+    return values
+
+
+def validate_candidate_profile(exe, args, data_dir, expected_hash, appdata=None):
+    if not data_dir or not expected_hash or not re.fullmatch(r"[0-9a-fA-F]{64}", expected_hash):
+        raise ValueError("UIA requires --console-data-dir and the exact --console-sha256")
+    if not args or norm_path(args[0]) != norm_path(exe):
+        raise ValueError("command line executable does not match candidate process")
+    values = candidate_args(args)
+    actual = values.get("--data-dir", "")
+    if not Path(actual).is_absolute() or not Path(data_dir).is_absolute():
+        raise ValueError("candidate data directory must be explicitly absolute")
+    folder = Path(actual).resolve(strict=True)
+    expected = Path(data_dir).resolve(strict=True)
+    shared_root = appdata if appdata is not None else os.environ.get("APPDATA")
+    if not shared_root:
+        raise ValueError("operator settings location cannot be verified")
+    shared = (Path(shared_root) / "iMouse2").resolve()
+    adjacent = (Path(exe).parent / "data").resolve()
+    if (folder != expected or not folder.is_dir() or folder == Path(folder.anchor)
+            or folder == shared or shared in folder.parents or folder in shared.parents
+            or folder == adjacent or adjacent in folder.parents):
+        raise ValueError("candidate must use its own dedicated data directory")
+    settings = folder / "settings.json"
+    if settings.resolve(strict=True).parent != folder:
+        raise ValueError("candidate settings must remain inside the isolated directory")
+    with settings.open("rb") as stream:
+        raw = stream.read(65537)
+    if len(raw) > 65536:
+        raise ValueError("candidate settings exceeds 64 KiB")
+    document = json.loads(raw)
+    if not isinstance(document, dict) or document.get("trackPointer") is not False:
+        raise ValueError("candidate settings must explicitly disable hover tracking")
+    service = endpoint(BASE)
+    if endpoint(document.get("address")) != service or (
+            "--address" in values and endpoint(values["--address"]) != service):
+        raise ValueError("candidate and runner service addresses do not match")
+    assembly = Path(exe).with_suffix(".dll")
+    digest = hashlib.sha256(assembly.read_bytes()).hexdigest()
+    if digest != expected_hash.lower():
+        raise ValueError("candidate managed binary hash does not match")
+    return {"data_directory": str(folder), "settings_sha256": hashlib.sha256(raw).hexdigest(),
+            "assembly": str(assembly), "assembly_sha256": digest, "address": service,
+            "saved_track_pointer": False, "active_connection_verified": False}
+
+
+def prepare_console(pid, path, data_dir, expected_hash):
+    if not path:
+        raise ValueError("UIA requires the exact --console-path")
+    exe = bind_console(pid, path)
+    args = read_console_command(pid)
+    current = process_identity(pid)
+    if current != {key: CONSOLE[key] for key in ("exe", "started")}:
+        raise ValueError("candidate process changed while verifying command line")
+    profile = validate_candidate_profile(exe, args, data_dir, expected_hash)
+    CONSOLE["profile"] = profile
+    CONSOLE["args"] = args
+    return profile
+
+
+def verify_bound_profile():
+    profile = CONSOLE.get("profile")
+    if profile is None:
+        raise ValueError("candidate isolation has not been verified")
+    actual = validate_candidate_profile(CONSOLE["exe"], CONSOLE["args"],
+                                        profile["data_directory"], profile["assembly_sha256"])
+    if actual != profile:
+        raise ValueError("candidate settings changed after preflight")
+
+
+def validate_preflight(first, second, ownership):
+    """The declared two-phone workload must be live and free before acquisition."""
+    for state in (first, second):
+        if (not isinstance(state, dict) or type(state.get("code")) is not int or state["code"] != 0
+                or type(state.get("input_protocol")) is not int or state["input_protocol"] != 1
+                or state.get("input_leases_required") is not True or not isinstance(state.get("receivers"), list)):
+            raise ValueError("kernel ownership protocol could not be verified")
+        if len(state["receivers"]) != 2:
+            raise ValueError("this timing profile requires exactly the two declared receivers")
+    verified = []
+    for name, device in (("C24C", C24C), ("C241", C241)):
+        matches = [[r for r in state["receivers"] if isinstance(r, dict) and r.get("name") == "iMouse2-" + name]
+                   for state in (first, second)]
+        if any(len(rows) != 1 for rows in matches):
+            raise ValueError(f"{name}: expected one receiver in both samples")
+        before, after = (rows[0] for rows in matches)
+        for row in (before, after):
+            if (row.get("deviceid") != device or row.get("live") is not True
+                    or type(row.get("frames")) is not int or row["frames"] < 0
+                    or type(row.get("receiver_pid")) is not int or row["receiver_pid"] <= 0
+                    or not isinstance(row.get("frame_session"), str) or not row["frame_session"]):
+                raise ValueError(f"{name}: identity or live frame state is unverified")
+        if (after["frames"] <= before["frames"] or after["receiver_pid"] != before["receiver_pid"]
+                or after["frame_session"] != before["frame_session"]):
+            raise ValueError(f"{name}: receiver changed or frames stopped during preflight")
+        verified.append({"name": name, "id": device, "receiver_pid": after["receiver_pid"],
+                         "frame_session": after["frame_session"], "frames_before": before["frames"], "frames_after": after["frames"]})
+    if not released_targets(ownership, [C24C, C241]):
+        raise ValueError("phones are owned, active, releasing, unresolved or missing; no input sent")
+    for row in ownership["phones"]:
+        if (not isinstance(row, dict) or any(row.get(k) is not False
+                for k in ("owned", "active", "releasing", "release_failed", "stopped"))
+                or type(row.get("generation")) is not int or row["generation"] < 0):
+            raise ValueError("rack input is not idle and ready; no takeover or automatic Resume")
+    return {"verified_receivers": verified, "input_idle": True,
+            "input_generations": {r["id"]: r["generation"] for r in ownership["phones"]},
+            "physical_identity_verified": False, "gate6_acceptance": False}
+
+
+def require_idle_observers(snapshot, preflight, targets):
+    observers = [device for device in preflight["input_generations"] if device not in targets]
+    if not observers:
+        return
+    if not released_targets(snapshot, observers):
+        raise ValueError("another phone is active, owned or unresolved; timing trial not sent")
+    for device in observers:
+        row = next(r for r in snapshot["phones"] if r.get("id") == device)
+        if (row.get("stopped") is not False or type(row.get("generation")) is not int
+                or row["generation"] != preflight["input_generations"][device]):
+            raise ValueError("another phone's control generation changed; timing trial not sent")
 
 
 def selected_ok(title, phone):
@@ -520,29 +696,43 @@ def console_root_ps():
     )
 
 
-def console_scope_ps():
+def console_scope_ps(require_hover_off=False):
     phone = CONSOLE.get("phone") or "C24C"
     if phone not in ("C24C", "C241"):
         raise SystemExit(f"refusing UIA for {phone}")
     if phone == "C241":
         assert_target(C241)
     other = "C241" if phone == "C24C" else "C24C"
+    expected = endpoint(BASE).replace("'", "''")
     return (
         "$title=Find-Id 'SelectedTitle';"
         "if($null -eq $title){throw 'no SelectedTitle'};"
         "$name=$title.Current.Name;"
         f"if($name -notlike '*{phone}*' -or $name -like '*{other}*'){{throw ('selected ' + $name)}}; "
         + mirror_guard_ps()
+        + ("$hover=Find-Id 'TrackPointer';if($null -eq $hover){throw 'hover state unavailable'};"
+           "$hoverState=[string]$hover.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern).Current.ToggleState;"
+           "if($hoverState -ne 'Off'){throw 'hover tracking must be Off'};"
+           "$connection=Find-Id 'ConnectionStatus';"
+           "if($null -eq $connection -or $connection.Current.Name -cne 'Connected to iMouse'){throw 'console not connected'};"
+           "$actual=$null;"
+           "if(-not [Uri]::TryCreate($connection.Current.HelpText,[UriKind]::Absolute,[ref]$actual)){throw 'active service unavailable'};"
+           f"$expected=[Uri]'{expected}';"
+           "if($actual.Scheme -ne $expected.Scheme -or $actual.Host -ne $expected.Host -or "
+           "$actual.Port -ne $expected.Port -or $actual.UserInfo -ne '' -or $actual.AbsolutePath -ne '/' "
+           "-or $actual.Query -ne '' -or $actual.Fragment -ne ''){throw 'active service mismatch'};"
+           if require_hover_off else "")
     )
 
 
 def uia_invoke(automation_id, t_box=None):
     if automation_id not in BUTTONS.values():
         raise ValueError(automation_id)
-    script = console_root_ps() + console_scope_ps() + (
+    verify_bound_profile()
+    script = console_root_ps() + console_scope_ps(require_hover_off=True) + (
         "Assert-Console;"
         f"$el=Find-Id '{automation_id}';"
-        "if($null -eq $el -or -not $el.Current.IsEnabled){throw 'button unavailable'};"
+        "if($null -eq $el -or -not $el.Current.IsEnabled -or $el.Current.IsOffscreen){throw 'button unavailable'};"
         "$inv=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds();"
         "Write-Output $inv;"
         "[Console]::Out.Flush();"
@@ -584,7 +774,8 @@ def disconnect_script():
 
 def released_targets(snapshot, targets):
     """A missing/malformed/owned row is unknown, never evidence of release."""
-    if not isinstance(snapshot, dict) or snapshot.get("code") != 0 or snapshot.get("protocol") != 1:
+    if (not isinstance(snapshot, dict) or type(snapshot.get("code")) is not int or snapshot["code"] != 0
+            or type(snapshot.get("protocol")) is not int or snapshot["protocol"] != 1):
         return False
     rows = snapshot.get("phones")
     if not isinstance(rows, list):
@@ -1166,7 +1357,8 @@ def save_frame(name, frame, dest=None):
     return 0
 
 
-def live(n, categories, api_only, allow_c241=False, console_pid=None, console_path=None):
+def live(n, categories, api_only, allow_c241=False, console_pid=None, console_path=None,
+         console_data_dir=None, console_sha256=None):
     global ALLOW_C241, RUN
     cats = categories or ["search"]
     if not api_only and any(cat not in BUTTONS for cat in cats):
@@ -1174,45 +1366,42 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
     ALLOW_C241 = bool(allow_c241)
     plan = phone_plan(ALLOW_C241)
     UIA_OWNS["on"] = False
-    if not api_only:
-        bind_console(console_pid, console_path)
+    if not api_only and allow_c241:
+        raise ValueError("UIA mode currently supports C24C only; no automatic console selection")
     run_id = time.strftime("%Y%m%d-%H%M%S")
     dest = open_run(OUT, run_id)
     RUN = dest
-    s1 = status()
-    time.sleep(1.0)
-    s2 = status()
-    pre = {
-        "frames_before": {r["name"]: r["frames"] for r in s1["receivers"]},
-        "frames_after_1s": {r["name"]: r["frames"] for r in s2["receivers"]},
-        "live": {r["name"]: r["live"] for r in s2["receivers"]},
-        "pids": {r["name"]: r["receiver_pid"] for r in s2["receivers"]},
-    }
-    dump(OUT, dest, "preflight-frames.json", pre)
-    print("preflight", pre, "run", dest, flush=True)
-    wanted = {f"iMouse2-{name}" for name, *_ in plan}
-    missing = [key for key in wanted if key not in pre["frames_before"]]
-    if missing:
-        raise SystemExit(f"target receiver missing: {missing}")
-    if any(pre["frames_after_1s"][key] <= pre["frames_before"][key] for key in wanted):
-        raise SystemExit("frames not advancing")
     ids = ",".join(pid for _, pid, *_ in plan)
     rows = []
     dump(OUT, dest, "manifest.json", {
         "run_id": run_id, "phones": [name for name, *_ in plan], "categories": cats,
         "api_only": api_only, "allow_c241": ALLOW_C241, "console_pid": console_pid,
-        "console_identity": None if api_only else {key: CONSOLE.get(key) for key in ("pid", "exe", "started")},
+        "console_identity": None,
         "out": str(dest), "frame_source": "kernel screenshot endpoint, not console presentation",
         "action_origin": "API request" if api_only else "UI Automation InvokePattern, not physical click",
         "gate6_acceptance": False,
     })
-    state = {"status": "running", "phase": "acquire" if api_only else "trial"}
-    cleanup = {"api_acquire": "unconfirmed" if api_only else "not_attempted",
+    state = {"status": "running", "phase": "preflight"}
+    cleanup = {"api_acquire": "not_attempted",
                "api_release": "no_known_tokens",
                "console_release": "not_applicable" if api_only else "no_action_attempted"}
     try:
         dump(OUT, dest, "run-state.json", state)
+        if not api_only:
+            profile = prepare_console(console_pid, console_path, console_data_dir, console_sha256)
+            dump(OUT, dest, "candidate-preflight.json", {
+                "identity": {key: CONSOLE.get(key) for key in ("pid", "exe", "started")}, "profile": profile})
+        first = status()
+        time.sleep(1.0)
+        second = status()
+        ownership = input_status()
+        # Preserve the observations even if validation refuses any action.
+        dump(OUT, dest, "preflight-frames.json", {"before": first, "after": second, "input": ownership})
+        preflight = validate_preflight(first, second, ownership)
+        dump(OUT, dest, "preflight-result.json", preflight)
+        state["phase"] = "acquire" if api_only else "trial"
         if api_only:
+            cleanup["api_acquire"] = "unconfirmed"
             # Acquisition can store some returned tokens before failing. Cleanup
             # must cover that partial result, without guessing any missing token.
             hold_lease(ids)
@@ -1222,6 +1411,8 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
             for category in cats:
                 for cycle in range(1, n + 1):
                     try:
+                        state["phase"] = "ownership-check"
+                        require_idle_observers(input_status(), preflight, ids.split(","))
                         state["phase"] = "renew"
                         if api_only and HELD:
                             post("/input/renew", {"id": ",".join(HELD), "tokens": dict(HELD)})
@@ -1231,7 +1422,7 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
                         row = {"phone": name, "category": category, "cycle": cycle,
                                "via": "api" if api_only else "uia", "miss": True,
                                "failure_stage": state["phase"],
-                               "action_attempted": False if state["phase"] == "renew" else None,
+                               "action_attempted": False if state["phase"] in ("renew", "ownership-check") else None,
                                "error": str(ex)[:200], "first_visible_ms": None,
                                "first_correct_ms": None, "correctness_checked": category in ("home", "search")}
                     keep(rows, row)
@@ -1522,7 +1713,9 @@ def main():
     p.add_argument("--api-only", action="store_true", help="hold the lease and drive via HTTP; skip UIA")
     p.add_argument("--allow-c241", action="store_true", help="allow live commands to C241")
     p.add_argument("--console-pid", type=int, help="dedicated candidate PID; UIA runs disconnect it on completion or failure")
-    p.add_argument("--console-path", help="expected console exe if it is not imouse-candidate-5")
+    p.add_argument("--console-path", help="exact candidate exe path, required for UIA")
+    p.add_argument("--console-data-dir", help="explicit isolated candidate profile, required for UIA")
+    p.add_argument("--console-sha256", help="expected iMouse2.dll SHA-256, required for UIA")
     args = p.parse_args()
     if args.self_check:
         raise SystemExit(self_check())
@@ -1539,7 +1732,8 @@ def main():
         return
     if args.n < 1:
         raise SystemExit("--n must be >= 1")
-    live(args.n, args.category, args.api_only, args.allow_c241, args.console_pid, args.console_path)
+    live(args.n, args.category, args.api_only, args.allow_c241, args.console_pid, args.console_path,
+         args.console_data_dir, args.console_sha256)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,14 @@
+{
+  "data_directory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\timing-20261013\\console\\data",
+  "settings_sha256": "02af37d189dad5b49ce4e074f6f1c8d1c3157a30f5bea070ca086153beb32e7b",
+  "assembly": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\timing-20261013\\console\\bin\\iMouse2.dll",
+  "assembly_sha256": "ebf52cd77bc55e2a5ee4790ffdcd1c47d78783a9e6bf73a44d4500b6597eccc4",
+  "address": "http://127.0.0.1:9913",
+  "saved_track_pointer": false,
+  "active_connection_verified": false,
+  "process_inspected": false,
+  "ui_control": false,
+  "rack_contacted": false,
+  "two_stream_preflight_performed": false,
+  "gate6_acceptance": false
+}

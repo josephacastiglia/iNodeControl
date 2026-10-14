@@ -1,33 +1,60 @@
-# iNodeControl — continuation checkpoint, 13 October 2026
+# iNodeControl continuation checkpoint — 13 October 2026
 
-Work resumed at the operator's request. Fleet shutdown is repaired and packaged; later Gate 6 failure handling and console response timing preparation are verified offline. Do not repeat completed checks without a relevant change. Nothing is promoted, deployed or pushed.
+Continue in `C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate`,
+branch `local/combined-candidate-20261012`. The user requested continued progress;
+typing/FKA remains deferred. Do not repeat completed suites without a relevant
+change or unresolved concern. Nothing is pushed, installed or promoted.
 
-## Current work
+## Latest completed work
 
-- Directory: `C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate`.
-- Branch: `local/combined-candidate-20261012`.
-- Shutdown repair commit: `8cc4678`. Read `analysis/fleet-shutdown-20261013/RESUMED-REPORT.md`.
-- Five targeted failures reproduced on the old source. Final results: 41 recovery, 207 kernel, 34 frame and 14 fake receiver-lifetime checks pass.
-- Screenshot-client repair is still verified: 382 console, 44 preview, 22 wall checks and the recorded local transfer probe. See `analysis/screenshot-client-20261013/REPORT.md`.
-- Latest tool repair: visual misses stop the Gate 6 runner, lease failures and cleanup are recorded, and evidence cannot overwrite earlier runs. All 35 regressions and its self-check pass. Read `analysis/gate6-failure-handling-20261013/REPORT.md`.
-- Latest implementation: opt-in console response timeline, bounded diagnostic export and offline reader in the existing Gate 6 runner. Console 402, preview/timing 56 and runner 44 checks pass; shared cases overlap. Read `analysis/response-timing-20261013/REPORT.md`.
-- Its exact standalone console is `analysis/response-timing-20261013/console-final/`, with source/build manifest. It is not yet in the combined package below. No live or UI-control test ran.
-- Latest tooling: console-owned cleanup through normal Disconnect, including uncertain helper outcomes and process-lifetime checks; 65 runner checks pass. Read `analysis/gate6-console-cleanup-20261013/REPORT.md`. This is offline preparation, not validated desktop cleanup.
-- Next useful offline work: explicit candidate-isolation/preflight checks, UIA preparation and reviewed correctness evidence for timing. Physical click-to-display timing is still not established by the opt-in bitmap timeline. Keep extending the existing runner rather than adding a parallel harness. No missing-space experiments should resume.
+- Candidate isolation, actual connected-service hint and two-stream timing
+  preflight: 89 runner, 20 diagnostics and 409 headless console checks pass.
+  Five unsafe preflights fail on the old runner. Both UIA helper scripts parse;
+  neither was executed. Read `analysis/gate6-preflight-20261013/REPORT.md`.
+- This extends the existing runner. Normal Disconnect cleanup, failure records,
+  process-lifetime guards and opt-in bounded response timing are retained.
+- Earlier kernel shutdown/recovery repairs remain covered by their recorded
+  41 recovery, 207 kernel, 34 frame and 14 lifetime checks. They were not rerun
+  merely to inflate this turn's counts; the kernel bytes are unchanged.
 
-## One current candidate
+## One current review candidate
 
-Package: `output/staging/combined-shutdown-20261013`.
-Unused run: `output/candidate-runs/shutdown-20261013`.
+Package: `output/staging/combined-timing-20261013`.
+Unused preparation: `output/candidate-runs/timing-20261013`.
 Kernel SHA-256: `cd0f2129993f93158f7fcf183e590a9c1fe1be4c329de0903a2aef3de1dd7486`.
-Console SHA-256: `1eaaf9beb41987c21f70a1ab5f79529bb1eb5d5f0ce753a4aae3078221b9e554`.
+Console SHA-256: `ebf52cd77bc55e2a5ee4790ffdcd1c47d78783a9e6bf73a44d4500b6597eccc4`.
+Package manifest: `9a2b786637f6f2ea262ee0d2a6c082508c0e6e66e67a0a06c070821bdba11b54`.
 
-All 689 package entries and source/runtime records verify. Both exact binaries validate saved C24C-only settings offline, and the strict prepared-launcher check passes. The profile is isolated, explicitly addressed and hover-off. Nothing was launched normally. Older packages are preserved and must not be mistaken for this one.
+All 692 package entries verify. Both binaries pass no-window startup validation;
+the final prepared-launcher and saved-profile checks pass. Settings are isolated,
+explicitly addressed and hover-off. This kernel profile is C24C-only and therefore
+cannot satisfy the Gate 6 runner's separate two-stream requirement. No normal
+launch or live request ran. Older packages remain immutable historical evidence.
+Read `analysis/combined-timing-package-20261013/REPORT.md` and its preparation
+record before considering any startup.
 
-Read `analysis/combined-shutdown-package-20261013/REPORT.md`, `PROGRESS.md`, `WORK-REMAINING.md` and `docs/CANDIDATE-ACCEPTANCE.md` before choosing the next issue. No release gate was advanced by the offline checks. Remaining physical work includes actual console controls/cleanup/diagnostics, varied-target accuracy, receiver shutdown/recasting, latency/video under load, full-rack mapping/scale and endurance. Clean-PC/runtime release clearance remains open. Continue useful offline work where possible; do not repeat passed checks without a relevant change or unresolved concern.
+## Next priorities
 
-## Preservation and boundaries
+Continue offline correctness/measurement and release preparation where useful.
+Do not produce another parallel timing or accuracy harness. Gate 6 still needs
+reviewed correct-result evidence and true console-click-to-visible-response
+measurement; UIA invocation and a later bitmap do not prove those requirements.
+Actual console controls/cleanup, varied-target accuracy, receiver failure/recast,
+full-rack mapping/scale, clean-PC loading and final endurance remain open.
+`WORK-REMAINING.md`, `FINISH-CRITERIA.md` and `docs/CANDIDATE-ACCEPTANCE.md` retain
+those limits. Home/typing/App Switcher defects are not closed by this package.
 
-Exact repair records, builds, combined package and unused run are preserved under `C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-evidence-archive\20261013-shutdown-combined`; verify the receipt in the combined-package record. Earlier archives and the original draft are intact. These are local-disk copies, not off-machine backups.
+## Preservation and operating boundaries
 
-No screen control, resumed typing/FKA work, C241 input, settings changes, kernel/receiver restart, deployment or promotion is authorized by this note. Coordinate any required physical window separately. No live rack status was requested during this resume; the last physical restoration record is historical. Recheck current state before authorized hardware work. Installed files and settings match the recorded baseline. Never delete worktrees/ignored evidence or push backup branches.
+Exact sources, test records, binaries, package and unused run are preserved under
+`C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-evidence-archive\20261013-timing-preflight-combined`.
+Verify `archive-verification.json` in the combined-package record. This is a local
+copy, not an off-machine backup. Never delete ignored evidence/worktrees or push
+backup branches.
+
+No screen control, resumed typing/FKA experiments, C241 input, settings changes,
+kernel/receiver restart or deployment is authorized by this note. Any required
+physical interruption needs a coordinated window. Current rack state was not
+queried this turn; old PIDs/restoration records are historical. All 25 protected
+installed static file hashes still match their baseline. Hash settings without
+printing their contents.

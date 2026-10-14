@@ -1,0 +1,60 @@
+test_nonstreaming_second_phone_refuses_workload (test_run_gate6.UnsafePreflightTests.test_nonstreaming_second_phone_refuses_workload) ... FAIL
+test_owned_phone_refuses_before_acquisition (test_run_gate6.UnsafePreflightTests.test_owned_phone_refuses_before_acquisition) ... FAIL
+test_receiver_replacement_during_preflight_is_refused (test_run_gate6.UnsafePreflightTests.test_receiver_replacement_during_preflight_is_refused) ... FAIL
+test_stopped_phone_is_not_automatically_resumed (test_run_gate6.UnsafePreflightTests.test_stopped_phone_is_not_automatically_resumed) ... FAIL
+test_wrong_device_under_right_receiver_name_is_refused (test_run_gate6.UnsafePreflightTests.test_wrong_device_under_right_receiver_name_is_refused) ... FAIL
+
+======================================================================
+FAIL: test_nonstreaming_second_phone_refuses_workload (test_run_gate6.UnsafePreflightTests.test_nonstreaming_second_phone_refuses_workload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 505, in test_nonstreaming_second_phone_refuses_workload
+    self.attempt(first, second, ready_input())
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 484, in attempt
+    with self.assertRaises((SystemExit, ValueError)):
+AssertionError: (<class 'SystemExit'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_owned_phone_refuses_before_acquisition (test_run_gate6.UnsafePreflightTests.test_owned_phone_refuses_before_acquisition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 491, in test_owned_phone_refuses_before_acquisition
+    self.attempt(ready_kernel(1), ready_kernel(2), state)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 484, in attempt
+    with self.assertRaises((SystemExit, ValueError)):
+AssertionError: (<class 'SystemExit'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_receiver_replacement_during_preflight_is_refused (test_run_gate6.UnsafePreflightTests.test_receiver_replacement_during_preflight_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 510, in test_receiver_replacement_during_preflight_is_refused
+    self.attempt(first, second, ready_input())
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 484, in attempt
+    with self.assertRaises((SystemExit, ValueError)):
+AssertionError: (<class 'SystemExit'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_stopped_phone_is_not_automatically_resumed (test_run_gate6.UnsafePreflightTests.test_stopped_phone_is_not_automatically_resumed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 495, in test_stopped_phone_is_not_automatically_resumed
+    self.attempt(ready_kernel(1), ready_kernel(2), state)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 484, in attempt
+    with self.assertRaises((SystemExit, ValueError)):
+AssertionError: (<class 'SystemExit'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_wrong_device_under_right_receiver_name_is_refused (test_run_gate6.UnsafePreflightTests.test_wrong_device_under_right_receiver_name_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 500, in test_wrong_device_under_right_receiver_name_is_refused
+    self.attempt(first, second, ready_input())
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\gate6-release-validation-20260916\test_run_gate6.py", line 484, in attempt
+    with self.assertRaises((SystemExit, ValueError)):
+AssertionError: (<class 'SystemExit'>, <class 'ValueError'>) not raised
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.892s
+
+FAILED (failures=5)

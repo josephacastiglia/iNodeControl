@@ -46,7 +46,29 @@ The runner marks possible ownership before calling the helper, since a missing r
 
 Each helper checks the exact bound executable and creation FILETIME, plus the window's process identity. An explicitly supplied executable must match even for the old candidate-5 path. Selection and mirror guards still apply, including during cleanup; changed selection/identity or unavailable controls produce an unconfirmed record rather than an override. `manifest.json` records the bound process identity; `cleanup.json` keeps the disconnect and status observations separate. Original trial failures survive cleanup failures.
 
-**65 offline regressions pass**, including 21 new checks. The first six new cases fail on the preserved old runner. Both generated helper scripts pass PowerShell parsing without execution. No UIA interaction, rack request or phone input ran. Candidate isolation, full preflight, real accessibility behavior and lease cleanup still require the coordinated validation below. See [cleanup report](../gate6-console-cleanup-20261013/REPORT.md).
+**65 offline regressions pass**, including 21 new checks. The first six new cases fail on the preserved old runner. Both generated helper scripts pass PowerShell parsing without execution. No UIA interaction, rack request or phone input ran. The following extension prepares candidate isolation and full preflight offline; real accessibility behavior and lease cleanup still require coordinated validation. See [cleanup report](../gate6-console-cleanup-20261013/REPORT.md).
+
+## Candidate isolation and workload preflight, 13 October
+
+UIA startup now requires `--console-pid`, `--console-path`, `--console-data-dir`
+and `--console-sha256` (the managed DLL hash). Supply the exact prepared candidate,
+not the installed app. The runner validates normal startup arguments, an explicit
+isolated profile, hover tracking Off and matching non-vendor endpoints. Each
+UIA action also checks the actual connected service through the new console
+accessibility hint; editing the address field is not connection evidence.
+
+Both declared receivers must be live with advancing frames and stable identity,
+PID and frame session. All input rows must be explicitly idle and not stopped.
+Before each trial, an occupied observer phone or changed control generation
+aborts the run. These are snapshots, not an exclusive reservation of the rack;
+normal per-phone leases still arbitrate input. UIA targets C24C only. A C24C-only
+kernel smoke profile cannot satisfy this two-stream workload.
+
+All **89 runner regressions**, **20 diagnostics checks** and the self-check pass.
+The console has **409 headless checks**, including seven for the actual connected
+service hint. Five unsafe preflights fail on the preserved old runner. Both
+PowerShell helpers parse without being executed. See
+[the preflight report](../gate6-preflight-20261013/REPORT.md).
 
 ## Remaining work before live acceptance
 
@@ -61,7 +83,7 @@ The response-timeline extension passed 44 runner regressions and its self-check.
 1. Validate physical-click-to-display timing and that the changed region represents the requested result. The new bitmap timeline covers an internal component of that path, not the complete visible-response criterion. The current broad frame classifier is insufficient for general layouts, wallpapers and animations.
 2. Prepare every UIA Home trial through the intended console workflow, without mixing in API input. At present, another Home trial stops unless Search is prepared again.
 3. Validate the new Disconnect cleanup through the real candidate UI, including a helper that times out after dispatch. Confirm accessibility names/visibility and asynchronous completion on that exact build. The offline checks do not establish this live behavior.
-4. Verify candidate identity, isolated settings, ownership, per-phone targeting and the required second streaming phone in a coordinated live window. The existing preflight checks target receiver frames, not all these conditions.
+4. Verify candidate identity, isolated settings, ownership, per-phone targeting and the required second streaming phone in a coordinated live window. The new offline preflight covers saved identity/profile, both streams and ownership; actual accessibility and physical mapping still require confirmation.
 5. Run the written Gate 6 workload and sample count, keeping failures and measuring the correct response. No live run was performed on 10 October.
 
 Known Home/typing defects still make unattended navigation unsuitable. On 11 October the operator deferred the missing-space investigation and requested offline work without screen control. Continue preparation for other gates while retaining that unresolved defect; this tool is not authorization to operate either phone or restart the rack.

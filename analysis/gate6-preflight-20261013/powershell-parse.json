@@ -1,0 +1,12 @@
+[
+  {
+    "path": "analysis/gate6-preflight-20261013/action-helper.ps1",
+    "parse_errors": 0,
+    "executed": false
+  },
+  {
+    "path": "analysis/gate6-preflight-20261013/disconnect-helper.ps1",
+    "parse_errors": 0,
+    "executed": false
+  }
+]

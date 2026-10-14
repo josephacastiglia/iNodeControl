@@ -17,6 +17,7 @@ import winreg
 from ctypes import wintypes
 from datetime import datetime, timezone
 from pathlib import Path
+from windows_command_line import command_args
 
 ROOT = Path(__file__).resolve().parents[1]
 SOAK_STATUS = ROOT / "analysis" / "gate10-endurance-20260916" / "status.json"
@@ -189,25 +190,6 @@ function Toggle([string]$name) {{
     if done.returncode != 0:
         raise RuntimeError(done.stderr.strip() or "mirror state unreadable")
     return json.loads(done.stdout)
-
-
-def command_args(command: str) -> list[str]:
-    """Parse a recorded Windows command line without running it."""
-    if not command:
-        return []
-    shell = ctypes.WinDLL("shell32", use_last_error=True)
-    shell.CommandLineToArgvW.argtypes = [wintypes.LPCWSTR, ctypes.POINTER(ctypes.c_int)]
-    shell.CommandLineToArgvW.restype = ctypes.POINTER(wintypes.LPWSTR)
-    kernel32.LocalFree.argtypes = [ctypes.c_void_p]
-    kernel32.LocalFree.restype = ctypes.c_void_p
-    count = ctypes.c_int()
-    values = shell.CommandLineToArgvW(command, ctypes.byref(count))
-    if not values:
-        raise ctypes.WinError(ctypes.get_last_error())
-    try:
-        return [values[i] for i in range(count.value)]
-    finally:
-        kernel32.LocalFree(ctypes.cast(values, ctypes.c_void_p))
 
 
 def arg_value(command: str, flag: str) -> str | None:
