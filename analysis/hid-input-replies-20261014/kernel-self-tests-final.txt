@@ -1,0 +1,288 @@
+PASS Input parser rejects incorrect Windows report length 0
+PASS Input parser rejects incorrect Windows report length 1
+PASS Input parser rejects incorrect Windows report length 8
+PASS Input parser rejects incorrect Windows report length 9
+PASS Input parser rejects incorrect Windows report length 16
+PASS Input parser rejects incorrect Windows report length 18
+PASS Input parser rejects incorrect Windows report length 34
+PASS Input parser refuses an unobserved report ID
+PASS Movement reply is classified only as a vendor signal 160
+PASS Movement reply is classified only as a vendor signal 161
+PASS Vendor identifier is six bytes and the unclassified tail is preserved
+PASS Parsed input owns its data independently of the receive buffer
+PASS Status and unknown replies retain raw bytes without claiming command success 166
+PASS Status and unknown replies retain raw bytes without claiming command success 175
+PASS Status and unknown replies retain raw bytes without claiming command success 162
+PASS Status and unknown replies retain raw bytes without claiming command success 254
+PASS Reply diagnostics do not report an unopened reader as receiving
+PASS Silent HID input remains unknown rather than confirming a command
+PASS Reply counters distinguish malformed, movement, status, identifier and unknown packets
+PASS Public reply diagnostics omit raw device identifiers and cannot claim iOS success
+PASS Concurrent/repeated reader shutdown shares one joined cleanup
+PASS Closed reader preserves bounded observations for diagnostics
+PASS Input EOF is retained as a read failure without inventing a successful reply
+PASS Closing the owned stream drains a read that ignores cancellation
+PASS An unjoined reader reports incomplete cleanup instead of hanging or claiming success
+PASS A new reader lifetime cannot inherit an earlier reply as fresh evidence
+PASS High report counts retain only a fixed-size summary
+PASS A missing reply cannot gate or change the existing output report
+PASS Reply EOF does not replay or prevent a key-release write
+PASS Transport disposal closes its independent input reader once
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 30
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 31
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 32
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 33
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 34
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 35
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 36
+PASS Down matches captured packet
+PASS Corner reset matches captured packet
+PASS ASCII space and shifted digit usages
+PASS Letter modifiers match captured packets
+PASS Unapproved batch target rejects whole request before output
+PASS Out of bounds click sends nothing
+click pid=C24C known=False reset=66ms steps=0 send=0ms delay=0ms settle=125ms button=94ms total=286ms
+PASS First absolute action releases inputs and establishes corner origin
+PASS Click holds then releases
+PASS Click settles with a zero-motion report before button down
+PASS Drag settles, then preserves held button during relative steps
+PASS Space is emitted as USB usage 44 between letters
+PASS Home reproduces observed Tab and GUI+H sequence
+click pid=C24C known=False reset=63ms steps=2 send=0ms delay=30ms settle=126ms button=94ms total=315ms
+PASS Home invalidates the pointer estimate; next click re-establishes origin
+PASS Transport failure is reported
+PASS Failure releases inputs and discards handle
+PASS Movement failure is surfaced (precise=False)
+PASS Movement failure forces a new connection and corner reset (precise=False)
+PASS Movement failure is surfaced (precise=True)
+PASS Movement failure forces a new connection and corner reset (precise=True)
+click pid=C24C known=False reset=64ms steps=37 send=0ms delay=564ms settle=125ms button=96ms total=868ms
+click pid=C24C known=False reset=63ms steps=37 send=0ms delay=561ms settle=125ms button=94ms total=861ms
+click pid=C24C known=False reset=62ms steps=37 send=0ms delay=259ms settle=133ms button=94ms total=562ms
+click pid=C24C known=False reset=62ms steps=37 send=0ms delay=259ms settle=135ms button=93ms total=561ms
+PASS Precise pacing preserves all reset, movement, keyboard, click and swipe packets
+PASS Precise clicks retain both cold-start and post-Home corner resets
+click pid=C24C known=True reset=0ms steps=194 send=0ms delay=2944ms settle=126ms button=94ms total=3255ms
+click pid=C24C known=True reset=0ms steps=178 send=0ms delay=2710ms settle=124ms button=94ms total=3008ms
+click pid=C24C known=True reset=0ms steps=196 send=0ms delay=2979ms settle=127ms button=94ms total=3292ms
+click pid=C24C known=True reset=0ms steps=209 send=0ms delay=3185ms settle=125ms button=95ms total=3508ms
+click pid=C24C known=True reset=0ms steps=151 send=0ms delay=2298ms settle=127ms button=94ms total=2585ms
+PASS Clicks down to the bottom row emit the full calibrated movement after a reset
+click pid=C24C known=True reset=0ms steps=194 send=0ms delay=2947ms settle=126ms button=93ms total=3257ms
+click pid=C24C known=True reset=0ms steps=29 send=0ms delay=437ms settle=125ms button=95ms total=672ms
+click pid=C24C known=True reset=0ms steps=58 send=0ms delay=879ms settle=123ms button=95ms total=1128ms
+click pid=C24C known=True reset=0ms steps=41 send=0ms delay=622ms settle=127ms button=95ms total=866ms
+click pid=C24C known=True reset=0ms steps=58 send=0ms delay=882ms settle=124ms button=95ms total=1125ms
+PASS Chained lower-screen clicks from a known position end at the last target's units
+PASS Padded bottom-up BMP accepted
+PASS Video is offline before a receiver sends a frame
+PASS Kernel reply diagnostics are empty when observation is not enabled
+PASS Kernel diagnostics expose active calibration and pacing without sending input
+PASS Kernel diagnostics identify the actual assembly bytes
+PASS Kernel diagnostics identify this process and its resource use without hardware calls
+PASS Receiver logging failures remain visible in per-phone diagnostics
+PASS Merged status retains the configured Home sequence alongside frame metadata
+PASS Status distinguishes no frame from a fresh frame without starting a listener
+PASS Named pipe publishes validated receiver dimensions
+PASS Identical live frames remain usable
+PASS Status reports delivered sequence and monotonic age
+PASS Per-phone status includes delivery identity and recovery message
+PASS Receiver stop marker clears stale picture
+PASS Stop marker preserves received count but never reports live
+PASS Two receivers accept distinct bindings, ports and identities
+PASS Conflicting or mismatched receiver configuration rejected
+PASS Conflicting or mismatched receiver configuration rejected
+PASS Conflicting or mismatched receiver configuration rejected
+PASS Conflicting or mismatched receiver configuration rejected
+click pid=C24C known=False reset=60ms steps=0 send=0ms delay=0ms settle=125ms button=94ms total=279ms
+PASS Phone one input does not touch phone two
+click pid=C214 known=False reset=61ms steps=0 send=0ms delay=0ms settle=127ms button=94ms total=282ms
+PASS Phone two input does not touch phone one
+PASS Independent receiver pipes publish both frames
+PASS Disconnecting one pipe preserves the other phone's frame
+PASS Unexpected pixel format rejected
+PASS Missing receiver process reports pid 0
+PASS Exited receiver process reports pid 0
+Receiver running, pid 1
+Receiver exited unexpectedly.
+Receiver running, pid 2
+Receiver exited unexpectedly.
+Receiver running, pid 3
+Receiver exited unexpectedly.
+Receiver retry limit reached (2).
+PASS Retry limit stops after initial start plus two restarts
+PASS Kernel diagnostics preserve exhausted retry counts and cause without a listener
+Receiver running, pid 9
+PASS Healthy receiver stays running with zero restarts
+Receiver running, pid 21
+Receiver exited unexpectedly.
+Receiver running, pid 22
+PASS One crash relaunches the receiver without failing
+PASS Missing ownership token sends no HID
+PASS Batch acquisition conflicts atomically
+PASS Per-phone tokens are distinct and status does not reveal them
+PASS One phone token cannot control another phone
+PASS Concurrent command on same phone is rejected without queuing
+click pid=C241 known=False reset=61ms steps=0 send=0ms delay=0ms settle=127ms button=94ms total=282ms
+PASS Second phone runs while first phone command is active
+PASS Stop interrupts active keyboard input and waits for cleanup
+PASS Cancellation releases mouse and keyboard without cancelled token
+PASS Stop closes transport and latches stopped state
+PASS Stopping one phone preserves other phone ownership
+PASS Explicit resume allows fresh ownership
+PASS Old tokens cannot replay input after resume
+PASS Lease spans separate gesture commands
+PASS Owned multi-request drag preserves held-button movement
+PASS Invalid group token rejects all targets before output
+PASS Group coordinates validated before either board receives input
+click pid=C241 known=True reset=0ms steps=0 send=0ms delay=0ms settle=124ms button=94ms total=218ms
+click pid=C24C known=True reset=0ms steps=2 send=0ms delay=29ms settle=125ms button=95ms total=250ms
+PASS Explicit group input succeeds with both independently acquired leases
+PASS Releasing idle lease releases held inputs
+PASS Controller can renew its own lease
+PASS Expired lease cannot be revived and requires explicit resume
+PASS Changed board UID invalidates existing lease
+PASS Expiry watchdog releases abandoned held input without another request
+PASS A drag move that fails lifts the held button without /mouse/up
+PASS A failed drag move latches Stop until Resume
+PASS A drag move cut by the 8 s command deadline lifts the held button without /mouse/up
+PASS A drag move cut by the deadline latches Stop until Resume
+PASS Both phones resume after cleanup
+PASS A late-answered drag move leaves the button held on the kernel
+PASS Lease expiry lifts a button left held by a drag the console gave up on
+PASS The release the console sends on Resume lifts a button left held by a drag
+PASS A stale release is refused and leaves a newer controller's held button and lease alone
+PASS Failed release is reported and blocks resume
+PASS Keyboard release is still attempted when mouse release fails
+/mouse/click
+PASS API cannot bypass required ownership with a legacy command
+/input/acquire
+/input/renew
+/mouse/down
+PASS API acquisition and renewal reach owned HID dispatch
+/device/set
+PASS API forbids live rebinding under active input
+/input/stop
+/input/resume
+PASS API Stop and Resume use the ownership boundary
+/input/acquire
+/key/sendkey
+PASS Kernel API shutdown cancels active input and drains release before returning
+PASS Home sequence defaults to the vendor sequence
+PASS --home-sequence rejects ""
+PASS --home-sequence rejects "Vendor"
+PASS --home-sequence rejects "command_h"
+PASS --home-sequence rejects "tab"
+PASS Home (vendor) without the phone's lease sends nothing
+PASS Home (vendor) sends exactly its reports
+PASS Home (vendor) keeps Tab
+PASS Home (command-h) without the phone's lease sends nothing
+PASS Home (command-h) sends exactly its reports
+PASS Home (command-h) sends no Tab
+PASS Home (command-wake) without the phone's lease sends nothing
+PASS Home (command-wake) sends exactly its reports
+PASS Home (command-wake) sends no Tab
+PASS A second command during Home (command-h) is refused, not interleaved
+PASS Stop cancels a Home (command-h) in progress
+PASS Cancelled Home (command-h) releases mouse and keyboard
+PASS HID reply observation is off unless explicitly scoped at startup
+PASS Reply observation can select a subset of enabled boards
+PASS Unsafe reply diagnostic scope refused: --hid-replies-pid C24C
+PASS Unsafe reply diagnostic scope refused: --input-pid C24C --hid-replies-pid C241
+PASS Unsafe reply diagnostic scope refused: --input-pid C24C --hid-replies-pid C24C,c24c
+PASS Unsafe reply diagnostic scope refused: --input-pid C24C --hid-replies-pid C24C,
+PASS Unsafe reply diagnostic scope refused: --input-pid C24C --hid-replies-pid C24C --hid-caps
+PASS Startup defaults retain pacing, Home and no enabled boards
+PASS Legacy timing requires its explicit flag
+PASS Explicit startup values and paths with spaces are retained
+PASS Invalid startup arguments refused: --precise-delay 0
+PASS Invalid startup arguments refused: --precise-delay 16
+PASS Invalid startup arguments refused: --precise-delay bad
+PASS Invalid startup arguments refused: --precise-delay 1.5
+PASS Invalid startup arguments refused: --precise-delay 999999999999
+PASS Invalid startup arguments refused: --precise-delay
+PASS Invalid startup arguments refused: --precise-delay --legacy
+PASS Invalid startup arguments refused: --precise-delay 7 --legacy
+PASS Invalid startup arguments refused: --data-dir=
+PASS Invalid startup arguments refused: --data-dir one --data-dir=two
+PASS Invalid startup arguments refused: --recievers file
+PASS Invalid startup arguments refused: --input-pid C24C,
+PASS Invalid startup arguments refused: --input-pid C24C,c24c
+PASS Invalid startup arguments refused: --input-pid ../
+PASS Invalid startup arguments refused: --home-sequence bad
+PASS Invalid startup arguments refused: --precise-movement
+PASS Invalid startup arguments refused: http://localhost/api
+PASS Invalid startup arguments refused: http://localhost:0/api/
+PASS Invalid startup arguments refused: http://localhost:9913/api/?secret=x
+PASS Invalid startup arguments refused: http://localhost:9913/api/ http://localhost:9914/api/
+PASS Invalid startup arguments refused: --validate-startup --hid-caps
+PASS Invalid startup arguments refused: --hid-send C24C
+PASS Invalid startup arguments refused: --hid-caps --hid-replay C24C file
+PASS Valid saved configuration is read without changing files or starting components
+PASS Validated device snapshot does not reread later file changes
+PASS Duplicate JSON properties are refused before startup
+PASS Invalid receiver JSON shape refused: null
+PASS Invalid receiver JSON shape refused: [null]
+PASS Invalid receiver JSON shape refused: {}
+PASS Invalid receiver JSON shape refused: [
+PASS Duplicate saved board bindings are refused
+PASS Duplicate saved phone identities are refused
+PASS An enabled board without calibration is refused
+PASS Read-only input configuration can omit calibration
+PASS Invalid calibration arithmetic is refused before board enumeration
+PASS An enabled board without a receiver binding is refused
+PASS Discovery or placeholder bindings cannot enable input: *
+PASS Discovery or placeholder bindings cannot enable input: unbound-ABCD
+PASS Missing or unsafe receiver fields are refused
+PASS Missing or unsafe receiver fields are refused
+PASS Missing or unsafe receiver fields are refused
+PASS Missing or unsafe receiver fields are refused
+PASS Missing receiver executable is refused
+PASS A runtime without a receiver is refused
+PASS Receiver startup needs an explicit runtime
+PASS Incomplete native runtime is refused without starting its executable
+PASS Complete runtime file fixture validates without executing or claiming native loading
+PASS Missing runtime file is identified before receiver startup: libexec/gstreamer-1.0/gst-plugin-scanner.exe
+PASS Empty runtime file is refused before receiver startup: libexec/gstreamer-1.0/gst-plugin-scanner.exe
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstapp.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstapp.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstcoreelements.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstcoreelements.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstlibav.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstlibav.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstvideoparsersbad.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstvideoparsersbad.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstvideoconvertscale.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstvideoconvertscale.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstplayback.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstplayback.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstautodetect.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstautodetect.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstaudioconvert.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstaudioconvert.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstaudioresample.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstaudioresample.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstvolume.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstvolume.dll
+PASS Missing runtime file is identified before receiver startup: lib/gstreamer-1.0/libgstlevel.dll
+PASS Empty runtime file is refused before receiver startup: lib/gstreamer-1.0/libgstlevel.dll
+PASS A directory cannot stand in for a receiver plugin
+PASS External frame-pipe mode does not need a local receiver runtime
+PASS Listener failure starts no receiver callback
+PASS Cancellation before listen creates no listener or receiver
+PASS Cancellation during listen prevents receiver startup
+Listening on http://localhost:12345/api/
+PASS Receiver callback follows successful listener startup
+PASS Unknown phone binding leaves the saved file unchanged
+PASS Binding replacement failure is reported to the caller
+PASS Failed binding save preserves the in-memory assignment
+PASS Failed binding save preserves the complete previous file
+PASS Failed binding save removes its own temporary file
+PASS Binding save recovers after the replacement lock is released
+PASS Successful binding save publishes the same memory and disk snapshot
+PASS Binding replacement preserves Unicode names and phone metadata
+PASS Binding replacement leaves other phones unchanged
+PASS Caller snapshots cannot change saved or in-memory assignments
+PASS Validated binding snapshots can create a fresh saved file
+PASS Successful binding saves leave no temporary files
+245 tests passed; no real HID transport opened.

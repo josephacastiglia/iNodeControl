@@ -15,6 +15,16 @@ internal static class KernelStartupTests
             check(refused, label);
         }
         var defaults = KernelOptions.Parse([]);
+        check(defaults.ReplyBoards.Length == 0, "HID reply observation is off unless explicitly scoped at startup");
+        check(KernelOptions.Parse(["--input-pid", "C24C,C241", "--hid-replies-pid", "c24c"]).ReplyBoards.SequenceEqual(new[] { "c24c" }),
+            "Reply observation can select a subset of enabled boards");
+        foreach (var args in new[] {
+            new[] { "--hid-replies-pid", "C24C" },
+            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C241" },
+            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C,c24c" },
+            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C," },
+            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C", "--hid-caps" } })
+            Reject(() => KernelOptions.Parse(args), "Unsafe reply diagnostic scope refused: " + string.Join(' ', args));
         check(defaults.PreciseDelayMs == 7 && defaults.Home == HomeSequence.Vendor && defaults.Allowed.Length == 0
             && defaults.Prefix == "http://127.0.0.1:9913/api/", "Startup defaults retain pacing, Home and no enabled boards");
         check(KernelOptions.Parse(["--legacy"]).PreciseDelayMs == 0, "Legacy timing requires its explicit flag");

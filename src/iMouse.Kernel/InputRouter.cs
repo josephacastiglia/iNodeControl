@@ -22,6 +22,8 @@ public sealed class InputRouter : IDisposable
     private readonly HashSet<string> _allowed;
     private readonly Func<string,IHidTransport> _open;
     private readonly int _preciseDelayMs;
+    private readonly ConcurrentDictionary<string, HidReplyTelemetry> _replyTelemetry = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _replyBoards;
     private readonly ConcurrentDictionary<string, BoardState> _states = new(StringComparer.OrdinalIgnoreCase);
     private sealed class BoardState
     {
@@ -36,12 +38,15 @@ public sealed class InputRouter : IDisposable
         public Exception? ReleaseFailure;
     }
     public InputRouter(DeviceStore store, IEnumerable<string> allowed, IEnumerable<PointerCalibration> calibrations,
-        Func<string,IHidTransport>? open=null, int preciseDelayMs=0)
+        Func<string,IHidTransport>? open=null, int preciseDelayMs=0, IEnumerable<string>? replyBoards=null)
     {
         _store = store;
-        _open = open ?? (pid => new HidConnection(pid));
         _preciseDelayMs = preciseDelayMs;
         _allowed = new(allowed, StringComparer.OrdinalIgnoreCase);
+        _replyBoards = new(replyBoards ?? [], StringComparer.OrdinalIgnoreCase);
+        if (!_replyBoards.IsSubsetOf(_allowed)) throw new ArgumentException("Reply diagnostics require an enabled input board.");
+        _open = open ?? (pid => new HidConnection(pid, _replyBoards.Contains(pid)
+            ? _replyTelemetry.GetOrAdd(pid, _ => new()) : null));
         _calibrations = calibrations.ToDictionary(c => c.Pid, StringComparer.OrdinalIgnoreCase);
         if (_calibrations.Values.Any(c => !ValidAxis(c.Width,c.OriginX,c.PixelsPerUnitX)
             || !ValidAxis(c.Height,c.OriginY,c.PixelsPerUnitY)))
@@ -65,9 +70,16 @@ public sealed class InputRouter : IDisposable
     internal object DiagnosticConfiguration() => new
     {
         precise_movement_delay_ms = _preciseDelayMs,
+        hid_reply_boards = _replyBoards.OrderBy(p => p).ToArray(),
         calibrations = _calibrations.Values.Select(c => new { pid = c.Pid, enabled = Enabled(c.Pid),
             width = c.Width, height = c.Height, origin_x = c.OriginX, origin_y = c.OriginY,
             pixels_per_unit_x = c.PixelsPerUnitX, pixels_per_unit_y = c.PixelsPerUnitY }).ToArray()
+    };
+    internal object ReplyDiagnostics() => new
+    {
+        mode = "observation only; no write waits or action acknowledgement",
+        boards = _replyBoards.OrderBy(p => p).Select(pid => new
+        { pid, observation = _replyTelemetry.TryGetValue(pid, out var state) ? state.Snapshot() : new HidReplyTelemetry().Snapshot() }).ToArray()
     };
     public HomeSequence Home { get; init; } = HomeSequence.Vendor;
     public string HomeSequenceName => Home switch { HomeSequence.CommandH => "command-h", HomeSequence.CommandWake => "command-wake", _ => "vendor" };

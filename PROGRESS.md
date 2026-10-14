@@ -11,6 +11,22 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Incoming board replies validated on C24C, 14 October
+
+Two bounded pointer-only checks through the unchanged release API captured 25
+reports (23 A1 and two AF) from a separate read-only C24C handle. Both runs
+released their leases and confirmed unchanged C241 state, release processes and
+four protected file hashes. No clicks, typing, FKA change or restart occurred.
+The installed PDB was stale; the actual DLL transport was audited before capture.
+
+The combined source now has opt-in, board-scoped reply counters/state in kernel
+status and diagnostic export, default off. Replies never gate/retry writes and
+are not treated as iOS success. The kernel passed 245 tests; the shared capture
+reader passed 30 overlapping checks plus six argument cases, and Python passed
+23 export plus three capture-guard tests. The full new kernel is offline-tested;
+the existing immutable package remains unchanged. Read
+`analysis/hid-input-replies-20261014/REPORT.md` for scope, evidence and limits.
+
 ## Original vendor protocol investigated offline, 14 October
 
 REA 6.5.0 and Ghidra decompiled 27 targeted functions from a hash-verified copy

@@ -12,7 +12,7 @@ internal sealed class KernelOptions
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
     private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid", "--precise-delay",
-        "--home-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime"];
+        "--home-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hid-replies-pid"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
     internal string? HardwareMode { get; private set; }
     internal string[] HardwareArguments { get; private set; } = [];
@@ -20,6 +20,7 @@ internal sealed class KernelOptions
     internal HomeSequence Home { get; private set; }
     internal int PreciseDelayMs { get; private set; } = 7;
     internal string[] Allowed { get; private set; } = [];
+    internal string[] ReplyBoards { get; private set; } = [];
     internal string DataDir => Path.GetFullPath(Value("--data-dir", Path.Combine(AppContext.BaseDirectory, "data")));
     internal string Value(string name, string fallback = "") => _values.GetValueOrDefault(name, fallback);
     internal static bool BoardId(string? text) => text is not null && Regex.IsMatch(text, "^[0-9A-Fa-f]{4}$");
@@ -80,6 +81,14 @@ internal sealed class KernelOptions
                 throw new ArgumentException("--input-pid needs distinct four-digit hexadecimal board IDs, separated by commas.");
         }
         _ = result.DataDir; // Check path syntax before any hardware work.
+        if (result._values.TryGetValue("--hid-replies-pid", out string? replyIds))
+        {
+            result.ReplyBoards = replyIds.Split(',', StringSplitOptions.TrimEntries);
+            if (result.HardwareMode is not null || result.ReplyBoards.Any(id => !BoardId(id))
+                || result.ReplyBoards.Distinct(StringComparer.OrdinalIgnoreCase).Count() != result.ReplyBoards.Length
+                || result.ReplyBoards.Any(id => !result.Allowed.Contains(id, StringComparer.OrdinalIgnoreCase)))
+                throw new ArgumentException("--hid-replies-pid requires distinct enabled input board IDs and normal service mode.");
+        }
         return result;
     }
 
@@ -115,7 +124,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         if (calibrations.Any(c => !KernelOptions.BoardId(c.Pid))) throw new ArgumentException("Invalid calibration board PID.");
         // Reuse the router's arithmetic and duplicate-calibration checks. Its constructor
         // and disposal never open transport; connections are created only on dispatch.
-        using (var check = new InputRouter(store, options.Allowed, calibrations, preciseDelayMs: options.PreciseDelayMs)) { }
+        using (var check = new InputRouter(store, options.Allowed, calibrations, preciseDelayMs: options.PreciseDelayMs, replyBoards: options.ReplyBoards)) { }
 
         List<ReceiverConfig> receivers;
         if (options.Value("--receivers") is { Length: > 0 } file) receivers = ReadList<ReceiverConfig>(Path.GetFullPath(file));
@@ -151,6 +160,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         valid = true, scope = "saved configuration only", hardware_accessed = false, listener_started = false,
         receivers_started = false, settings_written = false, build = KernelDiagnostics.BuildIdentity,
         data_directory = Options.DataDir, address = Options.Prefix, allowed = Options.Allowed,
+        hid_reply_boards = Options.ReplyBoards,
         precise_delay_ms = Options.PreciseDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
         receiver_count = Receivers.Count, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
         bindings_complete = Receivers.All(r => r.DeviceId is not ("*" or "") && !r.DeviceId.StartsWith("unbound-", StringComparison.OrdinalIgnoreCase)),

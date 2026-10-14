@@ -311,6 +311,36 @@ def uptime_s(started: str | None) -> float | None:
     return round((datetime.now(timezone.utc) - then).total_seconds(), 1)
 
 
+def hid_reply_summary(value):
+    """Retain bounded counters only, including when talking to a newer kernel."""
+    if not isinstance(value, dict) or not isinstance(value.get("boards"), list):
+        return {"available": False, "boards": []}
+    states = {"not-opened", "awaiting-report", "receiving", "stopped", "faulted", "open-failed", "stop-unconfirmed"}
+    error_types = {"IOException", "EndOfStreamException", "Win32Exception", "InvalidDataException",
+                   "UnauthorizedAccessException", "ObjectDisposedException", "TimeoutException"}
+    rows = []
+    for row in value["boards"][:128]:
+        if not isinstance(row, dict) or not re.fullmatch(r"[0-9a-fA-F]{4}", str(row.get("pid", ""))):
+            continue
+        source = row.get("observation")
+        if not isinstance(source, dict):
+            continue
+        observation = {}
+        for key in ("Connection", "Reports", "MovementSignals", "StatusReports", "IdentifierReports",
+                    "UnknownReports", "InvalidReports", "LastReportAgeMs"):
+            number = source.get(key)
+            observation[key] = number if type(number) is int and 0 <= number <= 2**63-1 else None
+        state = source.get("State")
+        observation["State"] = state if isinstance(state, str) and state in states else "unknown"
+        family = source.get("LastFamily")
+        observation["LastFamily"] = family if isinstance(family, str) and re.fullmatch(r"[0-9A-F]{2}", family) else None
+        error = source.get("ErrorType")
+        observation["ErrorType"] = error if isinstance(error, str) and error in error_types else (None if error is None else "other")
+        rows.append({"pid": row["pid"], "observation": observation})
+    return {"available": True, "meaning": "Observed board reports, not command acknowledgement or iOS success",
+            "truncated": len(value["boards"]) > 128, "boards": rows}
+
+
 def collect(url: str, *, console_pid: int | None = None, include_ui: bool = False) -> dict:
     errors: list[str] = []
     base = api_base(url)
@@ -492,6 +522,7 @@ def collect(url: str, *, console_pid: int | None = None, include_ui: bool = Fals
             "allowed": kernel_status.get("allowed"), "input": kernel_status.get("input"),
             "input_protocol": kernel_status.get("input_protocol"),
             "input_leases_required": kernel_status.get("input_leases_required"),
+            "hid_replies": hid_reply_summary(kernel_status.get("hid_replies")),
             "executable": kernel.get("path"), "command": command,
         },
         "console": {

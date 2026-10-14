@@ -31,6 +31,8 @@ public static class SelfTests
     {
         int passed=0;
         void Check(bool ok,string message) { if(!ok) throw new Exception(message);passed++;Console.WriteLine("PASS "+message); }
+        HidInputReportTests.Run(Check);
+        await HidReplyMonitorTests.RunAsync(Check);
         int Code(object response)=>JsonSerializer.SerializeToElement(response).GetProperty("code").GetInt32();
         string testDir=Path.Combine(Path.GetTempPath(),"imouse-kernel-test-"+Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(testDir);
@@ -162,6 +164,8 @@ public static class SelfTests
             using var api = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, frames);
             JsonElement Status() => JsonSerializer.SerializeToElement(api.KernelStatus());
             var initial = Status();
+            Check(initial.GetProperty("hid_replies").GetProperty("boards").GetArrayLength() == 0,
+                "Kernel reply diagnostics are empty when observation is not enabled");
             int diagnosticWrites = writes.Reports.Count;
             var inputConfiguration = Status().GetProperty("input_configuration");
             Check(inputConfiguration.GetProperty("precise_movement_delay_ms").GetInt32() == 0

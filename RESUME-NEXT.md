@@ -7,6 +7,14 @@ change or unresolved concern. Nothing is pushed, installed or promoted.
 
 ## Latest completed work
 
+- Incoming C24C replies validated through two pointer-only release-API captures:
+  23 A1 and two AF reports. No iOS acknowledgement or timing guarantee inferred.
+  New kernel source adds opt-in `--hid-replies-pid` counters/state and sanitized
+  diagnostic export, default off. Final standalone kernel: 245 tests; helper:
+  30 overlapping parser/monitor checks + six argument cases; Python: 23 export
+  and three capture-guard tests. Read
+  `analysis/hid-input-replies-20261014/REPORT.md`. The full new kernel was not
+  started on hardware and the immutable package below is unchanged.
 - Original vendor HID protocol investigated with REA/Ghidra, entirely offline.
   Read `analysis/vendor-protocol-rea-20261014/REPORT.md`: Fn field and Tab
   prelude resolved; incoming movement/identifier handlers identified; absolute
@@ -18,9 +26,9 @@ change or unresolved concern. Nothing is pushed, installed or promoted.
   neither was executed. Read `analysis/gate6-preflight-20261013/REPORT.md`.
 - This extends the existing runner. Normal Disconnect cleanup, failure records,
   process-lifetime guards and opt-in bounded response timing are retained.
-- Earlier kernel shutdown/recovery repairs remain covered by their recorded
-  41 recovery, 207 kernel, 34 frame and 14 lifetime checks. They were not rerun
-  merely to inflate this turn's counts; the kernel bytes are unchanged.
+- Earlier shutdown/recovery-specific tooling remains covered by its recorded
+  41 recovery, 34 frame and 14 lifetime checks. The full kernel suite now has
+  245 checks; the immutable packaged kernel retains its earlier 207-test record.
 
 ## One current review candidate
 
@@ -41,6 +49,10 @@ record before considering any startup.
 ## Next priorities
 
 Continue offline correctness/measurement and release preparation where useful.
+Reply observation can be enabled for explicitly allowed boards in a future
+candidate validation window; do not infer completion, retry, change pacing or
+auto-resume based on these uncorrelated reports. Rebuild/package deliberately
+before that window; no release or launcher was changed by the reply work.
 Do not produce another parallel timing or accuracy harness. Gate 6 still needs
 reviewed correct-result evidence and true console-click-to-visible-response
 measurement; UIA invocation and a later bitmap do not prove those requirements.
@@ -57,9 +69,15 @@ Verify `archive-verification.json` in the combined-package record. This is a loc
 copy, not an off-machine backup. Never delete ignored evidence/worktrees or push
 backup branches.
 
+Latest live authority covered C24C-only board reply checks while leaving the
+installed release unchanged. That bounded check is complete. C24C was released,
+C241 received no input, and all four files protected by the capture retained
+their hashes. The same release kernel, console and receivers stayed running.
+See the dated run record; recheck before relying on old process/lease state.
+
 No screen control, resumed typing/FKA experiments, C241 input, settings changes,
 kernel/receiver restart or deployment is authorized by this note. Any required
-physical interruption needs a coordinated window. Current rack state was not
-queried this turn; old PIDs/restoration records are historical. All 25 protected
-installed static file hashes still match their baseline. Hash settings without
-printing their contents.
+physical interruption needs a coordinated window. Hash settings without
+printing their contents. New raw reply evidence and exact helper binaries are
+archived separately under `../iMouseXP-2.0-evidence-archive/20261014-hid-input-replies`;
+verify its recorded checksums before removing any working evidence.

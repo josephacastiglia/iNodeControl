@@ -132,6 +132,32 @@ Unsupported functions continue to return a failure instead of claiming success.
 
 ## Capture note
 
+### 14 October 2026: incoming reports, C24C only
+
+Two short read-only captures alongside the installed release's lease-controlled
+reset and small moves produced 23 A1 movement signals and two AF status reports.
+All were 17-byte Windows input reports including report ID zero. A1's leading
+fields were consistent with the commanded relative deltas; no command sequence
+number or iOS-completion indication was established. AF appeared during both
+successful checks and must not be classified as an error without more evidence.
+No A0/A5/A6 response was observed in this small sample.
+
+In these 23 A1 samples, payload byte 4 matched `(0x80 + byte1 + byte2 + byte3)
+modulo 256`; this remains an observation, not an enforced checksum. Trailing
+bytes varied. Report timing/counts cannot establish USB round-trip latency,
+one response per write or accurate phone positioning. No typing was performed.
+
+The combined candidate source now offers optional `--hid-replies-pid` diagnostics
+for enabled input boards. It defaults off and never waits for a reply before a
+write. Status exposes bounded observations rather than acknowledgements. The
+final complete kernel has only offline validation; installed software and the
+prior packaged candidate are unchanged. See
+`hid-input-replies-20261014/REPORT.md` for provenance, raw capture locations,
+restoration and limitations. Earlier observations above retain their original
+dates/scopes; this addendum does not retroactively validate them.
+
+### Earlier capture environment
+
 USBPcap was not used. This PC is Windows 11 25H2 + Secure Boot; USBPcap’s installer
 still advertises Windows 7/8/10. Windows USB ETW is enough for topology and sizes.
 It is not enough, via `tracerpt` XML, for the report layout.
