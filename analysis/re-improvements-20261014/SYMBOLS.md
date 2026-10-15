@@ -47,7 +47,8 @@ manifests and the existing source records remain separate checks.
 
 Existing immutable bundles are not rewritten. Their embedded verifiers retain
 their recorded behavior. New staging/verification requires `managed_symbols.py`;
-use a newly built bundle to receive this protection. The current goal's combined
-build will incorporate this check after the remaining source changes are ready.
+use a newly built bundle to receive this protection. The combined package
+`combined-re-improvements-20261014` now incorporates this check; both final
+managed pairs pass, as recorded in `package-result.json`.
 Home, App Switcher, reply handling and absolute positioning remain separate
 pending acceptance items.

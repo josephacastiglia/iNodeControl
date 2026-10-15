@@ -46,7 +46,9 @@ vendor trace showed identifier and movement signals share an event, so no ACK
 wait or pacing change is justified. App Switcher FKA-Off support stays open.
 Read `analysis/re-improvements-20261014/REPORT.md`, `PROTOCOL.md` and
 `LIVE-ACCEPTANCE.md`. A coordinated navigation window was requested in chat;
-do not treat an unanswered question as authorization. The goal remains active.
+do not treat an unanswered question as authorization. Physical acceptance remains
+pending. `COMPLETION-AUDIT.md` in that record identifies the exact missing proof
+and the coordinated window required to resume meaningful work.
 
 Offline source work, tests, builds, local commits and preservation can continue
 autonomously. No desktop control or speculative raw USB writes. All live input

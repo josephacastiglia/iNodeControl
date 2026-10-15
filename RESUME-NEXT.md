@@ -9,8 +9,14 @@ change or unresolved concern. Nothing is pushed, installed or promoted.
 
 The user explicitly requested integration and completion of five reverse-engineering
 improvements. `RE-IMPROVEMENTS-PLAN.md` holds acceptance requirements. The Codex
-goal is active. Source commits `457f80d` and `373dd58` deliver the offline changes;
+goal retains that full scope. Source commits `457f80d` and `373dd58` deliver the offline changes;
 physical validation is still required. Do not declare the goal complete.
+
+The latest completion audit is `analysis/re-improvements-20261014/COMPLETION-AUDIT.md`.
+Meaningful remaining progress needs the pending coordinated C24C window. Offline
+implementation, packaging and the one-action runner are prepared; hardware support
+and visible correctness cannot be inferred from their passing tests. No job or
+process is running for this goal while the operator's answer is pending.
 
 Read `analysis/re-improvements-20261014/REPORT.md`, `PROTOCOL.md` and
 `LIVE-ACCEPTANCE.md`. Home direct alternatives, no-Tab Fn navigation and an
