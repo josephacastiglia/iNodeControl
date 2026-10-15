@@ -1,0 +1,74 @@
+{
+  "baseline_exit": 0,
+  "tests": 30,
+  "negative_controls": [
+    {
+      "guard_removed": "build_identity",
+      "test": "CaptureTests.test_bad_candidate_or_scope_refused_before_acquire",
+      "mutated_source_sha256": "7415aab3763ecdf6eff79591dd67d5cf297c3f1c18f12837dfe2b0263576810d",
+      "failed_expected_assertion": true
+    },
+    {
+      "guard_removed": "explicit_live",
+      "test": "CaptureTests.test_explicit_live_flag_required_before_any_call",
+      "mutated_source_sha256": "f66e76738de5c31a0a8b3502732787ab73a3b97c7392621dbd58dd91dd961e63",
+      "failed_expected_assertion": true
+    },
+    {
+      "guard_removed": "new_owner_cleanup",
+      "test": "CaptureTests.test_new_owner_after_command_is_left_alone",
+      "mutated_source_sha256": "14899d3fcb2fed94530935bcf3a26816ade1241648af319501a1b89c96346404",
+      "failed_expected_assertion": true
+    },
+    {
+      "guard_removed": "still_baseline_identity",
+      "test": "CaptureTests.test_confirmed_quiet_baseline_requires_matching_reviewed_image",
+      "mutated_source_sha256": "d2fa52909af3f30eeb2d90b5060d767de87fecfbe960232e683ab86e48eb63ac",
+      "failed_expected_assertion": true
+    },
+    {
+      "guard_removed": "new_video_evidence",
+      "test": "CaptureTests.test_no_new_after_frame_remains_unscored_and_releases_without_retry",
+      "mutated_source_sha256": "8b7879020fa7b192dcb6859824959f4a8fd873740f4fd08dcf5fb14f8bf1a33a",
+      "failed_expected_assertion": true
+    }
+  ],
+  "offline_plan": {
+    "mode": "offline_plan",
+    "rack_contacted": false,
+    "plan": {
+      "url": "http://127.0.0.1:9913/api",
+      "kernel_sha256": "572252ef7b30783a2d03612fb105099255f95f42b21e46f9b9a39e799e218e2c",
+      "run_directory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\re-improvements-20261014",
+      "preparation_sha256": "c075ff6d325c8bfa7223e1c07a1d853c0825e0af4db679a73faa9dbb5b02daa0",
+      "inventory_sha256": "95880eef9f1fc6b3db05f4efafd80156ec9d85a58fa4374274440cd5996b7759"
+    },
+    "cases": {
+      "home-field": [
+        "Home",
+        "Home visible; manually return and compare disposable note with baseline"
+      ],
+      "home-settings": [
+        "Home",
+        "Home visible from the operator-prepared benign Settings page"
+      ],
+      "home-idle": [
+        "Home",
+        "Home visible after at least 60 seconds without input"
+      ],
+      "app-switcher": [
+        "AppSwitch",
+        "App Switcher cards visible; no text mutation"
+      ],
+      "control-center": [
+        "ControlBar",
+        "Control Centre visible; no text mutation"
+      ]
+    }
+  },
+  "source_sha256": "b8b509b94486629b5d08249134948f164d7ce0f776143db20c2938594e93ef78",
+  "tests_sha256": "126c1d23d6be69498406797c8e4d4cdf15a41c1432090eea85eab1da0cff486f",
+  "rack_contacted": false,
+  "live_run": false,
+  "product_binaries_changed": false
+}

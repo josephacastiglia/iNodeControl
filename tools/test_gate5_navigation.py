@@ -1,5 +1,6 @@
 """Offline failure-path tests. No listener, device, shell or desktop use."""
 import contextlib
+import hashlib
 from copy import deepcopy
 import importlib.util
 import io
@@ -36,7 +37,7 @@ class FakeKernel(runner.CaptureKernel):
             "control_compatibility": {"home_sequence": "command-h", "home_sends_tab": False,
                                       "navigation_sequence": "direct-fn", "navigation_sends_tab": False},
             "receivers": [{"deviceid": runner.PHONE, "name": "iMouse2-C24C", "live": True,
-                           "frame_pipe_connected": True, "frame_age_ms": 50, "frame_session": 2}]}
+                           "frame_pipe_connected": True, "frame_age_ms": 50, "frame_session": 2, "frames": 123}]}
         self.device_rows = [{**runner.BINDING, "state": 1}]
         self.lease = {"id": runner.PHONE, "owned": False, "active": False, "stopped": False,
                       "releasing": False, "release_failed": False, "lease_remaining_ms": 120000, "generation": 3}
@@ -69,6 +70,7 @@ class FakeKernel(runner.CaptureKernel):
             elif fun == "/key/sendkey":
                 assert data["id"] == runner.PHONE and data["token"] == "PRIVATE-LEASE"
                 assert self.lease["owned"]
+                self.current["receivers"][0]["frames"] += 1
                 self.on_send()
                 result = {"code": 0}
             elif fun == "/input/release":
@@ -195,6 +197,40 @@ class CaptureTests(unittest.TestCase):
         self.assertIn("acquisition_unconfirmed", result["cleanup"])
         self.assertEqual(self.kernel.count("/input/acquire"), 1)
         self.assertEqual(self.kernel.count("/input/release"), 0)
+
+    def test_confirmed_quiet_baseline_requires_matching_reviewed_image(self):
+        self.kernel.current["receivers"][0]["frame_age_ms"] = 90000
+        result = self.run_case(confirmed_baseline_sha256=hashlib.sha256(bmp()).hexdigest())
+        self.assertEqual(result["errors"], [])
+        self.assertTrue(result["post_command_frames_verified"])
+        self.kernel = FakeKernel()
+        self.kernel.current["receivers"][0]["frame_age_ms"] = 90000
+        result = self.run_case(confirmed_baseline_sha256="0" * 64)
+        self.assertFalse(result["command_attempted"])
+        self.assertEqual(result["cleanup"], "release_confirmed")
+
+    def test_confirmed_image_does_not_allow_disconnected_video(self):
+        self.kernel.current["receivers"][0]["frame_pipe_connected"] = False
+        result = self.run_case(confirmed_baseline_sha256=hashlib.sha256(bmp()).hexdigest())
+        self.assertFalse(result["command_attempted"])
+        self.assertEqual(self.kernel.count("/input/acquire"), 0)
+
+    def test_no_new_after_frame_remains_unscored_and_releases_without_retry(self):
+        self.kernel.on_send = lambda: self.kernel.current["receivers"][0].update(frames=123)
+        result = self.run_case(confirmed_baseline_sha256=hashlib.sha256(bmp()).hexdigest())
+        self.assertTrue(result["api_success"])
+        self.assertFalse(result["post_command_frames_verified"])
+        self.assertTrue(result["errors"])
+        self.assertEqual(result["errors"][0]["stage"], "after_capture")
+        self.assertEqual(result["cleanup"], "release_confirmed")
+        self.assertEqual(self.kernel.count("/key/sendkey"), 1)
+        self.assertEqual(result["visible_acceptance"], "not_scored_requires_review")
+
+    def test_idle_can_use_confirmed_still_frame_without_extra_phone_input(self):
+        self.kernel.current["receivers"][0]["frame_age_ms"] = 90000
+        result = self.run_case(case="home-idle", confirmed_baseline_sha256=hashlib.sha256(bmp()).hexdigest())
+        self.assertEqual(result["errors"], [])
+        self.assertEqual(self.kernel.count("/key/sendkey"), 1)
 
     def test_baseline_failure_releases_without_sending(self):
         self.kernel.on_photo = lambda: (_ for _ in ()).throw(TimeoutError("no frame"))

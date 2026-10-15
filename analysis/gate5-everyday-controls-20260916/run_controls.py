@@ -140,12 +140,14 @@ def verify_lease(rows, owned):
     return row
 
 
-def preflight(kernel, plan, pid, started=None, owned=False):
+def preflight(kernel, plan, pid, started=None, owned=False, *, confirmed_still=False):
     status = kernel.status()
     receiver = verify_kernel(status, plan, pid, started)
     age = receiver.get("frame_age_ms")
     require(receiver.get("live") is True and receiver.get("frame_pipe_connected") is True
-            and isinstance(age, (float, int)) and 0 <= age <= 5000, "Fresh C24C video required; no input sent")
+            and isinstance(age, (float, int)) and age >= 0
+            and isinstance(receiver.get("frames"), int) and receiver["frames"] > 0
+            and (age <= 5000 or confirmed_still), "Fresh C24C video or an explicitly confirmed still baseline required; no input sent")
     devices = kernel.devices()
     matches = [row for row in devices if row.get("deviceid") == PHONE]
     require(len(matches) == 1 and all(matches[0].get(k) == v for k, v in BINDING.items())
@@ -168,9 +170,14 @@ def failure(exc):
             "Request/capture failed; no retry. Check the bounded kernel diagnostics."}
 
 
-def run_action(plan, case, pid, fka, destination, *, live=False, kernel=None, sleep=time.sleep):
+def run_action(plan, case, pid, fka, destination, *, live=False, kernel=None, sleep=time.sleep,
+               confirmed_baseline_sha256=None):
     require(live is True, "Live execution requires an explicitly coordinated window and --live")
     require(case in CASES and fka in ("on", "off") and isinstance(pid, int) and pid > 0, "Explicit case, FKA observation and PID required")
+    require(confirmed_baseline_sha256 is None or (len(confirmed_baseline_sha256) == 64
+            and all(c in "0123456789abcdef" for c in confirmed_baseline_sha256)),
+            "Confirmed baseline must be the SHA-256 of the visually reviewed BMP")
+    confirmed_still = confirmed_baseline_sha256 is not None
     destination = Path(destination).resolve()
     require(destination.is_relative_to(LIVE_ROOT.resolve()) and destination != LIVE_ROOT.resolve(),
             "Use a new subfolder of analysis/re-improvements-20261014/live-navigation")
@@ -180,6 +187,7 @@ def run_action(plan, case, pid, fka, destination, *, live=False, kernel=None, sl
               "expected": CASES[case][1], "plan": plan, "harness_sha256": sha(HERE),
               "transport_sha256": sha(Path(transport.__file__)), "command_attempted": False,
               "api_success": False, "command_outcome": "not_sent", "visible_acceptance": "not_scored_requires_review",
+              "confirmed_baseline_sha256": confirmed_baseline_sha256, "post_command_frames_verified": False,
               "text_preservation": "not_scored_requires_operator_comparison", "frames": [], "errors": [],
               "cleanup": "no_lease_acquired", "timing_scope": "API round-trip only; not Gate 6 console response"}
     tokens = {}
@@ -187,25 +195,27 @@ def run_action(plan, case, pid, fka, destination, *, live=False, kernel=None, sl
     generation = None
     stage = "preflight"
     try:
-        status, _ = preflight(kernel, plan, pid)
+        status, _ = preflight(kernel, plan, pid, confirmed_still=confirmed_still)
         started = status["process"]["started_utc"]
         result["before"] = status
         if case == "home-idle":
             stage = "idle_preparation"
             result["idle_wait_started_utc"] = utc()
             sleep(60)
-            preflight(kernel, plan, pid, started)
+            preflight(kernel, plan, pid, started, confirmed_still=confirmed_still)
             result["idle_wait_completed_utc"] = utc()
         stage = "acquire"
         tokens = kernel.acquire([PHONE], lease_ms=120000)
         stage = "owned_preflight"
-        _, lease = preflight(kernel, plan, pid, started, owned=True)
+        _, lease = preflight(kernel, plan, pid, started, owned=True, confirmed_still=confirmed_still)
         generation = lease["generation"]
         stage = "baseline"
         result["frames"].append(frame(kernel, destination, "before.bmp"))
+        require(not confirmed_still or result["frames"][-1]["sha256"] == confirmed_baseline_sha256,
+                "Still baseline changed since visual review; no input sent")
         # The token remains the authority for the write; status alone cannot
         # guarantee ownership. Recheck after capture, immediately before dispatch.
-        current, lease = preflight(kernel, plan, pid, started, owned=True)
+        current, lease = preflight(kernel, plan, pid, started, owned=True, confirmed_still=confirmed_still)
         require(lease["generation"] == generation, "Lease generation changed before dispatch")
         require(current["receivers"][0].get("frame_session") == result["before"]["receivers"][0].get("frame_session"),
                 "Frame session changed during preparation; no input sent")
@@ -220,6 +230,20 @@ def run_action(plan, case, pid, fka, destination, *, live=False, kernel=None, sl
         result["api_round_trip_ms"] = reply.get("rtt_ms")
         result["command_completed_utc"] = utc()
         stage = "after_capture"
+        # A still baseline does not prove continued video delivery. Require a
+        # new frame after dispatch; never retry the input to obtain evidence.
+        for attempt in range(11):
+            status = kernel.status()
+            receiver = verify_kernel(status, plan, pid, started)
+            require(receiver.get("frame_session") == current["receivers"][0].get("frame_session")
+                    and receiver.get("live") is True and receiver.get("frame_pipe_connected") is True,
+                    "Video disconnected or changed session; visual result is unscored")
+            if receiver.get("frames", 0) > current["receivers"][0]["frames"]:
+                result["post_command_frames_verified"] = True
+                break
+            if attempt < 10:
+                sleep(0.5)
+        require(result["post_command_frames_verified"], "No new frame within five seconds; visual result is unscored")
         for i, delay in enumerate((0, 0.5, 1.0)):
             sleep(delay)
             status = kernel.status()
@@ -265,6 +289,8 @@ def main(argv=None):
     parser.add_argument("--kernel-pid", type=int)
     parser.add_argument("--fka", choices=("on", "off"), help="Operator-observed state; this does not change FKA")
     parser.add_argument("--out", type=Path)
+    parser.add_argument("--confirmed-baseline-sha256",
+                        help="SHA-256 of an operator/visually confirmed current BMP; allows a connected still baseline")
     args = parser.parse_args(argv)
     plan = verify_preparation()
     if not args.live:
@@ -272,7 +298,8 @@ def main(argv=None):
         return 0
     if not args.case or not args.kernel_pid or not args.fka or not args.out:
         parser.error("--live requires --case, --kernel-pid, --fka and a new --out folder")
-    result = run_action(plan, args.case, args.kernel_pid, args.fka, args.out, live=True)
+    result = run_action(plan, args.case, args.kernel_pid, args.fka, args.out, live=True,
+                        confirmed_baseline_sha256=args.confirmed_baseline_sha256)
     print(json.dumps({"record": str(args.out / "result.json"), "api_success": result["api_success"],
                       "visible_acceptance": result["visible_acceptance"], "cleanup": result["cleanup"]}, indent=2))
     return 1 if result["errors"] else 0

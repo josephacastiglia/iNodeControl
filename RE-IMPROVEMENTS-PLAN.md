@@ -40,15 +40,18 @@ guard. The final kernel passes 290 mock checks and the console 411 headless
 checks. The 74 packaging checks and five negative controls are separate evidence,
 not physical acceptance. A fresh C24C-only isolated profile validates offline.
 
-Home command-h/direct-Fn navigation and a separate move-only absolute probe are
-prepared, not live-validated. Reply handling remains observation-only: the new
+The authorized 14 October navigation window produced one preliminary Home
+success from Settings, then a failed direct-Fn App Switcher check with FKA On.
+It stopped at the first failure; no further cases or A0 probe ran. Read
+`analysis/navigation-live-20261014/README.md` for evidence and restoration.
+Home repeats/text preservation/idle and broader usability remain pending.
+Reply handling remains observation-only: the new
 vendor trace showed identifier and movement signals share an event, so no ACK
 wait or pacing change is justified. App Switcher FKA-Off support stays open.
 Read `analysis/re-improvements-20261014/REPORT.md`, `PROTOCOL.md` and
-`LIVE-ACCEPTANCE.md`. A coordinated navigation window was requested in chat;
-do not treat an unanswered question as authorization. Physical acceptance remains
-pending. `COMPLETION-AUDIT.md` in that record identifies the exact missing proof
-and the coordinated window required to resume meaningful work.
+`LIVE-ACCEPTANCE.md`. Physical acceptance remains incomplete. Investigate the
+App Switcher failure offline before proposing another coordinated window.
+`COMPLETION-AUDIT.md` preserves the earlier audit with a link to the newer result.
 
 Offline source work, tests, builds, local commits and preservation can continue
 autonomously. No desktop control or speculative raw USB writes. All live input

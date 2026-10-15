@@ -1,5 +1,12 @@
 # Completion audit: physical validation required
 
+**Later 14 October update:** the operator authorized the navigation window. One
+Home-from-Settings check passed, but direct Fn+Up failed to open App Switcher with
+FKA On; the sequence stopped and the release was restored. Read
+[the live record](../navigation-live-20261014/README.md) for mirroring-restoration
+status and scope. The five-item goal remains incomplete. The text below is the
+preserved pre-window audit, not current authorization or a claim that no run exists.
+
 14 October 2026. Audited worktree: `local/combined-candidate-20261012`,
 `bc1668e`. Exact product source/build: `373dd58`. **The five-item goal is not
 complete.** No promotion, deployment or new physical run occurred.

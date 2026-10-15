@@ -1,7 +1,11 @@
 # Bounded C24C acceptance procedure
 
-Prepared offline, 14 October 2026. **Not yet authorized or run.** The active
-development goal does not itself schedule a kernel/mirroring interruption.
+Prepared offline, 14 October 2026. **Follow-up:** the operator authorized the
+navigation window later that day. It stopped after one Home success from Settings
+and a direct-Fn App Switcher failure. See
+[`../navigation-live-20261014/README.md`](../navigation-live-20261014/README.md)
+for the actual scope and restoration record. The procedure below remains the
+uncompleted acceptance plan, not permission to repeat a live window.
 
 ## First window: navigation and passive replies
 

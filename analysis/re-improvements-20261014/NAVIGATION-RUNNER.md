@@ -1,7 +1,9 @@
 # One-action navigation capture
 
-14 October 2026. Prepared and tested **offline only**. This does not authorize a
-live window or change the candidate binaries, installed release or phone state.
+14 October 2026. The original preparation was offline. A subsequently authorized
+C24C window used the runner and exposed the still-frame issue described below.
+See [the live record](../navigation-live-20261014/README.md). The runner itself
+does not authorize a live window or change candidate binaries.
 
 The existing `analysis/gate5-everyday-controls-20260916/run_controls.py` now uses
 the current lease transport from `tools/gate4_1000_tap_suite.py`. Its old default
@@ -32,6 +34,12 @@ version does not recreate or extend a historical pass.
   changing picture never count as visible acceptance. Review the correct screen
   and manually compare the disposable note's text. Timing is API round-trip,
   not Gate 6 console-click-to-visible-response latency.
+- A quiet but connected page may use `--confirmed-baseline-sha256` with the
+  exact BMP hash after the operator and frame review confirm the intended page.
+  The baseline must match before dispatch; no screenshot/hash is automatically
+  accepted as confirmation. The default freshness check remains in place.
+  Both paths require new frames within five seconds after the command, in the
+  same session. Missing evidence remains unscored and never triggers a retry.
 
 ## Use during the separately authorized window
 
@@ -62,8 +70,7 @@ records an existing state and does not authorize changing it.
 
 ## Verification
 
-`python -B analysis/re-improvements-20261014/verify_navigation_runner.py`
-passes **26 offline tests**, using fake HTTP responses without a listener or
+The original validator passed **26 offline tests**, using fake HTTP responses without a listener or
 hardware. They cover one-command scope, ownership races, identity/mode changes,
 lost acquisition/command/release answers, malformed or missing frames, no network
 by default, evidence preservation, and refusal to overwrite existing output.
@@ -72,8 +79,12 @@ and new-owner cleanup guard; each fails its corresponding assertion. Source
 and test hashes, exact results and the verified saved plan are in
 `navigation-runner-validation.json`; detailed output is archived alongside it.
 
-The actual prepared candidate also passes the default local check. No live
-invocation has run. These tooling tests do not add physical gate passes.
+The still-baseline correction passes **30 offline tests** and **five negative
+controls**, adding matching-image and post-command-frame guards. The newer
+record is `../navigation-live-20261014/runner-validation/`; the original record
+is unchanged. Running `verify_navigation_runner.py` now creates a new timestamped
+directory, or accepts a new analysis directory via `--out`. Test counts are read
+from the test result. These tooling tests do not add physical gate passes.
 
 ## Preservation
 
