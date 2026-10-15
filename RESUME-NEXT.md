@@ -5,67 +5,53 @@ branch `local/combined-candidate-20261012`. The user requested continued progres
 typing/FKA remains deferred. Do not repeat completed suites without a relevant
 change or unresolved concern. Nothing is pushed, installed or promoted.
 
-## Latest completed work
+## Current active target
 
-- Incoming C24C replies validated through two pointer-only release-API captures:
-  23 A1 and two AF reports. No iOS acknowledgement or timing guarantee inferred.
-  New kernel source adds opt-in `--hid-replies-pid` counters/state and sanitized
-  diagnostic export, default off. Final standalone kernel: 245 tests; helper:
-  30 overlapping parser/monitor checks + six argument cases; Python: 23 export
-  and three capture-guard tests. Read
-  `analysis/hid-input-replies-20261014/REPORT.md`. The full new kernel was not
-  started on hardware and the immutable package below is unchanged.
-- Original vendor HID protocol investigated with REA/Ghidra, entirely offline.
-  Read `analysis/vendor-protocol-rea-20261014/REPORT.md`: Fn field and Tab
-  prelude resolved; incoming movement/identifier handlers identified; absolute
-  mode unvalidated. Decoder: 13 tests, 221 saved output reports; DLL: 14 static
-  evidence checks. No runtime source or packaged binary changed, no rack calls.
-- Candidate isolation, actual connected-service hint and two-stream timing
-  preflight: 89 runner, 20 diagnostics and 409 headless console checks pass.
-  Five unsafe preflights fail on the old runner. Both UIA helper scripts parse;
-  neither was executed. Read `analysis/gate6-preflight-20261013/REPORT.md`.
-- This extends the existing runner. Normal Disconnect cleanup, failure records,
-  process-lifetime guards and opt-in bounded response timing are retained.
-- Earlier shutdown/recovery-specific tooling remains covered by its recorded
-  41 recovery, 34 frame and 14 lifetime checks. The full kernel suite now has
-  245 checks; the immutable packaged kernel retains its earlier 207-test record.
+The user explicitly requested integration and completion of five reverse-engineering
+improvements. `RE-IMPROVEMENTS-PLAN.md` holds acceptance requirements. The Codex
+goal is active. Source commits `457f80d` and `373dd58` deliver the offline changes;
+physical validation is still required. Do not declare the goal complete.
 
-## One current review candidate
+Read `analysis/re-improvements-20261014/REPORT.md`, `PROTOCOL.md` and
+`LIVE-ACCEPTANCE.md`. Home direct alternatives, no-Tab Fn navigation and an
+A0 move-only probe use normal lease/Stop safeguards. A0 activation is blocked,
+firmware support is unknown, and normal defaults remain unchanged. App Switcher
+FKA-Off support is unestablished. Reply handling is observational only; A5 and
+movement signals share the vendor event, so no ACK wait or pacing change was added.
 
-Package: `output/staging/combined-timing-20261013`.
-Unused preparation: `output/candidate-runs/timing-20261013`.
-Kernel SHA-256: `cd0f2129993f93158f7fcf183e590a9c1fe1be4c329de0903a2aef3de1dd7486`.
-Console SHA-256: `ebf52cd77bc55e2a5ee4790ffdcd1c47d78783a9e6bf73a44d4500b6597eccc4`.
-Package manifest: `9a2b786637f6f2ea262ee0d2a6c082508c0e6e66e67a0a06c070821bdba11b54`.
+## Current review candidate
 
-All 692 package entries verify. Both binaries pass no-window startup validation;
-the final prepared-launcher and saved-profile checks pass. Settings are isolated,
-explicitly addressed and hover-off. This kernel profile is C24C-only and therefore
-cannot satisfy the Gate 6 runner's separate two-stream requirement. No normal
-launch or live request ran. Older packages remain immutable historical evidence.
-Read `analysis/combined-timing-package-20261013/REPORT.md` and its preparation
-record before considering any startup.
+Package: `output/staging/combined-re-improvements-20261014`.
+Unused preparation: `output/candidate-runs/re-improvements-20261014`.
+Kernel SHA-256: `572252ef7b30783a2d03612fb105099255f95f42b21e46f9b9a39e799e218e2c`.
+Console SHA-256: `609a95c946faed7d38d54fc8c040bfbb39c6df0948da5127c0cb5714d76e96ed`.
+Manifest: `7d8f145c1726326fa1cbd419195399e6dde8e97bd65535f1f3b452e482f9689d`.
 
-## Next priorities
+All 698 entries and both managed symbol pairs verify. The exact binaries pass
+290 kernel and 411 console headless checks. Both validate startup offline; the
+strict console preparation check passes. Settings are isolated and hover-off.
+The C24C profile cannot satisfy the two-stream Gate 6 workload. No normal
+launch, window, listener, receiver or rack API was used during this checkpoint.
 
-Continue offline correctness/measurement and release preparation where useful.
-Reply observation can be enabled for explicitly allowed boards in a future
-candidate validation window; do not infer completion, retry, change pacing or
-auto-resume based on these uncorrelated reports. Rebuild/package deliberately
-before that window; no release or launcher was changed by the reply work.
-Do not produce another parallel timing or accuracy harness. Gate 6 still needs
-reviewed correct-result evidence and true console-click-to-visible-response
-measurement; UIA invocation and a later bitmap do not prove those requirements.
-Actual console controls/cleanup, varied-target accuracy, receiver failure/recast,
-full-rack mapping/scale, clean-PC loading and final endurance remain open.
-`WORK-REMAINING.md`, `FINISH-CRITERIA.md` and `docs/CANDIDATE-ACCEPTANCE.md` retain
-those limits. Home/typing/App Switcher defects are not closed by this package.
+## Next action
+
+A chat question requests a coordinated C24C-only navigation window. Check the
+operator's answer and availability before any interruption. Scope: API Home/App
+Switcher checks, unchanged FKA, no C241 input, original release restored. It
+requires operator preparation/recasting. The optional absolute probe is separate
+and is not part of that permission request. No automatic retries/fallbacks.
+
+Keep typing deferred. Later actual console, varied-target accuracy, receiver
+recovery/recast, latency/video, rack scale, endurance and clean-PC acceptance
+remain required. Reuse existing runners; do not restart completed investigations.
+Historical reply captures are in `analysis/hid-input-replies-20261014/REPORT.md`;
+previous immutable package records remain under their dated folders.
 
 ## Preservation and operating boundaries
 
 Exact sources, test records, binaries, package and unused run are preserved under
-`C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-evidence-archive\20261013-timing-preflight-combined`.
-Verify `archive-verification.json` in the combined-package record. This is a local
+`C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-evidence-archive\20261014-re-improvements`.
+Verify `archive-verification.json` in the re-improvements record. This is a local
 copy, not an off-machine backup. Never delete ignored evidence/worktrees or push
 backup branches.
 

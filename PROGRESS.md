@@ -11,6 +11,29 @@
   - Gate 4 v2: `.claude/worktrees/gate4-harness-v2` (`claude/gate4-harness-v2`, `2c98f44`)
   - FKA probe: `../iMouseXP-2.0-fka-passthrough-probe` (`local/fka-passthrough-probe`, base `d0c4ccf`, isolated source changes uncommitted)
 
+## Reverse-engineering improvements integrated offline, 14 October
+
+The user explicitly set the five-item target in `RE-IMPROVEMENTS-PLAN.md`.
+Source commits `457f80d` and `373dd58` add managed DLL/PDB pairing protection,
+direct Fn navigation choices, a strictly move-only A0 capability probe, and
+console compatibility/reply diagnostics. Existing command-h Home is reused.
+Defaults and installed files remain unchanged. Physical functionality is not
+established by the new options; the goal remains active.
+
+The final source builds cleanly and passes 290 kernel and 411 headless console
+checks. Packaging has 74 checks, three disabled-guard controls and two separate
+protocol guard-removal controls. `combined-re-improvements-20261014` preserves
+698 verified entries, including unchanged native dependencies and matching
+managed symbols. Its unused C24C profile validates without a window, listener,
+receiver or phone input. Read `analysis/re-improvements-20261014/REPORT.md`.
+
+New vendor evidence: A5 and A0/A1 signal the same host event; AF affects a 10 ms
+reset delay, already present in our reset. No correlated ACK, automatic pacing
+change or retry is justified. Absolute firmware support is unknown. Home and
+App Switcher still require physical/real-console acceptance; typing stays
+deferred. A navigation window was requested; recheck the user's answer before
+any interruption. No live work ran in this implementation checkpoint.
+
 ## Incoming board replies validated on C24C, 14 October
 
 Two bounded pointer-only checks through the unchanged release API captured 25

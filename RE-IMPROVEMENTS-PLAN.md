@@ -34,11 +34,19 @@ harnesses; avoid creating another parallel input stack.
 
 ## Working boundaries
 
-Checkpoint: binary/symbol protection is implemented and validated offline
-(74 checks, three deliberately disabled-guard failures, three real matching
-candidate pairs and rejection of the stale installed pair). See
-`analysis/re-improvements-20261014/SYMBOLS.md`. Integration into the next newly
-staged combined build is still pending; no existing bundle was rewritten.
+Checkpoint: `combined-re-improvements-20261014` integrates the source at
+`373dd58`. Its 698 entries verify; both exact managed pairs pass the new symbol
+guard. The final kernel passes 290 mock checks and the console 411 headless
+checks. The 74 packaging checks and five negative controls are separate evidence,
+not physical acceptance. A fresh C24C-only isolated profile validates offline.
+
+Home command-h/direct-Fn navigation and a separate move-only absolute probe are
+prepared, not live-validated. Reply handling remains observation-only: the new
+vendor trace showed identifier and movement signals share an event, so no ACK
+wait or pacing change is justified. App Switcher FKA-Off support stays open.
+Read `analysis/re-improvements-20261014/REPORT.md`, `PROTOCOL.md` and
+`LIVE-ACCEPTANCE.md`. A coordinated navigation window was requested in chat;
+do not treat an unanswered question as authorization. The goal remains active.
 
 Offline source work, tests, builds, local commits and preservation can continue
 autonomously. No desktop control or speculative raw USB writes. All live input

@@ -1,6 +1,6 @@
 # iNodeControl: remaining work
 
-Updated 13 October 2026. The missing-space issue is **deferred**, not fixed. Work continues offline without screen control or phone input.
+Updated 14 October 2026. The missing-space issue is **deferred**, not fixed. Work continues offline without screen control or phone input.
 
 The two-phone system has working foundations: independent kernel and mirroring, selected-phone control, Stop, timeout recovery and isolated candidate settings. The full 19-phone release is not signed off. Gates 1–2 have scoped pass records; Gate 4's 1,000 taps passed only for two phones at one target.
 
@@ -71,6 +71,8 @@ The two-phone system has working foundations: independent kernel and mirroring, 
 42. **Completed offline:** strict candidate profile/binary/service verification and two-stream idle preflight in the existing Gate 6 runner, with between-trial observer checks. The console exposes the actual connected service as a tooltip/accessibility hint. All 89 runner, 20 diagnostics and 409 headless console checks pass; five original unsafe preflights fail their regressions. See `analysis/gate6-preflight-20261013/REPORT.md`. Real UIA cleanup and physical click-to-correct-display acceptance remain open; this does not fix the deferred typing issue.
 
 43. **Prepared offline:** `combined-timing-20261013` consolidates the latest console timeline/service hint with the preserved shutdown kernel. All 692 package entries verify; both exact binaries pass no-window validation, strict launcher and saved-profile checks in a new C24C-only profile. See `analysis/combined-timing-package-20261013/REPORT.md`. No services or screens were started. This is not the required two-stream latency workload, and all physical/clean-PC acceptance remains open.
+
+44. **Integrated offline:** the explicit reverse-engineering goal now has a 698-file combined candidate at `combined-re-improvements-20261014` (source `373dd58`). Binary/symbol pairing is enforced; direct navigation and a move-only absolute probe are guarded and tested; bounded board replies appear in console diagnostics. Final kernel 290 and console 411 checks pass; packaging 74 and five negative controls pass within their separate scopes. See `analysis/re-improvements-20261014/REPORT.md`. Home/App Switcher physical compatibility and absolute hardware support remain pending; reply pacing is unchanged because the evidence does not justify correlated waits. A coordinated C24C-only navigation window is requested, not assumed.
 
 Offline work can prepare and repair these areas. Full-rack behavior, physical targeting, real display latency and final endurance acceptance still require later coordinated hardware runs. No desktop-control window, restart, deployment or promotion is authorized by this document.
 
