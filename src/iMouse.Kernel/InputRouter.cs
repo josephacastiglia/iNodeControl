@@ -13,7 +13,8 @@ public sealed record PointerCalibration(string Pid, int Width, int Height, doubl
 /// are for a phone comparison only, chosen once at kernel startup with --home-sequence; each
 /// still goes through the per-phone lease, the board's write gate, Stop and key release.
 /// </summary>
-public enum HomeSequence { Vendor, CommandH, CommandWake }
+public enum HomeSequence { Vendor, CommandH, CommandWake, FnH }
+public enum NavigationSequence { Vendor, DirectFn }
 
 public sealed class InputRouter : IDisposable
 {
@@ -24,6 +25,7 @@ public sealed class InputRouter : IDisposable
     private readonly int _preciseDelayMs;
     private readonly ConcurrentDictionary<string, HidReplyTelemetry> _replyTelemetry = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _replyBoards;
+    private readonly string? _absoluteProbeBoard;
     private readonly ConcurrentDictionary<string, BoardState> _states = new(StringComparer.OrdinalIgnoreCase);
     private sealed class BoardState
     {
@@ -36,21 +38,32 @@ public sealed class InputRouter : IDisposable
         public byte Buttons;
         public CancellationToken Cancellation;
         public Exception? ReleaseFailure;
+        // This mode never presses a button. Re-sending an A0 on cleanup would
+        // repeat a possibly failed move; do not retry or fall back to A1.
+        public bool AbsoluteProbe;
     }
     public InputRouter(DeviceStore store, IEnumerable<string> allowed, IEnumerable<PointerCalibration> calibrations,
-        Func<string,IHidTransport>? open=null, int preciseDelayMs=0, IEnumerable<string>? replyBoards=null)
+        Func<string,IHidTransport>? open=null, int preciseDelayMs=0, IEnumerable<string>? replyBoards=null,
+        string? absoluteProbeBoard=null)
     {
         _store = store;
         _preciseDelayMs = preciseDelayMs;
         _allowed = new(allowed, StringComparer.OrdinalIgnoreCase);
         _replyBoards = new(replyBoards ?? [], StringComparer.OrdinalIgnoreCase);
         if (!_replyBoards.IsSubsetOf(_allowed)) throw new ArgumentException("Reply diagnostics require an enabled input board.");
+        _absoluteProbeBoard = absoluteProbeBoard;
+        if (absoluteProbeBoard is not null && (_allowed.Count != 1 || !_allowed.Contains(absoluteProbeBoard)
+            || !_replyBoards.Contains(absoluteProbeBoard)))
+            throw new ArgumentException("Absolute probe needs one enabled board with reply observation.");
         _open = open ?? (pid => new HidConnection(pid, _replyBoards.Contains(pid)
             ? _replyTelemetry.GetOrAdd(pid, _ => new()) : null));
         _calibrations = calibrations.ToDictionary(c => c.Pid, StringComparer.OrdinalIgnoreCase);
         if (_calibrations.Values.Any(c => !ValidAxis(c.Width,c.OriginX,c.PixelsPerUnitX)
             || !ValidAxis(c.Height,c.OriginY,c.PixelsPerUnitY)))
             throw new ArgumentException("Invalid pointer calibration.");
+        if (absoluteProbeBoard is not null && (!_calibrations.TryGetValue(absoluteProbeBoard, out var probe)
+            || probe.Width > 65535 || probe.Height > 65535))
+            throw new ArgumentException("Absolute probe needs a recorded image no larger than 65535 pixels per axis.");
     }
     private static bool ValidAxis(int size,double origin,double pixelsPerUnit)
     {
@@ -71,6 +84,8 @@ public sealed class InputRouter : IDisposable
     {
         precise_movement_delay_ms = _preciseDelayMs,
         hid_reply_boards = _replyBoards.OrderBy(p => p).ToArray(),
+        absolute_probe_board = _absoluteProbeBoard,
+        navigation_sequence = NavigationSequenceName,
         calibrations = _calibrations.Values.Select(c => new { pid = c.Pid, enabled = Enabled(c.Pid),
             width = c.Width, height = c.Height, origin_x = c.OriginX, origin_y = c.OriginY,
             pixels_per_unit_x = c.PixelsPerUnitX, pixels_per_unit_y = c.PixelsPerUnitY }).ToArray()
@@ -82,13 +97,31 @@ public sealed class InputRouter : IDisposable
         { pid, observation = _replyTelemetry.TryGetValue(pid, out var state) ? state.Snapshot() : new HidReplyTelemetry().Snapshot() }).ToArray()
     };
     public HomeSequence Home { get; init; } = HomeSequence.Vendor;
-    public string HomeSequenceName => Home switch { HomeSequence.CommandH => "command-h", HomeSequence.CommandWake => "command-wake", _ => "vendor" };
+    public NavigationSequence Navigation { get; init; } = NavigationSequence.Vendor;
+    public string HomeSequenceName => Home switch { HomeSequence.CommandH => "command-h", HomeSequence.CommandWake => "command-wake", HomeSequence.FnH => "fn-h", _ => "vendor" };
+    public string NavigationSequenceName => Navigation == NavigationSequence.DirectFn ? "direct-fn" : "vendor";
+    internal object ControlCompatibility() => new
+    {
+        home_sequence = HomeSequenceName, home_sends_tab = Home == HomeSequence.Vendor,
+        navigation_sequence = NavigationSequenceName, navigation_sends_tab = Navigation == NavigationSequence.Vendor,
+        app_switcher = "Fn+Up; uses the phone's Full Keyboard Access assignment. FKA-Off support is not established.",
+        absolute_probe_board = _absoluteProbeBoard,
+        absolute_probe = _absoluteProbeBoard is null ? "off" : "experimental moves only; hardware support unverified; clicks, drags and keys refused",
+        phone_setting_detection = false
+    };
     public static HomeSequence ParseHomeSequence(string value) => value switch
     {
         "vendor" => HomeSequence.Vendor,
         "command-h" => HomeSequence.CommandH,
         "command-wake" => HomeSequence.CommandWake,
-        _ => throw new ArgumentException($"--home-sequence must be vendor, command-h or command-wake, not \"{value}\"."),
+        "fn-h" => HomeSequence.FnH,
+        _ => throw new ArgumentException($"--home-sequence must be vendor, command-h, command-wake or fn-h, not \"{value}\"."),
+    };
+    public static NavigationSequence ParseNavigationSequence(string value) => value switch
+    {
+        "vendor" => NavigationSequence.Vendor,
+        "direct-fn" => NavigationSequence.DirectFn,
+        _ => throw new ArgumentException("--navigation-sequence must be vendor or direct-fn.")
     };
 
     public async Task<object> DispatchAsync(string fun, JsonElement data, CancellationToken cancellation = default)
@@ -103,7 +136,7 @@ public sealed class InputRouter : IDisposable
         if (targets.Any(p => !Enabled(p.pid))) return new { code = 41, message = "Every target needs an enabled, calibrated board." };
         if (targets.Select(p => p.pid).Distinct(StringComparer.OrdinalIgnoreCase).Count() != targets.Length)
             return new { code = 36, message = "Multiple phones claim the same board." };
-        foreach (var phone in targets) Validate(fun, data, _calibrations[phone.pid]);
+        foreach (var phone in targets) ValidateCommand(fun, data, phone.pid);
         var results = await Task.WhenAll(targets.Select(async phone =>
         {
             try { await ExecuteAsync(phone.pid, fun, data, cancellation); return new { id = phone.deviceid, code = 0, message = "ok" }; }
@@ -118,6 +151,9 @@ public sealed class InputRouter : IDisposable
         if (fun is not ("/mouse/reset" or "/mouse/move" or "/mouse/down" or "/mouse/up" or "/mouse/click" or "/mouse/swipe" or "/key/sendkey"))
             throw new ArgumentException("Unsupported input operation.");
         if (!Enabled(pid)) throw new ArgumentException("Target needs an enabled, calibrated board.");
+        if (string.Equals(pid, _absoluteProbeBoard, StringComparison.OrdinalIgnoreCase)
+            && fun is not ("/mouse/reset" or "/mouse/move"))
+            throw new ArgumentException("Absolute probe permits pointer moves and reset only. No click, drag or keyboard input was sent.");
         Validate(fun, data, _calibrations[pid]);
     }
 
@@ -144,7 +180,7 @@ public sealed class InputRouter : IDisposable
     private static async Task ReleaseReportsAsync(BoardState state)
     {
         Exception? failure = null;
-        try { await state.Connection!.SendAsync(HidProtocol.Mouse(), CancellationToken.None); }
+        try { if (!state.AbsoluteProbe) await state.Connection!.SendAsync(HidProtocol.Mouse(), CancellationToken.None); }
         catch (Exception ex) { failure = ex; }
         try { await state.Connection!.SendAsync(HidProtocol.Key(), CancellationToken.None); }
         catch (Exception ex) { failure ??= ex; }
@@ -184,8 +220,18 @@ public sealed class InputRouter : IDisposable
         {
             state.Cancellation = cancellation;
             cancellation.ThrowIfCancellationRequested();
+            state.AbsoluteProbe = string.Equals(pid, _absoluteProbeBoard, StringComparison.OrdinalIgnoreCase);
             state.Connection ??= _open(pid);
             var calibration = _calibrations[pid];
+            if (string.Equals(pid, _absoluteProbeBoard, StringComparison.OrdinalIgnoreCase))
+            {
+                int x = fun == "/mouse/reset" ? 0 : Number(data, "x");
+                int y = fun == "/mouse/reset" ? 0 : Number(data, "y");
+                await Send(state, HidProtocol.AbsoluteProbe(x, y, calibration.Width, calibration.Height));
+                // No wait for an uncorrelated reply and no automatic retry/fallback.
+                state.Known = false;
+                return;
+            }
             switch (fun)
             {
                 case "/mouse/reset": await ResetAsync(state); break;
@@ -213,20 +259,20 @@ public sealed class InputRouter : IDisposable
                     string fn=Text(data,"fn_key");
                     if (fn=="Home")
                     {
-                        if (Home == HomeSequence.Vendor) await Stroke(state,0,43);          // Tab: typed into a focused text field
-                        else if (Home == HomeSequence.CommandWake) await Stroke(state,8,0); // Left GUI alone: types nothing
-                        await Stroke(state,8,11);                                            // Left GUI+H
+                        if (Home == HomeSequence.FnH) await FnStroke(state,11);
+                        else
+                        {
+                            if (Home == HomeSequence.Vendor) await Stroke(state,0,43);          // Tab: typed into a focused text field
+                            else if (Home == HomeSequence.CommandWake) await Stroke(state,8,0); // Left GUI alone: types nothing
+                            await Stroke(state,8,11);                                            // Left GUI+H
+                        }
                         state.Known=false;
                     }
                     else if(fn is "AppSwitch" or "ControlBar")
                     {
-                        await Stroke(state,0,43);
-                        try
-                        {
-                            await Send(state,[0xA2,0,0,0,0,0,0,2]);await Task.Delay(45, state.Cancellation);
-                            await Send(state,[0xA2,0,(byte)(fn=="AppSwitch"?0x52:6),0,0,0,0,2]);await Task.Delay(60, state.Cancellation);
-                        }
-                        finally { await Send(state,HidProtocol.Key());state.Known=false; }
+                        if (Navigation == NavigationSequence.Vendor) await Stroke(state,0,43);
+                        await FnStroke(state,(byte)(fn=="AppSwitch"?0x52:6));
+                        state.Known=false;
                     }
                     else if (fn.Length>0) await Stroke(state,0,fn switch {"Enter" or "ENTER"=>40,"Backspace" or "BACKSPACE"=>42,"Tab"=>43,"Escape"=>41,_=>throw new ArgumentException(fn)});
                     else foreach (char ch in Text(data,"key")) { var (modifier,usage)=HidProtocol.Ascii(ch); await Stroke(state,modifier,usage); }
@@ -279,6 +325,15 @@ public sealed class InputRouter : IDisposable
         try { await Send(state,HidProtocol.Key(modifier,usage)); await Task.Delay(usage == 44 ? 90 : 60, state.Cancellation); }
         finally { await Send(state,HidProtocol.Key()); }
         await Task.Delay(35, state.Cancellation);
+    }
+    private static async Task FnStroke(BoardState state, byte usage)
+    {
+        try
+        {
+            await Send(state,HidProtocol.FnKey()); await Task.Delay(45, state.Cancellation);
+            await Send(state,HidProtocol.FnKey(usage)); await Task.Delay(60, state.Cancellation);
+        }
+        finally { await Send(state,HidProtocol.Key()); }
     }
     private static async Task ResetAsync(BoardState state)
     {

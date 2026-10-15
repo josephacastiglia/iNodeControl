@@ -16,6 +16,21 @@ internal static class KernelStartupTests
         }
         var defaults = KernelOptions.Parse([]);
         check(defaults.ReplyBoards.Length == 0, "HID reply observation is off unless explicitly scoped at startup");
+        check(defaults.AbsoluteProbeBoard is null && defaults.Navigation == NavigationSequence.Vendor,
+            "Experimental absolute/navigation options do not change normal startup");
+        check(KernelOptions.Parse(["--home-sequence", "fn-h", "--navigation-sequence", "direct-fn"]).Home == HomeSequence.FnH
+            && KernelOptions.Parse(["--navigation-sequence", "direct-fn"]).Navigation == NavigationSequence.DirectFn,
+            "Direct Fn navigation is explicitly selected without claiming phone settings detection");
+        check(KernelOptions.Parse(["--input-pid", "C24C", "--hid-replies-pid", "C24C", "--absolute-probe-pid", "c24c"]).AbsoluteProbeBoard == "c24c",
+            "A move-only absolute probe can select one enabled observed board");
+        foreach (var args in new[] {
+            new[] { "--navigation-sequence", "auto" },
+            new[] { "--absolute-probe-pid", "C24C" },
+            new[] { "--input-pid", "C24C", "--absolute-probe-pid", "C24C" },
+            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C", "--absolute-probe-pid", "C241" },
+            new[] { "--input-pid", "C24C,C241", "--hid-replies-pid", "C24C", "--absolute-probe-pid", "C24C" },
+            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C", "--absolute-probe-pid", "C24C", "--hid-caps" } })
+            Reject(() => KernelOptions.Parse(args), "Unsafe experimental control configuration refused: " + string.Join(' ', args));
         check(KernelOptions.Parse(["--input-pid", "C24C,C241", "--hid-replies-pid", "c24c"]).ReplyBoards.SequenceEqual(new[] { "c24c" }),
             "Reply observation can select a subset of enabled boards");
         foreach (var args in new[] {

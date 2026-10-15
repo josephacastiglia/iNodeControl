@@ -53,6 +53,7 @@ internal static class InputSessionTests
             [HomeSequence.Vendor] = [release, tab, release, release, guiH, release],
             [HomeSequence.CommandH] = [release, guiH, release],
             [HomeSequence.CommandWake] = [release, gui, release, release, guiH, release],
+            [HomeSequence.FnH] = ["A200000000000002", "A2000B0000000002", release],
         };
         try
         {
@@ -90,6 +91,107 @@ internal static class InputSessionTests
                     "Stop cancels a Home (command-h) in progress");
                 check(held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release }),
                     "Cancelled Home (command-h) releases mouse and keyboard");
+            }
+        }
+        finally { try { Directory.Delete(directory, true); } catch { } }
+    }
+
+    public static async Task NavigationAndProbeAsync(Action<bool, string> check)
+    {
+        string directory = Path.Combine(Path.GetTempPath(), "imouse-control-protocol-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        string file = Path.Combine(directory, "devices.json");
+        File.WriteAllText(file, JsonSerializer.Serialize(new[] { new Phone { deviceid = "one", pid = "C24C", uid = "A" },
+            new Phone { deviceid = "two", pid = "C241", uid = "B" } }));
+        var store = new DeviceStore(file);
+        PointerCalibration calibration = new("C24C", 500, 1080, 14, 14, 5, 5);
+        const string release = "A200000000000000", tab = "A2002B0000000000", fn = "A200000000000002";
+        try
+        {
+            check(Convert.ToHexString(HidProtocol.FnKey(0x52)) == "A200520000000002"
+                && Convert.ToHexString(HidProtocol.FnKey(6)) == "A200060000000002", "Fn uses the separate vendor field, never Left Shift");
+            foreach (var sequence in Enum.GetValues<NavigationSequence>())
+            foreach (string key in new[] { "AppSwitch", "ControlBar" })
+            {
+                var t = new Transport();
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => t) { Navigation = sequence };
+                await using var sessions = new InputSessions(store, input);
+                await Rejected(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", fn_key = key })));
+                check(t.Reports.IsEmpty, $"{sequence} {key} needs ownership before any report");
+                string token = Lease(sessions, "one");
+                string[] chord = [fn, key == "AppSwitch" ? "A200520000000002" : "A200060000000002", release];
+                string[] expected = sequence == NavigationSequence.Vendor ? new[] { release, tab, release }.Concat(chord).ToArray() : chord;
+                check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = key }))) == 0
+                    && t.Reports.SequenceEqual(expected), $"{sequence} {key} exact reports preserve its selected prelude");
+            }
+            foreach (string blockedReport in new[] { fn, "A200520000000002", "A2000B0000000002" })
+            {
+                var held = new Transport { Block = hex => hex == blockedReport };
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => held)
+                    { Home = HomeSequence.FnH, Navigation = NavigationSequence.DirectFn };
+                await using var sessions = new InputSessions(store, input);
+                string token = Lease(sessions, "one");
+                var command = sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token,
+                    fn_key = blockedReport.Contains("0B") ? "Home" : "AppSwitch" }));
+                await held.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+                check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Enter" }))) == 409,
+                    "Fn navigation cannot interleave another command: " + blockedReport);
+                check(Code(await sessions.StopAsync(Data(new { id = "one" })).WaitAsync(TimeSpan.FromSeconds(2))) == 0
+                    && Code(await command) != 0 && held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release })
+                    && !held.Reports.Contains(tab), "Stop releases a held Fn prefix/chord without inserting Tab: " + blockedReport);
+            }
+            check(Convert.ToHexString(HidProtocol.AbsoluteProbe(0, 0, 500, 1080)) == "A000000000000000"
+                && Convert.ToHexString(HidProtocol.AbsoluteProbe(250, 540, 500, 1080)) == "A000FF3FFF3F0000"
+                && Convert.ToHexString(HidProtocol.AbsoluteProbe(499, 1079, 500, 1080)) == "A000BD7FE07F0000",
+                "Static A0 probe vectors use little-endian 15-bit axes and zero buttons");
+            foreach (var point in new[] { (-1, 0, 500, 1080), (500, 0, 500, 1080), (0, 1080, 500, 1080), (0, 0, 1, 1080), (0, 0, 65536, 1080) })
+            {
+                bool refused = false;
+                try { HidProtocol.AbsoluteProbe(point.Item1, point.Item2, point.Item3, point.Item4); } catch (ArgumentException) { refused = true; }
+                check(refused, "A0 probe refuses invalid points/dimensions: " + point);
+            }
+            var probe = new Transport(); int opens = 0;
+            using (var input = new InputRouter(store, ["C24C"], [calibration], _ => { opens++; return probe; },
+                replyBoards: ["C24C"], absoluteProbeBoard: "C24C"))
+            await using (var sessions = new InputSessions(store, input))
+            {
+                await Rejected(() => sessions.DispatchAsync("/mouse/move", Data(new { id = "one", x = 250, y = 540 })));
+                check(opens == 0, "Absolute probe still requires the phone lease");
+                string token = Lease(sessions, "one");
+                foreach (string operation in new[] { "/mouse/click", "/mouse/down", "/mouse/up", "/mouse/swipe", "/key/sendkey" })
+                {
+                    bool refused = false;
+                    try { await sessions.DispatchAsync(operation, Data(new { id = "one", token, x = 250, y = 540, fn_key = "Home" })); }
+                    catch (ArgumentException ex) { refused = ex.Message.Contains("moves and reset only"); }
+                    check(refused && opens == 0, "Absolute probe refuses activation before transport: " + operation);
+                }
+                check(Code(await input.DispatchAsync("/mouse/move", Data(new { id = "one,two", x = 250, y = 540 }))) == 41 && opens == 0,
+                    "Absolute probe cannot address an additional board, even in a batch");
+                await sessions.DispatchAsync("/mouse/move", Data(new { id = "one", token, x = 250, y = 540 }));
+                await sessions.DispatchAsync("/mouse/reset", Data(new { id = "one", token }));
+                check(probe.Reports.SequenceEqual(new[] { "A000FF3FFF3F0000", "A000000000000000" }),
+                    "Probe sends one zero-button report per requested move or reset, with no relative fallback");
+                await sessions.StopAsync(Data(new { id = "one" }));
+                check(probe.Reports.Count == 3 && probe.Reports.Last() == release && probe.Disposed,
+                    "Probe Stop closes transport and releases keys without replaying an A0 move");
+            }
+            foreach (bool fail in new[] { false, true })
+            {
+                var held = new Transport { Block = hex => !fail && hex.StartsWith("A0"), Fail = hex => fail && hex.StartsWith("A0") };
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => held,
+                    replyBoards: ["C24C"], absoluteProbeBoard: "C24C");
+                await using var sessions = new InputSessions(store, input);
+                string token = Lease(sessions, "one");
+                var command = sessions.DispatchAsync("/mouse/move", Data(new { id = "one", token, x = 250, y = 540 }));
+                if (!fail)
+                {
+                    await held.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+                    check(Code(await sessions.DispatchAsync("/mouse/reset", Data(new { id = "one", token }))) == 409,
+                        "Absolute probe write is serialized with reset");
+                    await sessions.StopAsync(Data(new { id = "one" })).WaitAsync(TimeSpan.FromSeconds(2));
+                }
+                check(Code(await command) != 0 && held.Disposed && held.Reports.SequenceEqual(new[] { "A000FF3FFF3F0000", release }),
+                    "Failed or cancelled A0 probe is not retried or switched to A1: " + fail);
             }
         }
         finally { try { Directory.Delete(directory, true); } catch { } }

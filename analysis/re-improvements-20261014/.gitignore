@@ -8,3 +8,11 @@
 !test_stage_receiver_runtime.txt
 !test_build_manifest.txt
 !symbol-guard-disabled.txt
+!verify_vendor_followup.py
+!verified-vendor-followup.json
+!negative_controls.py
+!negative-controls.json
+!kernel-build.txt
+!kernel-self-test-authorized.txt
+!console-build.txt
+!console-self-tests.json

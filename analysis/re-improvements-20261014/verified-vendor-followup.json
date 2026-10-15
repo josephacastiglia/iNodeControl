@@ -1,0 +1,71 @@
+{
+  "target_sha256": "a57812aed066d1bcf3b665e97813cf0ddc58e8e5e7f425026a45dde424db4a45",
+  "checks": [
+    {
+      "address": "0x1000d42c",
+      "bytes": "ffb70d020000",
+      "checked_fact": "A5 identifier branch uses context event +0x20d"
+    },
+    {
+      "address": "0x1000d432",
+      "bytes": "ff1574500110",
+      "checked_fact": "A5 branch calls SetEvent"
+    },
+    {
+      "address": "0x1000d581",
+      "bytes": "ffb70d020000",
+      "checked_fact": "A0/A1 movement branch uses the same context event"
+    },
+    {
+      "address": "0x1000d587",
+      "bytes": "ff1574500110",
+      "checked_fact": "A0/A1 branch calls SetEvent"
+    },
+    {
+      "address": "0x1000d444",
+      "bytes": "c787f90100000a000000",
+      "checked_fact": "AF sets context +0x1f9 to 10"
+    },
+    {
+      "address": "0x1000d44f",
+      "bytes": "c787fd01000001000000",
+      "checked_fact": "AF sets context +0x1fd to 1; physical meaning unknown"
+    },
+    {
+      "address": "0x1000d45e",
+      "bytes": "c787ed010000e8030000",
+      "checked_fact": "AF sets context +0x1ed to 1000"
+    },
+    {
+      "address": "0x1000d549",
+      "bytes": "c787ed010000e8030000",
+      "checked_fact": "A6 sets context +0x1ed to 1000"
+    },
+    {
+      "address": "0x100048cd",
+      "bytes": "ffb3f9010000",
+      "checked_fact": "Relative reset loop passes context +0x1f9"
+    },
+    {
+      "address": "0x100048d3",
+      "bytes": "ff156c500110",
+      "checked_fact": "Reset loop calls Sleep with that value"
+    },
+    {
+      "address": "0x10003546",
+      "bytes": "83bb2302000001",
+      "checked_fact": "LeftDown selects its alternate path when mode +0x223 is 1"
+    },
+    {
+      "address": "0x10003706",
+      "bytes": "83bb2302000001",
+      "checked_fact": "LeftUp selects the same alternate path"
+    },
+    {
+      "address": "0x1000ca79",
+      "bytes": "8988230200005dc20800",
+      "checked_fact": "SetIOSVer stores its argument then returns; it sends no board report"
+    }
+  ],
+  "scope": "Static bytes only; no hardware or iOS behavior established."
+}

@@ -169,7 +169,7 @@
                   <Button x:Name="CastButton" Content="Cast" Tag="cast|connect" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Ask this phone to start screen mirroring"/>
                   <Button x:Name="AppButton" Content="App" Tag="key|AppSwitch" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Open the app switcher"/>
+                          ToolTip="Open the app switcher using the phone's Full Keyboard Access shortcut. With Full Keyboard Access off, use the phone's physical app-switching gesture."/>
                   <Button x:Name="ImeButton" Content="IME" Tag="key|SwitchIme" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Switch the phone input method"/>
                   <Button x:Name="DiscButton" Content="Disc" Tag="cast|disconnect" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
@@ -304,8 +304,11 @@
                   <TextBlock Text="NAVIGATION" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
                   <UniformGrid Columns="2">
                     <Button Content="Home" Tag="key|Home" Click="Action_Click"/><Button Content="Back" Tag="key|TAB+b" Click="Action_Click"/>
-                    <Button Content="App switcher" Tag="key|AppSwitch" Click="Action_Click"/><Button Content="Control centre" Tag="key|ControlBar" Click="Action_Click"/>
+                    <Button Content="App switcher" Tag="key|AppSwitch" Click="Action_Click"
+                            ToolTip="Uses the phone's Full Keyboard Access shortcut; it may do nothing with Full Keyboard Access off."/><Button Content="Control centre" Tag="key|ControlBar" Click="Action_Click"/>
                   </UniformGrid>
+                  <TextBlock Text="App switcher uses the phone's Full Keyboard Access shortcut. If it is off, switch apps on the phone."
+                             Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"/>
 
                   <TextBlock Text="SWIPE" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
                   <UniformGrid Columns="4">

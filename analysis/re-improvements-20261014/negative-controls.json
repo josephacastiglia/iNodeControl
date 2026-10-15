@@ -1,0 +1,20 @@
+[
+  {
+    "case": "baseline",
+    "exit": 0,
+    "expected_result": true,
+    "output": "33 focused checks passed; fake transport only.\r\n"
+  },
+  {
+    "case": "tab-reintroduced",
+    "exit": 3762504530,
+    "expected_result": true,
+    "output": "Unhandled exception. System.Exception: DirectFn AppSwitch exact reports preserve its selected prelude\r\n   at Program.<>c__DisplayClass0_0.<<Main>$>b__0(Boolean ok, String label) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\re-improvements-20261014\\negative-tab-reintroduced\\Program.cs:line 3\r\n   at IMouse2.Kernel.InputSessionTests.NavigationAndProbeAsync(Action`2 check) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\re-improvements-20261014\\negative-tab-reintroduced\\InputSessionTests.cs:line 124\r\n   at IMouse2.Kernel.InputSessionTests.NavigationAndProbeAsync(Action`2 check) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\re-improvements-20261014\\negative-tab-reintroduced\\InputSessionTests.cs:line 124\r\n   at Program.<Main>$(String[] args) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\re-improvements-20261014\\negative-tab-reintroduced\\Program.cs:line 3\r\n   at Program.<Main>(String[] args)\n"
+  },
+  {
+    "case": "probe-activation-guard-removed",
+    "exit": 3762504530,
+    "expected_result": true,
+    "output": "Unhandled exception. System.Exception: Absolute probe refuses activation before transport: /mouse/click\r\n   at Program.<>c__DisplayClass0_0.<<Main>$>b__0(Boolean ok, String label) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\re-improvements-20261014\\negative-probe-activation-guard-removed\\Program.cs:line 3\r\n   at IMouse2.Kernel.InputSessionTests.NavigationAndProbeAsync(Action`2 check) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\re-improvements-20261014\\negative-probe-activation-guard-removed\\InputSessionTests.cs:line 166\r\n   at IMouse2.Kernel.InputSessionTests.NavigationAndProbeAsync(Action`2 check) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\re-improvements-20261014\\negative-probe-activation-guard-removed\\InputSessionTests.cs:line 177\r\n   at Program.<Main>$(String[] args) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\re-improvements-20261014\\negative-probe-activation-guard-removed\\Program.cs:line 3\r\n   at Program.<Main>(String[] args)\n"
+  }
+]

@@ -323,6 +323,7 @@ public static class SelfTests
         }
         await InputSessionTests.RunAsync(Check);
         await InputSessionTests.HomeSequenceAsync(Check);
+        await InputSessionTests.NavigationAndProbeAsync(Check);
         await KernelStartupTests.RunAsync(Check);
         DeviceStoreTests.Run(Check);
         File.Delete(file);Directory.Delete(testDir);
