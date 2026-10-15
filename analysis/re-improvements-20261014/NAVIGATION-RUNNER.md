@@ -74,3 +74,13 @@ and test hashes, exact results and the verified saved plan are in
 
 The actual prepared candidate also passes the default local check. No live
 invocation has run. These tooling tests do not add physical gate passes.
+
+## Preservation
+
+Source checkpoint: `7bbd10e`. The tools, reports, full test output, saved profile,
+historical runner and an active-branch Git bundle are preserved in
+`../iMouseXP-2.0-evidence-archive/20261014-navigation-runner`: 18 files,
+15,380,150 bytes, all hashes verified. `navigation-archive-verification.json`
+records the receipt and unchanged hashes for all 25 protected installed files.
+This is a local copy, not an off-machine backup. The preceding binary/package
+archive remains separate and unchanged.
