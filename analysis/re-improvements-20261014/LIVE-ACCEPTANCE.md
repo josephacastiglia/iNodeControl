@@ -17,6 +17,12 @@ No input to C241. Keep FKA and all phone settings unchanged. Typing and the
 missing-space investigation remain deferred; the operator supplies baseline
 note text manually if a text-preservation check is possible.
 
+`NAVIGATION-RUNNER.md` describes the updated existing Gate 5 runner. It captures
+one selected C24C action per invocation with current build/lease checks; its
+default is an offline plan. Do not use an old copy of the two-phone runner.
+Review each result before preparing another attempt; API completion is unscored
+until the visible outcome and note preservation are checked.
+
 1. Start the verified C24C-only candidate with `command-h`, `direct-fn`, and
    reply observation. Ask the operator to recast C24C. Record the actual FKA
    state without changing it. API success alone never counts as visible success.

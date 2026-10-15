@@ -35,6 +35,12 @@ launch, window, listener, receiver or rack API was used during this checkpoint.
 
 ## Next action
 
+The existing Gate 5 runner has been updated for one C24C navigation action at a
+time. Its default is offline; 26 fake-API tests and three negative controls pass.
+Read `analysis/re-improvements-20261014/NAVIGATION-RUNNER.md`. The package source
+is still `373dd58`; this tooling follow-up changed no product binaries. Never
+run the historical two-phone script or treat API completion as visual acceptance.
+
 A chat question requests a coordinated C24C-only navigation window. Check the
 operator's answer and availability before any interruption. Scope: API Home/App
 Switcher checks, unchanged FKA, no C241 input, original release restored. It

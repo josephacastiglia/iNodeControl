@@ -13,6 +13,12 @@
 
 ## Reverse-engineering improvements integrated offline, 14 October
 
+Offline follow-up: updated the existing Gate 5 runner for one explicitly selected
+C24C navigation action with candidate/hash/lease checks, partial evidence and
+safe cleanup. Its default performs no network calls. All 26 fake-API checks pass;
+three removed-guard controls fail as intended. Historical results and candidate
+binaries are unchanged. See `analysis/re-improvements-20261014/NAVIGATION-RUNNER.md`.
+
 The user explicitly set the five-item target in `RE-IMPROVEMENTS-PLAN.md`.
 Source commits `457f80d` and `373dd58` add managed DLL/PDB pairing protection,
 direct Fn navigation choices, a strictly move-only A0 capability probe, and

@@ -1,0 +1,62 @@
+{
+  "baseline_exit": 0,
+  "tests": 26,
+  "negative_controls": [
+    {
+      "guard_removed": "build_identity",
+      "test": "CaptureTests.test_bad_candidate_or_scope_refused_before_acquire",
+      "mutated_source_sha256": "03668c3015c911e47ad167fc624ed9c59e50210e0c83deb8f95791766e3b2181",
+      "failed_expected_assertion": true
+    },
+    {
+      "guard_removed": "explicit_live",
+      "test": "CaptureTests.test_explicit_live_flag_required_before_any_call",
+      "mutated_source_sha256": "72ceb0e1c4aeda02ae2bd9661792f7508d0cb0db4a82faff5dfd5a065c6022bd",
+      "failed_expected_assertion": true
+    },
+    {
+      "guard_removed": "new_owner_cleanup",
+      "test": "CaptureTests.test_new_owner_after_command_is_left_alone",
+      "mutated_source_sha256": "2a5a2b359dcdbd7ed291e5db06bd75b205414807baa6e90a2778979151f995cb",
+      "failed_expected_assertion": true
+    }
+  ],
+  "offline_plan": {
+    "mode": "offline_plan",
+    "rack_contacted": false,
+    "plan": {
+      "url": "http://127.0.0.1:9913/api",
+      "kernel_sha256": "572252ef7b30783a2d03612fb105099255f95f42b21e46f9b9a39e799e218e2c",
+      "run_directory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\re-improvements-20261014",
+      "preparation_sha256": "c075ff6d325c8bfa7223e1c07a1d853c0825e0af4db679a73faa9dbb5b02daa0",
+      "inventory_sha256": "95880eef9f1fc6b3db05f4efafd80156ec9d85a58fa4374274440cd5996b7759"
+    },
+    "cases": {
+      "home-field": [
+        "Home",
+        "Home visible; manually return and compare disposable note with baseline"
+      ],
+      "home-settings": [
+        "Home",
+        "Home visible from the operator-prepared benign Settings page"
+      ],
+      "home-idle": [
+        "Home",
+        "Home visible after at least 60 seconds without input"
+      ],
+      "app-switcher": [
+        "AppSwitch",
+        "App Switcher cards visible; no text mutation"
+      ],
+      "control-center": [
+        "ControlBar",
+        "Control Centre visible; no text mutation"
+      ]
+    }
+  },
+  "source_sha256": "39b674e92c3fe8cba91ce6a87dd03a55db8447702688adbc73686069bebe5e3d",
+  "tests_sha256": "d1bdc7fb9e76beb7e27097dfd967706365cdf6cf593be50228cf041422838e2e",
+  "rack_contacted": false,
+  "live_run": false,
+  "product_binaries_changed": false
+}

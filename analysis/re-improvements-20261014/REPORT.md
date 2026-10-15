@@ -53,6 +53,14 @@ after sandbox access errors. Final tests passed. No UI suite was run.
 
 ## Continuation
 
+The existing Gate 5 runner is now prepared for a single C24C navigation action
+per invocation. It uses the current lease transport, verifies the exact candidate
+and mapping, preserves failures, and requires explicit live execution. Its
+default plan verified the unused run locally. All 26 fake-API tests pass, and
+three removed-guard controls fail their assertions. Historical evidence is
+unchanged. Read `NAVIGATION-RUNNER.md`; no new build or phone test ran for this
+tooling follow-up.
+
 `LIVE-ACCEPTANCE.md` defines the next coordinated C24C navigation window, using
 APIs and unchanged FKA. The operator must be available for preparation and recasting.
 The separate absolute test is not bundled into that permission request.
