@@ -88,15 +88,21 @@ def verify(bundle):
     if len({p.casefold() for p in expected}) != len(expected):
         raise ValueError("Case-colliding inventory")
     issues = bm.compare_rows(expected, inventory(bundle), "package")
-    required = {"README.md", "verify_package.py", "build_manifest.py", "payload/receiver/uxplay.exe", "provenance/receiver.json"}
+    required = {"README.md", "verify_package.py", "build_manifest.py", "managed_symbols.py", "payload/receiver/uxplay.exe", "provenance/receiver.json"}
     for component, assembly in MANAGED.items():
         required.add(f"provenance/{component}.json")
         required.update(f"payload/{component}/{assembly}{s}" for s in SUFFIXES)
     issues += [f"required file missing from inventory: {name}" for name in sorted(required - expected.keys())]
     if issues:
         return issues
+    import managed_symbols
     for component, assembly in MANAGED.items():
         record = load(safe(bundle, f"provenance/{component}.json"))
+        try:
+            managed_symbols.verify_pair(safe(bundle, f"payload/{component}/{assembly}.dll"),
+                                        safe(bundle, f"payload/{component}/{assembly}.pdb"))
+        except (ValueError, OSError) as error:
+            issues.append(f"{component} symbols: {error}")
         if record.get("schema_version") != 1 or not record.get("sources") or not record.get("artifacts"):
             raise ValueError(f"Malformed {component} provenance")
         for name, data in record["sources"].items():
@@ -165,6 +171,7 @@ def verify(bundle):
 
 
 def stage(repo, output, managed, native_exe, native_record, native_source, guide, runtime_bundle=None, operator_guide=None, include_launcher_source=False):
+    import managed_symbols
     repo, output = Path(repo).resolve(), Path(output)
     # All creation stays in a new child of this checkout's output/staging directory.
     staging = safe(repo, "output/staging")
@@ -199,6 +206,10 @@ def stage(repo, output, managed, native_exe, native_record, native_source, guide
             if name not in record["artifacts"]:
                 raise ValueError(f"Missing runtime artifact: {component}/{name}")
             add(safe(build, name), f"payload/{component}/{name}", record["artifacts"][name])
+        try:
+            managed_symbols.verify_pair(safe(build, assembly + '.dll'), safe(build, assembly + '.pdb'))
+        except (ValueError, OSError) as error:
+            raise ValueError(f"{component} symbols: {error}") from error
         for name, data in record["sources"].items():
             add(safe(repo, name), f"source/{name}", data)
         add(manifest_path, f"provenance/{component}.json")
@@ -219,6 +230,7 @@ def stage(repo, output, managed, native_exe, native_record, native_source, guide
         add(guide, "RELEASE-STAGING.md")  # Preserve the operator guide's relative reference.
     add(Path(__file__), "verify_package.py")
     add(Path(bm.__file__), "build_manifest.py")
+    add(Path(managed_symbols.__file__), "managed_symbols.py")
     launcher = None
     if include_launcher_source:
         source = safe(repo, LAUNCHER_SOURCE)

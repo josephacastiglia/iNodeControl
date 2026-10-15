@@ -14,6 +14,13 @@ An intact package prints `Integrity verified. REVIEW ONLY: startup and deploymen
 
 The verifier works after you move or extract the package. It compares every file with its recorded checksum, then checks the included source and selected runtime files against the embedded build records. It also checks the declared .NET runtime requirements. It does not open a window, query the rack, start a process, or modify settings. A checksum establishes integrity relative to the record; it is not a cryptographic signature or independent proof of the build process.
 
+New bundles also carry `managed_symbols.py`. Before staging and when verifying,
+each managed DLL must match its external Portable PDB's full identity and content
+checksum. A stale or corrupt symbol file fails even when its ordinary file hash
+has been recorded. Rebuild the pair together; do not copy a PDB from another
+build. Historical bundles keep their original embedded verifier and are never
+updated in place. This check does not execute either file.
+
 ## Understand the contents
 
 The package contains these areas:

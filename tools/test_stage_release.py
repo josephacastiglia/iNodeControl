@@ -2,12 +2,15 @@
 import copy
 import json
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 import stage_release as s
+from test_managed_symbols import fixture as symbol_fixture
 
 
 class StageTests(unittest.TestCase):
@@ -27,6 +30,9 @@ class StageTests(unittest.TestCase):
             build.mkdir(parents=True)
             for suffix in s.SUFFIXES:
                 (build / (name+suffix)).write_bytes(b'fixture')
+            dll, pdb = symbol_fixture(seed=1 if component == 'console' else 2)
+            (build / (name+'.dll')).write_bytes(dll)
+            (build / (name+'.pdb')).write_bytes(pdb)
             runtime = {'runtimeOptions': {'framework': {'name': 'Microsoft.WindowsDesktop.App' if component == 'console' else 'Microsoft.NETCore.App', 'version':'8.0.0'}}}
             (build / (name+'.runtimeconfig.json')).write_text(json.dumps(runtime))
             (build / 'data').mkdir()
@@ -105,6 +111,17 @@ class StageTests(unittest.TestCase):
         shutil.rmtree(self.repo)
         self.assertEqual(s.verify(relocated),[])
 
+    def test_standalone_symbol_verifier_runs_without_repository_and_writes_nothing(self):
+        self.stage()
+        relocated = Path(self.tmp.name)/'standalone symbols'
+        shutil.copytree(self.output, relocated)
+        shutil.rmtree(self.repo)
+        before = s.inventory(relocated)
+        result = subprocess.run([sys.executable, str(relocated/'verify_package.py'),
+            'verify', '--bundle', str(relocated)], cwd=relocated, text=True, capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(before, s.inventory(relocated))
+
     def test_existing_empty_directory_is_not_overwritten(self):
         self.output.mkdir(parents=True)
         with self.assertRaisesRegex(ValueError,'already exists'): self.stage()
@@ -124,6 +141,35 @@ class StageTests(unittest.TestCase):
         (self.managed['kernel'][0]/'iMouse2.Kernel.dll').write_bytes(b'changed')
         with self.assertRaises(ValueError): self.stage()
         self.assertFalse(self.output.exists())
+
+    def test_wrong_symbols_refused_even_when_build_hashes_match(self):
+        build, record = self.managed['kernel']
+        (build/'iMouse2.Kernel.pdb').write_bytes(symbol_fixture(3)[1])
+        record.write_text(json.dumps(s.bm.record(self.repo, build, 'src/kernel/app.csproj')))
+        with self.assertRaisesRegex(ValueError, 'kernel symbols: DLL/PDB identity mismatch'):
+            self.stage()
+        self.assertFalse(self.output.exists())
+
+    def test_corrupt_symbols_refused_even_when_id_and_build_hashes_match(self):
+        build, record = self.managed['kernel']
+        changed = bytearray((build/'iMouse2.Kernel.pdb').read_bytes()); changed[-1] ^= 1
+        (build/'iMouse2.Kernel.pdb').write_bytes(changed)
+        record.write_text(json.dumps(s.bm.record(self.repo, build, 'src/kernel/app.csproj')))
+        with self.assertRaisesRegex(ValueError, 'kernel symbols: DLL/PDB content checksum mismatch'):
+            self.stage()
+        self.assertFalse(self.output.exists())
+
+    def test_standalone_verifier_rejects_rehashed_wrong_symbols(self):
+        self.stage()
+        name = 'payload/kernel/iMouse2.Kernel.pdb'
+        (self.output/name).write_bytes(symbol_fixture(3)[1])
+        provenance = self.output/'provenance/kernel.json'
+        record = s.load(provenance)
+        record['artifacts']['iMouse2.Kernel.pdb'] = s.row(self.output/name)
+        provenance.write_text(json.dumps(record))
+        self.edit_manifest(lambda m: m['files'].update({name: s.row(self.output/name),
+            'provenance/kernel.json': s.row(provenance)}))
+        self.assertTrue(any('kernel symbols: DLL/PDB identity mismatch' in issue for issue in s.verify(self.output)))
 
     def test_changed_native_source_refused(self):
         (self.native/'source.c').write_text('changed')

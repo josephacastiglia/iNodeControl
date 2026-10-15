@@ -1,0 +1,10 @@
+# Keep raw vendor decompilation and build output in the local evidence archive.
+*
+!.gitignore
+!*.md
+!symbols-validation.json
+!test_managed_symbols.txt
+!test_stage_release.txt
+!test_stage_receiver_runtime.txt
+!test_build_manifest.txt
+!symbol-guard-disabled.txt
