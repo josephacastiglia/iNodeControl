@@ -1,5 +1,17 @@
 # Marketing Farm candidate — 17 October 2026
 
+## Latest: C24C Instagram draft saved and reopened
+
+The follow-up media-transfer test **passed on one C24C account designated by the operator**. Three clearly numbered test slides were served from a temporary media-only LAN server, saved in Photos, selected in Instagram as 1 → 2 → 3, and saved using Instagram's **Save draft** option. Reopening that draft preserved all three images and the exact three-line caption, including spaces. The phone was left showing the saved draft in the Drafts library. Nothing was published.
+
+`tools/farm_media_transfer.py` serves only an immutable, checksum-verified carousel export to an explicit client IP, through a secret expiring URL. It has no farm control API or upload/publish endpoint. Its page provides numbered images and a copy-caption button; the caption was pasted from Safari instead of typed through HID. The known HID first-space issue remains deferred. No desktop control, installed release change, kernel/receiver restart, phone-setting change or C241 input occurred. The temporary server was stopped and port 9916 verified closed; C24C's lease was released.
+
+**Scope:** this was an agent-supervised, screen-observed phone API workflow using the existing release kernel and a new transfer tool. It was not a one-click run from the WPF editor. Native transfer controls, automated app-state verification and broader live repeatability are still pending. The existing local editor and autonomous live-route refusal remain unchanged. The full Python suite now passes **119 tests**, including 13 transfer checks. No C# changed in this pass; the 447 native checks below belong to the previous candidate build.
+
+Report and reproduction: `analysis/farm-phone-transfer-20261017/README.md`. Screenshots, phone-step records, package and final-state evidence are preserved locally outside Git in `iMouseXP-2.0-evidence-archive/20261017-farm-phone-transfer/` with checksums. The earlier candidate details below remain its offline build record.
+
+## Previous native candidate checkpoint
+
 **The native Marketing Farm tab is the target. The candidate is ready for offline use, not accepted for unattended publishing.**
 
 The existing desktop shortcut still targets `output/gemini-farm-tab-r4/iMouse2.exe` (the screenshots show build `9a5aa793`). The latest separate candidate is `output/codex-farm-carousel-20261017`, **build `4c1a4949`** (DLL SHA-256 `4c1a49490c6f20e65c1f331aefcfb53ba6734caad5b4a6c3f86459ecd0933926`). The earlier `f6ed99e3` candidate is preserved. Nothing was installed, promoted, pushed or run on a phone during this pass. No desktop control was used.
@@ -26,14 +38,14 @@ Drafts and their image bytes are stored transactionally in `output/farm-data/v2/
 |---|---|---|
 | Profiles and targets | Saves validated C24C profile; canonical phone IDs normalize correctly. Unbound persona cards are labelled as profiles and cannot deploy. | Bind/validate additional physical phones separately. |
 | Content | Creates decodable 4:5 JPEGs and MP4, a local review page, checksums and manifest. Old assets survive a new or failed render. | External AI generation is not configured; drafts need editorial review. |
-| Instagram carousel drafts | Native editor, import/generated images, ordering, caption, transactional storage, crash recovery, revision conflicts and complete review ZIP work offline. | Phone transfer, correct Instagram account/media selection, caption transfer and confirmation that Instagram saved the draft. |
+| Instagram carousel drafts | Native editor and local recovery work offline. Follow-up: media transfer, exact caption paste, correct image order and save/reopen in Instagram passed once on C24C using the separate transfer tool. | Integrate transfer into the native candidate; reliable observed automation and repeatability beyond this supervised test. |
 | Jobs and recovery | Durable request IDs, console restart recovery, single-operation execution, cancellation, heartbeat timeout, Stop latch, explicit simulation Resume, no automatic replay. | Live console/backend lease handover is implemented but not phone-validated. |
 | Upload flows | All 14 format paths execute against simulated transport and release ownership. Invalid text and unsupported formats fail before input. | Real app identification, correct account/media selection, media transfer and publication confirmation. Current live autonomous routes refuse instead of using unverified coordinates. |
 | Schedule and warmup | Read-only schedule preview; C24C warmup and full create/upload/pin simulations run. | Real timing, app-state observations and workload acceptance. |
 | Keyword replies and analytics | Missing observations return unavailable, never a fabricated keyword match, DM or view count. New profiles start with unknown analytics. | Implement and validate a text-observation provider, recipient selection and explicit approved messaging workflow. |
 | Manual C24C controls | Explicit C24C target never expands to checked followers. Tap mapping uses the actual preview geometry; stale frames refuse input. | Real-window and phone checks on this build. |
 
-The media server is loopback-only by default. The exported Shortcut plist is a draft definition, not proof of installation, signing, transfer to Photos or clipboard state. A phone-accessible, media-only delivery path still needs design and validation; do not expose the control server to the LAN as a workaround.
+The farm control server is loopback-only by default. The exported Shortcut plist remains an unvalidated draft definition. The separate `farm_media_transfer.py` delivery path now has one successful supervised C24C test; it exposes only the selected package and never the control server. No Shortcut installation or signing was needed.
 
 ## Verified in this pass
 
@@ -51,7 +63,7 @@ Latest logs, source/binary inventories and the rendered editor: `analysis/farm-c
 
 ## Next work
 
-The operator selected **Instagram carousel draft first**. The PC-side workflow is implemented and tested. Next: a media-only delivery mechanism, verified Instagram account/media/screen observations, and a C24C test confirming the draft appears inside Instagram with exact slides and caption. A designated test account and coordinated phone window are still needed. Publishing is a separate action; this editor has no publish button or phone-input route.
+The operator selected **Instagram carousel draft first**. The local editor and the supervised phone transfer/save/reopen now have evidence. Next: native transfer-session controls and a phone workflow that stops on unexpected screens and verifies account, slide order, pasted caption and persisted draft. Do not turn the observed coordinates into an unattended publishing script. Publishing remains separate; the editor has no publish button or phone-input route.
 
 After that acceptance, extend the proven workflow to other platforms, then finish real observations for scheduling, analytics and approved keyword replies. Do not treat preset coordinates, successful API replies or the old exported Shortcut file as proof of phone completion. Live autonomous routes remain disabled. Keep other phones and the installed release unchanged.
 

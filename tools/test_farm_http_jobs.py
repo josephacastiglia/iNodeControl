@@ -1,7 +1,6 @@
 """Real HTTP job lifecycle against an ephemeral simulation server only."""
 import json
 from pathlib import Path
-import sys
 import tempfile
 import threading
 import time
@@ -12,18 +11,7 @@ import uuid
 
 import imouse_farm_server as server
 from farm_jobs import FarmJobs
-
-_allowed_ports = set()
-
-
-def _network_guard(event, args):
-    if event == "socket.connect":
-        address = args[1]
-        if not isinstance(address, tuple) or address[0] != "127.0.0.1" or address[1] not in _allowed_ports:
-            raise AssertionError("HTTP tests may connect only to their own ephemeral server.")
-
-
-sys.addaudithook(_network_guard)
+from farm_test_network import allowed_ports as _allowed_ports
 
 
 class FarmHttpJobsTests(unittest.TestCase):
