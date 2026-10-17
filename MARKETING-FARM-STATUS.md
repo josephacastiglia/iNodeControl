@@ -2,7 +2,7 @@
 
 **The native Marketing Farm tab is the target. The candidate is ready for offline use, not accepted for unattended publishing.**
 
-The existing desktop shortcut still targets `output/gemini-farm-tab-r4/iMouse2.exe` (the screenshots show build `9a5aa793`). This work is a separate candidate at `output/codex-farm-functional-20261017`, **build `f6ed99e3`**. Nothing was installed, promoted, pushed or run on a phone during this pass. No desktop control was used.
+The existing desktop shortcut still targets `output/gemini-farm-tab-r4/iMouse2.exe` (the screenshots show build `9a5aa793`). The latest separate candidate is `output/codex-farm-carousel-20261017`, **build `4c1a4949`** (DLL SHA-256 `4c1a49490c6f20e65c1f331aefcfb53ba6734caad5b4a6c3f86459ecd0933926`). The earlier `f6ed99e3` candidate is preserved. Nothing was installed, promoted, pushed or run on a phone during this pass. No desktop control was used.
 
 ## Use the candidate
 
@@ -11,11 +11,14 @@ Run **Open Marketing Farm Candidate.ps1** from this repository when you want to 
 In the Marketing Farm tab:
 
 1. Edit and save the **C24C profile**.
-2. Choose **Create content only**, then **Review content**. Review the template copy, caption, JPEG slides and MP4 before use. These are local template drafts; no AI provider or external service is configured.
-3. Simulation jobs can run without selecting or connecting a phone. Job status distinguishes running, succeeded, failed, cancelled and interrupted. Check job retrieves a pending result; it does not repeat the action.
-4. **Stop C24C + cancel job** also sends a real Stop to C24C if the console is connected. **Resume simulation** only resets the mock. Manual preview taps and Spotlight are real C24C controls, separate from simulation.
+2. Choose **Create content only**, then **Instagram carousel drafts → From generated content**, or start an empty draft and add your own JPEG/PNG images. Edit the title/caption, move slides earlier/later, remove slides and inspect the preview. Generated material uses local templates; no AI provider is configured.
+3. **Save draft** saves locally. **Export review package** produces ordered JPEGs, the full caption, a review page, a manifest and SHA-256 checksums. This does **not** save anything inside Instagram. Exports require 2–10 slides; imports accept up to 8 MiB per image, fit the whole image into 1080×1350 without cropping, and leave originals untouched. These are the candidate's editing limits, not a platform-wide guarantee.
+4. Simulation jobs can run without selecting or connecting a phone. Job status distinguishes running, succeeded, failed, cancelled and interrupted. Check job retrieves a pending result; it does not repeat the action.
+5. **Stop C24C + cancel job** also sends a real Stop to C24C if the console is connected. **Resume simulation** only resets the mock. Manual preview taps and Spotlight are real C24C controls, separate from simulation.
 
-The backend stays running after the console closes; a lost job heartbeat requests cancellation within 30 seconds. An accepted request ID is saved before execution. Reusing it never replays work, including after a restart. Terminal results survive a backend restart. The UI does not yet persist its job ID across a console restart; the backend journal retains it.
+The backend stays running after the console closes; a lost job heartbeat requests cancellation within 30 seconds. An accepted request ID is saved before execution. Reusing it never replays work, including after a restart. Terminal results survive a backend restart. The console now saves its pending job ID before submission, restores it on restart and blocks new work until the outcome is checked. Recovering an old live job keeps manual input paused; completion still requires explicit Resume.
+
+Drafts and their image bytes are stored transactionally in `output/farm-data/v2/<mode>/carousel-drafts.db`. They survive regenerated content and deleted original images. Unsaved edits are kept in the console's own data folder; reopening restores them. Stale saves are refused. If another session saved a newer revision, conflicting edits are archived before the newer version is opened. **Reload saved version** also preserves unsaved edits in a separate JSON file. Captions are never silently truncated; unsupported phone typing is reported separately from local editing.
 
 ## What works and what remains
 
@@ -23,7 +26,8 @@ The backend stays running after the console closes; a lost job heartbeat request
 |---|---|---|
 | Profiles and targets | Saves validated C24C profile; canonical phone IDs normalize correctly. Unbound persona cards are labelled as profiles and cannot deploy. | Bind/validate additional physical phones separately. |
 | Content | Creates decodable 4:5 JPEGs and MP4, a local review page, checksums and manifest. Old assets survive a new or failed render. | External AI generation is not configured; drafts need editorial review. |
-| Jobs and recovery | Durable request IDs, single-operation execution, cancellation, heartbeat timeout, Stop latch, explicit simulation Resume, no automatic replay. | Live console/backend lease handover is implemented but not phone-validated. |
+| Instagram carousel drafts | Native editor, import/generated images, ordering, caption, transactional storage, crash recovery, revision conflicts and complete review ZIP work offline. | Phone transfer, correct Instagram account/media selection, caption transfer and confirmation that Instagram saved the draft. |
+| Jobs and recovery | Durable request IDs, console restart recovery, single-operation execution, cancellation, heartbeat timeout, Stop latch, explicit simulation Resume, no automatic replay. | Live console/backend lease handover is implemented but not phone-validated. |
 | Upload flows | All 14 format paths execute against simulated transport and release ownership. Invalid text and unsupported formats fail before input. | Real app identification, correct account/media selection, media transfer and publication confirmation. Current live autonomous routes refuse instead of using unverified coordinates. |
 | Schedule and warmup | Read-only schedule preview; C24C warmup and full create/upload/pin simulations run. | Real timing, app-state observations and workload acceptance. |
 | Keyword replies and analytics | Missing observations return unavailable, never a fabricated keyword match, DM or view count. New profiles start with unknown analytics. | Implement and validate a text-observation provider, recipient selection and explicit approved messaging workflow. |
@@ -36,18 +40,20 @@ The media server is loopback-only by default. The exported Shortcut plist is a d
 | Check | Result |
 |---|---|
 | Original feature regressions | All 32 pass; 14 had failed before the fixes. |
-| Combined Python tests | **87 pass**, including six real HTTP lifecycle tests on an ephemeral simulation server. |
+| Combined Python tests | **106 pass**, including eight real HTTP tests on an ephemeral simulation server and 17 local draft/store tests. Generated-content → editable-draft integration is tested. |
 | Native Release build | **Zero warnings/errors.** |
-| Native headless tests | **428 pass**; farm checks never show a desktop window or create a native window handle. |
-| Engine/server self-checks | Pass in temporary storage with real services blocked. Results explicitly distinguish simulation from live acceptance. |
-| Candidate launcher | Syntax and ValidateOnly checks pass; startup validation confirms isolated paths without connecting. Actual interactive launch not run. |
+| Native headless tests | **447 pass**; farm checks never show a desktop window or create a native window handle. Includes editor recovery, saved-job recovery and a headless editor render inspected for layout. |
+| Engine/server self-checks | Passed on the previous candidate. Existing engine behavior is covered by this pass's complete Python suite; no new live acceptance is inferred. |
+| Candidate launcher | ValidateOnly passes and includes the new draft module in its backend source hash. The candidate has its own data folder with hover tracking off. Actual interactive launch not run. |
 | Real phones, accounts, posting, DMs | **Not run.** |
 
-Detailed logs and source/binary inventories: `analysis/farm-functionality-20261017/`. The earlier failing evidence is retained under `analysis/farm-feature-validation-20261016/`. The handoff claims in the incoming Gemini report are historical and do not replace this candidate's acceptance matrix.
+Latest logs, source/binary inventories and the rendered editor: `analysis/farm-carousel-20261017/`. Prior evidence remains under `analysis/farm-functionality-20261017/` and `analysis/farm-feature-validation-20261016/`. The sandbox initially blocked temporary file replacement and loopback sockets; the approved isolated rerun passed. Intermediate native test setup/layout assertion failures are distinguished from the final passing result. The incoming Gemini report's claims do not replace this candidate's acceptance matrix.
 
 ## Next work
 
-Finish one real publishing workflow before expanding platforms: start with an Instagram carousel draft unless the operator chooses otherwise. Add verified screen/account/media observations and a review-before-publish boundary, then arrange a C24C-only test account check. Do not treat preset coordinates, successful API replies, or the exported Shortcut file as proof the phone completed a step. Keep the other phones and installed release unchanged.
+The operator selected **Instagram carousel draft first**. The PC-side workflow is implemented and tested. Next: a media-only delivery mechanism, verified Instagram account/media/screen observations, and a C24C test confirming the draft appears inside Instagram with exact slides and caption. A designated test account and coordinated phone window are still needed. Publishing is a separate action; this editor has no publish button or phone-input route.
+
+After that acceptance, extend the proven workflow to other platforms, then finish real observations for scheduling, analytics and approved keyword replies. Do not treat preset coordinates, successful API replies or the old exported Shortcut file as proof of phone completion. Live autonomous routes remain disabled. Keep other phones and the installed release unchanged.
 
 ## Reproduce offline
 
@@ -55,8 +61,8 @@ Use Python 3.11 with the recorded dependencies in `tools/requirements-farm.txt`.
 
 ```powershell
 python -m unittest discover -s tools -p 'test_farm_*.py' -v
-dotnet build src/iMouse.Console/iMouse.Console.csproj -c Release -o output/codex-farm-functional-20261017
-dotnet output/codex-farm-functional-20261017/iMouse2.dll --self-test
+dotnet build src/iMouse.Console/iMouse.Console.csproj -c Release -o output/codex-farm-carousel-20261017
+dotnet output/codex-farm-carousel-20261017/iMouse2.dll --self-test
 & '.\Open Marketing Farm Candidate.ps1' -ValidateOnly
 ```
 

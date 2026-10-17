@@ -136,6 +136,14 @@ class FarmHttpJobsTests(unittest.TestCase):
             status, media = self.request(asset["url"])
             self.assertEqual(200, status)
             self.assertEqual(asset["bytes"], len(media))
+        status, response = self.request("/api/farm/drafts", {"id": str(uuid.uuid4()), "from_generated": True})
+        self.assertEqual(200, status, response)
+        draft = response["draft"]
+        self.assertEqual(4, len(draft["slides"]))
+        self.assertEqual(manifest["caption"], draft["caption"])
+        self.assertEqual(manifest["generation"], draft["sourceGeneration"])
+        self.assertEqual("ready_local", draft["status"])
+        self.assertFalse(draft["savedInInstagram"])
         self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
 
     def test_bad_json_and_untrusted_origin_are_rejected(self):
@@ -143,6 +151,40 @@ class FarmHttpJobsTests(unittest.TestCase):
         self.assertEqual(400, status)
         status, _ = self.request("/api/farm/emergency-stop", {"device_id": "C24C"}, origin="https://untrusted.invalid")
         self.assertEqual(403, status)
+        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+
+    def test_carousel_import_save_export_over_real_http_without_phone_input(self):
+        import base64
+        import io
+        import zipfile
+        from PIL import Image
+        import random
+        draft_id = str(uuid.uuid4())
+        status, result = self.request("/api/farm/drafts", {"id": draft_id})
+        self.assertEqual(200, status, result)
+        draft = result["draft"]
+        # Encoded payload is >64 KiB; only the image-import route permits it.
+        for seed in (1, 2):
+            raw = random.Random(seed).randbytes(256 * 320 * 3)
+            image = Image.frombytes("RGB", (256, 320), raw)
+            buffer = io.BytesIO(); image.save(buffer, "PNG")
+            status, result = self.request(f"/api/farm/drafts/{draft_id}/import", {"revision": draft["revision"], "name": f"slide-{seed}.png", "content": base64.b64encode(buffer.getvalue()).decode()})
+            self.assertEqual(200, status, result)
+            draft = result["draft"]
+        status, result = self.request(f"/api/farm/drafts/{draft_id}/save", {"revision": draft["revision"], "title": "HTTP draft", "caption": "Preserve every space", "slide_ids": draft["slideIds"][::-1]})
+        self.assertEqual(200, status, result)
+        draft = result["draft"]
+        status, result = self.request(f"/api/farm/drafts/{draft_id}/export", {"revision": draft["revision"]})
+        self.assertEqual(200, status, result)
+        self.assertFalse(result["savedInInstagram"])
+        with zipfile.ZipFile(io.BytesIO(base64.b64decode(result["content"]))) as archive:
+            self.assertEqual(b"Preserve every space", archive.read("caption.txt"))
+            self.assertEqual(draft["slideIds"], json.loads(archive.read("manifest.json"))["slideIds"])
+        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+
+    def test_large_payload_is_not_permitted_on_control_routes(self):
+        status, _ = self.request("/api/farm/emergency-stop", {"padding": "x" * 65536})
+        self.assertEqual(413, status)
         self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
 
 

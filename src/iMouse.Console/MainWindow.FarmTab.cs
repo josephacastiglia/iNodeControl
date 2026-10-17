@@ -40,6 +40,7 @@ public partial class MainWindow
 
     private bool FarmAutomationModeKnown()
     {
+        if (_farmJobRecoveryError is not null) { AppendFarmLog(_farmJobRecoveryError); return false; }
         if (_farmJobId is not null || _farmManualSequence) { AppendFarmLog("Farm work is already pending. Use Check job or Stop."); return false; }
         if (_farmProtocolVersion == 2 && _farmExecutionMode is "simulate" or "live") return true;
         AppendFarmLog("No automation request sent: backend execution mode is unknown. Reopen the tab after starting the updated backend in an explicit mode.");
@@ -136,7 +137,7 @@ public partial class MainWindow
             var res = await FarmHttp.GetAsync(FarmServerUrl + "/health");
             if (res.IsSuccessStatusCode)
             {
-                AppendFarmLog("Connected to running 7-Layer Farm Server on " + FarmServerUrl);
+                AppendFarmLog("Connected to farm backend on " + FarmServerUrl);
                 return;
             }
         }

@@ -5,9 +5,29 @@ namespace IMouse2;
 public partial class MainWindow
 {
     private string? _farmJobId;
+    private string? _farmJobMode, _farmJobRecoveryError;
     private bool _farmOwnsInput, _farmLiveAutomationReady;
     private int _farmProtocolVersion;
     private FarmApiClient FarmApi => new(FarmHttp, FarmServerUrl);
+    private FarmJobRecovery FarmRecovery => new(_dataPath);
+
+    private void RestoreFarmJob()
+    {
+        try
+        {
+            if (FarmRecovery.Load() is not { } bookmark) return;
+            _farmJobId = bookmark.Id;
+            _farmJobMode = bookmark.Mode;
+            _farmOwnsInput = bookmark.OwnsInput;
+            if (_farmOwnsInput) CancelLocalInput();
+            AppendFarmLog("Recovered pending " + bookmark.Action + ". Choose Check job to retrieve its outcome. No action was replayed.");
+        }
+        catch (Exception ex)
+        {
+            _farmJobRecoveryError = "Saved farm job could not be read: " + ex.Message;
+            AppendFarmLog(_farmJobRecoveryError);
+        }
+    }
 
     private async Task RunFarmJobAsync(string action, object payload)
     {
@@ -23,6 +43,8 @@ public partial class MainWindow
         bool submitted = false;
         try
         {
+            _farmJobMode = _farmExecutionMode;
+            FarmRecovery.Save(new(_farmJobId, _farmJobMode!, action, liveInput));
             if (liveInput)
             {
                 if (_api is not { UsesInputOwnership: true } api || !FarmTargetPolicy.IsC24C(InputTargetIds()))
@@ -48,15 +70,39 @@ public partial class MainWindow
         catch (Exception ex)
         {
             AppendFarmLog("Farm job: " + ex.Message);
-            if (!submitted) FinishFarmJob();
+            if (!submitted)
+            {
+                try { FinishFarmJob(); }
+                catch (Exception persistence) { AppendFarmLog("Pending job record could not be cleared: " + persistence.Message); }
+            }
             else AppendFarmLog("Outcome not confirmed. Use Check job or Stop; this action will not be replayed.");
         }
     }
 
     private bool _farmPolling;
+    private CarouselDraftWindow? _carouselWindow;
+    private async void FarmCarouselDraft_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var health = await FarmApi.SendAsync("/health");
+            if (!health.TryGetProperty("carouselDraftsVersion", out var version) || version.GetInt32() != 1)
+                throw new InvalidOperationException("Start the updated candidate backend to edit carousel drafts.");
+            string mode = health.GetProperty("executionMode").GetString() ?? "";
+            if (mode is not ("simulate" or "live")) throw new InvalidOperationException("Unknown backend mode.");
+            if (_carouselWindow is not null) { _carouselWindow.Activate(); return; }
+            _carouselWindow = new CarouselDraftWindow(FarmApi, _dataPath, mode) { Owner = this };
+            _carouselWindow.Closed += (_, _) => _carouselWindow = null;
+            _carouselWindow.Show();
+        }
+        catch (Exception ex) { AppendFarmLog("Carousel drafts: " + ex.Message); }
+    }
+
     private async Task PollFarmJobAsync()
     {
         if (_farmPolling || _farmJobId is not { } jobId) return;
+        if (_farmJobMode is not null && _farmJobMode != _farmExecutionMode)
+            throw new InvalidOperationException("Pending job belongs to " + _farmJobMode + ". Connect to that backend mode before checking it.");
         _farmPolling = true;
         string lastState = "";
         try
@@ -86,10 +132,17 @@ public partial class MainWindow
 
     private void FinishFarmJob()
     {
+        FarmRecovery.Save(null); // Clear durably before allowing another submission.
         _farmJobId = null;
+        _farmJobMode = null;
         if (_farmOwnsInput)
         {
             _farmOwnsInput = false;
+            CancelLocalInput();
+            // A reopened console has no remembered selection scope yet. Avoid
+            // treating completion as a new selection that automatically readies it.
+            _controlApi = _api;
+            _controlScope = InputTargetIds();
             InputStateText.Text = "Farm job ended · inspect C24C, then choose Resume input";
             RefreshInputOwnershipUi(); // Explicit Resume; no takeover or replay.
         }
@@ -98,6 +151,11 @@ public partial class MainWindow
     private async Task RequestFarmCancellationAsync()
     {
         if (_farmJobId is not { } jobId) return;
+        if (_farmJobMode is not null && _farmJobMode != _farmExecutionMode)
+        {
+            AppendFarmLog("Pending job cancellation needs its original " + _farmJobMode + " backend. No action was sent to another mode.");
+            return;
+        }
         try { await FarmApi.SendAsync("/api/farm/jobs/" + jobId + "/cancel", new { }); }
         catch (Exception ex) { AppendFarmLog("Cancellation not confirmed: " + ex.Message); }
     }

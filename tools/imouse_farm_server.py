@@ -42,6 +42,7 @@ if str(HERE) not in sys.path:
 
 import imouse_social_automation as engine
 from farm_jobs import FarmJobs, JobCancelled
+from farm_drafts import CarouselDrafts, DraftConflict
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 9914
@@ -77,7 +78,7 @@ class FarmBackendRuntime:
         self.operation_lock = threading.RLock()
         source = Path(__file__).resolve().parent
         import hashlib
-        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py"))).hexdigest()
+        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py"))).hexdigest()
         db_path = db_path or Path("output/farm-data/v2") / execution_mode / "imouse_farm.db"
         stage_root = stage_root or Path("output/media-stage/v2") / execution_mode
         self.calibration_path = db_path.parent / "ui-boxes.json"
@@ -85,6 +86,7 @@ class FarmBackendRuntime:
         self.db = engine.FarmDatabase(db_path=db_path)
         self.jobs = FarmJobs(journal_path=db_path.parent / "jobs.db")
         self.stage_root = stage_root
+        self.drafts = CarouselDrafts(db_path.parent / "carousel-drafts.db", stage_root)
         self.port = port
         self.lan_host_url = (engine.MediaPullOrchestrator.detect_host_lan_url(port=port)
                              if execution_mode == "live" else f"http://127.0.0.1:{port}")
@@ -296,6 +298,16 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/") or "/"
 
+        if path == "/api/farm/drafts" or path.startswith("/api/farm/drafts/"):
+            try:
+                if path == "/api/farm/drafts":
+                    self._send_json(200, {"drafts": RUNTIME.drafts.list()})
+                else:
+                    self._send_json(200, {"draft": RUNTIME.drafts.get(path[len('/api/farm/drafts/'):])})
+            except (KeyError, ValueError) as exc:
+                self._send_json(404, {"error": str(exc)})
+            return
+
         if path.startswith("/api/farm/jobs/"):
             try:
                 self._send_json(200, {"job": RUNTIME.jobs.get(path.rsplit("/", 1)[1])})
@@ -314,6 +326,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "status": "ok",
                     "port": RUNTIME.port,
                     "sourceHash": RUNTIME.source_hash,
+                    "carouselDraftsVersion": 1,
                     "lanHostUrl": RUNTIME.lan_host_url,
                     "layersBuilt": 7,
                     "personasCount": len(RUNTIME.db.list_personas()),
@@ -336,6 +349,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "kernelError": kernel_error,
                     "activeJob": RUNTIME.jobs.current(),
                     "liveAutomationReady": False,
+                    "carouselDraftsVersion": 1,
                     "observationStatus": "Not configured; keyword matching and view counts are unavailable.",
                     "lanHostUrl": RUNTIME.lan_host_url,
                     "personas": personas,
@@ -398,8 +412,9 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         path = parsed.path.rstrip("/")
         try:
             length = int(self.headers.get("Content-Length", "0"))
-            if length < 0 or length > 65536:
-                self._send_json(413, {"error": "Request body must be at most 64 KiB."})
+            limit = 12 * 1024 * 1024 if path.startswith("/api/farm/drafts/") and path.endswith("/import") else 65536
+            if length < 0 or length > limit:
+                self._send_json(413, {"error": f"Request body exceeds the {limit}-byte limit."})
                 self.close_connection = True
                 return
             raw_body = self.rfile.read(length) if length > 0 else b"{}"
@@ -407,6 +422,8 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             if not isinstance(data, dict):
                 raise ValueError("Request must be a JSON object.")
             self._handle_post(path, data, raw_body)
+        except DraftConflict as ex:
+            self._send_json(409, {"status": "draft_conflict", "error": str(ex)})
         except (ValueError, KeyError, UnicodeError) as ex:
             self._send_json(400, {"status": "invalid_request", "error": str(ex)})
         except engine.KernelSafetyError as ex:
@@ -435,6 +452,29 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
     def _dispatch_post(self, path: str, data: dict, raw_body: bytes) -> None:
         assert RUNTIME is not None
         data = dict(data)
+        if path == "/api/farm/drafts":
+            draft = RUNTIME.drafts.create(data.get("id"), data.get("title", "Instagram carousel"), data.get("from_generated", False))
+            self._send_json(200, {"draft": draft})
+            return
+        if path.startswith("/api/farm/drafts/"):
+            import base64
+            parts = path.split("/")
+            if len(parts) != 6:
+                raise ValueError("Unknown draft operation.")
+            draft_id, action = parts[4:]
+            revision = data.get("revision")
+            if action == "import":
+                draft = RUNTIME.drafts.import_image(draft_id, revision, data.get("name"), data.get("content"))
+            elif action == "save":
+                draft = RUNTIME.drafts.save(draft_id, revision, data.get("title"), data.get("caption"), data.get("slide_ids"))
+            elif action == "export":
+                archive = RUNTIME.drafts.export(draft_id, revision)
+                self._send_json(200, {"filename": f"instagram-carousel-{draft_id}-r{revision}.zip", "content": base64.b64encode(archive).decode("ascii"), "savedInInstagram": False, "published": False})
+                return
+            else:
+                raise ValueError("Unknown draft operation.")
+            self._send_json(200, {"draft": draft})
+            return
         if path.startswith("/api/farm/") and "device_id" in data:
             data["device_id"] = engine.persona_device_id(data["device_id"])
 

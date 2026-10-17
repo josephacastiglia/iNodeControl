@@ -299,6 +299,7 @@
             <WrapPanel Grid.Row="0" Margin="0,0,0,10">
               <Button Content="Create content only" Click="FarmCreateContent_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Review content" Click="FarmOpenContent_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="Instagram carousel drafts" Click="FarmCarouselDraft_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Check job" Click="FarmCheckJob_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Resume simulation" Click="FarmResumeSimulation_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Create &amp; deploy C24C" Click="FarmAutoCreate_Click" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}" MinHeight="30" Padding="10,5"/>
@@ -351,9 +352,9 @@
 
             <!-- Content Slate Actions -->
             <StackPanel Grid.Row="1" Margin="0,0,0,8">
-              <TextBlock Text="1-CLICK CONTENT DEPLOY SLATE" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
+              <TextBlock Text="CONTENT WORKFLOWS" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
               <UniformGrid Columns="2" Margin="0,0,0,4">
-                <Button Content="🖼️ IG Carousel (4:5)" Tag="instagram|ig_carousel" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
+                <Button Content="Instagram draft editor" Click="FarmCarouselDraft_Click" FontSize="11" Padding="4,4"/>
                 <Button Content="🎵 TikTok Video" Tag="tiktok|tt_video" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
               </UniformGrid>
               <UniformGrid Columns="2">

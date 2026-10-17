@@ -55,6 +55,7 @@ public partial class MainWindow : Window
         BuildIdentity.Text = ConsoleBuildInfo.Current.Label + " · Independent AirPlay";
         BuildIdentity.ToolTip = ConsoleBuildInfo.Current.Detail;
         InputTrace.AttachIfRequested(this);
+        RestoreFarmJob();
         ActivityList.ItemsSource = _activity;
         PhoneWall.ItemsSource = _wall;
         PhoneWall.DataContext = this;
