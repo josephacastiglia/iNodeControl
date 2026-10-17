@@ -1,6 +1,20 @@
 # Marketing Farm candidate — 17 October 2026
 
-## Latest candidate: native transfer controls and acceptance audit
+## Latest candidate: video preparation and four-platform draft checks
+
+The separate candidate is `output/codex-farm-video-20261017`, DLL SHA-256 `61764a45cf1ad1adced31cca087ff36412842af12f8d638104d800b0f48fee1e`. **161 Python tests and 478 native headless checks pass**, with a clean Release build. The candidate launcher points here; the installed marketing console, release kernel, receivers and shortcuts are unchanged.
+
+The native tab now has **Video drafts**: choose generated C24C media, destination and caption, prepare a saved H.264 copy, recover a completed copy after a lost response, then open explicit transfer controls. Preparation preserves the full frame, source and caption. It refuses videos over its 45-second/64-MiB candidate limits rather than trimming them. The actual transfer page explains the observed Safari download and Photos-save route. Headless UI and real loopback HTTP tests cover the controls; interactive native-window-to-phone acceptance remains open.
+
+**Supervised C24C live results:** photo drafts saved and reopened in TikTok, X and YouTube; the same labelled three-second H.264 MP4 transferred to Photos, saved as a draft, reopened and played in **TikTok, X, YouTube Shorts and Instagram Reels**. Captions/titles matched the test labels. The prior Instagram carousel preserves its separate three-slide, multiline-caption evidence. The short labels in this pass do not resolve the deferred HID first-space issue.
+
+No publication or message was sent. YouTube required the operator to dismiss an optional local-network prompt physically. TikTok suggested a sound, which was removed from the MP4 draft. A transient iOS share-menu tap opened an empty shared-album form; it was cancelled without creation or invitation. These observations are recorded in `analysis/farm-platform-drafts-20261017/README.md` and are not unattended automation passes.
+
+The phone was left on Home and its lease released. The temporary media service is closed. C241 remained untouched and offline as it was at preflight; both receiver processes and their restart counts are unchanged. Private evidence and the candidate are preserved outside Git with checksums.
+
+**Next engineering work:** app/account recognition and draft verification with interruption handling, followed by recurring execution and observed analytics. Other format paths remain simulation only. Publishing and messaging stay disabled under the current instructions. The full matrix is in **[MARKETING-FARM-ACCEPTANCE.md](MARKETING-FARM-ACCEPTANCE.md)**. The sections below are historical checkpoints, including their older counts and remaining-work statements.
+
+## Earlier candidate: native transfer controls and acceptance audit
 
 The new separate build is `output/codex-farm-transfer-20261017`, DLL SHA-256 `81dd034a5910edd95b0fec8bc92a6f1e6df5236def7569c7def0b1274472a591`. **149 Python tests and 459 native headless checks pass**, with a clean Release build. The candidate launcher now points here; installed shortcuts and release files are unchanged.
 

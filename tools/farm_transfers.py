@@ -50,8 +50,9 @@ class _ListenerOwner:
 
 
 class CarouselTransfers:
-    def __init__(self, database: Path, drafts, *, clock=time.monotonic):
+    def __init__(self, database: Path, drafts, *, videos=None, clock=time.monotonic):
         self.database, self.drafts, self.clock = Path(database), drafts, clock
+        self.videos = videos
         self.database.parent.mkdir(parents=True, exist_ok=True)
         self.lock = threading.RLock()
         self.owner = _ListenerOwner(self.database.with_suffix('.listener-lock'))
@@ -117,8 +118,11 @@ class CarouselTransfers:
         if request.get('device_id') != 'C24C':
             raise ValueError('Media transfer is restricted to C24C.')
         account = request.get('account', '').strip().removeprefix('@')
-        if not re.fullmatch(r'[A-Za-z0-9_.]{1,30}', account):
-            raise ValueError('Enter the Instagram account you will verify on C24C.')
+        if not re.fullmatch(r'[A-Za-z0-9_.-]{1,50}', account):
+            raise ValueError('Enter the app account handle you will verify on C24C.')
+        kind = request.get('kind', 'carousel')
+        if kind not in ('carousel', 'video') or (kind == 'video' and self.videos is None):
+            raise ValueError('Unsupported media draft kind.')
         bind, client = checked_address(request.get('bind', '')), checked_address(request.get('client', ''))
         port, minutes = request.get('port', 9916), request.get('minutes', 20)
         if type(port) is not int or port not in range(1024, 65536) or port in (9911, 9913, 9914, 9915):
@@ -126,8 +130,9 @@ class CarouselTransfers:
         if type(minutes) is not int or not 1 <= minutes <= 60:
             raise ValueError('Transfer duration must be 1–60 minutes.')
         request = dict(id=session_id, draft_id=draft_id, revision=revision, device_id='C24C',
-                       account=account, bind=bind, client=client, port=port, minutes=minutes)
-        fingerprint = hashlib.sha256(json.dumps(request, sort_keys=True).encode()).hexdigest()
+                       account=account, bind=bind, client=client, port=port, minutes=minutes, kind=kind)
+        fingerprint_data = {k: v for k, v in request.items() if k != 'kind' or kind != 'carousel'}
+        fingerprint = hashlib.sha256(json.dumps(fingerprint_data, sort_keys=True).encode()).hexdigest()
         with self.lock:
             with self._db() as db:
                 old = db.execute('SELECT fingerprint FROM transfers WHERE id=?', (session_id,)).fetchone()
@@ -137,9 +142,14 @@ class CarouselTransfers:
                 return self.get(session_id)  # Never reopen a closed/failed/interrupted session.
             if self.active_id is not None:
                 raise TransferConflict('A transfer is already open. Check or stop it before starting another.')
-            package = TransferPackage(self.drafts.export(draft_id, revision))
+            if kind == 'video':
+                from farm_video import VideoTransferPackage
+                package = VideoTransferPackage(self.videos.export(draft_id, revision))
+            else:
+                package = TransferPackage(self.drafts.export(draft_id, revision))
             value = {**request, 'state': 'starting', 'createdAt': datetime.now(timezone.utc).isoformat(),
                      'packageSha256': package.package_hash, 'slideCount': len(package.images), 'imagesDelivered': [],
+                     'videoRequests': 0, 'platform': getattr(package, 'platform', 'Instagram'),
                      'deliveryMode': 'real_media_only', 'photosStatus': 'unverified', 'instagramStatus': 'unverified',
                      'publicationAttempted': False, 'error': None}
             if not self.owner.acquire():
@@ -182,11 +192,13 @@ class CarouselTransfers:
             return self.get(session_id)
 
     def _delivered(self, session_id, event):
-        if event['status'] != 200 or event['method'] != 'GET' or not re.fullmatch(r'\d{2}\.jpg', event['route']):
+        video = event['route'] == 'video.mp4'
+        if event['status'] not in (200, 206) or event['method'] != 'GET' or not (video or re.fullmatch(r'\d{2}\.jpg', event['route'])):
             return
         with self.lock:
             value = self._read(session_id)
-            value['imagesDelivered'] = sorted(set(value['imagesDelivered']) | {event['route']})
+            if video: value['videoRequests'] += 1  # Partial ranges are requests, never completed saves.
+            else: value['imagesDelivered'] = sorted(set(value['imagesDelivered']) | {event['route']})
             self._write(value)  # A GET is never a Photos save or an Instagram save.
 
     def _serve(self, session_id, server, stopped):

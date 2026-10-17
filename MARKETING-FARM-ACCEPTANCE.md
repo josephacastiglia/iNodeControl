@@ -1,14 +1,14 @@
 # Marketing Farm — acceptance record
 
-Updated 17 October 2026. **The full marketing product is not accepted for unattended use.** The tested candidate supports local preparation and supervised Instagram draft work. Automatic publishing and messaging remain disabled.
+Updated 17 October 2026. **The full marketing product is not accepted for unattended use.** Local preparation and supervised draft saves now have evidence on Instagram, TikTok, X and YouTube. Automatic publishing and messaging remain disabled.
 
 ## Current candidate
 
-- Native output: `output/codex-farm-transfer-20261017`, DLL SHA-256 `81dd034a5910edd95b0fec8bc92a6f1e6df5236def7569c7def0b1274472a591`.
+- Native output: `output/codex-farm-video-20261017`, DLL SHA-256 `61764a45cf1ad1adced31cca087ff36412842af12f8d638104d800b0f48fee1e`.
 - Candidate launcher: `Open Marketing Farm Candidate.ps1`; backend on loopback 9915, simulation mode, separate settings and hover tracking off.
-- **149 Python tests**, no skips; **459 native headless checks**; Release build has zero warnings/errors. Engine and server self-checks also pass under a network guard.
+- **161 Python tests**, no skips; **478 native headless checks**; Release build has zero warnings/errors. Python tests use only registered mock listeners; headless checks create no desktop window.
 - All 14 upload formats execute with simulated transport and clean up ownership. Those tests do not establish real app completion.
-- Installed console/release, shortcuts, kernel and receivers were not changed. No desktop control or phone input occurred in this follow-up. The earlier C24C draft test remains its own live evidence.
+- Installed console/release, shortcuts, kernel and receivers were not changed. This pass used observed C24C phone API input, never PC control. C241 received no input. The operator physically dismissed YouTube's optional local-network prompt using Don't Allow. Candidate controls were tested headlessly; the live saves were supervised through the existing release API.
 
 ## Usable scope and remaining gates
 
@@ -18,7 +18,8 @@ Updated 17 October 2026. **The full marketing product is not accepted for unatte
 | Content creation | Decodable template JPEGs/MP4, manifests, checksums, preserved earlier assets | External AI generation is not configured; editorial review remains necessary |
 | Carousel editor | 2–10 slides, complete caption, ordering, import, preview, revision conflicts, crash recovery and export | Interactive usability check on the new native build |
 | Native media transfer | Start/status/stop, private-address selection, immutable revision, expiry, duplicate-request recovery, backend restart, port conflicts and competing backends tested | New controls tested headlessly and through real loopback HTTP; actual native-window-to-phone run remains open |
-| Instagram draft | **One supervised C24C test passed:** three slides, exact caption, Save draft, reopen and inspect; nothing published | Repeatable app-state recognition, correct account verification, interruptions and unattended recovery |
+| Video preparation | Saved H.264 720×1280 copies; full-frame fitting, source preservation, duration checks, audio decoding, immutable captions, lost-response recovery and saved-copy selection | Generated C24C videos only; 64 MiB and 45-second candidate limits. Source audio tested offline; silent MP4 used on the phone |
+| Instagram draft | **Supervised C24C tests passed:** earlier three-slide carousel with exact multiline caption; this pass a real MP4 Reel saved, reopened and played with the exact test label | Repeatable app-state recognition, correct account verification, interruptions and unattended recovery |
 | Jobs and Stop | Durable IDs, no replay, single-operation execution, cancellation, heartbeat timeout and recovery tested | Marketing-specific live console/backend handover remains unverified |
 | Schedule | Preview, phase-one warmup planning, cooldown boundary, UTC daily budget and paused-account hold tested | No recurring live execution service is accepted; needs review queue, actual timing and restart acceptance |
 | Warmup | Simulated sequencing, phase rules, cancellation and cleanup | Approved account activity and observed app outcomes; no claim of improving platform standing |
@@ -26,10 +27,10 @@ Updated 17 October 2026. **The full marketing product is not accepted for unatte
 | Keyword replies / DMs | Missing observations refuse; no invented keyword matches or messages | Observations, recipient verification, approved messaging scope and live acceptance |
 | Pins and cross-account actions | Simulation only | Separate authorization and observed outcomes; no acceptance claim |
 | Automatic creation + deployment | Combined path runs in simulation | Every live stage must pass before this can be enabled |
-| Instagram Reel/Post/Story | Simulation only | Designated account, correct media/editor behavior, draft/reopen where supported |
-| TikTok video/photo/story/text | Simulation only | Designated test account and draft-only live checks first |
-| X post/video/thread | Simulation only | Designated test account and supported draft behavior |
-| YouTube Short/video/community | Simulation only | Designated test account, app-specific draft capabilities and observed outcomes |
+| Instagram Reel/Post/Story | Reel and carousel draft saves observed; automated flows remain simulation only | Other post/story modes and unattended state validation |
+| TikTok video/photo/story/text | Three-photo draft and transferred MP4 draft saved and reopened with exact test labels; MP4 playback verified and suggested sound removed | Text/story modes, repeated recovery checks and unattended state validation |
+| X post/video/thread | Image and transferred MP4 drafts saved and reopened with exact labels; video played after tapping its initially blank preview | Threads, repeated recovery checks and unattended state validation |
+| YouTube Short/video/community | Photo-derived Short and transferred MP4 Short saved and reopened with exact titles; MP4 playback and 3.0-second trim view verified | Long video/community modes, unattended permission handling and state validation |
 | Publishing | Disabled under current instructions | Explicit publishing test scope, observed published item, duplicate prevention and failure recovery |
 
 ## Acceptance rules
@@ -42,7 +43,15 @@ Updated 17 October 2026. **The full marketing product is not accepted for unatte
 6. A draft-only test never crosses Share/Publish/Send. Only C24C is authorized for live work; C241 and the installed release remain unchanged.
 7. Counts need context: lifetime view totals are not 24-hour views; low views do not prove a platform restriction. Improved counts never clear a pause automatically.
 
-## Fixes found during this pass
+## Fixes found during the video pass
+
+- MP4 delivery now supports Safari byte-range requests. Counts are labelled potentially partial requests, never app-save confirmation.
+- An expiry boundary could reset a valid client's connection before returning a refusal. Expired content remains unavailable; the server now allows a short, bounded refusal response.
+- Failed preparation before storage, a busy backend, a lost response after storage and an HTTP 500 after storage retain the request identity until the saved result is checked. Recovery does not create a duplicate video.
+- Selecting a saved video now shows its saved caption and destination. Editing the preparation invalidates transfer of the old copy. Unknown outcomes block selecting another copy.
+- Transfer instructions reflect the observed Safari Downloads → Files preview → Save Video route. They warn about suggested sounds and unresponsive permission dialogs without claiming those are automated.
+
+## Earlier transfer/acceptance audit fixes
 
 - Transfer sessions initially kept SQLite file handles open. Transactions now close their connections; cleanup and restart tests pass.
 - An early-phase account could remain held forever instead of receiving a warmup plan. Its schedule now plans warmup while preserving the no-upload phase rule.
@@ -53,8 +62,8 @@ Updated 17 October 2026. **The full marketing product is not accepted for unatte
 
 Three new analytics/scheduler cases fail against the preserved `f770b34` engine and pass against this source. Earlier failed/restricted test logs are retained separately from the final passing results.
 
-## Next dependency
+## Remaining work
 
-The operator was asked which C24C accounts may be used for TikTok, X and YouTube **draft-only** checks. No additional accounts are assumed approved. Publishing and messaging need a separate scope and remain disabled. An account designation alone does not make the existing coordinate-based automation safe to enable: screen/account verification must be implemented and tested first.
+The operator authorized any already signed-in C24C accounts for **draft-only** checks; those supervised saves are complete for the tested formats above. Publishing and messaging remain outside scope. Full marketing acceptance still requires observed app/account recognition, safe handling of changed screens, media selection and caption verification, repeated interruption/recovery cases, recurring execution and real observations. The remaining format paths are not accepted merely because similar drafts worked. No live automatic route was enabled.
 
-Detailed logs, headless renders, source and build inventory: `analysis/farm-native-transfer-20261017/`. The preceding live draft evidence is in `analysis/farm-phone-transfer-20261017/README.md` and its separate archive. No new live success is inferred from the offline results.
+Latest report, logs and exact observed step references: `analysis/farm-platform-drafts-20261017/README.md`. Its private screenshots, account evidence, test package and exact candidate are archived outside Git with checksums. Earlier reports remain in `analysis/farm-native-transfer-20261017/` and `analysis/farm-phone-transfer-20261017/`. A supervised save, a native headless check and an unattended workflow are separate acceptance claims.

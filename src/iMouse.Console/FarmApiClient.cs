@@ -4,7 +4,10 @@ using System.Text.Json;
 
 namespace IMouse2;
 
-internal sealed class FarmRequestRejectedException(string message) : InvalidOperationException(message);
+internal sealed class FarmRequestRejectedException(string message, int? statusCode = null) : InvalidOperationException(message)
+{
+    internal int? StatusCode { get; } = statusCode;
+}
 
 /// <summary>Versioned farm API. HTTP errors and application failures never look like completion.</summary>
 internal sealed class FarmApiClient(HttpClient http, string address)
@@ -19,7 +22,7 @@ internal sealed class FarmApiClient(HttpClient http, string address)
         var root = document.RootElement;
         if (!response.IsSuccessStatusCode || root.TryGetProperty("error", out _))
             throw new FarmRequestRejectedException(root.TryGetProperty("error", out var error)
-                ? error.GetString() ?? "Farm request refused" : $"Farm request failed: HTTP {(int)response.StatusCode}");
+                ? error.GetString() ?? "Farm request refused" : $"Farm request failed: HTTP {(int)response.StatusCode}", (int)response.StatusCode);
         if (!root.TryGetProperty("protocolVersion", out var version) || version.GetInt32() != 2)
             throw new InvalidOperationException("This farm backend is outdated. Use the matching candidate backend.");
         return root.Clone();

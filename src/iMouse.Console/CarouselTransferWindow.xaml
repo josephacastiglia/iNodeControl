@@ -15,7 +15,7 @@
         <TextBox x:Name="BindBox" Grid.Column="1" Margin="0,4" ToolTip="The PC address reachable from C24C's Wi-Fi network."/>
         <TextBlock Grid.Row="1" Text="C24C's Wi-Fi IPv4" VerticalAlignment="Center"/>
         <TextBox x:Name="ClientBox" Grid.Row="1" Grid.Column="1" Margin="0,4" ToolTip="Only this source address can download the media."/>
-        <TextBlock Grid.Row="2" Text="Instagram account" VerticalAlignment="Center"/>
+        <TextBlock x:Name="AccountLabel" Grid.Row="2" Text="Instagram account" VerticalAlignment="Center"/>
         <TextBox x:Name="AccountBox" Grid.Row="2" Grid.Column="1" Margin="0,4" ToolTip="Verify this account in Instagram before creating the draft."/>
       </Grid>
       <WrapPanel Margin="0,12,0,8">
@@ -27,7 +27,7 @@
       <TextBox x:Name="UrlBox" IsReadOnly="True" TextWrapping="Wrap" MinHeight="48" ToolTip="Open this link in Safari on C24C. It expires; do not publish or share it."/>
       <TextBlock x:Name="DeliveryText" Text="HTTP delivery does not confirm a save in Photos or Instagram." TextWrapping="Wrap" Margin="0,8,0,16"/>
       <TextBlock Text="On C24C" FontWeight="SemiBold" FontSize="18"/>
-      <TextBlock Text="1. Open the link in Safari. Save each numbered image to Photos in order.&#10;&#10;2. Copy the caption using the transfer page. In Instagram, verify the account above, choose Post, select the slides in order and paste the caption.&#10;&#10;3. Review all slides and the full caption. Go back and choose Save draft. Do not tap Share.&#10;&#10;4. Reopen the draft and check the order and caption. Finish by stopping this transfer." TextWrapping="Wrap" Margin="0,8"/>
+      <TextBlock x:Name="PhoneInstructions" Text="1. Open the link in Safari. Save each numbered image to Photos in order.&#10;&#10;2. Copy the caption using the transfer page. In Instagram, verify the account above, choose Post, select the slides in order and paste the caption.&#10;&#10;3. Review all slides and the full caption. Go back and choose Save draft. Do not tap Share.&#10;&#10;4. Reopen the draft and check the order and caption. Finish by stopping this transfer." TextWrapping="Wrap" Margin="0,8"/>
       <TextBlock Text="The link closes when this window closes or the timer expires. If a response is lost, Check status retrieves the existing session without repeating it. A backend restart never reopens a transfer." TextWrapping="Wrap" Margin="0,12"/>
     </StackPanel>
   </ScrollViewer>

@@ -32,6 +32,7 @@ public partial class CarouselTransferWindow
                 Session["secondsRemaining"] = 1200;
                 Session["imagesDelivered"] = Array.Empty<string>();
                 Session["slideCount"] = 3;
+                Session["videoRequests"] = 0;
                 Session["instagramStatus"] = "unverified";
                 if (LoseStartResponse) throw new HttpRequestException("Response lost after listener started");
             }
@@ -88,6 +89,23 @@ public partial class CarouselTransferWindow
             await window.RunAsync(window.RefreshAsync);
             check("Backend restart is reported without silently restarting transfer", window.StatusText.Text.Contains("interrupted") && window.UrlBox.Text == "" && handler.Starts == 1);
             check("Transfer UI only uses media-session routes, never input or publishing", handler.Requests.All(r => r.Contains("/api/farm/transfers")));
+            var videoData = JsonSerializer.SerializeToElement(new { id = Guid.NewGuid().ToString(), revision = 1, title = "Draft-only video", platform = "YouTube" });
+            var videoWindow = new CarouselTransferWindow(api, videoData);
+            try
+            {
+                handler.LoseStartResponse = false;
+                await videoWindow.RunAsync(videoWindow.RefreshAsync);
+                videoWindow.BindBox.Text = "192.168.1.2"; videoWindow.ClientBox.Text = "192.168.1.3"; videoWindow.AccountBox.Text = "test.account";
+                await videoWindow.RunAsync(videoWindow.StartAsync);
+                check("Video transfer starts the video media kind, separate from carousel", handler.Session!["kind"] is JsonElement kind && kind.GetString() == "video");
+                handler.Session!["videoRequests"] = 4;
+                await videoWindow.RunAsync(videoWindow.RefreshAsync);
+                check("Partial video requests never imply a saved app draft", videoWindow.DeliveryText.Text.Contains("4 video requests (may be partial)") && videoWindow.DeliveryText.Text.Contains("unverified"));
+                check("Video instructions identify the platform and forbid upload", videoWindow.AccountLabel.Text == "YouTube account" && videoWindow.PhoneInstructions.Text.Contains("Do not tap Post, Share or Upload"));
+                await videoWindow.RunAsync(videoWindow.StopAsync);
+                check("Video transfer shares confirmed Stop and link cleanup", !videoWindow._active && videoWindow.UrlBox.Text == "");
+            }
+            finally { videoWindow._closing = true; videoWindow._timer.Stop(); videoWindow.Close(); }
         }
         finally
         {

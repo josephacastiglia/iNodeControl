@@ -46,6 +46,7 @@ from farm_jobs import FarmJobs, JobCancelled
 from farm_drafts import CarouselDrafts, DraftConflict
 from farm_transfers import CarouselTransfers, TransferConflict
 from farm_capabilities import capabilities
+from farm_video import VideoDrafts
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 9914
@@ -93,7 +94,7 @@ class FarmBackendRuntime:
         self.operation_lock = threading.RLock()
         source = Path(__file__).resolve().parent
         import hashlib
-        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py"))).hexdigest()
+        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py"))).hexdigest()
         db_path = db_path or Path("output/farm-data/v2") / execution_mode / "imouse_farm.db"
         stage_root = stage_root or Path("output/media-stage/v2") / execution_mode
         self.calibration_path = db_path.parent / "ui-boxes.json"
@@ -102,7 +103,8 @@ class FarmBackendRuntime:
         self.jobs = FarmJobs(journal_path=db_path.parent / "jobs.db")
         self.stage_root = stage_root
         self.drafts = CarouselDrafts(db_path.parent / "carousel-drafts.db", stage_root)
-        self.transfers = CarouselTransfers(db_path.parent / "transfers.db", self.drafts)
+        self.videos = VideoDrafts(db_path.parent / "video-drafts.db", stage_root)
+        self.transfers = CarouselTransfers(db_path.parent / "transfers.db", self.drafts, videos=self.videos)
         self.port = port
         self.lan_host_url = (engine.MediaPullOrchestrator.detect_host_lan_url(port=port)
                              if execution_mode == "live" else f"http://127.0.0.1:{port}")
@@ -299,7 +301,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
     def _send_json(self, status: int, payload: dict) -> None:
         if RUNTIME is not None:
             payload = {**payload, "protocolVersion": 2, "executionMode": RUNTIME.execution_mode,
-                       "simulated": False if "transfer" in payload else RUNTIME.execution_mode == "simulate"}
+                       "simulated": False if any(k in payload for k in ('transfer', 'draft', 'drafts', 'sources')) else RUNTIME.execution_mode == "simulate"}
         raw = json.dumps(payload, indent=2).encode("utf-8")
         self._send_bytes(status, "application/json; charset=utf-8", raw)
 
@@ -324,6 +326,17 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             self._send_json(200, capabilities())
             return
 
+        if path == '/api/farm/video-sources':
+            try: self._send_json(200, {'sources': RUNTIME.videos.sources()})
+            except (ValueError, KeyError, OSError) as ex: self._send_json(400, {'error': str(ex)})
+            return
+        if path == '/api/farm/video-drafts':
+            self._send_json(200, {'drafts': RUNTIME.videos.list()})
+            return
+        if path.startswith('/api/farm/video-drafts/'):
+            try: self._send_json(200, {'draft': RUNTIME.videos.get(path.rsplit('/', 1)[1])})
+            except (ValueError, KeyError) as ex: self._send_json(404, {'error': str(ex)})
+            return
         if path == "/api/farm/transfers/current" or path.startswith("/api/farm/transfers/"):
             if not self._transfer_access_allowed():
                 self._send_json(403, {"error": "Cross-origin transfer access refused."})
@@ -365,6 +378,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "sourceHash": RUNTIME.source_hash,
                     "carouselDraftsVersion": 1,
                     "carouselTransfersVersion": 1,
+                    "videoDraftsVersion": 1,
                     "lanHostUrl": RUNTIME.lan_host_url,
                     "layersBuilt": 7,
                     "personasCount": len(RUNTIME.db.list_personas()),
@@ -486,6 +500,9 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             self._dispatch_post(path, data, raw_body)
             return
         if not RUNTIME.operation_lock.acquire(blocking=False):
+            if path == '/api/farm/video-drafts':
+                self._send_json(409, {'status': 'preparation_busy', 'error': 'Another preparation is running. Check the saved draft before retrying.'})
+                return
             raise ValueError("A farm operation is already running. Wait or cancel it first.")
         try:
             self._dispatch_post(path, data, raw_body)
@@ -495,6 +512,9 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
     def _dispatch_post(self, path: str, data: dict, raw_body: bytes) -> None:
         assert RUNTIME is not None
         data = dict(data)
+        if path == '/api/farm/video-drafts':
+            self._send_json(200, {'draft': RUNTIME.videos.create(data)})
+            return
         if path == "/api/farm/transfers":
             self._send_json(200, {"transfer": RUNTIME.transfers.start(data)})
             return

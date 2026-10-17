@@ -144,7 +144,11 @@ class MediaTransferServer(HTTPServer):
         connection, address = super().get_request()
         connection.settimeout(2)
         # A trickle of header bytes must not keep a transfer alive past expiry.
-        timer = threading.Timer(max(0.01, min(3, self.deadline - self.clock())), self._close_connection, args=(connection,))
+        remaining = self.deadline - self.clock()
+        # Expired media is rejected in deliver(). Allow time to send that 404;
+        # a 10ms close timer raced the refusal response under host load.
+        budget = min(3, remaining) if remaining > 0 else 3
+        timer = threading.Timer(max(0.01, budget), self._close_connection, args=(connection,))
         timer.daemon = True
         with self.connection_lock:
             self.connections[connection] = timer
@@ -195,7 +199,7 @@ class TransferHandler(BaseHTTPRequestHandler):
 
     do_PUT = do_DELETE = do_PATCH = do_POST
 
-    def reply(self, code, data, content_type, head=False, route='unavailable'):
+    def reply(self, code, data, content_type, head=False, route='unavailable', extra_headers=None):
         self.send_response(code)
         self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', str(len(data)))
@@ -203,7 +207,8 @@ class TransferHandler(BaseHTTPRequestHandler):
         self.send_header('Referrer-Policy', 'no-referrer')
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('Connection', 'close')
-        self.send_header('Content-Security-Policy', f"default-src 'none'; img-src 'self'; style-src 'nonce-{self.server.nonce}'; script-src 'nonce-{self.server.nonce}'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+        self.send_header('Content-Security-Policy', f"default-src 'none'; img-src 'self'; media-src 'self'; style-src 'nonce-{self.server.nonce}'; script-src 'nonce-{self.server.nonce}'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+        for name, value in (extra_headers or {}).items(): self.send_header(name, str(value))
         self.end_headers()
         try:
             if not head:
@@ -224,7 +229,28 @@ class TransferHandler(BaseHTTPRequestHandler):
             self.reply(404, b'Unavailable or expired.', 'text/plain', head)
             return
         route = self.path[len(s.prefix):]
-        if route in s.package.images:
+        if route == 'video.mp4' and hasattr(s.package, 'video'):
+            data = s.package.video
+            size = len(data)
+            headers = {'Accept-Ranges': 'bytes', 'Content-Disposition': 'inline; filename="imouse-draft.mp4"'}
+            interval = self.headers.get('Range')
+            if interval:
+                import re
+                match = re.fullmatch(r'bytes=(\d*)-(\d*)', interval)
+                try:
+                    if not match or not any(match.groups()): raise ValueError()
+                    left, right = match.groups()
+                    start = int(left) if left else max(0, size - int(right))
+                    end = min(int(right), size - 1) if left and right else size - 1
+                    if start < 0 or start >= size or end < start: raise ValueError()
+                except ValueError:
+                    self.reply(416, b'', 'video/mp4', head, route, {'Content-Range': f'bytes */{size}'})
+                    return
+                headers['Content-Range'] = f'bytes {start}-{end}/{size}'
+                self.reply(206, data[start:end+1], 'video/mp4', head, route, headers)
+            else:
+                self.reply(200, data, 'video/mp4', head, route, headers)
+        elif route in s.package.images:
             self.reply(200, s.package.images[route], 'image/jpeg', head, route)
         elif route == 'caption.txt':
             self.reply(200, s.package.caption.encode('utf-8'), 'text/plain; charset=utf-8', head, route)
@@ -249,7 +275,14 @@ def main():
     args = parser.parse_args()
     if args.ready_file.exists() or args.events_file.exists() or args.stop_file.exists():
         parser.error('Use new state paths; existing evidence is never overwritten.')
-    package = TransferPackage(args.package.read_bytes())
+    raw = args.package.read_bytes()
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        video = 'video.mp4' in archive.namelist()
+    if video:
+        from farm_video import VideoTransferPackage
+        package = VideoTransferPackage(raw)
+    else:
+        package = TransferPackage(raw)
     with args.events_file.open('x', encoding='utf-8') as events:
         def event(value):
             events.write(json.dumps(value) + '\n')
