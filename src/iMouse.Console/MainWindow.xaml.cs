@@ -211,9 +211,30 @@ public partial class MainWindow : Window
         DrawerHost.Margin = new Thickness(0, TopBar.ActualHeight, 0, 0);
         DrawerHost.Visibility = Visibility.Visible;
     }
+    private IMouse2.ConsoleApp.FarmAutomationWindow? _farmWindow;
     private void OpenControls_Click(object sender, RoutedEventArgs e) { ShowDrawer("Controls", ControlsPane); UpdateControls(); }
     private void OpenSettings_Click(object sender, RoutedEventArgs e) { ShowDrawer("Settings", SettingsPane); UpdateControls(); }
     private void OpenActivity_Click(object sender, RoutedEventArgs e) => ShowDrawer("Activity", ActivityPane);
+    private void OpenFarm_Click(object sender, RoutedEventArgs e)
+    {
+        if (_farmWindow is { IsLoaded: true })
+        {
+            _farmWindow.Activate();
+            return;
+        }
+
+        string rawAddress = AddressBox?.Text ?? "";
+        string kernelUrl = string.IsNullOrWhiteSpace(rawAddress) || rawAddress.Contains(":9911", StringComparison.Ordinal)
+            ? "http://127.0.0.1:9913/api"
+            : IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl(rawAddress);
+
+        _farmWindow = new IMouse2.ConsoleApp.FarmAutomationWindow("http://127.0.0.1:9914", kernelUrl)
+        {
+            Owner = this
+        };
+        _farmWindow.Closed += (_, _) => _farmWindow = null;
+        _farmWindow.Show();
+    }
     private void CloseDrawer_Click(object sender, RoutedEventArgs e) => DrawerHost.Visibility = Visibility.Collapsed;
     private void CloseDrawer_Click(object sender, MouseButtonEventArgs e) => DrawerHost.Visibility = Visibility.Collapsed;
 
@@ -320,6 +341,7 @@ public partial class MainWindow : Window
         // lives in Settings, where binding is done.
         SelectedDetails.Text = device is null ? ""
             : $"iOS {device.Os}   ·   {device.Ip}   ·   {device.VideoStatus}   ·   {device.ControlStatus}";
+        UpdateFarmSelectedHeader();
     }
 
     private void UpdateStatusBar()
@@ -553,6 +575,7 @@ public partial class MainWindow : Window
     {
         ReleaseCurrentGesture();
         PhoneImage.Source = null; _frame = null; _frameId = null; _frameAt = DateTime.MinValue;
+        if (FarmPhoneImage is not null) FarmPhoneImage.Source = null;
         _live.Reset(); _rate.Reset(); _jitter.Reset(); _frameEpoch++; _lastFrameAt = DateTime.MinValue; _lastDelivered = DateTime.MinValue; _idleStreak = 0; _errorStreak = 0;
         _previewFreshness.Reset(_frameEpoch);
         _responseTiming?.Reset(_frameEpoch);
@@ -782,6 +805,7 @@ public partial class MainWindow : Window
         if (_live.Present(frame))
         {
             if (!ReferenceEquals(PhoneImage.Source, _live.Source)) PhoneImage.Source = _live.Source;
+            SyncFarmPhoneImage();
             _responseTiming?.BitmapApplied(_frameEpoch, Selected?.Id ?? "", frame.PreviewStamp,
                 frame.Width, frame.Height, "pump");
             PreviewPlaceholder.Visibility = Visibility.Collapsed;
@@ -841,6 +865,7 @@ public partial class MainWindow : Window
                 if (_live.Present(prepared))
                 {
                     if (!ReferenceEquals(PhoneImage.Source, _live.Source)) PhoneImage.Source = _live.Source;
+                    SyncFarmPhoneImage();
                     _responseTiming?.BitmapApplied(epoch, device.Id, stamp, prepared.Width, prepared.Height, "manual");
                 }
                 _live.Recycle(prepared);
@@ -851,6 +876,7 @@ public partial class MainWindow : Window
                 var decoded = new BitmapImage();
                 decoded.BeginInit(); decoded.CacheOption = BitmapCacheOption.OnLoad; decoded.StreamSource = stream; decoded.EndInit(); decoded.Freeze();
                 PhoneImage.Source = decoded;
+                SyncFarmPhoneImage();
                 _responseTiming?.BitmapApplied(epoch, device.Id, stamp, decoded.PixelWidth, decoded.PixelHeight, "manual_decoded");
             }
             _previewFreshness.Presented(stamp);
@@ -2737,6 +2763,9 @@ public partial class MainWindow : Window
         ShowDrawer("Controls", ControlsPane);
         bool stopReachable = Hits(StopInputButton);
         Check("Stop input takes the first click while the Send text drawer is open" + (stopReachable ? "" : hitDetail), stopReachable);
+        bool farmReachable = Hits(FarmTabButton);
+        Check("Farm button is reachable in the top bar while a drawer is open" + (farmReachable ? "" : hitDetail),
+            farmReachable && Equals(FarmTabButton.Content, "Marketing Farm (Test Tab)"));
         CloseDrawer_Click(this, new RoutedEventArgs());
         Check("Stop button tooltip lists master and all checked phones",
             StopInputButton.ToolTip.ToString()!.Contains("Test phone 01") &&

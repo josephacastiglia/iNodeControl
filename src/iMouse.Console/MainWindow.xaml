@@ -19,9 +19,14 @@
             <TextBlock Text=" 2.0" FontSize="16" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
           </StackPanel>
           <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="18,0,0,0" VerticalAlignment="Center">
+            <Button x:Name="RackViewTabButton" Content="Rack View" Click="RackViewTab_Click" Margin="0,0,4,0" MinHeight="28" Padding="12,5"
+                    Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}"/>
+            <Button x:Name="FarmTabButton" Content="Marketing Farm (Test Tab)" Click="FarmTab_Click" Margin="0,0,8,0" MinHeight="28" Padding="12,5"
+                    ToolTip="Switch to 19-iPhone Marketing Farm &amp; Social Automation Test Tab"/>
+            <Rectangle Width="1" Height="20" Fill="{DynamicResource EdgeBrush}" Margin="4,0,8,0"/>
             <Button x:Name="ControlsButton" Content="Controls" Click="OpenControls_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
             <Button x:Name="SettingsButton" Content="Settings" Click="OpenSettings_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
-            <Button x:Name="ActivityButton" Content="Activity" Click="OpenActivity_Click" MinHeight="28" Padding="12,5"/>
+            <Button x:Name="ActivityButton" Content="Activity" Click="OpenActivity_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
             <Button x:Name="StopInputButton" Content="Stop input" Click="StopInput_Click" Margin="8,0,4,0" Foreground="#C62828" ToolTip="Stop input on the selected phone and enabled followers; video continues"/>
             <Button x:Name="ResumeInputButton" Content="Resume input" Click="ResumeInput_Click" ToolTip="Explicitly allow new input after cleanup"/>
           </StackPanel>
@@ -48,7 +53,7 @@
            the Large screen slider says, and the small screens flow to its right and wrap,
            the way the original console lays them out. The whole surface scrolls, so the
            master can be pushed past the window and panned. -->
-      <Grid Grid.Row="1" Margin="10">
+      <Grid x:Name="RackViewSurface" Grid.Row="1" Margin="10">
         <Grid.ColumnDefinitions>
           <ColumnDefinition x:Name="DeviceColumn" Width="212" MinWidth="0"/>
           <ColumnDefinition Width="8"/>
@@ -240,6 +245,129 @@
                 </StackPanel>
               </Grid>
             </ScrollViewer>
+          </Grid>
+        </Border>
+      </Grid>
+      <!-- ================= Marketing Farm Test Tab ================= -->
+      <Grid x:Name="FarmViewSurface" Grid.Row="1" Margin="10" Visibility="Collapsed">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="300" MinWidth="260"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="380" MinWidth="320"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 1. Left Column: Live Screen & Jitter Touch Inspector -->
+        <Border Grid.Column="0" Style="{StaticResource Panel}" Padding="10" Margin="0,0,8,0">
+          <DockPanel LastChildFill="True">
+            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+              <TextBlock x:Name="FarmSelectedPhoneText" Text="Select an iPhone" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis"/>
+              <TextBlock x:Name="FarmMirrorBadge" Text="○ Offline" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,2,0,0"/>
+              <TextBlock x:Name="FarmExecutionModeText" Text="Automation mode: not checked" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+              <Border Background="{DynamicResource TargetBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="5" Padding="8,6" Margin="0,0,0,6">
+                <StackPanel>
+                  <TextBlock Text="LAST CONFIRMED TAP" Style="{StaticResource SectionLabel}" Margin="0,0,0,3"/>
+                  <TextBlock x:Name="FarmLastCoordText" Text="(---, ---)" FontWeight="SemiBold" FontSize="12"/>
+                  <TextBlock x:Name="FarmLastApproachText" Text="Exact selected point" Style="{StaticResource Muted}" FontSize="10.5"/>
+                  <TextBlock x:Name="FarmLastDwellText" Text="No tap sent" Style="{StaticResource Muted}" FontSize="10.5"/>
+                </StackPanel>
+              </Border>
+              <TextBlock Text="Manual preview controls the real C24C" Style="{StaticResource Muted}" FontSize="10"/>
+            </StackPanel>
+
+            <Border Background="{DynamicResource StageBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="8" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Grid Width="250" Height="540">
+                <Image x:Name="FarmPhoneImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
+                <Canvas x:Name="FarmTapCanvas" Background="#01000000" MouseLeftButtonDown="FarmPreview_Down" Cursor="Cross" ToolTip="Tap the selected C24C at the exact point shown; margins are ignored"/>
+              </Grid>
+            </Border>
+          </DockPanel>
+        </Border>
+
+        <!-- 2. Middle Column: 1-Click Pipeline, Actions & Phone Wall Cards -->
+        <Border Grid.Column="1" Style="{StaticResource Panel}" Padding="12" Margin="0,0,8,0">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Action Buttons Strip -->
+            <WrapPanel Grid.Row="0" Margin="0,0,0,10">
+              <Button Content="Create content only" Click="FarmCreateContent_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="Review content" Click="FarmOpenContent_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="Check job" Click="FarmCheckJob_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="Resume simulation" Click="FarmResumeSimulation_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="Create &amp; deploy C24C" Click="FarmAutoCreate_Click" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}" MinHeight="30" Padding="10,5"/>
+              <Button Content="Run C24C warmup" Click="FarmCohortWarmup_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="Preview schedule" Click="FarmSchedulerTick_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="Check keyword replies" Click="FarmFunnel_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="🔍 Test C24C Spotlight &amp; Notes" Click="FarmSpotlightTest_Click" MinHeight="30" Padding="10,5" ToolTip="Runs live Spotlight Search pill click &amp; types Notes"/>
+              <Button Content="Stop C24C + cancel job" Click="FarmEmergencyStop_Click" Foreground="#C62828" MinHeight="30" Padding="10,5"/>
+            </WrapPanel>
+
+            <!-- 5-Stage Pipeline Indicator Strip -->
+            <Border Grid.Row="1" Background="{DynamicResource TargetBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,0,0,10">
+              <UniformGrid Columns="5">
+                <StackPanel Margin="4,0"><TextBlock Text="1. DRAFT STUDIO" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Local templates" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
+                <StackPanel Margin="4,0"><TextBlock Text="2. ASSETS" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="JPEG + MP4" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
+                <StackPanel Margin="4,0"><TextBlock Text="3. REVIEW" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Preview before use" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
+                <StackPanel Margin="4,0"><TextBlock Text="4. KERNEL 9913" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Scoped input" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
+                <StackPanel Margin="4,0"><TextBlock Text="5. REPLIES" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Observation required" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
+              </UniformGrid>
+            </Border>
+
+            <!-- Phone Wall Cards List -->
+            <DockPanel Grid.Row="2" LastChildFill="True">
+              <TextBlock DockPanel.Dock="Top" Text="MARKETING PROFILES · ONLY C24C ENABLED FOR TESTING" Style="{StaticResource SectionLabel}" Margin="0,0,0,6"/>
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="FarmPhoneListPanel"/>
+              </ScrollViewer>
+            </DockPanel>
+          </Grid>
+        </Border>
+
+        <!-- 3. Right Column: Persona Profile, Content Slate & Live RPC Log -->
+        <Border Grid.Column="2" Style="{StaticResource Panel}" Padding="12">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Persona Profile Editor -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,8">
+              <TextBlock Text="C24C MARKETING PROFILE" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
+              <TextBlock Text="Niche / Offer Title:" FontSize="11" Style="{StaticResource Muted}"/>
+              <TextBox x:Name="FarmNicheBox" Text="AI Workflow &amp; SaaS Clips" MinHeight="26" Margin="0,2,0,6" FontSize="12"/>
+              <TextBlock Text="CTA Keyword Trigger:" FontSize="11" Style="{StaticResource Muted}"/>
+              <TextBox x:Name="FarmKeywordBox" Text="SYSTEM" MinHeight="26" Margin="0,2,0,6" FontSize="12"/>
+              <Button Content="Save C24C profile" Click="FarmSavePersona_Click" MinHeight="26" Margin="0,0,0,6"/>
+            </StackPanel>
+
+            <!-- Content Slate Actions -->
+            <StackPanel Grid.Row="1" Margin="0,0,0,8">
+              <TextBlock Text="1-CLICK CONTENT DEPLOY SLATE" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
+              <UniformGrid Columns="2" Margin="0,0,0,4">
+                <Button Content="🖼️ IG Carousel (4:5)" Tag="instagram|ig_carousel" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
+                <Button Content="🎵 TikTok Video" Tag="tiktok|tt_video" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
+              </UniformGrid>
+              <UniformGrid Columns="2">
+                <Button Content="𝕏 Video" Tag="x|x_video" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
+                <Button Content="▶️ YouTube Short" Tag="youtube|yt_short" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
+              </UniformGrid>
+            </StackPanel>
+
+            <!-- Live Kernel JSON-RPC & Activity Log -->
+            <DockPanel Grid.Row="2" LastChildFill="True">
+              <TextBlock DockPanel.Dock="Top" Text="JOB STATUS &amp; ACTIVITY" Style="{StaticResource SectionLabel}" Margin="0,4,0,4"/>
+              <TextBox x:Name="FarmLogBox" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LogBrush}"
+                       Foreground="{DynamicResource TextBrush}" FontFamily="Consolas" FontSize="10.5" TextWrapping="Wrap"/>
+            </DockPanel>
           </Grid>
         </Border>
       </Grid>

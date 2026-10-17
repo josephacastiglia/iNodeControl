@@ -629,9 +629,39 @@ public static class SelfTests
         await DragInputTests.RunAsync(Check);
         await ConnectionCleanupTests.RunAsync(Check);
         await MainWindow.CheckConnectionLifecycleAsync(Check);
+        RunFarmAutomationWindowTests(Check);
+        await FarmApiTests.RunAsync(Check);
+        await MainWindow.CheckFarmHeadlessAsync(Check);
 
         var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
         File.WriteAllText(Path.Combine(qa, "self-tests.json"), JsonSerializer.Serialize(new { passed = passed.Count, tests = passed, allCommandsUsedMockTransport = true, at = DateTime.Now }, new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    private static void RunFarmAutomationWindowTests(Action<string, bool> check)
+    {
+        check("Farm controls accept the explicit C24C identity",
+            FarmTargetPolicy.IsC24C("C24C") && FarmTargetPolicy.IsC24C(FarmTargetPolicy.DeviceId.ToLowerInvariant()));
+        check("Farm controls refuse protected, unknown and grouped identities",
+            new string?[] { null, "", "C241", "FE:A9:BC:D7:A0:44", "RACK-03", "XR C24C", "C24C,C241" }
+                .All(id => !FarmTargetPolicy.IsC24C(id)));
+        check("FarmAutomationWindow normalizes kernel address to /api on port 9913",
+            IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl("localhost:9913") == "http://localhost:9913/api" &&
+            IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl(null) == "http://127.0.0.1:9913/api");
+
+        bool refused9911 = false;
+        try { _ = IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl("http://127.0.0.1:9911"); }
+        catch (InvalidOperationException) { refused9911 = true; }
+        check("FarmAutomationWindow refuses vendor port 9911", refused9911);
+
+        string? resolvedScript = IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath();
+        check("FarmAutomationWindow resolves tools/imouse_farm_server.py from parent directories",
+            !string.IsNullOrWhiteSpace(resolvedScript) && File.Exists(resolvedScript));
+
+        var farmWin = new IMouse2.ConsoleApp.FarmAutomationWindow("http://127.0.0.1:9914", "http://127.0.0.1:9913/api");
+        check("FarmAutomationWindow constructs layout offline with port 9913 and 9914 endpoints",
+            farmWin.FarmServerUrl == "http://127.0.0.1:9914" &&
+            farmWin.KernelApiUrl == "http://127.0.0.1:9913/api" &&
+            farmWin.Content is not null);
     }
 
     public static async Task RunOwnershipTestsAsync(List<string> passed)
