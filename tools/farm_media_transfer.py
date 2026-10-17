@@ -17,6 +17,8 @@ import json
 from pathlib import Path
 import secrets
 import socket
+import sys
+import threading
 import time
 from urllib.parse import urlsplit
 import zipfile
@@ -125,6 +127,8 @@ class MediaTransferServer(HTTPServer):
         self.nonce = secrets.token_urlsafe(24)
         self.on_event = on_event or (lambda event: None)
         self.served_images = set()
+        self.connections = {}
+        self.connection_lock = threading.Lock()
         super().__init__((bind, port), TransferHandler)
         self.timeout = 0.5
         self.authority = f'{bind}:{self.server_port}'
@@ -139,7 +143,38 @@ class MediaTransferServer(HTTPServer):
     def get_request(self):
         connection, address = super().get_request()
         connection.settimeout(2)
+        # A trickle of header bytes must not keep a transfer alive past expiry.
+        timer = threading.Timer(max(0.01, min(3, self.deadline - self.clock())), self._close_connection, args=(connection,))
+        timer.daemon = True
+        with self.connection_lock:
+            self.connections[connection] = timer
+        timer.start()
         return connection, address
+
+    @staticmethod
+    def _close_connection(connection):
+        try:
+            connection.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+        connection.close()
+
+    def shutdown_request(self, request):
+        with self.connection_lock:
+            timer = self.connections.pop(request, None)
+        if timer:
+            timer.cancel()
+        super().shutdown_request(request)
+
+    def close_clients(self):
+        with self.connection_lock:
+            connections = list(self.connections)
+        for connection in connections:
+            self._close_connection(connection)
+
+    def handle_error(self, request, client_address):
+        if not isinstance(sys.exc_info()[1], OSError):
+            super().handle_error(request, client_address)
 
 
 class TransferHandler(BaseHTTPRequestHandler):

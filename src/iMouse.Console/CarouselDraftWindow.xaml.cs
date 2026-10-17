@@ -161,7 +161,7 @@ public partial class CarouselDraftWindow : Window
         });
         Apply(CarouselDraft.Read(result));
         PersistEdits();
-        StatusText.Text = $"Saved on this PC · revision {_draft.Revision} · not saved in Instagram.";
+        StatusText.Text = $"Saved on this PC · revision {_draft.Revision} · Instagram save not verified.";
         await RefreshLibraryAsync();
     }
 
@@ -282,5 +282,14 @@ public partial class CarouselDraftWindow : Window
             SettingsPersistence.WriteAtomic(picker.FileName, Convert.FromBase64String(result.GetProperty("content").GetString()!));
             StatusText.Text = "Exported ordered slides, caption, review page and checksums. Not uploaded or saved in Instagram.";
         });
+    }
+
+    private async void Transfer_Click(object sender, RoutedEventArgs e)
+    {
+        if (_busy || _draft is null) return;
+        CarouselDraft? saved = null;
+        await RunAsync(async () => { await SaveAsync(); saved = _draft; });
+        if (saved is not null)
+            new CarouselTransferWindow(_api, saved) { Owner = this }.ShowDialog();
     }
 }

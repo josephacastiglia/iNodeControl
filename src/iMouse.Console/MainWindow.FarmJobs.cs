@@ -81,6 +81,11 @@ public partial class MainWindow
 
     private bool _farmPolling;
     private CarouselDraftWindow? _carouselWindow;
+    private async void FarmReadiness_Click(object sender, RoutedEventArgs e)
+    {
+        try { new FarmReadinessWindow(await FarmApi.SendAsync("/api/farm/capabilities")) { Owner = this }.ShowDialog(); }
+        catch (Exception ex) { AppendFarmLog("Feature readiness unavailable: " + ex.Message); }
+    }
     private async void FarmCarouselDraft_Click(object sender, RoutedEventArgs e)
     {
         try

@@ -42,11 +42,12 @@
           <TextBlock Text="Caption"/>
           <TextBox x:Name="CaptionBox" TextChanged="Edit_Changed" AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" Height="180" Margin="0,4,0,4"/>
           <TextBlock x:Name="CaptionCount" Text="0 / 2200"/>
-          <TextBlock Text="This candidate supports 2–10 JPEG/PNG slides, up to 8 MiB each. Caption text is kept in full; phone transfer is not yet validated." TextWrapping="Wrap" Margin="0,12,0,0"/>
+          <TextBlock Text="2–10 JPEG/PNG slides, up to 8 MiB each. Captions are kept in full. Transfer shares this saved revision with C24C; saving inside Instagram requires review on the phone." TextWrapping="Wrap" Margin="0,12,0,0"/>
           <TextBlock x:Name="ValidationText" TextWrapping="Wrap" Margin="0,12,0,0"/>
           <WrapPanel Margin="0,16,0,0">
             <Button Content="Save draft" Click="Save_Click" Padding="12,8"/>
             <Button Content="Export review package…" Click="Export_Click" Padding="12,8"/>
+            <Button Content="Transfer to C24C…" Click="Transfer_Click" Padding="12,8"/>
           </WrapPanel>
         </StackPanel>
       </ScrollViewer>

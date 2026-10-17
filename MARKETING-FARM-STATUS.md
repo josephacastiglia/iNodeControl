@@ -1,6 +1,16 @@
 # Marketing Farm candidate — 17 October 2026
 
-## Latest: C24C Instagram draft saved and reopened
+## Latest candidate: native transfer controls and acceptance audit
+
+The new separate build is `output/codex-farm-transfer-20261017`, DLL SHA-256 `81dd034a5910edd95b0fec8bc92a6f1e6df5236def7569c7def0b1274472a591`. **149 Python tests and 459 native headless checks pass**, with a clean Release build. The candidate launcher now points here; installed shortcuts and release files are unchanged.
+
+The carousel editor has **Transfer to C24C** controls for an expiring media link, delivered-image counts, status recovery and Stop. Sessions keep the selected revision immutable, survive lost responses without replay, close on expiry and never restart automatically after a backend restart. The native tab also shows **Feature readiness**. These controls were tested headlessly and through loopback HTTP; the earlier successful phone draft test used the separate media tool.
+
+The broader audit corrected phase-one warmup planning, date-specific daily upload budgets, and analytics that could mislabel lifetime counts as 24-hour views or silently clear a pause. Timestamped, account-specific submitted observations are now required for low-view evaluation; automatic observation extraction remains unavailable.
+
+**Full marketing acceptance remains open.** Other platform workflows, recurring live schedules, automatic observations, publishing and messaging are not established by the passing simulations. See **[MARKETING-FARM-ACCEPTANCE.md](MARKETING-FARM-ACCEPTANCE.md)** for exact use limits, criteria and remaining work; `analysis/farm-native-transfer-20261017/README.md` records this pass. The older sections below are historical evidence, not a claim that every feature is ready.
+
+## Earlier live evidence: C24C Instagram draft saved and reopened
 
 The follow-up media-transfer test **passed on one C24C account designated by the operator**. Three clearly numbered test slides were served from a temporary media-only LAN server, saved in Photos, selected in Instagram as 1 → 2 → 3, and saved using Instagram's **Save draft** option. Reopening that draft preserved all three images and the exact three-line caption, including spaces. The phone was left showing the saved draft in the Drafts library. Nothing was published.
 

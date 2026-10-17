@@ -791,8 +791,8 @@ class FarmDatabase:
                 out.append(d)
             return out
 
-    def get_uploads_today_count(self, device_id: str) -> int:
-        today_prefix = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    def get_uploads_today_count(self, device_id: str, now_epoch: Optional[float] = None) -> int:
+        today_prefix = datetime.fromtimestamp(time.time() if now_epoch is None else now_epoch, timezone.utc).strftime("%Y-%m-%d")
         with self._lock, self._connect() as conn:
             row = conn.execute(
                 "SELECT COUNT(*) AS c FROM upload_logs WHERE device_id = ? AND created_at LIKE ?",
@@ -2838,7 +2838,7 @@ class BackgroundCohortScheduler:
         now_ts = now_epoch if now_epoch is not None else time.time()
         persona = self.db.get_persona(device_id)
         phase = AccountWarmupEngine.get_phase_for_day(int(persona["account_day"]))
-        uploads_today = self.db.get_uploads_today_count(device_id)
+        uploads_today = self.db.get_uploads_today_count(device_id, now_ts)
         last_warmup = float(persona.get("last_warmup_epoch") or 0.0)
         req_hours = self.required_cooldown_hours(device_id)
         req_sec = req_hours * 3600.0
@@ -2915,7 +2915,7 @@ class BackgroundCohortScheduler:
             dev_id = p["device_id"]
             readiness = self.evaluate_device_upload_readiness(dev_id, now_epoch=now_epoch)
             executed = False
-            if readiness["status"] == "needs_warmup_first":
+            if readiness["status"] in ("needs_warmup_first", "blocked_phase1_warmup_only"):
                 planned = "run_warmup"
                 if execute_actions and self.warmup_engine is not None:
                     self.warmup_engine.run_warmup_session(
@@ -3193,9 +3193,8 @@ class ConversionFunnelEngine:
 
 class ShadowbanGuardAndDiagnostics:
     """
-    Scrapes profile-grid view velocity across the rack and trips the 3-5 Clip
-    Zero-View Circuit Breaker (`paused_zero_view = 1`) on any phone that records
-    <= 5 views across 3 consecutive clips after 24 hours.
+    Reviews submitted low-view observations. Counts alone cannot establish post
+    age or diagnose a platform restriction. A review can pause work, never resume it.
     """
 
     def __init__(
@@ -3223,31 +3222,77 @@ class ShadowbanGuardAndDiagnostics:
 
     def evaluate_device_views(self, device_id: str, recent_clip_views: Sequence[int]) -> Dict[str, Any]:
         persona = self.db.get_persona(device_id)
-        if persona["account_day"] <= 3:
-            return {"deviceId": device_id, "status": "warmup_phase_1", "paused": False}
+        if not isinstance(recent_clip_views, (list, tuple)) or any(type(v) is not int or v < 0 for v in recent_clip_views):
+            raise ValueError("View counts must be nonnegative integers.")
+        return {"deviceId": device_id, "status": "observation_incomplete", "recentClipViews": list(recent_clip_views),
+                "paused": bool(persona["paused_zero_view"]),
+                "reason": "Counts have no post IDs, account or timestamps. Existing pause and analytics values were preserved."}
 
-        zero_streak = sum(1 for v in recent_clip_views[-3:] if v <= 5)
-        tripped = len(recent_clip_views) >= 3 and zero_streak >= 3
-        total_24h = sum(recent_clip_views)
+    def evaluate_observations(self, device_id: str, observations: list, now_epoch: Optional[float] = None) -> Dict[str, Any]:
+        """Evaluate the newest three submitted posts, retaining the source records.
 
+        This is operator-supplied evidence, not a claim of automatic OCR or a
+        verified platform ban. Lifetime counts are never labelled 24-hour views.
+        """
+        import math
+        import re
+        import uuid
+        now = time.time() if now_epoch is None else now_epoch
+        persona = self.db.get_persona(device_id)
+        if not isinstance(observations, list) or not 3 <= len(observations) <= 20:
+            raise ValueError("Submit 3–20 distinct post observations with their account and timestamps.")
+        rows, keys, identities = [], set(), set()
+        for item in observations:
+            if not isinstance(item, dict):
+                raise ValueError("Each observation must be an object.")
+            post, account, platform = item.get('post_id'), item.get('account'), item.get('platform')
+            if (not isinstance(post, str) or not post.strip() or len(post) > 200 or post in keys
+                    or not isinstance(account, str) or not re.fullmatch(r'@?[A-Za-z0-9_.]{1,30}', account)
+                    or platform not in {p.value for p in Platform}):
+                raise ValueError("Use unique post IDs and one valid account/platform.")
+            keys.add(post); identities.add((platform, account.removeprefix('@').lower()))
+            views = item.get('views')
+            if type(views) is not int or not 0 <= views <= 10**12:
+                raise ValueError("Views must be a nonnegative integer.")
+            times = []
+            for field in ('published_at', 'observed_at'):
+                try:
+                    stamp = datetime.fromisoformat(item[field].replace('Z', '+00:00'))
+                    if stamp.tzinfo is None:
+                        raise ValueError('Missing timezone')
+                    value = stamp.timestamp()
+                    if not math.isfinite(value) or value > now + 5:
+                        raise ValueError('Future timestamp')
+                    times.append(value)
+                except (KeyError, AttributeError, TypeError, ValueError, OverflowError) as exc:
+                    raise ValueError("Use valid timezone-qualified post/observation timestamps, not future dates.") from exc
+            published, observed = times
+            if observed < published:
+                raise ValueError("An observation cannot precede its post.")
+            rows.append((published, observed, views, dict(item)))
+        if len(identities) != 1:
+            raise ValueError("Do not combine observations from different accounts or platforms.")
+        rows.sort(key=lambda row: row[0], reverse=True)
+        recent = rows[:3]
+        if any(observed - published < 86400 or now - observed > 86400 for published, observed, _, _ in recent):
+            return {"deviceId": device_id, "status": "observation_incomplete", "paused": bool(persona['paused_zero_view']),
+                    "reason": "The newest three submitted posts need observations made after 24 hours, each captured within the last 24 hours. Existing data was preserved."}
+        streak = 0
+        for _, _, views, _ in recent:
+            if views > 5:
+                break
+            streak += 1
+        tripped = streak == 3 and persona['account_day'] > 3
+        evidence_id = str(uuid.uuid4())
         with self.db._lock, self.db._connect() as conn:
-            conn.execute(
-                """
-                UPDATE personas
-                SET paused_zero_view = ?, consecutive_zero_views = ?, views_24h = ?
-                WHERE device_id = ?
-                """,
-                (1 if tripped else 0, zero_streak, total_24h, device_id),
-            )
-            conn.commit()
-
-        return {
-            "deviceId": device_id,
-            "recentClipViews": list(recent_clip_views),
-            "zeroViewStreak": zero_streak,
-            "circuitBreakerTripped": tripped,
-            "views24h": total_24h,
-        }
+            conn.execute('CREATE TABLE IF NOT EXISTS analytics_observations (id TEXT PRIMARY KEY, device_id TEXT NOT NULL, observed_json TEXT NOT NULL, evaluated_at TEXT NOT NULL)')
+            conn.execute('INSERT INTO analytics_observations VALUES (?,?,?,?)', (evidence_id, device_id, json.dumps([row[3] for row in rows]), datetime.fromtimestamp(now, timezone.utc).isoformat()))
+            # Never clear a previous pause from improved counts; an operator must review it.
+            conn.execute('UPDATE personas SET paused_zero_view = CASE WHEN ? THEN 1 ELSE paused_zero_view END, consecutive_zero_views = ? WHERE device_id = ?', (tripped, streak, device_id))
+        return {"deviceId": device_id, "status": "low_views_observed" if tripped else "reviewed_observations",
+                "source": "operator_submitted", "evidenceId": evidence_id, "zeroViewStreak": streak,
+                "circuitBreakerTripped": tripped, "paused": bool(tripped or persona['paused_zero_view']),
+                "observedViewsTotal": sum(row[2] for row in rows), "platformRestrictionConfirmed": False}
 
 
 # ============================================================================
@@ -3522,7 +3567,12 @@ def _self_check(test_root: Path) -> None:
     guard = ShadowbanGuardAndDiagnostics(kernel=kernel, db=db, vision=vision)
     scan_res = guard.scan_device_profile_views("C24C")
     assert scan_res["recentClipViews"] == [] and scan_res["status"] == "observation_unavailable"
-    trip_res = guard.evaluate_device_views("RACK-12", [0, 2, 0])
+    observed = time.time()
+    trip_res = guard.evaluate_observations("RACK-12", [
+        {'post_id': f'offline-{i}', 'account': 'test', 'platform': 'tiktok', 'views': views,
+         'published_at': datetime.fromtimestamp(observed - (i + 2) * 86400, timezone.utc).isoformat(),
+         'observed_at': datetime.fromtimestamp(observed, timezone.utc).isoformat()}
+        for i, views in enumerate([0, 2, 0])])
     assert trip_res["circuitBreakerTripped"] is True
     try:
         orchestrator.execute_upload(

@@ -147,7 +147,7 @@ class CarouselDrafts:
         if any(s["upscaled"] for s in slides):
             warnings_list.append("Some source images are small; check sharpness in the preview.")
         if len(document["caption"]) > 200 or any(ord(c) > 126 for c in document["caption"]):
-            warnings_list.append("Caption preserved in full. The current phone typing path cannot send this caption; transfer remains unvalidated.")
+            warnings_list.append("Caption preserved in full. The current phone typing path cannot send this caption; use the transfer page's copy button and verify the pasted text in Instagram.")
         else:
             warnings_list.append("Phone typing, including first-space handling, still requires live validation.")
         result.update(slides=slides, validation={"errors": errors, "warnings": warnings_list},

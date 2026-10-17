@@ -1,0 +1,34 @@
+"""Product availability, separate from job success or low-level command replies."""
+
+
+def capabilities():
+    return {
+        'allMarketingFeaturesAccepted': False,
+        'liveAutomationReady': False,
+        'features': [
+            {'id': 'profiles', 'name': 'C24C profile editing', 'availability': 'Local candidate',
+             'detail': 'Validated local storage. Other rack cards are profiles until phone identity is verified.'},
+            {'id': 'content', 'name': 'Image and video creation', 'availability': 'Local candidate',
+             'detail': 'Local templates produce JPEGs, MP4 and checksums. No external AI service is configured.'},
+            {'id': 'carousel', 'name': 'Instagram carousel editor', 'availability': 'Local candidate',
+             'detail': 'Save, reorder, preview, recover edits and export 2–10 images with the full caption.'},
+            {'id': 'transfer', 'name': 'Carousel transfer to C24C', 'availability': 'Phone review required',
+             'detail': 'Expiring media link with start, status and stop. Delivery alone does not confirm a Photos or Instagram save.'},
+            {'id': 'instagram-draft', 'name': 'Save an Instagram draft', 'availability': 'Supervised test passed',
+             'detail': 'One C24C test saved and reopened three slides with the complete caption. The automatic phone workflow is not accepted.'},
+            {'id': 'jobs', 'name': 'Job cancellation and recovery', 'availability': 'Simulation tested',
+             'detail': 'Durable request IDs, Stop and recovery without automatic replay. Live app workflow acceptance remains open.'},
+            {'id': 'formats', 'name': 'Instagram, TikTok, X and YouTube automation', 'availability': 'Simulation only',
+             'detail': 'All 14 format paths are checked with mock transport. Real account, media and app-state checks are still required.'},
+            {'id': 'warmup', 'name': 'Account warmup', 'availability': 'Simulation only',
+             'detail': 'Cancellation and phase rules are tested. No claim of improved account standing; live activity is not enabled.'},
+            {'id': 'schedule', 'name': 'Schedule preview', 'availability': 'Preview available',
+             'detail': 'Shows cooldown, UTC daily budget and planned actions. No recurring live publishing service is running.'},
+            {'id': 'analytics', 'name': 'View-count review', 'availability': 'Submitted evidence only',
+             'detail': 'Requires post identity, account and timestamps. Low views can pause work, never automatically resume it or prove a platform restriction. Automatic reading is unavailable.'},
+            {'id': 'replies', 'name': 'Keyword replies and messages', 'availability': 'Unavailable',
+             'detail': 'Needs verified observations, recipient selection and an approved live messaging test. No messages are sent.'},
+            {'id': 'publish', 'name': 'Automatic publishing and promotion', 'availability': 'Unavailable',
+             'detail': 'Publishing is outside this test scope. A draft save and a simulated job do not establish publication acceptance.'},
+        ],
+    }

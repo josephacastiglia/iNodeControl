@@ -300,6 +300,7 @@
               <Button Content="Create content only" Click="FarmCreateContent_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Review content" Click="FarmOpenContent_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Instagram carousel drafts" Click="FarmCarouselDraft_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="Feature readiness" Click="FarmReadiness_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Check job" Click="FarmCheckJob_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Resume simulation" Click="FarmResumeSimulation_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Create &amp; deploy C24C" Click="FarmAutoCreate_Click" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}" MinHeight="30" Padding="10,5"/>
