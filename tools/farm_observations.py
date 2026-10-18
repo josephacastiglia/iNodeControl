@@ -235,6 +235,16 @@ class ObservationStore:
         if not row or row[0] is None: raise KeyError('Frame unavailable; older frames are pruned but review records remain.')
         return row[0]
 
+    def evidence(self, request_id):
+        """Immutable capture-time record and its paired review image, not current readiness."""
+        with self.connect() as db:
+            row = db.execute('SELECT document,frame FROM observations WHERE id=?', (str(uuid.UUID(request_id)),)).fetchone()
+        if not row or row[1] is None: raise KeyError('Observation image is missing or pruned; capture new evidence explicitly.')
+        value = json.loads(row[0])
+        if value.get('reviewFrameSha256') != hashlib.sha256(row[1]).hexdigest():
+            raise ValueError('Observation has no matching review-image checksum. Older records need a new explicit capture.')
+        return value, row[1]
+
     def capture(self, request, kernel):
         desired = expectations(request)
         request_id = str(uuid.UUID(request.get('id', '')))
@@ -277,9 +287,12 @@ class ObservationStore:
                 if not stable: result['reason'] = 'Phone ownership or receiver state changed during capture. Inspect again.'
                 value.update(state='observed', result=result, text=text, frameSha256=hashlib.sha256(raw).hexdigest(),
                              width=width, height=height, freshness=evidence['freshness'], frameEvidence=evidence, stable=stable, inputIdle=input_idle,
-                             reason=result['reason'], receiverPid=receiver.get('receiver_pid'))
+                             reason=result['reason'], receiverPid=receiver.get('receiver_pid'),
+                             inputGeneration=input_before.get('generation') if isinstance(input_before, dict) else None,
+                             resolvedDeviceId=resolved)
                 with Image.open(io.BytesIO(raw)) as image:
                     buffer = io.BytesIO(); image.convert('RGB').save(buffer, format='PNG'); frame = buffer.getvalue()
+                    value['reviewFrameSha256'] = hashlib.sha256(frame).hexdigest()
             except Exception as exc:
                 value.update(state='failed', reason=str(exc))
             finished = self.monotonic()

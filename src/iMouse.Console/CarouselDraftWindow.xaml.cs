@@ -176,6 +176,12 @@ public partial class CarouselDraftWindow : Window
     }
 
     private Task SaveBeforeLeavingAsync() => _dirty ? SaveAsync() : Task.CompletedTask;
+    private async void Verification_Click(object sender, RoutedEventArgs e) => await RunAsync(async () =>
+    {
+        if (_draft is null) throw new InvalidOperationException("Open a local draft first.");
+        await SaveBeforeLeavingAsync();
+        new FarmDraftVerificationWindow(_api, _draft.Id, _draft.Revision, _draft.Title) { Owner = this }.ShowDialog();
+    });
     private async void New_Click(object sender, RoutedEventArgs e) => await RunAsync(() => CreateAsync(false));
     private async void Generated_Click(object sender, RoutedEventArgs e) => await RunAsync(() => CreateAsync(true));
     private async void Save_Click(object sender, RoutedEventArgs e) => await RunAsync(SaveAsync);

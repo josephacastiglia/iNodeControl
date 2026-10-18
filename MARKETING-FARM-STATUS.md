@@ -1,6 +1,16 @@
-# Marketing Farm candidate — 17 October 2026
+# Marketing Farm candidate — 18 October 2026
 
-## Latest candidate: screen recognition and frame freshness
+## Latest candidate: account, media and reopened-draft evidence
+
+The separate candidate is `output/codex-farm-verification-20261018`, DLL SHA-256 `36c8645d0bebb5d92c928a2cce85e5970e8d7ae4056409b45edb4c6976b9c188`. **223 Python tests and 502 native headless checks pass**, with zero build warnings/errors. The candidate launcher points here. No rack API, desktop control, publishing, messaging or installed-release changes occurred this pass.
+
+The carousel editor now offers **Review phone evidence**. Select saved C24C account-before, prepared-slide, library, reopened-slide and account-after observations. The review compares the saved revision's media and exact visible multiline caption, records missing/ambiguous evidence, and retains the source package and screenshots with checksums. Lost responses retrieve the same review; later draft edits are flagged; retained images remain viewable after observation-history pruning.
+
+Saved C24C images matched the exact profile handle, first slide and three-line caption before/after reopening. The actual library thumbnail remains below the match requirements. Other slide views, account-after and paired freshness evidence are missing from that historical sequence, so it is **not a complete verification pass**. The comparison is initially limited to the tested Instagram carousel layout; other formats remain unverified.
+
+Even a complete visual comparison does not prove uninterrupted account continuity, media byte identity, carousel navigation order or that Instagram saved a new draft. No result enables input or changes a local draft to saved-in-Instagram. Those acceptance checks and real-stream freshness remain open. See [the report](analysis/farm-verification-20261018/README.md) and [acceptance record](MARKETING-FARM-ACCEPTANCE.md).
+
+## Earlier candidate: screen recognition and frame freshness
 
 The separate candidate is `output/codex-farm-recognition-20261017`, DLL SHA-256 `f9ee7b384d7f62d022238cf557b6276acdca347eb16138e36aa04b7c6a469392`. **208 Python tests, 494 native headless checks and 34 frame tests pass**, plus the loopback screenshot transport test. The Release build has zero warnings/errors. The candidate launcher points here; the installed release and running services are unchanged.
 

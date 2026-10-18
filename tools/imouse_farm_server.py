@@ -48,6 +48,7 @@ from farm_transfers import CarouselTransfers, TransferConflict
 from farm_capabilities import capabilities
 from farm_video import VideoDrafts
 from farm_observations import ObservationStore
+from farm_draft_verification import DraftVerifications
 from farm_preparation_schedule import PreparationSchedule
 
 DEFAULT_HOST = "127.0.0.1"
@@ -96,7 +97,7 @@ class FarmBackendRuntime:
         self.operation_lock = threading.RLock()
         source = Path(__file__).resolve().parent
         import hashlib
-        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py"))).hexdigest()
+        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py"))).hexdigest()
         db_path = db_path or Path("output/farm-data/v2") / execution_mode / "imouse_farm.db"
         stage_root = stage_root or Path("output/media-stage/v2") / execution_mode
         self.calibration_path = db_path.parent / "ui-boxes.json"
@@ -107,6 +108,7 @@ class FarmBackendRuntime:
         self.drafts = CarouselDrafts(db_path.parent / "carousel-drafts.db", stage_root)
         self.videos = VideoDrafts(db_path.parent / "video-drafts.db", stage_root)
         self.observations = ObservationStore(db_path.parent / 'observations.db')
+        self.verifications = DraftVerifications(db_path.parent / 'draft-verifications.db', self.observations, self.drafts)
         self.transfers = CarouselTransfers(db_path.parent / "transfers.db", self.drafts, videos=self.videos)
         self.port = port
         self.lan_host_url = (engine.MediaPullOrchestrator.detect_host_lan_url(port=port)
@@ -308,7 +310,8 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         if RUNTIME is not None:
             payload = {**payload, "protocolVersion": 2, "executionMode": RUNTIME.execution_mode,
                        "simulated": (payload['observation'].get('source') == 'simulation') if 'observation' in payload
-                       else False if any(k in payload for k in ('transfer', 'draft', 'drafts', 'sources', 'observations', 'frame', 'preparationSchedule')) else RUNTIME.execution_mode == "simulate"}
+                       else payload['verification']['assessment']['source'] != 'phone' if 'verification' in payload
+                       else False if any(k in payload for k in ('transfer', 'draft', 'drafts', 'sources', 'observations', 'frame', 'preparationSchedule', 'verifications')) else RUNTIME.execution_mode == "simulate"}
         raw = json.dumps(payload, indent=2).encode("utf-8")
         self._send_bytes(status, "application/json; charset=utf-8", raw)
 
@@ -331,6 +334,22 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
 
         if path == '/api/farm/capabilities':
             self._send_json(200, capabilities())
+            return
+
+        if path == '/api/farm/draft-verifications' or path.startswith('/api/farm/draft-verifications/'):
+            if not self._transfer_access_allowed():
+                self._send_json(403, {'error': 'Draft evidence is local-only.'}); return
+            try:
+                if path == '/api/farm/draft-verifications':
+                    draft_id = urllib.parse.parse_qs(parsed.query).get('draft_id', [''])[0]
+                    self._send_json(200, {'verifications': RUNTIME.verifications.list(draft_id)})
+                elif '/frames/' in path:
+                    import base64
+                    parts = path.split('/')
+                    if len(parts) != 7 or parts[5] != 'frames': raise ValueError('Invalid review frame route.')
+                    self._send_json(200, {'frame': base64.b64encode(RUNTIME.verifications.frame(parts[4], parts[6])).decode('ascii')})
+                else: self._send_json(200, {'verification': RUNTIME.verifications.get(path.rsplit('/', 1)[-1])})
+            except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
             return
 
         if path == '/api/farm/preparation-schedule':
@@ -409,6 +428,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "carouselTransfersVersion": 1,
                     "videoDraftsVersion": 1,
                     "observationsVersion": 2,
+                    "draftVerificationVersion": 1,
                     "preparationScheduleVersion": 1,
                     "lanHostUrl": RUNTIME.lan_host_url,
                     "layersBuilt": 7,
@@ -494,7 +514,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/")
-        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule')) and not self._transfer_access_allowed():
+        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/draft-verifications')) and not self._transfer_access_allowed():
             self.close_connection = True
             self._send_json(403, {"error": "Media, observation and preparation controls are local-only."})
             return
@@ -544,6 +564,8 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
     def _dispatch_post(self, path: str, data: dict, raw_body: bytes) -> None:
         assert RUNTIME is not None
         data = dict(data)
+        if path == '/api/farm/draft-verifications':
+            self._send_json(200, {'verification': RUNTIME.verifications.create(data)}); return
         if path == '/api/farm/preparation-schedule':
             self._send_json(200, {'preparationSchedule': RUNTIME.preparation.configure(data)}); return
         if path == '/api/farm/preparation-schedule/pause':

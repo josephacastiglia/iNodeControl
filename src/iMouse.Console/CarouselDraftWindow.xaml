@@ -48,6 +48,7 @@
             <Button Content="Save draft" Click="Save_Click" Padding="12,8"/>
             <Button Content="Export review package…" Click="Export_Click" Padding="12,8"/>
             <Button Content="Transfer to C24C…" Click="Transfer_Click" Padding="12,8"/>
+            <Button Content="Review phone evidence…" Click="Verification_Click" Padding="12,8"/>
           </WrapPanel>
         </StackPanel>
       </ScrollViewer>
