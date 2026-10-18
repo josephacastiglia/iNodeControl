@@ -637,6 +637,7 @@ public static class SelfTests
         await VideoDraftWindow.CheckHeadlessAsync(Check);
         await FarmObservationWindow.CheckHeadlessAsync(Check);
         await FarmDraftVerificationWindow.CheckHeadlessAsync(Check);
+        await FarmDraftRehearsalWindow.CheckHeadlessAsync(Check);
         await FarmPreparationWindow.CheckHeadlessAsync(Check);
 
         var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);

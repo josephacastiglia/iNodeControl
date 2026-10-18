@@ -164,6 +164,19 @@ class CarouselInspections:
         # Cancellation of an already finished/unknown run never sends a phone command.
         return dict(id=run_id, cancellationRequested=event is not None)
 
+    def retain(self, record, value, frame):
+        """Atomically retain one immutable capture and its manifest for managed runs."""
+        observation_id = value['id']
+        digest = self.record_hash(value)
+        size = len(frame) + len(json.dumps(value).encode('utf-8'))
+        record['evidenceBytes'] += size
+        if record['evidenceBytes'] > 32 * 1024 * 1024: raise InspectionStopped('Inspection evidence exceeds 32 MiB.')
+        record['evidenceManifest'][observation_id] = dict(recordSha256=digest, frameSha256=value['reviewFrameSha256'])
+        with self.connect() as db:
+            db.execute('INSERT INTO frames VALUES (?,?,?,?)', (record['id'], observation_id, json.dumps(value), frame))
+            db.execute('UPDATE inspections SET document=? WHERE id=?', (json.dumps(record), record['id']))
+        return digest
+
     def capture(self, record, kernel, assets, index, owned=None, *, purpose='slide'):
         observation_id = str(uuid.uuid4())
         record['observationIds'].append(observation_id)
@@ -173,14 +186,7 @@ class CarouselInspections:
         value = self.observations.capture(request, kernel, owned_run=owned)
         if value.get('state') != 'observed': raise InspectionStopped('Screen observation failed; no further movement.')
         value, frame = self.observations.evidence(observation_id)
-        digest = self.record_hash(value)
-        size = len(frame) + len(json.dumps(value).encode('utf-8'))
-        record['evidenceBytes'] += size
-        if record['evidenceBytes'] > 32 * 1024 * 1024: raise InspectionStopped('Inspection evidence exceeds 32 MiB.')
-        record['evidenceManifest'][observation_id] = dict(recordSha256=digest, frameSha256=value['reviewFrameSha256'])
-        with self.connect() as db:
-            db.execute('INSERT INTO frames VALUES (?,?,?,?)', (record['id'], observation_id, json.dumps(value), frame))
-            db.execute('UPDATE inspections SET document=? WHERE id=?', (json.dumps(record), record['id']))
+        digest = self.retain(record, value, frame)
         if (value.get('freshness') != 'recent' or value.get('stable') is not True
                 or value.get('frameEvidence', {}).get('pairedMetadata') is not True):
             raise InspectionStopped('Recent paired frame evidence is missing or changed; no movement is allowed.')

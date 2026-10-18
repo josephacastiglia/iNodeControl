@@ -1,6 +1,16 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest candidate: fresh-frame decisions and evidence integrity
+## Latest candidate: offline draft save/reopen and recovery
+
+Candidate `output/codex-farm-save-reopen-20261018`, DLL SHA-256 `972d143b265c1d0ee2514d0320b88dfbaf05342c9d0d1941f8842f12010fea19`. **294 Python tests and 517 native headless checks pass**, with a clean Release build. The final recovery-specific checks cover the last cancellation/admission changes. This pass uses no phone input, rack API, PC control, publishing or messaging. Installed release files, shortcuts, kernel and receivers stay unchanged.
+
+The native carousel editor now offers **Offline recovery checks…**. It uses the selected revision's real images and caption in a synthetic app: check the account, every slide and caption, Save draft sheet, library cover, reopened slides/caption and final account. Nine scenarios cover success and interruptions. History and retained frames survive restarting; an uncertain response keeps its request ID and prevents a duplicate start while pending.
+
+Lost Save/reopen replies permit only a read-only reconciliation capture, then require review. Stop arriving before admission is persisted; a real child-process crash after a simulated Save leaves an unknown result without replay. Stale frames, dialogs, changed accounts, duplicate covers, wrong slides/captions and ownership replacement stop further actions. Cleanup must be confirmed for a passing result. Long captions that cannot be fully observed stay unresolved.
+
+**These are offline workflow checks, not live Instagram automation.** Generated screens and synthetic OCR annotations exercise the controller; there is no live action adapter or phone coordinate path. Real app persistence and continuous account identity remain unverified, and all live acceptance flags stay false. Actual Windows OCR recognized the archived C24C Save draft sheet, a development fixture. See [the implementation, evidence and remaining work](analysis/farm-save-reopen-20261018/README.md).
+
+## Earlier candidate: fresh-frame decisions and evidence integrity
 
 Candidate `output/codex-farm-action-evidence-20261018`, DLL SHA-256 `1a4eb3be8f66ae1e72f933b5256122d9c39572b440310f820eefd5b475f99283`. **271 Python tests and 505 native headless checks pass**, with a clean Release build. This pass was entirely offline: no rack API calls, desktop control, publication, messaging or installed-release changes.
 
