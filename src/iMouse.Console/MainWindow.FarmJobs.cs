@@ -63,7 +63,7 @@ public partial class MainWindow
             // If this response is lost, query the same ID. Never resubmit the action.
             submitted = true;
             try { await FarmApi.SendAsync("/api/farm/jobs", new { request_id = _farmJobId, action, payload }); }
-            catch (FarmRequestRejectedException) { submitted = false; throw; }
+            catch (FarmRequestRejectedException ex) when (ex.DefinitelyNotAccepted) { submitted = false; throw; }
             catch (Exception ex) { AppendFarmLog("Checking submission outcome: " + ex.Message); }
             await PollFarmJobAsync();
         }
@@ -86,9 +86,12 @@ public partial class MainWindow
         try
         {
             var health = await FarmApi.SendAsync("/health");
-            if (!health.TryGetProperty("preparationScheduleVersion", out var version) || version.GetInt32() != 1)
+            if (!health.TryGetProperty("preparationScheduleVersion", out var version) || version.GetInt32() != 2)
                 throw new InvalidOperationException("Start the updated candidate backend for local preparation schedules.");
-            new FarmPreparationWindow(FarmApi) { Owner = this }.ShowDialog();
+            string mode = health.GetProperty("executionMode").GetString() ?? "";
+            if (mode is not ("simulate" or "live")) throw new InvalidOperationException("Unknown backend mode.");
+            if (_carouselWindow is not null) { _carouselWindow.Activate(); throw new InvalidOperationException("Close the open carousel editor before reviewing scheduled drafts."); }
+            new FarmPreparationWindow(FarmApi, _dataPath, mode) { Owner = this }.ShowDialog();
         }
         catch (Exception ex) { AppendFarmLog("Preparation schedule: " + ex.Message); }
     }

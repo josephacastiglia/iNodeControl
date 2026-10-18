@@ -30,6 +30,15 @@ internal static class FarmApiTests
             catch (InvalidOperationException) { refused = true; }
             check(scenario.Item3, refused);
         }
+        foreach (var code in new[] { HttpStatusCode.InternalServerError, HttpStatusCode.BadGateway, HttpStatusCode.Conflict, HttpStatusCode.OK, HttpStatusCode.BadRequest })
+        {
+            using var client = new HttpClient(new Handler(code, "{\"error\":\"Submission response lost after acceptance\"}"));
+            bool preserve = false;
+            try { await new FarmApiClient(client, "http://job-test.invalid").SendAsync("/api/farm/jobs", new { request_id = Guid.NewGuid().ToString() }); }
+            catch (FarmRequestRejectedException ex) when (ex.DefinitelyNotAccepted) { }
+            catch (Exception) { preserve = true; }
+            check("Job submission " + (int)code + " preserves uncertain outcomes and only clears definite rejection", preserve == (code != HttpStatusCode.BadRequest));
+        }
     }
 }
 

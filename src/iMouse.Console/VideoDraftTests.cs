@@ -22,9 +22,12 @@ internal sealed partial class VideoDraftWindow
         internal bool ServerErrorAfterSave;
         internal List<string> CreateBodies = [];
         internal List<string> Routes = [];
+        internal List<string> Queries = [];
+        internal string Generation = new string('a', 32);
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
             var path = request.RequestUri!.AbsolutePath; Routes.Add(path);
+            Queries.Add(request.RequestUri!.Query);
             if (request.Method == HttpMethod.Post)
             {
                 Creates++;
@@ -44,7 +47,9 @@ internal sealed partial class VideoDraftWindow
             }
             if (request.Method == HttpMethod.Get && path.StartsWith("/api/farm/video-drafts/") && SavedDraft is null)
                 return new(HttpStatusCode.NotFound) { Content = new StringContent("{\"error\":\"Video draft not saved yet\"}", Encoding.UTF8, "application/json") };
-            object payload = path == "/api/farm/video-drafts" && request.Method == HttpMethod.Get
+            object payload = path == "/api/farm/video-sources"
+                ? new { protocolVersion = 2, sources = new[] { new { name = "batch.mp4", sha256 = new string('c', 64), sourceGeneration = Generation, manifestSha256 = new string('b', 64), caption = "Prepared batch caption" } } }
+                : path == "/api/farm/video-drafts" && request.Method == HttpMethod.Get
                 ? new { protocolVersion = 2, drafts = SavedDraft is null ? Array.Empty<object>() : new[] { SavedDraft } }
                 : new { protocolVersion = 2, draft = SavedDraft };
             return new(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json") };
@@ -109,5 +114,28 @@ internal sealed partial class VideoDraftWindow
             check("A server error after saving recovers the same video without creating a duplicate", retained && recoverable._draft is not null && failedResponse.Creates == 1 && recoverable._pending is null);
         }
         finally { recoverable.Close(); }
+        var batchHandler = new TestHandler(); using var batchHttp = new HttpClient(batchHandler);
+        var batch = new VideoDraftWindow(new FarmApiClient(batchHttp, "http://video-test.invalid"), new Batch(new string('a', 32), new string('b', 64)));
+        try
+        {
+            await batch.RunAsync(batch.InitializeAsync);
+            check("Opening a scheduled video uses that batch and preserves its original caption", batch._caption.Text == "Prepared batch caption" &&
+                batchHandler.Queries.Any(q => q.Contains("generation=" + new string('a', 32))) && batchHandler.Creates == 0);
+            await batch.RunAsync(batch.PrepareAsync);
+            var sent = JsonSerializer.Deserialize<JsonElement>(batchHandler.CreateBodies.Single());
+            check("Video preparation pins the selected generation and checksum through lost-response recovery", batch._pending is not null &&
+                sent.GetProperty("source_generation").GetString() == new string('a', 32) && sent.GetProperty("manifest_sha256").GetString() == new string('b', 64));
+            await batch.RunAsync(batch.PrepareAsync);
+            check("Pinned video recovery retrieves its saved copy without creating a second one", batchHandler.Creates == 1 && batch._pending is null);
+        }
+        finally { batch.Close(); }
+        batchHandler.Generation = new string('d', 32);
+        var wrongBatch = new VideoDraftWindow(new FarmApiClient(batchHttp, "http://video-test.invalid"), new Batch(new string('a', 32), new string('b', 64)));
+        try
+        {
+            await wrongBatch.RunAsync(wrongBatch.InitializeAsync);
+            check("A different video batch cannot silently replace the requested run", wrongBatch._sources.SelectedItem is null && wrongBatch._status.Text.Contains("another batch") && !wrongBatch._transfer.IsEnabled);
+        }
+        finally { wrongBatch.Close(); }
     }
 }

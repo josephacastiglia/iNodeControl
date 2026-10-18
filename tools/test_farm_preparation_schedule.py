@@ -15,7 +15,8 @@ class PreparationTests(unittest.TestCase):
         self.path = Path(self.temp.name) / 'schedule.db'; self.now = [1000.0]; self.calls = []
         self.profile = {'account_day': 5, 'paused_zero_view': False}
         self.operation = threading.Lock()
-        def prepare(): self.calls.append('prepare'); return [{'review': 'media'}]
+        self.item = {'id': 1, 'platform': 'instagram', 'format': 'ig_carousel', 'caption': 'Review', 'stagedFiles': ['a.jpg', 'b.jpg']}
+        def prepare(): self.calls.append('prepare'); return [self.item]
         self.schedule = PreparationSchedule(self.path, prepare, lambda: self.profile, self.operation, clock=lambda: self.now[0])
         self.addCleanup(self.schedule.close)
         self.request = {'id': str(uuid.uuid4()), 'device_id': 'C24C', 'action': 'create-content', 'interval_minutes': 60, 'max_runs': 2}
@@ -69,7 +70,7 @@ class PreparationTests(unittest.TestCase):
     def test_second_backend_cannot_recover_or_execute_current_render(self):
         self.schedule.configure(self.request)
         started, finish = threading.Event(), threading.Event()
-        def blocked(): started.set(); finish.wait(5); return [{}]
+        def blocked(): started.set(); finish.wait(5); return [self.item]
         self.schedule.prepare = blocked
         worker = threading.Thread(target=self.schedule.tick); worker.start(); self.assertTrue(started.wait(2))
         try:

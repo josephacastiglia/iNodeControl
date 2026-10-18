@@ -126,7 +126,7 @@ class FarmBackendRuntime:
             rng=self.rng,
         )
         self.preparation = PreparationSchedule(db_path.parent / 'preparation-schedule.db',
-            lambda: self.factory.generate_daily_slate_for_device('C24C'),
+            lambda: self.prepare_local_content('C24C'),
             lambda: self.db.get_persona('C24C'), self.operation_lock)
         self.mock_kernel = engine.MockApiServer()
         self.kernel_client = engine.IMouseKernel(
@@ -141,6 +141,29 @@ class FarmBackendRuntime:
             host_lan_url=self.lan_host_url,
             device_id="C24C",
         )
+
+    def prepare_local_content(self, device_id):
+        """Render locally, then retain this exact batch as an editable carousel.
+
+        A failure after rendering leaves files for inspection, not a successful
+        schedule result. Repeated snapshot requests never overwrite local edits.
+        """
+        items = self.factory.generate_daily_slate_for_device(device_id)
+        if not items or device_id != 'C24C': return items
+        import uuid
+        carousels = [item for item in items if item.get('platform') == 'instagram' and item.get('format') == 'ig_carousel']
+        if len(carousels) != 1: raise ValueError('Generated batch needs exactly one Instagram carousel for review.')
+        item = carousels[0]
+        generation, checksum = item.get('generation'), item.get('manifestSha256')
+        if (not generation or not checksum or any(row.get('generation') != generation or row.get('manifestSha256') != checksum
+                or row.get('manifest') != f'/stage/C24C/manifest_{generation}.json' for row in items)):
+            raise ValueError('Generated slate records do not identify one immutable C24C batch.')
+        draft_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f'imouse:prepared-carousel:{generation}:{checksum}'))
+        draft = self.drafts.create(draft_id, f'Prepared carousel {generation}', True,
+                                   source_generation=generation, manifest_sha256=checksum)
+        if draft['status'] != 'ready_local': raise ValueError('Generated carousel is not ready for local review.')
+        item['localDraft'] = {key: draft[key] for key in ('id', 'revision', 'sourceGeneration', 'sourceManifestSha256')}
+        return items
 
     def get_kernel(self) -> engine.IMouseKernel:
         """Use the selected mode for this process. Never substitute simulated success."""
@@ -410,7 +433,9 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             return
 
         if path == '/api/farm/video-sources':
-            try: self._send_json(200, {'sources': RUNTIME.videos.sources()})
+            try:
+                query = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+                self._send_json(200, {'sources': RUNTIME.videos.sources(query.get('generation', [None])[0], query.get('manifest_sha256', [None])[0])})
             except (ValueError, KeyError, OSError) as ex: self._send_json(400, {'error': str(ex)})
             return
         if path == '/api/farm/video-drafts':
@@ -468,7 +493,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "draftRehearsalLiveEnabled": False,
                     "carouselInspectionVersion": 2,
                     "carouselInspectionLiveMovement": False,
-                    "preparationScheduleVersion": 1,
+                    "preparationScheduleVersion": 2,
                     "lanHostUrl": RUNTIME.lan_host_url,
                     "layersBuilt": 7,
                     "personasCount": len(RUNTIME.db.list_personas()),
@@ -643,7 +668,8 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             self._send_json(200, {"transfer": RUNTIME.transfers.stop(parts[4])})
             return
         if path == "/api/farm/drafts":
-            draft = RUNTIME.drafts.create(data.get("id"), data.get("title", "Instagram carousel"), data.get("from_generated", False))
+            draft = RUNTIME.drafts.create(data.get("id"), data.get("title", "Instagram carousel"), data.get("from_generated", False),
+                                         source_generation=data.get('source_generation'), manifest_sha256=data.get('manifest_sha256'))
             self._send_json(200, {"draft": draft})
             return
         if path.startswith("/api/farm/drafts/"):
@@ -695,7 +721,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             dev_id = engine.persona_device_id(data.get("device_id", "C24C"))
             RUNTIME.db.get_persona(dev_id)
             RUNTIME.kernel_client.check_cancelled()
-            slate = RUNTIME.factory.generate_daily_slate_for_device(dev_id)
+            slate = RUNTIME.prepare_local_content(dev_id)
             if not slate:
                 raise ValueError("This profile is in warmup or paused; no content was generated.")
             engine.MediaPullOrchestrator.export_ios_shortcut_plist(

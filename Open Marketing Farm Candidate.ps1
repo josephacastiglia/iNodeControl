@@ -2,7 +2,7 @@
 param([switch]$ValidateOnly, [string]$PythonPath)
 $ErrorActionPreference = 'Stop'
 $repoDir = $PSScriptRoot
-$candidateDir = Join-Path $repoDir 'output\codex-farm-save-reopen-20261018'
+$candidateDir = Join-Path $repoDir 'output\codex-farm-preparation-20261018'
 $candidateExe = Join-Path $candidateDir 'iMouse2.exe'
 $candidateData = Join-Path $candidateDir 'candidate-data'
 $serverScript = Join-Path $repoDir 'tools\imouse_farm_server.py'

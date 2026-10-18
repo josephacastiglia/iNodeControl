@@ -120,9 +120,15 @@ class PreparationSchedule:
         # Acceptance is durable before rendering. Exceptions or process death never retry this run.
         try:
             items = self.prepare()
-            if not isinstance(items, list) or not items: raise ValueError('No reviewable content was produced.')
+            if (not isinstance(items, list) or not 1 <= len(items) <= 20 or
+                    any(not isinstance(item, dict) or type(item.get('id')) is not int or item['id'] <= 0 or
+                        any(not isinstance(item.get(key), str) or not item[key] for key in ('platform', 'format')) or
+                        not isinstance(item.get('caption'), str) or not isinstance(item.get('stagedFiles'), list) or
+                        not item['stagedFiles'] or any(not isinstance(name, str) or not name for name in item['stagedFiles'])
+                        for item in items)):
+                raise ValueError('No complete reviewable content record was produced.')
             # Retain references/copy for this run when a later slate replaces the current manifest.
-            content = [{k: item[k] for k in ('id', 'platform', 'format', 'caption', 'stagedFiles') if k in item}
+            content = [{k: item[k] for k in ('id', 'platform', 'format', 'caption', 'stagedFiles', 'generation', 'manifest', 'manifestSha256', 'localDraft') if k in item}
                        for item in items]
             run.update(state='succeeded', itemCount=len(items), contentItems=content)
         except Exception as exc:

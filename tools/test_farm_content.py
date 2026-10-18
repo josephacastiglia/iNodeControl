@@ -43,6 +43,8 @@ class FarmContentTests(unittest.TestCase):
         first = self.generate()
         old_bytes = {url: (self.root / url.lstrip("/")).read_bytes() for url in first["files"]}
         second = self.generate()
+        archived = self.root / 'stage/C24C' / f"manifest_{first['generation']}.json"
+        self.assertEqual(first, json.loads(archived.read_bytes()))
         self.assertNotEqual(first["generation"], second["generation"])
         self.assertTrue(set(first["files"]).isdisjoint(second["files"]))
         for url, data in old_bytes.items():

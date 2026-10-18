@@ -13,6 +13,7 @@ public partial class CarouselDraftWindow : Window
     private readonly FarmApiClient _api;
     private readonly CarouselRecovery _recovery;
     private readonly string _mode;
+    private readonly string? _initialDraftId;
     private readonly ObservableCollection<CarouselSlide> _slides = [];
     private CarouselDraft? _draft;
     private bool _loading, _busy, _dirty;
@@ -21,11 +22,12 @@ public partial class CarouselDraftWindow : Window
         public override string ToString() => Title;
     }
 
-    internal CarouselDraftWindow(FarmApiClient api, string dataFolder, string mode)
+    internal CarouselDraftWindow(FarmApiClient api, string dataFolder, string mode, string? initialDraftId = null)
     {
         _api = api;
         _recovery = new CarouselRecovery(dataFolder);
         _mode = mode;
+        _initialDraftId = initialDraftId is null ? null : Guid.Parse(initialDraftId).ToString();
         InitializeComponent();
         SlidesList.ItemsSource = _slides;
         Loaded += async (_, _) => await RunAsync(InitializeAsync);
@@ -67,6 +69,17 @@ public partial class CarouselDraftWindow : Window
     {
         await RefreshLibraryAsync();
         var edits = _recovery.Load();
+        if (_initialDraftId is not null && (edits is null || edits.DraftId != _initialDraftId || edits.Mode != _mode))
+        {
+            // Read the requested draft before replacing any recovery pointer.
+            var requested = CarouselDraft.Read(await _api.SendAsync("/api/farm/drafts/" + _initialDraftId));
+            if (requested.Id != _initialDraftId) throw new InvalidOperationException("The backend returned a different draft. Previous edits were kept.");
+            string? backup = edits?.Unsaved == true ? _recovery.Archive(edits) : null;
+            Apply(requested); PersistEdits();
+            StatusText.Text = "Opened this preparation's saved local draft. Nothing was sent to a phone."
+                + (backup is null ? "" : " Other unsaved edits preserved in " + backup);
+            return;
+        }
         if (edits is null) { StatusText.Text = "Open a saved draft or create one. Drafts stay on this PC."; return; }
         if (edits.Mode != _mode)
         {

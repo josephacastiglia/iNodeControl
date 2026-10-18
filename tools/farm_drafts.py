@@ -11,6 +11,7 @@ import hashlib
 import html
 import io
 import json
+import re
 from pathlib import Path
 import sqlite3
 import threading
@@ -45,6 +46,26 @@ def checked_text(value, label, maximum, *, required=False):
     if required and not value.strip():
         raise ValueError(f"{label} cannot be empty.")
     return value
+
+
+def generated_manifest(stage_root, generation=None, checksum=None):
+    """Read either the latest batch or a checksum-pinned historical batch."""
+    pinned = generation is not None or checksum is not None
+    if pinned and (not isinstance(generation, str) or not re.fullmatch(r'[0-9a-f]{32}', generation) or
+                   not isinstance(checksum, str) or not re.fullmatch(r'[0-9a-f]{64}', checksum)):
+        raise ValueError('A generated batch needs its exact generation and manifest checksum.')
+    folder = (Path(stage_root) / 'C24C').resolve()
+    path = folder / (f'manifest_{generation}.json' if pinned else 'manifest.json')
+    if not path.is_file(): raise ValueError('Generated batch is missing. No newer batch was substituted.')
+    if not path.resolve().is_relative_to(folder) or path.stat().st_size > 128 * 1024:
+        raise ValueError('Generated manifest is outside the media folder or too large.')
+    raw = path.read_bytes(); digest = hashlib.sha256(raw).hexdigest()
+    if pinned and digest != checksum: raise ValueError('Generated manifest checksum changed; this batch cannot be reviewed.')
+    document = json.loads(raw)
+    if not isinstance(document, dict) or not isinstance(document.get('assets'), list): raise ValueError('Invalid generated manifest.')
+    if pinned and (document.get('generation') != generation or document.get('deviceId') != 'C24C'):
+        raise ValueError('Generated manifest does not belong to this C24C batch.')
+    return document, digest
 
 
 def prepare_image(raw, name):
@@ -163,12 +184,19 @@ class CarouselDrafts:
         with self.connection() as db:
             return self._public(db, self._read(db, draft_id))
 
-    def create(self, draft_id, title="Instagram carousel", from_generated=False):
+    def create(self, draft_id, title="Instagram carousel", from_generated=False, *, source_generation=None, manifest_sha256=None):
         draft_id = identifier(draft_id)
         title = checked_text(title, "Title", 120, required=True)
         if type(from_generated) is not bool:
             raise ValueError("from_generated must be a boolean.")
         fingerprint = json.dumps([title, from_generated])
+        pinned = source_generation is not None or manifest_sha256 is not None
+        if pinned:
+            if (from_generated is not True or not isinstance(source_generation, str) or
+                    not re.fullmatch(r'[0-9a-f]{32}', source_generation) or
+                    not isinstance(manifest_sha256, str) or not re.fullmatch(r'[0-9a-f]{64}', manifest_sha256)):
+                raise ValueError('A generated batch needs its exact generation and manifest checksum.')
+            fingerprint = json.dumps([title, from_generated, source_generation, manifest_sha256])
         with self.connection() as db:
             db.execute("BEGIN IMMEDIATE")
             old = db.execute("SELECT fingerprint FROM carousel_drafts WHERE id=?", (draft_id,)).fetchone()
@@ -181,12 +209,10 @@ class CarouselDrafts:
                         "updatedAt": datetime.now(timezone.utc).isoformat(), "sourceGeneration": None}
             if from_generated:
                 folder = (self.stage_root / "C24C").resolve()
-                manifest_file = folder / "manifest.json"
-                if not manifest_file.is_file():
-                    raise ValueError("Create content first, or start an empty draft and add your own images.")
-                manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+                manifest, source_hash = generated_manifest(self.stage_root, source_generation, manifest_sha256)
                 document["caption"] = checked_text(manifest.get("caption"), "Caption", MAX_CAPTION)
                 document["sourceGeneration"] = manifest.get("generation")
+                document['sourceManifestSha256'] = source_hash
                 for asset in manifest.get("assets", []):
                     url = asset.get("url", "")
                     if not url.startswith("/stage/C24C/"):
@@ -202,8 +228,11 @@ class CarouselDrafts:
                     raw = path.read_bytes()
                     if hashlib.sha256(raw).hexdigest() != asset.get("sha256"):
                         raise ValueError("Generated image checksum changed. Regenerate or import it explicitly.")
+                    if pinned and (type(asset.get('bytes')) is not int or asset['bytes'] != len(raw)):
+                        raise ValueError('Generated image size does not match its batch manifest.')
                     metadata, image = prepare_image(raw, name)
                     if metadata["id"] in document["slideIds"]:
+                        if pinned: raise ValueError('Generated batch contains duplicate slides; review its source.')
                         continue
                     if len(document["slideIds"]) >= MAX_SLIDES:
                         raise ValueError("Generated content exceeds the 10-slide editing limit.")
@@ -211,6 +240,8 @@ class CarouselDrafts:
                     document["slideIds"].append(metadata["id"])
                 if not document["slideIds"]:
                     raise ValueError("The generated manifest contains no carousel images.")
+                if pinned and len(document['slideIds']) < 2:
+                    raise ValueError('A generated carousel batch needs at least two distinct slides.')
             db.execute("INSERT INTO carousel_drafts VALUES (?, ?, ?)", (draft_id, fingerprint, json.dumps(document)))
             return self._public(db, document)
 
@@ -283,5 +314,9 @@ class CarouselDrafts:
             output = io.BytesIO()
             with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
                 for name, data in files.items():
-                    archive.writestr(name, data)
+                    # The same saved revision must have the same package hash,
+                    # including when reviewed again on another day.
+                    entry = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+                    entry.external_attr = 0o600 << 16
+                    archive.writestr(entry, data, compress_type=zipfile.ZIP_DEFLATED)
             return output.getvalue()

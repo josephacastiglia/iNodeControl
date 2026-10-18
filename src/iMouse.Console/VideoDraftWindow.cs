@@ -7,6 +7,8 @@ namespace IMouse2;
 internal sealed partial class VideoDraftWindow : Window
 {
     private readonly FarmApiClient _api;
+    internal sealed record Batch(string Generation, string ManifestSha256);
+    private readonly Batch? _batch;
     private readonly ComboBox _sources = new() { DisplayMemberPath = "Name", MinHeight = 32 };
     private readonly ComboBox _saved = new() { DisplayMemberPath = "Name", MinHeight = 32 };
     private readonly ComboBox _format = new() { MinHeight = 32, ItemsSource = new[] { "TikTok video", "X video", "YouTube Short", "Instagram Reel" }, SelectedIndex = 0 };
@@ -19,12 +21,12 @@ internal sealed partial class VideoDraftWindow : Window
     private string? _pending;
     private object? _pendingRequest;
     private bool _busy, _loadingSaved;
-    private sealed record Source(string Name, string Sha256) { public override string ToString() => Name; }
+    private sealed record Source(string Name, string Sha256, string? Generation = null, string? ManifestSha256 = null) { public override string ToString() => Name; }
     private sealed record Saved(string Name, JsonElement Draft) { public override string ToString() => Name; }
 
-    internal VideoDraftWindow(FarmApiClient api)
+    internal VideoDraftWindow(FarmApiClient api, Batch? batch = null)
     {
-        _api = api; Title = "Video drafts for C24C"; Width = 650; Height = 740; MinWidth = 540; MinHeight = 600;
+        _api = api; _batch = batch; Title = "Video drafts for C24C"; Width = 650; Height = 740; MinWidth = 540; MinHeight = 600;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         SetResourceReference(BackgroundProperty, "SurfaceBrush"); SetResourceReference(ForegroundProperty, "TextBrush");
         var panel = new StackPanel { Margin = new Thickness(24) };
@@ -38,14 +40,7 @@ internal sealed partial class VideoDraftWindow : Window
         panel.Children.Add(new TextBlock { Text = "Candidate limits: 64 MiB source, at most 45 seconds, 720×1280 output. No trimming; nonvertical media receives margins. Small sources may look soft. Review video and sound in Safari and the app.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 8) });
         var buttons = new WrapPanel(); buttons.Children.Add(_prepare); buttons.Children.Add(_transfer); panel.Children.Add(buttons);
         panel.Children.Add(_status); Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
-        Loaded += async (_, _) => await RunAsync(async () =>
-        {
-            await RefreshSavedAsync();
-            var response = await _api.SendAsync("/api/farm/video-sources");
-            var sources = response.GetProperty("sources").EnumerateArray().Select(s => new Source(s.GetProperty("name").GetString()!, s.GetProperty("sha256").GetString()!)).ToArray();
-            _sources.ItemsSource = sources; _sources.SelectedIndex = sources.Length > 0 ? 0 : -1;
-            _status.Text = sources.Length == 0 ? "No staged C24C video. Use Create content in the Marketing Farm, then reopen this window." : "Choose the destination and caption, then prepare a saved copy.";
-        });
+        Loaded += async (_, _) => await RunAsync(InitializeAsync);
         _prepare.Click += async (_, _) => await RunAsync(PrepareAsync);
         _saved.SelectionChanged += (_, _) =>
         {
@@ -69,6 +64,23 @@ internal sealed partial class VideoDraftWindow : Window
         _sources.SelectionChanged += (_, _) => InvalidatePrepared();
         _transfer.Click += (_, _) => { if (_draft is { } draft) new CarouselTransferWindow(_api, draft) { Owner = this }.ShowDialog(); };
         Closing += (_, e) => { if (_busy) { e.Cancel = true; _status.Text = "Wait for the current preparation to finish; no phone input is being sent."; } };
+    }
+
+    private async Task InitializeAsync()
+    {
+        await RefreshSavedAsync();
+        string path = "/api/farm/video-sources" + (_batch is null ? "" : "?generation=" + Uri.EscapeDataString(_batch.Generation) + "&manifest_sha256=" + Uri.EscapeDataString(_batch.ManifestSha256));
+        var response = await _api.SendAsync(path);
+        var rows = response.GetProperty("sources").EnumerateArray().ToArray();
+        var sources = rows.Select(s => new Source(s.GetProperty("name").GetString()!, s.GetProperty("sha256").GetString()!,
+            s.TryGetProperty("sourceGeneration", out var generation) && generation.ValueKind == JsonValueKind.String ? generation.GetString() : null,
+            s.TryGetProperty("manifestSha256", out var checksum) ? checksum.GetString() : null)).ToArray();
+        if (_batch is not null && sources.Any(s => s.Generation != _batch.Generation || s.ManifestSha256 != _batch.ManifestSha256))
+            throw new InvalidOperationException("The backend returned another batch. No video was selected.");
+        _sources.ItemsSource = sources; _sources.SelectedIndex = sources.Length > 0 ? 0 : -1;
+        if (_batch is not null && rows.Length > 0 && rows[0].TryGetProperty("caption", out var caption)) _caption.Text = caption.GetString() ?? "";
+        _status.Text = sources.Length == 0 ? "No staged C24C video in this batch. No newer batch was substituted."
+            : (_batch is null ? "" : "Opened this preparation’s original video and caption. ") + "Choose the destination, review the full caption, then prepare a saved copy.";
     }
 
     private async Task RunAsync(Func<Task> action)
@@ -106,7 +118,8 @@ internal sealed partial class VideoDraftWindow : Window
             _draft = null; _pending = Guid.NewGuid().ToString();
             _status.Text = "Preparing and decoding the complete video. This can take a moment…";
             _pendingRequest = new { id = _pending, device_id = "C24C", name = source.Name, sha256 = source.Sha256,
-                format = new[] { "tt_video", "x_video", "yt_short", "ig_reel" }[_format.SelectedIndex], title = _title.Text, caption = _caption.Text };
+                format = new[] { "tt_video", "x_video", "yt_short", "ig_reel" }[_format.SelectedIndex], title = _title.Text, caption = _caption.Text,
+                source_generation = source.Generation, manifest_sha256 = source.Generation is null ? null : source.ManifestSha256 };
             response = await SubmitPendingAsync();
         }
         _draft = response.GetProperty("draft").Clone(); _pending = null; _pendingRequest = null;

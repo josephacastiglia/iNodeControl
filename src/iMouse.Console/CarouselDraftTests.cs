@@ -101,6 +101,27 @@ public partial class CarouselDraftWindow
             check("Conflicting recovery edits are archived before loading the newer draft", archives.Length == 1 && File.ReadAllText(archives[0]).Contains(new string('x', 2201)) && conflict._draft!.Revision == handler.Draft.Revision);
             check("Carousel workflow never calls input, upload, or publication routes", handler.Requests.All(p => p.Contains("/api/farm/drafts")));
             check("Carousel tests never show a window or create a native handle", new[] { window, reopened, conflict }.All(w => !w.IsVisible && new WindowInteropHelper(w).Handle == IntPtr.Zero));
+            var otherEdits = new CarouselEdits(Guid.NewGuid().ToString(), 1, "Other draft", "Unsaved work", ["different"], true, "simulate");
+            new CarouselRecovery(folder).Save(otherEdits);
+            var fromRun = new CarouselDraftWindow(api, folder, "simulate", handler.Draft.Id);
+            try
+            {
+                await fromRun.InitializeAsync();
+                check("A preparation opens its requested draft and preserves unrelated unsaved edits", fromRun._draft?.Id == handler.Draft.Id &&
+                    new CarouselRecovery(folder).Load()?.DraftId == handler.Draft.Id &&
+                    Directory.GetFiles(folder, "farm-carousel-edits-*.json").Any(path => File.ReadAllText(path).Contains("Unsaved work")));
+            }
+            finally { fromRun.Close(); }
+            new CarouselRecovery(folder).Save(otherEdits);
+            var wrongRun = new CarouselDraftWindow(api, folder, "simulate", Guid.NewGuid().ToString());
+            try
+            {
+                bool rejected = false;
+                try { await wrongRun.InitializeAsync(); } catch (InvalidOperationException) { rejected = true; }
+                var kept = new CarouselRecovery(folder).Load();
+                check("An incorrect draft response does not replace the previous editing session", rejected && kept?.DraftId == otherEdits.DraftId && kept.Caption == otherEdits.Caption);
+            }
+            finally { wrongRun.Close(); }
             File.WriteAllText(Path.Combine(folder, "farm-carousel-edits.json"), "{damaged");
             bool damaged = false;
             try { new CarouselRecovery(folder).Load(); } catch (InvalidOperationException) { damaged = true; }

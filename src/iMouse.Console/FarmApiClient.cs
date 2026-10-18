@@ -7,6 +7,9 @@ namespace IMouse2;
 internal sealed class FarmRequestRejectedException(string message, int? statusCode = null) : InvalidOperationException(message)
 {
     internal int? StatusCode { get; } = statusCode;
+    // A server error, application-level HTTP 200 error or conflict can follow
+    // durable acceptance. Keep the request bookmark until its status is known.
+    internal bool DefinitelyNotAccepted => StatusCode is >= 400 and < 500 && StatusCode != 409;
 }
 
 /// <summary>Versioned farm API. HTTP errors and application failures never look like completion.</summary>

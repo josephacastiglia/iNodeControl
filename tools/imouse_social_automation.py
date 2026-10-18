@@ -1580,7 +1580,9 @@ class ContentFactoryEngine:
                         "bytes": (dev_stage_dir / fn).stat().st_size} for fn in staged_filenames],
         }
         manifest_tmp = dev_stage_dir / f"manifest_{generation}.tmp"
-        manifest_tmp.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        manifest_bytes = json.dumps(manifest, indent=2).encode("utf-8")
+        manifest_tmp.write_bytes(manifest_bytes)
+        manifest_sha256 = hashlib.sha256(manifest_bytes).hexdigest()
 
         formats_to_queue = [
             (Platform.INSTAGRAM.value, UploadFormat.IG_CAROUSEL.value),
@@ -1613,10 +1615,17 @@ class ContentFactoryEngine:
                     "caption": caption,
                     "stagedFiles": staged_filenames,
                     "phashHex": last_phash,
+                    "generation": generation,
+                    "manifest": f"/stage/{device_id}/manifest_{generation}.json",
+                    "manifestSha256": manifest_sha256,
                 }
             )
         # Publish only after every asset and slate row exists. Existing assets are
         # immutable, so a reviewer can keep an older preview open while rendering.
+        # Keep the exact manifest for each run. The latest pointer is convenient
+        # for manual review, but cannot identify an older scheduled batch.
+        manifest_tmp.replace(dev_stage_dir / f"manifest_{generation}.json")
+        manifest_tmp.write_bytes(manifest_bytes)
         manifest_tmp.replace(dev_stage_dir / "manifest.json")
         media_html = []
         for name in staged_filenames:

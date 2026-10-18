@@ -35,7 +35,7 @@ def capabilities():
             {'id': 'schedule', 'name': 'Schedule preview', 'availability': 'Preview available',
              'detail': 'Shows cooldown, UTC daily budget and planned actions. No recurring live publishing service is running.'},
             {'id': 'local-preparation', 'name': 'Recurring local content preparation', 'availability': 'Local candidate',
-             'detail': 'Explicit bounded schedule, durable run records, missed-run skipping, profile holds and Pause. Interrupted or failed renders require review. Creates files only; no phone input, transfer, publishing or messaging.'},
+             'detail': 'Bounded schedules keep each batch’s manifest, caption and editable carousel snapshot. Open a completed run’s own draft after later renders or restarts. Missed runs are skipped; failed or interrupted work needs review. Local preparation only; no phone input, transfer, publishing or messaging.'},
             {'id': 'analytics', 'name': 'View-count review', 'availability': 'Submitted evidence only',
              'detail': 'Requires post identity, account and timestamps. Low views can pause work, never automatically resume it or prove a platform restriction. Automatic reading is unavailable.'},
             {'id': 'replies', 'name': 'Keyword replies and messages', 'availability': 'Unavailable',

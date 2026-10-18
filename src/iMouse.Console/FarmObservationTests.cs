@@ -86,6 +86,8 @@ internal sealed partial class FarmPreparationWindow
         internal List<string> Bodies = [], Routes = [];
         internal bool LoseResponse = true;
         internal string? CancelledRequest;
+        internal string DraftId = Guid.NewGuid().ToString();
+        internal bool Legacy;
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
             string path = request.RequestUri!.AbsolutePath; Routes.Add(path);
@@ -95,8 +97,15 @@ internal sealed partial class FarmPreparationWindow
                 if (path.EndsWith("/pause")) CancelledRequest = JsonSerializer.Deserialize<JsonElement>(body).GetProperty("cancel_request_id").GetString();
                 else { Bodies.Add(body); if (LoseResponse) { LoseResponse = false; throw new HttpRequestException("Lost configuration response"); } }
             }
-            var runs = new[] { new { state = "succeeded", id = "saved-run", contentItems = new[] {
-                new { id = 12, platform = "instagram", caption = "Original review copy", stagedFiles = new[] { "slide_a.jpg", "slide_b.jpg" } } } } };
+            object? draft = Legacy ? null : new { id = DraftId, revision = 1 };
+            var item = new Dictionary<string, object> { ["id"] = 12, ["platform"] = "instagram", ["caption"] = "Original review copy", ["stagedFiles"] = new[] { "slide_a.jpg", "slide_b.jpg" } };
+            if (draft is not null)
+            {
+                item["localDraft"] = draft; item["generation"] = new string('a', 32); item["manifestSha256"] = new string('b', 64);
+                item["stagedFiles"] = new[] { "slide_a.jpg", "slide_b.jpg", "video.mp4" };
+            }
+            var runs = new[] { new { state = "succeeded", id = "saved-run", contentItems = new[] { item } },
+                               new { state = "failed", id = "failed-run", contentItems = new[] { item } } };
             var response = new { protocolVersion = 2, preparationSchedule = new { config = new { state = "paused", reason = "No future work", nextDue = 2000000000.0 }, runs, workerRunning = false, workerError = (string?)null } };
             return new(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(response), Encoding.UTF8, "application/json") };
         }
@@ -104,7 +113,7 @@ internal sealed partial class FarmPreparationWindow
     internal static async Task CheckHeadlessAsync(Action<string, bool> check)
     {
         var handler = new Handler(); using var http = new HttpClient(handler);
-        var window = new FarmPreparationWindow(new FarmApiClient(http, "http://preparation-test.invalid"));
+        var window = new FarmPreparationWindow(new FarmApiClient(http, "http://preparation-test.invalid"), Path.GetTempPath(), "simulate");
         try
         {
             await window.RunAsync(window.RefreshAsync);
@@ -118,9 +127,17 @@ internal sealed partial class FarmPreparationWindow
             check("Pause cancels the pending configuration ID so delayed requests cannot restart it", pending is not null && handler.CancelledRequest == pending && window._pending is null);
             check("Preparation reports a stopped worker and never calls phone routes", window._status.Text.Contains("worker is not running") && handler.Routes.All(p => p.StartsWith("/api/farm/preparation-schedule")));
             check("Preparation history shows the saved copy and file references for review", window._runs.Text.Contains("Original review copy") && window._runs.Text.Contains("slide_a.jpg") && window._runs.Text.Contains("item 12"));
-            var content = (FrameworkElement)window.Content; content.Measure(new Size(650, 660)); content.Arrange(new Rect(0, 0, 650, 660)); content.UpdateLayout();
-            var bitmap = new RenderTargetBitmap(650, 660, 96, 96, PixelFormats.Pbgra32);
-            var background = new DrawingVisual(); using (var drawing = background.RenderOpen()) drawing.DrawRectangle(window.Background, null, new Rect(0, 0, 650, 660));
+            check("A completed run opens its specific local carousel without regeneration", window.SelectedDraftId() == handler.DraftId && window._openDraft.IsEnabled && window._runs.Text.Contains("Not an Instagram draft"));
+            check("A completed run identifies its original video batch for preparation", window.SelectedVideoBatch()?.Generation == new string('a', 32) && window._openVideo.IsEnabled);
+            window._history.SelectedIndex = 1;
+            await window.RunAsync(window.RefreshAsync);
+            check("Refreshing preparation history keeps the selected run and refuses failed output", (window._history.SelectedItem as PreparedRun)?.Id == "failed-run" && !window._openDraft.IsEnabled);
+            handler.Legacy = true; window._history.SelectedIndex = 0; await window.RunAsync(window.RefreshAsync);
+            check("Old runs without a saved snapshot stay readable but never open the latest batch", window._runs.Text.Contains("Original review copy") && !window._openDraft.IsEnabled && !window._openVideo.IsEnabled);
+            handler.Legacy = false; await window.RunAsync(window.RefreshAsync);
+            var content = (FrameworkElement)window.Content; content.Measure(new Size(720, 820)); content.Arrange(new Rect(0, 0, 720, 820)); content.UpdateLayout();
+            var bitmap = new RenderTargetBitmap(720, 820, 96, 96, PixelFormats.Pbgra32);
+            var background = new DrawingVisual(); using (var drawing = background.RenderOpen()) drawing.DrawRectangle(window.Background, null, new Rect(0, 0, 720, 820));
             bitmap.Render(background); bitmap.Render(content); var png = new PngBitmapEncoder(); png.Frames.Add(BitmapFrame.Create(bitmap));
             using (var file = File.Create(Path.Combine(AppContext.BaseDirectory, "qa", "farm-preparation-headless.png"))) png.Save(file);
             check("Preparation schedule renders without showing a desktop window", content.IsArrangeValid && new WindowInteropHelper(window).Handle == IntPtr.Zero);

@@ -93,6 +93,15 @@ class FarmHttpJobsTests(unittest.TestCase):
         self.assertEqual("cancelled", self.finish(job_id)["status"])
         self.assertEqual({}, self.runtime.mock_kernel.leases)
 
+    def test_cancel_can_arrive_before_http_submission_and_survives_restart(self):
+        request_id = str(uuid.uuid4())
+        status, stopped = self.request(f'/api/farm/jobs/{request_id}/cancel', {})
+        self.assertEqual(200, status); self.assertEqual('cancelled', stopped['job']['status'])
+        self.runtime.jobs = FarmJobs(journal_path=self.root / 'jobs.db')
+        status, delayed = self.request('/api/farm/jobs', dict(request_id=request_id, action='warmup-wave', payload={'device_id': 'C24C'}))
+        self.assertEqual(202, status); self.assertEqual(stopped['job'], delayed['job'])
+        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+
     def test_stop_latches_until_explicit_simulation_resume(self):
         job_id, _ = self.submit("warmup-wave", {"device_id": "C24C", "clips": 50, "time_scale": 1})
         status, _ = self.request("/api/farm/emergency-stop", {"device_id": "C24C"})
@@ -132,6 +141,37 @@ class FarmHttpJobsTests(unittest.TestCase):
         self.assertEqual(manifest["generation"], draft["sourceGeneration"])
         self.assertEqual("ready_local", draft["status"])
         self.assertFalse(draft["savedInInstagram"])
+        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+
+    def test_scheduled_preparation_opens_its_saved_draft_through_http_after_next_render(self):
+        from unittest.mock import patch
+        body = dict(id=str(uuid.uuid4()), device_id='C24C', action='create-content', interval_minutes=60, max_runs=1)
+        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel access')):
+            self.assertEqual(200, self.request('/api/farm/preparation-schedule', body)[0])
+            self.runtime.preparation.tick()
+            status, result = self.request('/api/farm/preparation-schedule')
+            self.assertEqual(200, status); run = result['preparationSchedule']['runs'][0]
+            self.assertEqual('succeeded', run['state'], run)
+            item = next(item for item in run['contentItems'] if item.get('localDraft'))
+            saved_id = item['localDraft']['id']
+            before = self.request('/api/farm/drafts/' + saved_id)[1]['draft']
+            self.runtime.prepare_local_content('C24C')
+            self.assertEqual(before, self.request('/api/farm/drafts/' + saved_id)[1]['draft'])
+            self.assertEqual(item['manifestSha256'], __import__('hashlib').sha256((self.root / item['manifest'].lstrip('/')).read_bytes()).hexdigest())
+            pinned = dict(id=str(uuid.uuid4()), from_generated=True, source_generation=item['generation'], manifest_sha256=item['manifestSha256'])
+            status, opened = self.request('/api/farm/drafts', pinned)
+            self.assertEqual(200, status, opened); self.assertEqual(before['slideIds'], opened['draft']['slideIds'])
+            self.assertEqual(before['caption'], opened['draft']['caption'])
+            self.assertFalse(opened['draft']['savedInInstagram'])
+            query = '/api/farm/video-sources?generation=' + item['generation'] + '&manifest_sha256=' + item['manifestSha256']
+            status, videos = self.request(query)
+            self.assertEqual(200, status, videos); self.assertEqual(1, len(videos['sources']))
+            source = videos['sources'][0]; self.assertEqual(item['generation'], source['sourceGeneration'])
+            status, video = self.request('/api/farm/video-drafts', dict(id=str(uuid.uuid4()), device_id='C24C', format='tt_video',
+                name=source['name'], sha256=source['sha256'], title='Earlier scheduled video', caption=source['caption'],
+                source_generation=item['generation'], manifest_sha256=item['manifestSha256']))
+            self.assertEqual(200, status, video); self.assertEqual(item['generation'], video['draft']['sourceGeneration'])
+            self.assertFalse(video['draft']['savedInApp'])
         self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
 
     def test_bad_json_and_untrusted_origin_are_rejected(self):

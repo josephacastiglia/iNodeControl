@@ -15,7 +15,7 @@ import threading
 import uuid
 import zipfile
 
-from farm_drafts import checked_text, identifier, DraftConflict
+from farm_drafts import checked_text, identifier, DraftConflict, generated_manifest
 
 FORMATS = {'tt_video': 'TikTok', 'x_video': 'X', 'yt_short': 'YouTube', 'ig_reel': 'Instagram'}
 MAX_VIDEO = 64 * 1024 * 1024
@@ -96,18 +96,19 @@ class VideoDrafts:
             finally: db.close()
         return connection()
 
-    def sources(self):
+    def sources(self, generation=None, checksum=None):
         manifest = self.stage_root / 'C24C/manifest.json'
-        if not manifest.is_file(): return []
-        document = json.loads(manifest.read_text(encoding='utf-8'))
+        if generation is None and checksum is None and not manifest.is_file(): return []
+        document, digest = generated_manifest(self.stage_root, generation, checksum)
         if document.get('deviceId') != 'C24C': raise ValueError('Staged manifest is not for C24C.')
         result = []
         for item in document.get('assets', []):
             url = item.get('url', '')
             if not url.startswith('/stage/C24C/') or not url.endswith('.mp4'): continue
             name = url.removeprefix('/stage/C24C/')
-            if Path(name).name != name or '/' in name or '\\' in name: raise ValueError('Invalid staged video name.')
-            result.append({'name': name, 'sha256': item['sha256'], 'bytes': item['bytes']})
+            if Path(name).name != name or any(c in name for c in '/\\:%\x00'): raise ValueError('Invalid staged video name.')
+            result.append({'name': name, 'sha256': item['sha256'], 'bytes': item['bytes'],
+                           'sourceGeneration': document.get('generation'), 'manifestSha256': digest, 'caption': document.get('caption', '')})
         return result
 
     def create(self, request):
@@ -118,13 +119,16 @@ class VideoDrafts:
         if request['format'] == 'yt_short' and len(caption) > 100:
             raise ValueError('This Shorts draft supports a title of at most 100 characters.')
         title = checked_text(request.get('title'), 'Title', 120, required=True)
-        fingerprint = hashlib.sha256(json.dumps({key: request.get(key) for key in ('device_id', 'format', 'name', 'sha256', 'title', 'caption')}, sort_keys=True).encode()).hexdigest()
+        identity = {key: request.get(key) for key in ('device_id', 'format', 'name', 'sha256', 'title', 'caption')}
+        generation, checksum = request.get('source_generation'), request.get('manifest_sha256')
+        if generation is not None or checksum is not None: identity.update(source_generation=generation, manifest_sha256=checksum)
+        fingerprint = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
         with self.lock, self._connect() as db:
             old = db.execute('SELECT fingerprint,document FROM video_drafts WHERE id=?', (draft_id,)).fetchone()
             if old:
                 if old[0] != fingerprint: raise DraftConflict('This video draft ID belongs to different content.')
                 return json.loads(old[1])
-            asset = next((v for v in self.sources() if v['name'] == request.get('name') and v['sha256'] == request.get('sha256')), None)
+            asset = next((v for v in self.sources(generation, checksum) if v['name'] == request.get('name') and v['sha256'] == request.get('sha256')), None)
             if asset is None: raise ValueError('The staged video changed. Refresh and review it again.')
             path = self.stage_root / 'C24C' / asset['name']
             if path.resolve().parent != (self.stage_root / 'C24C').resolve(): raise ValueError('Video path escapes the C24C stage.')
@@ -136,6 +140,7 @@ class VideoDrafts:
                      'format': request['format'], 'platform': FORMATS[request['format']], 'published': False,
                      'savedInApp': False, 'sourceSha256': asset['sha256'], 'sha256': hashlib.sha256(encoded).hexdigest(),
                      'bytes': len(encoded), 'video': metadata}
+            if generation is not None: value.update(sourceGeneration=generation, sourceManifestSha256=checksum)
             db.execute('INSERT INTO video_drafts VALUES (?,?,?,?)', (draft_id, fingerprint, json.dumps(value), encoded))
             return value
 
@@ -148,9 +153,10 @@ class VideoDrafts:
             if hashlib.sha256(video).hexdigest() != document['sha256']: raise ValueError('Saved video is damaged.')
             result = io.BytesIO()
             with zipfile.ZipFile(result, 'w', zipfile.ZIP_STORED) as archive:
-                archive.writestr('manifest.json', json.dumps(document, ensure_ascii=False).encode('utf-8'))
-                archive.writestr('caption.txt', document['caption'].encode('utf-8'))
-                archive.writestr('video.mp4', video)
+                for name, data in (('manifest.json', json.dumps(document, ensure_ascii=False).encode('utf-8')),
+                                   ('caption.txt', document['caption'].encode('utf-8')), ('video.mp4', video)):
+                    entry = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0)); entry.external_attr = 0o600 << 16
+                    archive.writestr(entry, data)
             return result.getvalue()
 
     def get(self, draft_id):
