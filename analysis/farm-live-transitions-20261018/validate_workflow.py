@@ -228,20 +228,37 @@ class Workflow:
             self.command('/mouse/click',basis=value,purpose=label,x=point[0],y=point[1],button=1)
         else:
             self.command('/mouse/swipe',basis=value,purpose=label,x1=400,y1=480,x2=100,y2=480,duration=350)
-        action['state']='answered'; self.save(); self.pause(.65)
+        action['state']='answered'; self.save()
+        # Complete pointer parking before starting the next settling interval.
+        # The overall 90-second budget still includes this movement. Uncertain
+        # replies/cancellation never get here; no semantic action is repeated.
+        self.command('/mouse/move',purpose='park_after_answered_action',x=480,y=300)
+        self.pause(.65)
 
-    def run(self):
+    def run(self, *, restore_profile_only=False):
+        self.record['mode']='return_profile_from_picker' if restore_profile_only else 'save_reopen'
         try:
             self.identity=self.runtime()
             if not idle(self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)):
                 raise InspectionStopped('C24C is not free; no takeover is allowed.')
             raw,_=self.kernel.shot('C24C')
-            initial=classify(self.store.ocr.read(raw),dict(platform='instagram',account=ACCOUNT,caption=self.caption),raw)
-            if initial['screen']!='profile' or initial['accountStatus']!='exact_text_match':
+            text=self.store.ocr.read(raw)
+            initial=classify(text,dict(platform='instagram',account=ACCOUNT,caption=self.caption),raw)
+            if restore_profile_only:
+                if not picker_controls(raw,text):
+                    raise InspectionStopped('Recovery only closes the recognized Post picker; no input was sent.')
+            elif initial['screen']!='profile' or initial['accountStatus']!='exact_text_match':
                 raise InspectionStopped('Start on the authorized Instagram profile. No input was sent.')
             # This old/quiet read can admit only the first move-only challenge.
             self.record['cleanup']='unconfirmed'; self.save(); self.owned.acquire()
             self.command('/mouse/reset',purpose='initial_pointer_reset')
+            if restore_profile_only:
+                self.command('/mouse/move',purpose='park_before_picker_recovery',x=480,y=300)
+                self.pause(.65)
+                self.action('return-profile-only','leave_picker','picker')
+                self.observe('profile')
+                self.record.update(state='profile_restored',savedDraftVerified=False)
+                return self.record
             self.action('open-create','profile_create','profile')
             self.action('choose-post-format','choose_post_format','create')
             self.action('open-prepared-library','open_drafts','picker')
@@ -284,6 +301,7 @@ class Workflow:
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
+    parser.add_argument('--return-profile-only',action='store_true',help='Close only a recognized Post picker; never open or save a draft.')
     args=parser.parse_args()
     sources=json.loads((HERE/'validation-sources.json').read_text(encoding='utf-8-sig'))
     for path,digest in sources['files'].items():
@@ -304,9 +322,10 @@ def main():
     cancelled=threading.Event()
     signal.signal(signal.SIGINT,lambda *_:cancelled.set())
     result=Workflow(args.out,StepKernel('http://127.0.0.1:9916/api'),ObservationStore(args.out/'observations.sqlite3'),
-        assets,manifest['caption'],templates,expected_hash,preparation['expectedUid'],cancelled=cancelled).run()
+        assets,manifest['caption'],templates,expected_hash,preparation['expectedUid'],cancelled=cancelled).run(
+            restore_profile_only=args.return_profile_only)
     print(json.dumps(dict(state=result['state'],cleanup=result['cleanup'],error=result.get('error'),folder=str(args.out))))
-    return 0 if result['state']=='validation_passed' else 2
+    return 0 if result['state'] in ('validation_passed','profile_restored') else 2
 
 
 if __name__=='__main__': raise SystemExit(main())

@@ -1,6 +1,6 @@
 # Fresh C24C validation of bounded draft transitions
 
-18 October 2026. Preparation for the five holds addressed in `c9d67f8`. **Fresh-phone execution is pending.** The installed release is unchanged. This is an explicitly invoked, bounded diagnostic; it does not enable a live marketing endpoint or claim unattended product acceptance.
+18 October 2026. Validation of the five holds addressed in `c9d67f8`. **Attempt 1 held before opening the draft; a refined diagnostic is prepared for a separate attempt.** The installed release is unchanged. This is an explicitly invoked, bounded diagnostic; it does not enable a live marketing endpoint or claim unattended product acceptance.
 
 ## Scope
 
@@ -46,3 +46,13 @@ Phone evidence shows that Back from details retains slide 3, whereas the earlier
 ## Acceptance record to complete
 
 For each of the five former holds, record the fresh screen, captures, exact waiter outcome and whether the transient actually occurred. Passing its archived replay does not prove it was reproduced during this phone run. Report Save/reopen, all-slide/caption checks, sampled account continuity, cleanup and file preservation separately. Preserve failures and timing holds without relabelling them as successes.
+
+## Attempt 1 and diagnostic refinement
+
+`attempt-01` recognized the authorized profile and Create sheet, then held before opening Drafts because the fourth picker capture exceeded the unchanged six-second settling budget. There were only two semantic actions: open Create and choose Post. No Save was sent. C24C's lease was released, with the picker still open.
+
+The four picker frames were individually fresh (656–689 ms age). Their home-indicator brightness rose from 114 to 195 to 237 and then remained at 237. Offline comparison of the last pair passed, but it arrived too late to accept live. The first pointer challenge took about 610 ms to move away from the clicked control; subsequent moves took about 50 ms. This is evidence for a diagnostic timing refinement, not a retroactive pass.
+
+The revised helper parks the pointer only after a confirmed action, before starting the next settling interval. The overall 90-second budget still includes that move, and six-second/four-frame settling, 1,500 ms freshness and protected control comparisons are unchanged. Uncertain action replies still stop with no further navigation. A separate `--return-profile-only` operation can close only a freshly recognized Post picker and verify the account profile; it cannot open or save a draft.
+
+The revised full-flow suite passed **12 checks in 63.978 seconds**, including picker-only recovery, cancellation and parking after confirmed actions (`workflow-tests-parking.txt`). Together with the unchanged 11 transport and 29 shared guard checks, this revision has 52 applicable preparation checks. Original preparation evidence and source hashes remain preserved; every phone attempt has its own record.

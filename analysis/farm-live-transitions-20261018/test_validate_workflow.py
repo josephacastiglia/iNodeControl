@@ -129,14 +129,15 @@ class WorkflowTests(unittest.TestCase):
             manifest=json.loads(package.read('manifest.json'))
             cls.caption=manifest['caption']; cls.assets=[package.read(a['file']) for a in manifest['assets']]
 
-    def run_fixture(self, scenario='normal'):
+    def run_fixture(self, scenario='normal', restore=False):
         temporary=tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
         folder=Path(temporary.name); kernel=FixtureKernel(self.templates,self.texts,scenario)
+        if restore: kernel.screen='picker'
         store=ObservationStore(folder/'observations.sqlite3',ocr=FixtureOcr(kernel),clock=kernel.clock,monotonic=kernel.clock)
         workflow=live.Workflow(folder,kernel,store,self.assets,self.caption,self.templates,'a'*64,'fixture-uid',
             monotonic=kernel.clock,pause=kernel.pause)
         kernel.cancelled=workflow.cancelled
-        return workflow.run(),kernel,workflow
+        return workflow.run(restore_profile_only=restore),kernel,workflow
 
     def test_whole_flow_uses_one_lease_all_slides_caption_and_returns_profile(self):
         result,kernel,_=self.run_fixture()
@@ -148,6 +149,9 @@ class WorkflowTests(unittest.TestCase):
             if o['role']=='editor' and (i==0 or result['observations'][i-1]['role']!='editor' or o['index']!=result['observations'][i-1]['index'])])
         self.assertEqual('offline_protocol_fixture',result['source'])
         self.assertFalse(result['productionAdapterAccepted'])
+        for index, command in enumerate(result['commands']):
+            if command['fun'] in ('/mouse/click','/mouse/swipe'):
+                self.assertEqual('park_after_answered_action',result['commands'][index+1]['purpose'])
 
     def test_known_transients_collect_new_pairs_without_semantic_retries(self):
         result,kernel,_=self.run_fixture('known_transients')
@@ -204,6 +208,24 @@ class WorkflowTests(unittest.TestCase):
         before=list(kernel.calls)
         with self.assertRaises(live.InspectionStopped): workflow.action('prepared-save-once','save_draft','save_prompt')
         self.assertEqual(before,kernel.calls)
+
+    def test_picker_recovery_returns_to_profile_without_opening_or_saving(self):
+        result,kernel,_=self.run_fixture(restore=True)
+        self.assertEqual('profile_restored',result['state'],result.get('error'))
+        self.assertEqual('confirmed',result['cleanup']); self.assertEqual('profile',kernel.screen)
+        self.assertEqual(0,kernel.saves); self.assertFalse(result['savedDraftVerified'])
+        self.assertEqual(['leave_picker'],[a['kind'] for a in result['actions']])
+
+    def test_picker_recovery_still_obeys_cancellation_before_actions(self):
+        temporary=tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
+        folder=Path(temporary.name); (folder/'STOP').write_text('',encoding='utf-8')
+        kernel=FixtureKernel(self.templates,self.texts); kernel.screen='picker'
+        store=ObservationStore(folder/'observations.sqlite3',ocr=FixtureOcr(kernel),clock=kernel.clock,monotonic=kernel.clock)
+        workflow=live.Workflow(folder,kernel,store,self.assets,self.caption,self.templates,'a'*64,'fixture-uid',
+            monotonic=kernel.clock,pause=kernel.pause)
+        result=workflow.run(restore_profile_only=True)
+        self.assertEqual('review_required',result['state']); self.assertFalse(result['actions'])
+        self.assertEqual(['release'],kernel.calls)
 
 
 if __name__=='__main__': unittest.main()
