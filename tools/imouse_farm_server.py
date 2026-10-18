@@ -49,6 +49,7 @@ from farm_capabilities import capabilities
 from farm_video import VideoDrafts
 from farm_observations import ObservationStore
 from farm_draft_verification import DraftVerifications
+from farm_carousel_inspection import CarouselInspections
 from farm_preparation_schedule import PreparationSchedule
 
 DEFAULT_HOST = "127.0.0.1"
@@ -97,7 +98,7 @@ class FarmBackendRuntime:
         self.operation_lock = threading.RLock()
         source = Path(__file__).resolve().parent
         import hashlib
-        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py", "farm_draft_media.py"))).hexdigest()
+        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py", "farm_draft_media.py", "farm_carousel_inspection.py"))).hexdigest()
         db_path = db_path or Path("output/farm-data/v2") / execution_mode / "imouse_farm.db"
         stage_root = stage_root or Path("output/media-stage/v2") / execution_mode
         self.calibration_path = db_path.parent / "ui-boxes.json"
@@ -109,6 +110,7 @@ class FarmBackendRuntime:
         self.videos = VideoDrafts(db_path.parent / "video-drafts.db", stage_root)
         self.observations = ObservationStore(db_path.parent / 'observations.db')
         self.verifications = DraftVerifications(db_path.parent / 'draft-verifications.db', self.observations, self.drafts)
+        self.inspections = CarouselInspections(db_path.parent / 'carousel-inspections.db', self.observations, self.drafts)
         self.transfers = CarouselTransfers(db_path.parent / "transfers.db", self.drafts, videos=self.videos)
         self.port = port
         self.lan_host_url = (engine.MediaPullOrchestrator.detect_host_lan_url(port=port)
@@ -310,6 +312,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         if RUNTIME is not None:
             payload = {**payload, "protocolVersion": 2, "executionMode": RUNTIME.execution_mode,
                        "simulated": (payload['observation'].get('source') == 'simulation') if 'observation' in payload
+                       else payload['inspection'].get('source') == 'simulation' if 'inspection' in payload
                        else payload['verification']['assessment']['source'] != 'phone' if 'verification' in payload
                        else False if any(k in payload for k in ('transfer', 'draft', 'drafts', 'sources', 'observations', 'frame', 'preparationSchedule', 'verifications')) else RUNTIME.execution_mode == "simulate"}
         raw = json.dumps(payload, indent=2).encode("utf-8")
@@ -334,6 +337,20 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
 
         if path == '/api/farm/capabilities':
             self._send_json(200, capabilities())
+            return
+
+        if path.startswith('/api/farm/carousel-inspections/'):
+            if not self._transfer_access_allowed():
+                self._send_json(403, {'error': 'Inspection evidence is local-only.'}); return
+            try:
+                parts = path.split('/')
+                if len(parts) == 7 and parts[5] == 'frames':
+                    import base64
+                    self._send_json(200, {'frame': base64.b64encode(RUNTIME.inspections.frame(parts[4], parts[6])).decode('ascii')})
+                elif len(parts) == 5:
+                    self._send_json(200, {'inspection': RUNTIME.inspections.get(parts[4])})
+                else: raise ValueError('Unknown inspection route.')
+            except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
             return
 
         if path == '/api/farm/draft-verifications' or path.startswith('/api/farm/draft-verifications/'):
@@ -429,6 +446,8 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "videoDraftsVersion": 1,
                     "observationsVersion": 2,
                     "draftVerificationVersion": 2,
+                    "carouselInspectionVersion": 1,
+                    "carouselInspectionLiveMovement": False,
                     "preparationScheduleVersion": 1,
                     "lanHostUrl": RUNTIME.lan_host_url,
                     "layersBuilt": 7,
@@ -514,7 +533,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/")
-        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/draft-verifications')) and not self._transfer_access_allowed():
+        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/draft-verifications', '/api/farm/carousel-inspections')) and not self._transfer_access_allowed():
             self.close_connection = True
             self._send_json(403, {"error": "Media, observation and preparation controls are local-only."})
             return
@@ -548,6 +567,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         interrupt = path == "/api/farm/emergency-stop" or (path.startswith("/api/farm/jobs/") and path.endswith("/cancel"))
         interrupt = interrupt or (path.startswith("/kernel-proxy") and data.get("fun") == "/input/stop")
         interrupt = interrupt or path == '/api/farm/preparation-schedule/pause'
+        interrupt = interrupt or (path.startswith('/api/farm/carousel-inspections/') and path.endswith('/cancel'))
         if interrupt or path == "/api/farm/jobs" or (path.startswith("/api/farm/transfers/") and path.endswith("/stop")):
             self._dispatch_post(path, data, raw_body)
             return
@@ -564,6 +584,12 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
     def _dispatch_post(self, path: str, data: dict, raw_body: bytes) -> None:
         assert RUNTIME is not None
         data = dict(data)
+        if path == '/api/farm/carousel-inspections':
+            self._send_json(200, {'inspection': RUNTIME.inspections.run(data, RUNTIME.get_kernel())}); return
+        if path.startswith('/api/farm/carousel-inspections/') and path.endswith('/cancel'):
+            parts = path.split('/')
+            if len(parts) != 6 or data: raise ValueError('Cancel requires only the inspection ID in its route.')
+            self._send_json(200, RUNTIME.inspections.cancel(parts[4])); return
         if path == '/api/farm/draft-verifications':
             self._send_json(200, {'verification': RUNTIME.verifications.create(data)}); return
         if path == '/api/farm/preparation-schedule':

@@ -55,6 +55,16 @@ def delivery_evidence(before, headers, after, elapsed_ms):
     return finish('recent', 'Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.')
 
 
+def capture_settled(value):
+    """Unowned idle frame, or capture authenticated by the internal owned-run guard."""
+    if value.get('inputIdle') is True:
+        return not value.get('ownershipEvidence')
+    proof = value.get('ownershipEvidence', {})
+    return (value.get('inputSettled') is True and proof.get('source') == 'owned_capture_guard'
+            and proof.get('authenticatedBeforeAndAfter') is True and bool(proof.get('runId'))
+            and type(proof.get('generation')) is int and proof['generation'] == value.get('inputGeneration'))
+
+
 def workflow_review(value):
     """Explain missing evidence. No result is an input/publish/message authorization."""
     blocked = []
@@ -63,7 +73,7 @@ def workflow_review(value):
     if value.get('expired'): blocked.append('Observation expired or belongs to an earlier observer session.')
     if value.get('freshness') != 'recent': blocked.append('Recent paired frame evidence is missing.')
     if value.get('stable') is not True: blocked.append('Receiver or input ownership changed during observation.')
-    if value.get('inputIdle') is not True: blocked.append('Phone input is owned, active, paused or its state is incomplete.')
+    if not capture_settled(value): blocked.append('Phone input is active, paused, owned by another controller or its state is incomplete.')
     if result.get('screen') not in ('profile', 'account_menu', 'draft_details', 'draft_preview', 'draft_library'):
         blocked.append('Screen is interrupted, unknown or still being edited.')
     if result.get('expectedAppMatches') is not True: blocked.append('Expected app pattern is missing.')

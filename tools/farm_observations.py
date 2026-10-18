@@ -270,10 +270,12 @@ class ObservationStore:
             output.append((value, frame if valid else None))
         return output
 
-    def capture(self, request, kernel):
+    def capture(self, request, kernel, *, owned_run=None):
         desired = expectations(request)
         request_id = str(uuid.UUID(request.get('id', '')))
-        fingerprint = hashlib.sha256(json.dumps(desired, sort_keys=True).encode()).hexdigest()
+        # owned_run is an internal lease guard, never a field accepted from HTTP.
+        identity = desired if owned_run is None else {**desired, 'ownedRun': owned_run.run_id}
+        fingerprint = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
         with self.lock:
             with self.connect() as db:
                 prior = db.execute('SELECT fingerprint FROM observations WHERE id=?', (request_id,)).fetchone()
@@ -288,8 +290,10 @@ class ObservationStore:
             self.timings[request_id] = (started, None)
             frame = None
             try:
-                # GET status/frames and read-only input status only. Never acquire or send input.
+                # The normal path remains read-only. A managed run authenticates its own
+                # lease on both sides of the frame; it never accepts another owner's lease.
                 resolved = kernel.resolve_device_id('C24C')
+                if owned_run is not None: owned_run.check(kernel)
                 before = kernel.kernel_status()
                 receiver = next((r for r in before.get('receivers', []) if r.get('deviceid') == resolved), None)
                 if receiver is None or receiver.get('live') is not True: raise ValueError('C24C video is offline.')
@@ -300,6 +304,7 @@ class ObservationStore:
                 after = kernel.kernel_status()
                 current = next((r for r in after.get('receivers', []) if r.get('deviceid') == resolved), {})
                 input_after = kernel.input_status().get(resolved)
+                if owned_run is not None: owned_run.check(kernel)
                 if (text.get('width'), text.get('height')) != (width, height): raise ValueError('OCR frame dimensions changed.')
                 result = classify(text, desired)
                 evidence = delivery_evidence(receiver, headers, current, (self.monotonic() - started) * 1000)
@@ -309,6 +314,11 @@ class ObservationStore:
                 input_idle = all(isinstance(s, dict) and type(s.get('generation')) is int
                                  and all(s.get(flag) is False for flag in ('owned', 'active', 'stopped', 'releasing', 'release_failed'))
                                  for s in (input_before, input_after))
+                if owned_run is not None:
+                    settled = owned_run.accepts(input_before, input_after)
+                    stable = (current.get('live') is True and current.get('receiver_pid') == receiver.get('receiver_pid')
+                              and current.get('receiver_restarts') == receiver.get('receiver_restarts') and settled)
+                    value.update(inputSettled=settled, ownershipEvidence=owned_run.evidence())
                 if not stable: result['reason'] = 'Phone ownership or receiver state changed during capture. Inspect again.'
                 value.update(state='observed', result=result, text=text, frameSha256=hashlib.sha256(raw).hexdigest(),
                              width=width, height=height, freshness=evidence['freshness'], frameEvidence=evidence, stable=stable, inputIdle=input_idle,

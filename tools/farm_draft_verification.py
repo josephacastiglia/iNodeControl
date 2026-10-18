@@ -17,6 +17,7 @@ import zipfile
 from farm_drafts import identifier, DraftConflict
 from farm_observations import classify, expectations
 from farm_draft_media import media_comparison
+from farm_frame_evidence import capture_settled
 
 ROLES = ('account_before', 'prepared', 'library', 'reopened', 'account_after')
 MAX_EVIDENCE_BYTES = 32 * 1024 * 1024
@@ -87,11 +88,12 @@ def account_history(spec, timeline, expected):
         allowed = result['appPattern'] == 'instagram' and result['screen'] in ('profile', 'draft_details', 'draft_editor')
         if not allowed and not library_candidate(value['text'], result):
             blockers.append('Account history crosses an interruption, another app or an unrecognized screen.')
-        if value.get('freshness') != 'recent' or value.get('stable') is not True or value.get('inputIdle') is not True:
+        if value.get('freshness') != 'recent' or value.get('stable') is not True or not capture_settled(value):
             blockers.append('Account history has stale, unavailable or unsettled input evidence.')
         evidence=value.get('frameEvidence', {})
         current=(value.get('observerSession'), value.get('resolvedDeviceId'), value.get('receiverPid'),
-                 value.get('inputGeneration'), evidence.get('session'), value.get('source'))
+                 value.get('inputGeneration'), evidence.get('session'), value.get('source'),
+                 value.get('ownershipEvidence', {}).get('runId', 'unowned'))
         if context is None: context=current
         if current != context or any(item is None for item in current) or evidence.get('pairedMetadata') is not True:
             blockers.append('Account history changed observer, device, ownership generation or stream context.')
@@ -125,7 +127,7 @@ def assess(spec, draft, assets, captures, timeline=None):
                 blockers.append('Observation expectations do not match this account and platform.')
             if value.get('freshness') != 'recent' or value.get('frameEvidence', {}).get('pairedMetadata') is not True:
                 blockers.append('An observation had no recent paired frame evidence at capture.')
-            if value.get('stable') is not True or value.get('inputIdle') is not True:
+            if value.get('stable') is not True or not capture_settled(value):
                 blockers.append('An observation overlapped changed or active input/receiver state.')
             result = classify(value['text'], expected)
             row = dict(id=observation_id, screen=result['screen'], account=result['accountStatus'],
@@ -151,7 +153,7 @@ def assess(spec, draft, assets, captures, timeline=None):
     if not chronological or times[-1][1] - times[0][0] > 900:
         blockers.append('Evidence must be chronological, nonoverlapping and within one 15-minute review run.')
     contexts = [(v.get('observerSession'), v.get('resolvedDeviceId'), v.get('receiverPid'), v.get('inputGeneration'),
-                 v.get('frameEvidence', {}).get('session')) for v in ordered]
+                 v.get('frameEvidence', {}).get('session'), v.get('ownershipEvidence', {}).get('runId', 'unowned')) for v in ordered]
     if not contexts or any(any(item is None for item in c) or c != contexts[0] for c in contexts):
         blockers.append('Observer, device, receiver, input generation or stream identity changed or is missing.')
     sequences = [v.get('frameEvidence', {}).get('sequence') for v in ordered]

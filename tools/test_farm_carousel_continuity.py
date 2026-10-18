@@ -138,5 +138,17 @@ class CarouselContinuityTests(unittest.TestCase):
         self.assertTrue(assessment['slideCoverage']['prepared']['fullSizeAndPositionMatch'])
         for key in ('accountContinuityProven','savedDraftVerified','automaticInputAllowed'): self.assertFalse(assessment[key])
 
+    def test_owned_samples_need_authenticated_matching_run_and_generation(self):
+        for value,_ in self.f.captures.values():
+            value.update(inputIdle=False,inputSettled=True,ownershipEvidence=dict(source='owned_capture_guard',
+                authenticatedBeforeAndAfter=True,runId='one-run',generation=value['inputGeneration']))
+        result=self.f.evaluate()
+        self.assertEqual('consistent_sampled_history',result['accountHistory']['status'])
+        self.assertFalse(result['accountContinuityProven'])
+        self.f.row('reopened')['ownershipEvidence']['runId']='other-run'
+        self.assertEqual('incomplete',self.f.evaluate()['accountHistory']['status'])
+        self.f.row('reopened')['ownershipEvidence'].update(runId='one-run',authenticatedBeforeAndAfter=False)
+        self.assertEqual('incomplete',self.f.evaluate()['accountHistory']['status'])
+
 
 if __name__=='__main__': unittest.main()

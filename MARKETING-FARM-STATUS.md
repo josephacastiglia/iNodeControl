@@ -1,6 +1,14 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest candidate: complete slide checks and account-history audit
+## Latest candidate: inspection under one lease
+
+Candidate `output/codex-farm-inspection-20261018`, DLL SHA-256 `fbcf242f901e75b4f539704e8b69ddf6acdcea6e1343d309c9edb61af446199f`. **259 Python tests and 505 native headless checks pass**; clean Release build. The separate candidate launcher includes the updated backend. This pass used no PC control or phone input, and changed no installed-release files or settings. A read-only API check found port 9913 offline; nothing was started.
+
+The backend can now rehearse a bounded carousel inspection under one C24C lease: retain the exact source package, authenticate ownership around each capture, match every full-size slide and page-dot position, journal each horizontal movement before sending it, stop on unexpected evidence, and release only its own token. Cancel and result retrieval work independently of the operation lock. Interrupted or repeated requests never replay movement. Evidence survives observation-history pruning.
+
+**Live movement is deliberately disabled.** The new API has mock-transport acceptance only and is not exposed as a native start button. A live request can collect a read-only preflight; missing paired frame metadata refuses before acquiring a lease, and even a compatible live kernel cannot enable movement yet. The known installed release has no paired frame metadata. The 90-second admission budget is checked around work; an in-flight request and cleanup can take longer. Account continuity, caption, save/reopen transitions and recovery across real app screens remain open. A complete slide match does not claim a saved draft. See [the report and API contract](analysis/farm-carousel-inspection-20261018/README.md).
+
+## Earlier candidate: complete slide checks and account-history audit
 
 Candidate `output/codex-farm-continuity-20261018`, DLL SHA-256 `70ab2b31cf2beb5258febd3a5c28d27331a8634c2084e20358c7d8b7dbfc8bc4`. **234 Python tests and 505 native headless checks pass**; clean Release build. The candidate launcher uses separate settings and a simulation backend. No PC control, publishing, messaging or installed-release changes.
 
