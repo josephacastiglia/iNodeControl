@@ -1,5 +1,13 @@
 # Marketing Farm candidate — 18 October 2026
 
+## Latest offline fixes: autoplay and ambiguous OCR
+
+The draft rehearsal now follows the observed Save → autoplay picker → Drafts → reopen path. It checks two fresh observations of the controls and grid while excluding only the fixed preview/status-bar regions. Changed controls, dialogs, expired frames, ownership changes and uncertain replies still stop it; Save is never replayed.
+
+The editor can be recognized from independently positioned controls and pixels when full-frame OCR omits part of Next. Before a Next action, an exact label is still required: one fixed, enlarged OCR crop from the same image can provide it. All eight retained ambiguous frames yielded exact Next, taking 0.94–1.07 seconds of processing. The total live capture must still meet the unchanged 1.5-second age limit. Captions and accounts are never repaired or inferred.
+
+**353 Python tests pass**, with four negative controls caught. Offline replay recognized 17 formerly unknown captures (8 editors, 5 pickers, 4 Save sheets) and preserved all 36 earlier OCR outcomes. One autoplay pair passed; another remained held for changes outside the preview. These frames informed the implementation and do not establish independent live accuracy. **Automatic live movement remains disabled.** No rack API, phone input, desktop control, publishing or messaging occurred; all 25 protected installed-file hashes match. Native binaries are unchanged. See [the implementation and evidence](analysis/farm-layout-stability-20261018/README.md).
+
 ## Latest live check: frame freshness and carousel save/reopen
 
 The separate C24C kernel supplied valid paired frame metadata. Old and slow-to-process frames were refused; a retained fresh frame expired without recapture. An existing test carousel was saved, uniquely found after its library position changed, reopened, and checked: **all three slides in order and the complete visible caption matched**. The expected Instagram account was verified before and after. This was supervised API work; no PC control, publishing, messaging or C241 input occurred.

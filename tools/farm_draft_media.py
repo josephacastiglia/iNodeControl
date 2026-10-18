@@ -4,33 +4,7 @@ import io
 import numpy as np
 from PIL import Image
 from farm_observations import image_size
-
-
-def carousel_position(frame):
-    """Read the small page dots in the supported editor, not numbers printed on media."""
-    image_size(frame)
-    with Image.open(io.BytesIO(frame)) as image:
-        image = image.convert('RGB').resize((500, 1080), Image.Resampling.LANCZOS)
-        pixels = np.asarray(image, dtype=float)
-    strip = pixels[835:844, 185:315]
-    brightness = strip.mean(axis=2)
-    columns = (brightness > 40).sum(axis=0) >= 3
-    runs, start = [], None
-    for x, present in enumerate(list(columns) + [False]):
-        if present and start is None: start = x
-        if not present and start is not None:
-            runs.append((start, x)); start = None
-    if not 2 <= len(runs) <= 10 or any(not 4 <= b-a <= 10 for a,b in runs):
-        return dict(status='unreadable', index=None, count=None)
-    centres = [(a+b)/2 for a,b in runs]
-    if (abs((centres[0]+centres[-1])/2 - 65) > 3
-            or any(not 9 <= b-a <= 14 for a,b in zip(centres, centres[1:]))):
-        return dict(status='unreadable', index=None, count=None)
-    levels = [float(np.percentile(brightness[:, a:b], 70)) for a,b in runs]
-    active = [i for i,v in enumerate(levels) if v >= 180]
-    if len(active) != 1 or any(v > 130 for i,v in enumerate(levels) if i not in active):
-        return dict(status='ambiguous', index=None, count=None)
-    return dict(status='visible_position', index=active[0]+1, count=len(runs))
+from farm_screen_layout import carousel_position
 
 
 def media_comparison(frame, assets, layout):

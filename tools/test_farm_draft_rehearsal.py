@@ -1,4 +1,5 @@
 import copy
+import io
 import json
 import sqlite3
 import subprocess
@@ -7,6 +8,7 @@ import threading
 import unittest
 import uuid
 from unittest.mock import patch
+from PIL import Image, ImageDraw, PngImagePlugin
 
 from farm_draft_rehearsal import DraftRehearsals, DraftAppModel, SCENARIOS, save_prompt
 from farm_drafts import DraftConflict
@@ -34,6 +36,9 @@ class RehearsalTests(unittest.TestCase):
         self.assertEqual('simulation_passed',result['state'],result)
         self.assertEqual('confirmed',result['cleanup']); self.assertFalse(self.models[0].owned)
         self.assertEqual(1,self.models[0].saves)
+        picker=next(a for a in result['actions'] if a['kind']=='open_drafts')['pickerStability']
+        self.assertTrue(picker['previewChanged']); self.assertTrue(picker['controlsStable'])
+        self.assertEqual(1,self.models[0].calls.count('open_drafts'))
         self.assertEqual(['save_draft','reopen'],[a['kind'] for a in result['actions'] if a['kind'] in ('save_draft','reopen')])
         for phase in ('prepared','reopened'):
             self.assertEqual({1,2},{c['index'] for c in result['checks'] if c['role']==phase+'_slide'})
@@ -53,11 +58,12 @@ class RehearsalTests(unittest.TestCase):
                 self.assertEqual('confirmed',result['cleanup'])
                 self.assertFalse(result['savedDraftVerified']); self.assertFalse(self.models[-1].owned)
 
-    def test_lost_save_answer_reads_library_once_without_reopen_or_resave(self):
+    def test_lost_save_answer_observes_picker_without_navigation_or_resave(self):
         result=self.run_case('save_reply_lost'); model=self.models[-1]
         self.assertEqual(1,model.saves); self.assertNotIn('reopen',model.calls)
         self.assertEqual('outcome_unknown',result['actions'][-1]['state'])
-        self.assertEqual('matching_screen_after_unknown_reply',result['reconciliation']['status'])
+        self.assertEqual('picker_after_unknown_reply',result['reconciliation']['status'])
+        self.assertNotIn('open_drafts',model.calls)
         calls=list(model.calls)
         restarted=DraftRehearsals(self.store.path,self.fixture.drafts)
         self.assertEqual(result,restarted.run(self.spec,model_factory=lambda *a: self.fail('No replay after restart')))
@@ -68,6 +74,77 @@ class RehearsalTests(unittest.TestCase):
         self.assertEqual(1,self.models[-1].calls.count('reopen'))
         self.assertEqual('reopen',result['reconciliation']['action'])
         self.assertEqual('matching_screen_after_unknown_reply',result['reconciliation']['status'])
+
+    def test_picker_changes_expiry_stream_change_and_cancellation_stop_before_navigation(self):
+        for fault in ('control','stale','stream','cancel','overlay'):
+            event=threading.Event()
+            def factory(*args):
+                model=self.factory(*args); shot=model.shot; count=[0]
+                def capture(phone):
+                    raw,headers=shot(phone)
+                    if model.screen=='picker':
+                        count[0]+=1
+                        if count[0]==3:
+                            if fault=='stale': headers['X-iMouse-Frame-Age-Ms']='2000'
+                            elif fault=='stream': model.session=uuid.uuid4().hex
+                            elif fault=='cancel': event.set()
+                            else:
+                                with Image.open(io.BytesIO(raw)) as image:
+                                    text=json.loads(image.info['imouseSyntheticText']); image=image.convert('RGB')
+                                if fault=='control': ImageDraw.Draw(image).rectangle((435,80,440,85),fill='white')
+                                else:
+                                    for label,y in (("Don't Allow",600),('Allow',650)):
+                                        text['lines'].append(dict(text=label,words=[dict(text=label,x=100,y=y,width=90,height=16)]))
+                                info=PngImagePlugin.PngInfo(); info.add_text('imouseSyntheticText',json.dumps(text))
+                                stream=io.BytesIO(); image.save(stream,'PNG',pnginfo=info); raw=stream.getvalue()
+                    return raw,headers
+                model.shot=capture; return model
+            with self.subTest(fault=fault):
+                result=self.run_case(model_factory=factory,cancelled=event); model=self.models[-1]
+                self.assertEqual('review_required',result['state'],result)
+                self.assertEqual(1,model.saves); self.assertNotIn('open_drafts',model.calls)
+                self.assertNotIn('reopen',model.calls); self.assertFalse(model.owned)
+
+    def test_lost_drafts_navigation_reply_never_repeats_save_or_navigation(self):
+        def factory(*args):
+            model=self.factory(*args); perform=model.perform
+            def action(value,token):
+                response=perform(value,token)
+                if value['kind']=='open_drafts': raise TimeoutError('Lost navigation reply')
+                return response
+            model.perform=action; return model
+        result=self.run_case(model_factory=factory); model=self.models[-1]
+        self.assertEqual('review_required',result['state']); self.assertEqual(1,model.saves)
+        self.assertEqual(1,model.calls.count('open_drafts')); self.assertNotIn('reopen',model.calls)
+        self.assertEqual('outcome_unknown',result['actions'][-1]['state'])
+
+    def test_editor_layout_is_not_permission_to_press_an_ambiguous_next_button(self):
+        original=self.store.observations.ocr.read
+        def ambiguous(raw):
+            text=original(raw)
+            for row in text['lines']:
+                if row['text']=='Next' and row['words'][0]['y']>980:
+                    row['text']=row['words'][0]['text']='ext'
+            return text
+        with patch.object(self.store.observations.ocr,'read',side_effect=ambiguous): result=self.run_case()
+        self.assertEqual('review_required',result['state']); self.assertIn('Next label',result['reason'])
+        self.assertNotIn('details',self.models[-1].calls); self.assertEqual(0,self.models[-1].saves)
+
+    def test_exact_cropped_next_label_works_but_recognition_delay_can_expire_it(self):
+        from test_farm_screen_layout import crop_proof
+        original=self.store.observations.ocr.read
+        for slow in (False,True):
+            def cropped(raw):
+                text=original(raw)
+                for row in text['lines']:
+                    if row['text']=='Next' and row['words'][0]['y']>980:
+                        row['text']=row['words'][0]['text']='ext'; crop_proof(raw,text)
+                        if slow: self.fixture.now[0]+=2
+                return text
+            with self.subTest(slow=slow),patch.object(self.store.observations.ocr,'read',side_effect=cropped):
+                result=self.run_case()
+            self.assertEqual('review_required' if slow else 'simulation_passed',result['state'],result)
+            if slow: self.assertEqual(0,self.models[-1].saves); self.assertNotIn('details',self.models[-1].calls)
 
     def test_dialog_or_stale_save_frame_prevents_save(self):
         for scenario in ('permission_prompt','stale_frame'):

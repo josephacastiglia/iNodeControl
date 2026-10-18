@@ -18,6 +18,7 @@ from contextlib import contextmanager
 
 from PIL import Image
 from farm_frame_evidence import MAX_AGE_MS, delivery_evidence, workflow_review
+from farm_screen_layout import NEXT_BOX, editor_controls, next_crop, next_label, picker_controls
 
 
 def image_size(raw):
@@ -31,32 +32,42 @@ def image_size(raw):
 
 
 class WindowsOcr:
-    def read(self, raw):
-        width, height = image_size(raw)
+    def _read_file(self, image_path, size):
         binary = Path(os.environ.get('WINDIR', 'C:/Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
         if not binary.is_file():
             raise ValueError('Windows image-text recognition is unavailable on this machine.')
         script = Path(__file__).with_name('Read-FarmImageText.ps1')
+        image_digest = hashlib.sha256(image_path.read_bytes()).hexdigest()
+        try:
+            result = subprocess.run([str(binary), '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                '-File', str(script), '-ImagePath', str(image_path)], capture_output=True, timeout=25,
+                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        except subprocess.TimeoutExpired as exc:
+            raise ValueError('Image-text recognition timed out; no screen state was verified.') from exc
+        if result.returncode:
+            raise ValueError('Windows OCR failed. Check that the English OCR language is installed; no screen state was verified.')
+        value = json.loads(result.stdout.decode('utf-8-sig'))
+        if value.get('imageSha256') != image_digest:
+            raise ValueError('OCR process did not read the exact submitted image.')
+        if (value.get('width'), value.get('height')) != size:
+            raise ValueError('OCR result dimensions differ from the source frame.')
+        return value
+
+    def read(self, raw):
+        size = image_size(raw)
         with tempfile.TemporaryDirectory(prefix='farm-observation-') as directory:
             image_path = Path(directory) / 'frame.png'
             with Image.open(io.BytesIO(raw)) as image:
                 image.convert('RGB').save(image_path)
-            image_digest = hashlib.sha256(image_path.read_bytes()).hexdigest()
-            try:
-                result = subprocess.run([str(binary), '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
-                    '-File', str(script), '-ImagePath', str(image_path)], capture_output=True, timeout=25,
-                    creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-            except subprocess.TimeoutExpired as exc:
-                raise ValueError('Image-text recognition timed out; no screen state was verified.') from exc
-            if result.returncode:
-                raise ValueError('Windows OCR failed. Check that the English OCR language is installed; no screen state was verified.')
-            value = json.loads(result.stdout.decode('utf-8-sig'))
-            if value.get('imageSha256') != image_digest:
-                raise ValueError('OCR process did not read the exact submitted image.')
-        if (value.get('width'), value.get('height')) != (width, height):
-            raise ValueError('OCR result dimensions differ from the source frame.')
-        value['frameSha256'] = hashlib.sha256(raw).hexdigest()
-        return value
+            value = self._read_file(image_path, size)
+            value['frameSha256'] = hashlib.sha256(raw).hexdigest()
+            if size == (500, 1080) and editor_controls(raw, value) and not next_label(raw, value):
+                crop, source_pixels = next_crop(raw)
+                path = Path(directory) / 'next-control.png'; path.write_bytes(crop)
+                detail = self._read_file(path, (246, 156))
+                value['controlOcr'] = {'next': {**detail, 'sourceFrameSha256': value['frameSha256'],
+                    'sourcePixelsSha256': source_pixels, 'bounds': list(NEXT_BOX), 'scale': 3}}
+            return value
 
 
 PLATFORMS = ('instagram', 'tiktok', 'x', 'youtube')
@@ -74,7 +85,7 @@ def expectations(request):
     return {'device_id': 'C24C', 'platform': request['platform'], 'account': account, 'caption': caption}
 
 
-def classify(text, expected):
+def classify(text, expected, frame=None):
     """Conservative English UI patterns; matches are observations, not app authenticity."""
     width, height = text['width'], text['height']
     rows = []
@@ -96,7 +107,7 @@ def classify(text, expected):
     def anchor(phrase, low, high, icon=False):
         return any(low <= y <= high and (n == phrase or (icon and n in (f'o {phrase}', f'0 {phrase}', f'# {phrase}', f'q {phrase}')))
                    for n, (_, y) in zip(normalized, rows))
-    state, app, layout = 'unknown', None, None
+    state, app, layout, layout_evidence = 'unknown', None, None, None
     # System interruptions always override an app pattern behind the overlay.
     if has("don't allow") and 'allow' in normalized:
         state = 'permission_prompt'
@@ -104,6 +115,10 @@ def classify(text, expected):
         state = 'sharing_dialog'
     elif has('airdrop') and has('save video') and has('save to files'):
         state = 'share_sheet'
+    elif all(sum(n == label and lo <= y <= hi for n, (_, y) in zip(normalized, rows)) == 1
+             for label, lo, hi in (('if you go back now, your edits will be discarded.', .71, .78),
+                                   ('discard', .78, .83), ('save draft', .83, .89), ('cancel', .90, .96))):
+        state, app = 'save_prompt', 'instagram'
     elif (anchor('caption', .04, .15) and anchor('hashtags', .18, .35, True)
           and anchor('poll', .18, .35) and anchor('prompt', .18, .35)
           and anchor('save draft', .88, .98) and anchor('share', .88, .98)
@@ -155,6 +170,16 @@ def classify(text, expected):
     elif 'post' in upper and 'cancel' in upper and has('everyone can reply'):
         state, app = 'draft_details', 'x'
 
+    if state == 'unknown' and frame is not None:
+        # Corroborate the screen from independent controls; do not repair OCR text.
+        layout_evidence = editor_controls(frame, text)
+        if layout_evidence:
+            state, app, layout = 'draft_editor', 'instagram', 'carousel_editor'
+        else:
+            layout_evidence = picker_controls(frame, text)
+            if layout_evidence:
+                state, app, layout = 'media_picker', 'instagram', 'post_media_picker'
+
     # Account identity is read only in designated identity regions, never from captions/comments.
     account_lines = []
     if state in ('profile', 'account_menu'):
@@ -183,7 +208,7 @@ def classify(text, expected):
               else 'The expected app pattern is not visible.' if app != expected['platform']
               else 'OCR did not read the expected account exactly; inspect the frame.' if not account_match
               else 'Expected account text is visible. This does not certify media, saved state or app authenticity.')
-    return {'screen': state, 'layout': layout, 'appPattern': app, 'expectedAppMatches': app == expected['platform'],
+    return {'screen': state, 'layout': layout, 'layoutEvidence': layout_evidence, 'appPattern': app, 'expectedAppMatches': app == expected['platform'],
             'accountStatus': account_state, 'observedHandles': handles,
             'captionStatus': 'exact_line_match' if caption_match else 'needs_review' if caption else 'not_requested',
             'reason': reason, 'automaticInputAllowed': False, 'savedDraftVerified': False,
@@ -331,7 +356,7 @@ class ObservationStore:
                 input_after = kernel.input_status().get(resolved)
                 if owned_run is not None: owned_run.check(kernel)
                 if (text.get('width'), text.get('height')) != (width, height): raise ValueError('OCR frame dimensions changed.')
-                result = classify(text, desired)
+                result = classify(text, desired, raw)
                 evidence = delivery_evidence(receiver, headers, current, (self.monotonic() - started) * 1000)
                 stable = (current.get('live') is True and current.get('receiver_pid') == receiver.get('receiver_pid')
                           and current.get('receiver_restarts') == receiver.get('receiver_restarts')

@@ -89,6 +89,37 @@ class VerificationTests(unittest.TestCase):
         self.row('account_after')['text'] = self.row('reopened')['text']
         self.assertEqual('incomplete', self.evaluate()['status'])
 
+    def test_history_accepts_recognized_picker_and_save_sheet_without_claiming_identity(self):
+        from test_farm_screen_layout import screen
+        picker,text=screen()
+        save_text=ocr_lines(('If you go back now, your edits will be discarded.',793),
+                            ('Discard',858),('Save draft',925),('Cancel',1002))
+        original=list(self.captures.values()); position=list(self.captures).index(self.spec['observations']['library'][0])
+        for text_value,frame in ((text,picker),(save_text,picker)):
+            value=copy.deepcopy(original[position-1][0]); value.update(id=str(uuid.uuid4()),text=text_value,
+                requestedAt=value['completedAt']+.1,completedAt=value['completedAt']+.8,
+                reviewFrameSha256=hashlib.sha256(frame).hexdigest())
+            value['frameEvidence']['sequence']+=1
+            timeline=original[:position]+[(value,frame)]+original[position:]
+            result=assess(self.spec,self.draft,self.assets,self.captures,timeline)
+            self.assertEqual('consistent_visual_evidence',result['status'],result['blockers'])
+            for key in ('savedDraftVerified','accountContinuityProven','automaticInputAllowed'): self.assertFalse(result[key])
+
+    def test_history_does_not_skip_overlay_or_unknown_picker_between_selected_frames(self):
+        from test_farm_screen_layout import screen
+        original=list(self.captures.values()); position=list(self.captures).index(self.spec['observations']['library'][0])
+        for mode in ('unknown','dialog'):
+            frame,text=screen()
+            if mode=='unknown': text['lines'].pop(3)
+            else: text['lines']+=ocr_lines(("Don't Allow",600),('Allow',650))['lines']
+            value=copy.deepcopy(original[position-1][0]); value.update(id=str(uuid.uuid4()),text=text,
+                requestedAt=value['completedAt']+.1,completedAt=value['completedAt']+.8,
+                reviewFrameSha256=hashlib.sha256(frame).hexdigest())
+            value['frameEvidence']['sequence']+=1
+            result=assess(self.spec,self.draft,self.assets,self.captures,original[:position]+[(value,frame)]+original[position:])
+            self.assertEqual('incomplete',result['status'])
+            self.assertTrue(any('interruption' in row for row in result['blockers']))
+
     def test_missing_reordered_duplicated_or_wrong_media_blocks(self):
         original = copy.deepcopy(self.spec)
         for replacement in ([self.spec['observations']['reopened'][0]], self.spec['observations']['reopened'][::-1],

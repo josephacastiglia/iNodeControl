@@ -81,11 +81,14 @@ def account_history(spec, timeline, expected):
         if (value.get('expected', {}).get('platform') != expected['platform']
                 or value.get('expected', {}).get('account', '').casefold() != expected['account'].casefold()):
             blockers.append('Account history includes a different expected app or account.')
-        result = classify(value['text'], expected)
+        result = classify(value['text'], expected, frame)
         row.update(screen=result['screen'], account=result['accountStatus'])
         if result['screen'] in ('profile', 'account_menu') and result['accountStatus'] != 'exact_text_match':
             blockers.append('Account history contains a different or unreadable account.')
-        allowed = result['appPattern'] == 'instagram' and result['screen'] in ('profile', 'draft_details', 'draft_editor')
+        # These recognized transitions belong to the sampled workflow. They do
+        # not identify the account or prove that Save actually persisted a draft.
+        allowed = result['appPattern'] == 'instagram' and result['screen'] in (
+            'profile', 'draft_details', 'draft_editor', 'save_prompt', 'media_picker')
         if not allowed and not library_candidate(value['text'], result):
             blockers.append('Account history crosses an interruption, another app or an unrecognized screen.')
         if value.get('freshness') != 'recent' or value.get('stable') is not True or not capture_settled(value):
@@ -129,7 +132,7 @@ def assess(spec, draft, assets, captures, timeline=None):
                 blockers.append('An observation had no recent paired frame evidence at capture.')
             if value.get('stable') is not True or not capture_settled(value):
                 blockers.append('An observation overlapped changed or active input/receiver state.')
-            result = classify(value['text'], expected)
+            result = classify(value['text'], expected, frame)
             row = dict(id=observation_id, screen=result['screen'], account=result['accountStatus'],
                        frameSha256=value['reviewFrameSha256'])
             if role in ('account_before', 'account_after'):
