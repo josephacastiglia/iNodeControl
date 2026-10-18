@@ -1,6 +1,12 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest offline fixes: autoplay and ambiguous OCR
+## Latest live follow-up: autoplay and saved carousel verified
+
+Fresh C24C frames passed the autoplay comparison on four pairs with moving preview pixels and stable protected controls. The existing three-slide Instagram test draft was saved, uniquely found, reopened, and verified: every slide in order and the full visible caption matched. The authorized account was checked before and after. A fresh Next-label OCR failure was corrected by excluding the adjacent arrow from the fixed label crop; exact text, whole-frame binding and the 1.5-second age budget remain required.
+
+**355 Python regressions and 11 diagnostic-helper checks pass.** The native console and kernel are unchanged. This was supervised API work with five retained review holds, so **unattended save/reopen and continuous account verification remain unaccepted**. No PC control, publishing, messaging, C241 input or FKA change occurred. The isolated receiver was stopped, the initially stopped rack state restored, and all 25 protected installed-file hashes matched. [Live evidence, fix and remaining work](analysis/farm-live-layout-20261018/README.md).
+
+## Earlier offline fixes: autoplay and ambiguous OCR
 
 The draft rehearsal now follows the observed Save → autoplay picker → Drafts → reopen path. It checks two fresh observations of the controls and grid while excluding only the fixed preview/status-bar regions. Changed controls, dialogs, expired frames, ownership changes and uncertain replies still stop it; Save is never replayed.
 
@@ -8,7 +14,7 @@ The editor can be recognized from independently positioned controls and pixels w
 
 **353 Python tests pass**, with four negative controls caught. Offline replay recognized 17 formerly unknown captures (8 editors, 5 pickers, 4 Save sheets) and preserved all 36 earlier OCR outcomes. One autoplay pair passed; another remained held for changes outside the preview. These frames informed the implementation and do not establish independent live accuracy. **Automatic live movement remains disabled.** No rack API, phone input, desktop control, publishing or messaging occurred; all 25 protected installed-file hashes match. Native binaries are unchanged. See [the implementation and evidence](analysis/farm-layout-stability-20261018/README.md).
 
-## Latest live check: frame freshness and carousel save/reopen
+## Earlier live check: frame freshness and carousel save/reopen
 
 The separate C24C kernel supplied valid paired frame metadata. Old and slow-to-process frames were refused; a retained fresh frame expired without recapture. An existing test carousel was saved, uniquely found after its library position changed, reopened, and checked: **all three slides in order and the complete visible caption matched**. The expected Instagram account was verified before and after. This was supervised API work; no PC control, publishing, messaging or C241 input occurred.
 

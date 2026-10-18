@@ -12,12 +12,17 @@ from PIL import Image
 
 
 NEXT_BOX = (396, 980, 478, 1032)
+# Keep the label separate from the adjacent arrow. The full button is still
+# required for editor geometry; OCR must return the exact word from this crop.
+NEXT_LABEL_BOX = (404, 987, 447, 1026)
+NEXT_LABEL_SCALE = 3
+NEXT_CROP_SIZE = (129, 117)
 
 
 def next_crop(frame):
     """A fixed control crop; never crop or repair account/caption text."""
     image = Image.fromarray(pixels(frame, exact=True))
-    crop = image.crop(NEXT_BOX).resize((246, 156), Image.Resampling.LANCZOS)
+    crop = image.crop(NEXT_LABEL_BOX).resize(NEXT_CROP_SIZE, Image.Resampling.LANCZOS)
     stream = io.BytesIO(); crop.save(stream, 'PNG')
     return stream.getvalue(), hashlib.sha256(image.tobytes()).hexdigest()
 
@@ -31,10 +36,10 @@ def next_label(frame, text):
     crop, source_pixels = next_crop(frame)
     if (detail.get('sourceFrameSha256') != text.get('frameSha256')
             or detail.get('sourcePixelsSha256') != source_pixels
-            or detail.get('bounds') != list(NEXT_BOX) or detail.get('scale') != 3
-            or (detail.get('width'), detail.get('height')) != (246, 156)
+            or detail.get('bounds') != list(NEXT_LABEL_BOX) or detail.get('scale') != NEXT_LABEL_SCALE
+            or (detail.get('width'), detail.get('height')) != NEXT_CROP_SIZE
             or detail.get('imageSha256') != hashlib.sha256(crop).hexdigest()
-            or not words_at(detail, 'next', (0, 0, 246, 156))):
+            or not words_at(detail, 'next', (0, 0, *NEXT_CROP_SIZE))):
         return None
     return dict(method='same_frame_crop_exact_word', label='Next', imageSha256=detail['imageSha256'])
 

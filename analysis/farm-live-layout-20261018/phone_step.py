@@ -26,7 +26,7 @@ from farm_carousel_inspection import OwnedCaptureRun, InspectionStopped
 from farm_live_verification import ReadOnlyKernel, NoRedirect, validate_runtime, idle
 from farm_frame_evidence import capture_settled
 from farm_observations import ObservationStore, WindowsOcr
-from farm_screen_layout import picker_controls, picker_stability, editor_controls, next_label, NEXT_BOX
+from farm_screen_layout import picker_controls, picker_stability, editor_controls, next_label, NEXT_BOX, words_at
 from farm_draft_rehearsal import save_prompt
 from farm_draft_media import media_comparison
 from imouse_social_automation import IMouseKernel, LIVE_TEST_DEVICE_ID, KernelSafetyError
@@ -68,8 +68,15 @@ def allowed_tap(text, x, y, intent, frame=None):
                 # Selecting the explicit Post format in the create menu is preparation,
                 # not the final Post/Share action. It needs an independent visual review.
                 labels={row['text'].casefold() for row in text.get('lines',[])}
+                # The current Create sheet also has an Edits row. OCR sometimes
+                # omits Reel entirely; recognize independent, exact positioned
+                # labels rather than repairing it or bypassing the Post guard.
+                edits_menu = all(words_at(text,label,box) for label,box in (
+                    ('create',(205,505,290,540)),('edits',(60,612,130,650)),
+                    ('post',(60,665,130,700)),('story',(60,720,140,755)),
+                    ('instants',(60,770,155,810))))
                 if not (intent == 'choose_post_format' and line['text'].casefold() == 'post'
-                        and {'create','reel','story'} <= labels and .30 < y/1080 < .92):
+                        and ({'create','reel','story'} <= labels or edits_menu) and .30 < y/1080 < .92):
                     raise InspectionStopped('Target overlaps a prohibited or ambiguous action label.')
     if intent == 'details':
         left, top, right, bottom = NEXT_BOX
@@ -186,6 +193,7 @@ def main():
     (folder/'reviewed.png').write_bytes(baseline)
     record=dict(source='agent_supervised_phone',action=args.action,intent=args.intent,point=args.point,
         commands=[],captures=[],cleanup='not_needed',state='not_sent',savedDraftVerified=False,
+        helperSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         automaticInputAllowed=False,reviewFrameSha256=hashlib.sha256(baseline).hexdigest())
     def save(): (folder/'record.json').write_text(json.dumps(record,indent=2),encoding='utf-8')
     kernel=StepKernel(preparation['arguments'][0].rstrip('/'))

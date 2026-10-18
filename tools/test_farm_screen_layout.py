@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 from farm_observations import WindowsOcr, classify
-from farm_screen_layout import NEXT_BOX, editor_controls, next_crop, next_label, picker_controls, picker_stability
+from farm_screen_layout import NEXT_BOX, NEXT_LABEL_BOX, NEXT_LABEL_SCALE, NEXT_CROP_SIZE, editor_controls, next_crop, next_label, picker_controls, picker_stability
 
 
 def encoded(image):
@@ -43,7 +43,7 @@ def changed(raw, box, fill):
 
 def crop_proof(frame, text, label='Next'):
     crop, source_pixels=next_crop(frame)
-    text['controlOcr']={'next': dict(width=246,height=156,scale=3,bounds=list(NEXT_BOX),
+    text['controlOcr']={'next': dict(width=NEXT_CROP_SIZE[0],height=NEXT_CROP_SIZE[1],scale=NEXT_LABEL_SCALE,bounds=list(NEXT_LABEL_BOX),
         sourcePixelsSha256=source_pixels,sourceFrameSha256=text['frameSha256'],
         imageSha256=hashlib.sha256(crop).hexdigest(),
         lines=[dict(text=label,words=[dict(text=label,x=40,y=50,width=80,height=30)])])}
@@ -183,7 +183,7 @@ class LayoutTests(unittest.TestCase):
             detail=crop_proof(frame,copy.deepcopy(text))['controlOcr']['next']
             return {k:v for k,v in detail.items() if k in ('width','height','imageSha256','lines')}
         with patch.object(WindowsOcr,'_read_file',side_effect=read): result=WindowsOcr().read(frame)
-        self.assertEqual([(500,1080),(246,156)],[size for _,size in calls])
+        self.assertEqual([(500,1080),NEXT_CROP_SIZE],[size for _,size in calls])
         self.assertEqual(next_crop(frame)[0],calls[1][0])
         self.assertEqual(text['lines'],result['lines'])
         self.assertIsNotNone(next_label(frame,result))
@@ -204,6 +204,21 @@ class LayoutTests(unittest.TestCase):
             result=WindowsOcr().read(frame)
         self.assertEqual(2,read.call_count); self.assertIsNone(next_label(frame,result))
         self.assertEqual('draft_editor',classify(result,self.expected,frame)['screen'])
+
+    def test_label_crop_excludes_arrow_but_is_bound_to_the_whole_source(self):
+        frame,text=screen('editor'); original_crop,_=next_crop(frame)
+        arrow_changed=changed(frame,(451,1000,462,1012),'white')
+        crop,pixels_hash=next_crop(arrow_changed)
+        self.assertEqual(original_crop,crop)
+        self.assertEqual((129,117),Image.open(io.BytesIO(crop)).size)
+        crop_proof(frame,text)
+        self.assertIsNone(next_label(arrow_changed,text))
+        self.assertNotEqual(text['controlOcr']['next']['sourcePixelsSha256'],pixels_hash)
+
+    def test_old_full_button_ocr_proof_cannot_authorize_the_new_label_crop(self):
+        frame,text=screen('editor'); crop_proof(frame,text)
+        text['controlOcr']['next'].update(bounds=list(NEXT_BOX),width=246,height=156)
+        self.assertIsNone(next_label(frame,text))
 
 
 if __name__=='__main__': unittest.main()

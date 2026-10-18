@@ -18,7 +18,7 @@ from contextlib import contextmanager
 
 from PIL import Image
 from farm_frame_evidence import MAX_AGE_MS, delivery_evidence, workflow_review
-from farm_screen_layout import NEXT_BOX, editor_controls, next_crop, next_label, picker_controls
+from farm_screen_layout import NEXT_LABEL_BOX, NEXT_LABEL_SCALE, NEXT_CROP_SIZE, editor_controls, next_crop, next_label, picker_controls
 
 
 def image_size(raw):
@@ -64,9 +64,9 @@ class WindowsOcr:
             if size == (500, 1080) and editor_controls(raw, value) and not next_label(raw, value):
                 crop, source_pixels = next_crop(raw)
                 path = Path(directory) / 'next-control.png'; path.write_bytes(crop)
-                detail = self._read_file(path, (246, 156))
+                detail = self._read_file(path, NEXT_CROP_SIZE)
                 value['controlOcr'] = {'next': {**detail, 'sourceFrameSha256': value['frameSha256'],
-                    'sourcePixelsSha256': source_pixels, 'bounds': list(NEXT_BOX), 'scale': 3}}
+                    'sourcePixelsSha256': source_pixels, 'bounds': list(NEXT_LABEL_BOX), 'scale': NEXT_LABEL_SCALE}}
             return value
 
 
