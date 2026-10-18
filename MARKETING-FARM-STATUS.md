@@ -1,6 +1,16 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest candidate: offline draft save/reopen and recovery
+## Latest candidate: saved preparation batches and durable job recovery
+
+Candidate `output/codex-farm-preparation-20261018`, built from `6b395eec620a`, DLL SHA-256 `49cab77c792b532b17b51283654ac9a2621ce1ae0d7058d8f45c8c05951ffd1b`. **318 Python tests and 532 native headless checks pass**, with a clean Release build. The installed release and operator settings remain unchanged. This pass used no phone input, rack API, PC control, publishing or messaging.
+
+Each completed local preparation retains its exact generation and an editable carousel snapshot. The preparation window opens that run's carousel or original video/caption after later batches have been generated. Manifest/source changes refuse instead of substituting newer content. Unrelated unsaved edits are preserved; saved copies recover without duplication. Unchanged revisions now export with stable checksums.
+
+Cancellation survives delayed job submission and backend restarts. An OS lock prevents competing workers sharing a journal. Real process-crash tests confirm no replay; a late heartbeat cannot rewrite a finished result. HTTP server uncertainty keeps the console's pending request available for inspection.
+
+Two actual local background renders and four older-batch video preparation/decoding paths passed without a phone or transfer service. **Unattended phone automation is still not accepted:** real-stream freshness and the real app save/reopen adapter need live validation. Publishing and messaging stay disabled. See [this pass's report](analysis/farm-preparation-continuity-20261018/README.md).
+
+## Earlier candidate: offline draft save/reopen and recovery
 
 Candidate `output/codex-farm-save-reopen-20261018`, DLL SHA-256 `972d143b265c1d0ee2514d0320b88dfbaf05342c9d0d1941f8842f12010fea19`. **294 Python tests and 517 native headless checks pass**, with a clean Release build. The final recovery-specific checks cover the last cancellation/admission changes. This pass uses no phone input, rack API, PC control, publishing or messaging. Installed release files, shortcuts, kernel and receivers stay unchanged.
 
