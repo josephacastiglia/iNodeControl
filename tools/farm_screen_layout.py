@@ -93,6 +93,27 @@ def overlay_present(text):
     return any(row in exact or 'edits will be discarded' in row or 'would like to' in row for row in lines)
 
 
+def create_menu_controls(frame, text):
+    """Observed Create sheet, not the profile visible behind it or a publish button."""
+    if (text.get('width'), text.get('height')) != (500, 1080) or overlay_present(text):
+        return None
+    boxes = {'create': (205, 505, 290, 540), 'edits': (60, 612, 130, 650),
+             'post': (60, 665, 130, 700), 'story': (60, 720, 140, 755),
+             'instants': (60, 770, 155, 810), 'highlights': (60, 825, 175, 865),
+             'live': (60, 880, 140, 920), 'fundraiser': (60, 930, 180, 970)}
+    if not all(words_at(text, label, box) for label, box in boxes.items()):
+        return None
+    try: image = pixels(frame, exact=True)
+    except ValueError: return None
+    # Empty sheet margin and the separated rows must be light; a text list alone
+    # or a modal over the profile cannot establish this navigation target.
+    for left, top, right, bottom in ((180, 550, 400, 970), (30, 1000, 470, 1040)):
+        if (image[top:bottom, left:right].min(axis=2) > 225).mean() < .97:
+            return None
+    return dict(method='create_sheet_positioned_controls', postBounds=list(words_at(text, 'post', boxes['post'])[0]),
+                automaticInputAllowed=False)
+
+
 def carousel_position(frame):
     """Read page dots, not numbers printed on the content."""
     strip = pixels(frame)[835:844, 185:315].astype(float)

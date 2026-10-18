@@ -18,7 +18,7 @@ from contextlib import contextmanager
 
 from PIL import Image
 from farm_frame_evidence import MAX_AGE_MS, delivery_evidence, workflow_review
-from farm_screen_layout import NEXT_LABEL_BOX, NEXT_LABEL_SCALE, NEXT_CROP_SIZE, editor_controls, next_crop, next_label, picker_controls
+from farm_screen_layout import NEXT_LABEL_BOX, NEXT_LABEL_SCALE, NEXT_CROP_SIZE, create_menu_controls, editor_controls, next_crop, next_label, picker_controls
 
 
 def image_size(raw):
@@ -119,6 +119,11 @@ def classify(text, expected, frame=None):
              for label, lo, hi in (('if you go back now, your edits will be discarded.', .71, .78),
                                    ('discard', .78, .83), ('save draft', .83, .89), ('cancel', .90, .96))):
         state, app = 'save_prompt', 'instagram'
+    elif frame is not None and create_menu_controls(frame, text):
+        # A sheet wins over background profile/account labels. Its Post control
+        # chooses the content format; it never establishes a publishing target.
+        state, app, layout = 'create_menu', 'instagram', 'post_create_sheet'
+        layout_evidence = create_menu_controls(frame, text)
     elif (anchor('caption', .04, .15) and anchor('hashtags', .18, .35, True)
           and anchor('poll', .18, .35) and anchor('prompt', .18, .35)
           and anchor('save draft', .88, .98) and anchor('share', .88, .98)

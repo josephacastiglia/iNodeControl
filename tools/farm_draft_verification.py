@@ -88,7 +88,7 @@ def account_history(spec, timeline, expected):
         # These recognized transitions belong to the sampled workflow. They do
         # not identify the account or prove that Save actually persisted a draft.
         allowed = result['appPattern'] == 'instagram' and result['screen'] in (
-            'profile', 'draft_details', 'draft_editor', 'save_prompt', 'media_picker')
+            'profile', 'draft_details', 'draft_editor', 'save_prompt', 'media_picker', 'create_menu')
         if not allowed and not library_candidate(value['text'], result):
             blockers.append('Account history crosses an interruption, another app or an unrecognized screen.')
         if value.get('freshness') != 'recent' or value.get('stable') is not True or not capture_settled(value):

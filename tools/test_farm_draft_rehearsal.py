@@ -38,7 +38,9 @@ class RehearsalTests(unittest.TestCase):
         self.assertEqual(1,self.models[0].saves)
         picker=next(a for a in result['actions'] if a['kind']=='open_drafts')['pickerStability']
         self.assertTrue(picker['previewChanged']); self.assertTrue(picker['controlsStable'])
-        self.assertEqual(1,self.models[0].calls.count('open_drafts'))
+        self.assertEqual(2,self.models[0].calls.count('open_drafts'))
+        self.assertEqual(['open_create','choose_post_format','open_drafts','open_prepared'],
+                         [a['kind'] for a in result['actions'][:4]])
         self.assertEqual(['save_draft','reopen'],[a['kind'] for a in result['actions'] if a['kind'] in ('save_draft','reopen')])
         for phase in ('prepared','reopened'):
             self.assertEqual({1,2},{c['index'] for c in result['checks'] if c['role']==phase+'_slide'})
@@ -63,7 +65,7 @@ class RehearsalTests(unittest.TestCase):
         self.assertEqual(1,model.saves); self.assertNotIn('reopen',model.calls)
         self.assertEqual('outcome_unknown',result['actions'][-1]['state'])
         self.assertEqual('picker_after_unknown_reply',result['reconciliation']['status'])
-        self.assertNotIn('open_drafts',model.calls)
+        self.assertEqual(1,model.calls.count('open_drafts'))  # Initial prepared draft only.
         calls=list(model.calls)
         restarted=DraftRehearsals(self.store.path,self.fixture.drafts)
         self.assertEqual(result,restarted.run(self.spec,model_factory=lambda *a: self.fail('No replay after restart')))
@@ -82,7 +84,7 @@ class RehearsalTests(unittest.TestCase):
                 model=self.factory(*args); shot=model.shot; count=[0]
                 def capture(phone):
                     raw,headers=shot(phone)
-                    if model.screen=='picker':
+                    if model.screen=='picker' and model.saved is not None:
                         count[0]+=1
                         if count[0]==3:
                             if fault=='stale': headers['X-iMouse-Frame-Age-Ms']='2000'
@@ -102,7 +104,7 @@ class RehearsalTests(unittest.TestCase):
             with self.subTest(fault=fault):
                 result=self.run_case(model_factory=factory,cancelled=event); model=self.models[-1]
                 self.assertEqual('review_required',result['state'],result)
-                self.assertEqual(1,model.saves); self.assertNotIn('open_drafts',model.calls)
+                self.assertEqual(1,model.saves); self.assertEqual(1,model.calls.count('open_drafts'))
                 self.assertNotIn('reopen',model.calls); self.assertFalse(model.owned)
 
     def test_lost_drafts_navigation_reply_never_repeats_save_or_navigation(self):
@@ -110,13 +112,56 @@ class RehearsalTests(unittest.TestCase):
             model=self.factory(*args); perform=model.perform
             def action(value,token):
                 response=perform(value,token)
-                if value['kind']=='open_drafts': raise TimeoutError('Lost navigation reply')
+                if value['kind']=='open_drafts' and model.saved is not None: raise TimeoutError('Lost navigation reply')
                 return response
             model.perform=action; return model
         result=self.run_case(model_factory=factory); model=self.models[-1]
         self.assertEqual('review_required',result['state']); self.assertEqual(1,model.saves)
-        self.assertEqual(1,model.calls.count('open_drafts')); self.assertNotIn('reopen',model.calls)
+        self.assertEqual(2,model.calls.count('open_drafts')); self.assertNotIn('reopen',model.calls)
         self.assertEqual('outcome_unknown',result['actions'][-1]['state'])
+
+    def test_known_loading_changes_settle_without_manual_review_or_repeating_actions(self):
+        def factory(*args):
+            model=self.factory(*args); shot=model.shot; counts={}
+            def capture(phone):
+                raw,headers=shot(phone)
+                key=(model.screen,model.saved is not None,model.reopened)
+                counts[key]=counts.get(key,0)+1
+                with Image.open(io.BytesIO(raw)) as source:
+                    annotations=source.info['imouseSyntheticText']; image=source.convert('RGB')
+                draw=ImageDraw.Draw(image)
+                if model.screen=='picker':
+                    draw.rectangle((161,1064,338,1070),fill='white' if counts[key]<=2 else '#555555')
+                elif model.screen=='editor' and counts[key]>=3:
+                    draw.rounded_rectangle((123,65,376,132),radius=30,fill='#888888')
+                info=PngImagePlugin.PngInfo(); info.add_text('imouseSyntheticText',annotations)
+                stream=io.BytesIO(); image.save(stream,'PNG',pnginfo=info)
+                return stream.getvalue(),headers
+            model.shot=capture; return model
+        result=self.run_case(model_factory=factory); model=self.models[-1]
+        self.assertEqual('simulation_passed',result['state'],result['reason'])
+        self.assertEqual(1,model.saves); self.assertEqual(1,model.calls.count('reopen'))
+        self.assertEqual(1,model.calls.count('choose_post_format'))
+        self.assertTrue(any('fading' in e.get('reason','') for e in result['transitionChecks']))
+        self.assertTrue(any('header' in e.get('reason','') for e in result['transitionChecks']))
+        self.assertFalse(any(e['state']=='held' for e in result['transitionChecks']))
+        self.assertEqual('confirmed',result['cleanup']); self.assertFalse(model.owned)
+
+    def test_cancel_while_waiting_for_indicator_does_not_repeat_save_or_navigate(self):
+        event=threading.Event()
+        def factory(*args):
+            model=self.factory(*args); shot=model.shot; count=[0]
+            def capture(phone):
+                raw,headers=shot(phone)
+                if model.screen=='picker' and model.saved is not None:
+                    count[0]+=1
+                    if count[0]==3: event.set()
+                return raw,headers
+            model.shot=capture; return model
+        result=self.run_case(model_factory=factory,cancelled=event); model=self.models[-1]
+        self.assertEqual('review_required',result['state'])
+        self.assertEqual(1,model.saves); self.assertEqual(1,model.calls.count('open_drafts'))
+        self.assertNotIn('reopen',model.calls); self.assertFalse(model.owned)
 
     def test_editor_layout_is_not_permission_to_press_an_ambiguous_next_button(self):
         original=self.store.observations.ocr.read

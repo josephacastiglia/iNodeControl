@@ -18,7 +18,7 @@ from farm_drafts import DraftConflict, identifier
 from farm_draft_verification import caption_comparison, library_candidate
 from farm_draft_media import media_comparison
 from farm_observations import ObservationStore, classify
-from farm_screen_layout import next_label, picker_stability
+from farm_transitions import wait_for_transition
 
 
 SCENARIOS = ('normal', 'save_reply_lost', 'reopen_reply_lost', 'permission_prompt',
@@ -91,7 +91,8 @@ Semantic transitions have no direct mapping to phone taps or gestures.
     def perform(self, action, token):
         self.renew_if_needed({'C24C': token}, 0)
         kind = action['kind']; self.calls.append(kind)
-        transitions = {'open_prepared': ('profile', 'editor'), 'details': ('editor', 'details'),
+        transitions = {'open_create': ('profile', 'create_menu'), 'choose_post_format': ('create_menu', 'picker'),
+                       'open_prepared': ('library', 'editor'), 'details': ('editor', 'details'),
                        'back_to_editor': ('details', 'editor'), 'request_save': ('editor', 'save_prompt'),
                        'save_draft': ('save_prompt', 'picker'), 'open_drafts': ('picker', 'library'),
                        'reopen': ('library', 'editor'),
@@ -149,11 +150,11 @@ Semantic transitions have no direct mapping to phone taps or gestures.
                 for n, label in enumerate(caption.splitlines() if caption else ['Add a caption...']): line(label,454+20*n)
             elif self.screen == 'library':
                 line('Drafts',78); line('Select',78)
-                with Image.open(io.BytesIO(self.saved[0][0])) as first:
+                with Image.open(io.BytesIO((self.saved[0] if self.saved else self.assets)[0])) as first:
                     side = min(first.size); x=(first.width-side)//2; y=(first.height-side)//2
                     thumbnail=first.crop((x,y,x+side,y+side)).resize((124,124))
                 image.paste(thumbnail,(125,111))
-                if self.scenario == 'duplicate_cover': image.paste(thumbnail,(250,111))
+                if self.saved is not None and self.scenario == 'duplicate_cover': image.paste(thumbnail,(250,111))
             elif self.screen == 'picker':
                 # The preview changes at every capture, while navigation/grid stay fixed.
                 image.paste((20 + self.sequence % 2 * 90,40,60),(0,112,500,612))
@@ -163,6 +164,12 @@ Semantic transitions have no direct mapping to phone taps or gestures.
                     line(label,y,x,width)
             elif self.screen == 'save_prompt':
                 for label,y in [('If you go back now, your edits will be discarded.',793), ('Discard',858), ('Save draft',925), ('Cancel',1002)]: line(label,y)
+            elif self.screen == 'create_menu':
+                image.paste('white', (0, 466, 500, 1080))
+                for label,y,x,width in (('Create',516,219,62),('Edits',621,70,41),('Post',675,70,37),
+                                        ('Story',728,69,46),('Instants',781,70,67),('Highlights',833,70,86),
+                                        ('Live',886,70,33),('Fundraiser',939,70,91)):
+                    line(label,y,x,width)
             else:
                 account = 'other.account' if self.reopened and self.scenario == 'account_changed' else 'simulation.account'
                 for label,y in [(account,90),('Posts',180),('Following',180),('Edit profile',300),('Share profile',300)]: line(label,y)
@@ -170,7 +177,8 @@ Semantic transitions have no direct mapping to phone taps or gestures.
             line("Don't Allow",600); line('Allow',650)
         # Draw labels outside the media areas; the fixture metadata is explicit and retained.
         draw=ImageDraw.Draw(image)
-        for row in rows: draw.text((row['words'][0]['x'],row['words'][0]['y']),row['text'],fill='white')
+        for row in rows: draw.text((row['words'][0]['x'],row['words'][0]['y']),row['text'],
+                                  fill='black' if self.screen=='create_menu' else 'white')
         info=PngImagePlugin.PngInfo()
         info.add_text('imouseSyntheticText',json.dumps(dict(width=500,height=1080,lines=rows)))
         output=io.BytesIO(); image.save(output,'PNG',pnginfo=info)
@@ -243,6 +251,9 @@ class DraftRehearsals(CarouselInspections):
                 raise InspectionStopped('The full visible caption or details media did not match.')
         elif role=='save_prompt':
             if not save_prompt(value['text']): raise InspectionStopped('The supported Save draft sheet is not visible.')
+        elif role=='create_menu':
+            if result.get('layout')!='post_create_sheet':
+                raise InspectionStopped('The Create sheet is not independently recognized.')
         elif role=='library':
             comparison=media_comparison(frame,assets,'draft_library_candidate' if library_candidate(value['text'],result) else None)
             if comparison.get('matchedIndex')!=1 or comparison.get('matchingCovers')!=1:
@@ -276,23 +287,23 @@ class DraftRehearsals(CarouselInspections):
     def act(self, record, model, owned, assets, kind, role, index=None):
         # Re-observe immediately before every semantic action, not only after the last one.
         stability=None
-        if kind=='open_drafts':
-            previous=self.observe(record,model,owned,assets,'picker_before')
-            value=self.observe(record,model,owned,assets,'picker_after')
-            _, first=self.observations.evidence(previous['id']); _, second=self.observations.evidence(value['id'])
-            stability=picker_stability(first,previous['text'],second,value['text'])
-            if not stability['controlsStable']:
-                raise InspectionStopped('Picker controls changed while its preview played; no action sent.')
-            stability.update(beforeObservationId=previous['id'],afterObservationId=value['id'])
+        stage = 'picker' if kind=='open_drafts' else 'create' if kind=='choose_post_format' else 'editor' if role.endswith('_slide') else None
+        if stage:
+            def capture():
+                value=self.observe(record,model,owned,assets,role,index)
+                return value,self.observations.evidence(value['id'])[1]
+            def journal(event):
+                record.setdefault('transitionChecks',[]).append(event); self.save(record)
+            value,_,stability=wait_for_transition(stage,capture,lambda:owned.check(model),
+                self.observations.current_evidence,assets=assets,index=index,require_next=kind=='details',
+                journal=journal,monotonic=self.monotonic)
         else: value=self.observe(record,model,owned,assets,role,index)
-        if kind=='details':
-            _, frame=self.observations.evidence(value['id'])
-            if not next_label(frame,value['text']):
-                raise InspectionStopped('Editor recognized but Next label is unresolved; no button action sent.')
         action=dict(kind=kind,state='not_sent',basis=dict(observationId=value['id'],
             recordSha256=value['evidenceRecordSha256'],frameSha256=value['reviewFrameSha256'],
             packageSha256=record['packageSha256']))
-        if stability is not None: action['pickerStability']=stability
+        if stability is not None:
+            action['transitionStability']=stability
+            if stage=='picker': action['pickerStability']=stability
         record['actions'].append(action); self.save(record)
         try:
             self.validate_basis(record,action,owned,model)
@@ -360,7 +371,12 @@ class DraftRehearsals(CarouselInspections):
                     raise InspectionStopped('Only the offline app model is accepted. No live adapter exists.')
                 owned=OwnedCaptureRun(model,spec['id'],event,self.monotonic)
                 owned.check_budget(); record['cleanup']='unconfirmed'; self.save(record); owned.acquire()
-                self.act(record,model,owned,assets,'open_prepared','account_before')
+                # The model seeds an existing prepared draft; it does not simulate
+                # importing media or claim this navigation has run on a phone.
+                self.act(record,model,owned,assets,'open_create','account_before')
+                self.act(record,model,owned,assets,'choose_post_format','create_menu')
+                self.act(record,model,owned,assets,'open_drafts','picker_after')
+                self.act(record,model,owned,assets,'open_prepared','library')
                 for phase in ('prepared','reopened'):
                     for index in range(1,len(assets)+1):
                         self.observe(record,model,owned,assets,phase+'_slide',index)

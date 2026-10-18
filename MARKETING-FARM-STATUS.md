@@ -1,5 +1,11 @@
 # Marketing Farm candidate — 18 October 2026
 
+## Latest offline work: bounded handling of the five review holds
+
+The product now recognizes the Create sheet ahead of its background profile and uses a shared read-only settling guard at Create, picker and editor boundaries. Known indicator/header animation requests another capture, up to four captures/six seconds. Only a new stable pair can permit the next workflow step; the indicator/header still count in the final comparison. Wrong slides, changed controls, dialogs, expired evidence and ownership changes stop the run.
+
+**All five archived cases and all 370 Python regression tests pass.** The complete simulated workflow handles the loading changes without manual review and still saves once; cancellation/lost-reply checks preserve the no-replay behavior. No fresh-phone automation acceptance is claimed: the replay uses a virtual clock/context, and the live adapter still needs validation. No phone/rack input or PC control occurred. All 25 protected installed-file hashes match; native binaries are unchanged. [Implementation, tests and remaining validation](analysis/farm-transition-holds-20261018/README.md).
+
 ## Latest live follow-up: autoplay and saved carousel verified
 
 Fresh C24C frames passed the autoplay comparison on four pairs with moving preview pixels and stable protected controls. The existing three-slide Instagram test draft was saved, uniquely found, reopened, and verified: every slide in order and the full visible caption matched. The authorized account was checked before and after. A fresh Next-label OCR failure was corrected by excluding the adjacent arrow from the fixed label crop; exact text, whole-frame binding and the 1.5-second age budget remain required.

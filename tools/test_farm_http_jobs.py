@@ -42,14 +42,14 @@ class FarmHttpJobsTests(unittest.TestCase):
         server.RUNTIME = self.old_runtime
         self.temp.cleanup()
 
-    def request(self, path, data=None, *, raw=None, origin=None):
+    def request(self, path, data=None, *, raw=None, origin=None, timeout=5):
         body = raw if raw is not None else json.dumps(data).encode() if data is not None else None
         headers = {"Content-Type": "application/json"}
         if origin:
             headers["Origin"] = origin
         request = urllib.request.Request(self.base + path, body, headers)
         try:
-            response = self.opener.open(request, timeout=5)
+            response = self.opener.open(request, timeout=timeout)
         except urllib.error.HTTPError as error:
             response = error
         with response:

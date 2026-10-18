@@ -11,7 +11,14 @@ from test_farm_http_jobs import FarmHttpJobsTests
 class RehearsalHttpTests(unittest.TestCase):
     setUp=FarmHttpJobsTests.setUp
     tearDown=FarmHttpJobsTests.tearDown
-    request=FarmHttpJobsTests.request
+    _request=FarmHttpJobsTests.request
+
+    def request(self, path, *args, **kwargs):
+        # Full rehearsal now includes initial navigation and bounded settling.
+        # Match the console's 30-second HTTP budget for that POST only. Stop and
+        # status retain the existing five-second test timeout.
+        timeout=30 if path=='/api/farm/draft-rehearsals' and args and args[0] is not None else 5
+        return self._request(path,*args,timeout=timeout,**kwargs)
 
     def spec(self):
         from test_farm_draft_rehearsal import RehearsalTests
