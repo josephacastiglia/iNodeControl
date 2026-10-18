@@ -1,6 +1,18 @@
 # Marketing Farm candidate — 17 October 2026
 
-## Latest candidate: screen review and recurring local preparation
+## Latest candidate: screen recognition and frame freshness
+
+The separate candidate is `output/codex-farm-recognition-20261017`, DLL SHA-256 `f9ee7b384d7f62d022238cf557b6276acdca347eb16138e36aa04b7c6a469392`. **208 Python tests, 494 native headless checks and 34 frame tests pass**, plus the loopback screenshot transport test. The Release build has zero warnings/errors. The candidate launcher points here; the installed release and running services are unchanged.
+
+Screen review now distinguishes Instagram's caption editor from the screen behind it, recognizes the tested Instagram carousel details and TikTok photo/video variants, and keeps sparse or ambiguous pages unresolved. Caption/account text is never repaired by guessing characters. The carousel check excludes lettering in the tested slide-preview area. All 39 saved-frame regression cases match their expected outcomes, including one deliberate unknown; these frames informed the rules and are not independent accuracy evidence.
+
+Freshness now requires session, sequence, age and delivery state paired with the screenshot bytes and consistent surrounding receiver status. Download, OCR, encoding and subsequent viewing consume the 1.5-second budget. Old observations expire locally and after backend restart. Advancing frame counters alone never prove freshness. The age measures delivery to the kernel, **not when iOS captured the image**. The native review shows specific reasons to stop and never authorizes phone input.
+
+One read-only C24C capture recognized Home, but the installed kernel lacks the paired metadata, so its age remains unavailable. No phone input, desktop control, lease takeover, restart, publishing or messaging occurred. Both input generations, original process IDs and operator settings content remain unchanged. C24C is live; C241 remains offline as at preflight.
+
+**Still open:** candidate-kernel metadata validation on a real stream, independent recognition across more app states, exact signed-in account/media/caption verification, and persisted-draft/recovery acceptance. All unattended phone routes remain disabled. See [this pass's report](analysis/farm-recognition-20261017/README.md) and [acceptance record](MARKETING-FARM-ACCEPTANCE.md).
+
+## Earlier candidate: screen review and recurring local preparation
 
 The separate candidate is `output/codex-farm-observations-20261017`, DLL SHA-256 `433ccabd9d769f4eba0695bf2c1efc477544408cfe5c3911972a142204dc0d86`. **189 Python tests and 491 native headless checks pass**, with zero build warnings/errors. The candidate launcher points here. Installed files and running services remain unchanged.
 

@@ -56,6 +56,17 @@ internal sealed partial class FarmObservationWindow
             check("Observation recovery retrieves the saved frame without recapturing", handler.Captures == 1 && window._pending is null && window._frame.Source is not null);
             check("Screen review exposes permission interruptions and expired observations", window._status.Text.Contains("permission_prompt") && window._status.Text.Contains("expired") && window._status.Text.Contains("not_visible"));
             check("Screen review never calls input or publishing routes", handler.Routes.All(p => p.StartsWith("/api/farm/observations")));
+            var fresh = JsonSerializer.SerializeToElement(new { id = "saved-frame", state = "observed", expected = new { platform = "tiktok", account = "test.account" }, expired = false,
+                reason = "Expected account text is visible.", freshness = "recent", stable = true,
+                result = new { screen = "profile", accountStatus = "exact_text_match", captionStatus = "not_requested" },
+                frameEvidence = new { currentAgeUpperBoundMs = 100, reason = "Paired metadata.", meaning = "Receiver delivery, not iOS capture time." },
+                workflowReview = new { status = "blocked", blockers = new[] { "Persisted draft is not verified." } } });
+            await window.ApplyAsync(fresh, 50);
+            window.UpdateFreshnessNotice(0);
+            check("Screen review distinguishes receiver delivery from phone capture", window._status.Text.Contains("not iOS capture time") && window._freshnessNotice.Text.Contains("Recent receiver delivery only"));
+            window.UpdateFreshnessNotice(1351);
+            check("Screen review expires its local freshness label without another phone request", window._freshnessNotice.Text.Contains("old or its age is unverified") && handler.Captures == 1);
+            check("Screen review displays the specific remaining draft evidence gaps", window._status.Text.Contains("Persisted draft is not verified"));
             var content = (FrameworkElement)window.Content; content.Measure(new Size(860, 780)); content.Arrange(new Rect(0, 0, 860, 780)); content.UpdateLayout();
             var bitmap = new RenderTargetBitmap(860, 780, 96, 96, PixelFormats.Pbgra32);
             var background = new DrawingVisual(); using (var drawing = background.RenderOpen()) drawing.DrawRectangle(window.Background, null, new Rect(0, 0, 860, 780));

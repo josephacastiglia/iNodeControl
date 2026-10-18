@@ -26,16 +26,19 @@ class ReadOnlyKernel:
     def __init__(self):
         stream = io.BytesIO(); Image.new('RGB', (500, 1080), 'white').save(stream, format='BMP')
         self.raw = stream.getvalue(); self.reads = []; self.offline = False; self.changing = False; self.calls = 0
-        self.headers = {'X-iMouse-Frame-Age-Ms': '15'}
+        self.headers = {'X-iMouse-Frame-Age-Ms': '15', 'X-iMouse-Frame-Session': 'a' * 32,
+                        'X-iMouse-Frame-Sequence': '1', 'X-iMouse-Frame-Delivery': 'flowing'}
     def resolve_device_id(self, phone):
         if phone != 'C24C': raise AssertionError('Other phone requested')
         return 'C24C'
     def kernel_status(self):
         self.reads.append('status')
-        return {'receivers': [{'deviceid': 'C24C', 'live': not self.offline, 'receiver_pid': 10}]}
+        return {'receivers': [{'deviceid': 'C24C', 'live': not self.offline, 'receiver_pid': 10,
+                               'receiver_restarts': 0, 'frames': 1, 'frame_session': 'a' * 32}]}
     def input_status(self):
         self.calls += 1; self.reads.append('input-status')
-        return {'C24C': {'generation': self.calls if self.changing else 4, 'owned': False}}
+        return {'C24C': {'generation': self.calls if self.changing else 4, 'owned': False,
+                         'active': False, 'stopped': False, 'releasing': False, 'release_failed': False}}
     def shot(self, phone):
         self.resolve_device_id(phone); self.reads.append('frame')
         return self.raw, self.headers
@@ -50,7 +53,8 @@ class ObservationTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.path = Path(self.temp.name) / 'observations.db'; self.now = [1000.0]
-        self.store = ObservationStore(self.path, FixtureOcr(), clock=lambda: self.now[0])
+        self.mono = [1000.0]
+        self.store = ObservationStore(self.path, FixtureOcr(), clock=lambda: self.now[0], monotonic=lambda: self.mono[0])
         self.kernel = ReadOnlyKernel()
         self.request = {'id': str(uuid.uuid4()), 'device_id': 'C24C', 'platform': 'tiktok', 'account': '@test.account', 'caption': 'DRAFT ONLY'}
 
@@ -104,8 +108,9 @@ class ObservationTests(unittest.TestCase):
         self.assertEqual('review_required', restarted.capture(self.request, self.kernel)['state']); self.assertEqual([], self.kernel.reads)
 
     def test_stale_missing_freshness_and_changed_receiver_are_not_hidden(self):
-        for age, expected in (('9999', 'stale'), (None, 'unavailable'), ('NaN', 'stale')):
-            self.kernel.headers = {} if age is None else {'X-iMouse-Frame-Age-Ms': age}
+        good_headers = dict(self.kernel.headers)
+        for age, expected in (('9999', 'stale'), (None, 'unavailable'), ('NaN', 'invalid')):
+            self.kernel.headers = {} if age is None else {**good_headers, 'X-iMouse-Frame-Age-Ms': age}
             result = self.store.capture({**self.request, 'id': str(uuid.uuid4())}, self.kernel)
             self.assertEqual(expected, result['freshness']); self.assertFalse(result['automaticInputAllowed'])
         self.kernel.changing = True
@@ -113,6 +118,26 @@ class ObservationTests(unittest.TestCase):
         self.assertFalse(result['stable']); self.assertIn('changed', result['reason'])
         self.now[0] += 16; self.assertTrue(self.store.get(result['id'])['expired'])
         self.now[0] = 999; self.assertTrue(self.store.get(result['id'])['expired'])
+
+    def test_ocr_delay_counts_in_frame_age_and_saved_records_age_without_recapture(self):
+        def slow(_): self.mono[0] += 2; return PROFILE
+        with patch.object(self.store.ocr, 'read', side_effect=slow):
+            result = self.store.capture(self.request, self.kernel)
+        self.assertEqual('stale', result['freshness']); self.assertGreaterEqual(result['frameEvidence']['ageUpperBoundMs'], 2015)
+        self.assertEqual('blocked', result['workflowReview']['status'])
+        request = {**self.request, 'id': str(uuid.uuid4()), 'caption': ''}
+        fresh = self.store.capture(request, self.kernel); self.assertEqual('recent', fresh['freshness'])
+        self.assertEqual('ready_for_review', fresh['workflowReview']['status']); self.assertFalse(fresh['workflowReview']['automaticInputAllowed'])
+        count = len(self.kernel.reads); self.mono[0] += 2
+        aged = self.store.get(request['id'])
+        self.assertEqual('stale', aged['freshness']); self.assertEqual(count, len(self.kernel.reads))
+
+    def test_backend_restart_never_treats_a_saved_frame_as_current(self):
+        self.store.capture(self.request, self.kernel)
+        restarted = ObservationStore(self.path, FixtureOcr(), clock=lambda: self.now[0])
+        count = len(self.kernel.reads); result = restarted.capture(self.request, self.kernel)
+        self.assertTrue(result['expired']); self.assertEqual('unavailable', result['freshness'])
+        self.assertEqual(count, len(self.kernel.reads)); self.assertEqual('blocked', result['workflowReview']['status'])
 
     def test_offline_and_ocr_failures_persist_and_do_not_retry(self):
         self.kernel.offline = True

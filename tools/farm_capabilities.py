@@ -23,7 +23,7 @@ def capabilities():
             {'id': 'jobs', 'name': 'Job cancellation and recovery', 'availability': 'Simulation tested',
              'detail': 'Durable request IDs, Stop and recovery without automatic replay. Live app workflow acceptance remains open.'},
             {'id': 'screen-review', 'name': 'Read C24C screen', 'availability': 'Read-only candidate',
-             'detail': 'Local English OCR, exact handle/text comparisons, interruption labels and saved frames for review. Unknown, stale and ambiguous results stay unresolved. Never authorizes input or proves a saved draft.'},
+             'detail': 'Local English OCR with caption-editor and carousel/photo/video screen patterns. Exact account/text checks and paired receiver-delivery age expire after download, recognition, viewing or restart. Missing metadata stays unknown. Review only; no input authorization or saved-draft proof.'},
             {'id': 'formats', 'name': 'Instagram, TikTok, X and YouTube automation', 'availability': 'Simulation only',
              'detail': 'All 14 format paths are checked with mock transport. Real account, media and app-state checks are still required.'},
             {'id': 'warmup', 'name': 'Account warmup', 'availability': 'Simulation only',

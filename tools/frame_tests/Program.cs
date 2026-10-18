@@ -4,6 +4,8 @@ using IMouse2;
 using IMouse2.Kernel;
 
 if (args.Contains("--http-self-test")) return await ScreenshotHttpTests.RunAsync();
+var farmOutput = args.FirstOrDefault(a => a.StartsWith("--farm-evidence-out="));
+if (farmOutput is not null) return await FarmEvidenceProbe.ExportAsync(farmOutput["--farm-evidence-out=".Length..]);
 
 var tests = new (string, Func<Task>)[] {
     ("idle presentation rate expires without another frame", () => {

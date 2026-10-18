@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -16,6 +17,7 @@ import uuid
 from contextlib import contextmanager
 
 from PIL import Image
+from farm_frame_evidence import MAX_AGE_MS, delivery_evidence, workflow_review
 
 
 def image_size(raw):
@@ -78,14 +80,20 @@ def classify(text, expected):
         if not words: continue
         if any(not all(isinstance(w.get(k), (int, float)) for k in ('x', 'y', 'width', 'height')) for w in words):
             raise ValueError('OCR geometry missing.')
+        if any(not all(math.isfinite(w[k]) for k in ('x', 'y', 'width', 'height'))
+               or w['x'] < 0 or w['y'] < 0 or w['width'] <= 0 or w['height'] <= 0
+               or w['x'] + w['width'] > width or w['y'] + w['height'] > height for w in words):
+            raise ValueError('OCR geometry is outside the frame.')
         top = min(w['y'] for w in words)
         rows.append((str(line['text']), top / height))
     normalized = [' '.join(s.casefold().split()) for s, _ in rows]
-    joined = '\n'.join(normalized)
     lower = [n for n, (_, y) in zip(normalized, rows) if y > .65]
     upper = [n for n, (_, y) in zip(normalized, rows) if y < .45]
     has = lambda phrase: any(phrase in n for n in normalized)
-    state, app = 'unknown', None
+    def anchor(phrase, low, high, icon=False):
+        return any(low <= y <= high and (n == phrase or (icon and n in (f'o {phrase}', f'0 {phrase}', f'# {phrase}', f'q {phrase}')))
+                   for n, (_, y) in zip(normalized, rows))
+    state, app, layout = 'unknown', None, None
     # System interruptions always override an app pattern behind the overlay.
     if has("don't allow") and 'allow' in normalized:
         state = 'permission_prompt'
@@ -93,6 +101,12 @@ def classify(text, expected):
         state = 'sharing_dialog'
     elif has('airdrop') and has('save video') and has('save to files'):
         state = 'share_sheet'
+    elif (anchor('caption', .04, .15) and anchor('hashtags', .18, .35, True)
+          and anchor('poll', .18, .35) and anchor('prompt', .18, .35)
+          and anchor('save draft', .88, .98) and anchor('share', .88, .98)
+          and anchor('original audio', .65, .85)):
+        # This sheet covers the details screen; its background Save/Share buttons cannot be used.
+        state, app = 'caption_editor', 'instagram'
     elif 'search' in lower and sum(name in upper for name in ('instagram', 'tiktok', 'youtube')) >= 3:
         state = 'home'
     elif has('following') and has('follower') and has('likes') and 'profile' in lower:
@@ -115,9 +129,18 @@ def classify(text, expected):
         state, app = 'draft_details', 'youtube'
     elif 'new reel' in upper and 'save draft' in lower and 'share' in lower:
         state, app = 'draft_details', 'instagram'
+    elif (anchor('new post', .04, .12) and anchor('add audio', .55, .65)
+          and anchor('tag people', .65, .75) and anchor('add location', .72, .8)
+          and (anchor('add ai label', .78, .85) or anchor('add al label', .78, .85))
+          and anchor('share', .88, .98)):
+        state, app, layout = 'draft_details', 'instagram', 'carousel_details'
     elif 'preview' in upper and 'save draft' in lower and 'share' in lower and has('original audio'):
         state, app = 'draft_preview', 'instagram'
-    elif has('everyone can view this post') and has('edit cover') and 'drafts' in lower:
+    elif (anchor('everyone can view this post', .5, .85) and anchor('drafts', .88, .98)
+          and ((anchor('edit cover', .2, .4) and anchor('preview', .08, .2)
+                and anchor('cancel', .04, .15) and anchor('share to', .6, .8))
+               or (anchor('preview', .04, .15) and anchor('share to', .8, .88)
+                   and anchor('post', .88, .98, True) and anchor('more options', .7, .83, True)))):
         state, app = 'draft_details', 'tiktok'
     elif 'post' in upper and 'cancel' in upper and has('everyone can reply'):
         state, app = 'draft_details', 'x'
@@ -140,14 +163,17 @@ def classify(text, expected):
     account_state = 'exact_text_match' if account_match else 'different_text' if handles else 'not_visible'
     caption = expected['caption']
     # No I/l substitutions, punctuation removal or invented whitespace. OCR may need human review.
-    caption_match = (bool(caption) and app == expected['platform'] and any(caption == s for s, _ in rows)
+    # Exclude navigation/footer text and content showing behind an editing sheet.
+    caption_low, caption_high = (.40, .52) if layout == 'carousel_details' else (.10, .60)
+    caption_match = (bool(caption) and app == expected['platform'] and any(caption == s and caption_low < y < caption_high for s, y in rows)
                      and state in ('draft_details', 'draft_preview'))
     reason = ('A system dialog needs inspection before continuing.' if state in ('permission_prompt', 'sharing_dialog', 'share_sheet')
               else 'The screen is not recognized.' if state == 'unknown'
+              else 'Caption editor is still open; inspect and finish editing before draft review.' if state == 'caption_editor'
               else 'The expected app pattern is not visible.' if app != expected['platform']
               else 'OCR did not read the expected account exactly; inspect the frame.' if not account_match
               else 'Expected account text is visible. This does not certify media, saved state or app authenticity.')
-    return {'screen': state, 'appPattern': app, 'expectedAppMatches': app == expected['platform'],
+    return {'screen': state, 'layout': layout, 'appPattern': app, 'expectedAppMatches': app == expected['platform'],
             'accountStatus': account_state, 'observedHandles': handles,
             'captionStatus': 'exact_line_match' if caption_match else 'needs_review' if caption else 'not_requested',
             'reason': reason, 'automaticInputAllowed': False, 'savedDraftVerified': False,
@@ -156,8 +182,10 @@ def classify(text, expected):
 
 class ObservationStore:
     """Idempotent read requests and review holds; a restart never replays a capture."""
-    def __init__(self, path, ocr=None, clock=time.time):
-        self.path, self.ocr, self.clock = Path(path), ocr or WindowsOcr(), clock
+    def __init__(self, path, ocr=None, clock=time.time, monotonic=time.monotonic):
+        self.path, self.ocr, self.clock, self.monotonic = Path(path), ocr or WindowsOcr(), clock, monotonic
+        self.session = uuid.uuid4().hex
+        self.timings = {}
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.lock = threading.Lock()
         with self.connect() as db:
@@ -176,8 +204,24 @@ class ObservationStore:
             row = db.execute('SELECT document FROM observations WHERE id=?', (request_id,)).fetchone()
         if row is None: raise KeyError('Observation not found. No request was replayed.')
         value = json.loads(row[0])
-        value['ageSeconds'] = max(0, self.clock() - value['requestedAt'])
-        value['expired'] = self.clock() < value['requestedAt'] or value['ageSeconds'] > 15
+        now, mono = self.clock(), self.monotonic()
+        timing = self.timings.get(request_id)
+        same_session = value.get('observerSession') == self.session and timing is not None
+        monotonic_age = mono - timing[0] if same_session else 0
+        value['ageSeconds'] = max(0, now - value['requestedAt'], monotonic_age)
+        value['expired'] = not same_session or now < value['requestedAt'] or monotonic_age < 0 or value['ageSeconds'] > 15
+        evidence = value.get('frameEvidence')
+        if evidence:
+            value['freshnessAtCapture'] = evidence['freshness']
+            if not same_session:
+                evidence.update(freshness='unavailable', reason='Saved observation belongs to an earlier observer session; capture again before use.')
+            elif evidence.get('ageUpperBoundMs') is not None:
+                elapsed = max(0, now - value['completedAt'], mono - timing[1]) * 1000
+                evidence['currentAgeUpperBoundMs'] = evidence['ageUpperBoundMs'] + elapsed
+                if value['expired'] or evidence['currentAgeUpperBoundMs'] > MAX_AGE_MS:
+                    evidence.update(freshness='stale', reason='Saved frame aged beyond the receiver-delivery budget; capture again.')
+            value['freshness'] = evidence['freshness']
+        value['workflowReview'] = workflow_review(value)
         return value
 
     def list(self):
@@ -201,10 +245,12 @@ class ObservationStore:
                 if prior:
                     if prior[0] != fingerprint: raise ValueError('This observation ID has different expectations.')
                     return self.get(request_id)
-                value = {'id': request_id, 'expected': desired, 'requestedAt': self.clock(), 'state': 'review_required',
+                value = {'id': request_id, 'expected': desired, 'requestedAt': self.clock(), 'observerSession': self.session, 'state': 'review_required',
                          'reason': 'Capture outcome has not been recorded. A restart does not replay this request.',
                          'source': 'phone' if kernel._is_live_http else 'simulation', 'automaticInputAllowed': False}
                 db.execute('INSERT INTO observations VALUES (?,?,?,NULL)', (request_id, fingerprint, json.dumps(value)))
+            started = self.monotonic()
+            self.timings[request_id] = (started, None)
             frame = None
             try:
                 # GET status/frames and read-only input status only. Never acquire or send input.
@@ -221,22 +267,27 @@ class ObservationStore:
                 input_after = kernel.input_status().get(resolved)
                 if (text.get('width'), text.get('height')) != (width, height): raise ValueError('OCR frame dimensions changed.')
                 result = classify(text, desired)
-                h = {k.lower(): v for k, v in headers.items()}
-                freshness = 'unavailable'
-                try:
-                    age = float(h['x-imouse-frame-age-ms'])
-                    freshness = 'recent' if 0 <= age <= 1500 and self.clock() - value['requestedAt'] <= 10 else 'stale'
-                except (KeyError, ValueError, TypeError): pass
+                evidence = delivery_evidence(receiver, headers, current, (self.monotonic() - started) * 1000)
                 stable = (current.get('live') is True and current.get('receiver_pid') == receiver.get('receiver_pid')
+                          and current.get('receiver_restarts') == receiver.get('receiver_restarts')
                           and input_before is not None and input_before == input_after)
+                input_idle = all(isinstance(s, dict) and type(s.get('generation')) is int
+                                 and all(s.get(flag) is False for flag in ('owned', 'active', 'stopped', 'releasing', 'release_failed'))
+                                 for s in (input_before, input_after))
                 if not stable: result['reason'] = 'Phone ownership or receiver state changed during capture. Inspect again.'
                 value.update(state='observed', result=result, text=text, frameSha256=hashlib.sha256(raw).hexdigest(),
-                             width=width, height=height, freshness=freshness, stable=stable,
+                             width=width, height=height, freshness=evidence['freshness'], frameEvidence=evidence, stable=stable, inputIdle=input_idle,
                              reason=result['reason'], receiverPid=receiver.get('receiver_pid'))
                 with Image.open(io.BytesIO(raw)) as image:
                     buffer = io.BytesIO(); image.convert('RGB').save(buffer, format='PNG'); frame = buffer.getvalue()
             except Exception as exc:
                 value.update(state='failed', reason=str(exc))
+            finished = self.monotonic()
+            if value['state'] == 'observed':
+                evidence = delivery_evidence(receiver, headers, current, (finished - started) * 1000)
+                value.update(freshness=evidence['freshness'], frameEvidence=evidence)
+            value['completedAt'] = self.clock()
+            self.timings[request_id] = (started, finished)
             with self.connect() as db:
                 db.execute('UPDATE observations SET document=?,frame=? WHERE id=?', (json.dumps(value), frame, request_id))
                 db.execute('UPDATE observations SET frame=NULL WHERE rowid NOT IN (SELECT rowid FROM observations ORDER BY rowid DESC LIMIT 50)')

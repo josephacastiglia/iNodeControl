@@ -97,7 +97,7 @@ public partial class MainWindow
         try
         {
             var health = await FarmApi.SendAsync("/health");
-            if (!health.TryGetProperty("observationsVersion", out var version) || version.GetInt32() != 1)
+            if (!health.TryGetProperty("observationsVersion", out var version) || version.GetInt32() != 2)
                 throw new InvalidOperationException("Start the updated candidate backend for screen review.");
             new FarmObservationWindow(FarmApi) { Owner = this }.ShowDialog();
         }

@@ -43,6 +43,29 @@ class ReviewHttpTests(unittest.TestCase):
         self.assertEqual(403, self.request('/api/farm/preparation-schedule', origin='https://untrusted.invalid')[0])
         self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
 
+    def test_saved_http_observation_ages_out_without_recapture(self):
+        now = [1000.0]
+        store = self.runtime.observations
+        store.clock = store.monotonic = lambda: now[0]
+        store.ocr = FixtureOcr(); kernel = ReadOnlyKernel()
+        body = dict(id=str(uuid.uuid4()), device_id='C24C', platform='tiktok', account='test.account', caption='', source='phone', read_only=True)
+        with patch('imouse_farm_server.engine.IMouseKernel', return_value=kernel):
+            status, response = self.request('/api/farm/observations', body)
+            self.assertEqual(200, status)
+            result = response['observation']
+            self.assertEqual('recent', result['freshness'])
+            self.assertEqual('ready_for_review', result['workflowReview']['status'])
+            self.assertFalse(result['workflowReview']['automaticInputAllowed'])
+            reads = list(kernel.reads)
+            now[0] += 2
+            status, response = self.request('/api/farm/observations/' + body['id'])
+            self.assertEqual(200, status)
+            result = response['observation']
+            self.assertEqual('stale', result['freshness'])
+            self.assertEqual('blocked', result['workflowReview']['status'])
+            self.assertEqual(reads, kernel.reads)
+        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+
     def test_emergency_phone_stop_precedes_failed_schedule_storage(self):
         calls = []
         kernel = self.runtime.kernel_client
