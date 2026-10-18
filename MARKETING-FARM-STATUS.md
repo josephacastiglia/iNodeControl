@@ -1,6 +1,12 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest candidate: saved preparation batches and durable job recovery
+## Latest live check: frame freshness and carousel save/reopen
+
+The separate C24C kernel supplied valid paired frame metadata. Old and slow-to-process frames were refused; a retained fresh frame expired without recapture. An existing test carousel was saved, uniquely found after its library position changed, reopened, and checked: **all three slides in order and the complete visible caption matched**. The expected Instagram account was verified before and after. This was supervised API work; no PC control, publishing, messaging or C241 input occurred.
+
+One narrow recognition fix accepts the observed truncated Suggested audio label with the full carousel toolbar. Other partial OCR still stops. **330 Python regressions and 290 kernel checks pass.** Autoplay previews and unknown editor captures required explicit review, so **unattended save/reopen and continuous account verification remain unaccepted**. No live automatic route was enabled. The original stopped rack state was restored, and all 25 monitored release/settings files are unchanged. See [the live report](analysis/farm-live-verification-20261018/README.md).
+
+## Latest native candidate: saved preparation batches and durable job recovery
 
 Candidate `output/codex-farm-preparation-20261018`, built from `6b395eec620a`, DLL SHA-256 `49cab77c792b532b17b51283654ac9a2621ce1ae0d7058d8f45c8c05951ffd1b`. **318 Python tests and 532 native headless checks pass**, with a clean Release build. The installed release and operator settings remain unchanged. This pass used no phone input, rack API, PC control, publishing or messaging.
 

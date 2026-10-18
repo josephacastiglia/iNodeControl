@@ -133,7 +133,11 @@ def classify(text, expected):
     elif 'new reel' in upper and 'save draft' in lower and 'share' in lower:
         state, app = 'draft_details', 'instagram'
     elif (all(anchor(label, .82, .87) for label in ('audio', 'overlay', 'filter', 'edit', 'ratio'))
-          and (anchor('next', .89, .96) or anchor('suggested audio', .07, .13))):
+          and (anchor('next', .89, .96) or anchor('suggested audio', .07, .13)
+               or any(anchor(label, .07, .13) for label in ('suggested a...', 'suggested...', 'suggested a…', 'suggested…')))):
+        # Instagram visibly truncates this UI label while the song title scrolls.
+        # This exact variant still needs all five toolbar anchors; never repair
+        # partial Next/account/caption OCR or infer that audio was selected.
         state, app, layout = 'draft_editor', 'instagram', 'carousel_editor'
     elif (anchor('new post', .04, .12) and anchor('add audio', .55, .65)
           and anchor('tag people', .65, .75) and anchor('add location', .72, .8)

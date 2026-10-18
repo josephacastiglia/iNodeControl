@@ -60,6 +60,24 @@ class ScreenRecognitionTests(unittest.TestCase):
         result = classify(ocr_lines(('Drafts', 77), ('Select', 78), ('DRAFT ONLY', 212)), self.expected)
         self.assertEqual('unknown', result['screen']); self.assertIsNone(result['appPattern'])
 
+    def test_truncated_suggested_audio_requires_the_complete_carousel_toolbar(self):
+        toolbar=[(word,921) for word in ('Audio','Overlay','Filter','Edit','Ratio')]
+        for label in ('Suggested a...','Suggested...','Suggested a…','Suggested…'):
+            screen=ocr_lines(*toolbar,(label,102),('ext',1001))
+            result=classify(screen,self.expected)
+            self.assertEqual('carousel_editor',result['layout'])
+            self.assertEqual('not_visible',result['accountStatus'])
+            self.assertFalse(result['automaticInputAllowed'])
+            self.assertFalse(result['savedDraftVerified'])
+        for missing in ('Audio','Overlay','Filter','Edit','Ratio'):
+            without={**screen,'lines':[row for row in screen['lines'] if row['text']!=missing]}
+            with self.subTest(missing=missing): self.assertEqual('unknown',classify(without,self.expected)['screen'])
+
+    def test_truncated_label_outside_audio_region_or_partial_next_stays_unknown(self):
+        toolbar=[(word,921) for word in ('Audio','Overlay','Filter','Edit','Ratio')]
+        for labels in ([('Suggested a...',500),('ext',1001)], [('ext',1001)], [('Suggested',102)]):
+            self.assertEqual('unknown',classify(ocr_lines(*toolbar,*labels),self.expected)['screen'])
+
     def test_known_ui_label_variant_never_changes_caption_or_account_text(self):
         screen = ocr_lines(('New post', 77), ('Add audio', 640), ('Tag people', 754), ('Add location', 814),
                            ('Add Al Label', 867), ('Share', 990), ('Al test', 461), ('@test.account', 483))
