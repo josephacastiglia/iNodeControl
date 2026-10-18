@@ -1,0 +1,243 @@
+"""Read-only local frame observations. No input, publishing or messaging API."""
+from __future__ import annotations
+
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import re
+import sqlite3
+import subprocess
+import tempfile
+import threading
+import time
+import uuid
+from contextlib import contextmanager
+
+from PIL import Image
+
+
+def image_size(raw):
+    if not isinstance(raw, bytes) or not 0 < len(raw) <= 16 * 1024 * 1024:
+        raise ValueError('Frame must be nonempty and at most 16 MiB.')
+    with Image.open(io.BytesIO(raw)) as image:
+        if image.width < 100 or image.height < 100 or image.width > 4096 or image.height > 4096:
+            raise ValueError('Unsupported frame dimensions.')
+        image.load()
+        return image.size
+
+
+class WindowsOcr:
+    def read(self, raw):
+        width, height = image_size(raw)
+        binary = Path(os.environ.get('WINDIR', 'C:/Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
+        if not binary.is_file():
+            raise ValueError('Windows image-text recognition is unavailable on this machine.')
+        script = Path(__file__).with_name('Read-FarmImageText.ps1')
+        with tempfile.TemporaryDirectory(prefix='farm-observation-') as directory:
+            image_path = Path(directory) / 'frame.png'
+            with Image.open(io.BytesIO(raw)) as image:
+                image.convert('RGB').save(image_path)
+            try:
+                result = subprocess.run([str(binary), '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                    '-File', str(script), '-ImagePath', str(image_path)], capture_output=True, timeout=25,
+                    creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+            except subprocess.TimeoutExpired as exc:
+                raise ValueError('Image-text recognition timed out; no screen state was verified.') from exc
+            if result.returncode:
+                raise ValueError('Windows OCR failed. Check that the English OCR language is installed; no screen state was verified.')
+            value = json.loads(result.stdout.decode('utf-8-sig'))
+        if (value.get('width'), value.get('height')) != (width, height):
+            raise ValueError('OCR result dimensions differ from the source frame.')
+        value['frameSha256'] = hashlib.sha256(raw).hexdigest()
+        return value
+
+
+PLATFORMS = ('instagram', 'tiktok', 'x', 'youtube')
+
+
+def expectations(request):
+    if request.get('device_id') != 'C24C' or request.get('platform') not in PLATFORMS:
+        raise ValueError('Select C24C and a supported platform.')
+    account = request.get('account', '').removeprefix('@') if isinstance(request.get('account', ''), str) else ''
+    if not re.fullmatch(r'[A-Za-z0-9_.-]{1,50}', account):
+        raise ValueError('Enter the expected signed-in handle; a display name is not enough.')
+    caption = request.get('caption', '')
+    if not isinstance(caption, str) or len(caption) > 2200 or any(ord(c) < 32 and c not in '\n\t' for c in caption):
+        raise ValueError('Expected text must contain at most 2,200 characters and no control codes.')
+    return {'device_id': 'C24C', 'platform': request['platform'], 'account': account, 'caption': caption}
+
+
+def classify(text, expected):
+    """Conservative English UI patterns; matches are observations, not app authenticity."""
+    width, height = text['width'], text['height']
+    rows = []
+    for line in text.get('lines', []):
+        words = line.get('words', [])
+        if not words: continue
+        if any(not all(isinstance(w.get(k), (int, float)) for k in ('x', 'y', 'width', 'height')) for w in words):
+            raise ValueError('OCR geometry missing.')
+        top = min(w['y'] for w in words)
+        rows.append((str(line['text']), top / height))
+    normalized = [' '.join(s.casefold().split()) for s, _ in rows]
+    joined = '\n'.join(normalized)
+    lower = [n for n, (_, y) in zip(normalized, rows) if y > .65]
+    upper = [n for n, (_, y) in zip(normalized, rows) if y < .45]
+    has = lambda phrase: any(phrase in n for n in normalized)
+    state, app = 'unknown', None
+    # System interruptions always override an app pattern behind the overlay.
+    if has("don't allow") and 'allow' in normalized:
+        state = 'permission_prompt'
+    elif has('new shared album') and has('participants'):
+        state = 'sharing_dialog'
+    elif has('airdrop') and has('save video') and has('save to files'):
+        state = 'share_sheet'
+    elif 'search' in lower and sum(name in upper for name in ('instagram', 'tiktok', 'youtube')) >= 3:
+        state = 'home'
+    elif has('following') and has('follower') and has('likes') and 'profile' in lower:
+        state, app = 'profile', 'tiktok'
+    elif has('edit profile') and has('share profile') and has('posts') and has('following'):
+        state, app = 'profile', 'instagram'
+    elif has('download grok') and has('communities') and has('following'):
+        state, app = 'account_menu', 'x'
+    elif has('view channel') and has('your videos') and has('youtube premium'):
+        state, app = 'profile', 'youtube'
+    elif has('uninstalling tiktok') and has('discard all drafts'):
+        state, app = 'draft_library', 'tiktok'
+    elif has('removing the youtube app') and has('draft videos created'):
+        state, app = 'draft_library', 'youtube'
+    elif has('reels drafts') and has('uninstall the instagram app'):
+        state, app = 'draft_library', 'instagram'
+    elif 'drafts' in upper and 'scheduled' in upper and 'cancel' in upper:
+        state, app = 'draft_library', 'x'
+    elif has('upload short') and 'save draft' in lower and has('select audience'):
+        state, app = 'draft_details', 'youtube'
+    elif 'new reel' in upper and 'save draft' in lower and 'share' in lower:
+        state, app = 'draft_details', 'instagram'
+    elif 'preview' in upper and 'save draft' in lower and 'share' in lower and has('original audio'):
+        state, app = 'draft_preview', 'instagram'
+    elif has('everyone can view this post') and has('edit cover') and 'drafts' in lower:
+        state, app = 'draft_details', 'tiktok'
+    elif 'post' in upper and 'cancel' in upper and has('everyone can reply'):
+        state, app = 'draft_details', 'x'
+
+    # Account identity is read only in designated identity regions, never from captions/comments.
+    account_lines = []
+    if state in ('profile', 'account_menu'):
+        account_lines = [s for s, y in rows if y < .35]
+    elif state == 'draft_details' and app == 'youtube':
+        account_lines = [s for s, y in rows if .2 < y < .6]
+    handles = []
+    for line in account_lines:
+        handles.extend(re.findall(r'(?<![\w.])@([A-Za-z0-9_.-]{1,50})(?![\w.])', line))
+        if app == 'instagram' and re.fullmatch(r'[A-Za-z0-9_.]{1,30}', line) and '.' in line:
+            handles.append(line)
+        elif app == 'instagram' and line.casefold() == expected['account'].casefold():
+            handles.append(line)
+    handles = sorted(set(handles))
+    account_match = len(handles) == 1 and handles[0].casefold() == expected['account'].casefold() and app == expected['platform']
+    account_state = 'exact_text_match' if account_match else 'different_text' if handles else 'not_visible'
+    caption = expected['caption']
+    # No I/l substitutions, punctuation removal or invented whitespace. OCR may need human review.
+    caption_match = (bool(caption) and app == expected['platform'] and any(caption == s for s, _ in rows)
+                     and state in ('draft_details', 'draft_preview'))
+    reason = ('A system dialog needs inspection before continuing.' if state in ('permission_prompt', 'sharing_dialog', 'share_sheet')
+              else 'The screen is not recognized.' if state == 'unknown'
+              else 'The expected app pattern is not visible.' if app != expected['platform']
+              else 'OCR did not read the expected account exactly; inspect the frame.' if not account_match
+              else 'Expected account text is visible. This does not certify media, saved state or app authenticity.')
+    return {'screen': state, 'appPattern': app, 'expectedAppMatches': app == expected['platform'],
+            'accountStatus': account_state, 'observedHandles': handles,
+            'captionStatus': 'exact_line_match' if caption_match else 'needs_review' if caption else 'not_requested',
+            'reason': reason, 'automaticInputAllowed': False, 'savedDraftVerified': False,
+            'metrics': None, 'metricsReason': 'A screen count has no verified post identity or observation interval.'}
+
+
+class ObservationStore:
+    """Idempotent read requests and review holds; a restart never replays a capture."""
+    def __init__(self, path, ocr=None, clock=time.time):
+        self.path, self.ocr, self.clock = Path(path), ocr or WindowsOcr(), clock
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.lock = threading.Lock()
+        with self.connect() as db:
+            db.execute('CREATE TABLE IF NOT EXISTS observations (id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, document TEXT NOT NULL, frame BLOB)')
+
+    @contextmanager
+    def connect(self):
+        db = sqlite3.connect(self.path, timeout=10)
+        try:
+            with db: yield db
+        finally: db.close()
+
+    def get(self, request_id):
+        request_id = str(uuid.UUID(request_id))
+        with self.connect() as db:
+            row = db.execute('SELECT document FROM observations WHERE id=?', (request_id,)).fetchone()
+        if row is None: raise KeyError('Observation not found. No request was replayed.')
+        value = json.loads(row[0])
+        value['ageSeconds'] = max(0, self.clock() - value['requestedAt'])
+        value['expired'] = self.clock() < value['requestedAt'] or value['ageSeconds'] > 15
+        return value
+
+    def list(self):
+        with self.connect() as db:
+            ids = [row[0] for row in db.execute('SELECT id FROM observations ORDER BY rowid DESC LIMIT 50')]
+        return [self.get(i) for i in ids]
+
+    def frame(self, request_id):
+        with self.connect() as db:
+            row = db.execute('SELECT frame FROM observations WHERE id=?', (str(uuid.UUID(request_id)),)).fetchone()
+        if not row or row[0] is None: raise KeyError('Frame unavailable; older frames are pruned but review records remain.')
+        return row[0]
+
+    def capture(self, request, kernel):
+        desired = expectations(request)
+        request_id = str(uuid.UUID(request.get('id', '')))
+        fingerprint = hashlib.sha256(json.dumps(desired, sort_keys=True).encode()).hexdigest()
+        with self.lock:
+            with self.connect() as db:
+                prior = db.execute('SELECT fingerprint FROM observations WHERE id=?', (request_id,)).fetchone()
+                if prior:
+                    if prior[0] != fingerprint: raise ValueError('This observation ID has different expectations.')
+                    return self.get(request_id)
+                value = {'id': request_id, 'expected': desired, 'requestedAt': self.clock(), 'state': 'review_required',
+                         'reason': 'Capture outcome has not been recorded. A restart does not replay this request.',
+                         'source': 'phone' if kernel._is_live_http else 'simulation', 'automaticInputAllowed': False}
+                db.execute('INSERT INTO observations VALUES (?,?,?,NULL)', (request_id, fingerprint, json.dumps(value)))
+            frame = None
+            try:
+                # GET status/frames and read-only input status only. Never acquire or send input.
+                resolved = kernel.resolve_device_id('C24C')
+                before = kernel.kernel_status()
+                receiver = next((r for r in before.get('receivers', []) if r.get('deviceid') == resolved), None)
+                if receiver is None or receiver.get('live') is not True: raise ValueError('C24C video is offline.')
+                input_before = kernel.input_status().get(resolved)
+                raw, headers = kernel.shot('C24C')
+                width, height = image_size(raw)
+                text = self.ocr.read(raw)
+                after = kernel.kernel_status()
+                current = next((r for r in after.get('receivers', []) if r.get('deviceid') == resolved), {})
+                input_after = kernel.input_status().get(resolved)
+                if (text.get('width'), text.get('height')) != (width, height): raise ValueError('OCR frame dimensions changed.')
+                result = classify(text, desired)
+                h = {k.lower(): v for k, v in headers.items()}
+                freshness = 'unavailable'
+                try:
+                    age = float(h['x-imouse-frame-age-ms'])
+                    freshness = 'recent' if 0 <= age <= 1500 and self.clock() - value['requestedAt'] <= 10 else 'stale'
+                except (KeyError, ValueError, TypeError): pass
+                stable = (current.get('live') is True and current.get('receiver_pid') == receiver.get('receiver_pid')
+                          and input_before is not None and input_before == input_after)
+                if not stable: result['reason'] = 'Phone ownership or receiver state changed during capture. Inspect again.'
+                value.update(state='observed', result=result, text=text, frameSha256=hashlib.sha256(raw).hexdigest(),
+                             width=width, height=height, freshness=freshness, stable=stable,
+                             reason=result['reason'], receiverPid=receiver.get('receiver_pid'))
+                with Image.open(io.BytesIO(raw)) as image:
+                    buffer = io.BytesIO(); image.convert('RGB').save(buffer, format='PNG'); frame = buffer.getvalue()
+            except Exception as exc:
+                value.update(state='failed', reason=str(exc))
+            with self.connect() as db:
+                db.execute('UPDATE observations SET document=?,frame=? WHERE id=?', (json.dumps(value), frame, request_id))
+                db.execute('UPDATE observations SET frame=NULL WHERE rowid NOT IN (SELECT rowid FROM observations ORDER BY rowid DESC LIMIT 50)')
+            return self.get(request_id)

@@ -81,6 +81,28 @@ public partial class MainWindow
 
     private bool _farmPolling;
     private CarouselDraftWindow? _carouselWindow;
+    private async void FarmPreparation_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var health = await FarmApi.SendAsync("/health");
+            if (!health.TryGetProperty("preparationScheduleVersion", out var version) || version.GetInt32() != 1)
+                throw new InvalidOperationException("Start the updated candidate backend for local preparation schedules.");
+            new FarmPreparationWindow(FarmApi) { Owner = this }.ShowDialog();
+        }
+        catch (Exception ex) { AppendFarmLog("Preparation schedule: " + ex.Message); }
+    }
+    private async void FarmObservation_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var health = await FarmApi.SendAsync("/health");
+            if (!health.TryGetProperty("observationsVersion", out var version) || version.GetInt32() != 1)
+                throw new InvalidOperationException("Start the updated candidate backend for screen review.");
+            new FarmObservationWindow(FarmApi) { Owner = this }.ShowDialog();
+        }
+        catch (Exception ex) { AppendFarmLog("Screen review: " + ex.Message); }
+    }
     private async void FarmVideoDraft_Click(object sender, RoutedEventArgs e)
     {
         try

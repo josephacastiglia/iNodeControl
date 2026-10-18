@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import uuid
 from unittest.mock import Mock, patch
 
 import imouse_social_automation as engine
@@ -71,6 +72,21 @@ class FarmReadinessTests(unittest.TestCase):
         with self.db._connect() as conn:
             row = conn.execute('SELECT observed_json FROM analytics_observations WHERE id=?', (result['evidenceId'],)).fetchone()
         self.assertEqual(self.rows, json.loads(row[0]))
+        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+
+    def test_analytics_pause_holds_recurring_preparation_without_automatic_resume(self):
+        self.db.update_persona('C24C', account_day=5, paused_zero_view=False)
+        self.runtime.preparation.clock = lambda: self.now
+        self.runtime.preparation.prepare = Mock(side_effect=AssertionError('Paused account must not render'))
+        self.runtime.preparation.configure(dict(id=str(uuid.uuid4()), device_id='C24C', action='create-content',
+                                                interval_minutes=60, max_runs=2))
+        self.assertTrue(self.evaluate()['paused'])
+        self.runtime.preparation.tick()
+        self.assertEqual('held', self.runtime.preparation.status()['config']['state'])
+        self.evaluate([{**row, 'views': 1000} for row in self.rows])
+        self.runtime.preparation.tick()
+        self.runtime.preparation.prepare.assert_not_called()
+        self.assertFalse(self.runtime.preparation.status()['config']['enabled'])
         self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
 
     def test_good_observations_never_automatically_clear_a_pause(self):

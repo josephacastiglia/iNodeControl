@@ -47,6 +47,8 @@ from farm_drafts import CarouselDrafts, DraftConflict
 from farm_transfers import CarouselTransfers, TransferConflict
 from farm_capabilities import capabilities
 from farm_video import VideoDrafts
+from farm_observations import ObservationStore
+from farm_preparation_schedule import PreparationSchedule
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 9914
@@ -94,7 +96,7 @@ class FarmBackendRuntime:
         self.operation_lock = threading.RLock()
         source = Path(__file__).resolve().parent
         import hashlib
-        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py"))).hexdigest()
+        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py"))).hexdigest()
         db_path = db_path or Path("output/farm-data/v2") / execution_mode / "imouse_farm.db"
         stage_root = stage_root or Path("output/media-stage/v2") / execution_mode
         self.calibration_path = db_path.parent / "ui-boxes.json"
@@ -104,6 +106,7 @@ class FarmBackendRuntime:
         self.stage_root = stage_root
         self.drafts = CarouselDrafts(db_path.parent / "carousel-drafts.db", stage_root)
         self.videos = VideoDrafts(db_path.parent / "video-drafts.db", stage_root)
+        self.observations = ObservationStore(db_path.parent / 'observations.db')
         self.transfers = CarouselTransfers(db_path.parent / "transfers.db", self.drafts, videos=self.videos)
         self.port = port
         self.lan_host_url = (engine.MediaPullOrchestrator.detect_host_lan_url(port=port)
@@ -116,6 +119,9 @@ class FarmBackendRuntime:
             stage_root=self.stage_root,
             rng=self.rng,
         )
+        self.preparation = PreparationSchedule(db_path.parent / 'preparation-schedule.db',
+            lambda: self.factory.generate_daily_slate_for_device('C24C'),
+            lambda: self.db.get_persona('C24C'), self.operation_lock)
         self.mock_kernel = engine.MockApiServer()
         self.kernel_client = engine.IMouseKernel(
             url=KERNEL_BASE_URL,
@@ -301,7 +307,8 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
     def _send_json(self, status: int, payload: dict) -> None:
         if RUNTIME is not None:
             payload = {**payload, "protocolVersion": 2, "executionMode": RUNTIME.execution_mode,
-                       "simulated": False if any(k in payload for k in ('transfer', 'draft', 'drafts', 'sources')) else RUNTIME.execution_mode == "simulate"}
+                       "simulated": (payload['observation'].get('source') == 'simulation') if 'observation' in payload
+                       else False if any(k in payload for k in ('transfer', 'draft', 'drafts', 'sources', 'observations', 'frame', 'preparationSchedule')) else RUNTIME.execution_mode == "simulate"}
         raw = json.dumps(payload, indent=2).encode("utf-8")
         self._send_bytes(status, "application/json; charset=utf-8", raw)
 
@@ -324,6 +331,28 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
 
         if path == '/api/farm/capabilities':
             self._send_json(200, capabilities())
+            return
+
+        if path == '/api/farm/preparation-schedule':
+            if not self._transfer_access_allowed():
+                self._send_json(403, {'error': 'Preparation schedule is local-only.'}); return
+            self._send_json(200, {'preparationSchedule': RUNTIME.preparation.status()})
+            return
+
+        if path == '/api/farm/observations' or path.startswith('/api/farm/observations/'):
+            if not self._transfer_access_allowed():
+                self._send_json(403, {'error': 'Observations are local-only.'})
+                return
+            try:
+                if path == '/api/farm/observations':
+                    self._send_json(200, {'observations': RUNTIME.observations.list()})
+                elif path.endswith('/frame'):
+                    import base64
+                    self._send_json(200, {'frame': base64.b64encode(RUNTIME.observations.frame(path.split('/')[-2])).decode('ascii')})
+                else:
+                    self._send_json(200, {'observation': RUNTIME.observations.get(path.rsplit('/', 1)[-1])})
+            except (KeyError, ValueError) as exc:
+                self._send_json(404, {'error': str(exc)})
             return
 
         if path == '/api/farm/video-sources':
@@ -379,6 +408,8 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "carouselDraftsVersion": 1,
                     "carouselTransfersVersion": 1,
                     "videoDraftsVersion": 1,
+                    "observationsVersion": 1,
+                    "preparationScheduleVersion": 1,
                     "lanHostUrl": RUNTIME.lan_host_url,
                     "layersBuilt": 7,
                     "personasCount": len(RUNTIME.db.list_personas()),
@@ -402,7 +433,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "activeJob": RUNTIME.jobs.current(),
                     "liveAutomationReady": False,
                     "carouselDraftsVersion": 1,
-                    "observationStatus": "Not configured; keyword matching and view counts are unavailable.",
+                    "observationStatus": "Read-only screen review available. Keyword actions and verified post metrics remain unavailable.",
                     "lanHostUrl": RUNTIME.lan_host_url,
                     "personas": personas,
                     "c24cSlates": RUNTIME.db.get_slates_for_device("C24C", limit=5),
@@ -463,9 +494,9 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/")
-        if path.startswith('/api/farm/transfers') and not self._transfer_access_allowed():
+        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule')) and not self._transfer_access_allowed():
             self.close_connection = True
-            self._send_json(403, {"error": "Transfer controls are local-only."})
+            self._send_json(403, {"error": "Media, observation and preparation controls are local-only."})
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
@@ -496,6 +527,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         # Stop and cancellation must remain available while work is in progress.
         interrupt = path == "/api/farm/emergency-stop" or (path.startswith("/api/farm/jobs/") and path.endswith("/cancel"))
         interrupt = interrupt or (path.startswith("/kernel-proxy") and data.get("fun") == "/input/stop")
+        interrupt = interrupt or path == '/api/farm/preparation-schedule/pause'
         if interrupt or path == "/api/farm/jobs" or (path.startswith("/api/farm/transfers/") and path.endswith("/stop")):
             self._dispatch_post(path, data, raw_body)
             return
@@ -512,6 +544,15 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
     def _dispatch_post(self, path: str, data: dict, raw_body: bytes) -> None:
         assert RUNTIME is not None
         data = dict(data)
+        if path == '/api/farm/preparation-schedule':
+            self._send_json(200, {'preparationSchedule': RUNTIME.preparation.configure(data)}); return
+        if path == '/api/farm/preparation-schedule/pause':
+            self._send_json(200, {'preparationSchedule': RUNTIME.preparation.pause(data.get('cancel_request_id'))}); return
+        if path == '/api/farm/observations':
+            if data.get('read_only') is not True or data.get('source') != 'phone':
+                raise ValueError('Choose an explicit read-only C24C phone observation. It never sends input.')
+            self._send_json(200, {'observation': RUNTIME.observations.capture(data, engine.IMouseKernel(url=KERNEL_BASE_URL))})
+            return
         if path == '/api/farm/video-drafts':
             self._send_json(200, {'draft': RUNTIME.videos.create(data)})
             return
@@ -688,19 +729,31 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             return
         if path == "/api/farm/emergency-stop":
             dev_id = str(data.get("device_id", "C24C"))
+            status, payload = 500, {}
             try:
                 kernel = RUNTIME.get_kernel()
                 resolved = kernel.resolve_device_id(dev_id)
                 res = kernel.post("/input/stop", {"id": resolved})
                 code = res.get("code") if isinstance(res, dict) else None
                 if code == 0 and all(r.get("code") == 0 for r in res.get("results", [])):
-                    self._send_json(200, {"status": "ok", "stopped": dev_id, "kernel_response": res})
+                    status, payload = 200, {"status": "ok", "stopped": dev_id, "kernel_response": res}
                 else:
-                    self._send_json(400, {"status": "error", "error": f"Kernel stop failed with code {code}", "kernel_response": res})
-            except engine.KernelSafetyError:
-                raise
+                    status, payload = 400, {"status": "error", "error": f"Kernel stop failed with code {code}", "kernel_response": res}
+            except engine.KernelSafetyError as ex:
+                status, payload = 409, {"status": "safety_refused", "error": str(ex)}
             except Exception as ex:
-                self._send_json(500, {"status": "error", "error": str(ex)})
+                payload = {"status": "error", "error": str(ex)}
+            # Phone Stop must precede any potentially blocked local SQLite write.
+            try:
+                RUNTIME.preparation.pause()
+                payload['preparationPaused'] = True
+            except Exception as ex:
+                payload['preparationPaused'] = False
+                payload['preparationPauseError'] = str(ex)
+                if status == 200:
+                    status = 500
+                    payload.update(status='partial', error='Phone stop completed, but recurring preparation could not be paused. Check its status.')
+            self._send_json(status, payload)
             return
 
         if path == "/api/farm/shadowban-scan":
@@ -950,10 +1003,12 @@ def main() -> int:
     if not args.no_browser:
         threading.Timer(0.4, lambda: webbrowser.open(url)).start()
     try:
+        RUNTIME.preparation.start()
         srv.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
+        RUNTIME.preparation.close()
         RUNTIME.transfers.close()
         srv.server_close()
     return 0

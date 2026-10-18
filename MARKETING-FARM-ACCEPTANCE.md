@@ -4,11 +4,11 @@ Updated 17 October 2026. **The full marketing product is not accepted for unatte
 
 ## Current candidate
 
-- Native output: `output/codex-farm-video-20261017`, DLL SHA-256 `61764a45cf1ad1adced31cca087ff36412842af12f8d638104d800b0f48fee1e`.
+- Native output: `output/codex-farm-observations-20261017`, DLL SHA-256 `433ccabd9d769f4eba0695bf2c1efc477544408cfe5c3911972a142204dc0d86`.
 - Candidate launcher: `Open Marketing Farm Candidate.ps1`; backend on loopback 9915, simulation mode, separate settings and hover tracking off.
-- **161 Python tests**, no skips; **478 native headless checks**; Release build has zero warnings/errors. Python tests use only registered mock listeners; headless checks create no desktop window.
+- **189 Python tests**, no skips; **491 native headless checks**; Release build has zero warnings/errors. Python tests use only registered mock listeners; headless checks create no desktop window.
 - All 14 upload formats execute with simulated transport and clean up ownership. Those tests do not establish real app completion.
-- Installed console/release, shortcuts, kernel and receivers were not changed. This pass used observed C24C phone API input, never PC control. C241 received no input. The operator physically dismissed YouTube's optional local-network prompt using Don't Allow. Candidate controls were tested headlessly; the live saves were supervised through the existing release API.
+- Installed console/release, shortcuts, kernel and receivers were not changed. The current pass used one read-only C24C capture and status checks, with no phone input or PC control. Prior supervised saves used the existing release API and required a physical YouTube permission dismissal. Native controls are headless-tested; a complete interactive native-window-to-phone run remains open.
 
 ## Usable scope and remaining gates
 
@@ -21,9 +21,11 @@ Updated 17 October 2026. **The full marketing product is not accepted for unatte
 | Video preparation | Saved H.264 720×1280 copies; full-frame fitting, source preservation, duration checks, audio decoding, immutable captions, lost-response recovery and saved-copy selection | Generated C24C videos only; 64 MiB and 45-second candidate limits. Source audio tested offline; silent MP4 used on the phone |
 | Instagram draft | **Supervised C24C tests passed:** earlier three-slide carousel with exact multiline caption; this pass a real MP4 Reel saved, reopened and played with the exact test label | Repeatable app-state recognition, correct account verification, interruptions and unattended recovery |
 | Jobs and Stop | Durable IDs, no replay, single-operation execution, cancellation, heartbeat timeout and recovery tested | Marketing-specific live console/backend handover remains unverified |
+| Screen/account review | Explicit read-only C24C capture, local English OCR, exact text comparisons, saved frames, interrupted-capture hold and no replay | Same-phone development frames only. Additional-frame review found two unrecognized variants. Missing frame-age metadata and OCR character ambiguity prevent unattended acceptance; no app/account authenticity or saved-draft proof |
+| Recurring local preparation | Fixed interval/run limit, missed-run skipping, profile/analytics holds, pause races and crash recovery tested. A real background render produced five checked assets; prior run references are retained | No days-long soak or unattended phone execution. Requires explicit configuration and a running candidate backend; it never transfers, publishes or messages |
 | Schedule | Preview, phase-one warmup planning, cooldown boundary, UTC daily budget and paused-account hold tested | No recurring live execution service is accepted; needs review queue, actual timing and restart acceptance |
 | Warmup | Simulated sequencing, phase rules, cancellation and cleanup | Approved account activity and observed app outcomes; no claim of improving platform standing |
-| Analytics | Submitted post observations require identity, account, timezone-qualified timestamps and mature/recent evidence; low-view review can pause but never auto-resume | Automatic observation provider and validation against real account data |
+| Analytics | Submitted post observations require identity, account, timezone-qualified timestamps and mature/recent evidence; low-view review pauses recurring preparation and never auto-resumes it | Automatic metric provider and validation against real account data. Screen counts remain unavailable as metrics without post identity/context |
 | Keyword replies / DMs | Missing observations refuse; no invented keyword matches or messages | Observations, recipient verification, approved messaging scope and live acceptance |
 | Pins and cross-account actions | Simulation only | Separate authorization and observed outcomes; no acceptance claim |
 | Automatic creation + deployment | Combined path runs in simulation | Every live stage must pass before this can be enabled |
@@ -66,4 +68,4 @@ Three new analytics/scheduler cases fail against the preserved `f770b34` engine 
 
 The operator authorized any already signed-in C24C accounts for **draft-only** checks; those supervised saves are complete for the tested formats above. Publishing and messaging remain outside scope. Full marketing acceptance still requires observed app/account recognition, safe handling of changed screens, media selection and caption verification, repeated interruption/recovery cases, recurring execution and real observations. The remaining format paths are not accepted merely because similar drafts worked. No live automatic route was enabled.
 
-Latest report, logs and exact observed step references: `analysis/farm-platform-drafts-20261017/README.md`. Its private screenshots, account evidence, test package and exact candidate are archived outside Git with checksums. Earlier reports remain in `analysis/farm-native-transfer-20261017/` and `analysis/farm-phone-transfer-20261017/`. A supervised save, a native headless check and an unattended workflow are separate acceptance claims.
+Latest report and checks: `analysis/farm-observations-20261017/README.md`. The supervised draft steps remain in `analysis/farm-platform-drafts-20261017/README.md`. Private frames, OCR, test records and exact candidates are archived outside Git with checksums. Earlier reports remain in `analysis/farm-native-transfer-20261017/` and `analysis/farm-phone-transfer-20261017/`. A supervised save, a native headless check, a read-only observation and an unattended workflow are separate acceptance claims.

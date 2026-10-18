@@ -635,6 +635,8 @@ public static class SelfTests
         await CarouselDraftWindow.CheckHeadlessAsync(Check);
         await CarouselTransferWindow.CheckHeadlessAsync(Check);
         await VideoDraftWindow.CheckHeadlessAsync(Check);
+        await FarmObservationWindow.CheckHeadlessAsync(Check);
+        await FarmPreparationWindow.CheckHeadlessAsync(Check);
 
         var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
         File.WriteAllText(Path.Combine(qa, "self-tests.json"), JsonSerializer.Serialize(new { passed = passed.Count, tests = passed, allCommandsUsedMockTransport = true, at = DateTime.Now }, new JsonSerializerOptions { WriteIndented = true }));

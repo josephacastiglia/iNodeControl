@@ -1,6 +1,22 @@
 # Marketing Farm candidate — 17 October 2026
 
-## Latest candidate: video preparation and four-platform draft checks
+## Latest candidate: screen review and recurring local preparation
+
+The separate candidate is `output/codex-farm-observations-20261017`, DLL SHA-256 `433ccabd9d769f4eba0695bf2c1efc477544408cfe5c3911972a142204dc0d86`. **189 Python tests and 491 native headless checks pass**, with zero build warnings/errors. The candidate launcher points here. Installed files and running services remain unchanged.
+
+**Read C24C screen** takes an explicit read-only frame through the existing API and uses local English OCR. It presents recognized screen patterns, exact account/caption comparisons, interruptions, frame age and saved evidence. It never acquires control or authorizes input. Lost responses recover the same record; restarting does not repeat a capture. The latest 50 frames remain available; older request records remain to prevent replay.
+
+**Preparation schedule** creates local content at a chosen interval with a fixed run limit. Missed runs are skipped; interrupted or failed renders require review. Pause survives delayed configuration requests. Analytics/profile pauses hold future preparation. Completed runs retain captions and file references. A disposable backend completed a real scheduled render (four JPEGs and one MP4, all checksummed) without any phone command. This is local preparation, not recurring phone deployment.
+
+Emergency Stop reaches the phone before saving the local schedule pause. A schedule-storage failure is reported separately and cannot prevent the phone stop from being dispatched.
+
+**Recognition limits:** 18/18 development frames matched their labels. On 18 additional frames the original score was 15/18; one label was wrong, leaving 16/18 after that label correction and two unrecognized screen variants. No pattern was changed to fit those frames. OCR can confuse I/l and omit characters. The installed kernel does not report exact frame age, so current live captures say freshness unavailable. No OCR result certifies account authenticity, a saved draft or analytics.
+
+Only one read-only C24C capture and status checks touched the rack this pass. Both input generations, release processes, receiver restart counts and operator settings content are unchanged. C24C is live; C241 remains offline as it was before this work. No schedule or test service from this pass is left running.
+
+**Still open:** reliable state/account verification across real screens and app versions, automatic media/draft verification, unattended interruption recovery and genuine analytics collection. Publishing and messaging remain disabled. See [the report](analysis/farm-observations-20261017/README.md) and [acceptance record](MARKETING-FARM-ACCEPTANCE.md). The sections below are historical checkpoints.
+
+## Earlier candidate: video preparation and four-platform draft checks
 
 The separate candidate is `output/codex-farm-video-20261017`, DLL SHA-256 `61764a45cf1ad1adced31cca087ff36412842af12f8d638104d800b0f48fee1e`. **161 Python tests and 478 native headless checks pass**, with a clean Release build. The candidate launcher points here; the installed marketing console, release kernel, receivers and shortcuts are unchanged.
 

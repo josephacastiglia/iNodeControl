@@ -1,0 +1,35 @@
+{
+  "rawResultFile": "holdout-results.json",
+  "rawMatches": 15,
+  "total": 18,
+  "implementationChangedToFitTheseFrames": false,
+  "review": [
+    {
+      "step": "23-tiktok-drafts-library",
+      "originalLabel": "profile",
+      "visualReview": "TikTok draft library, with one draft and the uninstall warning.",
+      "correctedLabel": "draft_library",
+      "actual": "draft_library",
+      "finding": "Original label was wrong. Preserve the raw result and correct only this label."
+    },
+    {
+      "step": "161-instagram-reel-caption",
+      "originalLabel": "draft_details",
+      "visualReview": "Caption editor sheet overlays the Reel details screen.",
+      "actual": "unknown",
+      "finding": "Unsupported editing state. Unknown requires inspection; do not treat it as an accepted details screen."
+    },
+    {
+      "step": "24-tiktok-reopen",
+      "originalLabel": "draft_details",
+      "visualReview": "Photo draft details with individual Cover/Edit labels instead of the video's Edit cover label.",
+      "actual": "unknown",
+      "finding": "Genuine recognition gap. Leave unresolved; this is not proof of app completion."
+    }
+  ],
+  "matchesAfterCorrectingLibraryLabelOnly": 16,
+  "unrecognizedScreenVariants": 2,
+  "wrongAccountAccepted": 0,
+  "automaticInputAllowed": 0,
+  "limit": "Previously captured frames from the same phone and sessions, not independent app-version or device coverage."
+}
