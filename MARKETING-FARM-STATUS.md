@@ -1,5 +1,9 @@
 # Marketing Farm candidate — 18 October 2026
 
+## Prepared: fresh C24C transition validation
+
+A bounded diagnostic now uses the shared transition guard across the full existing-draft save/reopen path under one lease. **50 preparation checks pass**, including full-flow retained-screen fixtures, cancellation and lost Save replies. Actual Windows OCR recognizes the required profile/Create/Next controls. The private C24C runtime passed startup validation; installed files and native binaries are unchanged. Fresh-phone execution remains pending, and no production live endpoint is enabled. [Prepared method and evidence](analysis/farm-live-transitions-20261018/README.md).
+
 ## Latest offline work: bounded handling of the five review holds
 
 The product now recognizes the Create sheet ahead of its background profile and uses a shared read-only settling guard at Create, picker and editor boundaries. Known indicator/header animation requests another capture, up to four captures/six seconds. Only a new stable pair can permit the next workflow step; the indicator/header still count in the final comparison. Wrong slides, changed controls, dialogs, expired evidence and ownership changes stop the run.

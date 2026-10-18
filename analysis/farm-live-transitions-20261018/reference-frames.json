@@ -1,0 +1,46 @@
+{
+  "profile": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\03-open-create\\fresh.png",
+    "sha256": "dd7ddbc83e72f23bf96956355ea0b38e4ca24bec984df51c6769f02e0a0f848f"
+  },
+  "create": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\05-open-post-picker\\fresh.png",
+    "sha256": "10d93704c398b7cc229c082b1748da5b100e7246e4bfd28fdce393d309bb8d5c"
+  },
+  "picker": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\07-drafts-from-settled-picker\\fresh.png",
+    "sha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a"
+  },
+  "library": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\08-open-test-draft\\fresh.png",
+    "sha256": "a5dde511e7c0e3e178a57fee66b70ee92876950fd4e39b0491056fe46cc458d6"
+  },
+  "editor1": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\09-inspect-second-slide\\fresh.png",
+    "sha256": "1fb8ee06bb4ab7af9658a3ead675d8b54a321e70d26f401c25927a13165d4d5f"
+  },
+  "editor2": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\10-inspect-third-slide\\fresh.png",
+    "sha256": "9a058b69b459330a2fee6e1fed1929d1ea125fe0bbf4d53a2d3536a82a25ba7e"
+  },
+  "editor3": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\12-caption-with-label-crop\\fresh.png",
+    "sha256": "8fc2e4a1714e31f28ab653c3817bccd176bee0fe9a0973a8a60fdf4839fd7e4b"
+  },
+  "details": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\13-return-to-editor\\fresh.png",
+    "sha256": "a4414e264355db9c3f373a3d0a35891b8c0499c2e0f14f0c946afd6234331b3b"
+  },
+  "save_prompt": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\15-save-once\\fresh.png",
+    "sha256": "bb182bf0e7356c4cee0f87ef7b0155c10fbc5006e279e16099bb8256e91c8e19"
+  },
+  "picker_saved": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\17-saved-draft-library\\fresh.png",
+    "sha256": "bacd0a784a51d70bc26b241d62415b63aea951aa64bac79900a556939ed69e3e"
+  },
+  "library_saved": {
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout\\run\\18-reopen-saved-carousel\\fresh.png",
+    "sha256": "3dcb8f703300ee9704de9796bbcd948456067e6d0a950b158c77d611f59faa37"
+  }
+}
