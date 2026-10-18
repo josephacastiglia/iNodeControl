@@ -14,10 +14,9 @@ import threading
 import time
 import zipfile
 
-import numpy as np
-from PIL import Image
 from farm_drafts import identifier, DraftConflict
-from farm_observations import classify, expectations, image_size
+from farm_observations import classify, expectations
+from farm_draft_media import media_comparison
 
 ROLES = ('account_before', 'prepared', 'library', 'reopened', 'account_after')
 MAX_EVIDENCE_BYTES = 32 * 1024 * 1024
@@ -34,7 +33,7 @@ def request_spec(request):
     normalized = {}
     for role in ROLES:
         ids = roles.get(role, [])
-        maximum = 10 if role in ('prepared', 'reopened') else 1
+        maximum = 11 if role in ('prepared', 'reopened') else 1
         if not isinstance(ids, list) or len(ids) > maximum: raise ValueError('Too many observations for ' + role)
         normalized[role] = [identifier(value) for value in ids]
     flat = sum(normalized.values(), [])
@@ -58,41 +57,58 @@ def caption_comparison(text, expected):
                 reason='Only the supported visible caption area was compared; hidden or truncated text cannot pass.')
 
 
-def media_comparison(frame, assets, layout):
-    if layout not in ('carousel_details', 'draft_library_candidate'): return dict(status='unsupported_layout', matchedIndex=None)
-    width, height = image_size(frame)
-    if abs(width / height - 500 / 1080) > .01:
-        return dict(status='unsupported_geometry', matchedIndex=None)
-    with Image.open(io.BytesIO(frame)) as image:
-        # Only the first fully visible 4:5 preview in the validated English layout.
-        bounds = (20, 126, 260, 426) if layout == 'carousel_details' else (0, 112, 124, 236)
-        crop = image.convert('RGB').crop(tuple(round(v * (width / 500 if i % 2 == 0 else height / 1080)) for i, v in enumerate(bounds)))
-    def pixels(image):
-        image = image.convert('RGB').resize((100, 125), Image.Resampling.LANCZOS)
-        return np.asarray(image, dtype=np.float32)[5:-5, 4:-4] / 255
-    observed = pixels(crop)
-    # A flat patch cannot establish image identity even when its colour matches.
-    if float(np.mean(np.std(observed, axis=(0, 1)))) < .04:
-        return dict(status='insufficient_detail', matchedIndex=None)
-    scores = []
-    for number, raw in enumerate(assets):
-        with Image.open(io.BytesIO(raw)) as source:
-            if layout == 'draft_library_candidate':
-                # Candidate square centre-crop layout; real thumbnails that differ remain unresolved.
-                side = min(source.size); x = (source.width - side) // 2; y = (source.height - side) // 2
-                source = source.crop((x, y, x + side, y + side))
-            difference = np.abs(observed - pixels(source))
-        blocks = [float(block.mean()) for band in np.array_split(difference, 5) for block in np.array_split(band, 4, axis=1)]
-        scores.append(dict(index=number + 1, meanError=float(difference.mean()), worstBlock=max(blocks)))
-    ordered = sorted(scores, key=lambda s: s['meanError'])
-    best = ordered[0]
-    margin = ordered[1]['meanError'] - best['meanError']
-    accepted = best['meanError'] <= .045 and best['worstBlock'] <= .12 and margin >= .025
-    return dict(status='visual_match' if accepted else 'ambiguous_or_different', matchedIndex=best['index'] if accepted else None,
-                scores=scores, margin=margin, byteIdentityVerified=False)
+def library_candidate(text, result):
+    titles = [line['text'].casefold() for line in text.get('lines', []) if line.get('words')
+              and .04 < min(w['y'] for w in line['words']) / text['height'] < .12]
+    return result['screen'] == 'unknown' and 'drafts' in titles and 'select' in titles
 
 
-def assess(spec, draft, assets, captures):
+def account_history(spec, timeline, expected):
+    """Audit every stored observation, including ones the caller did not select."""
+    blockers, rows = [], []
+    if not timeline:
+        return dict(status='unavailable', blockers=['Account observation interval is unavailable.'], observations=[], maxGapSeconds=None)
+    ids = [v['id'] for v, _ in timeline]
+    if any(i not in ids for i in sum(spec['observations'].values(), [])):
+        blockers.append('Selected evidence lies outside the account observation interval.')
+    previous = None; max_gap = 0; context = None
+    for value, frame in timeline:
+        row = dict(id=value['id'], screen='unavailable', account='unavailable')
+        rows.append(row)
+        if frame is None or value.get('state') != 'observed':
+            blockers.append('Account history contains a failed, pruned or damaged observation.'); continue
+        if (value.get('expected', {}).get('platform') != expected['platform']
+                or value.get('expected', {}).get('account', '').casefold() != expected['account'].casefold()):
+            blockers.append('Account history includes a different expected app or account.')
+        result = classify(value['text'], expected)
+        row.update(screen=result['screen'], account=result['accountStatus'])
+        if result['screen'] in ('profile', 'account_menu') and result['accountStatus'] != 'exact_text_match':
+            blockers.append('Account history contains a different or unreadable account.')
+        allowed = result['appPattern'] == 'instagram' and result['screen'] in ('profile', 'draft_details', 'draft_editor')
+        if not allowed and not library_candidate(value['text'], result):
+            blockers.append('Account history crosses an interruption, another app or an unrecognized screen.')
+        if value.get('freshness') != 'recent' or value.get('stable') is not True or value.get('inputIdle') is not True:
+            blockers.append('Account history has stale, unavailable or unsettled input evidence.')
+        evidence=value.get('frameEvidence', {})
+        current=(value.get('observerSession'), value.get('resolvedDeviceId'), value.get('receiverPid'),
+                 value.get('inputGeneration'), evidence.get('session'), value.get('source'))
+        if context is None: context=current
+        if current != context or any(item is None for item in current) or evidence.get('pairedMetadata') is not True:
+            blockers.append('Account history changed observer, device, ownership generation or stream context.')
+        start,end,seq=value.get('requestedAt'),value.get('completedAt'),evidence.get('sequence')
+        valid=all(type(t) in (int,float) and math.isfinite(t) for t in (start,end)) and start<=end and type(seq) is int
+        if not valid: blockers.append('Account history has invalid timing or frame sequence.'); continue
+        if previous:
+            gap=start-previous[0]; max_gap=max(max_gap,gap)
+            if gap<=0 or seq<=previous[1]: blockers.append('Account history is out of order or repeats a frame sequence.')
+            if gap>15: blockers.append('Account history has an unobserved interval longer than 15 seconds.')
+        previous=(end,seq)
+    return dict(status='incomplete' if blockers else 'consistent_sampled_history', blockers=list(dict.fromkeys(blockers)),
+                observations=rows, maxGapSeconds=max_gap, continuousRecording=False,
+                meaning='Checks every stored C24C observation, not phone activity between captures.')
+
+
+def assess(spec, draft, assets, captures, timeline=None):
     expected = dict(device_id='C24C', platform='instagram', account=spec['account'], caption=draft['caption'])
     blockers, details, ordered = [], {}, []
     for role in ROLES:
@@ -119,9 +135,7 @@ def assess(spec, draft, assets, captures):
                     blockers.append('Expected account was not read exactly at ' + role.replace('_', ' ') + '.')
             elif role == 'library':
                 # Match a thumbnail in a sparse library without changing the global unknown-app classification.
-                titles = [line['text'].casefold() for line in value['text'].get('lines', []) if line.get('words')
-                          and .04 < min(w['y'] for w in line['words']) / value['text']['height'] < .12]
-                candidate = result['screen'] == 'unknown' and 'drafts' in titles and 'select' in titles
+                candidate = library_candidate(value['text'], result)
                 row['media'] = media_comparison(frame, assets, 'draft_library_candidate' if candidate else None)
                 row['appIndependentlyIdentified'] = False
                 if row['media']['matchedIndex'] != 1:
@@ -143,19 +157,31 @@ def assess(spec, draft, assets, captures):
     sequences = [v.get('frameEvidence', {}).get('sequence') for v in ordered]
     if not sequences or any(type(s) is not int for s in sequences) or any(a >= b for a, b in zip(sequences, sequences[1:])):
         blockers.append('Distinct, advancing frame sequences are required for the review stages.')
+    coverage = {}
     for role in ('prepared', 'reopened'):
         rows = details[role]
-        indices = [r.get('media', {}).get('matchedIndex') for r in rows]
-        if indices != list(range(1, len(assets) + 1)):
-            blockers.append(role.title() + ' media does not show every expected slide once in the requested sequence.')
-        if not rows or any(r.get('caption', {}).get('status') != 'exact_visible_lines' for r in rows):
-            blockers.append(role.title() + ' full visible caption does not match exactly.')
+        editors = [r for r in rows if 'position' in r.get('media', {})]
+        indices = [r['media'].get('matchedIndex') for r in editors]
+        full = (indices == list(range(1, len(assets)+1)) and all(
+            r['media']['position'] == dict(status='visible_position', index=n, count=len(assets))
+            for n,r in enumerate(editors,1)))
+        captions = [r['caption']['status'] for r in rows if r.get('caption', {}).get('status') != 'unsupported_layout']
+        caption_ok = bool(captions) and all(c == 'exact_visible_lines' for c in captions)
+        # Details previews must also match, even though only editor dots establish count/order.
+        other_ok = all(r.get('media', {}).get('matchedIndex') is not None for r in rows)
+        coverage[role] = dict(expectedCount=len(assets), observedIndices=indices,
+                              fullSizeAndPositionMatch=full, captionMatches=caption_ok)
+        if not full or not other_ok:
+            blockers.append(role.title() + ' needs every full-size slide in order with its matching position and total count.')
+        if not caption_ok: blockers.append(role.title() + ' full visible caption does not match exactly.')
+    continuity = account_history(spec, timeline, expected)
+    blockers.extend(continuity['blockers'])
     source = 'phone' if ordered and all(v.get('source') == 'phone' for v in ordered) else 'simulation_or_mixed'
     return dict(status='incomplete' if blockers else 'consistent_visual_evidence', source=source,
-                blockers=list(dict.fromkeys(blockers)), stages=details, automaticInputAllowed=False,
+                blockers=list(dict.fromkeys(blockers)), stages=details, slideCoverage=coverage, accountHistory=continuity, automaticInputAllowed=False,
                 savedDraftVerified=False, accountContinuityProven=False,
-                limits=['Account observations bracket the run; actions between frames are not witnessed.',
-                        'Similar pixels are not byte identity, and observation sequence does not prove carousel navigation order.',
+                limits=['All stored observations in the interval are checked; actions between captures are not witnessed.',
+                        'Full-size pixels and page dots check visible slide order/count, not media byte identity.',
                         'A library and reopened content can be consistent with a draft; saving a new draft is not independently proven.',
                         'This is historical evidence, never current readiness or permission to publish, message or send input.'])
 
@@ -195,7 +221,7 @@ class DraftVerifications:
     def frame(self, review_id, observation_id):
         review_id, observation_id = identifier(review_id), identifier(observation_id)
         record = self.get(review_id)  # Verifies archive integrity before serving a retained image.
-        if observation_id not in sum(record['request']['observations'].values(), []):
+        if observation_id not in sum(record['request']['observations'].values(), []) + record.get('intervalObservationIds', []):
             raise KeyError('This observation does not belong to the saved review.')
         with self.connect() as db: evidence = db.execute('SELECT evidence FROM reviews WHERE id=?', (review_id,)).fetchone()[0]
         with zipfile.ZipFile(io.BytesIO(evidence)) as archive:
@@ -226,14 +252,29 @@ class DraftVerifications:
                     value, frame = captures[observation_id]
                     size += len(frame) + len(json.dumps(value, ensure_ascii=False).encode('utf-8'))
                     if size > MAX_EVIDENCE_BYTES: raise ValueError('Selected review evidence exceeds 32 MiB; no partial review stored.')
-            assessment = assess(spec, draft, assets, captures)
+            timeline, timeline_error = None, None
+            if spec['observations']['account_before'] and spec['observations']['account_after']:
+                try:
+                    timeline = self.observations.interval(spec['observations']['account_before'][0], spec['observations']['account_after'][0])
+                except ValueError as error: timeline_error = str(error)
+            for value, frame in timeline or []:
+                if value['id'] not in captures:
+                    size += len(frame or b'') + len(json.dumps(value, ensure_ascii=False).encode('utf-8'))
+                    if size > MAX_EVIDENCE_BYTES: raise ValueError('Selected review evidence exceeds 32 MiB; no partial review stored.')
+            assessment = assess(spec, draft, assets, captures, timeline)
+            if timeline_error: assessment['blockers'].append(timeline_error)
             assessment['blockers'].extend(dict.fromkeys(missing))
             buffer = io.BytesIO()
             with zipfile.ZipFile(buffer, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
                 for observation_id, (value, frame) in captures.items():
                     archive.writestr(observation_id + '.json', json.dumps(value, ensure_ascii=False))
                     archive.writestr(observation_id + '.png', frame)
-            document = dict(id=spec['id'], createdAt=time.time(), request=spec,
+                for value, frame in timeline or []:
+                    if value['id'] in captures: continue
+                    archive.writestr(value['id'] + '.json', json.dumps(value, ensure_ascii=False))
+                    if frame is not None: archive.writestr(value['id'] + '.png', frame)
+            document = dict(id=spec['id'], createdAt=time.time(), request=spec, verificationVersion=2,
+                            intervalObservationIds=[v['id'] for v, _ in timeline or []],
                             draft={k: draft[k] for k in ('id', 'title', 'revision', 'caption', 'slideIds')},
                             packageSha256=hashlib.sha256(package).hexdigest(), evidenceSha256=hashlib.sha256(buffer.getvalue()).hexdigest(),
                             assessment=assessment)

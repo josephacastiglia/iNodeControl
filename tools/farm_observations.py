@@ -129,6 +129,9 @@ def classify(text, expected):
         state, app = 'draft_details', 'youtube'
     elif 'new reel' in upper and 'save draft' in lower and 'share' in lower:
         state, app = 'draft_details', 'instagram'
+    elif (all(anchor(label, .82, .87) for label in ('audio', 'overlay', 'filter', 'edit', 'ratio'))
+          and (anchor('next', .89, .96) or anchor('suggested audio', .07, .13))):
+        state, app, layout = 'draft_editor', 'instagram', 'carousel_editor'
     elif (anchor('new post', .04, .12) and anchor('add audio', .55, .65)
           and anchor('tag people', .65, .75) and anchor('add location', .72, .8)
           and (anchor('add ai label', .78, .85) or anchor('add al label', .78, .85))
@@ -244,6 +247,28 @@ class ObservationStore:
         if value.get('reviewFrameSha256') != hashlib.sha256(row[1]).hexdigest():
             raise ValueError('Observation has no matching review-image checksum. Older records need a new explicit capture.')
         return value, row[1]
+
+    def interval(self, start_id, end_id):
+        """All stored C24C observations between two row IDs, including failed/pruned ones.
+
+        Uses insertion order as well as timestamps so a bad clock cannot hide a record.
+        This is a sampled observation history, not a continuous recording of phone actions.
+        """
+        with self.connect() as db:
+            ends = [db.execute('SELECT rowid FROM observations WHERE id=?', (str(uuid.UUID(i)),)).fetchone()
+                    for i in (start_id, end_id)]
+            if any(row is None for row in ends) or ends[0][0] >= ends[1][0]:
+                raise ValueError('Account boundary observations are missing or out of order.')
+            rows = db.execute('SELECT document,frame FROM observations WHERE rowid BETWEEN ? AND ? ORDER BY rowid LIMIT 101',
+                              (ends[0][0], ends[1][0])).fetchall()
+        if len(rows) > 100: raise ValueError('Account observation interval exceeds 100 records; use a shorter review run.')
+        output = []
+        for document, frame in rows:
+            value = json.loads(document)
+            if value.get('expected', {}).get('device_id') != 'C24C': continue
+            valid = frame is not None and value.get('reviewFrameSha256') == hashlib.sha256(frame).hexdigest()
+            output.append((value, frame if valid else None))
+        return output
 
     def capture(self, request, kernel):
         desired = expectations(request)

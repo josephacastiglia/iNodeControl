@@ -25,7 +25,7 @@ def capabilities():
             {'id': 'screen-review', 'name': 'Read C24C screen', 'availability': 'Read-only candidate',
              'detail': 'Local English OCR with caption-editor and carousel/photo/video screen patterns. Exact account/text checks and paired receiver-delivery age expire after download, recognition, viewing or restart. Missing metadata stays unknown. Review only; no input authorization or saved-draft proof.'},
             {'id': 'draft-evidence', 'name': 'Compare carousel evidence', 'availability': 'Local review candidate',
-             'detail': 'Links a saved revision to recorded C24C account, slide, caption, library and reopened screens. Retains images and source package; flags missing, ambiguous, stale or changed evidence. Visual matches never certify an app save or enable phone actions. Real library-thumbnail matching remains unresolved.'},
+             'detail': 'Links a saved revision to recorded C24C account, slide, caption, library and reopened screens. Retains images and source package; flags missing, ambiguous, stale or changed evidence. Visual matches never certify an app save or enable phone actions. Supports the recorded carousel thumbnail overlay and full-size slide position/count checks. Audits all stored observations between account screens, including unselected interruptions. Activity between samples remains unproven.'},
             {'id': 'formats', 'name': 'Instagram, TikTok, X and YouTube automation', 'availability': 'Simulation only',
              'detail': 'All 14 format paths are checked with mock transport. Real account, media and app-state checks are still required.'},
             {'id': 'warmup', 'name': 'Account warmup', 'availability': 'Simulation only',

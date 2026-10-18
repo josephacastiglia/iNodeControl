@@ -19,6 +19,8 @@ internal sealed partial class FarmDraftVerificationWindow
         internal List<string> Routes = [];
         internal object Document() => new { id = Id, draftChangedSinceReview = true, assessment = new {
             status = "incomplete", source = "simulation_or_mixed", blockers = new[] { "Missing reopened slide 3.", "Account text is ambiguous." },
+            slideCoverage = new { reopened = new { expectedCount = 3, observedIndices = new[] { 1, 3 }, fullSizeAndPositionMatch = false } },
+            accountHistory = new { status = "incomplete", observations = new[] { new { id = "intervening-screen", screen = "permission_prompt", account = "not_visible" } } },
             stages = new { reopened = new[] { new { id = "saved-observation", screen = "draft_details", account = "not_visible", media = new { status = "visual_match", matchedIndex = 1 }, caption = new { status = "exact_visible_lines" } } } },
             limits = new[] { "Similar pixels are not byte identity.", "Account observations do not establish uninterrupted continuity." } } };
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
@@ -31,7 +33,7 @@ internal sealed partial class FarmDraftVerificationWindow
             }
             const string png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=";
             object response = path.Contains("/frames/") ? new { protocolVersion = 2, frame = png } : path switch {
-                "/health" => new { protocolVersion = 2, draftVerificationVersion = 1 },
+                "/health" => new { protocolVersion = 2, draftVerificationVersion = 2 },
                 "/api/farm/observations" => new { protocolVersion = 2, observations = Array.Empty<object>() },
                 "/api/farm/draft-verifications" => new { protocolVersion = 2, verifications = Array.Empty<object>() },
                 _ => new { protocolVersion = 2, verification = Document() }
@@ -53,6 +55,9 @@ internal sealed partial class FarmDraftVerificationWindow
             await window.RunAsync(window.RecoverAsync);
             check("Draft verification recovery retrieves the same result without another comparison", handler.Comparisons == 1 && window._pending is null && window._compare.IsEnabled);
             check("Draft verification shows changed revision, missing media and uncertain account", window._status.Text.Contains("older revision") && window._status.Text.Contains("Missing reopened slide 3") && window._status.Text.Contains("ambiguous"));
+            check("Draft evidence shows slide count and position coverage", window._status.Text.Contains("expected 3") && window._status.Text.Contains("positions incomplete"));
+            check("Draft evidence includes unselected account-history images", window._frames.Items.Cast<Review>().Any(r => r.Id == "intervening-screen"));
+            check("Account history is presented as sampled evidence", window._status.Text.Contains("Account history: incomplete") && window._status.Text.Contains("between captures"));
             check("Draft review never labels a visual match as an app save or input permission", window._status.Text.Contains("NOT verified") && window._status.Text.Contains("remain disabled") && window._status.Text.Contains("visual_match"));
             await window.RunAsync(window.ViewAsync);
             check("Draft review retrieves its retained image without a phone capture", window._preview.Source is not null && handler.Comparisons == 1);

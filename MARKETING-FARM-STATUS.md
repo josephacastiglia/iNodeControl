@@ -1,6 +1,14 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest candidate: account, media and reopened-draft evidence
+## Latest candidate: complete slide checks and account-history audit
+
+Candidate `output/codex-farm-continuity-20261018`, DLL SHA-256 `70ab2b31cf2beb5258febd3a5c28d27331a8634c2084e20358c7d8b7dbfc8bc4`. **234 Python tests and 505 native headless checks pass**; clean Release build. The candidate launcher uses separate settings and a simulation backend. No PC control, publishing, messaging or installed-release changes.
+
+Library matching now accounts for the observed gradient/badge and searches the visible grid, requiring a unique cover. Full-size editor images must match every source slide and their page-dot positions/count. All stored account-interval observations are audited, including unselected switches, interruptions and pruned/failed captures. The native review displays coverage and intervening evidence.
+
+**Live C24C component checks passed:** exact account-before, library cover in the second cell, all three reopened slides in order and full saved caption. Another controller acquired C24C before the account-after check; preflight stopped our input. Our lease was released, and no further phone input was sent. C241 received no input. The installed kernel lacks paired frame-age metadata, so **full saved-draft/account-continuity acceptance remains incomplete**. Sampled history never proves activity between captures. See [the report](analysis/farm-draft-continuity-20261018/README.md).
+
+## Earlier candidate: account, media and reopened-draft evidence
 
 The separate candidate is `output/codex-farm-verification-20261018`, DLL SHA-256 `36c8645d0bebb5d92c928a2cce85e5970e8d7ae4056409b45edb4c6976b9c188`. **223 Python tests and 502 native headless checks pass**, with zero build warnings/errors. The candidate launcher points here. No rack API, desktop control, publishing, messaging or installed-release changes occurred this pass.
 

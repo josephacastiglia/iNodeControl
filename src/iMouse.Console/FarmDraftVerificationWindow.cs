@@ -43,7 +43,7 @@ internal sealed partial class FarmDraftVerificationWindow : Window
         var panel = new StackPanel { Margin = new Thickness(24) };
         panel.Children.Add(new TextBlock { Text = "Compare the saved and reopened draft", FontSize = 23, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap });
         panel.Children.Add(new TextBlock { Text = $"{title} · saved revision {revision}", Margin = new Thickness(0, 8, 0, 8), TextWrapping = TextWrapping.Wrap });
-        panel.Children.Add(new TextBlock { Text = "Uses saved C24C screens only. Nothing is captured, clicked, transferred or published. For this carousel layout, select one full-slide view per image before saving and after reopening. Use Ctrl to select several screens; comparisons follow capture time. Missing evidence stays unresolved.", TextWrapping = TextWrapping.Wrap });
+        panel.Children.Add(new TextBlock { Text = "Uses saved C24C screens. Select each full-size editor slide in order, with its page dots visible, plus the caption details screen before saving and after reopening. Use Ctrl for multiple screens. Every stored observation between the account screens is audited, including unselected screens. No phone action is sent.", TextWrapping = TextWrapping.Wrap });
         panel.Children.Add(new TextBlock { Text = "Expected Instagram handle", Margin = new Thickness(0, 12, 0, 4) }); panel.Children.Add(_account);
         var grid = new Grid { Margin = new Thickness(0, 12, 0, 0) };
         grid.ColumnDefinitions.Add(new()); grid.ColumnDefinitions.Add(new());
@@ -91,7 +91,7 @@ internal sealed partial class FarmDraftVerificationWindow : Window
     {
         _savedId = null; _preview.Source = null; _frames.ItemsSource = null;
         var health = await _api.SendAsync("/health");
-        if (!health.TryGetProperty("draftVerificationVersion", out var version) || version.GetInt32() != 1)
+        if (!health.TryGetProperty("draftVerificationVersion", out var version) || version.GetInt32() != 2)
             throw new InvalidOperationException("Start the updated candidate backend for draft evidence review.");
         var response = await _api.SendAsync("/api/farm/observations");
         var screens = response.GetProperty("observations").EnumerateArray()
@@ -137,6 +137,16 @@ internal sealed partial class FarmDraftVerificationWindow : Window
         var lines = new List<string> { "Historical evidence review · " + report.GetProperty("status").GetString(),
             "Source: " + report.GetProperty("source").GetString(), "App save and uninterrupted account continuity are NOT verified. Automatic phone actions remain disabled." };
         if (value.GetProperty("draftChangedSinceReview").GetBoolean()) lines.Add("The local draft changed after this review. These results belong to its older revision.");
+        if (report.TryGetProperty("slideCoverage", out var coverage))
+            foreach (var stage in coverage.EnumerateObject())
+                lines.Add(stage.Name + ": full-size slides and positions " + (stage.Value.GetProperty("fullSizeAndPositionMatch").GetBoolean() ? "match" : "incomplete")
+                    + "; expected " + stage.Value.GetProperty("expectedCount") + "; observed " + stage.Value.GetProperty("observedIndices"));
+        if (report.TryGetProperty("accountHistory", out var history))
+        {
+            lines.Add("Account history: " + history.GetProperty("status").GetString() + ". Sampled screens do not prove activity between captures.");
+            foreach (var row in history.GetProperty("observations").EnumerateArray())
+                images.Add(new Review(row.GetProperty("id").GetString()!, "Account history · " + row.GetProperty("screen").GetString()));
+        }
         lines.AddRange(report.GetProperty("blockers").EnumerateArray().Select(b => "• " + b.GetString()));
         foreach (var stage in report.GetProperty("stages").EnumerateObject())
         {
@@ -150,7 +160,7 @@ internal sealed partial class FarmDraftVerificationWindow : Window
             }
         }
         lines.AddRange(report.GetProperty("limits").EnumerateArray().Select(l => l.GetString()!));
-        _frames.ItemsSource = images; _frames.SelectedIndex = images.Count > 0 ? 0 : -1;
+        _frames.ItemsSource = images.DistinctBy(r => r.Id).ToList(); _frames.SelectedIndex = images.Count > 0 ? 0 : -1;
         _status.Text = string.Join("\n\n", lines);
     }
     private async Task ViewAsync()

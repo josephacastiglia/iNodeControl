@@ -42,13 +42,19 @@ class VerificationTests(unittest.TestCase):
                          device_id='C24C', platform='instagram', account='test.account', observations={})
         self.captures = {}; self.n = 0
         for role in ('account_before', 'prepared', 'library', 'reopened', 'account_after'):
-            self.spec['observations'][role] = [self.add_capture(role, n) for n in (range(2) if role in ('prepared', 'reopened') else range(1))]
+            self.spec['observations'][role] = [self.add_capture(role, n) for n in ([0,1,None] if role in ('prepared', 'reopened') else [0])]
 
     def add_capture(self, role, index):
         self.n += 1; observation_id = str(uuid.uuid4())
         image = Image.new('RGB', (500, 1080), 'white')
-        if role in ('prepared', 'reopened'):
-            with Image.open(io.BytesIO(self.assets[index])) as asset: image.paste(asset.resize((240, 300)), (20, 126))
+        if role in ('prepared', 'reopened') and index is not None:
+            image = Image.new('RGB', (500, 1080), 'black')
+            with Image.open(io.BytesIO(self.assets[index])) as asset: image.paste(asset.resize((500,625)), (0,164))
+            draw=ImageDraw.Draw(image)
+            for n,x in enumerate((244,256)): draw.ellipse((x-3,836,x+3,842),fill='white' if n==index else '#555555')
+            text=ocr_lines(*[(label,899) for label in ('Audio','Text','Overlay','Filter','Edit','Ratio')],('Next',995))
+        elif role in ('prepared', 'reopened'):
+            with Image.open(io.BytesIO(self.assets[0])) as asset: image.paste(asset.resize((240, 300)), (20, 126))
             text = ocr_lines(('New post', 78), ('Add audio', 641), ('Tag people', 754), ('Add location', 812),
                              ('Add AI Label', 865), ('Share', 991), ('First line', 454), ('Second line', 474))
         elif role == 'library':
@@ -60,19 +66,20 @@ class VerificationTests(unittest.TestCase):
         value = dict(id=observation_id, state='observed', source='simulation', expected=dict(device_id='C24C', platform='instagram', account='test.account'),
                      text=text, requestedAt=1000 + self.n * 2, completedAt=1001 + self.n * 2, observerSession='test-session',
                      resolvedDeviceId='C24C', receiverPid=10, inputGeneration=4, reviewFrameSha256=hashlib.sha256(frame).hexdigest(),
-                     stable=True, inputIdle=True, freshness='recent', frameEvidence=dict(pairedMetadata=True, session='a' * 32, sequence=self.n))
+                     stable=True, inputIdle=True, freshness='recent', frameEvidence=dict(pairedMetadata=True, session='a' * 32, sequence=self.n*2))
         with self.observations.connect() as db: db.execute('INSERT INTO observations VALUES (?,?,?,?)', (observation_id, '', json.dumps(value), frame))
         self.captures[observation_id] = (value, frame)
         return observation_id
 
-    def evaluate(self): return assess(self.spec, self.draft, self.assets, self.captures)
+    def evaluate(self): return assess(self.spec, self.draft, self.assets, self.captures, list(self.captures.values()))
     def row(self, role, index=0): return self.captures[self.spec['observations'][role][index]][0]
 
     def test_account_media_caption_and_reopen_match_only_visual_evidence(self):
         result = self.evaluate()
         self.assertEqual('consistent_visual_evidence', result['status'], result['blockers'])
         self.assertEqual('simulation_or_mixed', result['source'])
-        self.assertEqual([1, 2], [r['media']['matchedIndex'] for r in result['stages']['reopened']])
+        self.assertEqual([1, 2], result['slideCoverage']['reopened']['observedIndices'])
+        self.assertTrue(result['slideCoverage']['reopened']['fullSizeAndPositionMatch'])
         for key in ('savedDraftVerified', 'automaticInputAllowed', 'accountContinuityProven'): self.assertFalse(result[key])
         self.assertFalse(result['stages']['library'][0]['appIndependentlyIdentified'])
 
@@ -94,13 +101,13 @@ class VerificationTests(unittest.TestCase):
         self.assertEqual('incomplete', self.evaluate()['status'])
 
     def test_caption_requires_every_line_punctuation_and_spacing(self):
-        text = self.row('reopened')['text']
+        text = self.row('reopened', -1)['text']
         for caption in ('First line', 'First line\nSecondline', 'First line\nSecond line!', 'First line\nSecond line\nHidden'):
             self.assertEqual('needs_review', caption_comparison(text, caption)['status'])
         self.assertEqual('exact_visible_lines', caption_comparison(text, 'First line\r\nSecond line')['status'])
 
     def test_lookalike_or_flat_media_never_establishes_identity(self):
-        frame = self.captures[self.spec['observations']['prepared'][0]][1]
+        frame = self.captures[self.spec['observations']['prepared'][-1]][1]
         self.assertEqual('ambiguous_or_different', media_comparison(frame, [self.assets[0]] * 2, 'carousel_details')['status'])
         flat = io.BytesIO(); Image.new('RGB', (500, 1080), 'blue').save(flat, 'PNG')
         self.assertEqual('insufficient_detail', media_comparison(flat.getvalue(), self.assets, 'carousel_details')['status'])

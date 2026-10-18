@@ -2,7 +2,7 @@
 param([switch]$ValidateOnly, [string]$PythonPath)
 $ErrorActionPreference = 'Stop'
 $repoDir = $PSScriptRoot
-$candidateDir = Join-Path $repoDir 'output\codex-farm-verification-20261018'
+$candidateDir = Join-Path $repoDir 'output\codex-farm-continuity-20261018'
 $candidateExe = Join-Path $candidateDir 'iMouse2.exe'
 $candidateData = Join-Path $candidateDir 'candidate-data'
 $serverScript = Join-Path $repoDir 'tools\imouse_farm_server.py'
@@ -13,7 +13,7 @@ $pythonExe = $pythonCandidates | Where-Object { $_ -and $_ -notlike '*\WindowsAp
 if (!(Test-Path -LiteralPath $candidateExe -PathType Leaf)) { throw "Build the candidate first: $candidateExe" }
 if (!$pythonExe) { throw 'Python was not found. Pass -PythonPath with the full path to your Python executable.' }
 $expectedBytes = New-Object System.IO.MemoryStream
-foreach ($name in @('imouse_farm_server.py', 'imouse_social_automation.py', 'farm_jobs.py', 'farm_drafts.py', 'farm_media_transfer.py', 'farm_transfers.py', 'farm_capabilities.py', 'farm_video.py', 'farm_observations.py', 'Read-FarmImageText.ps1', 'farm_preparation_schedule.py', 'farm_frame_evidence.py', 'farm_draft_verification.py')) {
+foreach ($name in @('imouse_farm_server.py', 'imouse_social_automation.py', 'farm_jobs.py', 'farm_drafts.py', 'farm_media_transfer.py', 'farm_transfers.py', 'farm_capabilities.py', 'farm_video.py', 'farm_observations.py', 'Read-FarmImageText.ps1', 'farm_preparation_schedule.py', 'farm_frame_evidence.py', 'farm_draft_verification.py', 'farm_draft_media.py')) {
     $bytes = [IO.File]::ReadAllBytes((Join-Path $repoDir ('tools\' + $name)))
     $expectedBytes.Write($bytes, 0, $bytes.Length)
 }
