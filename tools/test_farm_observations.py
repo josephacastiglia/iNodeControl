@@ -46,7 +46,7 @@ class ReadOnlyKernel:
 
 
 class FixtureOcr:
-    def read(self, raw): return PROFILE
+    def read(self, raw): return {**PROFILE, 'frameSha256': hashlib.sha256(raw).hexdigest()}
 
 
 class ObservationTests(unittest.TestCase):
@@ -120,7 +120,7 @@ class ObservationTests(unittest.TestCase):
         self.now[0] = 999; self.assertTrue(self.store.get(result['id'])['expired'])
 
     def test_ocr_delay_counts_in_frame_age_and_saved_records_age_without_recapture(self):
-        def slow(_): self.mono[0] += 2; return PROFILE
+        def slow(raw): self.mono[0] += 2; return FixtureOcr().read(raw)
         with patch.object(self.store.ocr, 'read', side_effect=slow):
             result = self.store.capture(self.request, self.kernel)
         self.assertEqual('stale', result['freshness']); self.assertGreaterEqual(result['frameEvidence']['ageUpperBoundMs'], 2015)

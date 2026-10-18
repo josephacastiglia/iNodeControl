@@ -105,11 +105,26 @@ class CarouselInspections:
 
     def get(self, run_id):
         with self.connect() as db:
+            db.execute('BEGIN')  # Record and evidence must come from one SQLite read snapshot.
             row = db.execute('SELECT document,package FROM inspections WHERE id=?', (identifier(run_id),)).fetchone()
+            frames = db.execute('SELECT observation_id,document,frame FROM frames WHERE run_id=?', (identifier(run_id),)).fetchall()
         if row is None: raise KeyError('Inspection not found.')
         value = json.loads(row[0])
         if hashlib.sha256(row[1]).hexdigest() != value['packageSha256']:
             raise ValueError('Inspection source package is damaged.')
+        if value.get('inspectionVersion') != 2:
+            value.update(state='review_required', reason='Historical inspection lacks the evidence manifest required for current acceptance.')
+        else:
+            manifest = value.get('evidenceManifest', {})
+            if set(manifest) != {item[0] for item in frames}:
+                raise ValueError('Inspection evidence is missing or damaged.')
+            for observation_id, document, frame in frames:
+                evidence = json.loads(document)
+                if (evidence.get('id') != observation_id or observation_id not in value['observationIds']
+                        or self.record_hash(evidence) != manifest[observation_id]['recordSha256']
+                        or hashlib.sha256(frame).hexdigest() != manifest[observation_id]['frameSha256']
+                        or evidence.get('reviewFrameSha256') != manifest[observation_id]['frameSha256']):
+                    raise ValueError('Inspection evidence record or image is damaged.')
         # An incomplete durable record cannot be interpreted as permission to retry.
         with self.active_lock: in_progress = value['id'] in self.active
         if value['state'] == 'running' and not in_progress:
@@ -117,18 +132,29 @@ class CarouselInspections:
         return value
 
     def frame(self, run_id, observation_id):
-        self.get(run_id)
+        record = self.get(run_id)
         with self.connect() as db:
             row = db.execute('SELECT document,frame FROM frames WHERE run_id=? AND observation_id=?',
                              (identifier(run_id), identifier(observation_id))).fetchone()
         if not row: raise KeyError('Inspection frame is unavailable.')
-        if hashlib.sha256(row[1]).hexdigest() != json.loads(row[0])['reviewFrameSha256']:
+        evidence = json.loads(row[0])
+        frame_hash = hashlib.sha256(row[1]).hexdigest()
+        if frame_hash != evidence['reviewFrameSha256']:
             raise ValueError('Inspection image is damaged.')
+        if record.get('inspectionVersion') == 2:
+            expected = record['evidenceManifest'].get(observation_id)
+            if not expected or expected != dict(recordSha256=self.record_hash(evidence), frameSha256=frame_hash):
+                raise ValueError('Inspection evidence changed or is damaged.')
         return row[1]
 
     def save(self, record):
         with self.connect() as db:
             db.execute('UPDATE inspections SET document=? WHERE id=?', (json.dumps(record), record['id']))
+
+    @staticmethod
+    def record_hash(value):
+        return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False,
+                                        separators=(',', ':'), allow_nan=False).encode('utf-8')).hexdigest()
 
     def cancel(self, run_id):
         run_id = identifier(run_id)
@@ -138,19 +164,23 @@ class CarouselInspections:
         # Cancellation of an already finished/unknown run never sends a phone command.
         return dict(id=run_id, cancellationRequested=event is not None)
 
-    def capture(self, record, kernel, assets, index, owned=None):
+    def capture(self, record, kernel, assets, index, owned=None, *, purpose='slide'):
         observation_id = str(uuid.uuid4())
-        record['observationIds'].append(observation_id); self.save(record)
+        record['observationIds'].append(observation_id)
+        record['captureRoles'][observation_id] = purpose if owned else 'preflight'
+        self.save(record)
         request = {**record['request'], 'id': observation_id}
         value = self.observations.capture(request, kernel, owned_run=owned)
         if value.get('state') != 'observed': raise InspectionStopped('Screen observation failed; no further movement.')
         value, frame = self.observations.evidence(observation_id)
+        digest = self.record_hash(value)
         size = len(frame) + len(json.dumps(value).encode('utf-8'))
         record['evidenceBytes'] += size
         if record['evidenceBytes'] > 32 * 1024 * 1024: raise InspectionStopped('Inspection evidence exceeds 32 MiB.')
+        record['evidenceManifest'][observation_id] = dict(recordSha256=digest, frameSha256=value['reviewFrameSha256'])
         with self.connect() as db:
             db.execute('INSERT INTO frames VALUES (?,?,?,?)', (record['id'], observation_id, json.dumps(value), frame))
-        self.save(record)
+            db.execute('UPDATE inspections SET document=? WHERE id=?', (json.dumps(record), record['id']))
         if (value.get('freshness') != 'recent' or value.get('stable') is not True
                 or value.get('frameEvidence', {}).get('pairedMetadata') is not True):
             raise InspectionStopped('Recent paired frame evidence is missing or changed; no movement is allowed.')
@@ -164,16 +194,48 @@ class CarouselInspections:
         position = result.get('position', {})
         if result.get('matchedIndex') != index or position.get('index') != index or position.get('count') != len(assets):
             raise InspectionStopped('Carousel media, order or visible slide count differs from the source package.')
+        record['captureChecks'][observation_id] = dict(expectedIndex=index, comparison=result)
         stream = (value['receiverPid'], value['frameEvidence']['session'])
         if owned:
             if stream != (owned.stream[1], owned.stream[3]): raise InspectionStopped('Frame stream does not belong to this inspection.')
-            previous = record['slides'][-1] if record['slides'] else None
-            if previous and value['frameEvidence']['sequence'] <= previous['sequence']:
+            previous_sequence = record.get('lastFrameSequence')
+            if previous_sequence is not None and value['frameEvidence']['sequence'] <= previous_sequence:
                 raise InspectionStopped('Frame sequence did not advance after movement.')
-            record['slides'].append(dict(index=index, observationId=observation_id,
-                sequence=value['frameEvidence']['sequence'], comparison=result))
+            record['lastFrameSequence'] = value['frameEvidence']['sequence']
+            if purpose == 'slide':
+                record['slides'].append(dict(index=index, observationId=observation_id,
+                    sequence=value['frameEvidence']['sequence'], comparison=result))
             self.save(record)
-        return value
+        return {**value, 'evidenceRecordSha256': digest}
+
+    def action_for(self, record, value, index):
+        return dict(fromSlide=index-1, toSlide=index, state='not_sent',
+            gesture=dict(function='/mouse/swipe', x1=400, y1=480, x2=100, y2=480, duration=350),
+            basis=dict(observationId=value['id'], recordSha256=value['evidenceRecordSha256'],
+                frameSha256=value['reviewFrameSha256'], rawFrameSha256=value['frameSha256'],
+                frameSequence=value['frameEvidence']['sequence'], frameSession=value['frameEvidence']['session'],
+                inputGeneration=value['inputGeneration'], runId=record['id'], packageSha256=record['packageSha256']))
+
+    def validate_action(self, record, action, owned, kernel):
+        owned.check(kernel)
+        basis = action['basis']
+        current, frame = self.observations.current_evidence(basis['observationId'])
+        if (current.get('freshness') != 'recent' or current.get('expired')
+                or current.get('evidenceRecordSha256') != basis['recordSha256']
+                or hashlib.sha256(frame).hexdigest() != basis['frameSha256']
+                or current.get('frameSha256') != basis['rawFrameSha256']
+                or current.get('inputGeneration') != owned.generation
+                or basis['inputGeneration'] != owned.generation
+                or current.get('frameEvidence', {}).get('sequence') != basis['frameSequence']
+                or current.get('frameEvidence', {}).get('session') != basis['frameSession']
+                or current.get('ownershipEvidence', {}).get('runId') != owned.run_id
+                or basis['runId'] != owned.run_id or basis['packageSha256'] != record['packageSha256']
+                or record['captureRoles'].get(basis['observationId']) != 'before_swipe'):
+            raise InspectionStopped('The exact decision frame expired or changed; nothing was sent.')
+        if (record['captureChecks'][basis['observationId']]['expectedIndex'] != action['fromSlide']
+                or action['toSlide'] != action['fromSlide'] + 1):
+            raise InspectionStopped('The movement does not follow its verified slide.')
+        owned.check_budget()
 
     def run(self, request, kernel, cancelled=None):
         if set(request) - {'id', 'draft_id', 'revision', 'device_id', 'platform', 'account'}:
@@ -199,8 +261,8 @@ class CarouselInspections:
                     if not 2 <= len(assets) <= 10: raise ValueError('Inspection supports 2 to 10 slides.')
                     if any(hashlib.sha256(a).hexdigest() != meta['sha256'] for a, meta in zip(assets, manifest['assets'])):
                         raise ValueError('Source asset checksum mismatch.')
-                record = dict(id=spec['id'], request=spec, state='running', startedAt=self.clock(),
-                    observationIds=[], slides=[], actions=[], evidenceBytes=len(package),
+                record = dict(id=spec['id'], request=spec, state='running', startedAt=self.clock(), inspectionVersion=2,
+                    observationIds=[], captureRoles={}, captureChecks={}, evidenceManifest={}, slides=[], actions=[], evidenceBytes=len(package),
                     packageSha256=hashlib.sha256(package).hexdigest(), source='phone' if kernel._is_live_http else 'simulation',
                     leaseAcquisitionAttempted=False, cleanup='not_needed', savedDraftVerified=False,
                     accountContinuityProven=False, automaticInputAllowed=False,
@@ -219,15 +281,18 @@ class CarouselInspections:
                 owned.acquire()
                 self.capture(record, kernel, assets, 1, owned)
                 for index in range(2, len(assets) + 1):
-                    owned.check(kernel)
-                    # Recheck age after comparison/storage before using this screen to act.
-                    last = self.observations.get(record['slides'][-1]['observationId'])
-                    if last.get('freshness') != 'recent': raise InspectionStopped('Frame expired before movement.')
-                    action = dict(toSlide=index, state='outcome_unknown')
+                    # A still-recent previous slide is not evidence that a new dialog
+                    # has not appeared. Re-recognize a fresh frame before every swipe.
+                    current = self.capture(record, kernel, assets, index-1, owned, purpose='before_swipe')
+                    action = self.action_for(record, current, index)
                     record['actions'].append(action); self.save(record)
-                    owned.check_budget()
-                    if self.observations.get(last['id']).get('freshness') != 'recent':
-                        raise InspectionStopped('Frame expired while recording the movement; nothing was sent.')
+                    try:
+                        self.validate_action(record, action, owned, kernel)
+                        action['state'] = 'outcome_unknown'; self.save(record)
+                        self.validate_action(record, action, owned, kernel)
+                    except Exception:
+                        action['state'] = 'not_sent'; self.save(record)
+                        raise
                     # Only this fixed horizontal gesture; never a tap on a publish control.
                     kernel.send('C24C', owned.tokens['C24C'], '/mouse/swipe', x1=400, y1=480, x2=100, y2=480, duration=350)
                     action['state'] = 'answered'; self.save(record)

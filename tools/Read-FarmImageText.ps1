@@ -22,10 +22,19 @@ function Await-Result($Operation, [Type]$ResultType) {
 $path = [System.IO.Path]::GetFullPath($ImagePath)
 if (-not [System.IO.File]::Exists($path)) { throw 'Image file missing.' }
 if ((Get-Item -LiteralPath $path).Length -gt 16777216) { throw 'Image exceeds 16 MiB.' }
-$file = Await-Result ([Windows.Storage.StorageFile]::GetFileFromPathAsync($path)) ([Windows.Storage.StorageFile])
-$stream = Await-Result ($file.OpenAsync([Windows.Storage.FileAccessMode]::Read)) ([Windows.Storage.Streams.IRandomAccessStream])
+$lockedFile = $null
+$stream = $null
 $bitmap = $null
 try {
+    # Hash and recognize the same file while excluding writers and replacement.
+    # FileShare.Read permits the WinRT decoder's second read handle, not modification.
+    $lockedFile = [System.IO.File]::Open($path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::Read)
+    if ($lockedFile.Length -gt 16777216) { throw 'Image exceeds 16 MiB.' }
+    $hasher = [System.Security.Cryptography.SHA256]::Create()
+    try { $imageHash = ([BitConverter]::ToString($hasher.ComputeHash($lockedFile))).Replace('-', '').ToLowerInvariant() }
+    finally { $hasher.Dispose() }
+    $file = Await-Result ([Windows.Storage.StorageFile]::GetFileFromPathAsync($path)) ([Windows.Storage.StorageFile])
+    $stream = Await-Result ($file.OpenAsync([Windows.Storage.FileAccessMode]::Read)) ([Windows.Storage.Streams.IRandomAccessStream])
     $decoder = Await-Result ([Windows.Graphics.Imaging.BitmapDecoder]::CreateAsync($stream)) ([Windows.Graphics.Imaging.BitmapDecoder])
     $limit = [Windows.Media.Ocr.OcrEngine]::MaxImageDimension
     if ($decoder.PixelWidth -gt $limit -or $decoder.PixelHeight -gt $limit) { throw 'Image dimensions exceed OCR support.' }
@@ -40,9 +49,10 @@ try {
         })
         @{text=$_.Text; words=$words}
     })
-    @{provider='windows-ocr'; language='en-US'; width=$bitmap.PixelWidth; height=$bitmap.PixelHeight; lines=$lines} | ConvertTo-Json -Depth 8 -Compress
+    @{provider='windows-ocr'; language='en-US'; imageSha256=$imageHash; width=$bitmap.PixelWidth; height=$bitmap.PixelHeight; lines=$lines} | ConvertTo-Json -Depth 8 -Compress
 }
 finally {
     if ($null -ne $bitmap) { $bitmap.Dispose() }
-    $stream.Dispose()
+    if ($null -ne $stream) { $stream.Dispose() }
+    if ($null -ne $lockedFile) { $lockedFile.Dispose() }
 }

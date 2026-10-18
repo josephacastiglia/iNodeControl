@@ -41,6 +41,7 @@ class WindowsOcr:
             image_path = Path(directory) / 'frame.png'
             with Image.open(io.BytesIO(raw)) as image:
                 image.convert('RGB').save(image_path)
+            image_digest = hashlib.sha256(image_path.read_bytes()).hexdigest()
             try:
                 result = subprocess.run([str(binary), '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                     '-File', str(script), '-ImagePath', str(image_path)], capture_output=True, timeout=25,
@@ -50,6 +51,8 @@ class WindowsOcr:
             if result.returncode:
                 raise ValueError('Windows OCR failed. Check that the English OCR language is installed; no screen state was verified.')
             value = json.loads(result.stdout.decode('utf-8-sig'))
+            if value.get('imageSha256') != image_digest:
+                raise ValueError('OCR process did not read the exact submitted image.')
         if (value.get('width'), value.get('height')) != (width, height):
             raise ValueError('OCR result dimensions differ from the source frame.')
         value['frameSha256'] = hashlib.sha256(raw).hexdigest()
@@ -206,7 +209,10 @@ class ObservationStore:
         with self.connect() as db:
             row = db.execute('SELECT document FROM observations WHERE id=?', (request_id,)).fetchone()
         if row is None: raise KeyError('Observation not found. No request was replayed.')
-        value = json.loads(row[0])
+        return self.with_age(json.loads(row[0]))
+
+    def with_age(self, value):
+        request_id = value['id']
         now, mono = self.clock(), self.monotonic()
         timing = self.timings.get(request_id)
         same_session = value.get('observerSession') == self.session and timing is not None
@@ -247,6 +253,19 @@ class ObservationStore:
         if value.get('reviewFrameSha256') != hashlib.sha256(row[1]).hexdigest():
             raise ValueError('Observation has no matching review-image checksum. Older records need a new explicit capture.')
         return value, row[1]
+
+    def current_evidence(self, request_id):
+        """One stored record/image pair, with integrity checked before applying age.
+
+        A decision may reference this digest and recheck it without combining the
+        metadata of one read with an image obtained by a different read.
+        """
+        value, frame = self.evidence(request_id)
+        digest = hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False,
+                                           separators=(',', ':'), allow_nan=False).encode('utf-8')).hexdigest()
+        current = self.with_age(value)
+        current['evidenceRecordSha256'] = digest
+        return current, frame
 
     def interval(self, start_id, end_id):
         """All stored C24C observations between two row IDs, including failed/pruned ones.
@@ -301,6 +320,8 @@ class ObservationStore:
                 raw, headers = kernel.shot('C24C')
                 width, height = image_size(raw)
                 text = self.ocr.read(raw)
+                if text.get('frameSha256') != hashlib.sha256(raw).hexdigest():
+                    raise ValueError('OCR result does not identify the exact captured frame.')
                 after = kernel.kernel_status()
                 current = next((r for r in after.get('receivers', []) if r.get('deviceid') == resolved), {})
                 input_after = kernel.input_status().get(resolved)

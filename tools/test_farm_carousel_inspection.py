@@ -1,5 +1,6 @@
 """No hardware/network: exercise the real capture, media checks, journal and lease guard."""
 import base64
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -86,6 +87,7 @@ class EditorOcr:
     def read(self, raw):
         text = ocr_lines(*[(label,899) for label in ('Audio','Text','Overlay','Filter','Edit','Ratio')], ('Next',995))
         if self.interrupted: text['lines'] += ocr_lines(("Don't Allow",600),('Allow',650))['lines']
+        text['frameSha256'] = hashlib.sha256(raw).hexdigest()
         return text
 
 

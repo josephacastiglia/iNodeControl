@@ -1,6 +1,16 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest candidate: inspection under one lease
+## Latest candidate: fresh-frame decisions and evidence integrity
+
+Candidate `output/codex-farm-action-evidence-20261018`, DLL SHA-256 `1a4eb3be8f66ae1e72f933b5256122d9c39572b440310f820eefd5b475f99283`. **271 Python tests and 505 native headless checks pass**, with a clean Release build. This pass was entirely offline: no rack API calls, desktop control, publication, messaging or installed-release changes.
+
+The inspector now takes and recognizes another frame immediately before each swipe. It records the exact image, OCR record, stream/sequence, ownership generation and source package used for that decision, then checks that evidence again before transport. New dialogs, changed slides, expired evidence and cancellation stop the movement. Commands stopped before transport are explicitly `not_sent`; lost replies remain `outcome_unknown` and are never retried.
+
+OCR must identify the submitted frame; the Windows bridge hashes a read-locked image and Python checks the returned digest. Inspection status retrieval validates retained images **and** their observation records, so damaged/missing evidence cannot still be displayed as a successful match. Old inspection results remain viewable as historical review holds. Two new regressions failed on the prior code and passed after these fixes. Actual Windows OCR also read a generated local test image correctly; that single check took about 0.54 seconds.
+
+**Live inspection stays disabled**, including on compatible kernels. These fixes improve the offline decision and evidence path; they do not establish account continuity, saved-draft persistence or current phone-screen accuracy. A phone can still change after the last capture. See [this pass's report](analysis/farm-action-evidence-20261018/README.md).
+
+## Earlier candidate: inspection under one lease
 
 Candidate `output/codex-farm-inspection-20261018`, DLL SHA-256 `fbcf242f901e75b4f539704e8b69ddf6acdcea6e1343d309c9edb61af446199f`. **259 Python tests and 505 native headless checks pass**; clean Release build. The separate candidate launcher includes the updated backend. This pass used no PC control or phone input, and changed no installed-release files or settings. A read-only API check found port 9913 offline; nothing was started.
 

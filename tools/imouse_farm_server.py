@@ -446,7 +446,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "videoDraftsVersion": 1,
                     "observationsVersion": 2,
                     "draftVerificationVersion": 2,
-                    "carouselInspectionVersion": 1,
+                    "carouselInspectionVersion": 2,
                     "carouselInspectionLiveMovement": False,
                     "preparationScheduleVersion": 1,
                     "lanHostUrl": RUNTIME.lan_host_url,
