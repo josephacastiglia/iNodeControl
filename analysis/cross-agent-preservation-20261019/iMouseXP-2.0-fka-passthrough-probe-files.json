@@ -1,0 +1,158 @@
+[
+  {
+    "path": "src/iMouse.Kernel/ApiServer.cs",
+    "bytes": 10519,
+    "sha256": "8b1968b0eeeae36b02eca8c292c54036c917041230452c0ed79aeeaecb39211e",
+    "tracked": true
+  },
+  {
+    "path": "src/iMouse.Kernel/InputRouter.cs",
+    "bytes": 19716,
+    "sha256": "7d68b2f6cd92111f43dbdf5502d32d5aeadc4e5e1de63baad870fea2c1258367",
+    "tracked": true
+  },
+  {
+    "path": "src/iMouse.Kernel/InputSessionTests.cs",
+    "bytes": 31826,
+    "sha256": "9855d276b1f07a0d5fbe6b7680af0a6679420e30750363df376fafdb82ffcc8a",
+    "tracked": true
+  },
+  {
+    "path": "src/iMouse.Kernel/Program.cs",
+    "bytes": 6506,
+    "sha256": "7d8229b6c249344fdcbce938f074112a155eef19d75515dde6c2ee577bb270d3",
+    "tracked": true
+  },
+  {
+    "path": "src/iMouse.Kernel/SelfTests.cs",
+    "bytes": 17989,
+    "sha256": "b4477170115c49c458bab08a81f9137270421d84d625076c3554a0faa8289d0d",
+    "tracked": true
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/.gitignore",
+    "bytes": 98,
+    "sha256": "a6784bea97fb5d38b81673788b247404394c2c56fa9579f2749ae690ebef4e00",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/LIVE-REPORT.md",
+    "bytes": 4639,
+    "sha256": "d764736272efdf5ddd6c1507f936f9bef1eb6f0af51d5e349aa7fb6cad4ade21",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/NEXT-CHECK.md",
+    "bytes": 3813,
+    "sha256": "7c654df1a058b39b03966082d5a7d94b5cc7de5a938ef66fc53f797177c445f5",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/README.md",
+    "bytes": 7859,
+    "sha256": "025e091003a8d3523421c02fd25c63b35b93b41c60ee22618ec646365dc3f4df",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/REPEAT-REPORT.md",
+    "bytes": 10715,
+    "sha256": "825b3e9610b5bac685edcb17c7cade95fc912ebfdea3ff482c727f0c905e15c5",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/console_observe.py",
+    "bytes": 2366,
+    "sha256": "df586195037d7eefd4f268e2b795c247b625474d0ba4aef70ae2051c2fbe37ad",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/phone_probe.py",
+    "bytes": 4603,
+    "sha256": "c6b3d88334247973f60da10c82fdba3ea8c2965d58f395785bf464d0e8f248b0",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/prepare_live.py",
+    "bytes": 4295,
+    "sha256": "614a19c5dad2780aa0ec7d1709df04198f4e3eb572824f97efb861c5f1eee696",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/prepare_repeat.py",
+    "bytes": 4816,
+    "sha256": "361cb0b4bce1eb066af56a079504b2098997ad275184f9a8cb5787aedb1edd58",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/repeat_probe.py",
+    "bytes": 5454,
+    "sha256": "644201486f47b4c13db45709878ee54bbdbc5d7d8775444ce34bed70db589e76",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/restore_repeat.ps1",
+    "bytes": 6509,
+    "sha256": "66152e17479c9c679cd626b816029ba064b366e201e2616c9947358427d782f1",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/seal_live.py",
+    "bytes": 2077,
+    "sha256": "8f5c2d4899754f1b39dbe98d309c1a5c90a549f53926c2d9976a67a95ecb8fd9",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/seal_probe.py",
+    "bytes": 3616,
+    "sha256": "31ede328db88551f75e7f7c2b759405746d6744cb6c8d5e0c78c2939977ea77d",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/seal_repeat.py",
+    "bytes": 1950,
+    "sha256": "74005a03e1b71abab768eab8143f84435cb92a999fdeb04b8a5dbd4fb3b4aa71",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/self-tests-sandbox-failure.md",
+    "bytes": 619,
+    "sha256": "5622e3cfc0fd0c69d99daf9728b631bc3d3d2ffa3b032eadfbb73cd639566fff",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/start_repeat_console.ps1",
+    "bytes": 3309,
+    "sha256": "635a9e260446551185fcf5ed144f29d05c3c68e4e1dbbbd741f75014001a24dc",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/summarize_repeat.py",
+    "bytes": 4329,
+    "sha256": "3ec21236eb436fa9f2fd8c668f932e45419e780438701e58ce981bd5be49990f",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/update_repeat_records.py",
+    "bytes": 4078,
+    "sha256": "82f8ab443a76ec5aa8b381519ae3e405524a6da2660bf271159b6101b832f9f3",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/verify_invalid_startup.py",
+    "bytes": 1245,
+    "sha256": "8b711f466d112c27aee5a6b8c8c048c7714df7ea4d937cf5b5c49b4c0f63659f",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/verify_repeat_restore.py",
+    "bytes": 4266,
+    "sha256": "80d3a0c4bb3380b4b07292fa6a6a4ae1c6546cd3d26164b770a968b74bcce536",
+    "tracked": false
+  },
+  {
+    "path": "analysis/fka-pass-through-probe-20261011/verify_restoration.py",
+    "bytes": 5681,
+    "sha256": "c8da9dcbf07701f940090adbeec46ed029454f45c53c610c69b3ed119c15c3d9",
+    "tracked": false
+  }
+]

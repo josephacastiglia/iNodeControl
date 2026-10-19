@@ -1,0 +1,6 @@
+/build/
+/self-tests*.txt
+/invalid-startup-results.json
+/provenance.json
+/candidate.patch
+/live-*/

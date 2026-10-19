@@ -1,0 +1,3 @@
+The initial run of the unchanged kernel build with `--self-test` stopped in the existing named-pipe test at SelfTests.cs:150. It raised System.UnauthorizedAccessException in NamedPipeClientStream.TryConnect, exit -532462766. It had not reached the new probe tests. Partial stdout is retained in self-tests.txt.
+
+The same executable was rerun outside the restricted sandbox, with only simulated HID transports and test pipes/receivers. All 123 checks passed; see self-tests-full.txt. No product source change was made to work around the environment restriction, and no normal kernel server or real receiver was started.

@@ -10,7 +10,14 @@ string Option(string name, string fallback)
 }
 // Parsed first, so a mistyped value fails before any board is enumerated or opened.
 HomeSequence homeSequence;
-try { homeSequence = InputRouter.ParseHomeSequence(Option("--home-sequence", "vendor")); }
+bool fkaPassThroughProbe;
+try
+{
+    homeSequence = InputRouter.ParseHomeSequence(Option("--home-sequence", "vendor"));
+    int probeIndex = Array.IndexOf(args, "--fka-pass-through");
+    string probeValue = probeIndex < 0 ? "disabled" : probeIndex + 1 < args.Length ? args[probeIndex + 1] : "";
+    fkaPassThroughProbe = InputRouter.ParseFkaPassThroughProbe(probeValue);
+}
 catch (ArgumentException ex) { Console.WriteLine(ex.Message); return 2; }
 string dataDir = Path.GetFullPath(Option("--data-dir",Path.Combine(AppContext.BaseDirectory, "data")));
 Directory.CreateDirectory(dataDir);
@@ -81,9 +88,10 @@ if (args.Contains("--precise-movement"))
 int preciseDelay = Option("--precise-delay", "") is var s && int.TryParse(s, out int d) && d >= 1 && d <= 15
     ? d : (args.Contains("--legacy") ? 0 : 7);
 using var input = new InputRouter(store, Option("--input-pid", "").Split(',', StringSplitOptions.RemoveEmptyEntries), calibrations, preciseDelayMs: preciseDelay)
-    { Home = homeSequence };
+    { Home = homeSequence, FkaPassThroughProbeEnabled = fkaPassThroughProbe };
 Console.WriteLine("Direct HID input enabled only for: " + string.Join(",",input.Allowed));
 Console.WriteLine("Home sequence: " + input.HomeSequenceName + (homeSequence == HomeSequence.Vendor ? "" : " (test option; not the release default)"));
+Console.WriteLine("FKA pass-through probe: " + (fkaPassThroughProbe ? "enabled (test-only; phone mode is not acknowledged)" : "disabled"));
 Console.WriteLine("Pointer movement pacing: " + (preciseDelay > 0 ? $"high-resolution {preciseDelay} ms; reset/drag/settle unchanged" : "legacy Task.Delay"));
 Console.WriteLine("Video waits on an independent AirPlay receiver.");
 

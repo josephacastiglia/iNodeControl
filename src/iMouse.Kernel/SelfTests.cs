@@ -252,6 +252,7 @@ public static class SelfTests
         }
         await InputSessionTests.RunAsync(Check);
         await InputSessionTests.HomeSequenceAsync(Check);
+        await InputSessionTests.FkaPassThroughAsync(Check);
         File.Delete(file);Directory.Delete(testDir);
         Console.WriteLine($"{passed} tests passed; no real HID transport opened.");
         return 0;

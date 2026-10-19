@@ -66,7 +66,7 @@ public sealed class ApiServer : IDisposable
             else if (req.HttpMethod == "GET" && path.EndsWith("/kernel/status",StringComparison.OrdinalIgnoreCase))
             {
                 var rec=_frames.Receiver();
-                Write(ctx,Ok(new {code=0,input="direct-hid",input_protocol=1,input_leases_required=true,allowed=_input.Allowed,home_sequence=_input.HomeSequenceName,receiver=_castName,
+                Write(ctx,Ok(new {code=0,input="direct-hid",input_protocol=1,input_leases_required=true,allowed=_input.Allowed,home_sequence=_input.HomeSequenceName,fka_pass_through_probe_enabled=_input.FkaPassThroughProbeEnabled,receiver=_castName,
                     receiver_state=VideoState(rec),receiver_message=ScreenshotMessage(),
                     receiver_pid=rec.Pid,receiver_restarts=rec.Restarts,frames=_frames.Frames,live=_frames.State.Live,
                     receivers=_sessions.Select(s=>new {deviceid=s.Key,name=s.Value.Name,

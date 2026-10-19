@@ -53,6 +53,15 @@ public sealed class InputRouter : IDisposable
     public bool Enabled(string pid) => _allowed.Contains(pid) && _calibrations.ContainsKey(pid);
     public string[] Allowed => _allowed.ToArray();
     public HomeSequence Home { get; init; } = HomeSequence.Vendor;
+    // Test-only: the shortcut is listed on C24C, but its effect on iOS is not yet verified.
+    // Never prepend it to text or infer a phone mode from successful HID delivery.
+    public bool FkaPassThroughProbeEnabled { get; init; }
+    public static bool ParseFkaPassThroughProbe(string value) => value switch
+    {
+        "disabled" => false,
+        "probe" => true,
+        _ => throw new ArgumentException($"--fka-pass-through must be disabled or probe, not \"{value}\"."),
+    };
     public string HomeSequenceName => Home switch { HomeSequence.CommandH => "command-h", HomeSequence.CommandWake => "command-wake", _ => "vendor" };
     public static HomeSequence ParseHomeSequence(string value) => value switch
     {
@@ -122,7 +131,7 @@ public sealed class InputRouter : IDisposable
         if (failure is not null) throw new IOException("Input release could not be confirmed.", failure);
     }
 
-    private static void Validate(string fun, JsonElement data, PointerCalibration c)
+    private void Validate(string fun, JsonElement data, PointerCalibration c)
     {
         if (fun is "/mouse/move" or "/mouse/click") ValidatePoint(data, "x", "y", c);
         if (fun is "/mouse/down" or "/mouse/up" or "/mouse/click")
@@ -136,7 +145,14 @@ public sealed class InputRouter : IDisposable
         if (fun == "/key/sendkey")
         {
             string key = Text(data,"fn_key"), value = Text(data,"key");
-            if (key.Length > 0 && key is not ("Home" or "Enter" or "ENTER" or "Backspace" or "BACKSPACE" or "Tab" or "Escape" or "AppSwitch" or "ControlBar"))
+            if (key == "FkaPassThrough")
+            {
+                if (!FkaPassThroughProbeEnabled)
+                    throw new ArgumentException("FkaPassThrough is a test-only command; startup requires --fka-pass-through probe.");
+                if (value.Length > 0 || Text(data, "id").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().Count() != 1)
+                    throw new ArgumentException("FkaPassThrough requires one phone and no accompanying text.");
+            }
+            else if (key.Length > 0 && key is not ("Home" or "Enter" or "ENTER" or "Backspace" or "BACKSPACE" or "Tab" or "Escape" or "AppSwitch" or "ControlBar"))
                 throw new ArgumentException("Function key has not been verified: " + key);
             if (value.Length > 1000 || (key.Length == 0 && value.Length == 0)) throw new ArgumentException("Provide a key or 1–1000 ASCII characters.");
             foreach (char ch in value) _ = HidProtocol.Ascii(ch);
@@ -188,6 +204,12 @@ public sealed class InputRouter : IDisposable
                         else if (Home == HomeSequence.CommandWake) await Stroke(state,8,0); // Left GUI alone: types nothing
                         await Stroke(state,8,11);                                            // Left GUI+H
                         state.Known=false;
+                    }
+                    else if (fn == "FkaPassThrough")
+                    {
+                        // Left Control + Left Option (Alt) + Left Command (GUI) + P.
+                        try { await Stroke(state, 0x0D, 0x13); }
+                        finally { state.Known = false; }
                     }
                     else if(fn is "AppSwitch" or "ControlBar")
                     {

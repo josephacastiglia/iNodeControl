@@ -95,6 +95,113 @@ internal static class InputSessionTests
         finally { try { Directory.Delete(directory, true); } catch { } }
     }
 
+    /// <summary>Only simulated boards: checks the probe's reports and normal ownership/Stop path, not iOS behavior.</summary>
+    public static async Task FkaPassThroughAsync(Action<bool, string> check)
+    {
+        string directory = Path.Combine(Path.GetTempPath(), "imouse-fka-probe-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        string file = Path.Combine(directory, "devices.json");
+        File.WriteAllText(file, JsonSerializer.Serialize(new[] {
+            new Phone { deviceid = "sim-one", pid = "F001", uid = "SIM1" },
+            new Phone { deviceid = "sim-two", pid = "F002", uid = "SIM2" },
+        }));
+        var store = new DeviceStore(file);
+        PointerCalibration[] calibrations = [new("F001", 500, 1080, 14, 14, 5, 5), new("F002", 500, 1080, 14, 14, 5, 5)];
+        // Explicit USB modifier bits: Control=1, Option=4, Command=8; P usage=0x13.
+        const string neutral = "A200000000000000", shortcut = "A20D130000000000", mouseNeutral = "A100000000000000";
+        static async Task<bool> Invalid(Func<Task<object>> action)
+        {
+            try { await action(); return false; } catch (ArgumentException) { return true; }
+        }
+        try
+        {
+            check(!InputRouter.ParseFkaPassThroughProbe("disabled") && InputRouter.ParseFkaPassThroughProbe("probe"),
+                "FKA probe startup choices are explicitly disabled or probe");
+            foreach (string bad in new[] { "", "on", "Probe", "--input-pid" })
+            {
+                bool invalid = false;
+                try { InputRouter.ParseFkaPassThroughProbe(bad); } catch (ArgumentException) { invalid = true; }
+                check(invalid, $"FKA probe rejects startup value \"{bad}\"");
+            }
+            int opened = 0;
+            var disabledTransport = new Transport();
+            using (var input = new InputRouter(store, ["F001", "F002"], calibrations, _ => { opened++; return disabledTransport; }))
+            await using (var sessions = new InputSessions(store, input))
+            {
+                check(!input.FkaPassThroughProbeEnabled, "FKA probe is disabled by default");
+                string token = Lease(sessions, "sim-one");
+                check(await Invalid(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token, fn_key = "FkaPassThrough" })))
+                    && opened == 0, "Disabled FKA probe rejects a leased request before opening a transport");
+                check(await Invalid(() => input.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", fn_key = "FkaPassThrough" })))
+                    && opened == 0, "Disabled FKA probe cannot bypass validation through the router");
+                check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token, key = "a b" }))) == 0
+                    && disabledTransport.Reports.SequenceEqual(new[] { neutral, "A200040000000000", neutral, neutral, "A2002C0000000000", neutral, neutral, "A200050000000000", neutral }),
+                    "Default text preserves Space and sends no FKA prefix");
+            }
+
+            var first = new Transport(); var other = new Transport(); opened = 0;
+            using (var input = new InputRouter(store, ["F001", "F002"], calibrations, pid => { opened++; return pid == "F001" ? first : other; }) { FkaPassThroughProbeEnabled = true })
+            await using (var sessions = new InputSessions(store, input))
+            {
+                await Rejected(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", fn_key = "FkaPassThrough" })));
+                check(opened == 0, "Enabled FKA probe still requires the phone's lease");
+                string token = Lease(sessions, "sim-one");
+                string otherToken = Lease(sessions, "sim-two");
+                await Rejected(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token = otherToken, fn_key = "FkaPassThrough" })));
+                check(opened == 0, "Another phone's token cannot send the FKA probe");
+                check(await Invalid(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one,sim-two", token, fn_key = "FkaPassThrough" })))
+                    && opened == 0, "FKA probe rejects multiple targets before any transport opens");
+                check(await Invalid(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token, fn_key = "FkaPassThrough", key = "Hi there" })))
+                    && opened == 0, "FKA probe cannot be combined with text");
+                check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token, fn_key = "FkaPassThrough" }))) == 0
+                    && first.Reports.SequenceEqual(new[] { neutral, shortcut, neutral }),
+                    "FKA probe sends exactly neutral, Control-Option-Command-P, neutral");
+                check(opened == 1 && other.Reports.IsEmpty, "FKA probe touches only its own simulated board");
+                first.Reports.Clear();
+                check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token, key = " " }))) == 0
+                    && first.Reports.SequenceEqual(new[] { neutral, "A2002C0000000000", neutral }),
+                    "Text after a probe is unchanged and never automatically toggles the mode");
+            }
+
+            var held = new Transport { Block = hex => hex == shortcut };
+            using (var input = new InputRouter(store, ["F001"], calibrations, _ => held) { FkaPassThroughProbeEnabled = true })
+            await using (var sessions = new InputSessions(store, input))
+            {
+                string token = Lease(sessions, "sim-one");
+                var probe = sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token, fn_key = "FkaPassThrough" }));
+                await held.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+                check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token, key = " " }))) == 409,
+                    "A competing command during the FKA probe is refused without queuing");
+                check(Code(await sessions.StopAsync(Data(new { id = "sim-one" })).WaitAsync(TimeSpan.FromSeconds(2))) == 0 && Code(await probe) != 0,
+                    "Stop cancels an in-progress FKA probe");
+                check(held.Disposed && held.Reports.TakeLast(2).SequenceEqual(new[] { mouseNeutral, neutral })
+                    && held.Reports.Count(hex => hex == shortcut) == 1,
+                    "Cancelled FKA probe releases all modifiers and never retries its toggle");
+                check(Code(sessions.Acquire(Data(new { id = "sim-one" }))) == 409,
+                    "Stopped FKA probe needs explicit Resume before new ownership");
+                check(Code(sessions.Resume(Data(new { id = "sim-one" }))) == 0, "FKA probe Stop can be explicitly resumed");
+                int count = held.Reports.Count;
+                await Rejected(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token, fn_key = "FkaPassThrough" })));
+                check(held.Reports.Count == count, "An old lease cannot replay the FKA probe after Resume");
+            }
+
+            var failed = new Transport { Fail = hex => hex == shortcut };
+            using (var input = new InputRouter(store, ["F001"], calibrations, _ => failed) { FkaPassThroughProbeEnabled = true })
+            await using (var sessions = new InputSessions(store, input))
+            {
+                string token = Lease(sessions, "sim-one");
+                check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "sim-one", token, fn_key = "FkaPassThrough" }))) != 0,
+                    "FKA probe transport failure is reported");
+                check(failed.Disposed && failed.Reports.TakeLast(2).SequenceEqual(new[] { mouseNeutral, neutral })
+                    && failed.Reports.Count(hex => hex == shortcut) == 1,
+                    "Failed FKA probe releases modifiers without retrying an uncertain toggle");
+                check(Code(sessions.Acquire(Data(new { id = "sim-one" }))) == 409,
+                    "FKA probe transport failure pauses further input");
+            }
+        }
+        finally { File.Delete(file); Directory.Delete(directory); }
+    }
+
     public static async Task RunAsync(Action<bool, string> check)
     {
         string directory = Path.Combine(Path.GetTempPath(), "imouse-ownership-" + Guid.NewGuid().ToString("N"));
