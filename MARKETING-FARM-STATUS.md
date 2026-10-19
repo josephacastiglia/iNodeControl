@@ -1,5 +1,30 @@
 # Marketing Farm candidate — 19 October 2026
 
+## Latest: Priority 2 recovery candidate prepared offline
+
+The creation window offers **Inspect saved draft · no Save** after a recorded
+Instagram Save has started. This separate request opens the unique matching saved
+cover and checks all three slides and the complete caption. It sends no Save,
+import or typing, and leaves the phone on draft details. The original creation
+and any uncertain action stay unchanged. Its immutable package remains available
+even if the local editor changes. Status/reopening never starts phone input.
+
+Two recovery fixes are covered by negative controls: interrupted jobs now stay
+terminal while another job runs; the new-content workflow can refresh one locally
+expired, unsent Save decision after its exact caption/slide checks. The 1,500-ms
+frame limit and fixed operation budgets are unchanged. Unknown replies and
+unexpected dialogs still stop without replay.
+
+**452 Python tests, 564 native headless checks and eight retained-layout tests
+passed.** The retained-layout matrix includes every one of the inspection's seven
+action boundaries for lost replies, Stop, disconnects and receiver changes. These
+use simulated HID and archived frames/OCR, not a fresh phone or app restart.
+All 25 protected installed files matched. No rack software, desktop control or
+phone input was used. This candidate is unpromoted; live inspection, repeated
+phone execution and app-restart persistence remain pending.
+
+See [Priority 2 implementation, evidence and live plan](analysis/farm-recovery-20261019/README.md).
+
 ## Latest: new content to a verified Instagram draft passed on C24C
 
 **Priority 1 passed within the tested scope.** The native **Create phone draft**

@@ -1,0 +1,11 @@
+{
+  "tests": 452,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": true,
+  "seconds": 317.5,
+  "phoneInput": false,
+  "desktopControl": false,
+  "problems": []
+}

@@ -1,0 +1,48 @@
+test_hard_process_exit_is_latched_even_while_a_different_job_runs (test_farm_recovery.RecoveryTests.test_hard_process_exit_is_latched_even_while_a_different_job_runs) ... FAIL
+
+======================================================================
+FAIL: test_hard_process_exit_is_latched_even_while_a_different_job_runs (test_farm_recovery.RecoveryTests.test_hard_process_exit_is_latched_even_while_a_different_job_runs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_recovery.py", line 178, in test_hard_process_exit_is_latched_even_while_a_different_job_runs
+    self.assertTrue(result['terminal']); self.assertEqual('interrupted', result['status'])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 1 test in 0.413s
+
+FAILED (failures=1)
+test_creation_save_local_expiry_uses_new_exact_prompt_and_sends_save_only_once (test_retained_recovery.RetainedRecoveryTests.test_creation_save_local_expiry_uses_new_exact_prompt_and_sends_save_only_once) ... ERROR
+
+======================================================================
+ERROR: test_creation_save_local_expiry_uses_new_exact_prompt_and_sends_save_only_once (test_retained_recovery.RetainedRecoveryTests.test_creation_save_local_expiry_uses_new_exact_prompt_and_sends_save_only_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_draft_workflow.py", line 370, in action
+    self.command('/mouse/click',basis=value,purpose=label,x=point[0],y=point[1],button=1)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_draft_workflow.py", line 160, in command
+    check_basis('before_transport')
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_draft_workflow.py", line 155, in check_basis
+    self.validate(value, frame)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_draft_workflow.py", line 195, in validate
+    raise DecisionExpired('Frame aged to %.1f ms before dispatch (limit %d ms).' % (current, MAX_AGE_MS))
+farm_draft_workflow.DecisionExpired: Frame aged to 1619.0 ms before dispatch (limit 1500 ms).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\farm-recovery-20261019\test_retained_recovery.py", line 154, in test_creation_save_local_expiry_uses_new_exact_prompt_and_sends_save_only_once
+    with self.expire_save(flow, kernel): flow.action('prepared-save-once', 'save_draft', 'save_prompt')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_draft_workflow.py", line 380, in action
+    value, frame = self.refresh_save_prompt(action, value, frame)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_draft_workflow.py", line 324, in refresh_save_prompt
+    raise InspectionStopped('This prompt has no eligible unsent Save decision to refresh.')
+farm_carousel_inspection.InspectionStopped: This prompt has no eligible unsent Save decision to refresh.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.439s
+
+FAILED (errors=1)

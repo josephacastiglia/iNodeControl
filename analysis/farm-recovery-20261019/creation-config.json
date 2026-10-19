@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "api": "http://127.0.0.1:9916/api",
+  "kernelSha256": "c72fa4e0b02b82ec4f7a949c9a80375c69da68d7357084401c7bb422c194a873",
+  "expectedUid": "C24CBFBD",
+  "mediaBind": "192.168.4.26",
+  "mediaClient": "192.168.4.57",
+  "mediaPort": 9917
+}
