@@ -52,6 +52,7 @@ def load_config(path, mode):
 
 
 class DraftRuns:
+    action_name = 'draft-save-reopen'
     def __init__(self, folder, drafts, jobs, config=None):
         self.folder = Path(folder); self.folder.mkdir(parents=True, exist_ok=True)
         self.drafts, self.jobs, self.config = drafts, jobs, config
@@ -80,12 +81,18 @@ class DraftRuns:
     def eligibility(self, draft_id, revision):
         package = self.drafts.export(identifier(draft_id), revision)
         _, _, content = source_content(package)
-        supported = content == CONTENT_SHA256
+        supported = self.supports(package)
         return dict(**self.capability(), eligible=self.config is not None and supported,
             supportedContent=supported, draftId=draft_id, revision=revision,
             packageSha256=sha(package),
-            contentReason=('The saved slides and caption match the verified test draft.' if supported else
-                           'This first candidate supports only the verified three-slide test draft and exact caption.'))
+            contentReason=self.content_reason(supported))
+
+    def supports(self,package):
+        return source_content(package)[2] == CONTENT_SHA256
+
+    def content_reason(self,supported):
+        return ('The saved slides and caption match the verified test draft.' if supported else
+                'This first candidate supports only the verified three-slide test draft and exact caption.')
 
     @staticmethod
     def validate_request(spec):
@@ -116,7 +123,7 @@ class DraftRuns:
             self.jobs.assert_available()
             package = self.drafts.export(spec['draft_id'], spec['revision'])
             assets, caption, content = source_content(package)
-            if content != CONTENT_SHA256:
+            if not self.supports(package):
                 raise ValueError('Saved content is outside the currently verified draft candidate.')
             # Reserve the ID before any worker can send input. An orphaned
             # admission is review-only, never an instruction to start it again.
@@ -127,7 +134,7 @@ class DraftRuns:
             def run(cancelled):
                 result = self.execute(folder, assets, caption, sha(package), cancelled)
                 return dict(recordSha256=sha((folder / 'record.json').read_bytes()), state=result['state'])
-            self.jobs.submit(spec['id'], 'draft-save-reopen', spec, run)
+            self.jobs.submit(spec['id'], self.action_name, spec, run)
             return self.get(spec['id'])
 
     def execute(self, folder, assets, caption, package_hash, cancelled):

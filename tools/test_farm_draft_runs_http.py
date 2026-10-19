@@ -7,6 +7,7 @@ import uuid
 import farm_draft_runs as runs
 from test_farm_http_jobs import FarmHttpJobsTests
 from test_farm_draft_runs import Drafts, FixtureRuns, CONFIG
+from test_farm_creation import FixtureCreation
 
 
 class DraftRunHttpTests(unittest.TestCase):
@@ -70,6 +71,33 @@ class DraftRunHttpTests(unittest.TestCase):
             self.assertEqual(200,status); self.assertIn('bounded draft workflow',response['kernelError'])
             status,response=self.request('/kernel-proxy/',dict(fun='/mouse/click',data={'id':'C24C','x':200,'y':300}))
             self.assertEqual(409,status); self.assertIn('bounded draft workflow',response['error'])
+
+    def test_new_creation_route_is_draft_only_local_and_cannot_fall_back_to_release(self):
+        service=FixtureCreation(self.root/'creations',Drafts(),self.runtime.jobs,CONFIG)
+        service.supports=lambda package: True  # Admission fixture; media bounds have separate tests.
+        self.runtime.draft_creations=service;self.runtime.execution_mode='live'
+        spec=dict(id=str(uuid.uuid4()),draft_id=str(uuid.uuid4()),revision=3,store_id=service.store_id)
+        route='/api/farm/draft-creations'
+        self.assertTrue(self.request('/health')[1]['draftCreation']['enabled'])
+        with patch.object(self.runtime.kernel_client,'kernel_status',side_effect=AssertionError('No release access')):
+            self.assertIn('bounded draft workflow',self.request('/api/farm/state')[1]['kernelError'])
+            self.assertEqual(409,self.request('/kernel-proxy/',dict(fun='/mouse/click',data={'id':'C24C','x':200,'y':300}))[0])
+            self.assertEqual(202,self.request(route,spec)[0]);self.assertTrue(self.runtime.jobs._jobs[spec['id']].done.wait(4))
+            self.assertFalse(self.request(route+'/'+spec['id'])[1]['run']['savedDraftVerified'])
+            self.assertEqual(202,self.request(route,spec)[0]);self.assertEqual(1,service.executions)
+            self.assertEqual(409,self.request(route,dict(spec,id=str(uuid.uuid4())))[0])
+            for path in (route+'?draft_id='+spec['draft_id'],route+'/'+spec['id'],route+'/eligibility?draft_id='+spec['draft_id']+'&revision=3'):
+                self.assertEqual(403,self.request(path,origin='https://untrusted.invalid')[0])
+            self.assertEqual(403,self.request(route,spec,origin='https://untrusted.invalid')[0])
+            self.assertEqual(400,self.request(route,dict(spec,device_id='C241'))[0])
+
+    def test_new_creation_is_disabled_by_default_and_stop_is_store_bound(self):
+        capability=self.request('/health')[1]['draftCreation'];self.assertFalse(capability['enabled'])
+        spec=dict(id=str(uuid.uuid4()),draft_id=str(uuid.uuid4()),revision=1,store_id=capability['storeId'])
+        self.assertEqual(409,self.request('/api/farm/draft-creations',spec)[0])
+        route='/api/farm/draft-creations/'+spec['id']+'/cancel'
+        self.assertEqual(400,self.request(route,dict(store_id=str(uuid.uuid4())))[0])
+        self.assertEqual(200,self.request(route,dict(store_id=capability['storeId']))[0])
 
 
 del FarmHttpJobsTests

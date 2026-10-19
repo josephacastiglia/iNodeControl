@@ -1,15 +1,15 @@
-# Separate native candidate. Does not restart the rack or alter installed shortcuts.
-param([switch]$ValidateOnly, [string]$PythonPath, [string]$DraftWorkflowConfig)
+﻿# Separate native candidate. Does not restart the rack or alter installed shortcuts.
+param([switch]$ValidateOnly, [string]$PythonPath, [string]$DraftWorkflowConfig, [string]$DraftCreationConfig)
 $ErrorActionPreference = 'Stop'
 $repoDir = $PSScriptRoot
-$candidateDir = Join-Path $repoDir 'output\codex-farm-interface-20261018'
+$candidateDir = Join-Path $repoDir 'output\codex-farm-new-draft-20261019'
 $candidateExe = Join-Path $candidateDir 'iMouse2.exe'
-$mode = if ($DraftWorkflowConfig) { 'live' } else { 'simulate' }
-$consoleAddress = if ($DraftWorkflowConfig) { 'http://127.0.0.1:9916' } else { 'http://127.0.0.1:9913' }
-$candidateData = Join-Path $candidateDir $(if ($DraftWorkflowConfig) { 'draft-workflow-data' } else { 'candidate-data' })
-if ($DraftWorkflowConfig) {
-    $DraftWorkflowConfig = (Resolve-Path -LiteralPath $DraftWorkflowConfig).Path
-    $workflowIdentity = [IO.File]::ReadAllText($DraftWorkflowConfig) | ConvertFrom-Json
+$mode = if ($DraftWorkflowConfig -or $DraftCreationConfig) { 'live' } else { 'simulate' }
+$consoleAddress = if ($DraftWorkflowConfig -or $DraftCreationConfig) { 'http://127.0.0.1:9916' } else { 'http://127.0.0.1:9913' }
+$candidateData = Join-Path $candidateDir $(if ($DraftCreationConfig) { 'draft-creation-data' } elseif ($DraftWorkflowConfig) { 'draft-workflow-data' } else { 'candidate-data' })
+foreach ($configPath in @($DraftWorkflowConfig, $DraftCreationConfig) | Where-Object { $_ }) {
+    $configPath = (Resolve-Path -LiteralPath $configPath).Path
+    $workflowIdentity = [IO.File]::ReadAllText($configPath) | ConvertFrom-Json
     if ($workflowIdentity.version -ne 1 -or $workflowIdentity.api -cne 'http://127.0.0.1:9916/api' -or $workflowIdentity.kernelSha256 -cnotmatch '^[0-9a-f]{64}$' -or !$workflowIdentity.expectedUid) {
         throw 'The draft workflow needs a prepared isolated C24C kernel identity on 9916.'
     }
@@ -22,7 +22,7 @@ $pythonExe = $pythonCandidates | Where-Object { $_ -and $_ -notlike '*\WindowsAp
 if (!(Test-Path -LiteralPath $candidateExe -PathType Leaf)) { throw "Build the candidate first: $candidateExe" }
 if (!$pythonExe) { throw 'Python was not found. Pass -PythonPath with the full path to your Python executable.' }
 $expectedBytes = New-Object System.IO.MemoryStream
-foreach ($name in @('imouse_farm_server.py', 'imouse_social_automation.py', 'farm_jobs.py', 'farm_drafts.py', 'farm_media_transfer.py', 'farm_transfers.py', 'farm_capabilities.py', 'farm_video.py', 'farm_observations.py', 'Read-FarmImageText.ps1', 'farm_preparation_schedule.py', 'farm_frame_evidence.py', 'farm_draft_verification.py', 'farm_draft_media.py', 'farm_carousel_inspection.py', 'farm_draft_rehearsal.py', 'farm_screen_layout.py', 'farm_transitions.py', 'farm_live_verification.py', 'farm_draft_transport.py', 'farm_draft_workflow.py', 'farm_draft_runs.py', 'farm_draft_anchors.json')) {
+foreach ($name in @('imouse_farm_server.py', 'imouse_social_automation.py', 'farm_jobs.py', 'farm_drafts.py', 'farm_media_transfer.py', 'farm_transfers.py', 'farm_capabilities.py', 'farm_video.py', 'farm_observations.py', 'Read-FarmImageText.ps1', 'farm_preparation_schedule.py', 'farm_frame_evidence.py', 'farm_draft_verification.py', 'farm_draft_media.py', 'farm_carousel_inspection.py', 'farm_draft_rehearsal.py', 'farm_screen_layout.py', 'farm_transitions.py', 'farm_live_verification.py', 'farm_draft_transport.py', 'farm_draft_workflow.py', 'farm_draft_runs.py', 'farm_draft_anchors.json', 'farm_draft_creation.py', 'farm_creation_runs.py', 'farm_creation_layout.py', 'farm_creation_badges.json', 'farm_creation_browser.json', 'farm_creation_controls.json')) {
     $bytes = [IO.File]::ReadAllBytes((Join-Path $repoDir ('tools\' + $name)))
     $expectedBytes.Write($bytes, 0, $bytes.Length)
 }
@@ -30,7 +30,7 @@ $hasher = [Security.Cryptography.SHA256]::Create()
 try { $expectedSource = ([BitConverter]::ToString($hasher.ComputeHash($expectedBytes.ToArray()))).Replace('-', '').ToLowerInvariant() }
 finally { $hasher.Dispose(); $expectedBytes.Dispose() }
 if ($ValidateOnly) {
-    [pscustomobject]@{ Candidate = $candidateExe; DataDirectory = $candidateData; FarmEndpoint = $serverUrl; Mode = $mode; ConsoleAddress = $consoleAddress; DraftWorkflowConfig = $DraftWorkflowConfig; SourceHash = $expectedSource; StartsProcesses = $false }
+    [pscustomobject]@{ Candidate = $candidateExe; DataDirectory = $candidateData; FarmEndpoint = $serverUrl; Mode = $mode; ConsoleAddress = $consoleAddress; DraftWorkflowConfig = $DraftWorkflowConfig; DraftCreationConfig = $DraftCreationConfig; SourceHash = $expectedSource; StartsProcesses = $false }
     return
 }
 [IO.Directory]::CreateDirectory($candidateData) | Out-Null
@@ -47,7 +47,9 @@ if (!$health) {
     $outLog = Join-Path $candidateData 'farm-server.stdout.log'
     $errLog = Join-Path $candidateData 'farm-server.stderr.log'
     $arguments = @('-u', ('"' + $serverScript + '"'), '--no-browser', '--mode', $mode, '--port', '9915')
-    if ($DraftWorkflowConfig) { $arguments += @('--draft-workflow-config', ('"' + $DraftWorkflowConfig + '"'), '--data-dir', ('"' + (Join-Path $candidateData 'backend') + '"')) }
+    if ($DraftWorkflowConfig) { $arguments += @('--draft-workflow-config', ('"' + $DraftWorkflowConfig + '"')) }
+    if ($DraftCreationConfig) { $arguments += @('--draft-creation-config', ('"' + $DraftCreationConfig + '"')) }
+    $arguments += @('--data-dir', ('"' + (Join-Path $candidateData 'backend') + '"'))
     $backend = Start-Process -FilePath $pythonExe -ArgumentList $arguments -WorkingDirectory $repoDir -WindowStyle Hidden -RedirectStandardOutput $outLog -RedirectStandardError $errLog -PassThru
     for ($attempt = 0; $attempt -lt 20 -and !$health; $attempt++) {
         if ($backend.HasExited) { throw "Candidate farm server exited. Read $errLog" }
@@ -59,5 +61,6 @@ if (!$health -or $health.protocolVersion -ne 2 -or $health.executionMode -ne $mo
     throw 'Port 9915 is not serving this exact candidate backend. No existing process was stopped and the console was not opened.'
 }
 if ([bool]$health.draftWorkflow.enabled -ne [bool]$DraftWorkflowConfig) { throw 'The running backend has different draft workflow permissions.' }
+if ([bool]$health.draftCreation.enabled -ne [bool]$DraftCreationConfig) { throw 'The running backend has different new-draft permissions.' }
 # Visible by design: this script is the user's explicit app launcher.
 Start-Process -FilePath $candidateExe -ArgumentList @(('--address=' + $consoleAddress), ('--data-dir="' + $candidateData + '"')) -WorkingDirectory $candidateDir

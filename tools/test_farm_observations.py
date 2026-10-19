@@ -50,6 +50,17 @@ class FixtureOcr:
 
 
 class ObservationTests(unittest.TestCase):
+    def test_creation_retention_preserves_early_frames_and_rejects_unbounded_limits(self):
+        with self.assertRaises(ValueError): ObservationStore(self.path,retained_limit=161)
+        store=ObservationStore(self.path.with_name('creation.db'),FixtureOcr(),retained_limit=160)
+        first=None
+        for number in range(51):
+            request=dict(self.request,id=str(uuid.uuid4()))
+            result=store.capture(request,self.kernel)
+            self.assertEqual('observed',result['state'])
+            if first is None:first=request['id']
+        self.assertTrue(store.frame(first))
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.path = Path(self.temp.name) / 'observations.db'; self.now = [1000.0]

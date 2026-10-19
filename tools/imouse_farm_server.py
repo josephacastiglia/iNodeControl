@@ -52,6 +52,7 @@ from farm_draft_verification import DraftVerifications
 from farm_carousel_inspection import CarouselInspections
 from farm_draft_rehearsal import DraftRehearsals
 from farm_draft_runs import DraftRuns, load_config
+from farm_creation_runs import CreationRuns, creation_config
 from farm_preparation_schedule import PreparationSchedule
 
 DEFAULT_HOST = "127.0.0.1"
@@ -94,15 +95,17 @@ class FarmBackendRuntime:
         port: int = DEFAULT_PORT,
         execution_mode: str = "simulate",
         draft_workflow_config: Path | None = None,
+        draft_creation_config: Path | None = None,
     ) -> None:
         if execution_mode not in ("simulate", "live"):
             raise ValueError("Execution mode must be simulate or live.")
         self.execution_mode = execution_mode
         draft_config = load_config(draft_workflow_config, execution_mode)
+        create_config = creation_config(draft_creation_config, execution_mode)
         self.operation_lock = threading.RLock()
         source = Path(__file__).resolve().parent
         import hashlib
-        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py", "farm_draft_media.py", "farm_carousel_inspection.py", "farm_draft_rehearsal.py", "farm_screen_layout.py", "farm_transitions.py", "farm_live_verification.py", "farm_draft_transport.py", "farm_draft_workflow.py", "farm_draft_runs.py", "farm_draft_anchors.json"))).hexdigest()
+        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py", "farm_draft_media.py", "farm_carousel_inspection.py", "farm_draft_rehearsal.py", "farm_screen_layout.py", "farm_transitions.py", "farm_live_verification.py", "farm_draft_transport.py", "farm_draft_workflow.py", "farm_draft_runs.py", "farm_draft_anchors.json", "farm_draft_creation.py", "farm_creation_runs.py", "farm_creation_layout.py", "farm_creation_badges.json", "farm_creation_browser.json", "farm_creation_controls.json"))).hexdigest()
         db_path = db_path or Path("output/farm-data/v2") / execution_mode / "imouse_farm.db"
         stage_root = stage_root or Path("output/media-stage/v2") / execution_mode
         self.calibration_path = db_path.parent / "ui-boxes.json"
@@ -117,6 +120,7 @@ class FarmBackendRuntime:
         self.inspections = CarouselInspections(db_path.parent / 'carousel-inspections.db', self.observations, self.drafts)
         self.rehearsals = DraftRehearsals(db_path.parent / 'draft-rehearsals.db', self.drafts)
         self.draft_runs = DraftRuns(db_path.parent / 'draft-runs', self.drafts, self.jobs, draft_config)
+        self.draft_creations = CreationRuns(db_path.parent / 'draft-creations', self.drafts, self.jobs, create_config)
         self.transfers = CarouselTransfers(db_path.parent / "transfers.db", self.drafts, videos=self.videos)
         self.port = port
         self.lan_host_url = (engine.MediaPullOrchestrator.detect_host_lan_url(port=port)
@@ -171,7 +175,7 @@ class FarmBackendRuntime:
 
     def get_kernel(self) -> engine.IMouseKernel:
         """Use the selected mode for this process. Never substitute simulated success."""
-        if self.draft_runs.config is not None:
+        if self.draft_runs.config is not None or self.draft_creations.config is not None:
             raise engine.KernelSafetyError('This isolated draft candidate exposes only its bounded draft workflow. General rack commands are unavailable.')
         if self.execution_mode == "simulate":
             return self.kernel_client
@@ -370,6 +374,25 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             self._send_json(200, capabilities())
             return
 
+        if path == '/api/farm/draft-creations' or path.startswith('/api/farm/draft-creations/'):
+            if not self._transfer_access_allowed():
+                self._send_json(403, {'error': 'Draft run evidence is local-only.'}); return
+            try:
+                parts = path.split('/')
+                query = urllib.parse.parse_qs(parsed.query)
+                if path == '/api/farm/draft-creations/eligibility':
+                    value = RUNTIME.draft_creations.eligibility(query.get('draft_id', [''])[0], int(query.get('revision', ['0'])[0]))
+                    self._send_json(200, {'eligibility': value})
+                elif path == '/api/farm/draft-creations':
+                    self._send_json(200, {'runs': RUNTIME.draft_creations.list(query.get('draft_id', [''])[0])})
+                elif len(parts) == 7 and parts[5] == 'frames':
+                    import base64
+                    self._send_json(200, {'frame': base64.b64encode(RUNTIME.draft_creations.frame(parts[4], parts[6])).decode('ascii')})
+                elif len(parts) == 5: self._send_json(200, {'run': RUNTIME.draft_creations.get(parts[4])})
+                else: raise ValueError('Unknown draft run route.')
+            except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
+            return
+
         if path == '/api/farm/draft-runs' or path.startswith('/api/farm/draft-runs/'):
             if not self._transfer_access_allowed():
                 self._send_json(403, {'error': 'Draft run evidence is local-only.'}); return
@@ -517,6 +540,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "draftRehearsalVersion": 1,
                     "draftRehearsalLiveEnabled": False,
                     "draftWorkflow": RUNTIME.draft_runs.capability(),
+                    "draftCreation": RUNTIME.draft_creations.capability(),
                     "carouselInspectionVersion": 2,
                     "carouselInspectionLiveMovement": False,
                     "preparationScheduleVersion": 2,
@@ -604,7 +628,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/")
-        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/draft-verifications', '/api/farm/carousel-inspections', '/api/farm/draft-rehearsals', '/api/farm/draft-runs')) and not self._transfer_access_allowed():
+        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/draft-verifications', '/api/farm/carousel-inspections', '/api/farm/draft-rehearsals', '/api/farm/draft-runs', '/api/farm/draft-creations')) and not self._transfer_access_allowed():
             self.close_connection = True
             self._send_json(403, {"error": "Media, observation and preparation controls are local-only."})
             return
@@ -639,7 +663,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         interrupt = interrupt or (path.startswith("/kernel-proxy") and data.get("fun") == "/input/stop")
         interrupt = interrupt or path == '/api/farm/preparation-schedule/pause'
         interrupt = interrupt or (path.startswith('/api/farm/draft-rehearsals/') and path.endswith('/cancel'))
-        interrupt = interrupt or (path.startswith('/api/farm/draft-runs/') and path.endswith('/cancel'))
+        interrupt = interrupt or (path.startswith(('/api/farm/draft-runs/','/api/farm/draft-creations/')) and path.endswith('/cancel'))
         interrupt = interrupt or (path.startswith('/api/farm/carousel-inspections/') and path.endswith('/cancel'))
         if interrupt or path == "/api/farm/jobs" or (path.startswith("/api/farm/transfers/") and path.endswith("/stop")):
             self._dispatch_post(path, data, raw_body)
@@ -657,6 +681,13 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
     def _dispatch_post(self, path: str, data: dict, raw_body: bytes) -> None:
         assert RUNTIME is not None
         data = dict(data)
+        if path == '/api/farm/draft-creations':
+            self._send_json(202, {'run': RUNTIME.draft_creations.start(data)}); return
+        if path.startswith('/api/farm/draft-creations/') and path.endswith('/cancel'):
+            parts = path.split('/')
+            if len(parts) != 6 or set(data) != {'store_id'} or data['store_id'] != RUNTIME.draft_creations.store_id:
+                raise ValueError('Stop needs this candidate store and the original request ID.')
+            self._send_json(200, {'job': RUNTIME.draft_creations.cancel(parts[4])}); return
         if path == '/api/farm/draft-runs':
             self._send_json(202, {'run': RUNTIME.draft_runs.start(data)}); return
         if path.startswith('/api/farm/draft-runs/') and path.endswith('/cancel'):
@@ -1118,6 +1149,7 @@ def main() -> int:
     ap.add_argument("--self-check", action="store_true")
     ap.add_argument('--data-dir', type=Path, help='Separate candidate backend data; no operator settings are read.')
     ap.add_argument('--draft-workflow-config', type=Path, help='Explicit isolated C24C kernel identity for the bounded draft candidate.')
+    ap.add_argument('--draft-creation-config', type=Path, help='Explicit C24C-only media/kernel configuration for new draft creation.')
     ap.add_argument("--mode", choices=("simulate", "live"), default="simulate",
                     help="simulate is offline; live must be explicitly selected and only permits C24C input")
     args = ap.parse_args()
@@ -1131,7 +1163,7 @@ def main() -> int:
         RUNTIME = FarmBackendRuntime(port=args.port, execution_mode=args.mode,
             db_path=args.data_dir / 'farm.db' if args.data_dir else None,
             stage_root=args.data_dir / 'stage' if args.data_dir else None,
-            draft_workflow_config=args.draft_workflow_config)
+            draft_workflow_config=args.draft_workflow_config, draft_creation_config=args.draft_creation_config)
     except Exception:
         srv.server_close()
         raise

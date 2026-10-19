@@ -427,23 +427,27 @@ class Workflow:
         except BaseException as error:
             self.record.update(state='review_required',error=type(error).__name__+': '+str(error))
         finally:
-            try:
-                if self.owned.tokens: self.owned.release(); self.record['cleanup']='confirmed'
-                self.record['finalInput']=self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)
-                if not idle(self.record['finalInput']):
-                    self.record.update(state='review_required',cleanup='unconfirmed')
-            except Exception as error:
-                self.record.update(state='review_required',cleanup='unconfirmed',cleanupError=str(error))
-            try:
-                for entry in self.record['observations']:
-                    if entry.get('state') != 'observed': continue
-                    value, frame = self.store.evidence(entry['observationId'])
-                    if value['reviewFrameSha256'] != entry['observation']['reviewFrameSha256']:
-                        raise InspectionStopped('Retained image changed before evidence export.')
-                    (self.folder/entry['frame']).write_bytes(frame)
-                self.record['evidenceExport']='confirmed'
-            except Exception as error:
-                self.record.update(state='review_required',evidenceExport='failed',exportError=str(error))
-            if self.record['state'] != 'validation_passed': self.record['savedDraftVerified'] = False
-            self.save()
+            self.finish()
         return self.record
+
+    def finish(self):
+        """Cleanup/export shared with the separately bounded new-draft workflow."""
+        try:
+            if self.owned.tokens: self.owned.release(); self.record['cleanup']='confirmed'
+            self.record['finalInput']=self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)
+            if not idle(self.record['finalInput']):
+                self.record.update(state='review_required',cleanup='unconfirmed')
+        except Exception as error:
+            self.record.update(state='review_required',cleanup='unconfirmed',cleanupError=str(error))
+        try:
+            for entry in self.record['observations']:
+                if entry.get('state') != 'observed': continue
+                value, frame = self.store.evidence(entry['observationId'])
+                if value['reviewFrameSha256'] != entry['observation']['reviewFrameSha256']:
+                    raise InspectionStopped('Retained image changed before evidence export.')
+                (self.folder/entry['frame']).write_bytes(frame)
+            self.record['evidenceExport']='confirmed'
+        except Exception as error:
+            self.record.update(state='review_required',evidenceExport='failed',exportError=str(error))
+        if self.record['state'] != 'validation_passed': self.record['savedDraftVerified'] = False
+        self.save()

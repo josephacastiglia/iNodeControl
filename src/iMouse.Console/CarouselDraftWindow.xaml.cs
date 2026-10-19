@@ -193,6 +193,13 @@ public partial class CarouselDraftWindow : Window
     }
 
     private Task SaveBeforeLeavingAsync() => _dirty ? SaveAsync() : Task.CompletedTask;
+    private async void CreatePhoneDraft_Click(object sender, RoutedEventArgs e) => await RunAsync(async () =>
+    {
+        await SaveBeforeLeavingAsync();
+        if (_draft is null) return;
+        new FarmDraftRunWindow(_api, _dataFolder, _draft.Id, _draft.Revision, _draft.Title, createNew: true) { Owner = this }.ShowDialog();
+    }, phoneWorkflow: true);
+
     private async void PhoneDraft_Click(object sender, RoutedEventArgs e) => await RunAsync(async () =>
     {
         await SaveBeforeLeavingAsync();

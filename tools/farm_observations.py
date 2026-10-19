@@ -237,7 +237,10 @@ def classify(text, expected, frame=None):
 
 class ObservationStore:
     """Idempotent read requests and review holds; a restart never replays a capture."""
-    def __init__(self, path, ocr=None, clock=time.time, monotonic=time.monotonic):
+    def __init__(self, path, ocr=None, clock=time.time, monotonic=time.monotonic, *, retained_limit=50):
+        if type(retained_limit) is not int or not 1<=retained_limit<=160:
+            raise ValueError('Observation retention must be between 1 and 160 frames.')
+        self.retained_limit=retained_limit
         self.path, self.ocr, self.clock, self.monotonic = Path(path), ocr or WindowsOcr(), clock, monotonic
         self.session = uuid.uuid4().hex
         self.timings = {}
@@ -408,5 +411,5 @@ class ObservationStore:
             self.timings[request_id] = (started, finished)
             with self.connect() as db:
                 db.execute('UPDATE observations SET document=?,frame=? WHERE id=?', (json.dumps(value), frame, request_id))
-                db.execute('UPDATE observations SET frame=NULL WHERE rowid NOT IN (SELECT rowid FROM observations ORDER BY rowid DESC LIMIT 50)')
+                db.execute('UPDATE observations SET frame=NULL WHERE rowid NOT IN (SELECT rowid FROM observations ORDER BY rowid DESC LIMIT ?)',(self.retained_limit,))
             return self.get(request_id)

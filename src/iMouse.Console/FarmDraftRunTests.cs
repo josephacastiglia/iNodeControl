@@ -14,17 +14,18 @@ internal sealed partial class FarmDraftRunWindow
     private sealed class TestHandler : HttpMessageHandler
     {
         internal string StoreId = Guid.NewGuid().ToString(), DraftId = Guid.NewGuid().ToString();
-        internal string? Id, BookmarkPath;
+        internal string? Id, BookmarkPath, ImportedFrom, EligibleImportedFrom;
         internal int Starts, Cancels, EligibilityCalls;
         internal bool Missing, Terminal, Verified, Enabled = true, WrongResult, BookmarkBeforePost;
+        internal bool CreationConfirmed = true, RetryBeforeImport, ContinueImported;
         internal readonly List<string> Routes = [];
         private object Result() => new
         {
             id = WrongResult ? Guid.NewGuid().ToString() : Id, storeId = StoreId,
-            request = new { draft_id = DraftId, revision = 3 }, state = Verified ? "verified" : Terminal ? "review_required" : "running",
-            terminal = Terminal, savedDraftVerified = Verified, cleanup = Terminal ? "confirmed" : "unconfirmed",
+            request = new { draft_id = DraftId, revision = 3, continue_imported_from = ImportedFrom }, state = Verified ? "verified" : Terminal ? "review_required" : "running",
+            terminal = Terminal, savedDraftVerified = Verified, retryBeforeImportAllowed = RetryBeforeImport, continueImportedAllowed = ContinueImported, cleanup = Terminal ? "confirmed" : "unconfirmed",
             reason = Verified ? "The matching draft was saved, reopened and checked." : "Save reply lost; no replay.", draftChangedSinceRun = true, publishing = false, messaging = false, automaticResume = false,
-            workflow = new { source = "candidate_phone_workflow", actions = new[] { new { label = "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
+            workflow = new { source = "candidate_phone_workflow", createdDraftVerified = CreationConfirmed, mediaDelivery = new { stopped = true }, actions = new[] { new { label = "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
                 observations = new[] { new { observationId = "frame1", role = "library", state = "observed" } } }
         };
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
@@ -33,13 +34,21 @@ internal sealed partial class FarmDraftRunWindow
             if (request.Method == HttpMethod.Post)
             {
                 if (route.EndsWith("/cancel")) { Cancels++; return Response(new { protocolVersion = 2, job = new { } }); }
-                Starts++; Id = JsonSerializer.Deserialize<JsonElement>(await request.Content!.ReadAsStringAsync(token)).GetProperty("id").GetString();
+                var intent = JsonSerializer.Deserialize<JsonElement>(await request.Content!.ReadAsStringAsync(token));
+                Starts++; Id = intent.GetProperty("id").GetString();
+                ImportedFrom = intent.TryGetProperty("continue_imported_from", out var imported) ? imported.GetString() : null;
                 BookmarkBeforePost = BookmarkPath is not null && System.IO.File.ReadAllText(BookmarkPath).Contains(Id!);
                 throw new HttpRequestException("Response lost after admission");
             }
-            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled } });
-            if (route.EndsWith("/eligibility")) { EligibilityCalls++; return Response(new { protocolVersion = 2, eligibility = new { storeId = StoreId, eligible = Enabled, reason = "Prepared candidate only.", contentReason = "Saved content matches." } }); }
-            if (route == "/api/farm/draft-runs") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
+            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled }, draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false } });
+            if (route.EndsWith("/eligibility"))
+            {
+                EligibilityCalls++;
+                var eligible = new Dictionary<string, object> { ["storeId"] = StoreId, ["eligible"] = Enabled, ["reason"] = "Prepared candidate only.", ["contentReason"] = "Saved content matches." };
+                if (EligibleImportedFrom is not null) eligible["continueImportedFrom"] = EligibleImportedFrom;
+                return Response(new { protocolVersion = 2, eligibility = eligible });
+            }
+            if (route is "/api/farm/draft-runs" or "/api/farm/draft-creations") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
             if (route.Contains("/frames/")) return Response(new { protocolVersion = 2, frame = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=" });
             return Missing ? Response(new { error = "Saved result missing" }, HttpStatusCode.NotFound) : Response(new { protocolVersion = 2, run = Result() });
         }
@@ -96,6 +105,40 @@ internal sealed partial class FarmDraftRunWindow
             image.Render(background); image.Render(content); var png = new PngBitmapEncoder(); png.Frames.Add(BitmapFrame.Create(image));
             using (var file = System.IO.File.Create(System.IO.Path.Combine(AppContext.BaseDirectory, "qa", "farm-draft-run-headless.png"))) png.Save(file);
             check("Phone draft review renders without creating a desktop window", content.IsArrangeValid && new WindowInteropHelper(restarted).Handle == IntPtr.Zero);
+
+            handler.Id = null; handler.Terminal = handler.Verified = false; handler.Enabled = true;
+            var creation = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", createNew: true); windows.Add(creation);
+            handler.BookmarkPath = creation._bookmarkPath;
+            await creation.RunAsync(creation.InitializeAsync);
+            check("New draft creation uses its own capability, route and pending bookmark", creation._start.IsEnabled && creation._bookmarkPath != restarted._bookmarkPath && creation._route == "/api/farm/draft-creations");
+            int starts = handler.Starts;
+            await creation.RunAsync(creation.StartAsync); creation._poll.Stop();
+            check("New draft creation journals admission before POST and preserves a lost reply", handler.Starts == starts + 1 && handler.BookmarkBeforePost && creation._pending?.Id == handler.Id && !creation._start.IsEnabled);
+            await creation.StopAsync();
+            check("New draft creation Stop uses the original creation route", handler.Routes.Last() == "/api/farm/draft-creations/" + handler.Id + "/cancel");
+            handler.Terminal = handler.Verified = true; handler.CreationConfirmed = false;
+            await creation.RunAsync(creation.RecoverAsync);
+            check("A verified existing draft result cannot masquerade as new draft creation", creation._pending is not null && !creation._start.IsEnabled);
+            handler.CreationConfirmed = true; await creation.RunAsync(creation.RecoverAsync);
+            check("New draft completion needs confirmed creation and stopped media delivery", creation._pending is null && creation._status.Text.Contains("NEW PHONE DRAFT CREATED AND VERIFIED"));
+            handler.Id = null; handler.Terminal = handler.Verified = false;
+            var retryWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", createNew: true); windows.Add(retryWindow);
+            handler.BookmarkPath = retryWindow._bookmarkPath; await retryWindow.RunAsync(retryWindow.InitializeAsync);
+            await retryWindow.RunAsync(retryWindow.StartAsync); retryWindow._poll.Stop();
+            string previousId = handler.Id!;
+            handler.Terminal = handler.RetryBeforeImport = true; await retryWindow.RunAsync(retryWindow.RecoverAsync);
+            check("Only a confirmed preimport hold offers an explicit new creation attempt", retryWindow._retryBeforeImport && retryWindow._start.IsEnabled && retryWindow._pending is not null);
+            await retryWindow.RunAsync(retryWindow.StartAsync); retryWindow._poll.Stop();
+            check("Explicit preimport retry rechecks eligibility and uses a new durable request", handler.Id != previousId && retryWindow._pending?.Id == handler.Id && !retryWindow._retryBeforeImport);
+            previousId = handler.Id!; handler.RetryBeforeImport = false; handler.ContinueImported = true; handler.EligibleImportedFrom = previousId;
+            await retryWindow.RunAsync(retryWindow.RecoverAsync);
+            check("Confirmed imported-media hold offers continuation without reimport", retryWindow._continueImported && retryWindow._start.IsEnabled && retryWindow._start.Content.ToString()!.Contains("imported images"));
+            await retryWindow.RunAsync(retryWindow.StartAsync); retryWindow._poll.Stop();
+            check("Continuation origin is durable before admission and included in the request", handler.Id != previousId && handler.ImportedFrom == previousId && retryWindow._pending?.ImportedFrom == previousId && handler.BookmarkBeforePost);
+            int continuationStarts = handler.Starts; handler.ContinueImported = false;
+            var recoveredCreation = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", createNew: true); windows.Add(recoveredCreation);
+            await recoveredCreation.RunAsync(recoveredCreation.InitializeAsync); recoveredCreation._poll.Stop();
+            check("A lost continuation reply recovers the same request and import provenance", recoveredCreation._pending?.Id == handler.Id && recoveredCreation._pending?.ImportedFrom == previousId && handler.Starts == continuationStarts && !recoveredCreation._start.IsEnabled);
         }
         finally
         {

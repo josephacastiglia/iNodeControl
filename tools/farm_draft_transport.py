@@ -55,7 +55,7 @@ def allowed_tap(text, x, y, intent, frame=None):
 
 
 class StepKernel(IMouseKernel):
-    def __init__(self, url, transport=None):
+    def __init__(self, url, transport=None, *, _creation=False):
         reader=ReadOnlyKernel(url,transport=transport)
         super().__init__(url)
         opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect())
@@ -67,10 +67,19 @@ class StepKernel(IMouseKernel):
             if not isinstance(body,dict) or not isinstance(body.get('data'),dict):
                 raise KernelSafetyError('Malformed probe request.')
             fun=body.get('fun'); data=body['data']
-            if fun not in ('/input/acquire','/input/renew','/input/release','/mouse/reset','/mouse/move','/mouse/click','/mouse/swipe'):
+            allowed=('/input/acquire','/input/renew','/input/release','/mouse/reset','/mouse/move','/mouse/click','/mouse/swipe')
+            if _creation: allowed += ('/mouse/down','/mouse/up','/key/sendkey')
+            if fun not in allowed:
                 raise KernelSafetyError('This probe cannot send that command.')
             if data.get('id') != LIVE_TEST_DEVICE_ID:
                 raise KernelSafetyError('Only C24C is accepted.')
+            if fun == '/key/sendkey':
+                key=data.get('key')
+                fields=set(data)-{'id','token'}
+                if not ((fields=={'fn_key'} and data['fn_key'] in ('Home','Enter','Escape')) or
+                        (fields=={'key'} and isinstance(key,str) and 1<=len(key)<=12 and
+                         all(33<=ord(c)<=126 for c in key))):
+                    raise KernelSafetyError('Creation permits only bounded URL/app text, Home, Enter or Escape; captions use Paste.')
             if transport is not None: return transport(method,target,body,timeout)
             request=urllib.request.Request(target,data=json.dumps(body).encode('utf-8'),method=method,
                 headers={'Content-Type':'application/json'})
@@ -80,3 +89,9 @@ class StepKernel(IMouseKernel):
                 return raw,dict(response.headers)
         self._transport=limited
         self.devices=reader.devices
+
+
+class CreationKernel(StepKernel):
+    """Separate internal transport for the creation state machine, never HTTP commands."""
+    def __init__(self,url,transport=None):
+        super().__init__(url,transport,_creation=True)
