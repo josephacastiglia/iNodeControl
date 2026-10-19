@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Explicit bounded scenario",
+    "pass": true
+  },
+  {
+    "name": "Only the configured loopback backend",
+    "pass": true
+  },
+  {
+    "name": "Preserved native assembly hash",
+    "pass": true
+  },
+  {
+    "name": "Request has saved draft and store identities",
+    "pass": true
+  },
+  {
+    "name": "Backend identity and source match preparation",
+    "pass": true
+  },
+  {
+    "name": "Live request remains C24C test draft only",
+    "pass": true
+  },
+  {
+    "name": "Native window starts read-only and permits explicit start",
+    "pass": true
+  },
+  {
+    "name": "Bookmark persisted before the single submission",
+    "pass": true
+  },
+  {
+    "name": "Lost response retains the request without another start",
+    "pass": true
+  },
+  {
+    "name": "Recreated native view recovers without POST replay",
+    "pass": true
+  },
+  {
+    "name": "Recovered request terminates within the bounded window",
+    "pass": true
+  },
+  {
+    "name": "Same request and store returned",
+    "pass": true
+  },
+  {
+    "name": "Cleanup confirmed with no automatic resume",
+    "pass": true
+  },
+  {
+    "name": "Native view recognizes verified saved draft",
+    "pass": true
+  },
+  {
+    "name": "Exactly the validated nineteen actions",
+    "pass": true
+  },
+  {
+    "name": "Native evidence preview loads retained phone frame",
+    "pass": true
+  },
+  {
+    "name": "Repeated result retrieval never starts another workflow",
+    "pass": true
+  },
+  {
+    "name": "No desktop window handle created",
+    "pass": true
+  }
+]

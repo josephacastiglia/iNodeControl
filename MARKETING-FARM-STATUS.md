@@ -1,6 +1,30 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest: native draft workflow integration prepared offline
+## Latest: integrated draft save/reopen and prompt recovery passed on C24C
+
+The native marketing interface completed the full 19-action test-draft workflow
+on @xs.halle.xo: all three slides and the complete caption matched after saving
+and reopening, and the final profile matched. A deliberate local delay expired
+the first Save decision before transport. Automatic recovery used a new fresh
+frame and sent the pending Save once. No manual intervention was needed after
+initial phone preparation. One lost admission reply recovered the same request
+without resubmission.
+
+All 18 native-driver assertions and 14 acceptance checks passed; all 35 retained
+phone images match their hashes. The source is the `4c9f5d6` Python candidate,
+with the unchanged `6dae91a` native assembly. Seven preparation checks passed;
+the product files match the preceding 106-test offline validation. C24C was
+released, private test processes stopped gracefully, and all 25 protected files
+matched. No PC control, publishing, messaging, C241 input or installed-release
+change occurred. The initially stopped rack state is restored.
+
+This accepts one existing test draft on one phone/account through the headless
+native interface. Physical Windows hit testing, app-restart persistence, broader
+repeatability, other dialogs/accounts/formats and recurring phone execution remain
+open. The candidate is disabled by default and unpromoted. See [the fresh live
+record](analysis/farm-prompt-recovery-live-20261018/README.md).
+
+## Previous: native draft workflow integration prepared offline
 
 The carousel editor now exposes **Check phone draft…**, backed by a durable
 save/reopen job, retained evidence, cancellation and restart recovery without

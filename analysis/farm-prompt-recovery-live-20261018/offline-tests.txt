@@ -1,0 +1,12 @@
+test_already_used_fault_record_cannot_be_reinstalled (test_preparation.PreparationTests.test_already_used_fault_record_cannot_be_reinstalled) ... ok
+test_controlled_delay_exercises_real_recovery_and_complete_sequence_once (test_preparation.PreparationTests.test_controlled_delay_exercises_real_recovery_and_complete_sequence_once) ... ok
+test_delay_refuses_other_account_endpoint_or_content (test_preparation.PreparationTests.test_delay_refuses_other_account_endpoint_or_content) ... ok
+test_nonfresh_or_uncertain_post_dispatch_record_is_never_delayed (test_preparation.PreparationTests.test_nonfresh_or_uncertain_post_dispatch_record_is_never_delayed) ... ok
+test_server_bootstrap_forwards_only_explicit_arguments (test_preparation.PreparationTests.test_server_bootstrap_forwards_only_explicit_arguments) ... ok
+test_server_bootstrap_rejects_malformed_or_outside_record_path (test_preparation.PreparationTests.test_server_bootstrap_rejects_malformed_or_outside_record_path) ... ok
+test_stop_during_local_delay_never_sends_the_pending_save (test_preparation.PreparationTests.test_stop_during_local_delay_never_sends_the_pending_save) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 12.481s
+
+OK

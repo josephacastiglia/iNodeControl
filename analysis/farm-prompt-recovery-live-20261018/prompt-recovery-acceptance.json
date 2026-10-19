@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "checks": {
+    "verifiedSaveReopen": true,
+    "nativePassed": true,
+    "exactlyOneSubmission": true,
+    "noCancellationOrAutomaticResume": true,
+    "completeSemanticSequence": true,
+    "delayRanOnce": true,
+    "originalSaveDefinitelyUnsent": true,
+    "refreshedSaveAnswered": true,
+    "twoTransportSavesOnly": true,
+    "onePreparedPromptRefresh": true,
+    "independentFreshObservation": true,
+    "captionAndAccountHistory": true,
+    "cleanupConfirmed": true,
+    "evidenceExportVerified": true
+  },
+  "requestId": "51ab5a8c-c655-4358-b0e2-7b4038b6d86a",
+  "runId": "ee67af1a-17ee-4b15-be3b-e012fcd639d8",
+  "preparedSaveStates": [
+    "not_sent",
+    "answered"
+  ],
+  "reopenedSaveStates": [
+    "answered"
+  ],
+  "rejectedDecisionChecks": [
+    {
+      "stage": "before_dispatch_journal",
+      "observationId": "5f1057a7-e197-48ee-8e5f-1676e22e963b",
+      "evidenceRecordSha256": "6ec74573ad6b9c9adf276dcac0bc48df15e853ac7cd6bf84e697ac66db70c992",
+      "freshness": "recent",
+      "expired": false,
+      "frameAgeMs": 800.4329999990396
+    },
+    {
+      "stage": "before_transport",
+      "observationId": "5f1057a7-e197-48ee-8e5f-1676e22e963b",
+      "evidenceRecordSha256": "6ec74573ad6b9c9adf276dcac0bc48df15e853ac7cd6bf84e697ac66db70c992",
+      "freshness": "stale",
+      "expired": false,
+      "frameAgeMs": 2461.1739896850586
+    }
+  ],
+  "refreshedDecisionChecks": [
+    {
+      "stage": "before_dispatch_journal",
+      "observationId": "365d9086-2603-405c-b503-56e17eeaee21",
+      "evidenceRecordSha256": "8991c4b51378dfa1d3795d26f1d8042639571d3dc9b439854e22a56fab313366",
+      "freshness": "recent",
+      "expired": false,
+      "frameAgeMs": 847.9290000009604
+    },
+    {
+      "stage": "before_transport",
+      "observationId": "365d9086-2603-405c-b503-56e17eeaee21",
+      "evidenceRecordSha256": "8991c4b51378dfa1d3795d26f1d8042639571d3dc9b439854e22a56fab313366",
+      "freshness": "recent",
+      "expired": false,
+      "frameAgeMs": 862.9290000003783
+    }
+  ],
+  "promptRecoveries": [
+    {
+      "label": "prepared-save-once",
+      "kind": "save_prompt_fresh_decision",
+      "state": "fresh_decision",
+      "fromObservationId": "5f1057a7-e197-48ee-8e5f-1676e22e963b",
+      "rejectedCommandIndex": 37,
+      "priorActionState": "not_sent",
+      "maximumCaptures": 1,
+      "budgetSeconds": 4,
+      "phoneActionRetried": false,
+      "observationId": "365d9086-2603-405c-b503-56e17eeaee21",
+      "evidenceRecordSha256": "8991c4b51378dfa1d3795d26f1d8042639571d3dc9b439854e22a56fab313366"
+    }
+  ],
+  "fault": {
+    "kind": "local_pre_dispatch_age_delay",
+    "source": "test_only_backend_wrapper",
+    "state": "delay_completed",
+    "delaySeconds": 1.65,
+    "runId": "ee67af1a-17ee-4b15-be3b-e012fcd639d8",
+    "packageSha256": "6d71187d62c908bd7518f87afa21a12bd78f6a4309b4e9a5577d3e57329bf1b7",
+    "account": "xs.halle.xo",
+    "device": "C24C",
+    "commandIndex": 37,
+    "purpose": "prepared-save-once",
+    "evidenceRecordSha256": "6ec74573ad6b9c9adf276dcac0bc48df15e853ac7cd6bf84e697ac66db70c992",
+    "observationId": "5f1057a7-e197-48ee-8e5f-1676e22e963b",
+    "startedUtcEpoch": 1792379640.9845257,
+    "transportCalledByWrapper": false,
+    "publishing": false,
+    "messaging": false,
+    "desktopControl": false,
+    "elapsedSeconds": 1.6559999999990396,
+    "completedUtcEpoch": 1792379642.6369476
+  },
+  "phoneInputDevice": "C24C",
+  "desktopControl": false,
+  "publishing": false,
+  "messaging": false,
+  "appRestartPersistenceTested": false
+}

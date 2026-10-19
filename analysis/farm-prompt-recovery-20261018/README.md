@@ -3,7 +3,8 @@
 This candidate adds automatic handling for one measured interruption: an exact
 Instagram Save draft prompt whose decision expires locally **before** the tap is
 sent. It remains a C24C-only candidate. It does not resume old jobs or click
-arbitrary dialogs. Fresh phone validation of this change is still pending.
+arbitrary dialogs. A subsequent C24C run passed prompt recovery and the integrated
+save/reopen sequence; see [the fresh live record](../farm-prompt-recovery-live-20261018/README.md).
 
 ## Behavior
 
@@ -75,13 +76,15 @@ its sandbox temporary directory (WinError 5). The offline checks were rerun with
 normal Windows filesystem access and the network guard retained. This was not a
 phone run or a change to the product's file-error handling.
 
-## Remaining acceptance
+## Subsequent live acceptance
 
-Prepare a new source-pinned isolated candidate, then validate the complete
-marketing save/reopen operation on C24C. Confirm both saves, all slides/caption,
-the account boundary, cleanup and the native result. Exercise bounded recovery
-with a controlled local pre-dispatch delay if it does not occur naturally.
-Do not promote from fixture results alone.
+The source-pinned isolated candidate completed the full marketing save/reopen
+operation on C24C. Both saves, all slides/caption, the account boundary, cleanup
+and the native result passed. A controlled local pre-dispatch delay exercised
+one bounded prompt recovery: the stale original command was never sent, and a
+new verified observation authorized the one pending Save. The live record retains
+35 matched images, 18 native assertions and 14 acceptance checks. Broader repeated
+use and other interruptions remain outside that one-run result.
 
 Other recurring dialogs need their own recognized layout and intended action.
 Unknown dialogs, login/authentication, purchases, permissions, publishing and

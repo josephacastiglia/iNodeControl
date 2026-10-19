@@ -1,0 +1,25 @@
+{
+  "ready": true,
+  "capturedUtc": 1792379504.0098572,
+  "kernelPid": 18156,
+  "receiverPid": 16408,
+  "receiverName": "iMouse2-C24C",
+  "receiverRestarts": 0,
+  "live": false,
+  "backendPid": 43560,
+  "storeId": "45409bbb-0227-4538-98d5-dcefeab907af",
+  "backendSourceHash": "d85eb8b5624feb272bbedd18d13db9e7719d908af32c22c044edc4254a639fb3",
+  "input": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "",
+    "generation": 0,
+    "lease_remaining_ms": 0
+  },
+  "phoneInput": false,
+  "desktopControl": false
+}

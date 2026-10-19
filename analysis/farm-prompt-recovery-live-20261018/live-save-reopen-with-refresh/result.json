@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "phase": "live",
+  "scenario": "response-loss",
+  "candidateHash": "effa8083c8c71a7f1522cfaf9765de315e6bca9c18891c2a1bd42822bf49570a",
+  "requestId": "51ab5a8c-c655-4358-b0e2-7b4038b6d86a",
+  "storeId": "45409bbb-0227-4538-98d5-dcefeab907af",
+  "startRequests": 1,
+  "cancellationRequests": 0,
+  "desktopControl": false,
+  "windowHandles": 0,
+  "publishing": false,
+  "messaging": false,
+  "checks": 18,
+  "statusText": "PHONE DRAFT VERIFIED\n\nThe matching draft was saved, reopened and checked.\n\nLease cleanup: confirmed\n\nNothing was published or messaged. A saved draft check does not prove app-restart persistence.\n\nopen create: answered\n\nchoose post format: answered\n\nopen prepared library: answered\n\nopen prepared test draft: answered\n\nprepared slide 2: answered\n\nprepared slide 3: answered\n\nprepared details: answered\n\nprepared back: answered\n\nprepared exit sheet: answered\n\nprepared save once: answered\n\nopen saved library: answered\n\nreopen saved test draft: answered\n\nreopened slide 2: answered\n\nreopened slide 3: answered\n\nreopened details: answered\n\nreopened back: answered\n\nreopened exit sheet: answered\n\nreopened save once: answered\n\nreturn profile: answered"
+}

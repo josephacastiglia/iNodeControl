@@ -1,0 +1,536 @@
+{
+  "capturedUtc": 1792379579.4142945,
+  "health": {
+    "status": "ok",
+    "port": 9915,
+    "sourceHash": "d85eb8b5624feb272bbedd18d13db9e7719d908af32c22c044edc4254a639fb3",
+    "carouselDraftsVersion": 1,
+    "carouselTransfersVersion": 1,
+    "videoDraftsVersion": 1,
+    "observationsVersion": 2,
+    "draftVerificationVersion": 2,
+    "draftRehearsalVersion": 1,
+    "draftRehearsalLiveEnabled": false,
+    "draftWorkflow": {
+      "version": 1,
+      "storeId": "45409bbb-0227-4538-98d5-dcefeab907af",
+      "enabled": true,
+      "device": "C24C",
+      "account": "xs.halle.xo",
+      "candidateOnly": true,
+      "integratedLiveValidated": false,
+      "publishing": false,
+      "messaging": false,
+      "desktopControl": false,
+      "reason": "Prepared candidate only: the existing labelled three-slide test draft on @xs.halle.xo.",
+      "contentSha256": "fa226761c643c72800a2fada366652ae4baa49177cea3e76e5280b71f673a058"
+    },
+    "carouselInspectionVersion": 2,
+    "carouselInspectionLiveMovement": false,
+    "preparationScheduleVersion": 2,
+    "lanHostUrl": "http://192.168.4.26:9915",
+    "layersBuilt": 7,
+    "personasCount": 19,
+    "protocolVersion": 2,
+    "executionMode": "live",
+    "simulated": false
+  },
+  "capture": {
+    "observation": {
+      "id": "6b469fa9-135b-408e-9358-62d4fe3e1a39",
+      "expected": {
+        "device_id": "C24C",
+        "platform": "instagram",
+        "account": "xs.halle.xo",
+        "caption": ""
+      },
+      "requestedAt": 1792379578.7967584,
+      "observerSession": "a1f9f57227944f96bd7c2afc7f2c05eb",
+      "state": "observed",
+      "reason": "Expected account text is visible. This does not certify media, saved state or app authenticity.",
+      "source": "phone",
+      "automaticInputAllowed": false,
+      "result": {
+        "screen": "profile",
+        "layout": null,
+        "layoutEvidence": null,
+        "appPattern": "instagram",
+        "expectedAppMatches": true,
+        "accountStatus": "exact_text_match",
+        "observedHandles": [
+          "xs.halle.xo"
+        ],
+        "captionStatus": "not_requested",
+        "reason": "Expected account text is visible. This does not certify media, saved state or app authenticity.",
+        "automaticInputAllowed": false,
+        "savedDraftVerified": false,
+        "metrics": null,
+        "metricsReason": "A screen count has no verified post identity or observation interval."
+      },
+      "text": {
+        "imageSha256": "af9a15a4b736bfbaf8a627e440a82fd130dc814e747778e3e80cd1c3e9796592",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "11:12",
+            "words": [
+              {
+                "y": 23,
+                "height": 14,
+                "width": 43,
+                "text": "11:12",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Make this",
+            "words": [
+              {
+                "y": 128,
+                "height": 10,
+                "width": 32,
+                "text": "Make",
+                "x": 42
+              },
+              {
+                "y": 128,
+                "height": 10,
+                "width": 22,
+                "text": "this",
+                "x": 79
+              }
+            ]
+          },
+          {
+            "text": "space you...",
+            "words": [
+              {
+                "y": 146,
+                "height": 10,
+                "width": 37,
+                "text": "space",
+                "x": 34
+              },
+              {
+                "y": 146,
+                "height": 10,
+                "width": 32,
+                "text": "you...",
+                "x": 76
+              }
+            ]
+          },
+          {
+            "text": "xs.halle.xo",
+            "words": [
+              {
+                "y": 77,
+                "height": 22,
+                "width": 141,
+                "text": "xs.halle.xo",
+                "x": 162
+              }
+            ]
+          },
+          {
+            "text": "Halle",
+            "words": [
+              {
+                "y": 146,
+                "height": 14,
+                "width": 40,
+                "text": "Halle",
+                "x": 150
+              }
+            ]
+          },
+          {
+            "text": "5",
+            "words": [
+              {
+                "y": 179,
+                "height": 15,
+                "width": 10,
+                "text": "5",
+                "x": 151
+              }
+            ]
+          },
+          {
+            "text": "posts",
+            "words": [
+              {
+                "y": 203,
+                "height": 15,
+                "width": 42,
+                "text": "posts",
+                "x": 150
+              }
+            ]
+          },
+          {
+            "text": "follower",
+            "words": [
+              {
+                "y": 202,
+                "height": 13,
+                "width": 61,
+                "text": "follower",
+                "x": 249
+              }
+            ]
+          },
+          {
+            "text": "following",
+            "words": [
+              {
+                "y": 202,
+                "height": 16,
+                "width": 69,
+                "text": "following",
+                "x": 367
+              }
+            ]
+          },
+          {
+            "text": "-F Add banners",
+            "words": [
+              {
+                "y": 283,
+                "height": 13,
+                "width": 12,
+                "text": "-F",
+                "x": 31
+              },
+              {
+                "y": 284,
+                "height": 11,
+                "width": 26,
+                "text": "Add",
+                "x": 50
+              },
+              {
+                "y": 284,
+                "height": 11,
+                "width": 56,
+                "text": "banners",
+                "x": 82
+              }
+            ]
+          },
+          {
+            "text": "Your dashboard",
+            "words": [
+              {
+                "y": 337,
+                "height": 13,
+                "width": 36,
+                "text": "Your",
+                "x": 38
+              },
+              {
+                "y": 337,
+                "height": 13,
+                "width": 85,
+                "text": "dashboard",
+                "x": 79
+              }
+            ]
+          },
+          {
+            "text": "Audience insights, inspiration and tools.",
+            "words": [
+              {
+                "y": 357,
+                "height": 11,
+                "width": 61,
+                "text": "Audience",
+                "x": 38
+              },
+              {
+                "y": 357,
+                "height": 14,
+                "width": 55,
+                "text": "insights,",
+                "x": 105
+              },
+              {
+                "y": 357,
+                "height": 13,
+                "width": 70,
+                "text": "inspiration",
+                "x": 166
+              },
+              {
+                "y": 357,
+                "height": 11,
+                "width": 24,
+                "text": "and",
+                "x": 241
+              },
+              {
+                "y": 357,
+                "height": 11,
+                "width": 37,
+                "text": "tools.",
+                "x": 270
+              }
+            ]
+          },
+          {
+            "text": "Edit profile",
+            "words": [
+              {
+                "y": 409,
+                "height": 13,
+                "width": 30,
+                "text": "Edit",
+                "x": 80
+              },
+              {
+                "y": 409,
+                "height": 16,
+                "width": 52,
+                "text": "profile",
+                "x": 115
+              }
+            ]
+          },
+          {
+            "text": "Discover people",
+            "words": [
+              {
+                "y": 468,
+                "height": 14,
+                "width": 70,
+                "text": "Discover",
+                "x": 21
+              },
+              {
+                "y": 469,
+                "height": 16,
+                "width": 54,
+                "text": "people",
+                "x": 96
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 520,
+                "height": 10,
+                "width": 11,
+                "text": "x",
+                "x": 173
+              }
+            ]
+          },
+          {
+            "text": "Suggested for you",
+            "words": [
+              {
+                "y": 659,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 48
+              },
+              {
+                "y": 659,
+                "height": 11,
+                "width": 19,
+                "text": "for",
+                "x": 124
+              },
+              {
+                "y": 662,
+                "height": 11,
+                "width": 24,
+                "text": "you",
+                "x": 147
+              }
+            ]
+          },
+          {
+            "text": "Follow",
+            "words": [
+              {
+                "y": 698,
+                "height": 13,
+                "width": 51,
+                "text": "Follow",
+                "x": 84
+              }
+            ]
+          },
+          {
+            "text": "Share profile",
+            "words": [
+              {
+                "y": 409,
+                "height": 14,
+                "width": 46,
+                "text": "Share",
+                "x": 282
+              },
+              {
+                "y": 409,
+                "height": 16,
+                "width": 51,
+                "text": "profile",
+                "x": 334
+              }
+            ]
+          },
+          {
+            "text": "Wigger",
+            "words": [
+              {
+                "y": 636,
+                "height": 17,
+                "width": 58,
+                "text": "Wigger",
+                "x": 282
+              }
+            ]
+          },
+          {
+            "text": "Suggested for you",
+            "words": [
+              {
+                "y": 659,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 250
+              },
+              {
+                "y": 659,
+                "height": 11,
+                "width": 19,
+                "text": "for",
+                "x": 326
+              },
+              {
+                "y": 662,
+                "height": 11,
+                "width": 23,
+                "text": "you",
+                "x": 350
+              }
+            ]
+          },
+          {
+            "text": "Follow",
+            "words": [
+              {
+                "y": 698,
+                "height": 13,
+                "width": 50,
+                "text": "Follow",
+                "x": 287
+              }
+            ]
+          },
+          {
+            "text": "imda",
+            "words": [
+              {
+                "y": 636,
+                "height": 14,
+                "width": 38,
+                "text": "imda",
+                "x": 456
+              }
+            ]
+          },
+          {
+            "text": "Sugge",
+            "words": [
+              {
+                "y": 659,
+                "height": 14,
+                "width": 42,
+                "text": "Sugge",
+                "x": 452
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "00a0906f6e495d3453688154a65d51b8e6e2ad323eb6d7145d20a62db82d911c"
+      },
+      "frameSha256": "00a0906f6e495d3453688154a65d51b8e6e2ad323eb6d7145d20a62db82d911c",
+      "width": 500,
+      "height": 1080,
+      "freshness": "stale",
+      "frameEvidence": {
+        "freshness": "stale",
+        "pairedMetadata": true,
+        "ageUpperBoundMs": 4577.242999997701,
+        "deliveryAdvanced": false,
+        "phoneCaptureTimeKnown": false,
+        "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+        "session": "924e664ddb0044aba29347df571f7478",
+        "sequence": 684,
+        "reportedAgeMs": 3999.243,
+        "observationElapsedMs": 577.9999999977008,
+        "reason": "Saved frame aged beyond the receiver-delivery budget; capture again.",
+        "currentAgeUpperBoundMs": 4608.242999996741
+      },
+      "stable": true,
+      "inputIdle": true,
+      "receiverPid": 16408,
+      "inputGeneration": 0,
+      "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+      "reviewFrameSha256": "af9a15a4b736bfbaf8a627e440a82fd130dc814e747778e3e80cd1c3e9796592",
+      "completedAt": 1792379579.382834,
+      "ageSeconds": 0.6155328750610352,
+      "expired": false,
+      "freshnessAtCapture": "stale",
+      "workflowReview": {
+        "status": "blocked",
+        "blockers": [
+          "Recent paired frame evidence is missing."
+        ],
+        "automaticInputAllowed": false,
+        "savedDraftVerified": false,
+        "reason": "Review evidence only; media identity and persisted draft state still need verification."
+      }
+    },
+    "metadataUsableAtCheck": false,
+    "kernelProcess": [
+      18156,
+      "2026-10-19T03:11:43.0267886Z"
+    ],
+    "inputBefore": {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "",
+      "generation": 0,
+      "lease_remaining_ms": 0
+    },
+    "inputAfter": {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "",
+      "generation": 0,
+      "lease_remaining_ms": 0
+    },
+    "automaticInputAllowed": false,
+    "savedDraftVerified": false
+  }
+}

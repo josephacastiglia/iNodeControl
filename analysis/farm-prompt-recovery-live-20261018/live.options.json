@@ -1,0 +1,11 @@
+{
+  "phase": "live",
+  "scenario": "response-loss",
+  "output": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-prompt-recovery-live-20261018\\live-save-reopen-with-refresh",
+  "backend": "http://127.0.0.1:9915",
+  "backendSourceHash": "d85eb8b5624feb272bbedd18d13db9e7719d908af32c22c044edc4254a639fb3",
+  "assembly": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-interface-20261018\\iMouse2.dll",
+  "draftId": "eeb59816-5805-4169-aa1c-d91fe1e2c14f",
+  "revision": 5,
+  "storeId": "45409bbb-0227-4538-98d5-dcefeab907af"
+}

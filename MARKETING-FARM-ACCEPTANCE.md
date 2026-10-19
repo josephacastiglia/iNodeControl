@@ -2,7 +2,25 @@
 
 Updated 18 October 2026. **The full marketing product is not accepted for unattended use.** Local preparation and supervised draft saves have evidence on Instagram, TikTok, X and YouTube. Automatic publishing and messaging remain disabled.
 
-## Current candidate
+## Latest integrated candidate acceptance
+
+The isolated C24C candidate completed one full 19-action Instagram draft run on
+@xs.halle.xo through the headless native marketing interface. A controlled local
+delay expired an unsent Save decision; recovery obtained an independent fresh
+frame and sent Save once. Both saves, all three reopened slides, the full caption,
+sampled account continuity, final profile, cleanup and lost-admission-reply
+recovery passed without manual intervention after phone preparation. All 18
+native-driver assertions and 14 collected acceptance checks passed; 35 images
+match their recorded hashes.
+
+Source: `4c9f5d6` Python candidate with the unchanged `6dae91a` native assembly.
+Seven preparation checks passed against the product source already validated by
+106 offline checks. No publishing, messaging, PC control, C241 input or release
+change occurred. The original stopped rack state was restored. This is one
+existing draft/account/device result, not general unattended acceptance or an
+interactive Windows hit-test result. See [the scoped live evidence](analysis/farm-prompt-recovery-live-20261018/README.md).
+
+## Previous candidate checkpoints
 
 - Latest offline transition work: **370 Python tests pass, no skips**, and all five retained live holds pass replay using the shared bounded settling guard. The rehearsal now includes Create → Post picker → Drafts and requires new stable pairs before Create/picker/editor actions. The clock/context in fixture replay are simulated. Launcher ValidateOnly passes with backend hash `dd5c58b3…abd4ca3`; all 25 protected installed-file hashes match. Fresh C24C validation and a live automatic adapter remain unaccepted. [Current offline report](analysis/farm-transition-holds-20261018/README.md).
 - Native output: `output/codex-farm-preparation-20261018`, code commit `6b395eec620a`, DLL SHA-256 `49cab77c792b532b17b51283654ac9a2621ce1ae0d7058d8f45c8c05951ffd1b`.
@@ -23,11 +41,11 @@ Updated 18 October 2026. **The full marketing product is not accepted for unatte
 | Native media transfer | Start/status/stop, private-address selection, immutable revision, expiry, duplicate-request recovery, backend restart, port conflicts and competing backends tested | New controls tested headlessly and through real loopback HTTP; actual native-window-to-phone run remains open |
 | Video preparation | Saved H.264 720×1280 copies; full-frame fitting, source preservation, duration checks, audio decoding, immutable captions, lost-response recovery and saved-copy selection | Generated C24C videos only; 64 MiB and 45-second candidate limits. Source audio tested offline; silent MP4 used on the phone |
 | Instagram draft | **Supervised C24C tests passed:** earlier three-slide carousel with exact multiline caption; this pass a real MP4 Reel saved, reopened and played with the exact test label | Repeatable app-state recognition, correct account verification, interruptions and unattended recovery |
-| Jobs and Stop | Durable cancellation before admission, cooperative cancellation across processes, exclusive worker ownership, no replay after actual process crash, recovered completion and late-monitor race tested; uncertain server responses retain the native job bookmark | Marketing-specific live console/backend handover remains unverified. Cancellation cannot forcibly interrupt an in-progress codec |
+| Jobs and Stop | Durable cancellation, cooperative cleanup, exclusive worker ownership, actual process-crash/no-replay checks and retained native bookmarks. Live headless native checks recovered a lost admission reply without resubmission; an earlier C24C Stop check released acquired ownership before navigation | Hard backend/kernel interruptions at further phone stages and broader repeated execution remain open. Cancellation cannot forcibly interrupt an in-progress codec |
 | Screen/account review | Read-only C24C capture, local English OCR, caption-editor/carousel/photo/video patterns, exact text comparisons, saved frames and no replay. 39 saved-frame regression outcomes match, including one intentional unknown | Frames informed the rules; independent app-version/device validation remains open. Sparse libraries and ambiguous handles stay unresolved. No app/account authenticity or saved-draft proof |
 | Carousel evidence comparison | Unique library-cover matching, full-size slides and page-dot count/order, exact visible caption, immutable source/screens. Latest supervised C24C pass observed Save, a moved cover, all three reopened slides, caption and account-before/after with paired frame ages | Per-step leases, capture gaps and unknown OCR prevent a complete continuous-history/product verification pass. Wider layouts and the actual action adapter still need acceptance. No input enabled by review |
 | Carousel inspection run | Backend/API mock acceptance: one authenticated lease, fresh recognition before swipes, source-bound records, slide order/count, cancellation, no uncertain replay and scoped cleanup. Real C24C candidate frames now validated through separate supervised diagnostic steps | Product live movement remains disabled. The real phone run needed image review where OCR was unknown; it did not run the product adapter. No native start control or continuous observation claim |
-| Save/reopen recovery rehearsal | Synthetic model covers initial Create/picker navigation, bounded transition settling, save, library, every slide/caption and account boundaries; cancellation, lost replies, crash after Save and no replay tested. Five archived hold cases pass offline replay. Prior supervised C24C save/reopen verified all slides/caption and four fresh autoplay pairs | No accepted live action adapter. Five review holds remain in the historical live record; automatic handling has offline evidence only. Fresh C24C validation, continuous account verification, real interruption/recovery, repeatability and wider layouts remain open |
+| Save/reopen recovery | Synthetic interruption/crash coverage plus one integrated live C24C run: all 19 actions, both saves, three slides/caption, sampled account history, final profile and cleanup passed. A deliberately expired unsent Save used one independently fresh prompt and completed without manual intervention | Existing three-slide test draft on @xs.halle.xo only. Other dialogs, repeated execution, app-restart persistence, broader layouts/accounts and continuous verification remain open |
 | Frame freshness | Paired session/sequence/delivery/age checked on the real C24C candidate stream. Old quiet frames and a slow OCR capture refused; move-only challenges produced new frames; a retained frame expired after 1.7 seconds without recapture. Offline backend-restart/native expiry checks remain | Receiver-delivery time is not iOS capture time. Static pages can be quiet without being frozen. Installed kernel still lacks paired metadata. No installed release change or automatic input enablement |
 | Recurring local preparation | Each run retains its generation/manifest and editable carousel; native history opens that carousel or its original video/caption. Two actual background runs, batch preservation, failure holds, pause and restart tests pass | Latest 30 runs in the schedule window; older data retained. No days-long soak or unattended phone execution. Requires explicit configuration and a running backend; never transfers, publishes or messages |
 | Schedule | Preview, phase-one warmup planning, cooldown boundary, UTC daily budget and paused-account hold tested | No recurring live execution service is accepted; needs a verified live review queue, actual timing and restart acceptance |
@@ -36,7 +54,7 @@ Updated 18 October 2026. **The full marketing product is not accepted for unatte
 | Keyword replies / DMs | Missing observations refuse; no invented keyword matches or messages | Observations, recipient verification, approved messaging scope and live acceptance |
 | Pins and cross-account actions | Simulation only | Separate authorization and observed outcomes; no acceptance claim |
 | Automatic creation + deployment | Combined path runs in simulation | Every live stage must pass before this can be enabled |
-| Instagram Reel/Post/Story | Reel and carousel draft saves observed; automated flows remain simulation only | Other post/story modes and unattended state validation |
+| Instagram Reel/Post/Story | Earlier supervised Reel/carousel draft saves; the bounded native carousel save/reopen candidate also passed one integrated C24C run with prompt recovery | Other post/story modes, media-import integration, additional accounts and broader unattended acceptance remain open |
 | TikTok video/photo/story/text | Three-photo draft and transferred MP4 draft saved and reopened with exact test labels; MP4 playback verified and suggested sound removed | Text/story modes, repeated recovery checks and unattended state validation |
 | X post/video/thread | Image and transferred MP4 drafts saved and reopened with exact labels; video played after tapping its initially blank preview | Threads, repeated recovery checks and unattended state validation |
 | YouTube Short/video/community | Photo-derived Short and transferred MP4 Short saved and reopened with exact titles; MP4 playback and 3.0-second trim view verified | Long video/community modes, unattended permission handling and state validation |

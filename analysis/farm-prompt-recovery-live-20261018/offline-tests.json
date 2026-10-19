@@ -1,0 +1,10 @@
+{
+  "tests": 7,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": true,
+  "phoneInput": false,
+  "desktopControl": false,
+  "network": "all sockets denied"
+}

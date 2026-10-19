@@ -1,0 +1,111 @@
+{
+  "capturedUtc": 1792379755.9250596,
+  "input": {
+    "86:1D:4A:04:2F:F6": {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 1,
+      "lease_remaining_ms": 0
+    }
+  },
+  "kernel": {
+    "code": 0,
+    "input": "direct-hid",
+    "input_protocol": 1,
+    "input_leases_required": true,
+    "build_identity": {
+      "version": "1.0.0.0",
+      "informational_version": "1.0.0+9fa7a859bbeb60495cdbbda326d25010c3ba7961",
+      "module_id": "fd5a0c81-d709-42a3-8f5e-d1546294f928",
+      "sha256": "c72fa4e0b02b82ec4f7a949c9a80375c69da68d7357084401c7bb422c194a873"
+    },
+    "process": {
+      "pid": 18156,
+      "started_utc": "2026-10-19T03:11:43.0267886Z",
+      "uptime_seconds": 252.8511521,
+      "working_set_bytes": 89399296,
+      "private_bytes": 49061888,
+      "cpu_seconds": 8.046875
+    },
+    "input_configuration": {
+      "precise_movement_delay_ms": 7,
+      "hid_reply_boards": [],
+      "absolute_probe_board": null,
+      "navigation_sequence": "vendor",
+      "calibrations": [
+        {
+          "pid": "C24C",
+          "enabled": true,
+          "width": 500,
+          "height": 1080,
+          "origin_x": 14,
+          "origin_y": 14,
+          "pixels_per_unit_x": 5.12,
+          "pixels_per_unit_y": 5.09
+        }
+      ]
+    },
+    "hid_replies": {
+      "mode": "observation only; no write waits or action acknowledgement",
+      "boards": []
+    },
+    "control_compatibility": {
+      "home_sequence": "vendor",
+      "home_sends_tab": true,
+      "navigation_sequence": "vendor",
+      "navigation_sends_tab": true,
+      "app_switcher": "Fn+Up; uses the phone's Full Keyboard Access assignment. FKA-Off support is not established.",
+      "absolute_probe_board": null,
+      "absolute_probe": "off",
+      "phone_setting_detection": false
+    },
+    "allowed": [
+      "C24C"
+    ],
+    "home_sequence": "vendor",
+    "receiver": "iMouse2-C24C",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 16408,
+    "receiver_restarts": 0,
+    "frames": 3651,
+    "live": true,
+    "frame_delivery": "quiet",
+    "frame_age_ms": 49607.174,
+    "frame_session": "924e664ddb0044aba29347df571f7478",
+    "frame_message": "No new receiver frame for at least two seconds; a still screen or stalled delivery is possible.",
+    "frame_pipe_connected": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 16408,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "receiver_message": "",
+        "live": true,
+        "frames": 3651,
+        "frame_delivery": "quiet",
+        "frame_age_ms": 49613.4515,
+        "frame_session": "924e664ddb0044aba29347df571f7478",
+        "frame_message": "No new receiver frame for at least two seconds; a still screen or stalled delivery is possible.",
+        "frame_pipe_connected": true
+      }
+    ]
+  },
+  "protectedFilesUnchanged": 25,
+  "lastWorkflowProfile": {
+    "observationId": "3a5ac5e9-091c-40e6-bc8e-7a1d5a461d0f",
+    "accountStatus": "exact_text_match",
+    "screen": "profile"
+  },
+  "sourceFilesUnchanged": true,
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false
+}
