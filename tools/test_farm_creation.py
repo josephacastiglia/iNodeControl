@@ -18,7 +18,7 @@ from farm_carousel_inspection import InspectionStopped
 from farm_creation_runs import CreationRuns, creation_config
 from farm_draft_creation import CreationOwnership, CreationWorkflow
 from farm_draft_transport import CreationKernel, StepKernel
-from farm_draft_runs import API,source_content
+from farm_draft_runs import API,source_content,DraftRuns
 from farm_drafts import CarouselDrafts,DraftConflict
 from farm_draft_workflow import atomic_json
 from farm_jobs import FarmJobs
@@ -430,6 +430,15 @@ class CreationTests(unittest.TestCase):
             result=CreationRuns.execute(self.service,*args)
         self.assertFalse(result['createdDraftVerified']);self.assertFalse(result['savedDraftVerified'])
         self.assertEqual('Wrong reopened caption.',result['error'])
+
+    def test_completed_result_exposes_verifier_release_without_rewriting_creation_evidence(self):
+        creation=dict(generation=1,owned=False);final=dict(generation=2,owned=False)
+        original=dict(finalInput=creation,verification=dict(finalInput=final))
+        value=dict(terminal=True,state='verified',workflow=original)
+        with patch.object(DraftRuns,'get',return_value=value):current=self.service.get(self.spec['id'])
+        self.assertEqual(final,current['workflow']['finalInput'])
+        self.assertEqual(creation,current['workflow']['creationFinalInput'])
+        self.assertEqual(creation,original['finalInput'])
 
 
 if __name__=='__main__':unittest.main()

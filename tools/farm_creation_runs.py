@@ -158,6 +158,14 @@ class CreationRuns(DraftRuns):
         result=super().get(run_id)
         result['retryBeforeImportAllowed']=self.before_import_retry(result)
         result['continueImportedAllowed']=self.imported_checkpoint(result)
+        verified=(result.get('workflow') or {}).get('verification')
+        if result['terminal'] and isinstance(verified,dict) and 'finalInput' in verified:
+            # The outer journal retains the creation phase. Present the later
+            # verifier's release state as final, without rewriting that evidence.
+            workflow=dict(result['workflow'])
+            workflow['creationFinalInput']=workflow.get('finalInput')
+            workflow['finalInput']=verified['finalInput']
+            result['workflow']=workflow
         if not result['terminal']:
             result['reason']='Creating a new C24C draft from the saved slides and exact caption. No publishing or messaging.'
         child=self.folder/run_id/'verification/record.json'
