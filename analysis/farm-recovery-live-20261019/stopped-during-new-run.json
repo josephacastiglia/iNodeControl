@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "stoppedId": "e02fd614-2088-439d-8569-cab0b98beb93",
+  "currentId": "2bf81c5b-9248-4ca2-a896-2e5f57d3648a",
+  "currentWasRunning": true,
+  "reads": 3,
+  "stoppedRecordSha256": "eaa1c4dcb1814760f5ecaa7ca529cb4b1287ebb66018eee5ce8b92b6a71def18",
+  "stoppedRecordUnchanged": true,
+  "phoneInput": false,
+  "desktopControl": false
+}

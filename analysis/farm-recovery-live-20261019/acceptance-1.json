@@ -1,0 +1,227 @@
+{
+  "accepted": true,
+  "attempt": 1,
+  "id": "9fe0d489-34df-4dee-ab93-3b571fd08441",
+  "checks": [
+    {
+      "name": "Terminal live saved-draft observation",
+      "passed": true
+    },
+    {
+      "name": "Confirmed cleanup/evidence export",
+      "passed": true
+    },
+    {
+      "name": "Exactly seven answered inspection actions",
+      "passed": true
+    },
+    {
+      "name": "No Save/import/typing command",
+      "passed": true
+    },
+    {
+      "name": "Fixed source/revision/package binding",
+      "passed": true
+    },
+    {
+      "name": "Original creation bytes unchanged",
+      "passed": true
+    },
+    {
+      "name": "Retained frame 69f25666-2aaf-4b3e-9f3e-42953a6d6d8f",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame 69f25666-2aaf-4b3e-9f3e-42953a6d6d8f",
+      "passed": true
+    },
+    {
+      "name": "Retained frame b6ce2756-d6c3-4d61-9ab1-3b36eacc01be",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame b6ce2756-d6c3-4d61-9ab1-3b36eacc01be",
+      "passed": true
+    },
+    {
+      "name": "Retained frame e86c602f-caa9-421c-8d3c-84d8342585f8",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame e86c602f-caa9-421c-8d3c-84d8342585f8",
+      "passed": true
+    },
+    {
+      "name": "Retained frame 5467ae64-6400-4ff7-afcc-7e5c862dd9dd",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame 5467ae64-6400-4ff7-afcc-7e5c862dd9dd",
+      "passed": true
+    },
+    {
+      "name": "Retained frame 687a5bac-9e39-4dd4-b5ef-44402a9bdc03",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame 687a5bac-9e39-4dd4-b5ef-44402a9bdc03",
+      "passed": true
+    },
+    {
+      "name": "Retained frame 2d8e8d55-079c-4f46-9346-3ba0dae982e3",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame 2d8e8d55-079c-4f46-9346-3ba0dae982e3",
+      "passed": true
+    },
+    {
+      "name": "Retained frame 59aee49c-0030-4acd-9aa8-4bc5aed1efee",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame 59aee49c-0030-4acd-9aa8-4bc5aed1efee",
+      "passed": true
+    },
+    {
+      "name": "Retained frame d9df9253-0694-4be9-a8b7-5fbef4f8b264",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame d9df9253-0694-4be9-a8b7-5fbef4f8b264",
+      "passed": true
+    },
+    {
+      "name": "Retained frame 34011839-c03b-4e96-b073-c33e631b621c",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame 34011839-c03b-4e96-b073-c33e631b621c",
+      "passed": true
+    },
+    {
+      "name": "Retained frame 3962e971-29d6-4931-81f5-c1371c50cacd",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame 3962e971-29d6-4931-81f5-c1371c50cacd",
+      "passed": true
+    },
+    {
+      "name": "Retained frame bfae5f96-e5a3-40f4-8d57-886a46f283d5",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame bfae5f96-e5a3-40f4-8d57-886a46f283d5",
+      "passed": true
+    },
+    {
+      "name": "Retained frame 7db0c380-b090-4768-8e89-e938a5285641",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame 7db0c380-b090-4768-8e89-e938a5285641",
+      "passed": true
+    },
+    {
+      "name": "Retained frame 60568717-b63f-4ae9-942e-0b3469f2daac",
+      "passed": true
+    },
+    {
+      "name": "C24C-only frame 60568717-b63f-4ae9-942e-0b3469f2daac",
+      "passed": true
+    },
+    {
+      "name": "All three full-size slides checked",
+      "passed": true
+    },
+    {
+      "name": "Exact visible full caption",
+      "passed": true
+    },
+    {
+      "name": "No changed scope or restart claim",
+      "passed": true
+    },
+    {
+      "name": "Every native driver assertion passed",
+      "passed": true
+    }
+  ],
+  "retainedFrames": [
+    {
+      "id": "69f25666-2aaf-4b3e-9f3e-42953a6d6d8f",
+      "role": "profile",
+      "sha256": "511c8c94155dc4e610b82e79a6e7e6f6df51d8a8ce9450e94f68931aa3bfe4b6"
+    },
+    {
+      "id": "b6ce2756-d6c3-4d61-9ab1-3b36eacc01be",
+      "role": "create",
+      "sha256": "710522ba4c5899ab330b34befa3db1d3aef52fc618d04d2b5be80438d0b28ea5"
+    },
+    {
+      "id": "e86c602f-caa9-421c-8d3c-84d8342585f8",
+      "role": "create",
+      "sha256": "553bd9871c975a92aae14a99c81204eaf419d439ba22b11e501595e77dc83513"
+    },
+    {
+      "id": "5467ae64-6400-4ff7-afcc-7e5c862dd9dd",
+      "role": "picker",
+      "sha256": "9405da2e18c0fe97d6d6bf3c5b2daa823f7b2890a4e1b158bc8c190bd0662db9"
+    },
+    {
+      "id": "687a5bac-9e39-4dd4-b5ef-44402a9bdc03",
+      "role": "picker",
+      "sha256": "7eb7c4e63eae0d14ec87dea75f463389db2614e87ef31e0de4580f7053cc973d"
+    },
+    {
+      "id": "2d8e8d55-079c-4f46-9346-3ba0dae982e3",
+      "role": "library",
+      "sha256": "06515681f7dd0076424f16a5dcd73a6ff357df389948c35fc9e722a8ff40b82e"
+    },
+    {
+      "id": "59aee49c-0030-4acd-9aa8-4bc5aed1efee",
+      "role": "editor",
+      "sha256": "ff61bf640689eb715c6d6d7c799f61ec652ebd7eb4a583c2b0fa8661acba7275"
+    },
+    {
+      "id": "d9df9253-0694-4be9-a8b7-5fbef4f8b264",
+      "role": "editor",
+      "sha256": "fe08b054a7d9462b5540f0d095a00f89912cc08566bc2c898ada2743f41eaf90"
+    },
+    {
+      "id": "34011839-c03b-4e96-b073-c33e631b621c",
+      "role": "editor",
+      "sha256": "6ba7f96bd6200eaaae2dd2b155b08276379c20adc658b36993091f6bbc80382d"
+    },
+    {
+      "id": "3962e971-29d6-4931-81f5-c1371c50cacd",
+      "role": "editor",
+      "sha256": "2d1e59e87024dec91cea850d4b345c8a3b887411b86aa78382df64af1b2aa197"
+    },
+    {
+      "id": "bfae5f96-e5a3-40f4-8d57-886a46f283d5",
+      "role": "editor",
+      "sha256": "f5fa1d14151318bf6ccec31111ec9655437aedb7a72f7d56dbbdb60f3f68e981"
+    },
+    {
+      "id": "7db0c380-b090-4768-8e89-e938a5285641",
+      "role": "editor",
+      "sha256": "a5346cf5e21a3cff47bde0b07e4382a75c8b073ea0dd39f5c0fd877da7499ffc"
+    },
+    {
+      "id": "60568717-b63f-4ae9-942e-0b3469f2daac",
+      "role": "details",
+      "sha256": "ee0fc78eaffbaecd90d9e8a2cc9fb21814577e999d5f1c88156eaa343e1552f7"
+    }
+  ],
+  "semanticActions": 7,
+  "nativeAssertions": 10,
+  "finalScreen": "carousel_details",
+  "appRestartVerified": false,
+  "sourceCreationUnchanged": true,
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false,
+  "meaning": "A unique matching saved carousel was inspected with no Save/import/typing; original outcome unchanged. No app-restart claim."
+}

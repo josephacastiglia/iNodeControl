@@ -1,0 +1,9 @@
+{
+  "FkaChangeRequested": false,
+  "phoneInputByAgentDuringRestart": false,
+  "utc": "2026-10-19T06:11:31.4836031Z",
+  "operatorReply": "ready",
+  "operatorReportedProcedure": "Physically open app switcher, swipe Instagram away, relaunch exact authorized profile",
+  "independentOSProcessProof": false,
+  "postRestartProfileRecognized": true
+}

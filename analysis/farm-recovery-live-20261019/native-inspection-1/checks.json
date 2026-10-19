@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Exact prepared candidate assembly",
+    "pass": true
+  },
+  {
+    "name": "No desktop window handle",
+    "pass": true
+  },
+  {
+    "name": "Inspection route only",
+    "pass": true
+  },
+  {
+    "name": "Exact isolated source and C24C inspection scope",
+    "pass": true
+  },
+  {
+    "name": "Native inspection Start is eligible",
+    "pass": true
+  },
+  {
+    "name": "Separate durable pending inspection",
+    "pass": true
+  },
+  {
+    "name": "Bounded terminal inspection",
+    "pass": true
+  },
+  {
+    "name": "Matching saved draft observed",
+    "pass": true
+  },
+  {
+    "name": "Native result agrees with retained bookmark",
+    "pass": true
+  },
+  {
+    "name": "No publishing messaging or desktop control",
+    "pass": true
+  }
+]

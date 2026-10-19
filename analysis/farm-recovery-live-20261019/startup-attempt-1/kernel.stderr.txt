@@ -1,0 +1,1 @@
+Startup refused: Enabled board C24C needs an explicit receiver binding and valid calibration.

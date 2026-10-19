@@ -1,6 +1,35 @@
 # Marketing Farm candidate — 19 October 2026
 
-## Latest: Priority 2 recovery candidate prepared offline
+## Latest: Priority 2 scoped recovery checks passed on C24C
+
+Three native-interface inspections reopened the saved three-slide creation on
+@xs.halle.xo, checked every slide and the exact caption, and released control.
+They sent no Save, import or typing. A deliberate Stop after the first answered
+navigation action also released C24C, retained review status and blocked automatic
+restart. A later explicit request completed; the stopped record stayed terminal
+while that other request ran.
+
+A suppressed admission reply and status reply recovered the same request with
+one submission. A graceful backend restart after terminal work preserved all
+evidence; a reopened native bookmark retrieved its result using GETs only. The
+operator reported readiness after the instructed Instagram force-close/relaunch,
+and the profile and saved content matched afterward. There is no independent iOS
+termination telemetry; the product keeps `appRestartVerified: false`.
+
+**58 collected checks, 40 retained frames and 52 native-driver assertions passed.**
+The 452 Python tests, 564 native headless checks and eight retained-layout tests
+remain the unchanged product's offline validation. Active process death and
+per-command disconnect faults were tested offline, not destructively on the phone.
+All 441 original source-data files and 25 protected installed files match.
+The private services are stopped, restoring the initially stopped rack.
+
+No PC control, publishing, messaging, C241 input, FKA change or installed-release
+change occurred. Nothing was promoted or pushed. This accepts repeated inspection
+and bounded recovery of one retained creation/account/layout; general unattended
+marketing and recurring phone execution remain open.
+[Live results, exact candidate and limits](analysis/farm-recovery-live-20261019/README.md).
+
+## Previous: Priority 2 recovery candidate prepared offline
 
 The creation window offers **Inspect saved draft · no Save** after a recorded
 Instagram Save has started. This separate request opens the unique matching saved

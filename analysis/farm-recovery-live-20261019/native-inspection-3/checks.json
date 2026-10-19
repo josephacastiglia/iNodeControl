@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Exact prepared candidate assembly",
+    "pass": true
+  },
+  {
+    "name": "No desktop window handle",
+    "pass": true
+  },
+  {
+    "name": "Inspection route only",
+    "pass": true
+  },
+  {
+    "name": "Exact isolated source and C24C inspection scope",
+    "pass": true
+  },
+  {
+    "name": "Native inspection Start is eligible",
+    "pass": true
+  },
+  {
+    "name": "Stop available after the first answered action",
+    "pass": true
+  },
+  {
+    "name": "One explicit native Stop and no new admission",
+    "pass": true
+  },
+  {
+    "name": "Bounded terminal inspection",
+    "pass": true
+  },
+  {
+    "name": "Cancelled inspection retains review with confirmed cleanup",
+    "pass": true
+  },
+  {
+    "name": "Stopped native result cannot automatically start or resume",
+    "pass": true
+  },
+  {
+    "name": "No publishing messaging or desktop control",
+    "pass": true
+  }
+]

@@ -4,6 +4,30 @@ Updated 19 October 2026. **The full marketing product is not accepted for unatte
 
 ## Latest integrated candidate acceptance
 
+**Priority 2 scoped recovery passed** on C24C / @xs.halle.xo: three seven-action
+saved-draft inspections checked all slides and the complete caption without
+Save/import/typing. A fourth request was stopped after one answered action and
+retained review status with confirmed release. A new explicit request then
+completed while the stopped request stayed terminal.
+
+The real native handlers recovered one suppressed admission reply and one status
+reply with a single admission. A graceful backend restart after terminal work
+preserved the journals and frames; a newly constructed native window retrieved
+its retained result using GETs only. **58 collected checks, 40 retained frames
+and 52 native assertions passed.** All 441 original source-data files and 25
+protected installed files match. The initially stopped rack state is restored.
+No PC control, publishing, messaging, C241 input, FKA change or release change.
+
+The operator replied ready after instructions to force-close/relaunch Instagram;
+the exact profile and saved content matched afterward. No independent iOS
+termination telemetry exists, so `appRestartVerified` remains false. Live backend
+restart was between completed requests; active process-death and per-command
+fault coverage is offline. This accepts one retained creation/account/layout,
+not general unattended recovery or recurring execution. The candidate remains
+unpromoted. [Live evidence and limits](analysis/farm-recovery-live-20261019/README.md).
+
+## Previous new-content acceptance
+
 **New content → verified draft passed** on C24C / @xs.halle.xo. One fresh native
 request completed all 60 actions: transfer three new images, verify thumbnail
 identity and numbered order, inspect every full-size slide, paste the complete
@@ -72,7 +96,7 @@ interactive Windows hit-test result. See [the scoped live evidence](analysis/far
 | Carousel inspection run | Backend/API mock acceptance: one authenticated lease, fresh recognition before swipes, source-bound records, slide order/count, cancellation, no uncertain replay and scoped cleanup. Real C24C candidate frames now validated through separate supervised diagnostic steps | Product live movement remains disabled. The real phone run needed image review where OCR was unknown; it did not run the product adapter. No native start control or continuous observation claim |
 | Save/reopen recovery | Synthetic interruption/crash coverage plus one integrated live C24C run: all 19 actions, both saves, three slides/caption, sampled account history, final profile and cleanup passed. A deliberately expired unsent Save used one independently fresh prompt and completed without manual intervention | Existing three-slide test draft on @xs.halle.xo only. Other dialogs, repeated execution, app-restart persistence, broader layouts/accounts and continuous verification remain open |
 | New-content draft creation | Fresh 60-action C24C run: three new images imported/ordered, exact caption pasted/checked, saved draft independently reopened twice. No review holds after initial phone preparation | One account/layout, three distinct slides and short visible ASCII captions. Other formats/accounts and broader unattended acceptance remain open |
-| Interrupted-draft inspection | Offline candidate: immutable creation/revision binding, seven inspection actions, no Save/import/typing, separate durable bookmark and retained evidence. Lost replies, Stop, disconnects and stream changes tested at every action boundary; actual child-process death and no-replay status tests pass | Fresh C24C validation pending. Leaves draft details open; does not resolve the original unknown Save or prove app-restart persistence. No generic dialog dismissal or automatic resume |
+| Interrupted-draft inspection | Three live native C24C inspections passed: all slides/caption, no Save/import/typing. Live Stop after one action released control; native reply-loss/bookmark recovery and terminal backend restart preserved request/evidence. Offline faults cover every action boundary and child-process death | One retained three-slide creation/account/layout; ends on details. Operator-reported Instagram force-close/relaunch has no independent termination telemetry. Active backend/kernel death remains offline. No original-outcome repair, generic dialog dismissal or automatic resume |
 | Frame freshness | Paired session/sequence/delivery/age checked on the real C24C candidate stream. Old quiet frames and a slow OCR capture refused; move-only challenges produced new frames; a retained frame expired after 1.7 seconds without recapture. Offline backend-restart/native expiry checks remain | Receiver-delivery time is not iOS capture time. Static pages can be quiet without being frozen. Installed kernel still lacks paired metadata. No installed release change or automatic input enablement |
 | Recurring local preparation | Each run retains its generation/manifest and editable carousel; native history opens that carousel or its original video/caption. Two actual background runs, batch preservation, failure holds, pause and restart tests pass | Latest 30 runs in the schedule window; older data retained. No days-long soak or unattended phone execution. Requires explicit configuration and a running backend; never transfers, publishes or messages |
 | Schedule | Preview, phase-one warmup planning, cooldown boundary, UTC daily budget and paused-account hold tested | No recurring live execution service is accepted; needs a verified live review queue, actual timing and restart acceptance |
@@ -118,6 +142,6 @@ Three new analytics/scheduler cases fail against the preserved `f770b34` engine 
 
 ## Remaining work
 
-The operator authorized any already signed-in C24C accounts for **draft-only** checks; those supervised saves are complete for the tested formats above. Publishing and messaging remain outside scope. Full marketing acceptance still requires observed app/account recognition, safe handling of changed screens, media selection and caption verification, repeated interruption/recovery cases, recurring execution and real observations. The remaining format paths are not accepted merely because similar drafts worked. No live automatic route was enabled.
+The operator authorized any already signed-in C24C accounts for **draft-only** checks; those supervised saves are complete for the tested formats above. Publishing and messaging remain outside scope. The explicitly configured C24C Instagram candidate now has bounded native creation and repeated saved-draft inspection/recovery evidence. Broader layouts/accounts, active process faults on the phone, recurring execution and real analytics remain unaccepted. The remaining format paths are not accepted merely because similar drafts worked. General unattended live routes remain disabled.
 
 Latest live report: `analysis/farm-live-verification-20261018/README.md`. Local preparation checks: `analysis/farm-preparation-continuity-20261018/README.md`. Earlier frame work is in `analysis/farm-recognition-20261017/README.md`; scheduling in `analysis/farm-observations-20261017/README.md`; earlier supervised draft steps in `analysis/farm-platform-drafts-20261017/README.md`. Private frames, OCR, records and exact candidates are archived outside Git with checksums. A supervised save, a native headless check, a read-only observation and an unattended workflow are separate acceptance claims.

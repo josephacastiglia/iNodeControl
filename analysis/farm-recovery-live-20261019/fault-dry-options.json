@@ -1,0 +1,12 @@
+{
+  "assembly": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-recovery-20261019\\iMouse2.dll",
+  "nativeSha256": "f2df511f1ad77269a724c016f9e95324718860c09efc0d7030f0a9f281f6f47c",
+  "backendSourceHash": "e3ab6368c348cd5091d6b7ca4db09a9342c9508999d4faa8de86d92a54d13bd0",
+  "recoveryStoreId": "a63f5644-abaa-4c45-81d8-09f804a2175a",
+  "creationId": "b8c155e2-1670-4f60-a090-aeff921e162e",
+  "draftId": "6e390142-4d00-473a-b2ee-83f65da53cc7",
+  "revision": 5,
+  "output": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-recovery-live-20261019\\native-fault-preparation",
+  "dataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-recovery-20261019\\native-live-1-data",
+  "faultMode": "lostAdmissionAndStatus"
+}

@@ -5,6 +5,12 @@ the Marketing Farm developer. Scope: **C24C, Instagram @xs.halle.xo, draft only*
 Offline preparation is complete. **Fresh-phone validation and app-restart
 persistence are pending.** No desktop or phone input occurred in this pass.
 
+This is the offline checkpoint. The subsequent
+[live inspection/recovery record](../farm-recovery-live-20261019/README.md)
+contains the three successful inspections, deliberate Stop and retained-result
+recovery. Its app-restart evidence is operator-reported, with no independent
+iOS process-termination telemetry.
+
 Product source: local commit `e066acc` on
 `local/combined-candidate-20261012`. The native assembly was built before that
 commit; its exact hash and source snapshot are recorded in `validation.json`.

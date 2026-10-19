@@ -1,0 +1,62 @@
+{
+  "accepted": true,
+  "expectedCancellation": true,
+  "id": "e02fd614-2088-439d-8569-cab0b98beb93",
+  "checks": [
+    {
+      "name": "Terminal cancellation is not verification",
+      "passed": true
+    },
+    {
+      "name": "Confirmed release and evidence export",
+      "passed": true
+    },
+    {
+      "name": "Stopped after first action instead of finishing",
+      "passed": true
+    },
+    {
+      "name": "One admission and one store-bound cancellation",
+      "passed": true
+    },
+    {
+      "name": "No Save import typing or unknown command",
+      "passed": true
+    },
+    {
+      "name": "No changed original outcome or automatic resume",
+      "passed": true
+    },
+    {
+      "name": "Original creation bytes unchanged",
+      "passed": true
+    },
+    {
+      "name": "All native Stop assertions pass",
+      "passed": true
+    }
+  ],
+  "actions": [
+    {
+      "label": "inspect-open-create",
+      "kind": "profile_create",
+      "observationId": "6a6f2873-4a01-4c9c-aef0-89f3c87c5edf",
+      "state": "answered",
+      "attempts": [
+        {
+          "observationId": "6a6f2873-4a01-4c9c-aef0-89f3c87c5edf",
+          "state": "answered"
+        }
+      ]
+    }
+  ],
+  "commands": 4,
+  "nativeAssertions": 11,
+  "finalScreen": "interrupted_create_flow",
+  "cleanup": "confirmed",
+  "automaticReplay": false,
+  "originalOutcomeChanged": false,
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false
+}

@@ -1,0 +1,39 @@
+{
+  "backend": {
+    "pid": 26976,
+    "path": "C:\\Users\\joey_\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "arguments": [
+      "-u",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\imouse_farm_server.py",
+      "--no-browser",
+      "--mode",
+      "live",
+      "--port",
+      "9915",
+      "--data-dir",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-recovery-20261019\\backend",
+      "--draft-creation-config",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-recovery-20261019\\creation-config.json"
+    ]
+  },
+  "desktopControl": false,
+  "utc": "2026-10-19T05:58:07.1837796Z",
+  "phoneInput": false,
+  "kernel": {
+    "pid": 57748,
+    "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-live-kernel-20261018\\iMouse2.Kernel.exe",
+    "arguments": [
+      "http://127.0.0.1:9916/api/",
+      "--data-dir",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-recovery-20261019\\data",
+      "--input-pid",
+      "C24C",
+      "--receivers",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-recovery-20261019\\data\\receivers.json",
+      "--receiver",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
+      "--receiver-runtime",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime"
+    ]
+  }
+}

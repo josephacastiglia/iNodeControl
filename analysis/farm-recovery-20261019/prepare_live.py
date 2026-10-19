@@ -36,7 +36,8 @@ if any(sha(backend/name) != digest for name, digest in manifest.items()):
 write('copied-data.json', dict(source=str(source), destination=str(backend), files=len(manifest),
     sha256=manifest, checkedBeforeOpeningCopy=True, serviceStarted=False))
 data = run/'data'; data.mkdir()
-for name in ('devices.json', 'receivers.json'): shutil.copy2(Path(old['runDirectory'])/'data'/name, data/name)
+for name in ('devices.json', 'receivers.json', 'pointer-calibration.json'):
+    shutil.copy2(Path(old['runDirectory'])/'data'/name, data/name)
 config = json.loads((ROOT/'analysis/farm-new-draft-20261019/creation-config.json').read_bytes())
 write('creation-config.json', config)
 with patch.object(engine.MediaPullOrchestrator, 'detect_host_lan_url', return_value='http://127.0.0.1:9915'):
