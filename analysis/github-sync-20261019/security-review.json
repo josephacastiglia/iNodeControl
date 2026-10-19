@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "objects": 4852,
+  "blobs": 3413,
+  "scanned": 6727,
+  "bytes": 101424202,
+  "knownWithheldIdentifiersChecked": 1,
+  "unredactedAncestorRefs": [],
+  "blockedFindings": [],
+  "oversizedBlobs": [],
+  "embeddedInstallerPayloads": 5,
+  "backupBranchExcluded": true,
+  "matchedValuesPrinted": false,
+  "genericReviewResolved": true,
+  "genericReviewDisposition": "Two repeated test placeholders already reviewed in the engine _self_check and diagnostic test setUp. No operational credential values.",
+  "genericReviewOccurrences": 39
+}

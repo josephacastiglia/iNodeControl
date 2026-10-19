@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "files": 3309,
+  "snapshots": [
+    {
+      "branch": "handoff/orca-working-tree-20261019",
+      "commit": "4eef760f66df53964252c4be9c0148ffcd2e1fdd",
+      "files": 458,
+      "allGitBlobsByteExact": true,
+      "originalFilesUnchanged": true
+    },
+    {
+      "branch": "handoff/gemini-and-local-records-20261019",
+      "commit": "3d95ec846a82b0ed05edcb36a0e2ceeae4847ef3",
+      "files": 2825,
+      "allGitBlobsByteExact": true,
+      "originalFilesUnchanged": true
+    },
+    {
+      "branch": "handoff/fka-probe-working-tree-20261019",
+      "commit": "ff5fde280634372979b163fffd93127de427ae48",
+      "files": 26,
+      "allGitBlobsByteExact": true,
+      "originalFilesUnchanged": true
+    }
+  ]
+}

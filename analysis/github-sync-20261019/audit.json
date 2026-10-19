@@ -1,0 +1,372 @@
+{
+  "date": "2026-10-19",
+  "since": "2026-09-28T00:00:00-04:00",
+  "repository": "https://github.com/josephacastiglia/iNodeControl",
+  "visibility": "private",
+  "auditedWorktrees": [
+    {
+      "path": "C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0",
+      "head": "01fb669a79e95700a086440b3e2905b0b511cdcb",
+      "branch": "refs/heads/local/coordinator-work",
+      "trackedChanges": 17,
+      "untrackedFiles": 727
+    },
+    {
+      "path": "C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0/.claude/worktrees/funny-margulis-86e51b",
+      "head": "43b43f7079424b84f8e5f433b0070c25ced48660",
+      "branch": null,
+      "trackedChanges": 0,
+      "untrackedFiles": 0
+    },
+    {
+      "path": "C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0/.claude/worktrees/gate4-harness-v2",
+      "head": "2c98f44823afa018b3d62897f438629e0755135d",
+      "branch": "refs/heads/claude/gate4-harness-v2",
+      "trackedChanges": 0,
+      "untrackedFiles": 0
+    },
+    {
+      "path": "C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0/.claude/worktrees/jovial-yonath-f044e9",
+      "head": "a6e4a9ba6bbe3e5c232af21f95c97c43caf150fe",
+      "branch": null,
+      "trackedChanges": 0,
+      "untrackedFiles": 0
+    },
+    {
+      "path": "C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0/.claude/worktrees/keyboard-spec-reconcile",
+      "head": "d0c4ccf2bf7bd7dcc1df99183d305700638e40c4",
+      "branch": "refs/heads/claude/input-timeout-integration",
+      "trackedChanges": 0,
+      "untrackedFiles": 0
+    },
+    {
+      "path": "C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0/.claude/worktrees/vigorous-nightingale-2cc961",
+      "head": "071c3eb1794b18a6fd193bef42411e946800129e",
+      "branch": null,
+      "trackedChanges": 0,
+      "untrackedFiles": 0
+    },
+    {
+      "path": "C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0-combined-candidate",
+      "head": "a8f726ff96cff791bfd57a50fd39d8294c1414f0",
+      "branch": "refs/heads/local/combined-candidate-20261012",
+      "trackedChanges": 0,
+      "untrackedFiles": 19301
+    },
+    {
+      "path": "C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0-fka-passthrough-probe",
+      "head": "d0c4ccf2bf7bd7dcc1df99183d305700638e40c4",
+      "branch": "refs/heads/local/fka-passthrough-probe",
+      "trackedChanges": 5,
+      "untrackedFiles": 21
+    }
+  ],
+  "localRefs": [
+    {
+      "name": "refs/heads/backup/input-timeout-integration-pre-redaction",
+      "oid": "544bda1bef8575be060fbd540e0e7751a047a010",
+      "upstream": "",
+      "date": "2026-09-27T22:22:14-04:00",
+      "subject": "FKA comparison on C24C: first space lost with FKA On, kept with FKA Off",
+      "withheld": true
+    },
+    {
+      "name": "refs/heads/claude/funny-margulis-86e51b",
+      "oid": "43b43f7079424b84f8e5f433b0070c25ced48660",
+      "upstream": "",
+      "date": "2026-09-26T02:42:04-04:00",
+      "subject": "Isolate console test modes from the operator's settings",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/claude/gate4-harness-v2",
+      "oid": "2c98f44823afa018b3d62897f438629e0755135d",
+      "upstream": "refs/remotes/origin/claude/gate4-harness-v2",
+      "date": "2026-10-01T18:21:54-04:00",
+      "subject": "Gate 4 v2 README: the v1 corner-reset path is inferred, not recorded",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/claude/input-timeout-integration",
+      "oid": "d0c4ccf2bf7bd7dcc1df99183d305700638e40c4",
+      "upstream": "",
+      "date": "2026-10-02T03:13:38-04:00",
+      "subject": "Add UIA candidate Send text runner and mock self-checks for FKA A/B",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/claude/jovial-yonath-f044e9",
+      "oid": "a6e4a9ba6bbe3e5c232af21f95c97c43caf150fe",
+      "upstream": "",
+      "date": "2026-09-26T02:42:26-04:00",
+      "subject": "Finish the missing-first-space report wording",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/claude/track-gate-evidence",
+      "oid": "900f5b409bbe47e519914a17c53a3d645fe4cee0",
+      "upstream": "refs/remotes/origin/claude/track-gate-evidence",
+      "date": "2026-10-01T18:21:42-04:00",
+      "subject": "Gate 4: mark the corner-reset path as inferred, separate from what was measured",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/claude/vigorous-nightingale-2cc961",
+      "oid": "ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a",
+      "upstream": "",
+      "date": "2026-09-24T22:27:21-04:00",
+      "subject": "Import iMouse 2.0 source and development records",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/handoff/main-uncommitted-20260925",
+      "oid": "ba733c2bc5bb0c1d9cb69c02fb44e3a450f3bd87",
+      "upstream": "",
+      "date": "2026-09-28T22:26:54-04:00",
+      "subject": "Preserve uncommitted main-checkout work (Gate 2 and Gate 4 runs, 24-25 Sep)",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/local/combined-candidate-20261012",
+      "oid": "a8f726ff96cff791bfd57a50fd39d8294c1414f0",
+      "upstream": "",
+      "date": "2026-10-19T02:26:18-04:00",
+      "subject": "Validate C24C saved-draft recovery through native handlers",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/local/coordinator-work",
+      "oid": "01fb669a79e95700a086440b3e2905b0b511cdcb",
+      "upstream": "",
+      "date": "2026-10-07T22:13:11-04:00",
+      "subject": "Downgrade Gates 11 and 12 in PROGRESS.md and record rack down status",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/local/fka-passthrough-probe",
+      "oid": "d0c4ccf2bf7bd7dcc1df99183d305700638e40c4",
+      "upstream": "",
+      "date": "2026-10-02T03:13:38-04:00",
+      "subject": "Add UIA candidate Send text runner and mock self-checks for FKA A/B",
+      "withheld": false
+    },
+    {
+      "name": "refs/heads/main",
+      "oid": "ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a",
+      "upstream": "refs/remotes/origin/main",
+      "date": "2026-09-24T22:27:21-04:00",
+      "subject": "Import iMouse 2.0 source and development records",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/HEAD",
+      "oid": "ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a",
+      "upstream": "",
+      "date": "2026-09-24T22:27:21-04:00",
+      "subject": "Import iMouse 2.0 source and development records",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/focused-noether-s600e0",
+      "oid": "6b24a961ef9eda626c5f72d08f4bb46bd5327453",
+      "upstream": "",
+      "date": "2026-09-25T05:08:30Z",
+      "subject": "Add Windows validation handoff for the portal and rack agent",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/funny-margulis-86e51b",
+      "oid": "43b43f7079424b84f8e5f433b0070c25ced48660",
+      "upstream": "",
+      "date": "2026-09-26T02:42:04-04:00",
+      "subject": "Isolate console test modes from the operator's settings",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/gate4-harness-v2",
+      "oid": "2c98f44823afa018b3d62897f438629e0755135d",
+      "upstream": "",
+      "date": "2026-10-01T18:21:54-04:00",
+      "subject": "Gate 4 v2 README: the v1 corner-reset path is inferred, not recorded",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/input-timeout-integration",
+      "oid": "472bb04c74160a9dfbe81728d2c41cee3b16e9dd",
+      "upstream": "",
+      "date": "2026-10-01T19:02:28-04:00",
+      "subject": "Add return handoff to the Omp/Orca session",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/jovial-yonath-f044e9",
+      "oid": "a6e4a9ba6bbe3e5c232af21f95c97c43caf150fe",
+      "upstream": "",
+      "date": "2026-09-26T02:42:26-04:00",
+      "subject": "Finish the missing-first-space report wording",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/track-gate-evidence",
+      "oid": "900f5b409bbe47e519914a17c53a3d645fe4cee0",
+      "upstream": "",
+      "date": "2026-10-01T18:21:42-04:00",
+      "subject": "Gate 4: mark the corner-reset path as inferred, separate from what was measured",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/handoff/main-uncommitted-20260925",
+      "oid": "ba733c2bc5bb0c1d9cb69c02fb44e3a450f3bd87",
+      "upstream": "",
+      "date": "2026-09-28T22:26:54-04:00",
+      "subject": "Preserve uncommitted main-checkout work (Gate 2 and Gate 4 runs, 24-25 Sep)",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/main",
+      "oid": "ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a",
+      "upstream": "",
+      "date": "2026-09-24T22:27:21-04:00",
+      "subject": "Import iMouse 2.0 source and development records",
+      "withheld": false
+    }
+  ],
+  "remoteBefore": [
+    {
+      "name": "refs/remotes/origin/HEAD",
+      "oid": "ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a",
+      "upstream": "",
+      "date": "2026-09-24T22:27:21-04:00",
+      "subject": "Import iMouse 2.0 source and development records",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/focused-noether-s600e0",
+      "oid": "6b24a961ef9eda626c5f72d08f4bb46bd5327453",
+      "upstream": "",
+      "date": "2026-09-25T05:08:30Z",
+      "subject": "Add Windows validation handoff for the portal and rack agent",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/funny-margulis-86e51b",
+      "oid": "43b43f7079424b84f8e5f433b0070c25ced48660",
+      "upstream": "",
+      "date": "2026-09-26T02:42:04-04:00",
+      "subject": "Isolate console test modes from the operator's settings",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/gate4-harness-v2",
+      "oid": "2c98f44823afa018b3d62897f438629e0755135d",
+      "upstream": "",
+      "date": "2026-10-01T18:21:54-04:00",
+      "subject": "Gate 4 v2 README: the v1 corner-reset path is inferred, not recorded",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/input-timeout-integration",
+      "oid": "472bb04c74160a9dfbe81728d2c41cee3b16e9dd",
+      "upstream": "",
+      "date": "2026-10-01T19:02:28-04:00",
+      "subject": "Add return handoff to the Omp/Orca session",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/jovial-yonath-f044e9",
+      "oid": "a6e4a9ba6bbe3e5c232af21f95c97c43caf150fe",
+      "upstream": "",
+      "date": "2026-09-26T02:42:26-04:00",
+      "subject": "Finish the missing-first-space report wording",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/claude/track-gate-evidence",
+      "oid": "900f5b409bbe47e519914a17c53a3d645fe4cee0",
+      "upstream": "",
+      "date": "2026-10-01T18:21:42-04:00",
+      "subject": "Gate 4: mark the corner-reset path as inferred, separate from what was measured",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/handoff/main-uncommitted-20260925",
+      "oid": "ba733c2bc5bb0c1d9cb69c02fb44e3a450f3bd87",
+      "upstream": "",
+      "date": "2026-09-28T22:26:54-04:00",
+      "subject": "Preserve uncommitted main-checkout work (Gate 2 and Gate 4 runs, 24-25 Sep)",
+      "withheld": false
+    },
+    {
+      "name": "refs/remotes/origin/main",
+      "oid": "ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a",
+      "upstream": "",
+      "date": "2026-09-24T22:27:21-04:00",
+      "subject": "Import iMouse 2.0 source and development records",
+      "withheld": false
+    }
+  ],
+  "snapshotResults": [
+    {
+      "branch": "handoff/orca-working-tree-20261019",
+      "commit": "4eef760f66df53964252c4be9c0148ffcd2e1fdd",
+      "base": "01fb669a79e95700a086440b3e2905b0b511cdcb",
+      "tree": "b867d88c87209b2fa54466a9ffd31c21507695da",
+      "selectedFiles": 458,
+      "bytes": 6569477,
+      "originalIndexUnchanged": true,
+      "originalHeadUnchanged": true,
+      "originalFilesUnchanged": true
+    },
+    {
+      "branch": "handoff/gemini-and-local-records-20261019",
+      "commit": "3d95ec846a82b0ed05edcb36a0e2ceeae4847ef3",
+      "base": "a8f726ff96cff791bfd57a50fd39d8294c1414f0",
+      "tree": "d68e63cd181237f7fda0812431d6c4cec0a7ab2c",
+      "selectedFiles": 2825,
+      "bytes": 45430815,
+      "originalIndexUnchanged": true,
+      "originalHeadUnchanged": true,
+      "originalFilesUnchanged": true
+    },
+    {
+      "branch": "handoff/fka-probe-working-tree-20261019",
+      "commit": "ff5fde280634372979b163fffd93127de427ae48",
+      "base": "d0c4ccf2bf7bd7dcc1df99183d305700638e40c4",
+      "tree": "2a0b16bcc567973507cf1830054ba889a26c8784",
+      "selectedFiles": 26,
+      "bytes": 172893,
+      "originalIndexUnchanged": true,
+      "originalHeadUnchanged": true,
+      "originalFilesUnchanged": true
+    }
+  ],
+  "selectedUncommittedFiles": 3309,
+  "preservedTrackedChanges": 22,
+  "reflogOnlyPreserved": {
+    "branch": "handoff/orca-coordinator-reflog-20261002",
+    "commit": "b946b942c82d909d0594ebdd22bb012d9b211753"
+  },
+  "cloudWorkAlreadyRemote": {
+    "branch": "claude/focused-noether-s600e0",
+    "commit": "6b24a961ef9eda626c5f72d08f4bb46bd5327453"
+  },
+  "originalOrcaProject": {
+    "path": "C:\\Users\\joey_\\orca\\projects\\iMouse2Automations",
+    "head": "e34251c21d7091c92cb354353b29188cdc06a31a",
+    "initialCommitHasNoImplementation": true,
+    "uncommittedFiles": 2
+  },
+  "accountHeaderRedactions": 1,
+  "excludedUnredactedBranch": "backup/input-timeout-integration-pre-redaction",
+  "limitations": [
+    "Orca runtime unavailable; saved worktrees, handoffs and session project locations were inspected.",
+    "Conversation/account memory is not source control; only the dedicated project handoff export is included.",
+    "Phone captures, live SQLite/session stores, compiled binaries and toolchain/download caches stay local."
+  ],
+  "noMerge": true,
+  "noPromotion": true,
+  "noForcePush": true,
+  "phoneInput": false,
+  "installedReleaseChanged": false,
+  "remotePushVerified": false
+}
