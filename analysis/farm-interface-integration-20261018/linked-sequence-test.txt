@@ -1,0 +1,6 @@
+test_complete_extracted_sequence_through_durable_service_retains_and_checks_every_frame (__main__.ExtractionTests.test_complete_extracted_sequence_through_durable_service_retains_and_checks_every_frame) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 8.719s
+
+OK

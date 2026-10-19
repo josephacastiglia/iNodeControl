@@ -1,0 +1,8 @@
+{
+  "tests": 21,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "success": true,
+  "network": "ephemeral loopback fixtures only"
+}

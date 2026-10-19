@@ -1,0 +1,15 @@
+{
+  "sourceDataUnchanged": true,
+  "source": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\farm-data\\v2\\simulate\\carousel-drafts.db",
+  "sourceSha256": "abe7cec30d41a1dfebf5098a3f1cb81c0ab64f2c7eb6a98d6ca6ee4e55f0bb50",
+  "candidateData": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-interface-20261018\\draft-workflow-data\\backend",
+  "draftId": "eeb59816-5805-4169-aa1c-d91fe1e2c14f",
+  "revision": 5,
+  "slideCount": 3,
+  "contentSha256": "fa226761c643c72800a2fada366652ae4baa49177cea3e76e5280b71f673a058",
+  "packageSha256": "6d71187d62c908bd7518f87afa21a12bd78f6a4309b4e9a5577d3e57329bf1b7",
+  "candidateConfiguration": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-interface-integration-20261018\\candidate-workflow-config.json",
+  "kernelBuildSha256": "c72fa4e0b02b82ec4f7a949c9a80375c69da68d7357084401c7bb422c194a873",
+  "phoneContacted": false,
+  "processStarted": false
+}
