@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "phase": "live",
+  "scenario": "cancel-on-admission",
+  "candidateHash": "effa8083c8c71a7f1522cfaf9765de315e6bca9c18891c2a1bd42822bf49570a",
+  "requestId": "fc609a26-8261-4dc9-bec3-81ca6636a3c4",
+  "storeId": "e135f1a8-cce6-4439-b4d1-2e04734752f9",
+  "startRequests": 1,
+  "cancellationRequests": 1,
+  "desktopControl": false,
+  "windowHandles": 0,
+  "publishing": false,
+  "messaging": false,
+  "checks": 18,
+  "statusText": "STOPPED \u00B7 REVIEW REQUIRED\n\nInspectionStopped: Inspection cancelled; no action will be replayed.\n\nLease cleanup: confirmed\n\nNothing was published or messaged. A saved draft check does not prove app-restart persistence.\n\nThe pending request stays saved for review. Checking status or reopening this window never repeats Save or resumes input."
+}

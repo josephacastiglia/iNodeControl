@@ -1,9 +1,10 @@
 # Integrated draft workflow — fresh C24C acceptance
 
-**First fresh attempt blocked before Save; acceptance remains open.** The operator
-connected C24C and the integrated workflow ran. The separate cooperative Stop
-check is pending a return to the authorized profile. No publishing, messaging,
-PC control, C241 input or installed-release changes occurred.
+**Save/reopen acceptance remains open; the live Stop/recovery check passed.**
+The first fresh attempt stopped before Save. The separate cooperative Stop check
+passed all 18 native-driver assertions. No publishing, messaging, PC control,
+C241 input or installed-release changes occurred. The private test processes are
+stopped; the rack is back to its initially stopped state.
 
 ## Fresh attempt 1 — 18 October, 22:26–22:27 local
 
@@ -26,10 +27,12 @@ driver consequently failed the expected successful-save assertion. `jobStatus`
 is `succeeded` because execution returned its recorded review result, **not**
 because the draft was verified. The explicit `savedDraftVerified` is false.
 
-The phone was left on the Save draft confirmation. The operator was asked to
-physically save this existing test draft and close the picker to the profile;
-that intervention is pending and must not be counted as automated acceptance.
-No new workflow has started. The initial read-only profile capture was stale
+The phone was left on the Save draft confirmation. The operator reported physically
+saving the existing test draft. The next read-only frame showed the Post picker,
+so `return_profile.py` used the unchanged product recognition and dispatch guards
+to close that known picker once, verify the exact authorized profile, and release
+C24C (generation 2). The operator Save is a manual intervention, not automated
+save/reopen acceptance. The initial read-only profile capture was stale
 on a quiet screen; the product's existing move-only challenge then obtained
 fresh observations before any tap, without changing the freshness policy.
 
@@ -37,6 +40,31 @@ fresh observations before any tap, without changing the freshness policy.
 preserves its journal, a read-only SQLite backup and verified frame copies.
 The short offline journal timing probe had a reader sharing error and does not
 establish the live timing cause. No optimization was applied on that basis.
+
+## Live Stop/recovery — 18 October, 22:37 local
+
+Request `fc609a26-8261-4dc9-bec3-81ca6636a3c4` was submitted once through the same
+preserved native assembly. After ownership and the initial pointer reset were
+confirmed, the native Stop method sent one scoped cancellation. The worker sent
+no semantic navigation or Save; it released C24C, ending free at generation 3.
+The recreated native view and repeated retrieval returned the same cancelled
+request and retained its review bookmark, without automatic replay or resume.
+
+All 18 native-driver checks passed. No desktop window handle was created. The
+driver completed in 2.46 seconds. This checks cooperative cancellation after
+ownership, not a forced crash or an uncertain Save response on the phone.
+
+Final hashes match all 25 protected release/settings files. The isolated backend
+45384 and kernel 47612 were stopped gracefully; receiver 10984 exited with the
+kernel. No rack/native-driver processes or test-port listeners remained. The
+installed release was not started. `restoration.json` records the final check.
+
+The user also requested fewer manual prompt interventions. Subsequent offline
+candidate development is recorded separately in
+`../farm-prompt-recovery-20261018/README.md`; those changes were not used in this
+live window. The exact first-attempt rejection age was not captured, so the new
+timing diagnostics and controlled-delay tests must not be called proof of its
+precise cause.
 
 ## Preparation findings
 
