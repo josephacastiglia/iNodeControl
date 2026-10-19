@@ -16,7 +16,9 @@ from farm_screen_layout import (create_menu_controls, editor_controls, next_labe
                                 picker_controls, picker_stability, pixels)
 
 MAX_CAPTURES = 4
-WAIT_SECONDS = 6
+# Four live OCR/capture passes plus integrity checks can exceed six seconds.
+# Only read-only settling gets this allowance; each frame must remain <1.5 s old.
+WAIT_SECONDS = 8
 POLL_SECONDS = .15
 HOME_INDICATOR = (155, 1060, 345, 1075)
 AUDIO_SUGGESTION = (123, 65, 377, 133)
@@ -129,7 +131,8 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
     matching frame cannot erase a dialog, wrong slide or ownership discontinuity.
     """
     if stage not in ('create', 'picker', 'editor'): raise ValueError('Unsupported transition stage.')
-    deadline = monotonic()+WAIT_SECONDS
+    started = monotonic()
+    deadline = started+WAIT_SECONDS
     previous = None
     try:
         for attempt in range(1, MAX_CAPTURES+1):
@@ -148,12 +151,15 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
                     raise InspectionStopped('Settling changed context or reused a frame; no action sent.')
                 decision = compare_frames(stage, old_frame, old['text'], frame, value['text'])
                 decision.update(beforeObservationId=old['id'], afterObservationId=value['id'])
-            journal(dict(stage=stage, attempt=attempt, observationId=value['id'], **decision))
+            journal(dict(stage=stage, attempt=attempt, observationId=value['id'],
+                         elapsedSeconds=round(monotonic()-started,3), **decision))
             if decision['state'] == 'ready':
                 check()
                 final, retained = current(value['id'])
                 final_context = _validate(final, retained)
-                if (monotonic() >= deadline or final_context != (context, sequence)
+                if monotonic() >= deadline:
+                    raise InspectionStopped('Transition verification exceeded its settling budget.')
+                if (final_context != (context, sequence)
                         or final.get('evidenceRecordSha256') != value.get('evidenceRecordSha256')
                         or not final.get('evidenceRecordSha256') or retained != frame):
                     raise InspectionStopped('Settled evidence expired or changed before the decision.')
@@ -162,6 +168,7 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
             if attempt < MAX_CAPTURES:
                 check(); pause(POLL_SECONDS)
         raise InspectionStopped('Transition did not settle within four captures; no action sent.')
-    except Exception:
-        journal(dict(stage=stage, state='held', automaticInputAllowed=False))
+    except Exception as error:
+        journal(dict(stage=stage, state='held', automaticInputAllowed=False,
+                     elapsedSeconds=round(monotonic()-started,3), reason=str(error)))
         raise

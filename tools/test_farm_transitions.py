@@ -112,6 +112,14 @@ class TransitionTests(unittest.TestCase):
             self.run_wait([(raw,text),(bright,text)]*2)
         self.assertEqual(4,len(self.captures)); self.assertEqual('held',self.events[-1]['state'])
 
+    def test_four_fresh_captures_allow_verification_between_six_and_eight_seconds(self):
+        raw,text=screen(); bright=changed(raw,(161,1064,338,1070),'white')
+        dim=changed(raw,(161,1064,338,1070),'#555555')
+        start=self.now
+        _,_,result=self.run_wait([(raw,text),(bright,text),(dim,text),(dim,text)],capture_delay=1.55)
+        self.assertEqual('ready',result['state']); self.assertEqual(4,len(self.captures))
+        self.assertGreater(self.now-start,6); self.assertLess(self.now-start,8)
+
     def test_control_or_library_change_cannot_be_waited_away(self):
         raw,text=screen()
         for box in ((435,80,440,85),(140,700,180,740)):
@@ -174,15 +182,17 @@ class TransitionTests(unittest.TestCase):
             self.run_wait([screen()]*3,pause=lambda:setattr(self,'cancelled',True))
         self.cancelled=False; self.captures=[]
         with self.assertRaisesRegex(InspectionStopped,'budget'):
-            self.run_wait([screen()]*3,capture_delay=6.1)
+            self.run_wait([screen()]*3,capture_delay=8.1)
         self.assertEqual(1,len(self.captures))
+        self.assertGreaterEqual(self.events[-1]['elapsedSeconds'],8.1)
+        self.assertIn('budget',self.events[-1]['reason'])
 
     def test_final_evidence_is_reaged_and_tampering_or_expiry_never_returns_ready(self):
         for field,value in [('freshness','stale'),('evidenceRecordSha256','changed'),('reviewFrameSha256','bad')]:
             with self.subTest(field=field),self.assertRaises(InspectionStopped):
                 self.run_wait([screen()]*2,final=lambda v:v.update({field:value}))
-        with self.assertRaisesRegex(InspectionStopped,'expired'):
-            self.run_wait([screen()]*2,final=lambda v:setattr(self,'now',self.now+7))
+        with self.assertRaisesRegex(InspectionStopped,'budget'):
+            self.run_wait([screen()]*2,final=lambda v:setattr(self,'now',self.now+9))
 
 
 if __name__=='__main__': unittest.main()
