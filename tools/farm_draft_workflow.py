@@ -112,6 +112,8 @@ def centre(bounds):
 
 
 class Workflow:
+    PLATFORM = 'instagram'   # Every observation is requested and validated for this one app.
+
     def __init__(self, folder, kernel, store, assets, caption, templates, expected_hash, expected_uid,
                  *, account, package_hash, cancelled=None, monotonic=time.monotonic, pause=time.sleep):
         self.folder, self.kernel, self.store = Path(folder), kernel, store
@@ -178,7 +180,7 @@ class Workflow:
                 or value.get('receiverPid') != self.owned.stream[1]
                 or value.get('frameEvidence', {}).get('session') != self.owned.stream[3]
                 or value.get('expected', {}).get('device_id') != 'C24C'
-                or value.get('expected', {}).get('platform') != 'instagram'
+                or value.get('expected', {}).get('platform') != self.PLATFORM
                 or value.get('expected', {}).get('account') != self.account
                 or value.get('expected', {}).get('caption') != self.caption
                 or value.get('result', {}).get('accountStatus') == 'different_text'
@@ -229,7 +231,7 @@ class Workflow:
         key = str(uuid.uuid4())
         entry = dict(role=role, index=index, observationId=key, state='requested')
         self.record['observations'].append(entry); self.save()
-        observed = self.store.capture(dict(id=key, device_id='C24C', platform='instagram', account=self.account, caption=self.caption),
+        observed = self.store.capture(dict(id=key, device_id='C24C', platform=self.PLATFORM, account=self.account, caption=self.caption),
                                      self.kernel, owned_run=self.owned)
         if observed.get('state') != 'observed':
             entry.update(state='failed',observation=observed); self.save()

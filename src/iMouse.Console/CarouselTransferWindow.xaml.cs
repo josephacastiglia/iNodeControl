@@ -52,7 +52,7 @@ public partial class CarouselTransferWindow : Window
         DraftText.Text = $"{_draft.Title} · {_platform} · H.264 720×1280 · saved revision {_draft.Revision}";
         AccountLabel.Text = _platform + " account";
         AccountBox.ToolTip = "Verify this signed-in account in " + _platform + " before saving a draft.";
-        PhoneInstructions.Text = "1. Open the link in Safari. Hold the video link (Open video to save, or Download video for a Reel) → Download Linked File. Open Safari Downloads → the file named on the page → Share → Save Video. Verify it in Photos.\n\n2. Confirm the account in " + _platform + ", select the video and paste the reviewed caption.\n\n3. Check the frame, duration, sound and text. Remove unwanted suggested sounds. Choose Save draft. Do not tap Post, Share or Upload in the app.\n\n4. Reopen and play the draft, verify its caption, then stop this transfer. Permission prompts may require a physical tap.";
+        PhoneInstructions.Text = "1. Open the link in Safari. Hold the video link (Open video to save, or Download video for a Reel or TikTok video) → Download Linked File. Open Safari Downloads → the file named on the page → Share → Save Video. Verify it in Photos.\n\n2. Confirm the account in " + _platform + ", select the video and paste the reviewed caption.\n\n3. Check the frame, duration, sound and text. Remove unwanted suggested sounds. Choose Save draft. Do not tap Post, Share or Upload in the app.\n\n4. Reopen and play the draft, verify its caption, then stop this transfer. Permission prompts may require a physical tap.";
         DeliveryText.Text = "Video requests do not confirm a Photos save or an app draft.";
     }
 

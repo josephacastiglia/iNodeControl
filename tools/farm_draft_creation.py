@@ -191,7 +191,7 @@ class CreationWorkflow(Workflow):
             return dict(captionExact=role=='caption_filled')
         raise InspectionStopped('Unsupported creation screen: '+role)
 
-    def step(self,label,role,*,index=None,point=None,hold=False,key=None,text=None,swipe=None):
+    def step(self,label,role,*,index=None,point=None,hold=False,settle=False,key=None,text=None,swipe=None):
         require(not any(a['label']==label for a in self.record['actions']), 'Creation action cannot be replayed.')
         value,frame=self.observe(role,index)
         if callable(point): point=point(value,frame)
@@ -210,6 +210,13 @@ class CreationWorkflow(Workflow):
                     self.command('/mouse/down',purpose=label+'-press',button=1)
                     self.pause(1.1)
                     self.command('/mouse/up',purpose=label+'-release',button=1)
+                elif settle:
+                    # Some app controls ignored an immediate click on 17 Oct but
+                    # answered after the pointer rested on them: the same single
+                    # click follows the bound move, with nothing in between.
+                    self.command('/mouse/move',basis=value,purpose=label+'-position',x=x,y=y)
+                    self.pause(.6)
+                    self.command('/mouse/click',purpose=label,x=x,y=y,button=1)
                 else: self.command('/mouse/click',basis=value,purpose=label,x=x,y=y,button=1)
             elif key:
                 self.command('/key/sendkey',basis=value,purpose=label,fn_key=key)

@@ -158,8 +158,16 @@ internal sealed partial class VideoDraftWindow
             reelHandler.Format = "tt_video"; reel._format.SelectedIndex = 0; reel._sources.SelectedIndex = 0;
             await reel.RunAsync(reel.PrepareAsync);
             check("Other video formats never offer the Reel draft action", reel._draft is not null && !reel._reel.IsEnabled && reel.ReelWindow() is null);
+            var tiktok = reel.TikTokWindow();
+            check("A saved TikTok video copy enables only the bounded TikTok candidate window", reel._tiktok.IsEnabled && tiktok is not null
+                && tiktok.Route == "/api/farm/tiktok-creations" && tiktok.Capability == "tiktokCreation" && tiktok.BookmarkPath.EndsWith("farm-pending-tiktok-creation.json")
+                && tiktok.DraftId == reelHandler.CreatedId && !tiktok.InspectAvailable && reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
+            tiktok?.Close();
             plain._draft = reel._draft; reelHandler.Format = "ig_reel";
             check("Without a candidate data folder the Reel action is absent", !plain._reel.IsEnabled && plain.ReelWindow() is null);
+            check("Without a candidate data folder the TikTok action is absent", !plain._tiktok.IsEnabled && plain.TikTokWindow() is null);
+            reel._caption.Text = "Edited TikTok caption";
+            check("Editing the caption disables the TikTok draft action for the stale copy", !reel._tiktok.IsEnabled && reel.TikTokWindow() is null);
         }
         finally { reel.Close(); plain.Close(); Directory.Delete(folder, recursive: true); }
     }

@@ -4,7 +4,36 @@ For the continuation task and the original seven-priority roadmap, read
 [the Claude handoff](CLAUDE-HANDOFF-20261019.md). Priorities 1–2 have scoped
 Instagram acceptance; broader platform coverage is next.
 
-## Latest: Priority 3 — Instagram Reel draft candidate prepared offline
+## Latest: Priority 3 — TikTok video draft candidate prepared offline
+
+**Implemented and tested offline; not live-accepted and disabled by default.**
+`/api/farm/tiktok-creations` saves one prepared TikTok copy as a draft.
+
+- The video reaches Photos by the Reel's Safari/Files route. The package page now
+  also serves `tt_video`, with an `imouse-tt-xxxxxx` download name.
+- In TikTok, from the exact profile: `+` → gallery → the one matching tile →
+  Next.
+- The editor waits read-only until the suggested-sound control settles. A
+  suggestion is removed once and the video must be silent before Next.
+- The exact one-line description (≤24 characters) is pasted and must be read on a
+  frame without the blinking caret before the single **Drafts** press. The Drafts
+  count must rise by one.
+- A separate owned run reopens the unique matching draft. It requires it silent
+  with the exact description and keeps it with Drafts.
+- **Post**, **Your Story** and the camera's **LIVE** mode are refused targets even
+  when OCR misreads them.
+- The native video window offers **Create TikTok draft on C24C…** for saved
+  TikTok copies.
+
+Offline: 520 Python farm tests passed, none skipped (was 491); 588 native headless
+checks (was 578). The run used no phone input, rack service, desktop control,
+publishing, messaging, FKA change or installed-release change. The shared code
+changes keep Instagram behaviour unchanged; the Reel suites and the
+byte-identical Reel page show this. A fresh TikTok window is prepared, and the
+Reel window was re-prepared on the same backend. Each waits for an agreed time.
+[Design, evidence limits and live plan](analysis/farm-tiktok-draft-20261019/README.md).
+
+## Previous: Priority 3 — Instagram Reel draft candidate prepared offline
 
 **Implemented and tested offline; not live-accepted and disabled by default.**
 A per-format evidence matrix now covers all 14 `UploadFormat` values

@@ -39,11 +39,15 @@ _FORMATS = {
         supervised=None, offline=None, live=None,
         remaining='No verified story draft mechanism. Sharing a story is publication and stays disabled.'),
     UploadFormat.TT_VIDEO: dict(
-        platform='tiktok', name='TikTok video', level='supervised_phone', draftMechanism='observed',
-        supervised='Transferred MP4 draft saved, reopened and played; a suggested sound was removed before resaving. '
-                   + SUPERVISED_17,
-        offline=None, live=None,
-        remaining='Integrated adapter with suggested-sound detection, account recognition and recovery checks.'),
+        platform='tiktok', name='TikTok video', level='integrated_offline', draftMechanism='observed',
+        supervised='Transferred MP4 draft saved, reopened and played; a suggested sound was removed before resaving '
+                   '(17 Oct steps 94-113). ' + SUPERVISED_17,
+        offline='Draft-only TikTok candidate: video import, suggested-sound removal, exact single-line description by '
+                'paste checked caret-free, Drafts once, independent drafts-list reopen that must be silent. Disabled '
+                'without its isolated configuration (analysis/farm-tiktok-draft-20261019/README.md).',
+        live=None,
+        remaining='Fresh integrated C24C acceptance (Paste callout, settled selection and suggestion timing unobserved); '
+                  'wrapped descriptions, other accounts and repeated runs.'),
     UploadFormat.TT_PHOTO_CAROUSEL: dict(
         platform='tiktok', name='TikTok photo carousel', level='supervised_phone', draftMechanism='observed',
         supervised='Three-photo draft saved and reopened with numbered slides; a suggested sound stayed attached. '
@@ -91,7 +95,8 @@ _FORMATS = {
 
 # Only these routes can drive C24C at all, and only when the backend was started
 # with their explicit isolated configuration. Everything else has no live route.
-CANDIDATE_ROUTES = {UploadFormat.IG_CAROUSEL: '/api/farm/draft-creations', UploadFormat.IG_REEL: '/api/farm/reel-creations'}
+CANDIDATE_ROUTES = {UploadFormat.IG_CAROUSEL: '/api/farm/draft-creations', UploadFormat.IG_REEL: '/api/farm/reel-creations',
+                    UploadFormat.TT_VIDEO: '/api/farm/tiktok-creations'}
 
 
 def coverage():

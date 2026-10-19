@@ -116,41 +116,48 @@ class ReelCreationWorkflow(CreationWorkflow):
         self.record['cleanup'] = 'unconfirmed'; self.save(); self.owned.acquire()
         self.command('/mouse/reset', purpose='initial_pointer_reset')
 
+    def transfer_page(self, text):
+        return reel.reel_transfer_page(text, self.download)
+
+    def import_video(self):
+        """Profile -> Safari package page -> copy caption -> download -> Files -> Save Video -> Home."""
+        self.phase('open-transfer')
+        self.observe('profile')
+        self.step('home-from-profile', 'profile', key='Home')
+        self.open_app('Safari', 'transfer')
+        entry, _, _ = self.screen('reel_safari_entry')
+        if entry.get('leftoverPreview'):
+            # A previous run leaves Safari on a read-only Files preview. Done
+            # only closes it; the earlier media is not touched or replayed.
+            self.tap('close-leftover-preview', 'reel_safari_entry', (450, 85))
+        self.tap('focus-safari-address', 'safari', (245, 953))
+        self.step('enter-transfer-url', 'address_selected', text=self.url)
+        # Same Safari address edit session; never a caption.
+        self.command('/key/sendkey', purpose='load-transfer-url', fn_key='Enter')
+        self.pause(1)
+        self.phase('copy-caption')
+        self.tap('copy-caption', 'reel_page', lambda v, f: self.transfer_page(v['text'])['copyTarget'])
+        self.phase('download-video')
+        self.tap('hold-download-link', 'reel_caption_copied',
+                 lambda v, f: self.transfer_page(v['text'])['downloadTarget'], hold=True)
+        self.tap('download-linked-file', 'link_menu', lambda v, f: reel.link_menu(v['text'])['target'])
+        self.tap('open-safari-menu', 'download_ready', (91, 955))
+        self.tap('open-downloads', 'page_menu', lambda v, f: reel.page_menu(v['text'])['target'])
+        self.tap('open-downloaded-video', 'downloads',
+                 lambda v, f: reel.downloads_list(v['text'], self.download, self.video_bytes)['target'])
+        self.phase('save-video-to-photos')
+        preview, _, _ = self.screen('quicklook')
+        if not preview['controls']:
+            self.tap('reveal-preview-controls', 'quicklook', (250, 300))
+        self.tap('open-share-sheet', 'quicklook_controls', (40, 1012))
+        self.tap('save-video-to-photos', 'share_sheet', lambda v, f: reel.share_sheet(v['text'], self.download)['target'])
+        # The Files preview is not a text field, so Home's leading Tab is harmless here.
+        self.step('home-from-saved-video', 'quicklook', key='Home')
+
     def run(self):
         try:
             self.admit()
-            self.phase('open-transfer')
-            self.observe('profile')
-            self.step('home-from-profile', 'profile', key='Home')
-            self.open_app('Safari', 'transfer')
-            entry, _, _ = self.screen('reel_safari_entry')
-            if entry.get('leftoverPreview'):
-                # A previous run leaves Safari on a read-only Files preview. Done
-                # only closes it; the earlier media is not touched or replayed.
-                self.tap('close-leftover-preview', 'reel_safari_entry', (450, 85))
-            self.tap('focus-safari-address', 'safari', (245, 953))
-            self.step('enter-transfer-url', 'address_selected', text=self.url)
-            # Same Safari address edit session; never a caption.
-            self.command('/key/sendkey', purpose='load-transfer-url', fn_key='Enter')
-            self.pause(1)
-            self.phase('copy-caption')
-            self.tap('copy-caption', 'reel_page', lambda v, f: reel.reel_transfer_page(v['text'], self.download)['copyTarget'])
-            self.phase('download-video')
-            self.tap('hold-download-link', 'reel_caption_copied',
-                     lambda v, f: reel.reel_transfer_page(v['text'], self.download)['downloadTarget'], hold=True)
-            self.tap('download-linked-file', 'link_menu', lambda v, f: reel.link_menu(v['text'])['target'])
-            self.tap('open-safari-menu', 'download_ready', (91, 955))
-            self.tap('open-downloads', 'page_menu', lambda v, f: reel.page_menu(v['text'])['target'])
-            self.tap('open-downloaded-video', 'downloads',
-                     lambda v, f: reel.downloads_list(v['text'], self.download, self.video_bytes)['target'])
-            self.phase('save-video-to-photos')
-            preview, _, _ = self.screen('quicklook')
-            if not preview['controls']:
-                self.tap('reveal-preview-controls', 'quicklook', (250, 300))
-            self.tap('open-share-sheet', 'quicklook_controls', (40, 1012))
-            self.tap('save-video-to-photos', 'share_sheet', lambda v, f: reel.share_sheet(v['text'], self.download)['target'])
-            # The Files preview is not a text field, so Home's leading Tab is harmless here.
-            self.step('home-from-saved-video', 'quicklook', key='Home')
+            self.import_video()
             self.phase('open-instagram')
             self.open_app('Instagram', 'return')
             self.account_profile('verify-returned-account')

@@ -11,6 +11,20 @@ the draft. It passed offline protocol, recognizer, service and native headless
 checks on retained C24C layouts, but **has no live phone acceptance yet** and is
 disabled without its isolated configuration. [Record](analysis/farm-reel-draft-20261019/README.md).
 
+A TikTok video draft-only candidate followed on the same night. The video reaches
+Photos by the same Safari/Files route. TikTok then:
+
+- selects the one matching tile;
+- removes a suggested sound once;
+- pastes an exact one-line description, checked on a caret-free frame;
+- presses Drafts once.
+
+An independent check reopens the draft, requires it silent with the exact
+description and keeps it. Post, Your Story and LIVE are refused targets. Like the
+Reel, it passed only offline checks on retained C24C layouts, **has no live phone
+acceptance**, and is disabled without its isolated configuration.
+[Record](analysis/farm-tiktok-draft-20261019/README.md).
+
 ## Latest integrated candidate acceptance
 
 **Priority 2 scoped recovery passed** on C24C / @xs.halle.xo: three seven-action
@@ -116,7 +130,8 @@ interactive Windows hit-test result. See [the scoped live evidence](analysis/far
 | Automatic creation + deployment | Combined path runs in simulation | Every live stage must pass before this can be enabled |
 | Instagram Reel | Supervised 17 Oct MP4 Reel saved, reopened and played. Integrated draft-only candidate implemented and tested offline (package-named import, exact one-line caption, single Save, independent reopen with playback) | Fresh integrated C24C acceptance, multiline captions, repeated runs and other accounts |
 | Instagram Post/Story | Single-image post: simulation only. Story: no verified draft mechanism, so unsupported | Observe a real draft mechanism first; a story is never posted in place of a draft |
-| TikTok video/photo/story/text | Three-photo draft and transferred MP4 draft saved and reopened with exact test labels; MP4 playback verified and suggested sound removed | Text/story modes, repeated recovery checks and unattended state validation |
+| TikTok video | Supervised 17 Oct MP4 draft saved, reopened and played; suggested sound removed. Integrated draft-only candidate implemented and tested offline (package-named import, suggested-sound removal, exact one-line description checked caret-free, single Drafts press, independent silent reopen) | Fresh integrated C24C acceptance (Paste callout and suggestion timing unobserved), wrapped descriptions, repeated runs and other accounts |
+| TikTok photo/story/text | Three-photo draft saved and reopened with exact test labels (a suggested sound stayed attached). Story and text: no verified draft mechanism | Photo adapter with sound handling; text/story modes need an observed draft mechanism |
 | X post/video/thread | Image and transferred MP4 drafts saved and reopened with exact labels; video played after tapping its initially blank preview | Threads, repeated recovery checks and unattended state validation |
 | YouTube Short/video/community | Photo-derived Short and transferred MP4 Short saved and reopened with exact titles; MP4 playback and 3.0-second trim view verified | Long video/community modes, unattended permission handling and state validation |
 | Publishing | Disabled under current instructions | Explicit publishing test scope, observed published item, duplicate prevention and failure recovery |

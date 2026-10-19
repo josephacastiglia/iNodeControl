@@ -97,13 +97,13 @@ def compare_frames(stage, first, first_text, second, second_text):
     raise InspectionStopped('Protected screen content changed during settling; no action sent.')
 
 
-def _validate(value, frame):
+def _validate(value, frame, platform='instagram'):
     if (value.get('freshness') != 'recent' or value.get('expired') or value.get('state') != 'observed'
             or value.get('stable') is not True or value.get('inputSettled') is not True
             or not capture_settled(value) or value.get('frameEvidence', {}).get('pairedMetadata') is not True):
         raise InspectionStopped('Settling requires a fresh authenticated frame at every capture.')
     if (value.get('expected', {}).get('device_id') != 'C24C'
-            or value.get('expected', {}).get('platform') != 'instagram'
+            or value.get('expected', {}).get('platform') != platform
             or value.get('resolvedDeviceId') not in ('C24C', LIVE_TEST_DEVICE_ID)
             or value.get('reviewFrameSha256') != hashlib.sha256(frame).hexdigest()
             or not value.get('frameSha256') or value.get('text', {}).get('frameSha256') != value['frameSha256']):
@@ -122,7 +122,7 @@ def _validate(value, frame):
 
 def wait_for_transition(stage, capture, check, current, *, assets=(), index=None,
                         require_next=False, journal=lambda event: None,
-                        monotonic=time.monotonic, pause=time.sleep, ready=None, compare=None):
+                        monotonic=time.monotonic, pause=time.sleep, ready=None, compare=None, platform='instagram'):
     """Return the latest of two fresh stable observations, or stop within bounds.
 
     capture retains evidence through the owning workflow. check authenticates its
@@ -147,7 +147,7 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
             value, frame = capture()
             check()
             if monotonic() >= deadline: raise InspectionStopped('Transition capture exceeded its settling budget.')
-            context, sequence = _validate(value, frame)
+            context, sequence = _validate(value, frame, platform)
             ready(frame, value['text'])
             if previous is None:
                 decision = dict(state='wait', reason='A second independently fresh observation is required.')
@@ -162,7 +162,7 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
             if decision['state'] == 'ready':
                 check()
                 final, retained = current(value['id'])
-                final_context = _validate(final, retained)
+                final_context = _validate(final, retained, platform)
                 if monotonic() >= deadline:
                     raise InspectionStopped('Transition verification exceeded its settling budget.')
                 if (final_context != (context, sequence)

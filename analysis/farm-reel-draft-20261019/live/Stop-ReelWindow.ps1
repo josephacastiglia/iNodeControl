@@ -20,7 +20,7 @@ foreach($taskTarget in @(@{name='backend';record=$taskProcesses.backend},@{name=
     $taskStop=Start-Process -FilePath powershell.exe -ArgumentList $taskArguments -WindowStyle Hidden -PassThru -Wait -RedirectStandardOutput (Join-Path $PSScriptRoot ('stop-'+$taskTarget.name+'.stdout.txt')) -RedirectStandardError (Join-Path $PSScriptRoot ('stop-'+$taskTarget.name+'.stderr.txt'))
     if($taskStop.ExitCode -ne 0){throw ('Graceful stop unconfirmed: '+$taskTarget.name+'. Nothing is force-killed.')}
 }
-$taskRemaining=@(Get-CimInstance Win32_Process | Where-Object {$_.Name -in @('iMouse2.exe','iMouse2.Kernel.exe','uxplay.exe','NativeProbe.exe','ReelProbe.exe') -or ($_.CommandLine -and $_.CommandLine -match 'python[^\r\n]*imouse_farm_server\.py') } | Select-Object ProcessId,ExecutablePath,CommandLine)
+$taskRemaining=@(Get-CimInstance Win32_Process | Where-Object {$_.Name -in @('iMouse2.exe','iMouse2.Kernel.exe','uxplay.exe','NativeProbe.exe','ReelProbe.exe','TikTokProbe.exe') -or ($_.CommandLine -and $_.CommandLine -match 'python[^\r\n]*imouse_farm_server\.py') } | Select-Object ProcessId,ExecutablePath,CommandLine)
 $taskTcp=@(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object LocalPort -In @(9913,9914,9915,9916,9917,7110,7111,7112,7120,7121,7122) | Select-Object LocalPort,OwningProcess)
 $taskUdp=@(Get-NetUDPEndpoint -ErrorAction SilentlyContinue | Where-Object LocalPort -In @(7110,7111,7112,7120,7121,7122) | Select-Object LocalPort,OwningProcess)
 $taskBefore=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'protected-before.json') -Raw | ConvertFrom-Json

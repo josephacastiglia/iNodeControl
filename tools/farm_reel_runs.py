@@ -35,38 +35,50 @@ def reel_content(package):
 
 
 class ReelCreationRuns(DraftRuns):
+    """One saved single-video copy -> one app draft. A subclass names another app's route."""
     action_name = 'create-reel-draft'
+    FORMAT, LABEL = 'ig_reel', 'Reel'
+    workflow, verifier, reference, committing = ReelCreationWorkflow, ReelVerification, VideoReference, COMMITTING
+    caption_supported = staticmethod(caption_supported)
+    ENABLED_REASON = ('Saves one prepared Reel video as an Instagram draft: Safari downloads it, Files saves it to Photos, the exact '
+                      'one-line caption is pasted, Save draft is pressed once, then a separate check reopens and plays it. Start on @'
+                      "{account}'s profile. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced.")
+    DISABLED_REASON = 'Reel draft creation is disabled. Prepare the isolated C24C candidate first.'
+    SUPPORTED_REASON = 'This saved Reel copy fits the candidate.'
+    UNSUPPORTED_REASON = ('The Reel candidate needs a saved C24C Instagram Reel copy of 2-15 seconds and one ASCII caption line of up to '
+                          '40 characters, with no leading, trailing or double spaces. Nothing is trimmed or truncated.')
+    HELD_REASON = ('This exact video and caption already have a Reel request. '
+                   'Select its saved result; an uncertain import or Save is never repeated.')
+    RUNNING_REASON = 'Creating a C24C Reel draft from the saved video and exact caption. No publishing or messaging.'
+    VERIFIED_REASON = 'The Reel draft was saved, reopened, played and kept in Reels drafts. Nothing was published.'
+    MEANING = ('Package video imported to Photos, selected, exact caption pasted, Reel draft saved, then '
+               'independently reopened, played and kept. No publication or app-restart persistence claim.')
 
     def capability(self):
         return dict(version=1, storeId=self.store_id, enabled=self.config is not None, device='C24C', account=ACCOUNT,
-            format='ig_reel', candidateOnly=True, integratedLiveValidated=False, publishing=False, messaging=False,
+            format=self.FORMAT, candidateOnly=True, integratedLiveValidated=False, publishing=False, messaging=False,
             desktopControl=False, automaticResume=False,
-            reason=('Saves one prepared Reel video as an Instagram draft: Safari downloads it, Files saves it to Photos, the exact '
-                    'one-line caption is pasted, Save draft is pressed once, then a separate check reopens and plays it. Start on @'
-                    + ACCOUNT + "'s profile. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced."
-                    if self.config else 'Reel draft creation is disabled. Prepare the isolated C24C candidate first.'))
+            reason=self.ENABLED_REASON.format(account=ACCOUNT) if self.config else self.DISABLED_REASON)
 
     def supports(self, package):
         manifest, caption, _ = reel_content(package)
         video = manifest.get('video') or {}
         seconds = video.get('seconds')
-        return (manifest.get('format') == 'ig_reel' and manifest.get('deviceId') == 'C24C' and caption_supported(caption)
+        return (manifest.get('format') == self.FORMAT and manifest.get('deviceId') == 'C24C' and self.caption_supported(caption)
                 and (video.get('width'), video.get('height')) == (720, 1280)
                 and type(seconds) in (int, float) and 2 <= seconds <= MAX_SECONDS)
 
     def content_reason(self, supported):
-        return ('This saved Reel copy fits the candidate.' if supported else
-                'The Reel candidate needs a saved C24C Instagram Reel copy of 2-15 seconds and one ASCII caption line of up to '
-                '40 characters, with no leading, trailing or double spaces. Nothing is trimmed or truncated.')
+        return self.SUPPORTED_REASON if supported else self.UNSUPPORTED_REASON
 
-    @staticmethod
-    def retry_allowed(value):
+    @classmethod
+    def retry_allowed(cls, value):
         """True only when no command that could import media or save a draft was dispatched."""
         workflow = value.get('workflow') or {}
         return bool(value.get('terminal') and value.get('state') == 'review_required'
                     and workflow.get('source') == 'candidate_phone_workflow'
                     and workflow.get('cleanup') in ('confirmed', 'not_needed') and workflow.get('evidenceExport') == 'confirmed'
-                    and not any(c.get('state') != 'not_sent' and c.get('purpose', '').startswith(COMMITTING)
+                    and not any(c.get('state') != 'not_sent' and c.get('purpose', '').startswith(cls.committing)
                                 for c in workflow.get('commands', []))
                     and not workflow.get('verification'))
 
@@ -82,8 +94,7 @@ class ReelCreationRuns(DraftRuns):
                       supportedContent=supported, draftId=draft_id, revision=revision, packageSha256=sha(package),
                       contentReason=self.content_reason(supported))
         if held:
-            result.update(previousRunId=held[-1], contentReason='This exact video and caption already have a Reel request. '
-                          'Select its saved result; an uncertain import or Save is never repeated.')
+            result.update(previousRunId=held[-1], contentReason=self.HELD_REASON)
         return result
 
     def start(self, spec):
@@ -95,13 +106,13 @@ class ReelCreationRuns(DraftRuns):
             if previous is not None:
                 if previous != spec: raise DraftConflict('This request ID belongs to another video or revision.')
                 return self.get(spec['id'])
-            if not self.config: raise KernelSafetyError('Reel draft creation is disabled.')
+            if not self.config: raise KernelSafetyError(self.LABEL + ' draft creation is disabled.')
             self.jobs.assert_available()
             package = self.drafts.export(spec['draft_id'], spec['revision'])
-            if not self.supports(package): raise ValueError('Saved video is outside the Reel draft candidate.')
+            if not self.supports(package): raise ValueError('Saved video is outside the ' + self.LABEL + ' draft candidate.')
             _, caption, content = reel_content(package)
             if self.holds(content):
-                raise DraftConflict('This exact video and caption already have a Reel request. Retrieve its result; '
+                raise DraftConflict('This exact video and caption already have a ' + self.LABEL + ' request. Retrieve its result; '
                                     'do not duplicate an uncertain import or Save.')
             # Reserve the ID before any worker can send input. An orphaned
             # admission is review-only, never an instruction to start it again.
@@ -126,16 +137,16 @@ class ReelCreationRuns(DraftRuns):
             workflow['creationFinalInput'] = workflow.get('finalInput'); workflow['finalInput'] = verified['finalInput']
             result['workflow'] = workflow
         if not result['terminal']:
-            result['reason'] = 'Creating a C24C Reel draft from the saved video and exact caption. No publishing or messaging.'
+            result['reason'] = self.RUNNING_REASON
         if result['savedDraftVerified']:
-            result['reason'] = 'The Reel draft was saved, reopened, played and kept in Reels drafts. Nothing was published.'
+            result['reason'] = self.VERIFIED_REASON
         return result
 
     def execute(self, folder, assets, caption, package_hash, cancelled):
         spec, package, digest = self.row(folder.name)
-        if digest != package_hash: raise ValueError('Reel source package changed.')
+        if digest != package_hash: raise ValueError(self.LABEL + ' source package changed.')
         parsed = VideoTransferPackage(package)
-        video = VideoReference(parsed.video)  # Decoded locally before any transport or lease.
+        video = self.reference(parsed.video)  # Decoded locally before any transport or lease.
         delivered = []
         server = MediaTransferServer(parsed, self.config['mediaBind'], 9917, self.config['mediaClient'],
                                      minutes=15, on_event=delivered.append)
@@ -148,7 +159,7 @@ class ReelCreationRuns(DraftRuns):
             worker.start()
             kernel = CreationKernel(self.config['api'])
             store = ObservationStore(folder / 'observations.sqlite3', retained_limit=160)
-            result = ReelCreationWorkflow(folder, kernel, store, video, caption, references(), self.config['kernelSha256'],
+            result = self.workflow(folder, kernel, store, video, caption, references(), self.config['kernelSha256'],
                 self.config['expectedUid'], transfer_url=server.url, download=parsed.download_name,
                 video_bytes=len(parsed.video), **arguments).run()
         finally:
@@ -164,7 +175,7 @@ class ReelCreationRuns(DraftRuns):
                           error=result.get('error') or 'Creation or media cleanup is unconfirmed; no automatic retry.')
         else:
             child = folder / 'verification'; child.mkdir(exist_ok=False)
-            verified = ReelVerification(child, kernel, store, video, caption, references(), self.config['kernelSha256'],
+            verified = self.verifier(child, kernel, store, video, caption, references(), self.config['kernelSha256'],
                                         self.config['expectedUid'], **arguments).run()
             result['creationState'] = 'created_unverified'; result['verification'] = verified
             result['actions'] += [{**a, 'label': 'verification-'+a['label']} for a in verified['actions']]
@@ -172,8 +183,7 @@ class ReelCreationRuns(DraftRuns):
             result.update(state=verified['state'], savedDraftVerified=verified['savedDraftVerified'],
                           cleanup=verified['cleanup'], evidenceExport=verified.get('evidenceExport', 'failed'),
                           createdDraftVerified=verified['savedDraftVerified'],
-                          meaning='Package video imported to Photos, selected, exact caption pasted, Reel draft saved, then '
-                                  'independently reopened, played and kept. No publication or app-restart persistence claim.')
+                          meaning=self.MEANING)
             if verified.get('error'): result['error'] = verified['error']
         atomic_json(folder / 'record.json', result)
         return result

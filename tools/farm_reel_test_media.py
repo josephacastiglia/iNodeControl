@@ -1,9 +1,9 @@
-"""Labelled Reel acceptance media: a distinctive cover and visible playback.
+"""Labelled acceptance media for the Reel and TikTok candidates: a distinctive cover and visible playback.
 
 This is test media, not generated marketing content, and never claims to be AI
 output. A token picks six large colour blocks, so separate runs never share a
-cover in Photos or Reels drafts. A moving bar and frame number make playback
-visible. No words that Instagram uses for publishing appear in the image.
+cover in Photos or drafts. A moving bar and frame number make playback visible.
+No words that the apps use for publishing appear in the image.
 """
 import hashlib
 import io
@@ -36,10 +36,10 @@ def font(size):
     return ImageFont.load_default()
 
 
-def frame(token, index, count):
+def frame(token, index, count, label='REEL DRAFT TEST'):
     image = Image.new('RGB', (WIDTH, HEIGHT), (246, 246, 240))
     draw = ImageDraw.Draw(image)
-    draw.text((60, 120), 'REEL DRAFT TEST', font=font(56), fill=(20, 20, 20))
+    draw.text((60, 120), label, font=font(56), fill=(20, 20, 20))
     # Two columns by three rows, within the square centre crop Instagram uses
     # for the drafts list, so every rendering keeps the code.
     for n, colour in enumerate(colour_code(token)):
@@ -54,14 +54,14 @@ def frame(token, index, count):
     return image
 
 
-def render(token, path, seconds=4):
+def render(token, path, seconds=4, label='REEL DRAFT TEST'):
     """Write an H.264 720x1280 MP4 without audio. Requires FFmpeg."""
     binary = shutil.which('ffmpeg')
     if not binary: raise ValueError('ffmpeg is required to render Reel test media.')
     count = seconds * FPS
     stream = io.BytesIO()
     for index in range(count):
-        frame(token, index, count).save(stream, 'PNG')
+        frame(token, index, count, label).save(stream, 'PNG')
     result = subprocess.run([binary, '-v', 'error', '-nostdin', '-f', 'image2pipe', '-framerate', str(FPS), '-i', '-',
                              '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-preset', 'veryfast', '-crf', '18', '-an',
                              '-movflags', '+faststart', '-y', str(path)], input=stream.getvalue(), capture_output=True,

@@ -1,0 +1,10 @@
+{
+  "assembly": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\claude-farm-tiktok-20261019\\iMouse2.dll",
+  "nativeSha256": "3d058ca4a2c85cc5db921ef62203920c8cc355992687125b87c756cedf3001d7",
+  "draftId": "e8dd3341-a5fa-402d-94e6-2b601ac8d07c",
+  "revision": 1,
+  "backendSourceHash": "6f6e84c4ac3fd925eae8e095cc9e6a4426c804ccdcc81124781fd3c715121ef0",
+  "output": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-tiktok-draft-20261019\\live\\native-dry-run",
+  "dataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-tiktok-20261019\\native-dry-run-data",
+  "dryRun": true
+}

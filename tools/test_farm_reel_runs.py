@@ -172,11 +172,14 @@ class ReelPackageTests(unittest.TestCase, ReelVideoFixture):
             server.shutdown(); server.close_clients(); server.server_close(); thread.join(2); allowed_ports.discard(server.server_port)
 
     def test_other_video_formats_keep_the_supervised_name_and_page(self):
-        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
-        videos, draft = self.stage(Path(temp.name), fmt='tt_video')
-        package = VideoTransferPackage(videos.export(draft['id'], 1))
-        self.assertEqual('imouse-draft', package.download_name)
-        self.assertIn('Open video to save', package.page('/t/x/', 'n').decode('utf-8'))
+        # TikTok video has its own automated page (test_farm_tiktok_runs); X and YouTube stay supervised.
+        for fmt in ('x_video', 'yt_short'):
+            with self.subTest(format=fmt):
+                temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
+                videos, draft = self.stage(Path(temp.name), fmt=fmt)
+                package = VideoTransferPackage(videos.export(draft['id'], 1))
+                self.assertEqual('imouse-draft', package.download_name)
+                self.assertIn('Open video to save', package.page('/t/x/', 'n').decode('utf-8'))
 
 
 class ReelHttpTests(unittest.TestCase, ReelVideoFixture):

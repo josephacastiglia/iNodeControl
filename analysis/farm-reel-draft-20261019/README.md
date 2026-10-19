@@ -50,7 +50,7 @@ the package checksum, and runs two bounded owned workflows
 2. **Copy caption** must confirm *Caption copied*. Long-press **Download video** →
    **Download Linked File** → the Safari download badge → **Downloads** → the
    **unique package file** (a package-bound, OCR-safe name such as
-   `imouse-reel-dcayxa`, so older `imouse-draft` files can never be confused) at
+   `imouse-reel-awmekh`, so older `imouse-draft` files can never be confused) at
    its exact complete size → the Files preview must play the package video →
    Share → settled sheet → **Save Video** → Home.
 3. Instagram → exact profile → `+` → **Reel** (icon template; OCR often omits the
@@ -122,17 +122,20 @@ GitHub-only clone; synthetic and service tests always run.
 
 ## 5. Live acceptance plan (prepared, not run)
 
-Prepared offline by `prepare_reel_live.py`; recheck with `live/verify_preparation.py`.
+Prepared offline by `prepare_reel_live.py`; recheck with `live/verify_preparation.py`. Re-prepared later on
+19 Oct, after the TikTok work changed shared sources; the earlier preparation
+(token `c0bb4ce25dae`) and an intermediate one (`1fbf9bfdcb71`) were never used and were
+replaced.
 
 | Item | Value |
 |---|---|
 | Run folder | `output/candidate-runs/farm-reel-20261019` (fresh; C24C-only mapping/calibration copied byte-identically) |
-| Test media | Labelled `REEL DRAFT TEST`, 4 s, 720×1280, silent; token `c0bb4ce25dae`, colour code `[1,6,3,1,7,0]` |
-| Video SHA-256 | `f583acb9f0a6c56c3bc3896fc7a22d4900ad927b972f442d58ee701c27413050` |
+| Test media | Labelled `REEL DRAFT TEST`, 4 s, 720×1280, silent; token `397aae4ea4ca`, colour code `[2,1,6,3,7,5]` |
+| Video SHA-256 | `ca5df0982d1f9a4fcc6ec0bdda213e94a4e3a0fdce49f5cc6e5318e58bddf0f2` |
 | Caption | `Fresh reel acceptance` |
-| Download name | `imouse-reel-dcayxa` |
+| Download name | `imouse-reel-awmekh` |
 | Native DLL | `58b4057833d360d2077617c4f0f49b14f7ae749ab780c9207a3b8fd619c83aa1` |
-| Backend source fingerprint | `3e7a3ee6edb124d4d0e4d53c8e7fd5fc39a1ddc84318c6daf76fdefe63c88158` |
+| Backend source fingerprint | `6f6e84c4ac3fd925eae8e095cc9e6a4426c804ccdcc81124781fd3c715121ef0` (same backend as the TikTok window) |
 | Private kernel | unchanged `c72fa4e0…a873` on 9916; media 9917 bind 192.168.4.26 → C24C 192.168.4.57 (recheck the phone's address) |
 
 Window steps (C24C only; no C241 input, desktop control, publishing or FKA change):
@@ -164,8 +167,9 @@ deleted. Repeating the window needs a fresh preparation (new token and run folde
 - Live acceptance of this Reel candidate, then repeated runs, multiline captions
   once the details layout is observed, and other accounts.
 - Next adapters, one at a time from supervised evidence: TikTok video (detect or
-  remove suggested sounds), X post/video, YouTube Short (permission prompt blocks
-  an unattended claim). Story, text, thread, long-video and community formats stay
+  remove suggested sounds; since built offline, see
+  [farm-tiktok-draft-20261019](../farm-tiktok-draft-20261019/README.md)), X
+  post/video, YouTube Short (permission prompt blocks an unattended claim). Story, text, thread, long-video and community formats stay
   unsupported until a real draft mechanism is observed.
 - A Reel saved-draft inspection (Priority 2 analogue) and a continuation that can
   reuse an already imported video, so a stopped run never needs a second import.

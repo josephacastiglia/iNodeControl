@@ -20,6 +20,10 @@ def capabilities():
              'detail': 'C24C: a three-slide carousel and a transferred MP4 Reel saved and reopened with their captions. The automatic phone workflow is not accepted.'},
             {'id': 'reel-draft', 'name': 'Instagram Reel draft on C24C', 'availability': 'Offline candidate',
              'detail': 'Imports one prepared Reel copy through Safari and Files, pastes an exact one-line caption, saves once and independently reopens and plays the draft. Tested on retained C24C layouts only; disabled without its isolated configuration; no live acceptance yet.'},
+            {'id': 'tiktok-draft', 'name': 'TikTok video draft on C24C', 'availability': 'Offline candidate',
+             'detail': 'Imports one prepared TikTok copy through Safari and Files, removes a suggested sound, pastes an exact '
+                       'one-line description checked without the caret, presses Drafts once and independently reopens it silent. '
+                       'Tested on retained C24C layouts only; disabled without its isolated configuration; no live acceptance yet.'},
             {'id': 'video-drafts', 'name': 'Prepare and transfer video drafts', 'availability': 'Local candidate',
              'detail': 'Immutable H.264 video copies, whole-frame fitting, source checksums, saved-copy recovery and expiring links. App saves still require observation.'},
             {'id': 'other-drafts', 'name': 'TikTok, X and YouTube draft saves', 'availability': 'Supervised tests passed',

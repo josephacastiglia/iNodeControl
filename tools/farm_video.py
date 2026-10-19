@@ -23,12 +23,25 @@ MAX_VIDEO = 64 * 1024 * 1024
 NAME_ALPHABET = 'acdefhkmnprtuvwxy'
 
 
-def download_name(package_hash):
+# Single-video formats with an automated draft candidate: a short package page
+# whose download name is bound to the package. Other formats keep the
+# supervised 'imouse-draft' page.
+PAGES = {
+    'ig_reel': dict(title='Reel draft', app='Instagram', prefix='reel', proof='an Instagram draft',
+                    steps='In Instagram check the account, choose Reel, select this video, paste the caption and '
+                          'choose Save draft. Do not tap Share.'),
+    'tt_video': dict(title='TikTok draft', app='TikTok', prefix='tt', proof='a TikTok draft',
+                     steps='In TikTok check the account, tap + and the gallery, select this video, remove any suggested '
+                           'sound, paste the caption and choose Drafts. Do not tap Post, Share or Your Story.'),
+}
+
+
+def download_name(package_hash, prefix='reel'):
     """Unique Safari download name for one immutable package, never a reused 'imouse-draft'."""
     value, letters = int(package_hash[:16], 16), []
     for _ in range(6):
         value, digit = divmod(value, len(NAME_ALPHABET)); letters.append(NAME_ALPHABET[digit])
-    return 'imouse-reel-' + ''.join(letters)
+    return 'imouse-' + prefix + '-' + ''.join(letters)
 
 
 def run_media(tool, arguments, timeout=90):
@@ -208,34 +221,38 @@ class VideoTransferPackage:
                     raise ValueError('Video must be reviewed H.264, 720×1280, yuv420p.')
                 run_media('ffmpeg', ['-v', 'error', '-xerror', '-nostdin', '-protocol_whitelist', 'file,pipe', '-i', str(path), '-map', '0:v:0', '-map', '0:a:0?', '-f', 'null', '-'])
         self.package_hash = hashlib.sha256(raw).hexdigest()
-        # Reel downloads get a package-bound name so Safari's list can identify
-        # this exact file. Other formats keep the supervised 'imouse-draft' route.
-        self.download_name = download_name(self.package_hash) if self.format == 'ig_reel' else 'imouse-draft'
+        # Automated single-video routes get a package-bound name so Safari's list can
+        # identify this exact file. Other formats keep the supervised 'imouse-draft' route.
+        self.download_name = (download_name(self.package_hash, PAGES[self.format]['prefix'])
+                              if self.format in PAGES else 'imouse-draft')
 
-    def reel_page(self, prefix, nonce):
+    def video_page(self, prefix, nonce):
         """Short, OCR-readable page: every control is a plain button above the fold."""
+        page = PAGES[self.format]
+        title, app = page['title'], page['app']
         return (f'<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8">'
-                f'<title>Reel draft transfer</title><style nonce="{nonce}">body{{font:18px system-ui;padding:20px;max-width:600px;margin:auto;'
+                f'<title>{title} transfer</title><style nonce="{nonce}">body{{font:18px system-ui;padding:20px;max-width:600px;margin:auto;'
                 'color:#15243d;background:#f4f7fc}h1{font-size:28px}.file{font-size:20px}.button,button{display:block;border:0;'
                 'border-radius:12px;background:#245cd7;color:white;text-decoration:none;padding:16px;margin:14px 0;font:inherit;'
                 'text-align:center;width:100%;box-sizing:border-box}textarea{box-sizing:border-box;width:100%;height:70px;'
                 'font:16px system-ui;padding:10px}.note{font-size:15px;line-height:1.5}</style></head><body>'
-                f'<h1>Reel draft</h1><p class="file">File {html.escape(self.download_name)}</p>'
+                f'<h1>{title}</h1><p class="file">File {html.escape(self.download_name)}</p>'
                 f'<a class="button" href="{prefix}video.mp4">Download video</a>'
-                f'<textarea id="caption" readonly aria-label="Reel caption">{html.escape(self.caption)}</textarea>'
+                f'<textarea id="caption" readonly aria-label="{title.split()[0]} caption">{html.escape(self.caption)}</textarea>'
                 '<button id="copy">Copy caption</button><p id="status" role="status"></p>'
                 '<p class="note">Touch and hold Download video and choose Download Linked File. In Safari Downloads, open this file, '
-                'then Share and Save Video. In Instagram check the account, choose Reel, select this video, paste the caption and '
-                'choose Save draft. Do not tap Share.</p><p class="note">A download does not prove a Photos save or an Instagram draft.</p>'
+                f'then Share and Save Video. {page["steps"]}</p><p class="note">A download does not prove a Photos save or {page["proof"]}.</p>'
                 f'<script nonce="{nonce}">document.getElementById("copy").onclick=async()=>{{const b=document.getElementById("caption");'
                 'const s=document.getElementById("status");b.focus();b.select();b.setSelectionRange(0,b.value.length);'
                 'try{let ok=false;if(window.isSecureContext&&navigator.clipboard){await navigator.clipboard.writeText(b.value);ok=true;}'
-                'else{ok=document.execCommand("copy");}s.textContent=ok?"Caption copied. Verify the pasted text in Instagram.":'
+                f'else{{ok=document.execCommand("copy");}}s.textContent=ok?"Caption copied. Verify the pasted text in {app}.":'
                 '"Caption selected. Use the selection menu to copy it.";}catch{s.textContent="Caption selected. Use the selection menu to copy it.";}};'
                 '</script></body></html>').encode('utf-8')
 
+    reel_page = video_page
+
     def page(self, prefix, nonce, number=0):
-        if self.format == 'ig_reel': return self.reel_page(prefix, nonce)
+        if self.format in PAGES: return self.video_page(prefix, nonce)
         return (f'<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8">'
                 f'<title>Video draft transfer</title><style nonce="{nonce}">body{{font:18px system-ui;padding:20px;max-width:600px;margin:auto}}'
                 'video{width:100%;max-height:55vh;background:#111}textarea{width:100%;height:100px;font:16px system-ui}button,a{display:block;padding:14px;margin:12px 0}</style></head><body>'

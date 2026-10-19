@@ -6,7 +6,7 @@ $taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 $taskPython='C:\Users\joey_\AppData\Local\Programs\Python\Python311\python.exe'
 $taskProcessFile=Join-Path $PSScriptRoot 'processes.json'
 if(Test-Path -LiteralPath $taskProcessFile){throw 'This live window already has a process record. Do not start duplicates.'}
-$taskProcesses=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('iMouse2.exe','iMouse2.Kernel.exe','uxplay.exe','NativeProbe.exe','ReelProbe.exe') -or ($_.CommandLine -and $_.CommandLine -match 'python[^\r\n]*imouse_farm_server\.py|dotnet[^\r\n]*iMouse2(\.Kernel)?\.dll') } | Select-Object ProcessId,ExecutablePath,CommandLine)
+$taskProcesses=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('iMouse2.exe','iMouse2.Kernel.exe','uxplay.exe','NativeProbe.exe','ReelProbe.exe','TikTokProbe.exe') -or ($_.CommandLine -and $_.CommandLine -match 'python[^\r\n]*imouse_farm_server\.py|dotnet[^\r\n]*iMouse2(\.Kernel)?\.dll') } | Select-Object ProcessId,ExecutablePath,CommandLine)
 $taskTcp=@(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object LocalPort -In @(9911,9913,9914,9915,9916,9917,7110,7111,7112,7120,7121,7122) | Select-Object LocalAddress,LocalPort,OwningProcess)
 $taskUdp=@(Get-NetUDPEndpoint -ErrorAction SilentlyContinue | Where-Object LocalPort -In @(7110,7111,7112,7120,7121,7122) | Select-Object LocalAddress,LocalPort,OwningProcess)
 @{utc=[datetime]::UtcNow.ToString('o');processes=$taskProcesses;tcp=$taskTcp;udp=$taskUdp;phoneInput=$false} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $PSScriptRoot 'initial-rack.json') -Encoding utf8
