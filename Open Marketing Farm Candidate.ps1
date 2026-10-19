@@ -1,8 +1,8 @@
-﻿# Separate native candidate. Does not restart the rack or alter installed shortcuts.
+# Separate native candidate. Does not restart the rack or alter installed shortcuts.
 param([switch]$ValidateOnly, [string]$PythonPath, [string]$DraftWorkflowConfig, [string]$DraftCreationConfig)
 $ErrorActionPreference = 'Stop'
 $repoDir = $PSScriptRoot
-$candidateDir = Join-Path $repoDir 'output\codex-farm-new-draft-20261019'
+$candidateDir = Join-Path $repoDir 'output\codex-farm-recovery-20261019'
 $candidateExe = Join-Path $candidateDir 'iMouse2.exe'
 $mode = if ($DraftWorkflowConfig -or $DraftCreationConfig) { 'live' } else { 'simulate' }
 $consoleAddress = if ($DraftWorkflowConfig -or $DraftCreationConfig) { 'http://127.0.0.1:9916' } else { 'http://127.0.0.1:9913' }
@@ -22,7 +22,7 @@ $pythonExe = $pythonCandidates | Where-Object { $_ -and $_ -notlike '*\WindowsAp
 if (!(Test-Path -LiteralPath $candidateExe -PathType Leaf)) { throw "Build the candidate first: $candidateExe" }
 if (!$pythonExe) { throw 'Python was not found. Pass -PythonPath with the full path to your Python executable.' }
 $expectedBytes = New-Object System.IO.MemoryStream
-foreach ($name in @('imouse_farm_server.py', 'imouse_social_automation.py', 'farm_jobs.py', 'farm_drafts.py', 'farm_media_transfer.py', 'farm_transfers.py', 'farm_capabilities.py', 'farm_video.py', 'farm_observations.py', 'Read-FarmImageText.ps1', 'farm_preparation_schedule.py', 'farm_frame_evidence.py', 'farm_draft_verification.py', 'farm_draft_media.py', 'farm_carousel_inspection.py', 'farm_draft_rehearsal.py', 'farm_screen_layout.py', 'farm_transitions.py', 'farm_live_verification.py', 'farm_draft_transport.py', 'farm_draft_workflow.py', 'farm_draft_runs.py', 'farm_draft_anchors.json', 'farm_draft_creation.py', 'farm_creation_runs.py', 'farm_creation_layout.py', 'farm_creation_badges.json', 'farm_creation_browser.json', 'farm_creation_controls.json')) {
+foreach ($name in @('imouse_farm_server.py', 'imouse_social_automation.py', 'farm_jobs.py', 'farm_drafts.py', 'farm_media_transfer.py', 'farm_transfers.py', 'farm_capabilities.py', 'farm_video.py', 'farm_observations.py', 'Read-FarmImageText.ps1', 'farm_preparation_schedule.py', 'farm_frame_evidence.py', 'farm_draft_verification.py', 'farm_draft_media.py', 'farm_carousel_inspection.py', 'farm_draft_rehearsal.py', 'farm_screen_layout.py', 'farm_transitions.py', 'farm_live_verification.py', 'farm_draft_transport.py', 'farm_draft_workflow.py', 'farm_draft_runs.py', 'farm_draft_anchors.json', 'farm_draft_creation.py', 'farm_creation_runs.py', 'farm_creation_layout.py', 'farm_creation_badges.json', 'farm_creation_browser.json', 'farm_creation_controls.json', 'farm_draft_recovery.py')) {
     $bytes = [IO.File]::ReadAllBytes((Join-Path $repoDir ('tools\' + $name)))
     $expectedBytes.Write($bytes, 0, $bytes.Length)
 }

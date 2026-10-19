@@ -86,6 +86,15 @@ class FarmJobs:
                         finally: connection.close()
                         if not record['terminal']:
                             record.update(status="interrupted", terminal=True, error="Server restarted. Previous actions have an unknown outcome and will not be replayed.")
+                            # Latch interruption while holding the worker lock.
+                            # Otherwise a later unrelated job makes this dead
+                            # job appear to be running again on every status GET.
+                            connection = sqlite3.connect(self.journal_path)
+                            try:
+                                with connection:
+                                    connection.execute('UPDATE farm_jobs SET record=? WHERE id=?',
+                                        (json.dumps(record), request_id))
+                            finally: connection.close()
                     finally: probe.release()
                 else:
                     record.update(status='running_elsewhere', error='Another backend still owns this job. Check that backend for completion; no work was replayed.')

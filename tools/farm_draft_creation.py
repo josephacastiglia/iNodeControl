@@ -72,6 +72,23 @@ class CreationWorkflow(Workflow):
         self.record['phases'].append(dict(name=name,started=self.monotonic()))
         self.save()
 
+    def save_history_ready(self, phase, prior):
+        # Creation inserts a caption between Details and Back. Require that
+        # exact sequence plus a later exact Details observation; the editor's
+        # caret-obscured OCR is never proof that the caption is correct.
+        tail = ['prepared-slide-2', 'prepared-slide-3', 'prepared-details',
+                'focus-empty-caption', 'open-paste-menu', 'paste-exact-caption',
+                'close-caption-editor', 'prepared-back', 'prepared-exit-sheet']
+        if phase != 'prepared' or [a['label'] for a in prior[-len(tail):]] != tail:
+            return False
+        closed = prior[-3].get('observationId')
+        observations = self.record['observations']
+        close_index = next((i for i, e in enumerate(observations) if e.get('observationId') == closed), None)
+        return closed is not None and close_index is not None and any(
+            e.get('state') == 'observed' and e.get('role') == 'details'
+            and e.get('screenCheck', {}).get('status') == 'exact_visible_lines'
+            for e in observations[close_index + 1:])
+
     def verify_screen(self,role,value,frame,index=None,require_next=False):
         text=value['text']
         if role=='account_entry' and value['result'].get('screen')=='profile':

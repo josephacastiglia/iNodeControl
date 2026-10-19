@@ -110,6 +110,9 @@ class DraftRuns:
         if sha(row[1]) != row[2]: raise ValueError('Retained draft package is damaged.')
         return json.loads(row[0]), row[1], row[2]
 
+    def package_for_request(self, spec):
+        return self.drafts.export(spec['draft_id'], spec['revision'])
+
     def start(self, spec):
         spec = self.validate_request(spec)
         if spec['store_id'] != self.store_id: raise DraftConflict('The candidate data store changed. No new run was admitted.')
@@ -121,7 +124,7 @@ class DraftRuns:
                 return self.get(spec['id'])
             if not self.config: raise KernelSafetyError('Prepare the isolated candidate; phone draft execution is disabled.')
             self.jobs.assert_available()
-            package = self.drafts.export(spec['draft_id'], spec['revision'])
+            package = self.package_for_request(spec)
             assets, caption, content = source_content(package)
             if not self.supports(package):
                 raise ValueError('Saved content is outside the currently verified draft candidate.')

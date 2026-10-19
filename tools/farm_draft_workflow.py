@@ -293,6 +293,10 @@ class Workflow:
         if point is not None: allowed_tap(text,*point,kind,frame=frame)
         return point
 
+    def save_history_ready(self, phase, prior):
+        expected = [phase + suffix for suffix in ('-details', '-back', '-exit-sheet')]
+        return len(prior) >= 3 and [a['label'] for a in prior[-3:]] == expected
+
     def refresh_save_prompt(self, action, value, frame):
         """One new decision while this run still owns the same verified draft.
 
@@ -303,7 +307,6 @@ class Workflow:
         label = action['label']
         phase = label.removesuffix('-save-once')
         prior = self.record['actions'][:-1]
-        expected = [phase + suffix for suffix in ('-details', '-back', '-exit-sheet')]
         command = self.record['commands'][-1]
         profile = next((entry['observation'] for entry in self.record['observations']
                         if entry.get('state') == 'observed' and entry['role'] == 'profile'), None)
@@ -312,7 +315,7 @@ class Workflow:
                 or action['kind'] != 'save_draft' or action['state'] != 'not_sent'
                 or command['purpose'] != label or command['state'] != 'not_sent'
                 or not command.get('refusal', '').startswith('DecisionExpired:')
-                or len(prior) < 3 or [a['label'] for a in prior[-3:]] != expected
+                or not self.save_history_ready(phase, prior)
                 or not all(a['state'] == 'answered' for a in prior)
                 or not slides <= {a['label'] for a in prior}
                 or not profile or profile['result'].get('accountStatus') != 'exact_text_match'

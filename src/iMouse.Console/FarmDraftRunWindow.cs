@@ -8,7 +8,8 @@ using System.Windows.Threading;
 
 namespace IMouse2;
 
-internal sealed record DraftRunBookmark(string Id, string StoreId, string DraftId, int Revision, string? ImportedFrom = null);
+internal sealed record DraftRunBookmark(string Id, string StoreId, string DraftId, int Revision, string? ImportedFrom = null,
+    string? CreationId = null, string? CreationStoreId = null, string? CreationRecordSha256 = null);
 
 internal sealed partial class FarmDraftRunWindow : Window
 {
@@ -16,6 +17,13 @@ internal sealed partial class FarmDraftRunWindow : Window
     private readonly string _draftId, _bookmarkPath;
     private readonly string _route, _capability;
     private readonly bool _createNew;
+    private readonly bool _inspection;
+    private readonly string _dataFolder;
+    private readonly string? _creationSourceId;
+    private string? _creationStoreId, _creationRecordSha256, _inspectionDraftId;
+    private int _inspectionRevision;
+    private bool _canInspect;
+    private readonly Button _inspect = new() { Content = "Inspect saved draft · no Save", Padding = new Thickness(12, 8, 12, 8) };
     private readonly int _revision;
     private readonly Button _start = new() { Content = "Check save and reopen on C24C", Padding = new Thickness(12, 8, 12, 8) };
     private readonly Button _recover = new() { Content = "Check saved result", Padding = new Thickness(12, 8, 12, 8) };
@@ -24,6 +32,7 @@ internal sealed partial class FarmDraftRunWindow : Window
     private readonly ComboBox _history = new() { DisplayMemberPath = "Label", MinHeight = 32 };
     private readonly ComboBox _frames = new() { DisplayMemberPath = "Label", MinHeight = 32 };
     private readonly TextBlock _status = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 16, 0, 16) };
+    private readonly TextBlock _subtitle = new() { Margin = new Thickness(0, 10, 0, 10), TextWrapping = TextWrapping.Wrap };
     private readonly Image _preview = new() { MaxHeight = 450, Stretch = Stretch.Uniform };
     private readonly DispatcherTimer _poll = new() { Interval = TimeSpan.FromSeconds(2) };
     private DraftRunBookmark? _pending;
@@ -31,22 +40,30 @@ internal sealed partial class FarmDraftRunWindow : Window
     private bool _busy, _eligible, _terminal, _bookmarkBroken, _retryBeforeImport, _continueImported;
     private sealed record Choice(string Id, string Label) { public override string ToString() => Label; }
 
-    internal FarmDraftRunWindow(FarmApiClient api, string dataFolder, string draftId, int revision, string title, bool createNew = false)
+    internal FarmDraftRunWindow(FarmApiClient api, string dataFolder, string draftId, int revision, string title, bool createNew = false, string? inspectCreationId = null)
     {
         _api = api; _draftId = draftId; _revision = revision; _createNew = createNew;
+        _dataFolder = dataFolder; _creationSourceId = inspectCreationId; _inspection = inspectCreationId is not null;
+        if (_inspection && (createNew || !Guid.TryParse(inspectCreationId, out _))) throw new ArgumentException("Choose one recorded creation for inspection.");
         _route = createNew ? "/api/farm/draft-creations" : "/api/farm/draft-runs";
         _capability = createNew ? "draftCreation" : "draftWorkflow";
+        if (_inspection) { _route = "/api/farm/draft-recoveries"; _capability = "draftRecovery"; }
         _bookmarkPath = Path.Combine(dataFolder, createNew ? "farm-pending-draft-creation.json" : "farm-pending-draft-run.json");
+        if (_inspection) _bookmarkPath = Path.Combine(dataFolder, "farm-pending-draft-inspection.json");
         Title = createNew ? "Create a verified C24C draft" : "C24C draft save and reopen";
         if (createNew) _start.Content = "Create and verify new draft on C24C"; Width = 840; Height = 820; MinWidth = 680; MinHeight = 600;
+        if (_inspection) { Title = "Inspect the saved C24C draft"; _start.Content = "Inspect saved content on C24C"; }
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         SetResourceReference(BackgroundProperty, "SurfaceBrush"); SetResourceReference(ForegroundProperty, "TextBrush");
         var panel = new StackPanel { Margin = new Thickness(24) };
         panel.Children.Add(new TextBlock { Text = createNew ? "Create a new verified phone draft" : "Verify the existing phone draft", FontSize = 24, FontWeight = FontWeights.SemiBold });
-        panel.Children.Add(new TextBlock { Text = $"{title} · saved revision {revision}", Margin = new Thickness(0, 10, 0, 10), TextWrapping = TextWrapping.Wrap });
+        if (_inspection) ((TextBlock)panel.Children[0]).Text = "Inspect the saved draft without repeating Save";
+        _subtitle.Text = $"{title} · saved revision {revision}"; panel.Children.Add(_subtitle);
         panel.Children.Add(new TextBlock { Text = createNew ? "C24C · Instagram @xs.halle.xo\nImports this saved revision into Photos, selects each slide in order, copies and pastes the exact caption, saves a draft and checks it after reopening. Start on the account profile. This replaces the phone clipboard. Three slides and a short visible caption are supported. Nothing is published or messaged." : "Candidate check · C24C · Instagram @xs.halle.xo\nChecks the already prepared, labelled three-slide test draft and its exact caption. Start on the account’s profile. The check saves, reopens, checks every slide and returns to the profile. It does not import media, type, publish or message. Other drafts are not supported by this first candidate.", TextWrapping = TextWrapping.Wrap });
+        if (_inspection) ((TextBlock)panel.Children[^1]).Text = "C24C · Instagram @xs.halle.xo\nStart on the account profile. This separate check opens the unique saved draft and checks every slide and the full caption. It sends no Save, import, typing, publishing or messaging. The original outcome stays unchanged. It leaves the phone on draft details and does not prove an app restart.";
         var buttons = new WrapPanel { Margin = new Thickness(0, 16, 0, 16) };
         buttons.Children.Add(_start); buttons.Children.Add(_recover); buttons.Children.Add(_stop); panel.Children.Add(buttons);
+        if (createNew) buttons.Children.Add(_inspect);
         panel.Children.Add(new TextBlock { Text = "Saved checks", FontWeight = FontWeights.SemiBold });
         panel.Children.Add(_history); panel.Children.Add(_status); panel.Children.Add(_frames); panel.Children.Add(_view); panel.Children.Add(_preview);
         Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
@@ -55,6 +72,7 @@ internal sealed partial class FarmDraftRunWindow : Window
         _recover.Click += async (_, _) => await RunAsync(RecoverAsync);
         _stop.Click += async (_, _) => await StopAsync();
         _view.Click += async (_, _) => await RunAsync(ViewAsync);
+        _inspect.Click += async (_, _) => await RunAsync(async () => { var window = await InspectionWindowAsync(); window.Owner = this; window.Show(); });
         _history.SelectionChanged += async (_, _) =>
         {
             if (!_busy && _pending is null && _history.SelectedItem is Choice row) await RunAsync(() => ShowAsync(row.Id));
@@ -77,6 +95,7 @@ internal sealed partial class FarmDraftRunWindow : Window
         _stop.IsEnabled = sameStore && !_terminal;
         _history.IsEnabled = !_busy && _pending is null && !_bookmarkBroken;
         _view.IsEnabled = _frames.IsEnabled = !_busy && _shownId is not null && _terminal;
+        _inspect.IsEnabled = _createNew && !_busy && _terminal && _canInspect && _shownId is not null;
     }
     private async Task RunAsync(Func<Task> action)
     {
@@ -97,14 +116,16 @@ internal sealed partial class FarmDraftRunWindow : Window
             try
             {
                 _pending = JsonSerializer.Deserialize<DraftRunBookmark?>(File.ReadAllBytes(_bookmarkPath));
-                if (_pending is { } b && (!Guid.TryParse(b.Id, out _) || !Guid.TryParse(b.StoreId, out _) || !Guid.TryParse(b.DraftId, out _) || b.Revision < 1 || (b.ImportedFrom is not null && !Guid.TryParse(b.ImportedFrom, out _)))) throw new InvalidOperationException("Invalid saved draft request.");
+                if (_pending is { } b && (!Guid.TryParse(b.Id, out _) || !Guid.TryParse(b.StoreId, out _) || !Guid.TryParse(b.DraftId, out _) || b.Revision < 1 || (b.ImportedFrom is not null && !Guid.TryParse(b.ImportedFrom, out _))
+                    || (_inspection && (!Guid.TryParse(b.CreationId, out _) || !Guid.TryParse(b.CreationStoreId, out _) || b.CreationRecordSha256?.Length != 64 || b.CreationId != _creationSourceId)))) throw new InvalidOperationException("Invalid saved draft request.");
             }
             catch { _bookmarkBroken = true; throw new InvalidOperationException("Saved request cannot be read. Preserve this candidate data folder for review; no new check can start."); }
         }
         var health = await _api.SendAsync("/health");
         var capability = health.GetProperty(_capability);
         if (capability.GetProperty("version").GetInt32() != 1) throw new InvalidOperationException("Use the matching draft candidate backend.");
-        if (_createNew && (capability.GetProperty("device").GetString() != "C24C" || capability.GetProperty("account").GetString() != "xs.halle.xo" || capability.GetProperty("publishing").GetBoolean() || capability.GetProperty("messaging").GetBoolean())) throw new InvalidOperationException("New draft creation needs the designated C24C account and draft-only backend.");
+        if ((_createNew || _inspection) && (capability.GetProperty("device").GetString() != "C24C" || capability.GetProperty("account").GetString() != "xs.halle.xo" || capability.GetProperty("publishing").GetBoolean() || capability.GetProperty("messaging").GetBoolean())) throw new InvalidOperationException("Use the designated C24C account and draft-only backend.");
+        if (_inspection && !capability.GetProperty("inspectionOnly").GetBoolean()) throw new InvalidOperationException("This backend cannot inspect without Save.");
         _storeId = capability.GetProperty("storeId").GetString();
         if (!Guid.TryParse(_storeId, out _)) throw new InvalidOperationException("Candidate storage identity is missing.");
         if (_pending is not null && _pending.StoreId != _storeId) throw new InvalidOperationException("This is a different candidate data store. Reopen the original backend to retrieve the pending result.");
@@ -112,8 +133,16 @@ internal sealed partial class FarmDraftRunWindow : Window
         // has since changed or deleted that revision. Retrieve it before asking
         // whether today's editor contents are eligible for a new operation.
         if (_pending is not null) { await RecoverAsync(); return; }
-        var eligible = (await _api.SendAsync($"{_route}/eligibility?draft_id={_draftId}&revision={_revision}")).GetProperty("eligibility");
+        var query = _inspection ? "creation_id=" + _creationSourceId : $"draft_id={_draftId}&revision={_revision}";
+        var eligible = (await _api.SendAsync($"{_route}/eligibility?{query}")).GetProperty("eligibility");
         _eligible = capability.GetProperty("enabled").GetBoolean() && eligible.GetProperty("eligible").GetBoolean() && health.GetProperty("executionMode").GetString() == "live" && eligible.GetProperty("storeId").GetString() == _storeId;
+        if (_inspection && _eligible)
+        {
+            if (eligible.GetProperty("draftId").GetString() != _draftId || eligible.GetProperty("revision").GetInt32() != _revision) throw new InvalidOperationException("Inspection source belongs to another revision.");
+            var proof = eligible.GetProperty("sourceProof");
+            _creationStoreId = proof.GetProperty("creationStoreId").GetString(); _creationRecordSha256 = proof.GetProperty("creationRecordSha256").GetString();
+            if (proof.GetProperty("creationId").GetString() != _creationSourceId || !Guid.TryParse(_creationStoreId, out _) || _creationRecordSha256?.Length != 64) throw new InvalidOperationException("The original creation proof is missing.");
+        }
         if (_createNew && _eligible && eligible.TryGetProperty("continueImportedFrom", out var origin))
         {
             _continueFrom = origin.GetString(); _continueImported = Guid.TryParse(_continueFrom, out _);
@@ -144,12 +173,17 @@ internal sealed partial class FarmDraftRunWindow : Window
             Keep(null); _retryBeforeImport = _continueImported = false; _continueFrom = null;
         }
         if (!_eligible || _pending is not null || _bookmarkBroken || _storeId is null) throw new InvalidOperationException("Resolve the existing request first.");
-        Keep(new(Guid.NewGuid().ToString(), _storeId, _draftId, _revision, importedFrom));
+        Keep(new(Guid.NewGuid().ToString(), _storeId, _draftId, _revision, importedFrom, _creationSourceId, _creationStoreId, _creationRecordSha256));
         _terminal = false; _shownId = null; _preview.Source = null; Buttons(); _poll.Start();
         // Keep every ambiguous response until status is reconciled. A timeout or
         // restart must never turn the same intent into a different request ID.
         var intent = new Dictionary<string, object> { ["id"] = _pending!.Id, ["draft_id"] = _draftId, ["revision"] = _revision, ["store_id"] = _storeId };
         if (importedFrom is not null) intent["continue_imported_from"] = importedFrom;
+        if (_inspection)
+        {
+            intent["creation_id"] = _pending.CreationId!; intent["creation_store_id"] = _pending.CreationStoreId!;
+            intent["creation_record_sha256"] = _pending.CreationRecordSha256!;
+        }
         var response = await _api.SendAsync(_route, intent);
         Apply(response.GetProperty("run"), _pending.Id); await HistoryAsync();
     }
@@ -159,6 +193,11 @@ internal sealed partial class FarmDraftRunWindow : Window
         await ShowAsync(_pending.Id); if (!_terminal) _poll.Start();
     }
     private async Task ShowAsync(string id) => Apply((await _api.SendAsync(_route + "/" + id)).GetProperty("run"), id);
+    private async Task<FarmDraftRunWindow> InspectionWindowAsync()
+    {
+        if (!_createNew || !_canInspect || !_terminal || _shownId is null || _inspectionDraftId is null) throw new InvalidOperationException("Select a stopped creation whose Save started.");
+        return await Task.FromResult(new FarmDraftRunWindow(_api, _dataFolder, _inspectionDraftId, _inspectionRevision, "Retained creation · " + _shownId[..8], inspectCreationId: _shownId));
+    }
     private async Task StopAsync()
     {
         if (_pending is null || _pending.StoreId != _storeId || _terminal) return;
@@ -172,6 +211,8 @@ internal sealed partial class FarmDraftRunWindow : Window
     private void Apply(JsonElement value, string expectedId)
     {
         var request = value.GetProperty("request");
+        if (_inspection && (_pending is { } inspection && (request.GetProperty("creation_id").GetString() != inspection.CreationId || request.GetProperty("creation_store_id").GetString() != inspection.CreationStoreId || request.GetProperty("creation_record_sha256").GetString() != inspection.CreationRecordSha256)
+            || !value.GetProperty("inspectionOnly").GetBoolean() || value.GetProperty("originalOutcomeChanged").GetBoolean() || value.GetProperty("appRestartVerified").GetBoolean())) throw new InvalidOperationException("Inspection result does not match its immutable source or restricted scope.");
         if (value.GetProperty("id").GetString() != expectedId || value.GetProperty("storeId").GetString() != _storeId || value.GetProperty("publishing").GetBoolean() || value.GetProperty("messaging").GetBoolean() || value.GetProperty("automaticResume").GetBoolean()
             || (_pending is { } b && (request.GetProperty("draft_id").GetString() != b.DraftId || request.GetProperty("revision").GetInt32() != b.Revision || (request.TryGetProperty("continue_imported_from", out var origin) ? origin.GetString() : null) != b.ImportedFrom))) throw new InvalidOperationException("Result does not match the saved request and candidate data store.");
         bool terminal = value.GetProperty("terminal").GetBoolean(), verified = value.GetProperty("savedDraftVerified").GetBoolean();
@@ -180,7 +221,11 @@ internal sealed partial class FarmDraftRunWindow : Window
         if (verified && (!terminal || state != "verified" || cleanup != "confirmed" || workflow.ValueKind != JsonValueKind.Object || workflow.GetProperty("source").GetString() != "candidate_phone_workflow")) throw new InvalidOperationException("The result lacks confirmed phone evidence and cleanup.");
         if (verified && workflow.GetProperty("actions").EnumerateArray().Any(a => a.GetProperty("state").GetString() != "answered")) throw new InvalidOperationException("An uncertain phone action cannot be presented as a verified draft.");
         if (verified && _createNew && (!workflow.GetProperty("createdDraftVerified").GetBoolean() || !workflow.GetProperty("mediaDelivery").GetProperty("stopped").GetBoolean())) throw new InvalidOperationException("New draft creation lacks confirmed import, reopen verification or media-service cleanup.");
+        if (verified && _inspection && (workflow.GetProperty("mode").GetString() != "inspect_saved_draft" || !workflow.GetProperty("inspectionOnly").GetBoolean())) throw new InvalidOperationException("The result is not a saved-draft inspection.");
         _shownId = expectedId; _terminal = terminal; if (terminal) _poll.Stop();
+        _canInspect = _createNew && terminal && workflow.ValueKind == JsonValueKind.Object && workflow.GetProperty("actions").EnumerateArray().Any(a => a.GetProperty("label").GetString() == "prepared-save-once" && a.GetProperty("state").GetString() is "answered" or "outcome_unknown");
+        _inspectionDraftId = request.GetProperty("draft_id").GetString(); _inspectionRevision = request.GetProperty("revision").GetInt32();
+        if (_inspection) _subtitle.Text = $"Retained creation · saved revision {_inspectionRevision} · check {expectedId[..8]}";
         _retryBeforeImport = _createNew && terminal && !verified && value.TryGetProperty("retryBeforeImportAllowed", out var retry) && retry.GetBoolean()
             && request.GetProperty("draft_id").GetString() == _draftId && request.GetProperty("revision").GetInt32() == _revision;
         _continueImported = _createNew && terminal && !verified && value.TryGetProperty("continueImportedAllowed", out var reuse) && reuse.GetBoolean()
@@ -190,7 +235,8 @@ internal sealed partial class FarmDraftRunWindow : Window
         if (_createNew) _start.Content = _continueImported ? "Continue · use imported images" : _retryBeforeImport ? "Start new attempt · no media imported" : "Create and verify new draft on C24C";
         if (verified && _pending is not null) Keep(null);
         if (verified && _createNew) _eligible = false;
-        var lines = new List<string> { verified ? (_createNew ? "NEW PHONE DRAFT CREATED AND VERIFIED" : "PHONE DRAFT VERIFIED") : terminal ? "STOPPED · REVIEW REQUIRED" : "CHECK IN PROGRESS", value.GetProperty("reason").GetString()!, "Lease cleanup: " + cleanup.Replace('_', ' '), "Nothing was published or messaged. A saved draft check does not prove app-restart persistence." };
+        var lines = new List<string> { verified ? (_inspection ? "MATCHING SAVED DRAFT OBSERVED" : _createNew ? "NEW PHONE DRAFT CREATED AND VERIFIED" : "PHONE DRAFT VERIFIED") : terminal ? "STOPPED · REVIEW REQUIRED" : "CHECK IN PROGRESS", value.GetProperty("reason").GetString()!, "Lease cleanup: " + cleanup.Replace('_', ' '), "Nothing was published or messaged. A saved draft check does not prove app-restart persistence." };
+        if (_inspection) lines.Add("No Save, import or caption entry is repeated. This result does not change the original request. A completed inspection leaves the phone on draft details.");
         if (value.GetProperty("draftChangedSinceRun").GetBoolean()) lines.Add("This evidence belongs to an older saved revision.");
         if (workflow.ValueKind == JsonValueKind.Object)
         {

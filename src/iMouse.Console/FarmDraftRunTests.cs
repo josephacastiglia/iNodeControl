@@ -15,6 +15,8 @@ internal sealed partial class FarmDraftRunWindow
     {
         internal string StoreId = Guid.NewGuid().ToString(), DraftId = Guid.NewGuid().ToString();
         internal string? Id, BookmarkPath, ImportedFrom, EligibleImportedFrom;
+        internal string? CreationId, CreationStoreId, CreationRecordSha256, EligibleCreationId;
+        internal bool Inspection, WrongCreationProof;
         internal int Starts, Cancels, EligibilityCalls;
         internal bool Missing, Terminal, Verified, Enabled = true, WrongResult, BookmarkBeforePost;
         internal bool CreationConfirmed = true, RetryBeforeImport, ContinueImported;
@@ -22,10 +24,11 @@ internal sealed partial class FarmDraftRunWindow
         private object Result() => new
         {
             id = WrongResult ? Guid.NewGuid().ToString() : Id, storeId = StoreId,
-            request = new { draft_id = DraftId, revision = 3, continue_imported_from = ImportedFrom }, state = Verified ? "verified" : Terminal ? "review_required" : "running",
+            request = new { draft_id = DraftId, revision = 3, continue_imported_from = ImportedFrom, creation_id = CreationId, creation_store_id = CreationStoreId, creation_record_sha256 = WrongCreationProof ? new string('b', 64) : CreationRecordSha256 }, state = Verified ? "verified" : Terminal ? "review_required" : "running",
             terminal = Terminal, savedDraftVerified = Verified, retryBeforeImportAllowed = RetryBeforeImport, continueImportedAllowed = ContinueImported, cleanup = Terminal ? "confirmed" : "unconfirmed",
             reason = Verified ? "The matching draft was saved, reopened and checked." : "Save reply lost; no replay.", draftChangedSinceRun = true, publishing = false, messaging = false, automaticResume = false,
-            workflow = new { source = "candidate_phone_workflow", createdDraftVerified = CreationConfirmed, mediaDelivery = new { stopped = true }, actions = new[] { new { label = "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
+            inspectionOnly = Inspection, originalOutcomeChanged = false, appRestartVerified = false,
+            workflow = new { source = "candidate_phone_workflow", mode = Inspection ? "inspect_saved_draft" : "create_new_draft", inspectionOnly = Inspection, createdDraftVerified = CreationConfirmed, mediaDelivery = new { stopped = true }, actions = new[] { new { label = Inspection ? "inspect-open-draft" : "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
                 observations = new[] { new { observationId = "frame1", role = "library", state = "observed" } } }
         };
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
@@ -37,18 +40,26 @@ internal sealed partial class FarmDraftRunWindow
                 var intent = JsonSerializer.Deserialize<JsonElement>(await request.Content!.ReadAsStringAsync(token));
                 Starts++; Id = intent.GetProperty("id").GetString();
                 ImportedFrom = intent.TryGetProperty("continue_imported_from", out var imported) ? imported.GetString() : null;
+                CreationId = intent.TryGetProperty("creation_id", out var source) ? source.GetString() : null;
+                CreationStoreId = intent.TryGetProperty("creation_store_id", out var sourceStore) ? sourceStore.GetString() : null;
+                CreationRecordSha256 = intent.TryGetProperty("creation_record_sha256", out var sourceHash) ? sourceHash.GetString() : null;
                 BookmarkBeforePost = BookmarkPath is not null && System.IO.File.ReadAllText(BookmarkPath).Contains(Id!);
                 throw new HttpRequestException("Response lost after admission");
             }
-            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled }, draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false } });
+            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled }, draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false }, draftRecovery = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, inspectionOnly = true } });
             if (route.EndsWith("/eligibility"))
             {
                 EligibilityCalls++;
                 var eligible = new Dictionary<string, object> { ["storeId"] = StoreId, ["eligible"] = Enabled, ["reason"] = "Prepared candidate only.", ["contentReason"] = "Saved content matches." };
                 if (EligibleImportedFrom is not null) eligible["continueImportedFrom"] = EligibleImportedFrom;
+                if (route.StartsWith("/api/farm/draft-recoveries"))
+                {
+                    eligible["draftId"] = DraftId; eligible["revision"] = 3;
+                    eligible["sourceProof"] = new { creationId = EligibleCreationId, creationStoreId = StoreId, creationRecordSha256 = new string('a', 64) };
+                }
                 return Response(new { protocolVersion = 2, eligibility = eligible });
             }
-            if (route is "/api/farm/draft-runs" or "/api/farm/draft-creations") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
+            if (route is "/api/farm/draft-runs" or "/api/farm/draft-creations" or "/api/farm/draft-recoveries") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
             if (route.Contains("/frames/")) return Response(new { protocolVersion = 2, frame = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=" });
             return Missing ? Response(new { error = "Saved result missing" }, HttpStatusCode.NotFound) : Response(new { protocolVersion = 2, run = Result() });
         }
@@ -121,6 +132,35 @@ internal sealed partial class FarmDraftRunWindow
             check("A verified existing draft result cannot masquerade as new draft creation", creation._pending is not null && !creation._start.IsEnabled);
             handler.CreationConfirmed = true; await creation.RunAsync(creation.RecoverAsync);
             check("New draft completion needs confirmed creation and stopped media delivery", creation._pending is null && creation._status.Text.Contains("NEW PHONE DRAFT CREATED AND VERIFIED"));
+            check("Stopped creation with a started Save offers a separate inspection without replay", creation._inspect.IsEnabled && creation._shownId == handler.Id);
+            string originalCreation = handler.Id!; handler.EligibleCreationId = originalCreation;
+            var inspection = await creation.InspectionWindowAsync(); windows.Add(inspection);
+            handler.Inspection = true; handler.Terminal = handler.Verified = false;
+            await inspection.RunAsync(inspection.InitializeAsync);
+            check("Saved draft inspection has its own route and bookmark and opens without input", inspection._inspection && inspection._route == "/api/farm/draft-recoveries" && inspection._bookmarkPath != creation._bookmarkPath && inspection._start.IsEnabled && handler.Starts == starts + 1);
+            handler.BookmarkPath = inspection._bookmarkPath; int inspectionStarts = handler.Starts;
+            await inspection.RunAsync(inspection.StartAsync); inspection._poll.Stop();
+            check("Inspection retains the source creation hash before its first POST", handler.Starts == inspectionStarts + 1 && handler.BookmarkBeforePost && handler.CreationId == originalCreation && inspection._pending?.CreationRecordSha256 == new string('a', 64));
+            handler.WrongCreationProof = true; await inspection.RunAsync(inspection.RecoverAsync);
+            check("Inspection rejects a result from changed creation evidence and keeps its pending request", inspection._pending is not null && inspection._status.Text.Contains("immutable source") && !inspection._start.IsEnabled);
+            handler.WrongCreationProof = false;
+            var inspectionReopened = new FarmDraftRunWindow(api, folder, handler.DraftId, 4, "Edited local revision", inspectCreationId: originalCreation); windows.Add(inspectionReopened);
+            int sourceEligibilityCalls = handler.EligibilityCalls;
+            await inspectionReopened.RunAsync(inspectionReopened.InitializeAsync); inspectionReopened._poll.Stop();
+            check("Reopening inspection after a lost reply only retrieves its original revision and source", inspectionReopened._pending?.CreationId == originalCreation && inspectionReopened._pending?.Revision == 3 && handler.Starts == inspectionStarts + 1 && handler.EligibilityCalls == sourceEligibilityCalls);
+            await inspectionReopened.StopAsync();
+            check("Inspection cancellation uses its own original request and store", handler.Routes.Last() == "/api/farm/draft-recoveries/" + handler.Id + "/cancel");
+            handler.Terminal = handler.Verified = true; await inspectionReopened.RunAsync(inspectionReopened.RecoverAsync);
+            check("Completed inspection is presented as an observation without changing original creation", inspectionReopened._pending is null && inspectionReopened._status.Text.Contains("MATCHING SAVED DRAFT OBSERVED") && inspectionReopened._status.Text.Contains("does not change the original") && creation._shownId == originalCreation && handler.Starts == inspectionStarts + 1);
+            var inspectionContent = (FrameworkElement)inspectionReopened.Content;
+            inspectionContent.Measure(new Size(840, 820)); inspectionContent.Arrange(new Rect(0, 0, 840, 820)); inspectionContent.UpdateLayout();
+            var inspectionImage = new RenderTargetBitmap(840, 820, 96, 96, PixelFormats.Pbgra32);
+            var inspectionBackground = new DrawingVisual(); using (var drawing = inspectionBackground.RenderOpen()) drawing.DrawRectangle(inspectionReopened.Background, null, new Rect(0, 0, 840, 820));
+            inspectionImage.Render(inspectionBackground);
+            inspectionImage.Render(inspectionContent); var inspectionPng = new PngBitmapEncoder(); inspectionPng.Frames.Add(BitmapFrame.Create(inspectionImage));
+            using (var file = System.IO.File.Create(System.IO.Path.Combine(AppContext.BaseDirectory, "qa", "farm-draft-recovery-headless.png"))) inspectionPng.Save(file);
+            check("Saved draft inspection renders without desktop control or a native window", inspectionContent.IsArrangeValid && new WindowInteropHelper(inspectionReopened).Handle == IntPtr.Zero);
+            handler.Inspection = false; handler.EligibleCreationId = null;
             handler.Id = null; handler.Terminal = handler.Verified = false;
             var retryWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", createNew: true); windows.Add(retryWindow);
             handler.BookmarkPath = retryWindow._bookmarkPath; await retryWindow.RunAsync(retryWindow.InitializeAsync);
