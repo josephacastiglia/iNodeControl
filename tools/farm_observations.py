@@ -32,15 +32,19 @@ def image_size(raw):
 
 
 class WindowsOcr:
-    def _read_file(self, image_path, size):
+    def _read_file(self, image_path, size, control_path=None):
         binary = Path(os.environ.get('WINDIR', 'C:/Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
         if not binary.is_file():
             raise ValueError('Windows image-text recognition is unavailable on this machine.')
         script = Path(__file__).with_name('Read-FarmImageText.ps1')
         image_digest = hashlib.sha256(image_path.read_bytes()).hexdigest()
+        command = [str(binary), '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                   '-File', str(script), '-ImagePath', str(image_path)]
+        if control_path is not None:
+            control_digest = hashlib.sha256(control_path.read_bytes()).hexdigest()
+            command.extend(['-ControlImagePath', str(control_path)])
         try:
-            result = subprocess.run([str(binary), '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
-                '-File', str(script), '-ImagePath', str(image_path)], capture_output=True, timeout=25,
+            result = subprocess.run(command, capture_output=True, timeout=25,
                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         except subprocess.TimeoutExpired as exc:
             raise ValueError('Image-text recognition timed out; no screen state was verified.') from exc
@@ -51,6 +55,12 @@ class WindowsOcr:
             raise ValueError('OCR process did not read the exact submitted image.')
         if (value.get('width'), value.get('height')) != size:
             raise ValueError('OCR result dimensions differ from the source frame.')
+        if control_path is not None:
+            detail = value.get('control', {})
+            if not isinstance(detail, dict) or detail.get('imageSha256') != control_digest:
+                raise ValueError('OCR process did not read the exact submitted control image.')
+            if (detail.get('width'), detail.get('height')) != NEXT_CROP_SIZE:
+                raise ValueError('OCR control dimensions differ from the submitted crop.')
         return value
 
     def read(self, raw):
@@ -59,12 +69,17 @@ class WindowsOcr:
             image_path = Path(directory) / 'frame.png'
             with Image.open(io.BytesIO(raw)) as image:
                 image.convert('RGB').save(image_path)
-            value = self._read_file(image_path, size)
-            value['frameSha256'] = hashlib.sha256(raw).hexdigest()
-            if size == (500, 1080) and editor_controls(raw, value) and not next_label(raw, value):
+            path = None
+            if size == (500, 1080):
                 crop, source_pixels = next_crop(raw)
                 path = Path(directory) / 'next-control.png'; path.write_bytes(crop)
-                detail = self._read_file(path, NEXT_CROP_SIZE)
+            # One WinRT engine/process reads both exact images. The optional crop
+            # is used only for a recognized editor missing Next; it never repairs
+            # account/caption text or supplies an independent screen decision.
+            value = self._read_file(image_path, size, path)
+            detail = value.pop('control', None)
+            value['frameSha256'] = hashlib.sha256(raw).hexdigest()
+            if size == (500, 1080) and editor_controls(raw, value) and not next_label(raw, value):
                 value['controlOcr'] = {'next': {**detail, 'sourceFrameSha256': value['frameSha256'],
                     'sourcePixelsSha256': source_pixels, 'bounds': list(NEXT_LABEL_BOX), 'scale': NEXT_LABEL_SCALE}}
             return value

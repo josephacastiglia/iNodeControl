@@ -56,3 +56,13 @@ The four picker frames were individually fresh (656–689 ms age). Their home-in
 The revised helper parks the pointer only after a confirmed action, before starting the next settling interval. The overall 90-second budget still includes that move, and six-second/four-frame settling, 1,500 ms freshness and protected control comparisons are unchanged. Uncertain action replies still stop with no further navigation. A separate `--return-profile-only` operation can close only a freshly recognized Post picker and verify the account profile; it cannot open or save a draft.
 
 The revised full-flow suite passed **12 checks in 63.978 seconds**, including picker-only recovery, cancellation and parking after confirmed actions (`workflow-tests-parking.txt`). Together with the unchanged 11 transport and 29 shared guard checks, this revision has 52 applicable preparation checks. Original preparation evidence and source hashes remain preserved; every phone attempt has its own record.
+
+## Attempt 2 and OCR processing time
+
+`recovery-01` freshly verified and closed only the picker, confirmed the authorized profile and released its lease. In the separate `attempt-02`, Create passed in two captures; the fading picker required four; the first editor's changing suggestion required three. The helper then verified all three slides and the full caption. After returning to slide 3, its last stable editor pair aged past the 1,500 ms budget at the final decision check. The run stopped before requesting Save and released C24C. It remains a failed acceptance attempt, leaving the existing draft open.
+
+The editor's OCR path started PowerShell twice: once for the whole image and once for the fixed Next label. The new bridge reads both exact files through one WinRT engine/process, checks each file's checksum and dimensions, and uses the crop only when a recognized editor lacks exact whole-frame Next. It never repairs caption/account text. Its frame-age accounting, semantic checks and refusal rules are unchanged.
+
+`ocr-batch-comparison.json` compares both implementations on five retained images. Whole-frame text and Next evidence were identical. Three editor reads fell from 876/957/944 ms to 543/562/523 ms; profile and picker were approximately unchanged. These are local processing measurements, not fresh-phone acceptance. **58 focused tests passed** including swapped/missing/mis-sized control evidence, original frame binding, freshness, transitions and no replay.
+
+The separate `--preserve-open-draft` recovery requires the known final slide and exact full caption, saves once, then returns to the authorized profile. A lost Save reply stops; it cannot silently restart the main workflow. This operation is marked preservation, not save/reopen acceptance.

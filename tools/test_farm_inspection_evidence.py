@@ -125,10 +125,28 @@ class InspectionEvidenceTests(unittest.TestCase):
         def reply(arguments,**kwargs):
             image_path=Path(arguments[arguments.index('-ImagePath')+1])
             digest=hashlib.sha256(image_path.read_bytes()).hexdigest()
-            value=dict(width=500,height=1080,lines=[],imageSha256=digest)
+            control_path=Path(arguments[arguments.index('-ControlImagePath')+1])
+            value=dict(width=500,height=1080,lines=[],imageSha256=digest,
+                control=dict(width=129,height=117,lines=[],imageSha256=hashlib.sha256(control_path.read_bytes()).hexdigest()))
             return subprocess.CompletedProcess(arguments,0,json.dumps(value).encode(),b'')
-        with patch('farm_observations.subprocess.run',side_effect=reply): value=WindowsOcr().read(raw)
+        with patch('farm_observations.subprocess.run',side_effect=reply) as process: value=WindowsOcr().read(raw)
+        self.assertEqual(1,process.call_count)
         self.assertEqual(hashlib.sha256(raw).hexdigest(),value['frameSha256'])
         wrong=dict(width=500,height=1080,lines=[],imageSha256='f'*64)
         with patch('farm_observations.subprocess.run',return_value=subprocess.CompletedProcess([],0,json.dumps(wrong).encode(),b'')):
             with self.assertRaisesRegex(ValueError,'exact submitted image'): WindowsOcr().read(raw)
+
+    def test_ocr_batch_rejects_missing_swapped_or_mis_sized_control(self):
+        raw,_=self.fixture.kernel.shot('C24C')
+        def reply(arguments,**kwargs):
+            image=Path(arguments[arguments.index('-ImagePath')+1]).read_bytes()
+            control=Path(arguments[arguments.index('-ControlImagePath')+1]).read_bytes()
+            detail=dict(width=129,height=117,lines=[],imageSha256=hashlib.sha256(control).hexdigest())
+            if problem=='swapped': detail['imageSha256']=hashlib.sha256(image).hexdigest()
+            elif problem=='dimensions': detail['width']=128
+            elif problem=='missing': detail=None
+            value=dict(width=500,height=1080,lines=[],imageSha256=hashlib.sha256(image).hexdigest(),control=detail)
+            return subprocess.CompletedProcess(arguments,0,json.dumps(value).encode(),b'')
+        for problem in ('missing','swapped','dimensions'):
+            with self.subTest(problem=problem), patch('farm_observations.subprocess.run',side_effect=reply):
+                with self.assertRaises(ValueError): WindowsOcr().read(raw)

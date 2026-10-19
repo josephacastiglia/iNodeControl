@@ -1,5 +1,5 @@
-param([Parameter(Mandatory=$true)][string]$ImagePath)
-# Windows PowerShell 5.1 WinRT bridge. Reads one local image; no desktop/input APIs.
+param([Parameter(Mandatory=$true)][string]$ImagePath, [string]$ControlImagePath)
+# Windows PowerShell 5.1 WinRT bridge. Reads local images; no desktop/input APIs.
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 Add-Type -AssemblyName System.Runtime.WindowsRuntime
@@ -19,7 +19,11 @@ function Await-Result($Operation, [Type]$ResultType) {
     if (-not $task.Wait(15000)) { throw 'Image recognition timed out.' }
     return $task.Result
 }
-$path = [System.IO.Path]::GetFullPath($ImagePath)
+$language = New-Object Windows.Globalization.Language('en-US')
+$engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromLanguage($language)
+if ($null -eq $engine) { throw 'English Windows OCR language is unavailable.' }
+function Read-ImageText([string]$InputPath) {
+$path = [System.IO.Path]::GetFullPath($InputPath)
 if (-not [System.IO.File]::Exists($path)) { throw 'Image file missing.' }
 if ((Get-Item -LiteralPath $path).Length -gt 16777216) { throw 'Image exceeds 16 MiB.' }
 $lockedFile = $null
@@ -39,9 +43,6 @@ try {
     $limit = [Windows.Media.Ocr.OcrEngine]::MaxImageDimension
     if ($decoder.PixelWidth -gt $limit -or $decoder.PixelHeight -gt $limit) { throw 'Image dimensions exceed OCR support.' }
     $bitmap = Await-Result ($decoder.GetSoftwareBitmapAsync([Windows.Graphics.Imaging.BitmapPixelFormat]::Bgra8, [Windows.Graphics.Imaging.BitmapAlphaMode]::Ignore)) ([Windows.Graphics.Imaging.SoftwareBitmap])
-    $language = New-Object Windows.Globalization.Language('en-US')
-    $engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromLanguage($language)
-    if ($null -eq $engine) { throw 'English Windows OCR language is unavailable.' }
     $result = Await-Result ($engine.RecognizeAsync($bitmap)) ([Windows.Media.Ocr.OcrResult])
     $lines = @($result.Lines | ForEach-Object {
         $words = @($_.Words | ForEach-Object {
@@ -49,10 +50,14 @@ try {
         })
         @{text=$_.Text; words=$words}
     })
-    @{provider='windows-ocr'; language='en-US'; imageSha256=$imageHash; width=$bitmap.PixelWidth; height=$bitmap.PixelHeight; lines=$lines} | ConvertTo-Json -Depth 8 -Compress
+    return @{provider='windows-ocr'; language='en-US'; imageSha256=$imageHash; width=$bitmap.PixelWidth; height=$bitmap.PixelHeight; lines=$lines}
 }
 finally {
     if ($null -ne $bitmap) { $bitmap.Dispose() }
     if ($null -ne $stream) { $stream.Dispose() }
     if ($null -ne $lockedFile) { $lockedFile.Dispose() }
 }
+}
+$recognized = Read-ImageText $ImagePath
+if ($ControlImagePath) { $recognized.control = Read-ImageText $ControlImagePath }
+$recognized | ConvertTo-Json -Depth 10 -Compress

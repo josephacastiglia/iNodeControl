@@ -175,34 +175,33 @@ class LayoutTests(unittest.TestCase):
         text['frameSha256']=hashlib.sha256(bmp).hexdigest(); crop_proof(bmp,text)
         self.assertIsNotNone(next_label(frame,text))
 
-    def test_windows_ocr_uses_one_optional_fixed_crop_without_rewriting_full_text(self):
+    def test_windows_ocr_batches_fixed_crop_without_rewriting_full_text(self):
         frame,text=screen('editor'); calls=[]
-        def read(path,size):
-            raw=Path(path).read_bytes(); calls.append((raw,size))
-            if len(calls)==1: return copy.deepcopy(text)
+        def read(path,size,control_path):
+            calls.append((Path(path).read_bytes(),size,Path(control_path).read_bytes()))
             detail=crop_proof(frame,copy.deepcopy(text))['controlOcr']['next']
-            return {k:v for k,v in detail.items() if k in ('width','height','imageSha256','lines')}
+            return {**copy.deepcopy(text),'control':{k:v for k,v in detail.items() if k in ('width','height','imageSha256','lines')}}
         with patch.object(WindowsOcr,'_read_file',side_effect=read): result=WindowsOcr().read(frame)
-        self.assertEqual([(500,1080),NEXT_CROP_SIZE],[size for _,size in calls])
-        self.assertEqual(next_crop(frame)[0],calls[1][0])
+        self.assertEqual(1,len(calls)); self.assertEqual((500,1080),calls[0][1])
+        self.assertEqual(next_crop(frame)[0],calls[0][2])
         self.assertEqual(text['lines'],result['lines'])
         self.assertIsNotNone(next_label(frame,result))
 
-    def test_exact_whole_frame_label_and_unrelated_screens_do_not_start_crop_ocr(self):
+    def test_exact_whole_frame_label_and_unrelated_screens_do_not_use_crop_ocr(self):
         for kind in ('editor','picker'):
             frame,text=screen(kind)
             if kind=='editor':
                 row=next(r for r in text['lines'] if r['text']=='ext')
                 row['text']=row['words'][0]['text']='Next'
-            with patch.object(WindowsOcr,'_read_file',return_value=text) as read:
+            with patch.object(WindowsOcr,'_read_file',return_value={**text,'control':{'lines':[]}}) as read:
                 result=WindowsOcr().read(frame)
             self.assertEqual(1,read.call_count); self.assertNotIn('controlOcr',result)
 
     def test_ambiguous_crop_does_not_retry_or_invent_a_label(self):
         frame,text=screen('editor'); bad=crop_proof(frame,copy.deepcopy(text),'ext')['controlOcr']['next']
-        with patch.object(WindowsOcr,'_read_file',side_effect=[copy.deepcopy(text),bad]) as read:
+        with patch.object(WindowsOcr,'_read_file',return_value={**copy.deepcopy(text),'control':bad}) as read:
             result=WindowsOcr().read(frame)
-        self.assertEqual(2,read.call_count); self.assertIsNone(next_label(frame,result))
+        self.assertEqual(1,read.call_count); self.assertIsNone(next_label(frame,result))
         self.assertEqual('draft_editor',classify(result,self.expected,frame)['screen'])
 
     def test_label_crop_excludes_arrow_but_is_bound_to_the_whole_source(self):

@@ -235,8 +235,11 @@ class Workflow:
         self.command('/mouse/move',purpose='park_after_answered_action',x=480,y=300)
         self.pause(.65)
 
-    def run(self, *, restore_profile_only=False):
-        self.record['mode']='return_profile_from_picker' if restore_profile_only else 'save_reopen'
+    def run(self, *, restore_profile_only=False, preserve_open_draft=False):
+        if restore_profile_only and preserve_open_draft:
+            raise ValueError('Choose one recovery operation.')
+        self.record['mode']=('preserve_open_draft' if preserve_open_draft else
+                             'return_profile_from_picker' if restore_profile_only else 'save_reopen')
         try:
             self.identity=self.runtime()
             if not idle(self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)):
@@ -244,7 +247,9 @@ class Workflow:
             raw,_=self.kernel.shot('C24C')
             text=self.store.ocr.read(raw)
             initial=classify(text,dict(platform='instagram',account=ACCOUNT,caption=self.caption),raw)
-            if restore_profile_only:
+            if preserve_open_draft:
+                screen_ready('editor',raw,text,self.assets,len(self.assets),True)
+            elif restore_profile_only:
                 if not picker_controls(raw,text):
                     raise InspectionStopped('Recovery only closes the recognized Post picker; no input was sent.')
             elif initial['screen']!='profile' or initial['accountStatus']!='exact_text_match':
@@ -252,6 +257,18 @@ class Workflow:
             # This old/quiet read can admit only the first move-only challenge.
             self.record['cleanup']='unconfirmed'; self.save(); self.owned.acquire()
             self.command('/mouse/reset',purpose='initial_pointer_reset')
+            if preserve_open_draft:
+                self.command('/mouse/move',purpose='park_before_draft_preservation',x=480,y=300)
+                self.pause(.65)
+                self.action('preserve-details','details','editor',len(self.assets))
+                self.action('preserve-back','back_to_editor','details')
+                self.action('preserve-exit-sheet','request_save','editor',len(self.assets))
+                self.action('preserve-save-once','save_draft','save_prompt')
+                self.action('preserve-return-profile','leave_picker','picker')
+                self.observe('profile')
+                self.record.update(state='draft_preserved_profile_restored',savedDraftVerified=False,
+                    meaning='Separate preservation of the already open matching draft; not save/reopen acceptance.')
+                return self.record
             if restore_profile_only:
                 self.command('/mouse/move',purpose='park_before_picker_recovery',x=480,y=300)
                 self.pause(.65)
@@ -301,7 +318,9 @@ class Workflow:
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
-    parser.add_argument('--return-profile-only',action='store_true',help='Close only a recognized Post picker; never open or save a draft.')
+    recovery=parser.add_mutually_exclusive_group()
+    recovery.add_argument('--return-profile-only',action='store_true',help='Close only a recognized Post picker; never open or save a draft.')
+    recovery.add_argument('--preserve-open-draft',action='store_true',help='Verify final slide and full caption, save the matching open draft once, and return to its profile. Not an acceptance run.')
     args=parser.parse_args()
     sources=json.loads((HERE/'validation-sources.json').read_text(encoding='utf-8-sig'))
     for path,digest in sources['files'].items():
@@ -323,9 +342,9 @@ def main():
     signal.signal(signal.SIGINT,lambda *_:cancelled.set())
     result=Workflow(args.out,StepKernel('http://127.0.0.1:9916/api'),ObservationStore(args.out/'observations.sqlite3'),
         assets,manifest['caption'],templates,expected_hash,preparation['expectedUid'],cancelled=cancelled).run(
-            restore_profile_only=args.return_profile_only)
+            restore_profile_only=args.return_profile_only,preserve_open_draft=args.preserve_open_draft)
     print(json.dumps(dict(state=result['state'],cleanup=result['cleanup'],error=result.get('error'),folder=str(args.out))))
-    return 0 if result['state'] in ('validation_passed','profile_restored') else 2
+    return 0 if result['state'] in ('validation_passed','profile_restored','draft_preserved_profile_restored') else 2
 
 
 if __name__=='__main__': raise SystemExit(main())

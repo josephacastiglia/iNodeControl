@@ -129,15 +129,33 @@ class WorkflowTests(unittest.TestCase):
             manifest=json.loads(package.read('manifest.json'))
             cls.caption=manifest['caption']; cls.assets=[package.read(a['file']) for a in manifest['assets']]
 
-    def run_fixture(self, scenario='normal', restore=False):
+    def run_fixture(self, scenario='normal', restore=False, preserve=False):
         temporary=tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
         folder=Path(temporary.name); kernel=FixtureKernel(self.templates,self.texts,scenario)
         if restore: kernel.screen='picker'
+        if preserve: kernel.screen='editor'; kernel.index=3
         store=ObservationStore(folder/'observations.sqlite3',ocr=FixtureOcr(kernel),clock=kernel.clock,monotonic=kernel.clock)
         workflow=live.Workflow(folder,kernel,store,self.assets,self.caption,self.templates,'a'*64,'fixture-uid',
             monotonic=kernel.clock,pause=kernel.pause)
         kernel.cancelled=workflow.cancelled
-        return workflow.run(restore_profile_only=restore),kernel,workflow
+        return workflow.run(restore_profile_only=restore,preserve_open_draft=preserve),kernel,workflow
+
+    def test_open_draft_preservation_checks_caption_saves_once_and_returns_profile(self):
+        result,kernel,_=self.run_fixture(preserve=True)
+        self.assertEqual('draft_preserved_profile_restored',result['state'],result.get('error'))
+        self.assertEqual(1,kernel.saves); self.assertEqual('profile',kernel.screen)
+        self.assertEqual('confirmed',result['cleanup']); self.assertFalse(result['savedDraftVerified'])
+        self.assertFalse(any(a['kind']=='open_test_draft' for a in result['actions']))
+
+    def test_open_draft_preservation_refuses_wrong_caption(self):
+        result,kernel,_=self.run_fixture('wrong_caption',preserve=True)
+        self.assertEqual('review_required',result['state']); self.assertEqual(0,kernel.saves)
+        self.assertEqual('confirmed',result['cleanup'])
+
+    def test_open_draft_preservation_stops_after_uncertain_save(self):
+        result,kernel,_=self.run_fixture('lost_save',preserve=True)
+        self.assertEqual('review_required',result['state']); self.assertEqual(1,kernel.saves)
+        self.assertEqual('release',kernel.calls[-1]); self.assertEqual('/mouse/click',kernel.calls[-2][0])
 
     def test_whole_flow_uses_one_lease_all_slides_caption_and_returns_profile(self):
         result,kernel,_=self.run_fixture()
