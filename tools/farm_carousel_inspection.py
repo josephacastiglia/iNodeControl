@@ -26,14 +26,18 @@ class InspectionStopped(Exception):
 
 class OwnedCaptureRun:
     """In-memory capability. Tokens are never returned as observation evidence."""
-    def __init__(self, kernel, run_id, cancelled, monotonic=time.monotonic):
+    def __init__(self, kernel, run_id, cancelled, monotonic=time.monotonic, *, budget_seconds=90):
+        if type(budget_seconds) is not int or not 1 <= budget_seconds <= 120:
+            raise ValueError('Owned operation budget must be between 1 and 120 seconds.')
         self.kernel, self.run_id, self.cancelled = kernel, run_id, cancelled
-        self.monotonic, self.deadline = monotonic, monotonic() + 90
+        self.budget_seconds = budget_seconds
+        self.monotonic, self.deadline = monotonic, monotonic() + budget_seconds
         self.tokens, self.generation, self.resolved, self.stream = {}, None, None, None
 
     def check_budget(self):
         if self.cancelled.is_set(): raise InspectionStopped('Inspection cancelled; no action will be replayed.')
-        if self.monotonic() >= self.deadline: raise InspectionStopped('Inspection exceeded its 90-second budget.')
+        if self.monotonic() >= self.deadline:
+            raise InspectionStopped(f'Inspection exceeded its {self.budget_seconds}-second budget.')
 
     def acquire(self):
         self.check_budget()

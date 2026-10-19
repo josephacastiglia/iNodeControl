@@ -6,7 +6,7 @@
 
 - C24C only, on the existing authorized Instagram profile `xs.halle.xo`.
 - Reuse the existing labelled three-slide test draft. No media creation/import, text entry, account switching, publishing, messaging, FKA changes or PC control.
-- Own C24C continuously for one run. The original 90-second admission budget and six-second/four-capture transition budgets stay unchanged; an in-flight request and lease cleanup can extend wall time.
+- Own C24C continuously for one run. The full diagnostic has a fixed 120-second admission budget; the existing shorter inspection keeps its 90-second default. Six-second/four-capture transition budgets remain unchanged. An in-flight request and lease cleanup can extend wall time.
 - Refuse wrong identity, an existing owner, stale frames, changed controls, unknown screens, ambiguous covers or uncertain responses. Never retry a semantic action. A separate Save when leaving the reopened editor preserves the same draft; it is not a retry of the initial Save.
 - Move-only pointer challenges at two known points produce fresh delivery on quiet video. They do not bypass the 1,500 ms frame-age limit, account checks, screen recognition or final stable comparisons.
 
@@ -70,3 +70,9 @@ The separate `--preserve-open-draft` recovery requires the known final slide and
 `recovery-02` confirmed the final slide and full caption but also held before Save: an editor frame was recent after OCR, then aged out during evidence processing. Cleanup released the phone. The reduced OCR latency alone was not sufficient to prevent every hold.
 
 The diagnostic now exports duplicate PNG files only after lease cleanup. The SQLite observation image and immutable record are still committed before any decision, then re-read, hashed and re-aged at dispatch. The shared waiter remains responsible for validating every Create/picker/editor frame; a redundant second screen decode in the diagnostic was removed. No capture, age, comparison or ownership requirement was removed. The final export must match the retained image checksums or acceptance fails. **16 workflow tests passed in 71.444 seconds**, plus an explicit export-order test proving exports follow confirmed release. The next attempt remains separate from both earlier held runs.
+
+## Attempt 3 and full-operation admission budget
+
+`recovery-03` preserved the already open matching draft, returned to the authorized profile and released control. `attempt-03` then completed all 19 semantic actions: inspected the prepared slides/caption, saved, reopened, inspected every slide/caption again, saved on exit and returned to the profile. Its last account capture exceeded the inherited 90-second admission budget. The capture was recorded as failed, cleanup confirmed and the overall attempt held; no full-run pass is claimed.
+
+The original `OwnedCaptureRun` budget was designed for a shorter inspection. It now accepts an internal bounded duration (1–120 seconds), with **90 seconds still the default**. Only this explicit full diagnostic selects 120 seconds; there is no CLI or HTTP duration override. Every action still checks cancellation, ownership and deadline; freshness remains 1,500 ms and transition settling remains six seconds/four captures. This is an explicit policy change for the longer operation, not evidence that attempt 3 passed.

@@ -37,6 +37,9 @@ from imouse_social_automation import LIVE_TEST_DEVICE_ID
 
 ACCOUNT = 'xs.halle.xo'
 PACKAGE_HASH = '7f910284d9c7dc26d3c443183fdda33c78bdd4553036dabc75e38d158f48b616'
+# Full save/reopen has two complete slide/caption passes and final restoration.
+# This is a fixed diagnostic policy, never a request/CLI-controlled timeout.
+WORKFLOW_BUDGET_SECONDS = 120
 
 
 def atomic_json(path, value):
@@ -77,11 +80,13 @@ class Workflow:
         self.assets, self.caption, self.templates = assets, caption, templates
         self.expected_hash, self.expected_uid = expected_hash, expected_uid
         self.cancelled, self.monotonic, self.pause = cancelled or threading.Event(), monotonic, pause
-        self.owned = OwnedCaptureRun(kernel, str(uuid.uuid4()), self.cancelled, monotonic)
+        self.owned = OwnedCaptureRun(kernel, str(uuid.uuid4()), self.cancelled, monotonic,
+                                     budget_seconds=WORKFLOW_BUDGET_SECONDS)
         self.identity = None
         self.record = dict(id=self.owned.run_id, source='bounded_live_diagnostic' if kernel._is_live_http else 'offline_protocol_fixture',
             state='not_started', cleanup='not_needed', commands=[], observations=[], transitionChecks=[], actions=[],
             publishing=False, messaging=False, desktopControl=False, savedDraftVerified=False,
+            budgetSeconds=WORKFLOW_BUDGET_SECONDS,
             productionAdapterAccepted=False, packageSha256=PACKAGE_HASH, account=ACCOUNT)
 
     def save(self):
@@ -235,7 +240,7 @@ class Workflow:
             self.command('/mouse/swipe',basis=value,purpose=label,x1=400,y1=480,x2=100,y2=480,duration=350)
         action['state']='answered'; self.save()
         # Complete pointer parking before starting the next settling interval.
-        # The overall 90-second budget still includes this movement. Uncertain
+        # The overall operation budget still includes this movement. Uncertain
         # replies/cancellation never get here; no semantic action is repeated.
         self.command('/mouse/move',purpose='park_after_answered_action',x=480,y=300)
         self.pause(.65)

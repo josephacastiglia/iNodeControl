@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import sys
 import tempfile
+import threading
 import unittest
 import uuid
 import zipfile
@@ -118,6 +119,20 @@ class FixtureKernel:
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_owned_budget_remains_bounded_and_original_inspection_keeps_90_seconds(self):
+        now=[1000.]
+        original=live.OwnedCaptureRun(None,'test',threading.Event(),lambda:now[0])
+        self.assertEqual(1090.,original.deadline)
+        full=live.OwnedCaptureRun(None,'test',threading.Event(),lambda:now[0],budget_seconds=120)
+        now[0]=1090.
+        with self.assertRaises(live.InspectionStopped): original.check_budget()
+        full.check_budget()
+        now[0]=1120.
+        with self.assertRaises(live.InspectionStopped): full.check_budget()
+        for invalid in (0,121,True,float('inf')):
+            with self.assertRaises(ValueError):
+                live.OwnedCaptureRun(None,'test',threading.Event(),lambda:now[0],budget_seconds=invalid)
+
     @classmethod
     def setUpClass(cls):
         cls.templates=live.references(); cls.texts={}
