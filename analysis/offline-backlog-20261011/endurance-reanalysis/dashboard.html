@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="10">
+<title>Endurance telemetry report</title>
+<style>
+:root { color-scheme: dark; --bg:#0e1116; --card:#171c24; --line:#2a3340; --text:#e7edf4; --muted:#8b98a8; --ok:#3dd68c; --bad:#ff6b6b; --warn:#f0b429; }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 "Segoe UI", system-ui, sans-serif; }
+main { max-width:1080px; margin:0 auto; padding:28px 20px 40px; display:grid; gap:16px; }
+h1 { margin:0; font-size:1.45rem; letter-spacing:-.02em; }
+h2 { margin:0 0 12px; font-size:.95rem; }
+.sub { color:var(--muted); margin:6px 0 0; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; }
+.stats, .gates { display:grid; gap:12px; }
+.stats { grid-template-columns:repeat(3,1fr); margin-top:16px; }
+.gates { grid-template-columns:repeat(4,1fr); }
+.stat b, .gate b { display:block; font-size:1.55rem; font-variant-numeric:tabular-nums; font-weight:650; }
+.stat span, .gate span, th { color:var(--muted); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; }
+.track { height:10px; margin-top:16px; background:#0b0e13; border-radius:99px; overflow:hidden; }
+.fill { height:100%; width:99.9%; background:#4c8dff; }
+.ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
+table { width:100%; border-collapse:collapse; }
+th, td { padding:8px 10px; border-bottom:1px solid var(--line); text-align:left; }
+td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+tr:last-child td { border-bottom:0; }
+@media (max-width:720px) { .stats, .gates { grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+<main>
+<section class="card">
+<h1>Endurance telemetry report</h1>
+<p class="sub">Saved observations as of 2026-09-24T04:04:10.206+00:00 · failed · not Gate 10 release acceptance</p>
+<p>64/64 interactions failed or unverified</p>
+<div class="stats">
+<div class="stat"><span>Elapsed Time</span><b>5:17:45</b></div>
+<div class="stat"><span>Remaining Time</span><b>0:00:14</b></div>
+<div class="stat"><span>Progress</span><b>100%</b></div>
+</div>
+<div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-label="Soak progress"><div class="fill"></div></div>
+</section>
+<section class="card">
+<h2>Recorded conditions</h2>
+<div class="gates">
+<div class="gate"><span>Restarts</span><b class="ok">0</b></div>
+<div class="gate"><span>Freezes</span><b class="ok">0</b></div>
+<div class="gate"><span>Stuck Keys</span><b class="ok">0</b></div>
+<div class="gate"><span>Memory</span><b class="warn">RISING</b></div>
+</div>
+</section>
+<section class="card">
+<h2>Live Phone Streams</h2>
+<table>
+<thead><tr><th>Phone</th><th class="num">Received</th><th class="num">Current FPS</th><th class="num">Average FPS</th><th>State</th></tr></thead>
+<tbody>
+<tr><td>C24C</td><td class="num">290,995</td><td class="num">14.39</td><td class="num">15.26</td><td>mirroring</td></tr>
+<tr><td>C241</td><td class="num">289,980</td><td class="num">16.06</td><td class="num">15.21</td><td>mirroring</td></tr>
+<tr><td>C214</td><td class="num">380,918</td><td class="num">20.16</td><td class="num">19.98</td><td>mirroring</td></tr>
+<tr><td>724E</td><td class="num">381,650</td><td class="num">20.14</td><td class="num">20.02</td><td>mirroring</td></tr>
+<tr><td>Phone 5</td><td class="num">388,233</td><td class="num">20.26</td><td class="num">20.36</td><td>mirroring</td></tr>
+</tbody>
+</table>
+</section>
+<section class="card">
+<h2>Memory Tracking</h2>
+<table>
+<thead><tr><th>Process</th><th class="num">Working Set MB</th><th class="num">Private Bytes MB</th><th class="num">10m WS med</th><th class="num">10m priv med</th></tr></thead>
+<tbody>
+<tr><td>Kernel</td><td class="num">88.4</td><td class="num">50.4</td><td class="num">88.4</td><td class="num">50.4</td></tr>
+<tr><td>Console</td><td class="num">213.1</td><td class="num">263.4</td><td class="num">213.1</td><td class="num">263.4</td></tr>
+<tr><td>Receiver C24C</td><td class="num">165.5</td><td class="num">149.3</td><td class="num">164.6</td><td class="num">148.4</td></tr>
+<tr><td>Receiver C241</td><td class="num">168.9</td><td class="num">152.6</td><td class="num">167.9</td><td class="num">151.6</td></tr>
+<tr><td>Receiver C214</td><td class="num">166.6</td><td class="num">150.4</td><td class="num">165.7</td><td class="num">149.5</td></tr>
+<tr><td>Receiver 724E</td><td class="num">165.4</td><td class="num">149.2</td><td class="num">164.3</td><td class="num">148.1</td></tr>
+<tr><td>Receiver Phone 5</td><td class="num">165.4</td><td class="num">149.2</td><td class="num">164.5</td><td class="num">148.2</td></tr>
+</tbody>
+</table>
+</section>
+</main>
+</body>
+</html>

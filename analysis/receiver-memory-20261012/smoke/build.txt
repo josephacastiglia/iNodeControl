@@ -1,0 +1,4 @@
+In file included from C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\tools\receiver_memory_probe\probe.c:9:
+C:/Users/joey_/Desktop/Claude Code/iMouseXP-2.0/tools/airplay/uxplay/renderers/imouse_frame_pipe.h:78:13: warning: 'imouse_attach' defined but not used [-Wunused-function]
+   78 | static void imouse_attach(GstElement *pipeline, const char *codec) {
+      |             ^~~~~~~~~~~~~

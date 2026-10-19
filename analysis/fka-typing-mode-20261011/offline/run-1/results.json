@@ -1,0 +1,496 @@
+{
+  "at": "2026-10-11T01:17:02.7412727-04:00",
+  "offline": true,
+  "physicalPhoneTest": false,
+  "boundary": "IHidTransport.SendAsync argument, not a capture from the physical USB board or iOS",
+  "limitations": [
+    "No WPF click path",
+    "No HTTP socket or lease protocol",
+    "No board firmware or iOS/FKA emulation",
+    "The reused decoder inverts the kernel map; the explicit Hi there bytes and report framing are checked separately"
+  ],
+  "binaries": [
+    {
+      "name": "candidate b0708e3",
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\fka-typing-mode-20261011\\offline\\build\\iMouse2.dll",
+      "expected": "E5A51FC6204566FA3B48C650FC239A42B158217D8045D2712850173980303AC3",
+      "actual": "E5A51FC6204566FA3B48C650FC239A42B158217D8045D2712850173980303AC3"
+    },
+    {
+      "name": "release kernel",
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\fka-typing-mode-20261011\\offline\\build\\iMouse2.Kernel.dll",
+      "expected": "BD1A68168E9270F029336CF8E13FF85E9B15FD67951EF545D1E973C2BFE634FC",
+      "actual": "BD1A68168E9270F029336CF8E13FF85E9B15FD67951EF545D1E973C2BFE634FC"
+    }
+  ],
+  "checks": [
+    {
+      "name": "candidate b0708e3 binary matches recorded hash",
+      "passed": true
+    },
+    {
+      "name": "release kernel binary matches recorded hash",
+      "passed": true
+    },
+    {
+      "name": "candidate chunk size is 12",
+      "passed": true
+    },
+    {
+      "name": "first: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "first: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "first: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "first: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "first: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "Hi there emits the eight explicit expected key-down reports",
+      "passed": true
+    },
+    {
+      "name": "repeat-on-same-router: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "repeat-on-same-router: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "repeat-on-same-router: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "repeat-on-same-router: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "repeat-on-same-router: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "first and repeated sends emit byte-identical keyboard reports",
+      "passed": true
+    },
+    {
+      "name": "leading-repeated-trailing: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "leading-repeated-trailing: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "leading-repeated-trailing: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "leading-repeated-trailing: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "leading-repeated-trailing: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "shift-released-before-spaces: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "shift-released-before-spaces: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "shift-released-before-spaces: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "shift-released-before-spaces: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "shift-released-before-spaces: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "space-at-end-of-first-chunk: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "space-at-end-of-first-chunk: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "space-at-end-of-first-chunk: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "space-at-end-of-first-chunk: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "space-at-end-of-first-chunk: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "space-at-start-of-second-chunk: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "space-at-start-of-second-chunk: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "space-at-start-of-second-chunk: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "space-at-start-of-second-chunk: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "space-at-start-of-second-chunk: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "separate-2-0: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "separate-2-0: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "separate-2-0: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "separate-2-0: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "separate-2-0: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "separate-1-6: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "separate-1-6: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "separate-1-6: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "separate-1-6: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "separate-1-6: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "separate-5-9: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "separate-5-9: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "separate-5-9: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "separate-5-9: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "separate-5-9: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "separately submitted Hi / space / there has the same eight key downs",
+      "passed": true
+    },
+    {
+      "name": "after-enter: payload preserves every character and space",
+      "passed": true
+    },
+    {
+      "name": "after-enter: completed; one key-down per requested character",
+      "passed": true
+    },
+    {
+      "name": "after-enter: decoder contains the same characters",
+      "passed": true
+    },
+    {
+      "name": "after-enter: each stroke is neutral / down / neutral, with no hidden prefix key",
+      "passed": true
+    },
+    {
+      "name": "after-enter: one plain usage-44 press for each space",
+      "passed": true
+    },
+    {
+      "name": "preceding Enter does not change the text keyboard reports",
+      "passed": true
+    },
+    {
+      "name": "cancellation at Space remains cancelled, not completed",
+      "passed": true
+    },
+    {
+      "name": "no letters after Space are emitted following cancellation",
+      "passed": true
+    },
+    {
+      "name": "cancellation cleanup ends with a neutral keyboard report",
+      "passed": true
+    }
+  ],
+  "runs": [
+    {
+      "name": "first",
+      "chunks": [
+        "Hi there"
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 8,
+        "ConfirmedCharacters": 8,
+        "Sent": 1,
+        "Confirmed": 1,
+        "Chunks": 1,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 24,
+      "spaceHoldsMs": [
+        93.35
+      ]
+    },
+    {
+      "name": "repeat-on-same-router",
+      "chunks": [
+        "Hi there"
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 8,
+        "ConfirmedCharacters": 8,
+        "Sent": 1,
+        "Confirmed": 1,
+        "Chunks": 1,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 24,
+      "spaceHoldsMs": [
+        91.533
+      ]
+    },
+    {
+      "name": "leading-repeated-trailing",
+      "chunks": [
+        " Hi  there "
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 11,
+        "ConfirmedCharacters": 11,
+        "Sent": 1,
+        "Confirmed": 1,
+        "Chunks": 1,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 33,
+      "spaceHoldsMs": [
+        92.509,
+        93.47,
+        92.714,
+        93.493
+      ]
+    },
+    {
+      "name": "shift-released-before-spaces",
+      "chunks": [
+        "AB C D"
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 6,
+        "ConfirmedCharacters": 6,
+        "Sent": 1,
+        "Confirmed": 1,
+        "Chunks": 1,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 18,
+      "spaceHoldsMs": [
+        93.771,
+        93.363
+      ]
+    },
+    {
+      "name": "space-at-end-of-first-chunk",
+      "chunks": [
+        "ABCDEFGHIJK ",
+        "there x"
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 19,
+        "ConfirmedCharacters": 19,
+        "Sent": 2,
+        "Confirmed": 2,
+        "Chunks": 2,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 57,
+      "spaceHoldsMs": [
+        91.59,
+        92.594
+      ]
+    },
+    {
+      "name": "space-at-start-of-second-chunk",
+      "chunks": [
+        "ABCDEFGHIJKL",
+        " there x"
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 20,
+        "ConfirmedCharacters": 20,
+        "Sent": 2,
+        "Confirmed": 2,
+        "Chunks": 2,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 60,
+      "spaceHoldsMs": [
+        94.99,
+        91.689
+      ]
+    },
+    {
+      "name": "separate-2-0",
+      "chunks": [
+        "Hi"
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 2,
+        "ConfirmedCharacters": 2,
+        "Sent": 1,
+        "Confirmed": 1,
+        "Chunks": 1,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 6,
+      "spaceHoldsMs": []
+    },
+    {
+      "name": "separate-1-6",
+      "chunks": [
+        " "
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 1,
+        "ConfirmedCharacters": 1,
+        "Sent": 1,
+        "Confirmed": 1,
+        "Chunks": 1,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 3,
+      "spaceHoldsMs": [
+        92.917
+      ]
+    },
+    {
+      "name": "separate-5-9",
+      "chunks": [
+        "there"
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 5,
+        "ConfirmedCharacters": 5,
+        "Sent": 1,
+        "Confirmed": 1,
+        "Chunks": 1,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 15,
+      "spaceHoldsMs": []
+    },
+    {
+      "name": "after-enter",
+      "chunks": [
+        "Hi there"
+      ],
+      "result": {
+        "end": "Completed",
+        "Total": 8,
+        "ConfirmedCharacters": 8,
+        "Sent": 1,
+        "Confirmed": 1,
+        "Chunks": 1,
+        "failureType": null,
+        "failureMessage": null
+      },
+      "reportCount": 24,
+      "spaceHoldsMs": [
+        94.167
+      ]
+    },
+    {
+      "name": "cancel-at-space",
+      "chunks": [
+        "Hi there"
+      ],
+      "result": {
+        "end": "Cancelled",
+        "Total": 8,
+        "ConfirmedCharacters": 0,
+        "Sent": 1,
+        "Confirmed": 0,
+        "Chunks": 1,
+        "failureType": "TaskCanceledException",
+        "failureMessage": "A task was canceled."
+      },
+      "reportCount": 10,
+      "spaceHoldsMs": [
+        0.448
+      ]
+    }
+  ],
+  "error": null,
+  "exit": 0
+}

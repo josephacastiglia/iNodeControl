@@ -1,0 +1,28 @@
+FAIL cancelled startup never launches and reports stopped: cancelled start state
+Receiver running, pid 123
+FAIL running cancellation disposes once and reports stopped: running cancellation cleanup
+Receiver running, pid 123
+PASS repeated Dispose never disposes a child twice
+Receiver start failed: fake start
+Receiver start failed: fake start
+Receiver start failed: fake start
+Receiver retry limit reached (2).
+PASS startup exceptions exhaust a finite budget
+Receiver running, pid 123
+FAIL wait failure cleans up and recovers: wait failure must retry
+Receiver running, pid 123
+FAIL unrelated cancellation exception is a failure, not shutdown: unrelated cancellation swallowed
+Receiver running, pid 123
+Receiver exited.
+FAIL cancel during backoff prevents replacement: backoff cancellation
+FAIL negative delay is refused before starting: negative delay accepted
+Receiver running, pid 123
+Receiver running, pid 123
+Receiver exited.
+Receiver running, pid 123
+Receiver exited.
+Receiver retry limit reached (1).
+PASS one failed receiver leaves a healthy peer running
+Receiver running, pid 123
+FAIL dispose inside startup cannot publish a running child: startup cancellation race
+3/10 recovery checks passed; fake handles only; no sockets, HID, receivers or UI.

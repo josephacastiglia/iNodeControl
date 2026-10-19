@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-12T05:41:27.130276+00:00",
+  "project": "src/iMouse.Kernel/iMouse.Kernel.csproj",
+  "metadata": {
+    "git_head": "01fb669a79e95700a086440b3e2905b0b511cdcb",
+    "sdk_version": "8.0.424",
+    "source_snapshot_includes_uncommitted_files": true
+  },
+  "sources": {
+    "src/iMouse.Kernel/AirplayProcess.cs": {
+      "sha256": "e7413b83265c94696087b5bc8fab361c5b1536fc3232b193c409a7b8265d225c",
+      "bytes": 2647
+    },
+    "src/iMouse.Kernel/AirplaySupervisor.cs": {
+      "sha256": "bdb8bee2b0e0038bba748fa293dc18c46f72c87cbc7b384415ad622519ba9bf1",
+      "bytes": 6580
+    },
+    "src/iMouse.Kernel/ApiServer.cs": {
+      "sha256": "3a5faf1f5cd46c68c67253250525561a915e58a700d6767c3442ec695229aaa2",
+      "bytes": 11282
+    },
+    "src/iMouse.Kernel/data/devices.json": {
+      "sha256": "ab447fc5eef79f1ad8bde32d426dfeff2f2f65c88729faffabe1b45ad97d8d65",
+      "bytes": 3531
+    },
+    "src/iMouse.Kernel/DeviceStore.cs": {
+      "sha256": "cf151bc4b905525cb2a18c097fecf44eaff1edb215d65d78f32e70575bde5ec6",
+      "bytes": 1929
+    },
+    "src/iMouse.Kernel/FrameStore.cs": {
+      "sha256": "52ea8565c333639c9ecd915f368e00419ea89b852512aa7b7abde9c92e6fe080",
+      "bytes": 9176
+    },
+    "src/iMouse.Kernel/HidConnection.cs": {
+      "sha256": "3ae61000e3f6228547204cca2e2cda28be941db7e13e030d9400b082a02277f7",
+      "bytes": 1808
+    },
+    "src/iMouse.Kernel/HidHost.cs": {
+      "sha256": "c7fd1a9065504a530036e02c63e710f8b0cb161ad9f20f357183cc87094a967c",
+      "bytes": 8800
+    },
+    "src/iMouse.Kernel/HidProtocol.cs": {
+      "sha256": "5a0aa5d124e261aef40a4e875cdc303e0435c4f9950be1672727afb8fcbb3125",
+      "bytes": 1610
+    },
+    "src/iMouse.Kernel/iMouse.Kernel.csproj": {
+      "sha256": "a78dad8989cfc60e2771fd248d5efd5846bb84b158f2f0ba5699737008a1a154",
+      "bytes": 532
+    },
+    "src/iMouse.Kernel/InputRouter.cs": {
+      "sha256": "1b93ccb55eb47d436e2f1061558e88088bb3ac1d66d8d363854dc4e1ae224905",
+      "bytes": 16642
+    },
+    "src/iMouse.Kernel/InputSessions.cs": {
+      "sha256": "8df512d45fff676b520f6c914e7822d725a598cac9616d94b95cd93d7e7b0682",
+      "bytes": 12696
+    },
+    "src/iMouse.Kernel/InputSessionTests.cs": {
+      "sha256": "0e9c1f7dddc9e748a27e59985b2067b49470e4ae5f56f91b83b426611a97965d",
+      "bytes": 14009
+    },
+    "src/iMouse.Kernel/MovementDelay.cs": {
+      "sha256": "408817f79616fd5546be8c4b96801b66d2d5661ac19b379ad58a35e2c2eee7e0",
+      "bytes": 2244
+    },
+    "src/iMouse.Kernel/Program.cs": {
+      "sha256": "0b2eae217bbef13b5577db93b33ce0cc9976a4769aa7b0e7b93b7e8d70ae0be1",
+      "bytes": 5458
+    },
+    "src/iMouse.Kernel/ReceiverFleet.cs": {
+      "sha256": "973827bceaeafa34f0dc65be8f190ddbb597ced4beacc02ab738605bbe45975e",
+      "bytes": 3036
+    },
+    "src/iMouse.Kernel/SelfTests.cs": {
+      "sha256": "b0b9169cb3989a297abf2f6acb39c05245bcd81e730c64214a255d25a122a651",
+      "bytes": 17706
+    },
+    "src/iMouse.Kernel/TimerResolution.cs": {
+      "sha256": "e9d5a2172e3801766ce908df6dd7de05e95ab9719deb515c9b667b0f7b1d03be",
+      "bytes": 407
+    },
+    "NuGet.config": {
+      "sha256": "72b33a12a2cddfda521126184fef3ab94bbb17a91a3a08612509cfcb6bc4918a",
+      "bytes": 112
+    }
+  },
+  "artifacts": {
+    "data/devices.json": {
+      "sha256": "ab447fc5eef79f1ad8bde32d426dfeff2f2f65c88729faffabe1b45ad97d8d65",
+      "bytes": 3531
+    },
+    "iMouse2.Kernel.deps.json": {
+      "sha256": "2324e47bde304034773364751a620b0290f52f3d36bf74ec44a14d48928db0d8",
+      "bytes": 434
+    },
+    "iMouse2.Kernel.dll": {
+      "sha256": "186867eba30ca0656890665c6c3fa3bc57a7cec2bb013fc782cb5e698dd62e0a",
+      "bytes": 212992
+    },
+    "iMouse2.Kernel.exe": {
+      "sha256": "26ac9a8e7b87f2fa5df154e78116c5f81a333b4465d4aa0b1e0856ba59202212",
+      "bytes": 152064
+    },
+    "iMouse2.Kernel.pdb": {
+      "sha256": "81593df262a475d192f3b422b9ffcbd6688dde6d166204f884b02fb08c987a03",
+      "bytes": 46332
+    },
+    "iMouse2.Kernel.runtimeconfig.json": {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "bytes": 340
+    }
+  },
+  "scope": "project files, common build inputs and output bytes; external dependencies are not independently attested"
+}

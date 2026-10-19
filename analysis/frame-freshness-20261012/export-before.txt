@@ -1,0 +1,23 @@
+........E...E.......
+======================================================================
+ERROR: test_frame_delivery_metadata_survives_export_without_false_freeze (test_export_diagnostics.DiagnosticTests.test_frame_delivery_metadata_survives_export_without_false_freeze)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\tools\test_export_diagnostics.py", line 71, in test_frame_delivery_metadata_survives_export_without_false_freeze
+    self.assertEqual(row["frame_age_ms"], 2500)
+                     ~~~^^^^^^^^^^^^^^^^
+KeyError: 'frame_age_ms'
+
+======================================================================
+ERROR: test_legacy_receiver_freshness_stays_unknown (test_export_diagnostics.DiagnosticTests.test_legacy_receiver_freshness_stays_unknown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\tools\test_export_diagnostics.py", line 80, in test_legacy_receiver_freshness_stays_unknown
+    self.assertIsNone(row["frame_age_ms"])
+                      ~~~^^^^^^^^^^^^^^^^
+KeyError: 'frame_age_ms'
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.191s
+
+FAILED (errors=2)

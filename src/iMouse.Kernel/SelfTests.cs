@@ -116,6 +116,12 @@ public static class SelfTests
         string pipeName="imouse-frame-test-"+Guid.NewGuid().ToString("N");
         using(var frames=new FrameStore(pipeName,"test-one"))
         {
+            using var api = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, frames);
+            JsonElement Status() => JsonSerializer.SerializeToElement(api.KernelStatus());
+            var initial = Status();
+            Check(initial.GetProperty("frame_age_ms").ValueKind == JsonValueKind.Null
+                && initial.GetProperty("frame_delivery").GetString() == "waiting",
+                "Status distinguishes no frame from a fresh frame without starting a listener");
             var pump=frames.RunAsync();
             using(var client=new NamedPipeClientStream(".",pipeName,PipeDirection.Out,PipeOptions.Asynchronous))
             {
@@ -132,9 +138,24 @@ public static class SelfTests
                 await client.WriteAsync(length);await client.WriteAsync(bmp);await client.FlushAsync();
                 await WaitFor(()=>frames.Frames==2);
                 Check(frames.State.Live,"Identical live frames remain usable");
+                var status = Status();
+                var receiver = status.GetProperty("receivers")[0];
+                Check(status.GetProperty("frames").GetInt64() == 2
+                    && status.GetProperty("frame_age_ms").GetDouble() >= 0
+                    && status.GetProperty("frame_delivery").GetString() == "flowing",
+                    "Status reports delivered sequence and monotonic age");
+                Check(receiver.GetProperty("frame_session").GetString() == status.GetProperty("frame_session").GetString()
+                    && receiver.GetProperty("frame_pipe_connected").GetBoolean()
+                    && receiver.GetProperty("receiver_message").ValueKind == JsonValueKind.String,
+                    "Per-phone status includes delivery identity and recovery message");
                 await client.WriteAsync(new byte[4]);await client.FlushAsync();
                 await WaitFor(()=>!frames.State.Live);
                 Check(!frames.State.Live,"Receiver stop marker clears stale picture");
+                var stopped = Status();
+                Check(!stopped.GetProperty("live").GetBoolean()
+                    && stopped.GetProperty("frame_delivery").GetString() == "stopped"
+                    && stopped.GetProperty("frames").GetInt64() == 2,
+                    "Stop marker preserves received count but never reports live");
             }
             frames.Dispose();await pump;
         }

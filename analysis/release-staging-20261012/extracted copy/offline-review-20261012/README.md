@@ -1,0 +1,68 @@
+# Review a staged iMouse package
+
+For the developer preparing a candidate, this guide explains how to verify the packaged files and plan a reversible deployment. This bundle is for offline review. It does not replace the installed release, include a start script, or establish physical acceptance.
+
+## Verify the package
+
+You need Python 3.11 or later to run the verifier. Open a terminal in the package folder and run:
+
+```powershell
+python verify_package.py verify --bundle .
+```
+
+An intact package prints `Integrity verified. REVIEW ONLY: startup and deployment remain blocked.` and exits zero. Exit one means missing, altered, or unexpected files; exit two means an invalid record or an unreadable path. Do not repair a failed package in place. Rebuild it under a different name from the recorded inputs.
+
+The verifier works after you move or extract the package. It compares every file with its recorded checksum, then checks the included source and selected runtime files against the embedded build records. It also checks the declared .NET runtime requirements. It does not open a window, query the rack, start a process, or modify settings. A checksum establishes integrity relative to the record; it is not a cryptographic signature or independent proof of the build process.
+
+## Understand the contents
+
+The package contains these areas:
+
+| Path | Contents |
+|---|---|
+| `payload/console/` | SDK-built console assembly, executable, symbols, dependency file, and runtime declaration |
+| `payload/kernel/` | SDK-built kernel assembly, executable, symbols, dependency file, and runtime declaration |
+| `payload/receiver/` | Patched native UxPlay executable; external libraries are not included |
+| `source/` | Exact recorded project/native source snapshots; includes source fixtures, not copied operator settings |
+| `provenance/` | Original managed build manifests and native build comparison |
+| `package.json` | File checksums, review-only status, and unresolved release requirements |
+
+Runtime folders deliberately exclude copied `data/`, operator settings, test results, logs, and machine-specific receiver configuration. Source fixtures under `source/` are evidence; do not use them as live configuration. Local paths and device identifiers can appear in source, symbols, and provenance. Review the bundle before publishing it.
+
+## Resolve the release requirements
+
+Do not launch the executables in this bundle as a candidate. Complete these steps before scheduling installation:
+
+1. Reconcile the main checkout with `claude/input-timeout-integration`. The packaged main-checkout console lacks that branch's explicit data-directory startup and test isolation, as well as its text/timeout integration changes. Preserve those changes when combining the branches and rerun the affected suites.
+2. Build the combined code into a fresh directory. Record its actual source and output bytes; do not reuse these manifests for different files.
+3. Specify an isolated candidate data folder and service endpoint. Confirm normal startup honors both. An empty configuration must not silently target the vendor service. Keep hover tracking off for controlled tests.
+4. Prepare and validate the intended phone/board bindings, calibration, receiver names, pipes, nonoverlapping ports, and receiver MACs. Start from a reviewed copy of the working configuration, never from the source fixtures. Do not alter the working copy.
+5. Check the external runtime requirements on the target PC. The managed binaries require .NET 8; the console needs the Windows Desktop runtime. UxPlay also needs its matching native libraries, GStreamer plugins and plugin scanner, and Bonjour. The kernel sets the receiver's `PATH`, plugin directory, and scanner from its receiver-runtime directory. Directory existence alone does not prove those dependencies work. Dependency redistribution and license notices need review before an installer is published.
+6. Produce a candidate-specific launcher with explicit executable paths and configuration. Review ownership, receiver discovery, and restoration behavior before it is run. Leave the installed launcher and shortcuts unchanged.
+7. Complete the coordinated physical checks required by `FINISH-CRITERIA.md`. The remaining typing, Home, App Switcher, discovery, targeting, scale, and endurance issues are not passed by packaging tests.
+
+There is no deployment command in this guide because the combined candidate and its configuration are not yet validated. A package that passes integrity verification still has these startup blockers.
+
+## Prepare a rollback record
+
+For the operator managing a later approved test window, record the following before changing running services:
+
+1. Record the full paths, command lines, hashes, and roles of the installed console, kernel, and each receiver. Re-read the live process state at the start of the window; historical process IDs are not reliable.
+2. Preserve the exact working binaries, launcher, configuration, calibration, and settings in a separate backup with checksums. Capture settings only while the corresponding application is stopped or otherwise cannot write them. Keep backup contents private.
+3. Record which phones are mirroring, their original settings, and who holds control. Do not interrupt another controller's work. Keep candidate settings and outputs outside the working directories.
+4. Agree on the interruption and recovery window. Receiver restarts can require manual recasting, and discovery has previously been delayed. Do not promise automatic or immediate recovery.
+
+## Return to the working version
+
+Use these steps only during the approved window if the candidate fails:
+
+1. Stop candidate input and release its own leases through the supported path. Record an unconfirmed release as unresolved; do not assume it succeeded.
+2. Close the candidate console normally. Stop only the verified candidate services through their supported graceful shutdown path. If a process does not stop, report its identity before using any different shutdown method.
+3. Compare the working files with the pre-window hashes. If they are unchanged, leave them in place. If a working file was modified, restore only that identified file from the verified backup after its owner has stopped. Do not copy candidate settings over operator settings.
+4. Relaunch the saved working configuration through the original launcher, when no conflicting kernel or receivers remain. Verify paths and identities before operating it.
+5. Have the operator reconnect each phone's mirroring if needed. Verify the intended phone/board/receiver mapping, live video, lease state, and restored settings. If a receiver is missing from the phone's list, preserve the evidence and follow the agreed recovery plan; do not begin repeated restarts.
+6. Record the final state and any unresolved failure. Keep the candidate package and logs for diagnosis. Restoration is complete only when the operator's working setup is confirmed usable again.
+
+## Next step
+
+Reconcile the tested source changes with the integration branch before preparing an installable candidate. Keep this review package as an immutable record of the offline work.

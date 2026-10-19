@@ -1,13 +1,14 @@
-"""Gate 6 release validation. Single-id API. Does not restart the kernel.
+"""Gate 6 preparation, not release acceptance. Does not restart the kernel.
 
-Measures console-action to first visible response. The fixed 0.8s sleep is gone:
-a screenshot poller (same MAD loop as tools/measure_display_latency.py) records
-first_visible_ms and settled_ms. Misses are kept and not retried.
+Measures API request or UIA invocation to kernel screenshot arrival. This does
+not measure physical clicks or the console's display path. Polls retain first
+change and first heuristically correct frame separately. Misses are not retried.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import queue
 import struct
 import subprocess
 import threading
@@ -32,6 +33,9 @@ ALLOW_C241 = False
 RUN = None
 CONSOLE = {"pid": None, "phone": "C24C"}
 UIA_OWNS = {"on": False}
+UIA_HELPER_TIMEOUT = 20.0
+UIA_HELPER_CLEANUP_TIMEOUT = 2.0
+UIA_HELPER_MAX_OUTPUT = 65536
 
 
 def phone_plan(allow_c241=False):
@@ -382,6 +386,92 @@ def mirror_guard_ps():
     )
 
 
+def run_uia_helper(command, t_box=None, timeout=None):
+    """Bound both stdout and process exit, preserving the streamed action timestamp.
+
+    Killing this child stops the helper, not an input already accepted by the
+    console. Any helper failure remains an unknown outcome; never retry it.
+    """
+    timeout = UIA_HELPER_TIMEOUT if timeout is None else timeout
+    if timeout <= 0:
+        raise ValueError("console helper timeout must be positive")
+    deadline = time.monotonic() + timeout
+    proc = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+    )
+    output = queue.Queue()
+
+    def read_stdout():
+        try:
+            for line in proc.stdout:
+                output.put(("line", line))
+        except Exception as exc:
+            output.put(("error", exc))
+        finally:
+            output.put(("eof", None))
+
+    reader = threading.Thread(target=read_stdout, daemon=True)
+    reader.start()
+    invoked = None
+    lines = []
+    size = 0
+    completed = False
+
+    def remaining():
+        seconds = deadline - time.monotonic()
+        if seconds <= 0:
+            raise RuntimeError(f"console helper timed out after {timeout:g}s; input outcome unknown; do not retry")
+        return seconds
+
+    try:
+        while True:
+            try:
+                kind, value = output.get(timeout=remaining())
+            except queue.Empty:
+                remaining()  # Raise the same timeout for silence or an open pipe.
+                continue
+            if kind == "error":
+                raise RuntimeError(f"console helper output failed: {value}; input outcome unknown") from value
+            if kind == "eof":
+                break
+            size += len(value)
+            if size > UIA_HELPER_MAX_OUTPUT:
+                raise RuntimeError("console helper output limit exceeded; input outcome unknown; do not retry")
+            lines.append(value)
+            text = value.strip()
+            if invoked is None and text.isdigit():
+                invoked = note_invoked(int(text), t_box)
+            if text == "ok":
+                completed = True
+        try:
+            code = proc.wait(timeout=remaining())
+        except subprocess.TimeoutExpired:
+            raise RuntimeError(f"console helper timed out after {timeout:g}s; input outcome unknown; do not retry") from None
+        raw = "".join(lines)
+        if code or not completed or invoked is None:
+            raise RuntimeError(f"console helper failed (exit {code}): {raw[:200]}; input outcome unknown")
+        return invoked
+    except BaseException as exc:
+        try:
+            if proc.poll() is None:
+                try:
+                    proc.kill()
+                except ProcessLookupError:
+                    pass
+            proc.wait(timeout=UIA_HELPER_CLEANUP_TIMEOUT)
+        except Exception as cleanup_error:
+            raise RuntimeError(
+                f"{exc}; helper PID {proc.pid} cleanup failed: {cleanup_error}; input outcome unknown"
+            ) from exc
+        raise
+    finally:
+        reader.join(timeout=UIA_HELPER_CLEANUP_TIMEOUT)
+        # Closing a pipe while another thread is blocked reading it can itself
+        # hang. An inherited open pipe cannot extend the caller's deadline.
+        if not reader.is_alive() and proc.stdout is not None:
+            proc.stdout.close()
+
+
 def uia_invoke(automation_id, t_box=None):
     if not automation_id.isalnum():
         raise ValueError(automation_id)
@@ -417,29 +507,10 @@ def uia_invoke(automation_id, t_box=None):
         "$el.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke();"
         "'ok'"
     )
-    proc = subprocess.Popen(
+    return run_uia_helper(
         ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
+        t_box,
     )
-    invoked = None
-    lines = []
-    try:
-        assert proc.stdout is not None
-        for line in proc.stdout:
-            lines.append(line)
-            s = line.strip()
-            if invoked is None and s.isdigit():
-                invoked = note_invoked(int(s), t_box)
-        code = proc.wait(timeout=20)
-    except Exception:
-        proc.kill()
-        raise
-    raw = "".join(lines)
-    if code or "ok" not in raw or invoked is None:
-        raise RuntimeError(raw[:200])
-    return invoked
 
 
 def api_action(category, pid, token):
@@ -457,50 +528,47 @@ def api_action(category, pid, token):
 
 
 def fire(category, pid, token, t_box, api_only=False, uia=None, api=None, release=None):
-    """UIA invoke for Home / AppSwitch / ControlCenter, else API. t_box[0] is Invoke time."""
+    """Use only the requested route. A rejected UIA action must never become API input."""
     uia = uia_invoke if uia is None else uia
     api = api_action if api is None else api
     release = drop_lease if release is None else release
-    button = None if api_only else BUTTONS.get(category)
-    err = None
-    released = False
-    if button:
+    if not api_only:
+        button = BUTTONS.get(category)
+        if button is None:
+            raise ValueError(f"{category} requires --api-only; no console action is implemented")
         if pid in HELD:
             release(pid)
-            released = True
-        try:
-            invoked = uia(button, t_box)
-            if t_box[0] is None:
-                t_box[0] = time.perf_counter()
-            UIA_OWNS["on"] = True
-            return {
-                "via": "uia",
-                "dispatch_ms": round((time.perf_counter() - t_box[0]) * 1000, 1),
-                "code": None,
-                "fallback": None,
-                "invoked_ms": invoked,
-            }
-        except Exception as ex:
-            if t_box[0] is not None:
-                raise
-            err = str(ex)[:200]
-            if released:
-                token = need_token(pid)
+        invoked = uia(button, t_box)
+        if t_box[0] is None:
+            raise RuntimeError("console invocation did not provide its start time")
+        UIA_OWNS["on"] = True
+        return {
+            "via": "uia",
+            # InvokePattern completion is not a kernel acknowledgement.
+            "dispatch_ms": None,
+            "ui_invoke_elapsed_ms": round((time.perf_counter() - t_box[0]) * 1000, 1),
+            "code": None,
+            "invoked_ms": invoked,
+        }
     t_box[0] = time.perf_counter()
     ms, data = api(category, pid, token)
-    return {"via": "api", "dispatch_ms": ms, "code": data.get("code"), "fallback": err, "invoked_ms": None}
+    return {"via": "api", "dispatch_ms": ms, "code": data.get("code"), "invoked_ms": None}
 
 
-def poll_during(fetch, before, act, budget, threshold=VISIBLE_MAD):
+def poll_during(fetch, before, act, budget, threshold=VISIBLE_MAD, expect=None, baseline=None):
     polls = []
     lock = threading.Lock()
     stop = threading.Event()
     t_box = [None]
     last = [before]
+    fetch_errors = [0]
+    first_correct = [None]
+    settled = [None]
 
     def loop():
         prev = before
         origin = None
+        stable = 0
         while not stop.is_set():
             start = t_box[0]
             if start is None:
@@ -511,24 +579,39 @@ def poll_during(fetch, before, act, budget, threshold=VISIBLE_MAD):
                 with lock:
                     polls.clear()
                 prev = before
+                stable = 0
+            if time.perf_counter() >= start + budget:
+                break
             try:
                 frame = fetch()
             except Exception:
+                fetch_errors[0] += 1
+                stop.wait(0.01)
                 continue
+            arrived = time.perf_counter()
+            # A fetch may outlive the trial. Never accept its late result.
+            if stop.is_set() or arrived > start + budget or t_box[0] != start:
+                break
             item = {
-                "ms": round((time.perf_counter() - start) * 1000, 1),
+                "ms": round((arrived - start) * 1000, 1),
                 "mad_from_start": round(mad(before, frame), 2),
                 "mad_from_prev": round(mad(prev, frame), 2),
+                "visual": classify(frame, baseline if baseline is not None else before),
             }
             prev = frame
-            last[0] = frame
             with lock:
-                if t_box[0] != start:
-                    continue
+                last[0] = frame
                 polls.append(item)
-                shot = list(polls)
-            if score(shot, threshold)[1] is not None:
-                stop.set()
+                changed = item["mad_from_start"] >= threshold
+                correct = expect is not None and changed and item["visual"] == expect
+                if correct and first_correct[0] is None:
+                    first_correct[0] = item["ms"]
+                eligible = correct if expect is not None else changed
+                stable = stable + 1 if eligible and item["mad_from_prev"] < SETTLE_MAD else 0
+                if stable >= 2:
+                    settled[0] = item["ms"]
+                    stop.set()
+            stop.wait(0.005)
 
     th = threading.Thread(target=loop, daemon=True)
     th.start()
@@ -536,7 +619,15 @@ def poll_during(fetch, before, act, budget, threshold=VISIBLE_MAD):
         meta = act(t_box)
     except Exception as ex:
         meta = {"via": "error", "error": str(ex)[:200], "dispatch_ms": None, "code": None}
+        stop.set()
+    except BaseException:
+        stop.set()
+        th.join(timeout=2)
+        raise
     if t_box[0] is None:
+        meta = dict(meta) if isinstance(meta, dict) else {}
+        meta.setdefault("error", "action did not provide its start time")
+        stop.set()
         t_box[0] = time.perf_counter()
     deadline = t_box[0] + budget
     while time.perf_counter() < deadline and not stop.is_set():
@@ -545,25 +636,39 @@ def poll_during(fetch, before, act, budget, threshold=VISIBLE_MAD):
     th.join(timeout=2)
     with lock:
         shot = list(polls)
-    first, settled = score(shot, threshold)
-    return shot, last[0], meta if isinstance(meta, dict) else {"via": "api"}, first, settled
+        frame = last[0]
+    first, _ = score(shot, threshold)
+    meta = dict(meta) if isinstance(meta, dict) else {}
+    meta["first_correct_ms"] = first_correct[0]
+    meta["fetch_errors"] = fetch_errors[0]
+    return shot, frame, meta, first, settled[0]
 
 
 def observe(fetch, before, act, expect=None, budget=5.0, baseline=None):
-    polls, frame, meta, first, settled = poll_during(fetch, before, act, budget)
+    polls, frame, meta, first, settled = poll_during(
+        fetch, before, act, budget, expect=expect, baseline=baseline
+    )
     state = classify(frame, baseline if baseline is not None else before)
     visual_ok = None if expect is None else state == expect
-    miss = visual_ok is False if expect is not None else first is None
+    first_correct = meta.get("first_correct_ms")
+    error = meta.get("error")
+    if not error and meta.get("code") not in (None, 0):
+        error = f"command refused: code {meta['code']}"
+    miss = bool(error) or (first_correct is None or not visual_ok if expect is not None else first is None)
     return {
         "first_visible_ms": first,
+        "first_correct_ms": first_correct,
         "settled_ms": settled,
         "dispatch_ms": meta.get("dispatch_ms"),
+        "ui_invoke_elapsed_ms": meta.get("ui_invoke_elapsed_ms"),
         "via": meta.get("via"),
         "code": meta.get("code"),
-        "fallback": meta.get("fallback"),
+        "error": error,
+        "fetch_errors": meta.get("fetch_errors", 0),
         "invoked_ms": meta.get("invoked_ms"),
         "visual": state,
         "visual_ok": visual_ok,
+        "correctness_checked": expect is not None,
         "miss": miss,
         "retry": False,
         "poll_count": len(polls),
@@ -579,26 +684,37 @@ def keep(rows, row):
 
 
 def summarize(rows):
-    out = {}
+    groups = {}
     for row in rows:
-        bucket = out.setdefault(row.get("category", "search"), {"n": 0, "misses": 0, "kept": 0, "lat": []})
-        bucket["n"] += 1
-        bucket["kept"] += 1
-        if row.get("miss") or row.get("first_visible_ms") is None:
-            bucket["misses"] += 1
-            bucket["lat"].append(MISS_MS)
-        else:
-            bucket["lat"].append(row["first_visible_ms"])
-    for cat, bucket in out.items():
-        lat = bucket.pop("lat")
-        bucket["p50"] = pct(lat, 50)
-        bucket["p95"] = pct(lat, 95)
-        checked = cat in ("search", "home")
-        bucket["correctness_checked"] = checked
-        bucket["correctness_note"] = (
-            "verified via screen classifier" if checked
-            else "visible change only (MAD >= 18); structural correctness unclassified without ground-truth reference"
-        )
+        cat = groups.setdefault(row.get("category", "search"), {})
+        key = f"{row.get('phone', 'unknown')}/{row.get('via', 'unknown')}"
+        cat.setdefault(key, []).append(row)
+    out = {}
+    for cat, measurements in groups.items():
+        parts = {}
+        for key, samples in measurements.items():
+            checked = all(r.get("correctness_checked") is True for r in samples)
+            field = "first_correct_ms" if checked else "first_visible_ms"
+            lat = [MISS_MS if r.get("miss") or r.get(field) is None else r[field] for r in samples]
+            parts[key] = {
+                "n": len(samples), "kept": len(samples),
+                "misses": sum(bool(r.get("miss")) or r.get(field) is None for r in samples),
+                "p50": pct(lat, 50), "p95": pct(lat, 95),
+                "metric": field, "correctness_checked": checked,
+                "correctness_note": "heuristic frame classification; not console presentation validation" if checked
+                else "transition only; correctness unverified",
+            }
+        # Do not mix phones or API dispatch with UIA invocation in a percentile.
+        bucket = dict(next(iter(parts.values()))) if len(parts) == 1 else {
+            "n": sum(p["n"] for p in parts.values()),
+            "kept": sum(p["kept"] for p in parts.values()),
+            "misses": sum(p["misses"] for p in parts.values()),
+            "p50": None, "p95": None,
+            "correctness_checked": all(p["correctness_checked"] for p in parts.values()),
+            "correctness_note": "separate measurements by phone and input route",
+        }
+        bucket["measurements"] = parts
+        out[cat] = bucket
     return out
 
 
@@ -731,9 +847,12 @@ def self_check():
         sample.append({
             "category": "search",
             "first_visible_ms": None if i == 7 else float(i + 1),
+            "first_correct_ms": None if i == 7 else float(i + 1),
+            "correctness_checked": True,
             "miss": i == 7,
         })
-    sample.append({"category": "home", "first_visible_ms": 12.0, "miss": False})
+    sample.append({"category": "home", "first_visible_ms": 12.0, "first_correct_ms": 12.0,
+                   "correctness_checked": True, "miss": False})
     sample.append({"category": "appswitch", "first_visible_ms": 20.0, "miss": False})
     summary = summarize(sample)
     assert summary["search"]["n"] == 100
@@ -757,9 +876,12 @@ def self_check():
         return 15.0, {"code": 0}
 
     t_box = [None]
-    fallback = fire("home", "id", "tok", t_box, uia=boom, api=fake_api)
-    assert fallback["via"] == "api" and fallback["fallback"] and api_calls["n"] == 1
-    assert t_box[0] is not None
+    try:
+        fire("home", "id", "tok", t_box, uia=boom, api=fake_api)
+        raise AssertionError("rejected UIA action did not abort")
+    except RuntimeError as ex:
+        assert str(ex) == "no console"
+    assert api_calls["n"] == 0 and t_box[0] is None
 
     def no_api(*_a):
         raise AssertionError("API ran after UIA success")
@@ -772,19 +894,21 @@ def self_check():
         return note_invoked(4200, t_box, now_ms=4230, now_perf=time.perf_counter())
 
     direct = fire("controlcenter", "id", "tok", t_box, uia=timed_uia, api=no_api)
-    assert direct["via"] == "uia" and direct["invoked_ms"] == 4200 and api_calls["n"] == 1
+    assert direct["via"] == "uia" and direct["invoked_ms"] == 4200 and api_calls["n"] == 0
+    assert direct["dispatch_ms"] is None and direct["ui_invoke_elapsed_ms"] >= 0
     assert t_box[0] is not None
 
     t_box = [None]
-    search_fire = fire("search", "id", "tok", t_box, uia=boom, api=fake_api)
-    assert search_fire["via"] == "api" and api_calls["n"] == 2
+    search_fire = fire("search", "id", "tok", t_box, api_only=True, uia=boom, api=fake_api)
+    assert search_fire["via"] == "api" and api_calls["n"] == 1
 
     def already_act(t_box):
         t_box[0] = time.perf_counter()
         return {"via": "api", "dispatch_ms": 0.0, "code": 0}
 
     already = observe(lambda: home, home, already_act, expect="home", budget=0.04)
-    assert already["visual"] == "home" and already["visual_ok"] is True and already["miss"] is False
+    assert already["visual"] == "home" and already["visual_ok"] is True and already["miss"] is True
+    assert already["first_correct_ms"] is None
 
     hits = [{"category": "search", "first_visible_ms": 100.0, "miss": False} for _ in range(10)]
     assert summarize(hits)["search"]["p95"] == 100.0
@@ -941,6 +1065,9 @@ def save_frame(name, frame, dest=None):
 
 def live(n, categories, api_only, allow_c241=False, console_pid=None, console_path=None):
     global ALLOW_C241, RUN
+    cats = categories or ["search"]
+    if not api_only and any(cat not in BUTTONS for cat in cats):
+        raise SystemExit("search requires --api-only; console search input is not implemented")
     ALLOW_C241 = bool(allow_c241)
     plan = phone_plan(ALLOW_C241)
     UIA_OWNS["on"] = False
@@ -967,8 +1094,14 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
     if any(pre["frames_after_1s"][key] <= pre["frames_before"][key] for key in wanted):
         raise SystemExit("frames not advancing")
     ids = ",".join(pid for _, pid, *_ in plan)
-    cats = categories or ["search"]
     rows = []
+    dump(OUT, dest, "manifest.json", {
+        "run_id": run_id, "phones": [name for name, *_ in plan], "categories": cats,
+        "api_only": api_only, "allow_c241": ALLOW_C241, "console_pid": console_pid,
+        "out": str(dest), "frame_source": "kernel screenshot endpoint, not console presentation",
+        "action_origin": "API request" if api_only else "UI Automation InvokePattern, not physical click",
+        "gate6_acceptance": False,
+    })
     if api_only:
         hold_lease(ids)
     try:
@@ -978,28 +1111,28 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
                 for cycle in range(1, n + 1):
                     if api_only and HELD:
                         post("/input/renew", {"id": ",".join(HELD), "tokens": dict(HELD)})
-                    row = run_cycle(name, pid, oname, oid, category, cycle, api_only, dest)
+                    try:
+                        row = run_cycle(name, pid, oname, oid, category, cycle, api_only, dest)
+                    except (Exception, SystemExit) as ex:
+                        row = {"phone": name, "category": category, "cycle": cycle,
+                               "via": "api" if api_only else "uia", "miss": True,
+                               "error": str(ex)[:200], "first_visible_ms": None,
+                               "first_correct_ms": None, "correctness_checked": category in ("home", "search")}
                     keep(rows, row)
                     dump(OUT, dest, "rows.json", rows)
+                    dump(OUT, dest, "summary.json", summarize(rows))
                     print(
                         f"{name} {category} c{cycle} via={row.get('via')} "
                         f"invoked={row.get('invoked_ms')} first={row.get('first_visible_ms')} "
                         f"settled={row.get('settled_ms')} miss={row.get('miss')}",
                         flush=True,
                     )
+                    if row.get("error"):
+                        raise SystemExit(f"trial aborted; saved failure in {dest}: {row['error']}")
         end = status()
         stuck = input_status()
         summary = summarize(rows)
         dump(OUT, dest, "end-status.json", {"kernel": end, "input": stuck, "summary": summary})
-        dump(OUT, dest, "manifest.json", {
-            "run_id": run_id,
-            "phones": [name for name, *_ in plan],
-            "categories": cats,
-            "api_only": api_only,
-            "allow_c241": ALLOW_C241,
-            "console_pid": console_pid,
-            "out": str(dest),
-        })
         print("done", len(rows), json.dumps(summary), flush=True)
     finally:
         if HELD:
@@ -1013,10 +1146,9 @@ def live(n, categories, api_only, allow_c241=False, console_pid=None, console_pa
 
 def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
     CONSOLE["phone"] = name
-    # ponytail: search click needs the harness lease; don't mix it after UIA owns the console lease
-    if category == "search" and not api_only and UIA_OWNS["on"]:
-        raise SystemExit("console holds the lease after UIA; run search with --api-only")
-    token = need_token(pid) if api_only or category == "search" else None
+    if category == "search" and not api_only:
+        raise SystemExit("search requires --api-only")
+    token = need_token(pid) if api_only else None
     if category == "search":
         before = fetch_shot(pid)
 
@@ -1028,6 +1160,8 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
             return {"via": "api", "dispatch_ms": homes["b"], "code": 0}
 
         home = observe(lambda: fetch_shot(pid), before, home_act, expect="home", budget=3.0)
+        if home.get("error") or not home["visual_ok"]:
+            raise RuntimeError(home.get("error") or "setup did not reach Home")
         before_click = home["frame"] or before
 
         def click_act(t_box):
@@ -1036,6 +1170,7 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
         click = observe(
             lambda: fetch_shot(pid), before_click, click_act, expect="search", budget=5.0, baseline=before_click
         )
+        click["via"] = "api"
         target = f"{name.lower()}-c{cycle}-search.bmp"
         other = f"{oname.lower()}-iso-during-{name.lower()}-c{cycle}.bmp"
         t_len = save_frame(target, click["frame"], dest)
@@ -1043,9 +1178,16 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
             o_len = 0
         else:
             o_len = shot(oid, other, dest)
-        dismiss_ms, _ = post("/key/sendkey", {"id": pid, "token": token, "fn_key": "Home"}, timeout=8)
+        dismiss_ms = None
+        if not click.get("error"):
+            try:
+                dismiss_ms, _ = post("/key/sendkey", {"id": pid, "token": token, "fn_key": "Home"}, timeout=8)
+            except Exception as ex:
+                click["error"] = f"dismiss failed: {ex}"[:200]
+                click["miss"] = True
         expect = "search"
         return {
+            **{key: value for key, value in click.items() if key != "frame"},
             "phone": name,
             "cycle": cycle,
             "category": "search",
@@ -1062,7 +1204,7 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
             "settled_ms": click["settled_ms"],
             "visual": click["visual"],
             "visual_ok": click["visual_ok"],
-            "miss": click["miss"] or home["miss"],
+            "miss": click["miss"],
             "search_bmp": target,
             "search_bytes": t_len,
             "isolation_bmp": other,
@@ -1074,9 +1216,9 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
         }
 
     if category == "home":
-        # ponytail: after UIA owns the lease, skip API search-open; Home stays on HomeButton
-        if api_only or not UIA_OWNS["on"]:
-            token = need_token(pid)
+        # UIA mode requires an already prepared non-Home screen. Never acquire an
+        # API lease just to set up a console measurement, or time Home-on-Home.
+        if api_only:
             post("/mouse/click", {"id": pid, "token": token, "x": 250, "y": 900, "button": 1}, timeout=12)
 
             def wait_act(t_box):
@@ -1085,6 +1227,8 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
 
             observe(lambda: fetch_shot(pid), fetch_shot(pid), wait_act, expect="search", budget=2.0)
         before = fetch_shot(pid)
+        if classify(before) != "search":
+            raise RuntimeError("Home trial requires a prepared Search screen; measured Home was not sent")
     elif api_only:
         home_pair(pid, token)
         before = fetch_shot(pid)
@@ -1098,20 +1242,24 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
         return fire(category, pid, token, t_box, api_only=api_only)
 
     obs = observe(lambda: fetch_shot(pid), before, act, expect=expect, budget=5.0, baseline=before)
+    obs["via"] = "api" if api_only else "uia"
     target = f"{name.lower()}-c{cycle}-{category}.bmp"
     save_frame(target, obs["frame"], dest)
-    if category != "home":
-        if api_only or category == "search":
-            token = need_token(pid)
-            post("/key/sendkey", {"id": pid, "token": token, "fn_key": "Home"}, timeout=8)
-        else:
-            home_via(pid, None, False, n=1)
+    if category != "home" and not obs.get("error"):
+        try:
+            if api_only:
+                post("/key/sendkey", {"id": pid, "token": token, "fn_key": "Home"}, timeout=8)
+            else:
+                home_via(pid, None, False, n=1)
+        except Exception as ex:
+            obs["error"] = f"dismiss failed: {ex}"[:200]
+            obs["miss"] = True
     return {
+        **{key: value for key, value in obs.items() if key != "frame"},
         "phone": name,
         "cycle": cycle,
         "category": category,
         "via": obs["via"],
-        "fallback": obs["fallback"],
         "dispatch_ms": obs["dispatch_ms"],
         "code": obs.get("code"),
         "first_visible_ms": obs["first_visible_ms"],
@@ -1127,7 +1275,7 @@ def run_cycle(name, pid, oname, oid, category, cycle, api_only, dest):
 
 
 def main():
-    p = argparse.ArgumentParser(description="Gate 6 console-action to visible-response latency")
+    p = argparse.ArgumentParser(description="Gate 6 preparation: action-to-kernel-frame timing (not gate acceptance)")
     p.add_argument("--self-check", action="store_true")
     p.add_argument("--n", type=int, default=5, help="observations per category per phone; gate wants >= 100")
     p.add_argument("--category", action="append", choices=["search", "home", "appswitch", "controlcenter"])

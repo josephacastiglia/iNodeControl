@@ -121,12 +121,17 @@
           <Grid>
             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
             <Grid Margin="10,6,10,5">
+              <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
               <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <StackPanel Orientation="Horizontal">
                 <TextBlock x:Name="SelectedTitle" Text="Select an iPhone" FontSize="12.5" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                 <TextBlock x:Name="SelectedDetails" Text="" Style="{StaticResource Muted}" FontSize="11" VerticalAlignment="Center" Margin="10,0,0,0" TextTrimming="CharacterEllipsis"/>
               </StackPanel>
               <TextBlock x:Name="PointerReadout" Grid.Column="1" Text="" Style="{StaticResource Muted}" FontSize="11" VerticalAlignment="Center"/>
+              <TextBlock x:Name="PreviewFreshnessText" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,4,0,0"
+                         Style="{StaticResource Muted}" FontSize="11" TextTrimming="CharacterEllipsis"
+                         ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" IsHitTestVisible="True"
+                         Visibility="Collapsed" AutomationProperties.Name="Preview delivery status"/>
             </Grid>
 
             <ScrollViewer x:Name="MasterScroll" Grid.Row="1" Background="{DynamicResource StageBrush}"
@@ -199,6 +204,20 @@
                                       Height="{Binding DataContext.TileHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
                                 <Grid>
                                   <Image Source="{Binding Image}" Stretch="Uniform"/>
+                                  <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" Padding="2,1" IsHitTestVisible="False"
+                                          Background="#CC202020">
+                                    <TextBlock Text="{Binding DeliveryLabel}" FontSize="8.5" TextAlignment="Center"
+                                               TextTrimming="CharacterEllipsis">
+                                      <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                          <Setter Property="Foreground" Value="White"/>
+                                          <Style.Triggers><DataTrigger Binding="{Binding DeliveryWarning}" Value="True">
+                                            <Setter Property="Foreground" Value="#FFFFCC80"/>
+                                          </DataTrigger></Style.Triggers>
+                                        </Style>
+                                      </TextBlock.Style>
+                                    </TextBlock>
+                                  </Border>
                                   <!-- The rate is OVERLAID on the picture, never laid out beside it. Text
                                        whose width changes with the number must not be able to resize the
                                        tile, or the whole wall reflows every time a phone's rate moves. -->
@@ -355,7 +374,7 @@
 
               <StackPanel x:Name="ActivityPane" Visibility="Collapsed">
                 <TextBlock x:Name="LastEvent" Text="Ready to connect." TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
-                <TextBlock x:Name="FrameStatus" Text="Live view idle" Style="{StaticResource Muted}" FontSize="11" Margin="0,0,0,8"/>
+                <TextBlock x:Name="FrameStatus" TextWrapping="Wrap" Text="Live view idle" Style="{StaticResource Muted}" FontSize="11" Margin="0,0,0,8"/>
                 <Border Background="{DynamicResource LogBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="5" Padding="2">
                   <ListBox x:Name="ActivityList" Height="420" Background="Transparent" Foreground="{DynamicResource MutedBrush}" BorderThickness="0" FontSize="11"
                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>

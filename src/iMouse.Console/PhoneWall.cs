@@ -42,7 +42,18 @@ public sealed class Thumb : INotifyPropertyChanged
     }
 
     /// <summary>Full name and state, for the tooltip - where there is room for it.</summary>
-    public string Detail => _status.Length == 0 ? _name : _name + "  \u2014  " + _status;
+    public string Detail => (_status.Length == 0 ? _name : _name + "  \u2014  " + _status)
+        + "  \u2014  " + _delivery.Detail;
+
+    private TileStatusView _delivery = TileStatusView.From(null, true, false);
+    public string DeliveryLabel => _delivery.Label;
+    public bool DeliveryWarning => _delivery.Warning;
+    public void SetDelivery(TileStatusView value)
+    {
+        if (_delivery == value) return;
+        _delivery = value;
+        Notify(nameof(DeliveryLabel)); Notify(nameof(DeliveryWarning)); Notify(nameof(Detail));
+    }
 
     private ImageSource? _image;
     // Reference comparison, deliberately: this is assigned the same WriteableBitmap on
@@ -51,7 +62,7 @@ public sealed class Thumb : INotifyPropertyChanged
     public ImageSource? Image { get => _image; set { if (!ReferenceEquals(_image, value)) { _image = value; Notify(nameof(Image)); } } }
 
     /// <summary>
-    /// Frames a second actually arriving from this phone. Shown because the wall's whole
+    /// Bitmap updates per second after pixel deduplication, not received source frames. Shown because the wall's whole
     /// job is to answer "is this phone keeping up", and a phone whose own mirror stream is
     /// slow looks identical to a console that has stopped drawing it. Measured on this
     /// rack: two identical iPhone XRs under the same mirrored swipe produced 27.5 and 4.5
@@ -72,7 +83,7 @@ public sealed class Thumb : INotifyPropertyChanged
             _fps = next; Notify(nameof(Fps)); Notify(nameof(RateText)); Notify(nameof(RateVisibility));
         }
     }
-    public string RateText => _fps <= 0 ? "" : $"{_fps:0} fps";
+    public string RateText => _fps <= 0 ? "" : $"{_fps:0}/s";
     public Visibility RateVisibility => _fps <= 0 ? Visibility.Collapsed : Visibility.Visible;
 
     private string _status = "";

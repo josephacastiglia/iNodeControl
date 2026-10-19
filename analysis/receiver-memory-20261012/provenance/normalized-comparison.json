@@ -1,0 +1,37 @@
+{
+  "saved": {
+    "sha256": "0f5e421b8b68bbbf43f7109978363e09950e76e15c46ede8ebeedbf38bb50cdc",
+    "ignored_fields": [
+      [
+        136,
+        4
+      ],
+      [
+        216,
+        4
+      ],
+      [
+        518660,
+        4
+      ]
+    ]
+  },
+  "rebuilt": {
+    "sha256": "0f5e421b8b68bbbf43f7109978363e09950e76e15c46ede8ebeedbf38bb50cdc",
+    "ignored_fields": [
+      [
+        136,
+        4
+      ],
+      [
+        216,
+        4
+      ],
+      [
+        518660,
+        4
+      ]
+    ]
+  },
+  "equal": true
+}

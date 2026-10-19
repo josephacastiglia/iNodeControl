@@ -1,0 +1,19 @@
+{
+  "PROGRESS.md": "3282d7fe6fb81aad99bf505e715da3fbc818e3d8d20a43c6224f07b72fc690f1",
+  "analysis/gate6-release-validation-20260916/run_gate6.py": "d1310848a0479f3b18a10275aed0df9b9614889476b8b176731878655b5f6f5e",
+  "src/iMouse.Console/ApiClient.cs": "67c2be7b5a7113a5aa968d1d287d7dfa9b8764c4939e0db6a2c701fe4615ef7a",
+  "src/iMouse.Console/LiveFrame.cs": "e46aab21a8a7060ba20b875dfeebe99ba985010ac942aad970218f9b120429b9",
+  "src/iMouse.Console/MainWindow.xaml": "c03b0a57eee8fc21afdc550343f88f64150e0d497fd76ec060a20bbf9101febc",
+  "src/iMouse.Console/MainWindow.xaml.cs": "7a04f4e20ee67293b1f58af33f95033d862aff21530a2e4f2e73a5f8e174d81a",
+  "src/iMouse.Console/PhoneWall.cs": "b138b62f66fc17381d0fb88cb28639bd45ad0d0737cdba02ef9ef5d426acd11d",
+  "src/iMouse.Console/SelfTests.cs": "2273ab4b58eb3d08aa9c6c3613f26465d3450266dce2aad9baef5ddeebcc808b",
+  "src/iMouse.Kernel/AirplaySupervisor.cs": "bdb8bee2b0e0038bba748fa293dc18c46f72c87cbc7b384415ad622519ba9bf1",
+  "src/iMouse.Kernel/ApiServer.cs": "3a5faf1f5cd46c68c67253250525561a915e58a700d6767c3442ec695229aaa2",
+  "src/iMouse.Kernel/FrameStore.cs": "52ea8565c333639c9ecd915f368e00419ea89b852512aa7b7abde9c92e6fe080",
+  "src/iMouse.Kernel/SelfTests.cs": "b0b9169cb3989a297abf2f6acb39c05245bcd81e730c64214a255d25a122a651",
+  "tools/airplay/uxplay/lib/raop_rtp_mirror.c": "523129f2fa75fbf8024102c732e02f1827e46948e253779d5d7e62270ecca1ff",
+  "tools/analyze_endurance.py": "67fdd8a4fa64e148e5c1a087aac11f5ed57eda832df02e9ed568d41c830125a7",
+  "tools/endurance_soak.py": "104e101d37b8a97391ed6bf8620c91e22df851f9e06c3566738e74ad9d09c29f",
+  "tools/export_diagnostics.py": "0e88770836b089cb5aab8d65045e52674e029be6483d97a1f01044b779505aa4",
+  "tools/gate4_1000_tap_suite.py": "db4bbde164e969fb27440b0253fec113eb741a3e809f3e6b4f9a035b78c98f99"
+}

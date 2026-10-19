@@ -1,0 +1,288 @@
+{
+  "health": {
+    "status": "failed",
+    "failures": [
+      "64/64 interactions failed or unverified"
+    ],
+    "incomplete": [],
+    "gate10_acceptance": false,
+    "scope": "observed sample conditions; duration, planned workloads and memory budgets require separate acceptance"
+  },
+  "samples": 1272,
+  "sessions": 2,
+  "phones": [
+    {
+      "label": "C24C",
+      "received": 290995,
+      "counter": 299070,
+      "avg": 15.262620450189395,
+      "cur": 14.394961728159673,
+      "min": 8.051101180837454,
+      "max": 20.831942314197356,
+      "restarts": 0,
+      "resets": 0,
+      "freezes": 0,
+      "freeze_s": 0.0,
+      "unavailable_intervals": 0,
+      "unavailable_s": 0.0,
+      "pid": 3420,
+      "state": "mirroring",
+      "live": true
+    },
+    {
+      "label": "C241",
+      "received": 289980,
+      "counter": 297825,
+      "avg": 15.209383934933319,
+      "cur": 16.061045261511488,
+      "min": 7.325519430105925,
+      "max": 20.93612461429063,
+      "restarts": 0,
+      "resets": 0,
+      "freezes": 0,
+      "freeze_s": 0.0,
+      "unavailable_intervals": 0,
+      "unavailable_s": 0.0,
+      "pid": 8868,
+      "state": "mirroring",
+      "live": true
+    },
+    {
+      "label": "C214",
+      "received": 380918,
+      "counter": 388367,
+      "avg": 19.9790610032655,
+      "cur": 20.15961075355695,
+      "min": 13.41789050360975,
+      "max": 21.866666666666667,
+      "restarts": 0,
+      "resets": 0,
+      "freezes": 0,
+      "freeze_s": 0.0,
+      "unavailable_intervals": 0,
+      "unavailable_s": 0.0,
+      "pid": 10496,
+      "state": "mirroring",
+      "live": true
+    },
+    {
+      "label": "724E",
+      "received": 381650,
+      "counter": 382938,
+      "avg": 20.017454233972348,
+      "cur": 20.142949918223433,
+      "min": 16.223794721510135,
+      "max": 21.30067229976517,
+      "restarts": 0,
+      "resets": 0,
+      "freezes": 0,
+      "freeze_s": 0.0,
+      "unavailable_intervals": 0,
+      "unavailable_s": 0.0,
+      "pid": 12148,
+      "state": "mirroring",
+      "live": true
+    },
+    {
+      "label": "Phone 5",
+      "received": 388233,
+      "counter": 395185,
+      "avg": 20.362731061490333,
+      "cur": 20.25957576555806,
+      "min": 18.606201913520948,
+      "max": 21.34329349354061,
+      "restarts": 0,
+      "resets": 0,
+      "freezes": 0,
+      "freeze_s": 0.0,
+      "unavailable_intervals": 0,
+      "unavailable_s": 0.0,
+      "pid": 21952,
+      "state": "mirroring",
+      "live": true
+    }
+  ],
+  "memory": {
+    "procs": [
+      {
+        "role": "kernel",
+        "name": "iMouse2.Kernel.exe",
+        "pid": 4376,
+        "phone": "",
+        "alive": true,
+        "ws": 92651520,
+        "pm": 52854784,
+        "ws_med": 92651520,
+        "ws_peak": 92672000,
+        "pm_med": 52858880,
+        "pm_peak": 52891648,
+        "slope_ws": 0.03888129051671425,
+        "slope_pm": 0.0014577429901432393
+      },
+      {
+        "role": "console",
+        "name": "iMouse2.exe",
+        "pid": 11224,
+        "phone": "",
+        "alive": true,
+        "ws": 223432704,
+        "pm": 276172800,
+        "ws_med": 223428608,
+        "ws_peak": 223444992,
+        "pm_med": 276168704,
+        "pm_peak": 276201472,
+        "slope_ws": -0.054811608847113814,
+        "slope_pm": -0.12347755000668865
+      },
+      {
+        "role": "receiver",
+        "name": "uxplay.exe",
+        "pid": 3420,
+        "phone": "C24C",
+        "alive": true,
+        "ws": 173535232,
+        "pm": 156532736,
+        "ws_med": 172646400,
+        "ws_peak": 173535232,
+        "pm_med": 155570176,
+        "pm_peak": 156532736,
+        "slope_ws": 17.720429426263145,
+        "slope_pm": 18.340290299263614
+      },
+      {
+        "role": "receiver",
+        "name": "uxplay.exe",
+        "pid": 8868,
+        "phone": "C241",
+        "alive": true,
+        "ws": 177061888,
+        "pm": 159969280,
+        "ws_med": 176103424,
+        "ws_peak": 177061888,
+        "pm_med": 158924800,
+        "pm_peak": 159969280,
+        "slope_ws": 18.6891462410521,
+        "slope_pm": 19.277182648254858
+      },
+      {
+        "role": "receiver",
+        "name": "uxplay.exe",
+        "pid": 10496,
+        "phone": "C214",
+        "alive": true,
+        "ws": 174723072,
+        "pm": 157687808,
+        "ws_med": 173760512,
+        "ws_peak": 174723072,
+        "pm_med": 156721152,
+        "pm_peak": 157687808,
+        "slope_ws": 17.998470120065384,
+        "slope_pm": 18.549678445663723
+      },
+      {
+        "role": "receiver",
+        "name": "uxplay.exe",
+        "pid": 12148,
+        "phone": "724E",
+        "alive": true,
+        "ws": 173412352,
+        "pm": 156397568,
+        "ws_med": 172318720,
+        "ws_peak": 173412352,
+        "pm_med": 155291648,
+        "pm_peak": 156397568,
+        "slope_ws": 17.903625292865343,
+        "slope_pm": 18.512012573488906
+      },
+      {
+        "role": "receiver",
+        "name": "uxplay.exe",
+        "pid": 21952,
+        "phone": "Phone 5",
+        "alive": true,
+        "ws": 173449216,
+        "pm": 156467200,
+        "ws_med": 172462080,
+        "ws_peak": 173449216,
+        "pm_med": 155430912,
+        "pm_peak": 156467200,
+        "slope_ws": 17.635734186300027,
+        "slope_pm": 18.241194601423683
+      }
+    ],
+    "total": {
+      "ws": 1188265984,
+      "pm": 1116082176,
+      "ws0": 742236160,
+      "pm0": 655851520,
+      "ws_mid": 896622592,
+      "pm_mid": 815575040,
+      "ws_med": 1183371264,
+      "ws_peak": 1188265984,
+      "pm_med": 1110966272,
+      "pm_peak": 1116082176,
+      "slope_ws": 89.93147494821551,
+      "slope_pm": 92.79833876107807,
+      "slope_ws_30m": 54.88056128707205,
+      "slope_pm_30m": 56.90276655456101,
+      "n": 1272,
+      "win_n": 41,
+      "span_s": 19065.861000061035
+    }
+  },
+  "interactions": {
+    "n": 64,
+    "failed": 64,
+    "release_unverified": 0,
+    "per": {
+      "C24C": {
+        "n": 13,
+        "click_ok": 0,
+        "click_rtt": [],
+        "home_ok": 0,
+        "home_n": 0
+      },
+      "C241": {
+        "n": 13,
+        "click_ok": 0,
+        "click_rtt": [],
+        "home_ok": 0,
+        "home_n": 0
+      },
+      "C214": {
+        "n": 13,
+        "click_ok": 0,
+        "click_rtt": [],
+        "home_ok": 0,
+        "home_n": 0
+      },
+      "724E": {
+        "n": 13,
+        "click_ok": 0,
+        "click_rtt": [],
+        "home_ok": 0,
+        "home_n": 0
+      },
+      "Phone 5": {
+        "n": 12,
+        "click_ok": 0,
+        "click_rtt": [],
+        "home_ok": 0,
+        "home_n": 0
+      }
+    },
+    "stuck": 0,
+    "click_ok": 0,
+    "click_dispatched": 0,
+    "click_p50": null,
+    "home_ok": 0,
+    "home_n": 0,
+    "errors": {
+      "A target is owned, stopped, or recovering. No leases acquired.": 64
+    },
+    "acquire": {
+      "409": 64
+    }
+  },
+  "malformed_rows": 0
+}

@@ -431,6 +431,21 @@ public static class SelfTests
         Check("Clamped mapper folds the letterbox onto the edge",
             CoordinateMapper.MapClamped(5, 300, 600, 600, 500, 1080, 500, 1080) is { X: 0 });
 
+        var tile = new Thumb { Name = "Test phone", Status = "Following master", Ready = true, Following = true };
+        Check("Wall tile starts waiting for image evidence", tile.DeliveryLabel == "Waiting" && !tile.DeliveryWarning);
+        var tileNotifications = new List<string?>();
+        tile.PropertyChanged += (_, e) => tileNotifications.Add(e.PropertyName);
+        var unavailable = new TileStatusView("No updates", "Screenshot request failed.", true);
+        tile.SetDelivery(unavailable);
+        Check("Wall failure explains delivery without losing phone identity", tile.Detail.Contains("Test phone") && tile.Detail.Contains("Following master") && tile.Detail.Contains(unavailable.Detail));
+        Check("Wall failure notifies every delivery binding", tileNotifications.SequenceEqual(new[] { "DeliveryLabel", "DeliveryWarning", "Detail" }));
+        tileNotifications.Clear();
+        tile.SetDelivery(unavailable);
+        Check("Unchanged wall delivery does not churn bindings", tileNotifications.Count == 0);
+        Check("Wall delivery failure does not alter input readiness or following", tile.Ready && tile.Following && tile.DeliveryWarning);
+        tile.Fps = 12.3;
+        Check("Wall rate labels bitmap updates per second", tile.RateText == "12/s");
+
         await RunOwnershipTestsAsync(passed);
 
         var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);

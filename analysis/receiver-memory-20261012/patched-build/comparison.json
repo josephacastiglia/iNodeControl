@@ -1,0 +1,425 @@
+{
+  "commands": [
+    [
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\msys64\\ucrt64\\bin\\cmake.exe",
+      "-S",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay",
+      "-B",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\receiver-memory-20261012\\patched-build\\build",
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DUSE_MDNS=1"
+    ],
+    [
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\msys64\\ucrt64\\bin\\cmake.exe",
+      "--build",
+      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\receiver-memory-20261012\\patched-build\\build",
+      "-j",
+      "2"
+    ]
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "2df0270815c9a9b3aee5868101cf54f6b1104b628ddc12212fd056fe322c46f1",
+    "uxplay.cpp": "c8a5a9e1f5ab182414db022f32197994b5c04018fadd79780e9368b9296debf0",
+    "lib\\airplay_video.c": "9e90d6c533b469a331403441c6d9541ff3ca40d594fc7adea93e8e74913c1f31",
+    "lib\\airplay_video.h": "8bc25cc91f4c7d3951ae1c4c398f4d81f6a8e13e1897a17f5e41583a45678dfb",
+    "lib\\byteutils.c": "837d0d4f140b62fa3535c22ecfeefa01a1c97904b104a52021267cab438842ee",
+    "lib\\byteutils.h": "37b7a8604c901ac2504b66c3bea2942ff4f77bb28f5ffdeb31243585f54d342d",
+    "lib\\CMakeLists.txt": "e42340163cc39b1b7c393ea84da8e70fb6d130d0bf72ff6516512f4fed6220c8",
+    "lib\\compat.c": "75eb83b482111906a958bca977ce5c434f8161c5e4d307e32babd661bf1d4abc",
+    "lib\\compat.h": "24903d1c92137c23be90abf2dce80c281fd2b75cf5954a9fd968a05d0b5e5204",
+    "lib\\crypto.c": "6265ec5526942bba4b517698085abb9e664f112aa4774f8564d05d732b50df1e",
+    "lib\\crypto.h": "6e380f79d689a4ffcfdbc32471ab08b9fa36568c495b1be56b402f2b218eca36",
+    "lib\\dnssd.c": "a9ec3650b1ec9cd3ecd599dfcea5cf3461c3a813e9a2f73ed7db7d53da511c08",
+    "lib\\dnssd.h": "8c728968453f9020b1b23e7628bdefdd32cc6823e4d81124625c0d306b577aaf",
+    "lib\\dnssdint.h": "d791eedc92d276537670f16ef2f49c9694e69024e474d306c2a324bb49c525d7",
+    "lib\\fairplay.h": "1d1c0443a968f886a80c655cf1fa0890c0c9c4e7bb5f6262d4077814d5334217",
+    "lib\\fairplay_playfair.c": "5a7c123bba599bfca553e815c2ff1fed947636999a1deb44c2fa640e86b2a90a",
+    "lib\\fcup_request.h": "8738f196954f4fe2afdaf02eeb4e8982a4ab569f2aaafdfed2f0504441d322eb",
+    "lib\\global.h": "7093864cf044f0fc28f2f4e31676e92d93ec23502363dc2ed7e0d9ca5caf9917",
+    "lib\\httpd.c": "448ca5b3ba0139d82ac9239af00470d69c654137ceeaba6f0bdfbc3e19304cd9",
+    "lib\\httpd.h": "ada5767083ef16899bace3962b61aea2cb4df66d6f42875f4ff37aa8192e73e6",
+    "lib\\http_handlers.h": "71578629439518ff8a34bba24274db7804e99563e42c9b3992f4027b2994aba5",
+    "lib\\http_request.c": "5ade0d6c8d1e978aa5c0f7bc8229bd1e681ebfeb05e14ab6b60049cdda4fed59",
+    "lib\\http_request.h": "2562f4c16f410504e3d4b97f1cb1605135fd2a06591d8c371bbb362e533e6bb2",
+    "lib\\http_response.c": "1d7fa3f6cd6226a97dbd70aa267be854e5bf04c2763fd87c987cf65d8f5093e2",
+    "lib\\http_response.h": "59699deb1bc3e6242de72389bbfaf9f215f414743aa372deeb150e5953e8690f",
+    "lib\\logger.c": "4f1767dd0ec176ca0718a0b4a6e6ab59fa2d1d97b7a184a2f9760b7e9028690b",
+    "lib\\logger.h": "bad1178211f6c3341bf4a9a278c49d0dc96191bd1c5c524d95e344d75a541043",
+    "lib\\mirror_buffer.c": "519f7af8e825bc5dcc2229a7d154ac7f8d0b3303a2ec1712a5db7c25d4acc9d2",
+    "lib\\mirror_buffer.h": "b70754d814e707af15dbb49b74e3aa39f0a3f69c04c89d917bf77b4b63eadc81",
+    "lib\\netutils.c": "6afc84f23c25e0563abf63852f470799eeb7adb877a57ab03df1156f1202f944",
+    "lib\\netutils.h": "bf986c92b40a0514a4bcf5a3835358943cae6009519744d5d7a7fec6c6bbdf90",
+    "lib\\pairing.c": "bdae8f6cadf4ab8e9b24923b3fa0319a00b2a4e4a667ce6a1b8d5b25b3f6df8d",
+    "lib\\pairing.h": "e23c08a671dee7915c600b11f86a808666230789c1450e963033283dea4f495e",
+    "lib\\raop.c": "0d61950c61bf54834a364a1bfa2219ae931c6ad98fe8e01fa41ac605c087bf77",
+    "lib\\raop.h": "b080e17701620a872ef57eb51a69dc50dbb1bd5219a05f9776a1223842ee347d",
+    "lib\\raop_buffer.c": "2b41e46fd435512648fae8ce0404c762eae636c17fed39c56d547fcf49cec62f",
+    "lib\\raop_buffer.h": "9a4856cb793577558ddbe8aeb795a8ebb511f91a763937a2283473c1b16b3954",
+    "lib\\raop_handlers.h": "01c1671f99e77f1d62c62fac948092f675561951ef90adc1b0fb39bcb10ab7fa",
+    "lib\\raop_ntp.c": "f52236ebe6ec4640cdf20f7a7737215ba7f82d91ea4908269f57860885b7b2ec",
+    "lib\\raop_ntp.h": "22e92491628d2e97e0901666686456a6d77c1ba03a53d5cf328e5ce3dd84f646",
+    "lib\\raop_rtp.c": "05f84fa90e97eefb68119e8cb65316fc0d6cae1e727083bce14a1a07f50b19ee",
+    "lib\\raop_rtp.h": "1f17be7557598602b7902987c4895beaea7fa052ec6881b1636cdcb55a80d97f",
+    "lib\\raop_rtp_mirror.c": "523129f2fa75fbf8024102c732e02f1827e46948e253779d5d7e62270ecca1ff",
+    "lib\\raop_rtp_mirror.h": "d3c51fcb5c02792eabe71ca5c62f4b0bd1e645b5dd93932d805a30312349f3db",
+    "lib\\sockets.h": "fd9d9047d9b564ab469776bb891377633e8467b8d8004cbc3f8bca09f9e117d3",
+    "lib\\srp.c": "64c3970e37b5c1f7feeffe62636938211308d7b3a9afc0f2217cca35546a3e08",
+    "lib\\srp.h": "8ed980db30783717694d83a010988831ef48847cadf2b8d0dc12ecda45ce3d3c",
+    "lib\\stream.h": "7eacbcf8ab20c375e88bde7610ef47a815b7a6d8902e9876a7ca008aabac5539",
+    "lib\\threads.h": "b61705a31a0959261f65bb1285a3ea16a7b16dcf5477bd805d339db6ceaf9665",
+    "lib\\utils.c": "b7df5e78328495c21ecba50616b4a5fc17028984e1a6df0a097bad75adf86d8a",
+    "lib\\utils.h": "61bef49b8176e94f2830e1c756147bba062ef2ac17eb3971d6e512b96a3be7d6",
+    "lib\\dns_sd\\CMakeLists.txt": "9fa28a70582a134b46224400288f47ca36e77c72a3ae2c9883b22dd49c7906fb",
+    "lib\\dns_sd\\dns_sd.c": "da872eba46ef4da2101920e8a1518d5c2f147e7b0473094eb381109d2f4753b0",
+    "lib\\llhttp\\api.c": "0f8590206fe2f264db2825401b5fb856b979ee1363dc88b06f36dc9577afb941",
+    "lib\\llhttp\\CMakeLists.txt": "c638871eb05992ee50904aaf2f66aab455b44108820442bf30ef5ec87c2d34c4",
+    "lib\\llhttp\\http.c": "a1f2b23168f8e9b5bfa464c89027d3ca259fc649ae3d7e72bfff997d1aeb5d72",
+    "lib\\llhttp\\llhttp.c": "d8299eb3d717a73fe9a27e72cc4ccdf84d9b04f2456e6845bf66a73cf83985ef",
+    "lib\\llhttp\\llhttp.h": "044bf4adf449d2565cd25c845dee1fc23706b97b52113bc73f667b05e2bdfdfa",
+    "lib\\mdnsd\\CMakeLists.txt": "bf3b2235c596326449385cde1b921c0112e597e7898b83807eed3901168cc0ec",
+    "lib\\mdnsd\\dnssd_mdnsd.c": "fe7400efd2b8f5051cc61a88ecdedb023834c45f9075ef4fa64bcb9e22dc21b6",
+    "lib\\mdnsd\\mdnsd.c": "9e4762352e0379fbc3ea3eef1ee92c41bade4fd184bda7f167b7672cdc00309b",
+    "lib\\mdnsd\\mdnsd.h": "06a5cb5ef0d668ddafd75773531e13ac831812be3318d47dd9ef16ef976badcc",
+    "lib\\playfair\\CMakeLists.txt": "70ecc4531ef7f695390265a8ef400552c4f22bfaf291140cde187ea47203da03",
+    "lib\\playfair\\hand_garble.c": "cac6be5bb721e07d36d44577d112de63b40b8a12dd663495cd7cd600ab8743e4",
+    "lib\\playfair\\modified_md5.c": "850c815fd99c9f8459e2ff323c25963e20873328b838cda33fff88400fba2667",
+    "lib\\playfair\\omg_hax.c": "1bfdce59d4b462cf3b5c39f3d8b3f0f6a9c20eccf003128f972bcc7572f50823",
+    "lib\\playfair\\omg_hax.h": "839517a07a208435bce0f789f3c7a3b10d698f65509fdb6a2e601249ac4e3e88",
+    "lib\\playfair\\playfair.c": "322077cfb1f4ca555c302ec4f4f718c7daa42fbb358f9c7738e95d522263b707",
+    "lib\\playfair\\playfair.h": "5160ba53c5557f207d81998cc17a126ecb07842dc157c002ed54b397c536e613",
+    "lib\\playfair\\sap_hash.c": "ec90021e184776e825582486588d3edf61f70b494bf74915e28bd6d37870a70d",
+    "renderers\\audio_renderer.c": "82a1a1f7964a5d73b4ed48f054e249cd3e253ff4a5dc9b2c894e46da091d9fa3",
+    "renderers\\audio_renderer.h": "ad1814a85281235b7af74afe24d86db698ef3bfb6c461552fdbd1b3a1fe0787f",
+    "renderers\\CMakeLists.txt": "47166bf64b01365e1169841194695e01c2c95c2be0f0d42c659499fd6575d906",
+    "renderers\\imouse_frame_pipe.h": "da40f93b3ee92096d2a46ed5f98e5bd352e638598fc893fffdf4a71ba71e192d",
+    "renderers\\mux_renderer.c": "bed150c3e6f18f3615a5a69bac383de43445a4e0bcb78aa69053ce19ab95674d",
+    "renderers\\mux_renderer.h": "53e785905d4f28dd5f8639bd2ecd1b2730583f4238be105e5531ec4e84de2407",
+    "renderers\\video_renderer.c": "fa7ffa780661a990488be6e34398fe138400f8c2703e9c5a6a268b5a339bd016",
+    "renderers\\video_renderer.h": "43466b89534adb838915477d1ccc1b9776360a38d3992dcf5f3e5216131ea401",
+    "renderers\\x_display_fix.h": "8c28794760a09f137494f6c866139847d3d005c0987b827a5f8d690461b8edd9"
+  },
+  "installed_sha256": "4c1a24f35de00d2c3a8d50a4b0bcfb06a9f5c16bd185810ec54466ac090d2208",
+  "rebuilt_sha256": "46fd3c38745fd63bdd188c45c98b55f1a875ecce5dc7718d07e5d150e31cb136",
+  "installed_unchanged": true,
+  "sections": {
+    ".text": {
+      "saved": {
+        "bytes": 321024,
+        "sha256": "37e9139c07ff40c2c0b5dac748c94616e3e69d016f427d514eb9bac893698c71"
+      },
+      "rebuilt": {
+        "bytes": 321024,
+        "sha256": "92d1123d64f35a2fbc3fc5e605362c430691b5c607d6fcd89a16d74e358aa689"
+      },
+      "equal": false
+    },
+    ".data": {
+      "saved": {
+        "bytes": 103936,
+        "sha256": "789ea64cea79f91a62de2545f7a427f243d132fc7e12eb9fb3b1f23c341a8dd3"
+      },
+      "rebuilt": {
+        "bytes": 103936,
+        "sha256": "789ea64cea79f91a62de2545f7a427f243d132fc7e12eb9fb3b1f23c341a8dd3"
+      },
+      "equal": true
+    },
+    ".rdata": {
+      "saved": {
+        "bytes": 74240,
+        "sha256": "17506c8c49ca13d154ed6b5485d0b558e159aa9806ef7eb9f58708aa2ae1244b"
+      },
+      "rebuilt": {
+        "bytes": 74240,
+        "sha256": "4986a4a9ed154acfacc0abf8aff448e76ba3a6b795e3efeabe53a6a6d7745b45"
+      },
+      "equal": false
+    },
+    ".pdata": {
+      "saved": {
+        "bytes": 9216,
+        "sha256": "7349ea7351a3704662380b8384e05f3577b46773dd1d659ea4bb426564bc050f"
+      },
+      "rebuilt": {
+        "bytes": 9216,
+        "sha256": "efeb148c6c5206c190485b87a47e4a39e6f88703f8d517a777536eebf6d314b4"
+      },
+      "equal": false
+    },
+    ".xdata": {
+      "saved": {
+        "bytes": 9216,
+        "sha256": "4a67c17d8fabae2d1cdfdb7fb7a75dde1386746e4c1d6a90627a35648e41a135"
+      },
+      "rebuilt": {
+        "bytes": 9216,
+        "sha256": "4a67c17d8fabae2d1cdfdb7fb7a75dde1386746e4c1d6a90627a35648e41a135"
+      },
+      "equal": true
+    },
+    ".bss": {
+      "saved": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "rebuilt": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "equal": true
+    },
+    ".edata": {
+      "saved": {
+        "bytes": 1536,
+        "sha256": "55707013a55b1f186f64f8ca2c298ce15e37331d89792d65da14523b04700a1a"
+      },
+      "rebuilt": {
+        "bytes": 1536,
+        "sha256": "130f8dcdfa194d70352a7d010f18427b1cf6fabb371d12b69869ff46093ac2f0"
+      },
+      "equal": false
+    },
+    ".idata": {
+      "saved": {
+        "bytes": 18432,
+        "sha256": "a1cfd1336f47e1af9523ab9a9d40fe276251aac605b1a78f76be3ed8425f2478"
+      },
+      "rebuilt": {
+        "bytes": 18432,
+        "sha256": "a1cfd1336f47e1af9523ab9a9d40fe276251aac605b1a78f76be3ed8425f2478"
+      },
+      "equal": true
+    },
+    ".rsrc": {
+      "saved": {
+        "bytes": 1024,
+        "sha256": "2558de6878ed4a5c3a20e1329ddd406c47cbc452a182e7b01e93f894fe560a8f"
+      },
+      "rebuilt": {
+        "bytes": 1024,
+        "sha256": "2558de6878ed4a5c3a20e1329ddd406c47cbc452a182e7b01e93f894fe560a8f"
+      },
+      "equal": true
+    },
+    ".reloc": {
+      "saved": {
+        "bytes": 512,
+        "sha256": "348ffcff87ec3329c96603d38e6894f727593691d1ac29088c2965bc2e2d4405"
+      },
+      "rebuilt": {
+        "bytes": 512,
+        "sha256": "348ffcff87ec3329c96603d38e6894f727593691d1ac29088c2965bc2e2d4405"
+      },
+      "equal": true
+    }
+  },
+  "objects": {
+    "CMakeFiles\\uxplay.dir\\uxplay.cpp.obj": {
+      "saved_sha256": "1d648d403a6e1228e63f7e9d9933736cd76d52553e0665c49167a2a1ee9718ab",
+      "rebuilt_sha256": "1d648d403a6e1228e63f7e9d9933736cd76d52553e0665c49167a2a1ee9718ab",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\airplay_video.c.obj": {
+      "saved_sha256": "738bea4ac51fb05c934317646cc007f70a39cf92cce15f11d692108a4f6b7944",
+      "rebuilt_sha256": "738bea4ac51fb05c934317646cc007f70a39cf92cce15f11d692108a4f6b7944",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\byteutils.c.obj": {
+      "saved_sha256": "47515d7e08ec05f0556c5bc6909083f4a43adc01d176d8c584d09513787519cb",
+      "rebuilt_sha256": "47515d7e08ec05f0556c5bc6909083f4a43adc01d176d8c584d09513787519cb",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\compat.c.obj": {
+      "saved_sha256": "36e089df314dc08b8a34335f56b555afc29e46e40ee384585b22337de9b4741c",
+      "rebuilt_sha256": "36e089df314dc08b8a34335f56b555afc29e46e40ee384585b22337de9b4741c",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\crypto.c.obj": {
+      "saved_sha256": "d19d98fbef56b2568af0616566f15cdf10693cc96f05745722af94ab66a8e6cc",
+      "rebuilt_sha256": "d19d98fbef56b2568af0616566f15cdf10693cc96f05745722af94ab66a8e6cc",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\dnssd.c.obj": {
+      "saved_sha256": "082171832e97b044a318649eb0c2565baab1df28332030cdb916ad724ef7d47d",
+      "rebuilt_sha256": "082171832e97b044a318649eb0c2565baab1df28332030cdb916ad724ef7d47d",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\fairplay_playfair.c.obj": {
+      "saved_sha256": "d0d4fd11c3cceecbf818bc5278584922a3483571b81f23ac0630ca908c6afa3a",
+      "rebuilt_sha256": "d0d4fd11c3cceecbf818bc5278584922a3483571b81f23ac0630ca908c6afa3a",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\httpd.c.obj": {
+      "saved_sha256": "47f83a0fa6bf8c541491f3412aa4e636a9ce1f75302e1b2e81a5e762c2079402",
+      "rebuilt_sha256": "47f83a0fa6bf8c541491f3412aa4e636a9ce1f75302e1b2e81a5e762c2079402",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\http_request.c.obj": {
+      "saved_sha256": "669279598a6b1b706124df29650dcfc7e8353fe513b05ff0466ef3d8ed964b02",
+      "rebuilt_sha256": "669279598a6b1b706124df29650dcfc7e8353fe513b05ff0466ef3d8ed964b02",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\http_response.c.obj": {
+      "saved_sha256": "9791578004ea1af4be291922203c14ec30d13f8a8c52a1863be88a0836f5b4c3",
+      "rebuilt_sha256": "9791578004ea1af4be291922203c14ec30d13f8a8c52a1863be88a0836f5b4c3",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\logger.c.obj": {
+      "saved_sha256": "37cd338084d0f8073aad9c1e8123885320e2cb7159d640353311c849eba93b6e",
+      "rebuilt_sha256": "37cd338084d0f8073aad9c1e8123885320e2cb7159d640353311c849eba93b6e",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\mirror_buffer.c.obj": {
+      "saved_sha256": "3a6420625bc533fcea647821368329c5f92f76adfa543756c41c1bad2389edc0",
+      "rebuilt_sha256": "3a6420625bc533fcea647821368329c5f92f76adfa543756c41c1bad2389edc0",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\netutils.c.obj": {
+      "saved_sha256": "4658ed87cc4b45382b2e833bfe7678769e5a7a573e00322e171c1cba862672cf",
+      "rebuilt_sha256": "4658ed87cc4b45382b2e833bfe7678769e5a7a573e00322e171c1cba862672cf",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\pairing.c.obj": {
+      "saved_sha256": "aa7cc50e37ebaf76e382dce3ee2c9a51e1a55908ca751514d4dbae4d49afe7b2",
+      "rebuilt_sha256": "aa7cc50e37ebaf76e382dce3ee2c9a51e1a55908ca751514d4dbae4d49afe7b2",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\raop.c.obj": {
+      "saved_sha256": "edeb29bb9d80f8bfa9edebba16dbe1ed554c67d19ae980f163484957ca17ef08",
+      "rebuilt_sha256": "edeb29bb9d80f8bfa9edebba16dbe1ed554c67d19ae980f163484957ca17ef08",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\raop_buffer.c.obj": {
+      "saved_sha256": "cd5e9ae4a57ee5cdc30bce75b9555532346ca3705acf89fb245e4344f1e4d071",
+      "rebuilt_sha256": "cd5e9ae4a57ee5cdc30bce75b9555532346ca3705acf89fb245e4344f1e4d071",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\raop_ntp.c.obj": {
+      "saved_sha256": "e4a936e4bfc1eb37022fdb61cae33463a11de8e9999f55847e8259425c8bdfa4",
+      "rebuilt_sha256": "e4a936e4bfc1eb37022fdb61cae33463a11de8e9999f55847e8259425c8bdfa4",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\raop_rtp.c.obj": {
+      "saved_sha256": "aa27cbf23f0df1fc34119e2827fd59218d9fcd700e719324dc70982cdd118f59",
+      "rebuilt_sha256": "aa27cbf23f0df1fc34119e2827fd59218d9fcd700e719324dc70982cdd118f59",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\raop_rtp_mirror.c.obj": {
+      "saved_sha256": "d51fbfb65c8eb37516787b93c58c1b97f2585a683cc9b5ba74c2c3c137b0cd4c",
+      "rebuilt_sha256": "99d7cb9a9cf627a3e12ed24347f5823de29a0c04840e6ea1df9c05a4e283be61",
+      "equal": false
+    },
+    "lib\\CMakeFiles\\airplay.dir\\srp.c.obj": {
+      "saved_sha256": "85a06a20027aa9a2e144612eaf855389f13c8c43a51aec56e91d397b6ba23dcf",
+      "rebuilt_sha256": "85a06a20027aa9a2e144612eaf855389f13c8c43a51aec56e91d397b6ba23dcf",
+      "equal": true
+    },
+    "lib\\CMakeFiles\\airplay.dir\\utils.c.obj": {
+      "saved_sha256": "59db4229488fbe916e62bc3a4cc14feb5be1ca0142a8fea71d2ca3b25fbf05f8",
+      "rebuilt_sha256": "59db4229488fbe916e62bc3a4cc14feb5be1ca0142a8fea71d2ca3b25fbf05f8",
+      "equal": true
+    },
+    "lib\\llhttp\\CMakeFiles\\llhttp.dir\\api.c.obj": {
+      "saved_sha256": "06c75f18ad8bf903b6d0b1ffe9f9d9b7293d5b8684da82326e3d3047ecd27a70",
+      "rebuilt_sha256": "06c75f18ad8bf903b6d0b1ffe9f9d9b7293d5b8684da82326e3d3047ecd27a70",
+      "equal": true
+    },
+    "lib\\llhttp\\CMakeFiles\\llhttp.dir\\http.c.obj": {
+      "saved_sha256": "8e06b43fbd07ccfc89b5c5ae0bee0d3c4fdadc0deb2f70015910f630d4577859",
+      "rebuilt_sha256": "8e06b43fbd07ccfc89b5c5ae0bee0d3c4fdadc0deb2f70015910f630d4577859",
+      "equal": true
+    },
+    "lib\\llhttp\\CMakeFiles\\llhttp.dir\\llhttp.c.obj": {
+      "saved_sha256": "8ab44987517940db545102e74120aae2a30d303e5af12cd404821edd55f1930e",
+      "rebuilt_sha256": "8ab44987517940db545102e74120aae2a30d303e5af12cd404821edd55f1930e",
+      "equal": true
+    },
+    "lib\\mdnsd\\CMakeFiles\\dnssd.dir\\dnssd_mdnsd.c.obj": {
+      "saved_sha256": "7ec6d3360e0c8f571410247f16f8562d545754e91324a1fe2daaec715ce66cf9",
+      "rebuilt_sha256": "7ec6d3360e0c8f571410247f16f8562d545754e91324a1fe2daaec715ce66cf9",
+      "equal": true
+    },
+    "lib\\mdnsd\\CMakeFiles\\dnssd.dir\\mdnsd.c.obj": {
+      "saved_sha256": "2913ca3fd8854b7b5e3d2a677bb9584c10695e09d48dfc870ee823a17708b837",
+      "rebuilt_sha256": "2913ca3fd8854b7b5e3d2a677bb9584c10695e09d48dfc870ee823a17708b837",
+      "equal": true
+    },
+    "lib\\playfair\\CMakeFiles\\playfair.dir\\hand_garble.c.obj": {
+      "saved_sha256": "8d535e24fc4865b3c3a0407b47316d5c1ebd091ca0e45c641a98729d0ff2fc2d",
+      "rebuilt_sha256": "8d535e24fc4865b3c3a0407b47316d5c1ebd091ca0e45c641a98729d0ff2fc2d",
+      "equal": true
+    },
+    "lib\\playfair\\CMakeFiles\\playfair.dir\\modified_md5.c.obj": {
+      "saved_sha256": "5946a9fa2b3e75d316c3b2f79ac7c2de949b05bc7e631a2089c331cfc8afce16",
+      "rebuilt_sha256": "5946a9fa2b3e75d316c3b2f79ac7c2de949b05bc7e631a2089c331cfc8afce16",
+      "equal": true
+    },
+    "lib\\playfair\\CMakeFiles\\playfair.dir\\omg_hax.c.obj": {
+      "saved_sha256": "414cfb9e98768c3ab9df58b6addb85d33d6c166f2fae3ddce32c1c6d309c0a78",
+      "rebuilt_sha256": "414cfb9e98768c3ab9df58b6addb85d33d6c166f2fae3ddce32c1c6d309c0a78",
+      "equal": true
+    },
+    "lib\\playfair\\CMakeFiles\\playfair.dir\\playfair.c.obj": {
+      "saved_sha256": "8857fd636d5a7aef69e0f9cad56a2c18eab357f10206ee1f8d061764d76d68a4",
+      "rebuilt_sha256": "8857fd636d5a7aef69e0f9cad56a2c18eab357f10206ee1f8d061764d76d68a4",
+      "equal": true
+    },
+    "lib\\playfair\\CMakeFiles\\playfair.dir\\sap_hash.c.obj": {
+      "saved_sha256": "66eb5b5516dfaa75c947695b943d6b38b9ff94b3f23569ca0a301dab1a79409c",
+      "rebuilt_sha256": "66eb5b5516dfaa75c947695b943d6b38b9ff94b3f23569ca0a301dab1a79409c",
+      "equal": true
+    },
+    "renderers\\CMakeFiles\\renderers.dir\\audio_renderer.c.obj": {
+      "saved_sha256": "fe5a2e61a3b578beb7edf31d52ddfe45f540c9ddfa222c01019d591b7f62f7b5",
+      "rebuilt_sha256": "fe5a2e61a3b578beb7edf31d52ddfe45f540c9ddfa222c01019d591b7f62f7b5",
+      "equal": true
+    },
+    "renderers\\CMakeFiles\\renderers.dir\\mux_renderer.c.obj": {
+      "saved_sha256": "40beae2a3a060403da176732824dea14378412c4ced27a420b31ac3ffd060512",
+      "rebuilt_sha256": "40beae2a3a060403da176732824dea14378412c4ced27a420b31ac3ffd060512",
+      "equal": true
+    },
+    "renderers\\CMakeFiles\\renderers.dir\\video_renderer.c.obj": {
+      "saved_sha256": "d4bc1f92361004e328bea1206c08eec94b31d2c134fe5dc94cbbf44bc9108aff",
+      "rebuilt_sha256": "d4bc1f92361004e328bea1206c08eec94b31d2c134fe5dc94cbbf44bc9108aff",
+      "equal": true
+    }
+  },
+  "normalized_saved": {
+    "sha256": "0f5e421b8b68bbbf43f7109978363e09950e76e15c46ede8ebeedbf38bb50cdc",
+    "ignored_fields": [
+      [
+        136,
+        4
+      ],
+      [
+        216,
+        4
+      ],
+      [
+        518660,
+        4
+      ]
+    ]
+  },
+  "normalized_rebuilt": {
+    "sha256": "18043f743670372c1f32a89e5eaf717752fe69d03129a99ba098c310e6a0e58b",
+    "ignored_fields": [
+      [
+        136,
+        4
+      ],
+      [
+        216,
+        4
+      ],
+      [
+        518660,
+        4
+      ]
+    ]
+  },
+  "normalized_equal": false
+}

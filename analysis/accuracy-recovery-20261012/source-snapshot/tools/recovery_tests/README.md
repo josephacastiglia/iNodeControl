@@ -1,0 +1,27 @@
+# Offline receiver recovery tests
+
+This small executable links the production `AirplaySupervisor.cs` directly and
+uses fake receiver handles. It has no kernel server, HID transport, UxPlay
+process, frame pipe or desktop control.
+
+From the repository root:
+
+```powershell
+dotnet run --project tools/recovery_tests/RecoveryTests.csproj -c Release --property:UseSharedCompilation=false
+```
+
+The 12 cases cover cancelled startup, running cancellation, repeated disposal,
+startup failure/retry exhaustion, wait failure recovery, unrelated cancellation
+exceptions, cancellation during backoff, invalid delay, healthy-peer isolation,
+cleanup failure, duplicate supervision, and disposal during startup. Every
+asynchronous assertion has a bounded wait.
+
+Cleanup failure must leave a visible failed state and prevent a replacement:
+the supervisor cannot assume a failed disposal stopped the old process. A
+shutdown disposes each owned handle once and reports stopped. Retry exhaustion
+remains finite; recovery never recasts a phone.
+
+The existing kernel `--self-test` suite supplies broader simulated input and
+frame-pipe checks. Build it into a scratch folder and use that build only. This
+focused suite does not establish AirPlay rediscovery, actual process cleanup,
+phone recovery or full-rack endurance.

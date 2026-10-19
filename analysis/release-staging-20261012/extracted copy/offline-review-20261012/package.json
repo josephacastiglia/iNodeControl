@@ -1,0 +1,538 @@
+{
+  "schema_version": 1,
+  "status": "review_only",
+  "launch_allowed": false,
+  "blockers": [
+    "Main-checkout console is not yet reconciled with the integration branch's isolated startup and typing changes.",
+    "Native runtime, GStreamer plugins/scanner, Bonjour and .NET Desktop runtime are external prerequisites, not bundled or attested here.",
+    "Per-phone bindings, calibration, receiver identities/ports and isolated console settings require a reviewed candidate configuration.",
+    "Physical display, input, recovery, scale and endurance acceptance remains open; this is not a release sign-off."
+  ],
+  "files": {
+    "README.md": {
+      "sha256": "679d8895ad540cf192ba62946d6bf82a77f81913102c5984035e51df23c14e13",
+      "bytes": 7184
+    },
+    "build_manifest.py": {
+      "sha256": "09f17b1e354768d2a9cd82d9c0b16fe029fd36e4e7193024fbfd9004b149462b",
+      "bytes": 6142
+    },
+    "payload/console/iMouse2.deps.json": {
+      "sha256": "037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc",
+      "bytes": 413
+    },
+    "payload/console/iMouse2.dll": {
+      "sha256": "cca5db7df5d0792f6f917597bd1a1d91e94c8c4e56d050e3b8081eef49724f24",
+      "bytes": 346624
+    },
+    "payload/console/iMouse2.exe": {
+      "sha256": "a124593234a6173a242db5be7fae295aeb4dc9e1083e2a7da0af2864a6014dce",
+      "bytes": 152064
+    },
+    "payload/console/iMouse2.pdb": {
+      "sha256": "b813f8b6b478d7972efb2d750b8527acbf791621981cd9b52c4f42cd9664da24",
+      "bytes": 83596
+    },
+    "payload/console/iMouse2.runtimeconfig.json": {
+      "sha256": "c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782",
+      "bytes": 458
+    },
+    "payload/kernel/iMouse2.Kernel.deps.json": {
+      "sha256": "2324e47bde304034773364751a620b0290f52f3d36bf74ec44a14d48928db0d8",
+      "bytes": 434
+    },
+    "payload/kernel/iMouse2.Kernel.dll": {
+      "sha256": "186867eba30ca0656890665c6c3fa3bc57a7cec2bb013fc782cb5e698dd62e0a",
+      "bytes": 212992
+    },
+    "payload/kernel/iMouse2.Kernel.exe": {
+      "sha256": "26ac9a8e7b87f2fa5df154e78116c5f81a333b4465d4aa0b1e0856ba59202212",
+      "bytes": 152064
+    },
+    "payload/kernel/iMouse2.Kernel.pdb": {
+      "sha256": "81593df262a475d192f3b422b9ffcbd6688dde6d166204f884b02fb08c987a03",
+      "bytes": 46332
+    },
+    "payload/kernel/iMouse2.Kernel.runtimeconfig.json": {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "bytes": 340
+    },
+    "payload/receiver/uxplay.exe": {
+      "sha256": "46fd3c38745fd63bdd188c45c98b55f1a875ecce5dc7718d07e5d150e31cb136",
+      "bytes": 711490
+    },
+    "provenance/console.json": {
+      "sha256": "83ca1642c900b9a075f5a364d8db4cf5c4e347430bbab3b17b678081e95bdd3b",
+      "bytes": 3992
+    },
+    "provenance/kernel.json": {
+      "sha256": "e4832c10bb8918a2817c638b8ad6236a8af3553281a58170c9a1efb40303a4cc",
+      "bytes": 4342
+    },
+    "provenance/receiver.json": {
+      "sha256": "d5d47b39efcc44a9254888cbc9f590803cb6e3a334db1e79fce4116ff4d580bb",
+      "bytes": 21685
+    },
+    "source/NuGet.config": {
+      "sha256": "72b33a12a2cddfda521126184fef3ab94bbb17a91a3a08612509cfcb6bc4918a",
+      "bytes": 112
+    },
+    "source/receiver/CMakeLists.txt": {
+      "sha256": "2df0270815c9a9b3aee5868101cf54f6b1104b628ddc12212fd056fe322c46f1",
+      "bytes": 4520
+    },
+    "source/receiver/lib/CMakeLists.txt": {
+      "sha256": "e42340163cc39b1b7c393ea84da8e70fb6d130d0bf72ff6516512f4fed6220c8",
+      "bytes": 5813
+    },
+    "source/receiver/lib/airplay_video.c": {
+      "sha256": "9e90d6c533b469a331403441c6d9541ff3ca40d594fc7adea93e8e74913c1f31",
+      "bytes": 43964
+    },
+    "source/receiver/lib/airplay_video.h": {
+      "sha256": "8bc25cc91f4c7d3951ae1c4c398f4d81f6a8e13e1897a17f5e41583a45678dfb",
+      "bytes": 4332
+    },
+    "source/receiver/lib/byteutils.c": {
+      "sha256": "837d0d4f140b62fa3535c22ecfeefa01a1c97904b104a52021267cab438842ee",
+      "bytes": 4183
+    },
+    "source/receiver/lib/byteutils.h": {
+      "sha256": "37b7a8604c901ac2504b66c3bea2942ff4f77bb28f5ffdeb31243585f54d342d",
+      "bytes": 1405
+    },
+    "source/receiver/lib/compat.c": {
+      "sha256": "75eb83b482111906a958bca977ce5c434f8161c5e4d307e32babd661bf1d4abc",
+      "bytes": 1228
+    },
+    "source/receiver/lib/compat.h": {
+      "sha256": "24903d1c92137c23be90abf2dce80c281fd2b75cf5954a9fd968a05d0b5e5204",
+      "bytes": 1191
+    },
+    "source/receiver/lib/crypto.c": {
+      "sha256": "6265ec5526942bba4b517698085abb9e664f112aa4774f8564d05d732b50df1e",
+      "bytes": 17065
+    },
+    "source/receiver/lib/crypto.h": {
+      "sha256": "6e380f79d689a4ffcfdbc32471ab08b9fa36568c495b1be56b402f2b218eca36",
+      "bytes": 4532
+    },
+    "source/receiver/lib/dns_sd/CMakeLists.txt": {
+      "sha256": "9fa28a70582a134b46224400288f47ca36e77c72a3ae2c9883b22dd49c7906fb",
+      "bytes": 1737
+    },
+    "source/receiver/lib/dns_sd/dns_sd.c": {
+      "sha256": "da872eba46ef4da2101920e8a1518d5c2f147e7b0473094eb381109d2f4753b0",
+      "bytes": 18231
+    },
+    "source/receiver/lib/dnssd.c": {
+      "sha256": "a9ec3650b1ec9cd3ecd599dfcea5cf3461c3a813e9a2f73ed7db7d53da511c08",
+      "bytes": 5097
+    },
+    "source/receiver/lib/dnssd.h": {
+      "sha256": "8c728968453f9020b1b23e7628bdefdd32cc6823e4d81124625c0d306b577aaf",
+      "bytes": 2613
+    },
+    "source/receiver/lib/dnssdint.h": {
+      "sha256": "d791eedc92d276537670f16ef2f49c9694e69024e474d306c2a324bb49c525d7",
+      "bytes": 2144
+    },
+    "source/receiver/lib/fairplay.h": {
+      "sha256": "1d1c0443a968f886a80c655cf1fa0890c0c9c4e7bb5f6262d4077814d5334217",
+      "bytes": 1049
+    },
+    "source/receiver/lib/fairplay_playfair.c": {
+      "sha256": "5a7c123bba599bfca553e815c2ff1fed947636999a1deb44c2fa640e86b2a90a",
+      "bytes": 5010
+    },
+    "source/receiver/lib/fcup_request.h": {
+      "sha256": "8738f196954f4fe2afdaf02eeb4e8982a4ab569f2aaafdfed2f0504441d322eb",
+      "bytes": 5068
+    },
+    "source/receiver/lib/global.h": {
+      "sha256": "7093864cf044f0fc28f2f4e31676e92d93ec23502363dc2ed7e0d9ca5caf9917",
+      "bytes": 1125
+    },
+    "source/receiver/lib/http_handlers.h": {
+      "sha256": "71578629439518ff8a34bba24274db7804e99563e42c9b3992f4027b2994aba5",
+      "bytes": 43220
+    },
+    "source/receiver/lib/http_request.c": {
+      "sha256": "5ade0d6c8d1e978aa5c0f7bc8229bd1e681ebfeb05e14ab6b60049cdda4fed59",
+      "bytes": 9131
+    },
+    "source/receiver/lib/http_request.h": {
+      "sha256": "2562f4c16f410504e3d4b97f1cb1605135fd2a06591d8c371bbb362e533e6bb2",
+      "bytes": 1787
+    },
+    "source/receiver/lib/http_response.c": {
+      "sha256": "1d7fa3f6cd6226a97dbd70aa267be854e5bf04c2763fd87c987cf65d8f5093e2",
+      "bytes": 5844
+    },
+    "source/receiver/lib/http_response.h": {
+      "sha256": "59699deb1bc3e6242de72389bbfaf9f215f414743aa372deeb150e5953e8690f",
+      "bytes": 1554
+    },
+    "source/receiver/lib/httpd.c": {
+      "sha256": "448ca5b3ba0139d82ac9239af00470d69c654137ceeaba6f0bdfbc3e19304cd9",
+      "bytes": 25710
+    },
+    "source/receiver/lib/httpd.h": {
+      "sha256": "ada5767083ef16899bace3962b61aea2cb4df66d6f42875f4ff37aa8192e73e6",
+      "bytes": 2208
+    },
+    "source/receiver/lib/llhttp/CMakeLists.txt": {
+      "sha256": "c638871eb05992ee50904aaf2f66aab455b44108820442bf30ef5ec87c2d34c4",
+      "bytes": 142
+    },
+    "source/receiver/lib/llhttp/api.c": {
+      "sha256": "0f8590206fe2f264db2825401b5fb856b979ee1363dc88b06f36dc9577afb941",
+      "bytes": 13384
+    },
+    "source/receiver/lib/llhttp/http.c": {
+      "sha256": "a1f2b23168f8e9b5bfa464c89027d3ca259fc649ae3d7e72bfff997d1aeb5d72",
+      "bytes": 5209
+    },
+    "source/receiver/lib/llhttp/llhttp.c": {
+      "sha256": "d8299eb3d717a73fe9a27e72cc4ccdf84d9b04f2456e6845bf66a73cf83985ef",
+      "bytes": 321498
+    },
+    "source/receiver/lib/llhttp/llhttp.h": {
+      "sha256": "044bf4adf449d2565cd25c845dee1fc23706b97b52113bc73f667b05e2bdfdfa",
+      "bytes": 31469
+    },
+    "source/receiver/lib/logger.c": {
+      "sha256": "4f1767dd0ec176ca0718a0b4a6e6ab59fa2d1d97b7a184a2f9760b7e9028690b",
+      "bytes": 2833
+    },
+    "source/receiver/lib/logger.h": {
+      "sha256": "bad1178211f6c3341bf4a9a278c49d0dc96191bd1c5c524d95e344d75a541043",
+      "bytes": 1855
+    },
+    "source/receiver/lib/mdnsd/CMakeLists.txt": {
+      "sha256": "bf3b2235c596326449385cde1b921c0112e597e7898b83807eed3901168cc0ec",
+      "bytes": 143
+    },
+    "source/receiver/lib/mdnsd/dnssd_mdnsd.c": {
+      "sha256": "fe7400efd2b8f5051cc61a88ecdedb023834c45f9075ef4fa64bcb9e22dc21b6",
+      "bytes": 10898
+    },
+    "source/receiver/lib/mdnsd/mdnsd.c": {
+      "sha256": "9e4762352e0379fbc3ea3eef1ee92c41bade4fd184bda7f167b7672cdc00309b",
+      "bytes": 33495
+    },
+    "source/receiver/lib/mdnsd/mdnsd.h": {
+      "sha256": "06a5cb5ef0d668ddafd75773531e13ac831812be3318d47dd9ef16ef976badcc",
+      "bytes": 1469
+    },
+    "source/receiver/lib/mirror_buffer.c": {
+      "sha256": "519f7af8e825bc5dcc2229a7d154ac7f8d0b3303a2ec1712a5db7c25d4acc9d2",
+      "bytes": 4896
+    },
+    "source/receiver/lib/mirror_buffer.h": {
+      "sha256": "b70754d814e707af15dbb49b74e3aa39f0a3f69c04c89d917bf77b4b63eadc81",
+      "bytes": 1203
+    },
+    "source/receiver/lib/netutils.c": {
+      "sha256": "6afc84f23c25e0563abf63852f470799eeb7adb877a57ab03df1156f1202f944",
+      "bytes": 6416
+    },
+    "source/receiver/lib/netutils.h": {
+      "sha256": "bf986c92b40a0514a4bcf5a3835358943cae6009519744d5d7a7fec6c6bbdf90",
+      "bytes": 1092
+    },
+    "source/receiver/lib/pairing.c": {
+      "sha256": "bdae8f6cadf4ab8e9b24923b3fa0319a00b2a4e4a667ce6a1b8d5b25b3f6df8d",
+      "bytes": 19672
+    },
+    "source/receiver/lib/pairing.h": {
+      "sha256": "e23c08a671dee7915c600b11f86a808666230789c1450e963033283dea4f495e",
+      "bytes": 3172
+    },
+    "source/receiver/lib/playfair/CMakeLists.txt": {
+      "sha256": "70ecc4531ef7f695390265a8ef400552c4f22bfaf291140cde187ea47203da03",
+      "bytes": 148
+    },
+    "source/receiver/lib/playfair/hand_garble.c": {
+      "sha256": "cac6be5bb721e07d36d44577d112de63b40b8a12dd663495cd7cd600ab8743e4",
+      "bytes": 20325
+    },
+    "source/receiver/lib/playfair/modified_md5.c": {
+      "sha256": "850c815fd99c9f8459e2ff323c25963e20873328b838cda33fff88400fba2667",
+      "bytes": 3459
+    },
+    "source/receiver/lib/playfair/omg_hax.c": {
+      "sha256": "1bfdce59d4b462cf3b5c39f3d8b3f0f6a9c20eccf003128f972bcc7572f50823",
+      "bytes": 21648
+    },
+    "source/receiver/lib/playfair/omg_hax.h": {
+      "sha256": "839517a07a208435bce0f789f3c7a3b10d698f65509fdb6a2e601249ac4e3e88",
+      "bytes": 483271
+    },
+    "source/receiver/lib/playfair/playfair.c": {
+      "sha256": "322077cfb1f4ca555c302ec4f4f718c7daa42fbb358f9c7738e95d522263b707",
+      "bytes": 1025
+    },
+    "source/receiver/lib/playfair/playfair.h": {
+      "sha256": "5160ba53c5557f207d81998cc17a126ecb07842dc157c002ed54b397c536e613",
+      "bytes": 145
+    },
+    "source/receiver/lib/playfair/sap_hash.c": {
+      "sha256": "ec90021e184776e825582486588d3edf61f70b494bf74915e28bd6d37870a70d",
+      "bytes": 3357
+    },
+    "source/receiver/lib/raop.c": {
+      "sha256": "0d61950c61bf54834a364a1bfa2219ae931c6ad98fe8e01fa41ac605c087bf77",
+      "bytes": 30911
+    },
+    "source/receiver/lib/raop.h": {
+      "sha256": "b080e17701620a872ef57eb51a69dc50dbb1bd5219a05f9776a1223842ee347d",
+      "bytes": 6323
+    },
+    "source/receiver/lib/raop_buffer.c": {
+      "sha256": "2b41e46fd435512648fae8ce0404c762eae636c17fed39c56d547fcf49cec62f",
+      "bytes": 9608
+    },
+    "source/receiver/lib/raop_buffer.h": {
+      "sha256": "9a4856cb793577558ddbe8aeb795a8ebb511f91a763937a2283473c1b16b3954",
+      "bytes": 1742
+    },
+    "source/receiver/lib/raop_handlers.h": {
+      "sha256": "01c1671f99e77f1d62c62fac948092f675561951ef90adc1b0fb39bcb10ab7fa",
+      "bytes": 61429
+    },
+    "source/receiver/lib/raop_ntp.c": {
+      "sha256": "f52236ebe6ec4640cdf20f7a7737215ba7f82d91ea4908269f57860885b7b2ec",
+      "bytes": 27883
+    },
+    "source/receiver/lib/raop_ntp.h": {
+      "sha256": "22e92491628d2e97e0901666686456a6d77c1ba03a53d5cf328e5ce3dd84f646",
+      "bytes": 2473
+    },
+    "source/receiver/lib/raop_rtp.c": {
+      "sha256": "05f84fa90e97eefb68119e8cb65316fc0d6cae1e727083bce14a1a07f50b19ee",
+      "bytes": 31073
+    },
+    "source/receiver/lib/raop_rtp.h": {
+      "sha256": "1f17be7557598602b7902987c4895beaea7fa052ec6881b1636cdcb55a80d97f",
+      "bytes": 1986
+    },
+    "source/receiver/lib/raop_rtp_mirror.c": {
+      "sha256": "523129f2fa75fbf8024102c732e02f1827e46948e253779d5d7e62270ecca1ff",
+      "bytes": 46845
+    },
+    "source/receiver/lib/raop_rtp_mirror.h": {
+      "sha256": "d3c51fcb5c02792eabe71ca5c62f4b0bd1e645b5dd93932d805a30312349f3db",
+      "bytes": 1481
+    },
+    "source/receiver/lib/sockets.h": {
+      "sha256": "fd9d9047d9b564ab469776bb891377633e8467b8d8004cbc3f8bca09f9e117d3",
+      "bytes": 1453
+    },
+    "source/receiver/lib/srp.c": {
+      "sha256": "64c3970e37b5c1f7feeffe62636938211308d7b3a9afc0f2217cca35546a3e08",
+      "bytes": 36705
+    },
+    "source/receiver/lib/srp.h": {
+      "sha256": "8ed980db30783717694d83a010988831ef48847cadf2b8d0dc12ecda45ce3d3c",
+      "bytes": 10171
+    },
+    "source/receiver/lib/stream.h": {
+      "sha256": "7eacbcf8ab20c375e88bde7610ef47a815b7a6d8902e9876a7ca008aabac5539",
+      "bytes": 1238
+    },
+    "source/receiver/lib/threads.h": {
+      "sha256": "b61705a31a0959261f65bb1285a3ea16a7b16dcf5477bd805d339db6ceaf9665",
+      "bytes": 1594
+    },
+    "source/receiver/lib/utils.c": {
+      "sha256": "b7df5e78328495c21ecba50616b4a5fc17028984e1a6df0a097bad75adf86d8a",
+      "bytes": 10880
+    },
+    "source/receiver/lib/utils.h": {
+      "sha256": "61bef49b8176e94f2830e1c756147bba062ef2ac17eb3971d6e512b96a3be7d6",
+      "bytes": 1752
+    },
+    "source/receiver/renderers/CMakeLists.txt": {
+      "sha256": "47166bf64b01365e1169841194695e01c2c95c2be0f0d42c659499fd6575d906",
+      "bytes": 3899
+    },
+    "source/receiver/renderers/audio_renderer.c": {
+      "sha256": "82a1a1f7964a5d73b4ed48f054e249cd3e253ff4a5dc9b2c894e46da091d9fa3",
+      "bytes": 16985
+    },
+    "source/receiver/renderers/audio_renderer.h": {
+      "sha256": "ad1814a85281235b7af74afe24d86db698ef3bfb6c461552fdbd1b3a1fe0787f",
+      "bytes": 1713
+    },
+    "source/receiver/renderers/imouse_frame_pipe.h": {
+      "sha256": "da40f93b3ee92096d2a46ed5f98e5bd352e638598fc893fffdf4a71ba71e192d",
+      "bytes": 4172
+    },
+    "source/receiver/renderers/mux_renderer.c": {
+      "sha256": "bed150c3e6f18f3615a5a69bac383de43445a4e0bcb78aa69053ce19ab95674d",
+      "bytes": 12882
+    },
+    "source/receiver/renderers/mux_renderer.h": {
+      "sha256": "53e785905d4f28dd5f8639bd2ecd1b2730583f4238be105e5531ec4e84de2407",
+      "bytes": 1488
+    },
+    "source/receiver/renderers/video_renderer.c": {
+      "sha256": "fa7ffa780661a990488be6e34398fe138400f8c2703e9c5a6a268b5a339bd016",
+      "bytes": 49610
+    },
+    "source/receiver/renderers/video_renderer.h": {
+      "sha256": "43466b89534adb838915477d1ccc1b9776360a38d3992dcf5f3e5216131ea401",
+      "bytes": 3139
+    },
+    "source/receiver/renderers/x_display_fix.h": {
+      "sha256": "8c28794760a09f137494f6c866139847d3d005c0987b827a5f8d690461b8edd9",
+      "bytes": 4016
+    },
+    "source/receiver/uxplay.cpp": {
+      "sha256": "c8a5a9e1f5ab182414db022f32197994b5c04018fadd79780e9368b9296debf0",
+      "bytes": 131619
+    },
+    "source/src/iMouse.Console/ApiClient.cs": {
+      "sha256": "67c2be7b5a7113a5aa968d1d287d7dfa9b8764c4939e0db6a2c701fe4615ef7a",
+      "bytes": 21229
+    },
+    "source/src/iMouse.Console/App.xaml": {
+      "sha256": "3e36f13044690c1356e8ce2a1af5fcbc36fcef14c6b449410ef6ab7285a01d90",
+      "bytes": 12240
+    },
+    "source/src/iMouse.Console/App.xaml.cs": {
+      "sha256": "1407199393978b6be3fdd640bb7be70b1e1fbd0a217f6b03cda93257b13a6228",
+      "bytes": 4177
+    },
+    "source/src/iMouse.Console/FrameMetrics.cs": {
+      "sha256": "ddecc12a670a5f1490b2772c85bc133f532c4901484afb944f296efeca2c2830",
+      "bytes": 2905
+    },
+    "source/src/iMouse.Console/InputControls.cs": {
+      "sha256": "18072df60cb1ad7ace568925e32c680ef11f9852f9f8a5c29095fa1aadbef7f7",
+      "bytes": 4978
+    },
+    "source/src/iMouse.Console/InputLeaseClient.cs": {
+      "sha256": "0dac54370e21f51aec4d252a3f831f129499666c7b13c0ecc8de6e8875de7b45",
+      "bytes": 10217
+    },
+    "source/src/iMouse.Console/LiveFrame.cs": {
+      "sha256": "e46aab21a8a7060ba20b875dfeebe99ba985010ac942aad970218f9b120429b9",
+      "bytes": 10913
+    },
+    "source/src/iMouse.Console/MainWindow.xaml": {
+      "sha256": "c03b0a57eee8fc21afdc550343f88f64150e0d497fd76ec060a20bbf9101febc",
+      "bytes": 32689
+    },
+    "source/src/iMouse.Console/MainWindow.xaml.cs": {
+      "sha256": "7a04f4e20ee67293b1f58af33f95033d862aff21530a2e4f2e73a5f8e174d81a",
+      "bytes": 149671
+    },
+    "source/src/iMouse.Console/PhoneWall.cs": {
+      "sha256": "b138b62f66fc17381d0fb88cb28639bd45ad0d0737cdba02ef9ef5d426acd11d",
+      "bytes": 5003
+    },
+    "source/src/iMouse.Console/PreviewFreshness.cs": {
+      "sha256": "b71a55e1a63007ab96aeb8c31308cfd7f916bd83c3d430089c2199aabb1103a3",
+      "bytes": 5465
+    },
+    "source/src/iMouse.Console/SelfTests.cs": {
+      "sha256": "2273ab4b58eb3d08aa9c6c3613f26465d3450266dce2aad9baef5ddeebcc808b",
+      "bytes": 45997
+    },
+    "source/src/iMouse.Console/Theme.cs": {
+      "sha256": "8f058d9a0d602bebeee5c0ea5b4f6f7968a17bd642ee0a5138d906c2fe6f549c",
+      "bytes": 2724
+    },
+    "source/src/iMouse.Console/TileStreams.cs": {
+      "sha256": "046a042b29db93249fc98527e8563cf8eace4b445cbe37ffb4a599acf476b0e5",
+      "bytes": 5247
+    },
+    "source/src/iMouse.Console/app.manifest": {
+      "sha256": "4510e0d8fcb68e64f80055126aaaf50e1bfc1b3cca7d067191c8f697a1f91688",
+      "bytes": 682
+    },
+    "source/src/iMouse.Console/iMouse.Console.csproj": {
+      "sha256": "0e6913944d8717dc832030da797763cdea6f71f68018940dffe623718e092c6a",
+      "bytes": 566
+    },
+    "source/src/iMouse.Kernel/AirplayProcess.cs": {
+      "sha256": "e7413b83265c94696087b5bc8fab361c5b1536fc3232b193c409a7b8265d225c",
+      "bytes": 2647
+    },
+    "source/src/iMouse.Kernel/AirplaySupervisor.cs": {
+      "sha256": "bdb8bee2b0e0038bba748fa293dc18c46f72c87cbc7b384415ad622519ba9bf1",
+      "bytes": 6580
+    },
+    "source/src/iMouse.Kernel/ApiServer.cs": {
+      "sha256": "3a5faf1f5cd46c68c67253250525561a915e58a700d6767c3442ec695229aaa2",
+      "bytes": 11282
+    },
+    "source/src/iMouse.Kernel/DeviceStore.cs": {
+      "sha256": "cf151bc4b905525cb2a18c097fecf44eaff1edb215d65d78f32e70575bde5ec6",
+      "bytes": 1929
+    },
+    "source/src/iMouse.Kernel/FrameStore.cs": {
+      "sha256": "52ea8565c333639c9ecd915f368e00419ea89b852512aa7b7abde9c92e6fe080",
+      "bytes": 9176
+    },
+    "source/src/iMouse.Kernel/HidConnection.cs": {
+      "sha256": "3ae61000e3f6228547204cca2e2cda28be941db7e13e030d9400b082a02277f7",
+      "bytes": 1808
+    },
+    "source/src/iMouse.Kernel/HidHost.cs": {
+      "sha256": "c7fd1a9065504a530036e02c63e710f8b0cb161ad9f20f357183cc87094a967c",
+      "bytes": 8800
+    },
+    "source/src/iMouse.Kernel/HidProtocol.cs": {
+      "sha256": "5a0aa5d124e261aef40a4e875cdc303e0435c4f9950be1672727afb8fcbb3125",
+      "bytes": 1610
+    },
+    "source/src/iMouse.Kernel/InputRouter.cs": {
+      "sha256": "1b93ccb55eb47d436e2f1061558e88088bb3ac1d66d8d363854dc4e1ae224905",
+      "bytes": 16642
+    },
+    "source/src/iMouse.Kernel/InputSessionTests.cs": {
+      "sha256": "0e9c1f7dddc9e748a27e59985b2067b49470e4ae5f56f91b83b426611a97965d",
+      "bytes": 14009
+    },
+    "source/src/iMouse.Kernel/InputSessions.cs": {
+      "sha256": "8df512d45fff676b520f6c914e7822d725a598cac9616d94b95cd93d7e7b0682",
+      "bytes": 12696
+    },
+    "source/src/iMouse.Kernel/MovementDelay.cs": {
+      "sha256": "408817f79616fd5546be8c4b96801b66d2d5661ac19b379ad58a35e2c2eee7e0",
+      "bytes": 2244
+    },
+    "source/src/iMouse.Kernel/Program.cs": {
+      "sha256": "0b2eae217bbef13b5577db93b33ce0cc9976a4769aa7b0e7b93b7e8d70ae0be1",
+      "bytes": 5458
+    },
+    "source/src/iMouse.Kernel/ReceiverFleet.cs": {
+      "sha256": "973827bceaeafa34f0dc65be8f190ddbb597ced4beacc02ab738605bbe45975e",
+      "bytes": 3036
+    },
+    "source/src/iMouse.Kernel/SelfTests.cs": {
+      "sha256": "b0b9169cb3989a297abf2f6acb39c05245bcd81e730c64214a255d25a122a651",
+      "bytes": 17706
+    },
+    "source/src/iMouse.Kernel/TimerResolution.cs": {
+      "sha256": "e9d5a2172e3801766ce908df6dd7de05e95ab9719deb515c9b667b0f7b1d03be",
+      "bytes": 407
+    },
+    "source/src/iMouse.Kernel/data/devices.json": {
+      "sha256": "ab447fc5eef79f1ad8bde32d426dfeff2f2f65c88729faffabe1b45ad97d8d65",
+      "bytes": 3531
+    },
+    "source/src/iMouse.Kernel/iMouse.Kernel.csproj": {
+      "sha256": "a78dad8989cfc60e2771fd248d5efd5846bb84b158f2f0ba5699737008a1a154",
+      "bytes": 532
+    },
+    "verify_package.py": {
+      "sha256": "2bfe30c5d9cf1db71144d687aee065a5144d84b543846b169c9fa463f4b4b2d9",
+      "bytes": 11609
+    }
+  },
+  "scope": "Integrity and recorded local provenance; not a signature, dependency attestation or physical acceptance."
+}

@@ -1,0 +1,78 @@
+{
+  "source_sha256": "523129f2fa75fbf8024102c732e02f1827e46948e253779d5d7e62270ecca1ff",
+  "extracted_sha256": "c3b011f24243441149c091803b2cc8f90bcee9a64b02d46ad1733fb088edd10b",
+  "results": [
+    {
+      "show": false,
+      "trailer": false,
+      "malformed": false,
+      "returncode": 0,
+      "parsed": 10000,
+      "released": 10000,
+      "private_growth_bytes": 0
+    },
+    {
+      "show": false,
+      "trailer": false,
+      "malformed": true,
+      "returncode": 0,
+      "parsed": 0,
+      "released": 0,
+      "private_growth_bytes": 0
+    },
+    {
+      "show": false,
+      "trailer": true,
+      "malformed": false,
+      "returncode": 0,
+      "parsed": 10000,
+      "released": 10000,
+      "private_growth_bytes": 0
+    },
+    {
+      "show": false,
+      "trailer": true,
+      "malformed": true,
+      "returncode": 0,
+      "parsed": 0,
+      "released": 0,
+      "private_growth_bytes": 0
+    },
+    {
+      "show": true,
+      "trailer": false,
+      "malformed": false,
+      "returncode": 0,
+      "parsed": 10000,
+      "released": 10000,
+      "private_growth_bytes": 0
+    },
+    {
+      "show": true,
+      "trailer": false,
+      "malformed": true,
+      "returncode": 0,
+      "parsed": 0,
+      "released": 0,
+      "private_growth_bytes": 0
+    },
+    {
+      "show": true,
+      "trailer": true,
+      "malformed": false,
+      "returncode": 0,
+      "parsed": 10000,
+      "released": 10000,
+      "private_growth_bytes": 69632
+    },
+    {
+      "show": true,
+      "trailer": true,
+      "malformed": true,
+      "returncode": 0,
+      "parsed": 0,
+      "released": 0,
+      "private_growth_bytes": 0
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\analysis\receiver-memory-20261012\reports-before\report-test.c: In function 'main':
+C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0\analysis\receiver-memory-20261012\reports-before\report-test.c:81:76: error: implicit declaration of function 'plist_to_bin_free'; did you mean 'plist_to_bin'? [-Wimplicit-function-declaration]
+   81 |     unsigned char *payload = calloc(1, bytes); memcpy(payload, bin, size); plist_to_bin_free(bin);
+      |                                                                            ^~~~~~~~~~~~~~~~~
+      |                                                                            plist_to_bin

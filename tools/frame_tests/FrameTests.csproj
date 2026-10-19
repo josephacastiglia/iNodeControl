@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+<ItemGroup><Compile Include="../../src/iMouse.Console/FrameMetrics.cs" Link="FrameMetrics.cs" /><Compile Include="../../src/iMouse.Kernel/FrameStore.cs" Link="FrameStore.cs" /><Compile Include="../../src/iMouse.Kernel/AirplaySupervisor.cs" Link="AirplaySupervisor.cs" /></ItemGroup>
+</Project>

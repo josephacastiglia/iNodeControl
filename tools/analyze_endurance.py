@@ -5,6 +5,7 @@ import argparse
 import html
 import json
 import os
+import re
 import statistics
 import sys
 from collections import Counter
@@ -67,7 +68,11 @@ def load_rows(path: Path) -> tuple[list[dict], int]:
             if not line:
                 continue
             try:
-                rows.append(json.loads(line))
+                row = json.loads(line)
+                if not isinstance(row, dict):
+                    bad += 1
+                    continue
+                rows.append(row)
             except json.JSONDecodeError:
                 bad += 1
     return rows, bad
@@ -78,18 +83,19 @@ def split_sessions(rows: list[dict]) -> list[list[dict]]:
     cur: list[dict] = []
     prev_el = None
     prev_pid = None
+    prev_console = None
     for row in rows:
         if row.get("kind") != "sample":
             if cur:
                 cur.append(row)
             continue
-        el, pid = row.get("elapsed_s"), row.get("kernel_pid")
+        el, pid, console = row.get("elapsed_s"), row.get("kernel_pid"), row.get("console_pid")
         reset = prev_el is not None and el is not None and el + 1 < prev_el
-        if cur and (reset or (prev_pid and pid and pid != prev_pid)):
+        if cur and (reset or (prev_pid and pid and pid != prev_pid) or (prev_console and console and console != prev_console)):
             sessions.append(cur)
             cur = []
         cur.append(row)
-        prev_el, prev_pid = el, pid
+        prev_el, prev_pid, prev_console = el, pid, console
     if cur:
         sessions.append(cur)
     return sessions
@@ -101,9 +107,9 @@ def pick_live(sessions: list[list[dict]], status: dict) -> list[dict]:
     want_c = expected.get("console_pid") or status.get("console_pid")
     for session in reversed(sessions):
         sample = next(row for row in session if row.get("kind") == "sample")
-        if want_k and sample.get("kernel_pid") == want_k and (not want_c or sample.get("console_pid") == want_c):
+        if (not want_k or sample.get("kernel_pid") == want_k) and (not want_c or sample.get("console_pid") == want_c):
             return session
-    return sessions[-1]
+    raise ValueError("no telemetry session matches the fleet recorded in status")
 
 
 def _blank() -> dict:
@@ -127,12 +133,14 @@ def analyze_phones(samples: list[dict]) -> list[dict]:
         freeze_s = 0.0
         resets = 0
         restarts = 0
+        unavailable = 0
+        unavailable_s = 0.0
         pids: list[int] = []
-        frames: list[tuple[float, int]] = []
+        frames: list[tuple[float, int, int | None]] = []
         for i, (t, rec) in enumerate(pts):
             fr = rec.get("frames")
             if fr is not None:
-                frames.append((t, fr))
+                frames.append((t, fr, rec.get("receiver_pid")))
             restarts = max(restarts, int(rec.get("receiver_restarts") or 0))
             if rec.get("receiver_pid"):
                 pids.append(int(rec["receiver_pid"]))
@@ -140,6 +148,15 @@ def analyze_phones(samples: list[dict]) -> list[dict]:
                 continue
             prev_t, prev = pts[i - 1]
             dt = t - prev_t
+            if dt <= 0:
+                continue
+            if rec.get("live") is not True or prev.get("live") is not True:
+                unavailable += 1
+                unavailable_s += dt
+                continue
+            if prev.get("receiver_pid") != rec.get("receiver_pid"):
+                resets += 1
+                continue
             delta = rec.get("frame_delta")
             if delta is None and fr is not None and prev.get("frames") is not None:
                 delta = fr - prev["frames"]
@@ -153,13 +170,18 @@ def analyze_phones(samples: list[dict]) -> list[dict]:
                 freeze_s += dt
                 continue
             fps.append(delta / dt)
-        gained = sum(max(0, frames[i][1] - frames[i - 1][1]) for i in range(1, len(frames)))
+        gained = sum(max(0, frames[i][1] - frames[i - 1][1]) for i in range(1, len(frames)) if frames[i][2] == frames[i - 1][2])
         span = (frames[-1][0] - frames[0][0]) if len(frames) >= 2 else 0.0
         cur = None
         if frames:
-            start = frames[0]
+            latest = frames
+            for i in range(len(frames) - 1, 0, -1):
+                if frames[i - 1][2] != frames[-1][2]:
+                    latest = frames[i:]
+                    break
+            start = latest[0]
             last_t = frames[-1][0]
-            for item in frames:
+            for item in latest:
                 if item[0] <= last_t - 60:
                     start = item
             if frames[-1][0] > start[0] and frames[-1][1] >= start[1]:
@@ -172,10 +194,12 @@ def analyze_phones(samples: list[dict]) -> list[dict]:
             "cur": cur,
             "min": min(fps) if fps else None,
             "max": max(fps) if fps else None,
-            "restarts": restarts + max(0, len(set(pids)) - 1),
+            "restarts": max(restarts, sum(a != b for a, b in zip(pids, pids[1:]))),
             "resets": resets,
             "freezes": freezes,
             "freeze_s": freeze_s,
+            "unavailable_intervals": unavailable,
+            "unavailable_s": unavailable_s,
             "pid": pids[-1] if pids else None,
             "state": pts[-1][1].get("receiver_state"),
             "live": pts[-1][1].get("live"),
@@ -272,8 +296,16 @@ def analyze_memory(samples: list[dict]) -> dict:
 
 def mentions_stuck(row: dict) -> bool:
     for key, value in row.items():
-        if "stuck" in str(key).lower() or "stuck" in str(value).lower():
+        if "stuck" in str(key).lower() and bool(value):
             return True
+        if isinstance(value, dict) and mentions_stuck(value):
+            return True
+        if isinstance(value, list) and any(mentions_stuck(item) for item in value if isinstance(item, dict)):
+            return True
+        if key in ("error", "message") and isinstance(value, str):
+            text = re.sub(r"(?i)\b(?:no|not|zero|0)\s+stuck\b|\bstuck\s*[:=]\s*(?:false|0)\b", "", value)
+            if re.search(r"(?i)\bstuck\b", text):
+                return True
     return False
 
 
@@ -313,6 +345,9 @@ def analyze_interactions(session: list[dict], samples: list[dict]) -> dict:
     dispatched = [row for row in ix if row.get("click_rtt_ms") is not None]
     return {
         "n": len(ix),
+        "failed": sum(row.get("ok") is not True for row in ix),
+        "release_unverified": sum((row.get("ok") is True or row.get("acquire_code") == 0 or row.get("click_rtt_ms") is not None)
+                                  and (not isinstance(row.get("release"), dict) or row["release"].get("code") is None) for row in ix),
         "per": per,
         "stuck": stuck,
         "click_ok": sum(1 for row in ix if row.get("spotlight_open") is True),
@@ -320,9 +355,45 @@ def analyze_interactions(session: list[dict], samples: list[dict]) -> dict:
         "click_p50": median([row["click_rtt_ms"] for row in dispatched]),
         "home_ok": sum(1 for row in reached if row.get("group_home_code") == 0),
         "home_n": len(reached),
-        "errors": Counter(row.get("error") or "ok" for row in ix),
+        "errors": Counter(row.get("error") or ("ok" if row.get("ok") is True else "interaction failed or unverified") for row in ix),
         "acquire": Counter(row.get("acquire_code") for row in ix),
     }
+
+
+def evaluate_health(samples, phones, memory, ix, bad=0):
+    """Observed conditions only. Never turn a clean subset into Gate 10 acceptance."""
+    failures = []
+    incomplete = []
+    if bad:
+        failures.append(f"{bad} malformed telemetry rows")
+    if ix.get("failed", 0):
+        failures.append(f"{ix['failed']}/{ix['n']} interactions failed or unverified")
+    if ix.get("stuck", 0):
+        failures.append(f"{ix['stuck']} stuck-input or release failures")
+    for phone in phones:
+        if phone.get("restarts", 0):
+            failures.append(f"{phone['label']}: {phone['restarts']} receiver restarts")
+        if phone.get("freezes", 0):
+            failures.append(f"{phone['label']}: {phone['freezes']} sampled live no-frame gaps")
+        if phone.get("unavailable_intervals", 0) or phone.get("live") is False:
+            failures.append(f"{phone['label']}: video unavailable")
+    if any(row.get("alive") is False for row in memory.get("procs", [])) or any(proc.get("alive") is False for row in samples for proc in row.get("processes", [])):
+        failures.append("recorded process is not alive")
+    if any(row.get("fleet_match") is False for row in samples):
+        failures.append("fleet identity changed or mismatched")
+    if len(samples) < 2:
+        incomplete.append("fewer than two telemetry samples")
+    if not phones:
+        incomplete.append("no receiver observations")
+    if not memory.get("procs"):
+        incomplete.append("no process observations")
+    if not ix.get("n"):
+        incomplete.append("no interaction attempts")
+    if ix.get("release_unverified"):
+        incomplete.append(f"{ix['release_unverified']} attempted-input releases unverified")
+    return {"status": "failed" if failures else ("incomplete" if incomplete else "no_observed_failures"),
+            "failures": failures, "incomplete": incomplete, "gate10_acceptance": False,
+            "scope": "observed sample conditions; duration, planned workloads and memory budgets require separate acceptance"}
 
 
 def fmt_mb(n: float | None) -> str:
@@ -382,11 +453,13 @@ def render(status: dict, live: list[dict], phones: list[dict], memory: dict, ix:
     ws_word = drift_word(total.get("slope_ws"))
     pm_word = drift_word(total.get("slope_pm"))
     dead = [row for row in memory["procs"] if row.get("alive") is False]
+    health = evaluate_health(samples, phones, memory, ix, bad)
     gates = [
-        ["receiver restarts", str(restarts), "PASS" if restarts == 0 else "FAIL"],
-        ["stream freezes >2s", str(freezes), "PASS" if freezes == 0 else "FAIL"],
-        ["stuck keys/buttons", str(ix["stuck"]), "PASS" if ix["stuck"] == 0 else "FAIL"],
-        ["processes alive", "yes" if not dead else ",".join(str(row["pid"]) for row in dead), "PASS" if not dead else "FAIL"],
+        ["receiver restarts", str(restarts), "NONE RECORDED" if restarts == 0 else "FAIL"],
+        ["live no-frame gaps >2s", str(freezes), "NONE RECORDED" if freezes == 0 else "FAIL"],
+        ["stuck keys/buttons", str(ix["stuck"]), "NONE RECORDED" if ix["stuck"] == 0 else "FAIL"],
+        ["processes alive", "yes" if not dead and memory["procs"] else (",".join(str(row["pid"]) for row in dead) or "not observed"), "FAIL" if dead else ("OBSERVED" if memory["procs"] else "NOT OBSERVED")],
+        ["failed interactions", f"{ix.get('failed', 0)}/{ix['n']}", "FAIL" if ix.get("failed") else ("NONE RECORDED" if ix["n"] else "NOT OBSERVED")],
         ["memory drift", f"WS {fmt_slope(total.get('slope_ws'))} MB/h, private {fmt_slope(total.get('slope_pm'))} MB/h", f"{ws_word}/{pm_word}"],
     ]
     phone_rows = []
@@ -457,20 +530,22 @@ def render(status: dict, live: list[dict], phones: list[dict], memory: dict, ix:
     lines = [
         "# Gate 10 endurance dashboard",
         "",
-        f"Analyzer: Grok 4.7. Generated {now}. Read-only; soak was not touched.",
+        f"Generated {now}. Saved telemetry analysis; soak was not touched.",
+        f"Observed health: **{health['status']}**. This is not Gate 10 release acceptance.",
+        f"Issues: {'; '.join(health['failures'] + health['incomplete']) or 'none in these checks'}",
         "",
         f"- As of: {last.get('at')} (elapsed {hms(elapsed)}, remaining {hms(remaining) if remaining is not None else 'n/a'})",
         f"- Started: {status.get('started_at') or first.get('at')}",
-        f"- Running: {status.get('running')}",
+        f"- Recorded running state: {status.get('running')} (not a live process check)",
         f"- Fleet: kernel {last.get('kernel_pid')} / console {last.get('console_pid')} / match {last.get('fleet_match')}",
         f"- Rows: {parsed} parsed ({bad} incomplete), live samples {len(samples)}, live interactions {ix['n']}",
         f"- Prior sessions excluded: {', '.join(prior_bits) if prior_bits else 'none'}",
         "",
-        "## Gates",
+        "## Recorded conditions",
         "",
         table(["check", "value", "result"], gates),
         "",
-        f"FLAT means |slope| < {FLAT_MB_H:.0f} MB/h. Full-session slope is not a warmup artifact: last 30m WS {fmt_slope(total.get('slope_ws_30m'))} MB/h, private {fmt_slope(total.get('slope_pm_30m'))} MB/h.",
+        f"FLAT labels |slope| < {FLAT_MB_H:.0f} MB/h; it is not a predeclared acceptance budget. Full-session slope includes warm-up. Last 30m WS {fmt_slope(total.get('slope_ws_30m'))} MB/h, private {fmt_slope(total.get('slope_pm_30m'))} MB/h.",
         "",
         "## Phones",
         "",
@@ -479,7 +554,7 @@ def render(status: dict, live: list[dict], phones: list[dict], memory: dict, ix:
             phone_rows,
         ),
         "",
-        "Received is frames gained this session. FPS uses inter-sample deltas; a zero-frame gap over 2s is a freeze, not a low FPS.",
+        "Received is counter progress within unchanged receiver identities. FPS excludes restart boundaries. No-frame gaps are sampled while marked live; unavailable video is counted separately. These counters do not measure the console's displayed frames.",
         "",
         "## Memory",
         "",
@@ -527,7 +602,7 @@ def _check() -> None:
     assert "t&lt;x&gt;" in page and "FLAT/RISING" in page
 
 
-def render_html(status: dict, live: list[dict], phones: list[dict], memory: dict, ix: dict) -> str:
+def render_html(status: dict, live: list[dict], phones: list[dict], memory: dict, ix: dict, health=None) -> str:
     esc = html.escape
     samples = [row for row in live if row.get("kind") == "sample"]
     last = samples[-1]
@@ -539,6 +614,7 @@ def render_html(status: dict, live: list[dict], phones: list[dict], memory: dict
     restarts = sum(phone["restarts"] for phone in phones)
     freezes = sum(phone["freezes"] for phone in phones)
     stuck = int(ix["stuck"])
+    health = health or evaluate_health(samples, phones, memory, ix)
     ws_word = drift_word(total.get("slope_ws"))
     pm_word = drift_word(total.get("slope_pm"))
     mem_word = ws_word if ws_word == pm_word else f"{ws_word}/{pm_word}"
@@ -595,14 +671,15 @@ tr:last-child td { border-bottom:0; }
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="refresh" content="10">
-<title>8-Hour Endurance Soak</title>
+<title>Endurance telemetry report</title>
 <style>{css}</style>
 </head>
 <body>
 <main>
 <section class="card">
-<h1>8-Hour Endurance Soak</h1>
-<p class="sub">Grok 4.7 · as of {esc(str(last.get("at") or ""))} · refreshes every 10s</p>
+<h1>Endurance telemetry report</h1>
+<p class="sub">Saved observations as of {esc(str(last.get("at") or ""))} · {esc(health['status'])} · not Gate 10 release acceptance</p>
+<p>{esc('; '.join(health['failures'] + health['incomplete']) or 'No failures observed in these checks.')}</p>
 <div class="stats">
 <div class="stat"><span>Elapsed Time</span><b>{hms(elapsed)}</b></div>
 <div class="stat"><span>Remaining Time</span><b>{"n/a" if remaining is None else hms(remaining)}</b></div>
@@ -611,7 +688,7 @@ tr:last-child td { border-bottom:0; }
 <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{done:.0f}" aria-label="Soak progress"><div class="fill"></div></div>
 </section>
 <section class="card">
-<h2>Gate Checklist</h2>
+<h2>Recorded conditions</h2>
 <div class="gates">
 <div class="gate"><span>Restarts</span><b class="{"ok" if restarts == 0 else "bad"}">{restarts}</b></div>
 <div class="gate"><span>Freezes</span><b class="{"ok" if freezes == 0 else "bad"}">{freezes}</b></div>
@@ -642,19 +719,29 @@ tr:last-child td { border-bottom:0; }
 </html>
 """
 
-def main() -> int:
+def main(argv=None) -> int:
     _check()
     parser = argparse.ArgumentParser(description="Gate 10 endurance dashboard")
     parser.add_argument("--dir", default=str(DEFAULT_DIR))
-    args = parser.parse_args()
-    out_dir = Path(args.dir)
-    rows, bad = load_rows(out_dir / "telemetry.jsonl")
-    status = load_json(out_dir / "status.json")
+    parser.add_argument("--out", help="separate report directory; source records are never rewritten")
+    parser.add_argument("--self-check", action="store_true", help="run synthetic checks only")
+    args = parser.parse_args(argv)
+    if args.self_check:
+        print("self-check ok")
+        return 0
+    source_dir = Path(args.dir)
+    out_dir = Path(args.out) if args.out else source_dir
+    rows, bad = load_rows(source_dir / "telemetry.jsonl")
+    status = load_json(source_dir / "status.json")
     sessions = split_sessions(rows)
     if not sessions:
         print("no sample rows", file=sys.stderr)
         return 1
-    live = pick_live(sessions, status)
+    try:
+        live = pick_live(sessions, status)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
     samples = [row for row in live if row.get("kind") == "sample"]
     if not samples:
         print("live session has no samples", file=sys.stderr)
@@ -662,22 +749,26 @@ def main() -> int:
     phones = analyze_phones(samples)
     memory = analyze_memory(samples)
     ix = analyze_interactions(live, samples)
+    health = evaluate_health(samples, phones, memory, ix, bad)
+    out_dir.mkdir(parents=True, exist_ok=True)
     text = render(status, live, phones, memory, ix, len(rows), bad, [s for s in sessions if s is not live])
     dest = out_dir / "DASHBOARD.md"
     tmp = dest.with_suffix(".md.tmp")
     tmp.write_text(text, encoding="utf-8")
     os.replace(tmp, dest)
-    page = render_html(status, live, phones, memory, ix)
+    page = render_html(status, live, phones, memory, ix, health)
     html_dest = out_dir / "dashboard.html"
     html_tmp = html_dest.with_suffix(".html.tmp")
     html_tmp.write_text(page, encoding="utf-8")
     os.replace(html_tmp, html_dest)
+    analysis = {"health": health, "samples": len(samples), "sessions": len(sessions),
+                "phones": phones, "memory": memory, "interactions": ix, "malformed_rows": bad}
+    json_tmp = out_dir / "analysis.json.tmp"
+    json_tmp.write_text(json.dumps(analysis, indent=2), encoding="utf-8")
+    os.replace(json_tmp, out_dir / "analysis.json")
     print(text, end="")
-    restarts = sum(phone["restarts"] for phone in phones)
-    print(f"ASSERT restarts={restarts} stuck={ix['stuck']}")
-    assert restarts == 0, restarts
-    assert ix["stuck"] == 0, ix["stuck"]
-    return 0
+    print(f"Observed health: {health['status']}; Gate 10 acceptance is not established")
+    return 1 if health["status"] == "failed" else (2 if health["status"] == "incomplete" else 0)
 
 
 if __name__ == "__main__":

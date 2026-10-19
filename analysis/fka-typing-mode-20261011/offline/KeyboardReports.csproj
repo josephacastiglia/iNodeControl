@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Characterization only. References the exact tested binaries; never starts either app. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="iMouse2">
+      <HintPath>../../../../iMouseXP-2.0-evidence-archive/20261010-typing-mode-ab/build/imouse-candidate-5/iMouse2.dll</HintPath>
+    </Reference>
+    <Reference Include="iMouse2.Kernel">
+      <HintPath>../../../release/iMouse2-kernel-two-phone/iMouse2.Kernel.dll</HintPath>
+    </Reference>
+    <!-- HidText.cs is an unchanged copy of the existing cleanup harness decoder. -->
+  </ItemGroup>
+</Project>

@@ -1,0 +1,40 @@
+[1/40] Building C object lib/mdnsd/CMakeFiles/dnssd.dir/dnssd_mdnsd.c.obj
+[2/40] Building C object lib/mdnsd/CMakeFiles/dnssd.dir/mdnsd.c.obj
+[3/40] Building C object lib/llhttp/CMakeFiles/llhttp.dir/api.c.obj
+[4/40] Building C object lib/llhttp/CMakeFiles/llhttp.dir/http.c.obj
+[5/40] Building C object lib/playfair/CMakeFiles/playfair.dir/hand_garble.c.obj
+[6/40] Building C object lib/playfair/CMakeFiles/playfair.dir/modified_md5.c.obj
+[7/40] Building C object lib/playfair/CMakeFiles/playfair.dir/omg_hax.c.obj
+[8/40] Building C object lib/llhttp/CMakeFiles/llhttp.dir/llhttp.c.obj
+[9/40] Building C object lib/playfair/CMakeFiles/playfair.dir/playfair.c.obj
+[10/40] Building C object lib/playfair/CMakeFiles/playfair.dir/sap_hash.c.obj
+[11/40] Linking C static library lib\mdnsd\libdnssd.a
+[12/40] Linking C static library lib\llhttp\libllhttp.a
+[13/40] Linking C static library lib\playfair\libplayfair.a
+[14/40] Building C object lib/CMakeFiles/airplay.dir/airplay_video.c.obj
+[15/40] Building C object lib/CMakeFiles/airplay.dir/byteutils.c.obj
+[16/40] Building C object lib/CMakeFiles/airplay.dir/compat.c.obj
+[17/40] Building C object lib/CMakeFiles/airplay.dir/dnssd.c.obj
+[18/40] Building C object lib/CMakeFiles/airplay.dir/crypto.c.obj
+[19/40] Building C object lib/CMakeFiles/airplay.dir/fairplay_playfair.c.obj
+[20/40] Building C object lib/CMakeFiles/airplay.dir/http_request.c.obj
+[21/40] Building C object lib/CMakeFiles/airplay.dir/http_response.c.obj
+[22/40] Building C object lib/CMakeFiles/airplay.dir/httpd.c.obj
+[23/40] Building C object lib/CMakeFiles/airplay.dir/logger.c.obj
+[24/40] Building C object lib/CMakeFiles/airplay.dir/mirror_buffer.c.obj
+[25/40] Building C object lib/CMakeFiles/airplay.dir/pairing.c.obj
+[26/40] Building C object lib/CMakeFiles/airplay.dir/netutils.c.obj
+[27/40] Building C object lib/CMakeFiles/airplay.dir/raop_buffer.c.obj
+[28/40] Building C object lib/CMakeFiles/airplay.dir/raop.c.obj
+[29/40] Building C object lib/CMakeFiles/airplay.dir/raop_ntp.c.obj
+[30/40] Building C object lib/CMakeFiles/airplay.dir/raop_rtp.c.obj
+[31/40] Building C object lib/CMakeFiles/airplay.dir/raop_rtp_mirror.c.obj
+[32/40] Building C object lib/CMakeFiles/airplay.dir/srp.c.obj
+[33/40] Building C object lib/CMakeFiles/airplay.dir/utils.c.obj
+[34/40] Linking C static library lib\libairplay.a
+[35/40] Building C object renderers/CMakeFiles/renderers.dir/audio_renderer.c.obj
+[36/40] Building C object renderers/CMakeFiles/renderers.dir/mux_renderer.c.obj
+[37/40] Building C object renderers/CMakeFiles/renderers.dir/video_renderer.c.obj
+[38/40] Linking C static library renderers\librenderers.a
+[39/40] Building CXX object CMakeFiles/uxplay.dir/uxplay.cpp.obj
+[40/40] Linking CXX executable uxplay.exe

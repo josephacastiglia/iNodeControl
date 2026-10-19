@@ -1,0 +1,47 @@
+{
+  "raw-discard": {
+    "status": "measured",
+    "samples": 139,
+    "warmup_seconds": 30,
+    "private_mib_per_hour": 0.0,
+    "private_range_bytes": 0,
+    "frames": 5400,
+    "received": 0,
+    "seconds": 180.016,
+    "acceptance": false
+  },
+  "raw-bridge": {
+    "status": "measured",
+    "samples": 139,
+    "warmup_seconds": 30,
+    "private_mib_per_hour": 0.0,
+    "private_range_bytes": 0,
+    "frames": 5401,
+    "received": 5401,
+    "seconds": 180.047,
+    "acceptance": false
+  },
+  "h264-discard": {
+    "status": "measured",
+    "samples": 140,
+    "warmup_seconds": 30,
+    "private_mib_per_hour": -5.936106576774119,
+    "private_range_bytes": 229376,
+    "frames": 5401,
+    "received": 0,
+    "seconds": 180.047,
+    "acceptance": false
+  },
+  "h264-bridge": {
+    "status": "measured",
+    "samples": 141,
+    "warmup_seconds": 30,
+    "private_mib_per_hour": -5.9472887567503685,
+    "private_range_bytes": 229376,
+    "frames": 5402,
+    "received": 5402,
+    "seconds": 180.062,
+    "acceptance": false
+  },
+  "installed_receiver_unchanged": true
+}

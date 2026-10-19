@@ -1,0 +1,26 @@
+PASS idle presentation rate expires without another frame
+PASS rate decays while waiting instead of retaining old burst rate
+PASS rate uses monotonic time and reset clears history
+PASS simultaneous timestamps do not divide by zero
+PASS presentation gaps retain a six-second pause
+PASS pending gap is visible before another presentation
+PASS completed gap ring remains bounded and evicts old samples
+PASS no frame starts with unknown age, not a fresh zero
+PASS waiting connection does not invent a frame
+PASS valid frame publishes dimensions sequence and zero age
+PASS unchanged new frames advance delivery and reset age
+PASS polling cached picture does not refresh age or increment sequence
+PASS receiver stop marker clears cached availability but retains evidence
+PASS disconnect clears cached frame and records reason
+PASS malformed BMP is refused and previous picture cleared
+PASS oversized length rejected before allocation or payload read
+PASS truncated frame never counts as received
+PASS fragmented stream assembles exactly one validated frame
+PASS cancelled read leaves no available frame
+PASS reconnect retains identity and sequence but replaces failure
+PASS screenshot metadata is culture independent and identifies the stored frame
+PASS read failure clears the image and provides recovery diagnostics
+PASS disposed reader reports stopped without opening a pipe
+PASS duplicate reader run is rejected
+PASS independent stores have distinct identities and failure isolation
+25/25 passed

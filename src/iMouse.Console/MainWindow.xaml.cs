@@ -63,11 +63,17 @@ public partial class MainWindow : Window
         // scale and far cheaper.
         RenderOptions.SetBitmapScalingMode(PhoneImage, BitmapScalingMode.LowQuality);
         RenderOptions.SetEdgeMode(PhoneImage, EdgeMode.Aliased);
-        _refreshTimer.Tick += async (_, _) => await RefreshDevicesAsync();
+        _refreshTimer.Tick += async (_, _) =>
+        {
+            UpdatePreviewFreshness();
+            UpdateWallFreshness();
+            if (AutoPreview.IsChecked == true) UpdateFrameStatus();
+            await RefreshDevicesAsync();
+        };
         StateChanged += (_, _) => { SyncPumpTarget(); if (WindowState != WindowState.Minimized) StartPump(); };
         // Fit once the first real layout pass has happened; before that the viewport is zero.
         ContentRendered += (_, _) => { FitMaster(); UpdateWallWidth(); };
-        Closed += (_, _) => { _closing = true; _refreshTimer.Stop(); CompositionTarget.Rendering -= PresentPending; _lifetime.Cancel(); _api?.Dispose(); _lifetime.Dispose(); if (_timerRaised) { try { timeEndPeriod(1); } catch { } _timerRaised = false; } };
+        Closed += (_, _) => { _closing = true; _tileStreams.Stop(); _refreshTimer.Stop(); CompositionTarget.Rendering -= PresentPending; _lifetime.Cancel(); _api?.Dispose(); _lifetime.Dispose(); if (_timerRaised) { try { timeEndPeriod(1); } catch { } _timerRaised = false; } };
         UpdateControls();
     }
 
@@ -77,7 +83,7 @@ public partial class MainWindow : Window
         ApiClient next;
         try { next = _factory(AddressBox.Text.Trim()); }
         catch (Exception ex) { Log(ex.Message, true); return; }
-        _session++;
+        _session++; _tileStreams.Stop();
         _lifetime.Cancel(); _lifetime.Dispose(); _lifetime = new();
         _api?.Dispose(); _api = next;
         next.InputNotice += message => Dispatcher.BeginInvoke(() =>
@@ -299,7 +305,7 @@ public partial class MainWindow : Window
     private void Disconnect_Click(object sender, RoutedEventArgs e)
     {
         if (_commandBusy) return;
-        _session++; _lifetime.Cancel(); _api?.Dispose(); _api = null; _connected = false; _castName = "";
+        _session++; _tileStreams.Stop(); _lifetime.Cancel(); _api?.Dispose(); _api = null; _connected = false; _castName = "";
         _refreshTimer.Stop();
         ConnectionStatus.Text = "Disconnected";
         _devices.Clear(); DeviceList.ItemsSource = null;
@@ -495,10 +501,14 @@ public partial class MainWindow : Window
     {
         PhoneImage.Source = null; _frame = null; _frameId = null; _frameAt = DateTime.MinValue; _gesture = null;
         _live.Reset(); _rate.Reset(); _jitter.Reset(); _frameEpoch++; _lastFrameAt = DateTime.MinValue; _lastDelivered = DateTime.MinValue; _idleStreak = 0; _errorStreak = 0;
-        lock (_pendingLock) _pending = null;
+        _previewFreshness.Reset(_frameEpoch);
+        PreparedFrame? obsolete;
+        lock (_pendingLock) { obsolete = _pending; _pending = null; }
+        _live.Recycle(obsolete);
         if (PointerReadout is not null) PointerReadout.Text = "Hover the screen to see tap coordinates";
         PreviewHeading.Text = heading; PreviewMessage.Text = message; PreviewPlaceholder.Visibility = Visibility.Visible;
         FrameStatus.Text = "Live view idle";
+        UpdatePreviewFreshness();
     }
     /// <summary>
     /// The dropdown's Tag is a target FRAME PERIOD, not a poll spacing, and the two are
@@ -525,6 +535,8 @@ public partial class MainWindow : Window
         if (!IsInitialized) return;
         SyncPumpTarget();
         if (AutoPreview.IsChecked != true) { _rate.Reset(); _jitter.Reset(); FrameStatus.Text = "Live view paused"; } else StartPump();
+        UpdatePreviewFreshness();
+        UpdateWallFreshness();
     }
     private async void Preview_Click(object sender, RoutedEventArgs e) => await GrabOneAsync();
 
@@ -554,6 +566,7 @@ public partial class MainWindow : Window
     private int _idleStreak;
     private int _errorStreak;
     private readonly JitterMeter _jitter = new();
+    private readonly PreviewFreshness _previewFreshness = new();
     // Cached so the per-frame present request does not allocate a delegate 30 times a second.
     private readonly Action _presentNow;
 
@@ -612,11 +625,15 @@ public partial class MainWindow : Window
                 {
                     await api.ScreenshotIntoAsync(id, false, fetch, _lifetime.Token).ConfigureAwait(false);
                     if (session != _session || _closing) break;
+                    if (epoch != _frameEpoch || _activeDeviceId != id) continue;
                     _errorStreak = 0;
-                    if (LiveFrame.SameAsPrevious(previous.Span, fetch.Span))
+                    bool samePixels = LiveFrame.SameAsPrevious(previous.Span, fetch.Span);
+                    var stamp = _previewFreshness.Observe(epoch, samePixels, fetch.Metadata, requestSerial: fetch.RequestSerial);
+                    if (stamp is null) continue;
+                    if (samePixels)
                     {
-                        // A successful fetch of an unchanged screen is still fresh. Pixel
-                        // deduplication must not disable input after ten seconds of stillness.
+                        // Preserve legacy input availability for a still image. Delivery
+                        // freshness is reported separately, not inferred from this fetch.
                         if (_activeDeviceId == id && _frameId == id) _frameAt = DateTime.UtcNow;
                         // Nothing changed yet. Poll again after a small fixed pause - fixed,
                         // never derived from measured frame gaps, because such a scheme feeds
@@ -648,7 +665,12 @@ public partial class MainWindow : Window
                     _lastDelivered = now;
                     (fetch, previous) = (previous, fetch);   // previous now holds this frame
                     var prepared = _live.Prepare(previous.Span);
-                    if (prepared is null) { await Task.Delay(60).ConfigureAwait(false); continue; }
+                    if (prepared is null)
+                    {
+                        _previewFreshness.Failed(epoch, fetch.RequestSerial);
+                        await Task.Delay(60).ConfigureAwait(false); continue;
+                    }
+                    prepared.PreviewStamp = stamp;
                     PreparedFrame? replaced;
                     lock (_pendingLock) { replaced = _pending; _pending = prepared; }
                     _live.Recycle(replaced);   // a frame the compositor never drew is dead weight
@@ -666,7 +688,7 @@ public partial class MainWindow : Window
                     // and the other finds the slot empty.
                     if (!_closing) _ = Dispatcher.BeginInvoke(DispatcherPriority.Render, _presentNow);
                 }
-                catch (OperationCanceledException) { break; }
+                catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { break; }
                 catch (Exception ex)
                 {
                     // Roughly 1-3% of screenshot requests fail transiently even on a healthy
@@ -674,6 +696,7 @@ public partial class MainWindow : Window
                     // enough to drag the live view from ~30 fps down to ~11. Retry straight
                     // away through a short run of failures, and only slow down and report once
                     // they persist - which is what a genuinely disconnected phone looks like.
+                    _previewFreshness.Failed(epoch, fetch.RequestSerial);
                     _errorStreak++;
                     if (_errorStreak > 12)
                     {
@@ -698,18 +721,39 @@ public partial class MainWindow : Window
         PreparedFrame? frame;
         lock (_pendingLock) { frame = _pending; _pending = null; }
         if (frame is null) return;
+        if (frame.PreviewStamp is { } pendingStamp && !_previewFreshness.IsCurrent(pendingStamp))
+        {
+            _live.Recycle(frame); return;
+        }
         if (_live.Present(frame))
         {
             if (!ReferenceEquals(PhoneImage.Source, _live.Source)) PhoneImage.Source = _live.Source;
             PreviewPlaceholder.Visibility = Visibility.Collapsed;
+            if (frame.PreviewStamp is { } shownStamp) _previewFreshness.Presented(shownStamp);
             _rate.Mark(); _jitter.Mark();
-            if (_live.Frames % 8 == 0) UpdateFrameStatus();
+            if (_live.Frames % 8 == 0 || _live.Frames == 1) UpdateFrameStatus();
         }
         _live.Recycle(frame);
     }
 
+    private void UpdatePreviewFreshness()
+    {
+        if (PreviewFreshnessText is null) return;
+        if (PhoneImage.Source is null)
+        {
+            PreviewFreshnessText.Text = "";
+            PreviewFreshnessText.Visibility = Visibility.Collapsed;
+            return;
+        }
+        var status = _previewFreshness.Status;
+        PreviewFreshnessText.Text = AutoPreview.IsChecked == true ? status.Text : "Preview paused — image is not updating";
+        PreviewFreshnessText.Foreground = (Brush)FindResource(status.FetchFailed || status.State == "quiet" ? "WarnBrush" : "MutedBrush");
+        PreviewFreshnessText.Visibility = Visibility.Visible;
+    }
+
     private void UpdateFrameStatus()
     {
+        UpdatePreviewFreshness();
         if (FrameStatus is null || Selected is not { } device || PhoneImage.Source is not BitmapSource shown) return;
         var target = TargetSize(device, shown);
         // The gap between frames actually reaching the screen, and how many of the last
@@ -718,7 +762,7 @@ public partial class MainWindow : Window
         // a steady 33.
         var gaps = _jitter.Summary();
         string pacing = gaps.P50 > 0 ? $" \u00b7 {gaps.P50:0}/{gaps.P95:0} ms p50/p95" + (gaps.Long > 0 ? $" \u00b7 {gaps.Long} slow" : "") : "";
-        FrameStatus.Text = $"Live \u00b7 {_rate.Fps:0.#} fps \u00b7 {shown.PixelWidth} \u00d7 {shown.PixelHeight} \u00b7 taps in {(CoordinateSpaceIsImage ? "image pixels" : "iOS points")} {target.W} \u00d7 {target.H}{pacing}";
+        FrameStatus.Text = $"{_previewFreshness.Status.Text} \u00b7 {_rate.Fps:0.#} updates/s \u00b7 {shown.PixelWidth} \u00d7 {shown.PixelHeight} \u00b7 taps in {(CoordinateSpaceIsImage ? "image pixels" : "iOS points")} {target.W} \u00d7 {target.H}{pacing}";
     }
 
     /// <summary>Single frame on demand, for the Refresh button and for the smoke test.</summary>
@@ -727,10 +771,13 @@ public partial class MainWindow : Window
         var api = _api;
         var device = Selected;
         if (api is null || device is null || !device.Online || _closing) return;
+        int epoch = _frameEpoch;
         try
         {
             await api.ScreenshotIntoAsync(device.Id, false, _grabBuffer, _lifetime.Token);
-            if (_closing || Selected?.Id != device.Id) return;
+            if (_closing || Selected?.Id != device.Id || epoch != _frameEpoch) return;
+            var stamp = _previewFreshness.Observe(epoch, false, _grabBuffer.Metadata, "manual", _grabBuffer.RequestSerial);
+            if (stamp is null) return;
             _frame = _grabBuffer; _frameId = device.Id; _frameAt = DateTime.UtcNow;
             var prepared = _live.Prepare(_grabBuffer.Span);
             if (prepared is not null)
@@ -745,11 +792,17 @@ public partial class MainWindow : Window
                 decoded.BeginInit(); decoded.CacheOption = BitmapCacheOption.OnLoad; decoded.StreamSource = stream; decoded.EndInit(); decoded.Freeze();
                 PhoneImage.Source = decoded;
             }
+            _previewFreshness.Presented(stamp);
             PreviewPlaceholder.Visibility = Visibility.Collapsed;
             _rate.Mark(); UpdateFrameStatus(); UpdateControls();
         }
-        catch (OperationCanceledException) { }
-        catch (Exception ex) { Log("Preview: " + Friendly(ex), true); }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+        catch (Exception ex)
+        {
+            _previewFreshness.Failed(epoch, _grabBuffer.RequestSerial);
+            UpdateFrameStatus();
+            Log("Preview: " + Friendly(ex), true);
+        }
     }
 
     /// <summary>
@@ -1247,17 +1300,15 @@ public partial class MainWindow : Window
     // operator confirms a mirrored action actually landed everywhere, so the tiles have to
     // keep updating - a frozen tile has to be distinguishable from a still screen.
     //
-    // They are fetched round-robin from a single loop rather than one pump per phone. Ten
-    // independent pumps at the master's rate would be ten times the master's bandwidth for
-    // images shown at a fraction of its size; one loop bounds the total request rate no
-    // matter how many phones are on the wall. Tiles use JPEG (about 96 KB versus 1.6 MB)
-    // and decode straight to tile size, because at this scale nothing else is visible.
+    // Each tile has an independent raw-frame pump and a cancellable lifetime. A shared
+    // fetch limiter caps concurrent requests at three; backoff and display work do not
+    // occupy a fetch slot. Delivery status is separate from pixel changes and input readiness.
     private readonly System.Collections.ObjectModel.ObservableCollection<Thumb> _wall = [];
     private volatile string[] _wallTargets = [];
-    private readonly Dictionary<string, Task> _tilePumps = [];
+    private readonly TileStreams _tileStreams = new();
     // Bounds how many tile fetches are in flight at once. Each tile now runs its own pump,
     // so without this a large rack would open one request per phone simultaneously.
-    private readonly SemaphoreSlim _tileGate = new(3);
+    private readonly TileFetchScheduler _tileFetchScheduler = new(3);
     private int _tileHeight = 118;
     private int _tilePeriodMs = 33;    // per tile, not per pass over the whole wall
     private long _tileFrames, _tileFetches, _tileDupes, _tileRestarts;
@@ -1335,7 +1386,7 @@ public partial class MainWindow : Window
         UpdateWallWidth();
         WallHeading.Text = _wall.Count == 0 ? "Others"
             : $"Others · {_wall.Count(t => t.Following)}/{_wall.Count} following";
-        _wallTargets = _devices.Where(d => d.Online && d.Id != master?.Id).Select(d => d.Id).ToArray();
+        _wallTargets = _devices.Where(d => _connected && d.Online && d.Id != master?.Id).Select(d => d.Id).ToArray();
         // TileWidth is a plain property, read when the template binds. Re-read it if the
         // phones' shape has changed - on the first device list, or a rack of a different
         // model - but never otherwise, because rebinding resets every tile.
@@ -1345,17 +1396,29 @@ public partial class MainWindow : Window
             PhoneWall.DataContext = null; PhoneWall.DataContext = this;
         }
         StartTilePumps();
+        UpdateWallFreshness();
+    }
+
+    private void UpdateWallFreshness()
+    {
+        if (_wall is null) return;
+        foreach (var tile in _wall)
+        {
+            var stream = _tileStreams.Find(tile.Id);
+            bool online = Array.IndexOf(_wallTargets, tile.Id) >= 0;
+            tile.SetDelivery(TileStatusView.From(stream?.Freshness.Status, online, !_pumpEnabled));
+            tile.Fps = online && _pumpEnabled && stream is not null ? stream.Rate.Fps : 0;
+        }
     }
 
     /// <summary>Gives every phone on the wall its own pump, and lets removed ones finish.</summary>
     private void StartTilePumps()
     {
-        var targets = _wallTargets;
-        lock (_tilePumps)
+        foreach (var stream in _tileStreams.Reconcile(_wallTargets, _session, _lifetime.Token))
         {
-            foreach (var id in targets)
-                if (!_tilePumps.ContainsKey(id))
-                    _tilePumps[id] = TilePumpAsync(id, _session);
+            var tile = _wall.FirstOrDefault(t => t.Id == stream.Id);
+            if (tile is not null) { tile.Image = null; tile.Fps = 0; }
+            _ = TilePumpAsync(stream);
         }
     }
 
@@ -1376,96 +1439,91 @@ public partial class MainWindow : Window
     /// slow frame polling - so the phones really are independent and there is no reason to
     /// serialise them.
     /// </summary>
-    private async Task TilePumpAsync(string id, int session)
+    private async Task TilePumpAsync(TileStream stream)
     {
         var fetch = new FrameBuffer();
         var previous = new FrameBuffer();
         var live = new LiveFrame();
-        var rate = new RateMeter();
         int idle = 0;
+        bool Current() => !_closing && stream.Connection == _session && _tileStreams.IsCurrent(stream);
+        void UpdateTile()
+        {
+            if (!Current()) return;
+            var tile = _wall.FirstOrDefault(t => t.Id == stream.Id);
+            if (tile is null) return;
+            tile.Fps = _pumpEnabled ? stream.Rate.Fps : 0;
+            tile.SetDelivery(TileStatusView.From(stream.Freshness.Status, true, !_pumpEnabled));
+        }
         try
         {
-            while (!_closing && session == _session && Array.IndexOf(_wallTargets, id) >= 0)
+            while (Current())
             {
                 var api = _api;
-                if (api is null || !_pumpEnabled) { await Task.Delay(250).ConfigureAwait(false); continue; }
-
-                // Aggregate load is what has to be bounded, not each tile's rate: a rack of
-                // twenty at ten frames a second would be four hundred megabytes a second of
-                // pictures nobody is looking at closely. Small walls stay fast, large ones
-                // settle to a total the machine can carry.
-                int tiles = Math.Max(1, _wallTargets.Length);
-                int period = Math.Max(_tilePeriodMs, tiles * 12);
-                // No slowdown during a drag. The old wall stood aside entirely while the
-                // operator was dragging, on the theory that the master needed the link to
-                // itself - but a drag is exactly the moment the wall has to be watched,
-                // because it is when the mirrored phones are supposed to be moving too.
-                // Measured on this rack: streaming pointer input to both phones did not
-                // slow frame polling at all (98.8 requests/sec against 78.7 with no input),
-                // and sweeping the tile rate from 1 fps to flat out left the master at a
-                // steady 32-33 ms per frame throughout. There was nothing to protect.
+                if (api is null || !_pumpEnabled)
+                { await Task.Delay(250, stream.Token).ConfigureAwait(false); continue; }
+                int period = Math.Max(_tilePeriodMs, Math.Max(1, _wallTargets.Length) * 12);
                 long started = Environment.TickCount64;
                 try
                 {
                     long t0 = Environment.TickCount64;
-                    await _tileGate.WaitAsync(_lifetime.Token).ConfigureAwait(false);
-                    try { await api.ScreenshotIntoAsync(id, false, fetch, _lifetime.Token).ConfigureAwait(false); }
-                    finally { _tileGate.Release(); }
+                    var result = await _tileFetchScheduler.FetchAsync(
+                        ct => api.ScreenshotIntoAsync(stream.Id, false, fetch, ct), stream.Token).ConfigureAwait(false);
+                    if (result.Cancelled || !Current()) break;
+                    if (!result.Success) throw new IOException("Tile screenshot unavailable.");
                     Interlocked.Increment(ref _tileFetches);
                     Interlocked.Add(ref _tileFetchMs, Environment.TickCount64 - t0);
-
-                    if (LiveFrame.SameAsPrevious(previous.Span, fetch.Span))
+                    bool same = LiveFrame.SameAsPrevious(previous.Span, fetch.Span);
+                    var stamp = stream.Freshness.Observe(0, same, fetch.Metadata, requestSerial: fetch.RequestSerial);
+                    if (stamp is null) continue;
+                    if (same)
                     {
                         Interlocked.Increment(ref _tileDupes);
-                        // Ease off while this phone's screen is still, the same way the
-                        // master's pump does. A phone showing a static screen should not
-                        // cost the same as one mid-animation.
                         if (idle < 200) idle++;
                     }
                     else
                     {
                         idle = 0;
                         (fetch, previous) = (previous, fetch);
-                        // Shrink to tile size here, on this worker, so the compositor is
-                        // never handed a full 500x1080 picture to scale down per phone.
                         long t1 = Environment.TickCount64;
                         var prepared = live.Prepare(previous.Span, Math.Max(48, _tileHeight * 2));
                         Interlocked.Add(ref _tilePrepareMs, Environment.TickCount64 - t1);
+                        if (prepared is null)
+                        {
+                            previous.Length = 0;
+                            throw new InvalidDataException("Tile image cannot be decoded.");
+                        }
                         long t2 = Environment.TickCount64;
-                        if (prepared is not null)
+                        try
+                        {
                             await Dispatcher.InvokeAsync(() =>
                             {
-                                if (!live.Present(prepared)) return;
-                                live.Recycle(prepared);
-                                _tileFrames++;
-                                var tile = _wall.FirstOrDefault(t => t.Id == id);
-                                if (tile is null) return;
-                                // Assigned once. After that the same bitmap is written in
-                                // place, so a new frame costs no binding work at all.
+                                if (!Current() || !_pumpEnabled) { previous.Length = 0; return; }
+                                var tile = _wall.FirstOrDefault(t => t.Id == stream.Id);
+                                if (tile is null || !live.Present(prepared)) { previous.Length = 0; return; }
                                 if (!ReferenceEquals(tile.Image, live.Source)) tile.Image = live.Source;
-                                rate.Mark();
-                                tile.Fps = rate.Fps;
+                                stream.Freshness.Presented(stamp);
+                                stream.Rate.Mark(); _tileFrames++;
                             });
+                        }
+                        finally { live.Recycle(prepared); }
                         Interlocked.Add(ref _tilePresentMs, Environment.TickCount64 - t2);
                     }
+                    if (Current()) await Dispatcher.InvokeAsync(UpdateTile);
                 }
-                catch (OperationCanceledException) { return; }
-                catch { await Task.Delay(400).ConfigureAwait(false); /* one unhappy phone must not stall the rest */ }
-
-                int elapsed = (int)(Environment.TickCount64 - started);
-                int wait = period + Math.Min(220, idle * 4) - elapsed;
-                if (wait > 0) await Task.Delay(wait).ConfigureAwait(false);
-                if (idle == 9) await Dispatcher.InvokeAsync(() =>
+                catch (OperationCanceledException) when (stream.Token.IsCancellationRequested) { break; }
+                catch (Exception)
                 {
-                    // Exactly once, on going quiet: a still tile must stop claiming the
-                    // rate it had while it was moving.
-                    var tile = _wall.FirstOrDefault(t => t.Id == id);
-                    if (tile is not null) tile.Fps = 0;
-                    rate.Reset();
-                });
+                    if (!Current()) break;
+                    stream.Freshness.Failed(0);
+                    await Dispatcher.InvokeAsync(UpdateTile);
+                    await Task.Delay(400, stream.Token).ConfigureAwait(false);
+                }
+                int wait = period + Math.Min(220, idle * 4) - (int)(Environment.TickCount64 - started);
+                if (wait > 0) await Task.Delay(wait, stream.Token).ConfigureAwait(false);
             }
         }
-        finally { Interlocked.Increment(ref _tileRestarts); lock (_tilePumps) _tilePumps.Remove(id); }
+        catch (OperationCanceledException) when (stream.Token.IsCancellationRequested) { }
+        finally { Interlocked.Increment(ref _tileRestarts); _tileStreams.Complete(stream); }
     }
 
     private List<Device> Followers()
@@ -1949,7 +2007,7 @@ public partial class MainWindow : Window
             distinctTileLefts = lefts.OrderBy(x => x).ToList(),
             tileFetchesPerSec = Math.Round((_tileFetches - fetchStart) / seconds, 1),
             tileDuplicatesSkipped = _tileDupes - dupeStart,
-            tilePumpsAlive = _tilePumps.Count,
+            tilePumpsAlive = _tileStreams.RunningCount,
             tilePumpExits = _tileRestarts,
             avgFetchMs = _tileFetches > 0 ? Math.Round((double)_tileFetchMs / _tileFetches, 1) : 0,
             avgPrepareMs = tileDrawn > 0 ? Math.Round((double)_tilePrepareMs / tileDrawn, 1) : 0,
@@ -1977,6 +2035,7 @@ public partial class MainWindow : Window
         StartPump();
 
         await Task.Delay(1500);                 // let the pump settle
+        _rate.Reset(); _jitter.Reset();
         long start = _live.Frames;
         // Every screenshot is a fresh 1.6 MB array, which is over the 85 KB large-object
         // threshold, so each frame is a Large Object Heap allocation. Record what that
@@ -1992,7 +2051,7 @@ public partial class MainWindow : Window
         long drawn = _live.Frames - start;
         double seconds = clock.Elapsed.TotalSeconds;
         double average = seconds > 0 ? drawn / seconds : 0;
-        var ordered = samples.Where(x => x > 0).Order().ToList();
+        var ordered = samples.Order().ToList(); // Keep zero-update samples; do not hide pauses.
         double worst = ordered.Count > 0 ? ordered[0] : 0;
         double median = ordered.Count > 0 ? ordered[ordered.Count / 2] : 0;
 
@@ -2018,6 +2077,8 @@ public partial class MainWindow : Window
             presentIntervalP95Ms = Math.Round(_jitter.Summary().P95, 1),
             presentIntervalMaxMs = Math.Round(_jitter.Summary().Max, 1),
             longIntervals = _jitter.Summary().Long,
+            sinceLastPresentationMs = _jitter.SinceLastMs,
+            metricScope = "WPF bitmap updates after pixel deduplication; not physical display scans or receiver freshness",
             pollIntervalMs = _pollInterval,
             framePeriodMs = _framePeriod,
             imageSize = $"{_live.Width}x{_live.Height}",
@@ -2266,11 +2327,11 @@ public partial class MainWindow : Window
         Check("Going quiet does not resize the tile", MeasureTile() == quiet);
         Check("The rate is hidden when a phone is not delivering frames", probe.RateVisibility == Visibility.Collapsed);
         probe.Fps = 12;
-        Check("The rate reads as a whole number of frames a second", probe.RateText == "12 fps");
+        Check("The rate reads as a whole number of frames a second", probe.RateText == "12/s");
         probe.Fps = 12.4;
-        Check("Sub-frame drift does not rewrite the rate", probe.RateText == "12 fps");
+        Check("Sub-frame drift does not rewrite the rate", probe.RateText == "12/s");
         probe.Fps = 17;
-        Check("A real change does update the rate", probe.RateText == "17 fps");
+        Check("A real change does update the rate", probe.RateText == "17/s");
 
         // The width must follow the size slider, and only the size slider.
         double before = TileWidth;

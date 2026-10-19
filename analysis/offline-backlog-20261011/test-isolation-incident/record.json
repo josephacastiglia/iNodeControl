@@ -1,0 +1,9 @@
+{
+  "test_pid": 18600,
+  "sample_utc": "2026-10-12T03:26:58.736+00:00",
+  "network_attempt": "read-only status request blocked with WinError 10013; input phase not reached",
+  "historical_telemetry_restored_sha256": "5434b4e2b59b3f4748b0f65222ba9f3a8ad59aa5ec7ab9d1ae0ea0e9689647cf",
+  "historical_status_unchanged_sha256": "2adf3d083c3b4360902c05e590f45a08baa67a141575b4b1c95f05ab0d6ef2d3",
+  "added_test_sample_preserved": true,
+  "test_pid_marker_removed": true
+}

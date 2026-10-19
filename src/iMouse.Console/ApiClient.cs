@@ -96,6 +96,7 @@ public sealed class Device : INotifyPropertyChanged
 public sealed class ApiClient : IDisposable, IAsyncDisposable
 {
     private readonly HttpClient _http;
+    private long _screenshotRequest;
     private readonly InputLeaseClient? _input;
     private bool _ownershipVerified;
     public event Action<string>? InputNotice;
@@ -210,6 +211,10 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
     /// </summary>
     public async Task ScreenshotIntoAsync(string id, bool jpeg, FrameBuffer buffer, CancellationToken ct = default)
     {
+        buffer.RequestSerial = Interlocked.Increment(ref _screenshotRequest);
+        buffer.Length = 0;
+        buffer.Metadata = null; // Reused buffers must never retain another response's evidence.
+        long requestStarted = System.Diagnostics.Stopwatch.GetTimestamp();
         var url = Endpoint.AbsoluteUri.TrimEnd('/') + "/pic/screenshot?id=" + Uri.EscapeDataString(id) + "&binary=true" + (jpeg ? "&jpg=true" : "");
         // ResponseHeadersRead, so HttpClient does not buffer the body into an array of its
         // own before handing it over - that would put the allocation straight back.
@@ -227,7 +232,12 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
             total += read;
         }
         buffer.Length = total;
-        if (IsImage(buffer.Span)) return;
+        if (IsImage(buffer.Span))
+        {
+            buffer.Metadata = ScreenshotMetadata.Parse(response.Headers,
+                System.Diagnostics.Stopwatch.GetElapsedTime(requestStarted).TotalMilliseconds);
+            return;
+        }
 
         // The service can answer with JSON carrying a base64 image instead. That is rare
         // and never on the hot path, so this branch is allowed to allocate.
@@ -239,6 +249,8 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         buffer.Ensure(decoded.Length);
         decoded.CopyTo(buffer.Data, 0);
         buffer.Length = decoded.Length;
+        buffer.Metadata = ScreenshotMetadata.Parse(response.Headers,
+            System.Diagnostics.Stopwatch.GetElapsedTime(requestStarted).TotalMilliseconds);
     }
 
     public static bool IsImage(ReadOnlySpan<byte> bytes) => bytes.Length > 8 &&
@@ -334,6 +346,8 @@ public sealed class FrameBuffer
 {
     public byte[] Data { get; private set; } = new byte[1 << 21];
     public int Length { get; internal set; }
+    public ScreenshotMetadata? Metadata { get; internal set; }
+    public long RequestSerial { get; internal set; }
     public ReadOnlySpan<byte> Span => Data.AsSpan(0, Length);
     public void Ensure(int size)
     {

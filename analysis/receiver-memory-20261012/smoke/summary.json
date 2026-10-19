@@ -1,0 +1,15 @@
+{
+  "raw-discard": {
+    "status": "insufficient_samples"
+  },
+  "raw-bridge": {
+    "status": "insufficient_samples"
+  },
+  "h264-discard": {
+    "status": "insufficient_samples"
+  },
+  "h264-bridge": {
+    "status": "insufficient_samples"
+  },
+  "installed_receiver_unchanged": true
+}

@@ -1,0 +1,22 @@
+{
+  "offline": true,
+  "boundary": "historical vendor user-mode WriteFile hook; not USB completion or iOS insertion",
+  "text": " Ab Z!",
+  "expected_down_reports_match": true,
+  "space_down": "A2002C0000000000",
+  "space_holds_ms": [
+    38.399,
+    45.606
+  ],
+  "original_report_id": 0,
+  "sources": [
+    {
+      "path": "analysis\\hid-keys-20260914.jsonl",
+      "sha256": "960e3202ab191d3ca9e87c507576c0ac7e4454139feb15066b912e2b5b6cbf6d"
+    },
+    {
+      "path": "analysis\\hid-key-markers.jsonl",
+      "sha256": "9c8eb36ad4a5b3c545730bdde4f4f0fa4d54af99d68204b07dd61acce89a5dde"
+    }
+  ]
+}
