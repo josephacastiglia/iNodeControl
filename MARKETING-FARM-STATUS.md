@@ -1,6 +1,32 @@
-# Marketing Farm candidate — 18 October 2026
+# Marketing Farm candidate — 19 October 2026
 
-## Latest: integrated draft save/reopen and prompt recovery passed on C24C
+## Latest: new content to a verified Instagram draft passed on C24C
+
+**Priority 1 passed within the tested scope.** The native **Create phone draft**
+handler completed a fresh 60-action run on @xs.halle.xo: three new images imported
+to Photos, all slides selected in order, the complete caption pasted and checked,
+the draft saved, then independently reopened and checked twice. All nine driver
+assertions and 96 retained-frame checks passed, without a review hold or manual
+help after initial phone preparation. Exact caption checking uses the details
+screen after closing the editor, avoiding caret-related OCR errors without
+repairing text.
+
+The clean Release build passed 556 native headless checks. The complete offline
+suite passed 436 tests; a later read-only result-metadata correction passed 68
+focused checks. Input logic is unchanged after the live pass. Explicit
+continuation of confirmed imports is guarded against replay, duplicate imports,
+changed ownership and changed receiver sessions.
+
+All private services stopped normally; all 25 protected installed files matched.
+No PC control, publishing, messaging, C241 input, FKA change or installed-release
+change occurred. Three labelled test drafts and nine test images remain on C24C.
+The candidate is unpromoted and disabled without explicit configuration. This
+accepts three-slide drafts with short visible ASCII captions on this account and
+layout; broader formats/accounts, recurring phone execution, app-restart
+persistence and general unattended use remain open. [Full result and source
+provenance](analysis/farm-new-draft-20261019/README.md).
+
+## Previous: integrated draft save/reopen and prompt recovery passed on C24C
 
 The native marketing interface completed the full 19-action test-draft workflow
 on @xs.halle.xo: all three slides and the complete caption matched after saving

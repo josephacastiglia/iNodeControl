@@ -1,8 +1,33 @@
 # Marketing Farm — acceptance record
 
-Updated 18 October 2026. **The full marketing product is not accepted for unattended use.** Local preparation and supervised draft saves have evidence on Instagram, TikTok, X and YouTube. Automatic publishing and messaging remain disabled.
+Updated 19 October 2026. **The full marketing product is not accepted for unattended use.** A fresh three-slide Instagram creation/save/reopen workflow has scoped native-interface acceptance on C24C. Other platform draft saves have supervised evidence. Automatic publishing and messaging remain disabled.
 
 ## Latest integrated candidate acceptance
+
+**New content → verified draft passed** on C24C / @xs.halle.xo. One fresh native
+request completed all 60 actions: transfer three new images, verify thumbnail
+identity and numbered order, inspect every full-size slide, paste the complete
+caption, require exact details, save, and run the independent 19-action verifier.
+Both reopen passes, sampled account history, final profile and cleanup passed.
+No review hold or manual help occurred after initial phone preparation. All nine
+driver assertions, 210 collected evidence checks and 96 retained-frame checks
+passed. The headless host created no desktop window.
+
+**436 offline Python tests and 556 native headless checks passed.** A subsequent
+read-only display correction (reporting the verifier's final lease generation)
+passed 68 focused tests and retained the original evidence. No input
+implementation changed after the live pass. The initial stopped rack state is
+restored and all 25 protected files match. No PC control, publishing, messaging,
+C241 input, FKA change or installed-release change occurred.
+
+This is one uninterrupted fresh-content run on the tested account/layout, with
+additional held/recovered test drafts preserved separately. It supports three
+distinct slides and a short visible ASCII caption, and does not establish
+app-restart persistence, other formats/accounts or general unattended operation.
+The candidate remains unpromoted. [Evidence, limits and exact build/source
+records](analysis/farm-new-draft-20261019/README.md).
+
+## Previous integrated candidate acceptance
 
 The isolated C24C candidate completed one full 19-action Instagram draft run on
 @xs.halle.xo through the headless native marketing interface. A controlled local
