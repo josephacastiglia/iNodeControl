@@ -168,15 +168,20 @@ class Workflow:
             raise InspectionStopped('Capture failed: '+observed.get('reason','no completed evidence'))
         value, frame = self.store.current_evidence(key)
         path = self.folder / (str(len(self.record['observations'])).zfill(2)+'-'+role+'.png')
-        path.write_bytes(frame)
+        # ObservationStore already committed the image and immutable record.
+        # Export the second copy after releasing the phone, outside the decision
+        # age budget. Dispatch still re-reads and hashes the committed image.
         entry.update(state='observed',frame=path.name,observation=value); self.save()
         self.validate(value, frame)
         sequence = value['frameEvidence']['sequence']
         if sequence <= max(before, self.record.get('lastSequence', -1)):
             raise InspectionStopped('The pointer challenge did not produce a new frame.')
         self.record['lastSequence'] = sequence
-        entry['screenCheck'] = self.verify_screen(role, value, frame, index, require_next)
-        self.save()
+        if role not in ('create','picker','editor'):
+            entry['screenCheck'] = self.verify_screen(role, value, frame, index, require_next)
+            self.save()
+        # The shared waiter validates every Create/picker/editor capture itself.
+        # Do not decode and match the same image twice before its final age check.
         return self.store.current_evidence(key)
 
     def observe(self, role, index=None, require_next=False):
@@ -311,6 +316,16 @@ class Workflow:
                     self.record.update(state='review_required',cleanup='unconfirmed')
             except Exception as error:
                 self.record.update(state='review_required',cleanup='unconfirmed',cleanupError=str(error))
+            try:
+                for entry in self.record['observations']:
+                    if entry.get('state') != 'observed': continue
+                    value, frame = self.store.evidence(entry['observationId'])
+                    if value['reviewFrameSha256'] != entry['observation']['reviewFrameSha256']:
+                        raise InspectionStopped('Retained image changed before evidence export.')
+                    (self.folder/entry['frame']).write_bytes(frame)
+                self.record['evidenceExport']='confirmed'
+            except Exception as error:
+                self.record.update(state='review_required',evidenceExport='failed',exportError=str(error))
             self.save()
         return self.record
 

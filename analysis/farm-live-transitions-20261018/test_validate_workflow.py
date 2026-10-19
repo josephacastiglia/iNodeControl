@@ -167,9 +167,29 @@ class WorkflowTests(unittest.TestCase):
             if o['role']=='editor' and (i==0 or result['observations'][i-1]['role']!='editor' or o['index']!=result['observations'][i-1]['index'])])
         self.assertEqual('offline_protocol_fixture',result['source'])
         self.assertFalse(result['productionAdapterAccepted'])
+        self.assertEqual('confirmed',result['evidenceExport'])
         for index, command in enumerate(result['commands']):
             if command['fun'] in ('/mouse/click','/mouse/swipe'):
                 self.assertEqual('park_after_answered_action',result['commands'][index+1]['purpose'])
+
+    def test_duplicate_image_export_happens_after_release_and_matches_retained_bytes(self):
+        from unittest.mock import patch
+        written=[]; released=[]; write=Path.write_bytes; release=FixtureKernel.release
+        def record_release(kernel, tokens):
+            release(kernel,tokens); released.append(True)
+        def record_write(path, raw):
+            if path.suffix=='.png':
+                self.assertTrue(released,'Duplicate image export must follow confirmed lease release.')
+                written.append((path.name,bytes(raw)))
+            return write(path,raw)
+        with patch.object(Path,'write_bytes',record_write), patch.object(FixtureKernel,'release',record_release):
+            result,kernel,workflow=self.run_fixture()
+        self.assertEqual('validation_passed',result['state'],result.get('error'))
+        self.assertEqual(len(result['observations']),len(written))
+        self.assertEqual('release',kernel.calls[-1])
+        for entry,(name,raw) in zip(result['observations'],written):
+            self.assertEqual(entry['frame'],name)
+            self.assertEqual(entry['observation']['reviewFrameSha256'],hashlib.sha256(raw).hexdigest())
 
     def test_known_transients_collect_new_pairs_without_semantic_retries(self):
         result,kernel,_=self.run_fixture('known_transients')
