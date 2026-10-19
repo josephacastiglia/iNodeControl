@@ -1,5 +1,9 @@
 # Marketing Farm candidate — 19 October 2026
 
+For the continuation task and the original seven-priority roadmap, read
+[the Claude handoff](CLAUDE-HANDOFF-20261019.md). Priorities 1–2 have scoped
+Instagram acceptance; broader platform coverage is next.
+
 ## Latest: Priority 2 scoped recovery checks passed on C24C
 
 Three native-interface inspections reopened the saved three-slide creation on
