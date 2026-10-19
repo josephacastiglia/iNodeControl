@@ -45,3 +45,4 @@ analysis/gate6-preflight-20261013/** -text
 analysis/combined-timing-package-20261013/** -text
 # Preserve the new live validation manifests and recorded hashes through checkout.
 analysis/farm-live-transitions-20261018/*.json -text
+analysis/farm-live-final-20261018/** -text

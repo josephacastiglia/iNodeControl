@@ -1,0 +1,15 @@
+{
+  "verifiedPriorFiles": 28,
+  "priorManifestSha256": "1c11763be1e131ee0ee8aebbb6694216855fcbf9ed6a58caccd05a9e679d198a",
+  "archiveManifestUnchanged": true,
+  "byteIdenticalDiagnosticFiles": [
+    "validate_workflow.py",
+    "test_validate_workflow.py",
+    "reference-frames.json",
+    "Record-Preflight.ps1",
+    "Start-TestKernel.ps1",
+    "Stop-TestKernel.ps1",
+    "Record-FinalState.ps1"
+  ],
+  "productSourcesChanged": false
+}
