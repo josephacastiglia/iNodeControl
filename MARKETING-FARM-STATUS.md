@@ -1,6 +1,30 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest: fresh C24C validation remains partial
+## Latest: optimized draft save/reopen passed twice on C24C
+
+Two complete bounded runs passed on the unchanged `d173ee1` product source. Each
+used one lease, opened the existing test draft, verified all three slides and the
+full caption, saved and reopened it, checked every slide/caption again, preserved
+it on exit and verified the original Instagram profile. All 19 semantic actions
+answered in each run; all 68 exported phone images match their recorded hashes.
+No manual recovery or semantic retry was needed. The former saved-library
+freshness failure did not recur in either run.
+
+The first-to-last observation intervals were 91.703 and 90.816 seconds. The
+120-second workflow budget, eight-second/four-capture settling limit and 1,500 ms
+per-frame age limit were unchanged. **56 offline preparation tests and three
+actual retained-frame OCR checks passed.** No product code or native binary was
+changed in this window.
+
+C24C is released, the private test kernel/receiver stopped normally, and the
+initially stopped rack state is restored. C241, the installed release and all 25
+protected settings/release files are unchanged. Nothing was published, messaged,
+promoted or pushed. This establishes the bounded diagnostic on one existing
+test draft; native marketing job/UI integration, real interruption/crash recovery
+and broader unattended reliability acceptance remain. The production live adapter
+stays disabled. See [the validation record](analysis/farm-live-final-20261018/README.md).
+
+## Earlier: fresh C24C validation remained partial
 
 Fresh C24C checks recognized Create, waited through picker/editor loading changes, and used exact Next-label evidence. One attempt saved/reopened the existing carousel and verified all three slides/caption, but exceeded its operation deadline before the final account capture. Later attempts still held on freshness/timing. **No complete automatic run passed, and unattended operation stays disabled.** All failed attempts and scoped recovery operations are retained.
 

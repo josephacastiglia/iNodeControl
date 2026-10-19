@@ -1,14 +1,75 @@
 # Fresh C24C validation of the final library optimization
 
-18 October 2026. **Offline preparation passed; fresh phone validation pending.**
+18 October 2026. **Two complete fresh-phone runs passed; the rack is restored.**
 
 This run continues the partial validation recorded in
 `analysis/farm-live-transitions-20261018/README.md`. The candidate source is
 `d173ee1fdfeca06f2cbdd2fbfae3e8bff9894a70`. The final optimization decodes a library
 screenshot once per comparison, retains all ambiguity checks, and reports a
 guard-refused action as `not_sent`. Those changes passed the previous complete
-373-test product suite and 18 workflow checks, but have not yet completed a fresh
-phone run.
+373-test product suite and 18 workflow checks. This window completes their fresh
+phone validation within the diagnostic scope below.
+
+## Live result
+
+Both runs used the unchanged final optimization, one ownership interval per run,
+and the existing authorized test draft. They completed all 19 semantic actions:
+open the unique draft, verify slides 1–3 and the full caption, save, reopen,
+verify all three slides and caption again, preserve the draft on exit and confirm
+the original account profile. No manual recovery or semantic retry was needed.
+
+| Measure | Attempt 1 | Attempt 2 |
+|---|---:|---:|
+| Complete diagnostic verdict | Passed | Passed |
+| Answered semantic actions | 19 | 19 |
+| Verified retained phone images | 34 | 34 |
+| Confirmed Save commands | 2 | 2 |
+| First requested to last completed observation | 91.703 s | 90.816 s |
+| Maximum recorded age at capture completion | 706.6 ms | 727.6 ms |
+| Final account and scoped release | Confirmed | Confirmed |
+
+These intervals are observation spans, not whole-process runtimes. Frame ages are
+upper bounds since kernel receipt, including observation processing; they are not
+iOS capture timestamps or recorded dispatch ages. Every dispatch still rechecks
+the unchanged 1,500 ms age limit. Each run finished within its 120-second admission
+budget, and all observation sequences advanced within one receiver stream.
+
+The initial fading picker indicator required fresh recaptures in both runs.
+Create, picker and editor comparisons completed, and exact Next-label evidence
+permitted both caption checks. The previously failing saved-library reopen
+decision succeeded in both runs. No changing-suggestion wait was needed in these
+two runs; that condition retains its earlier live and offline evidence rather
+than being claimed as a new reproduced case. Visual review of the first run's
+reopened slides and caption also matched the labelled package.
+
+`live-results.json` records both runs and verifies every exported image hash.
+`final-validation.json` records the scoped acceptance. Account identity was exact
+on the beginning and ending profile; the intervening stored observations were
+consistent. This is sampled history, not continuous account visibility.
+
+## Restoration and remaining work
+
+C24C was left on `xs.halle.xo`'s profile with its lease released. The private
+kernel (PID 27524) and receiver (PID 32816) stopped normally at approximately
+20:50 Eastern. No rack process or relevant listener remains. All 25 protected
+installed files match their original hashes. The original stopped rack state is
+restored; the installed console was never launched. C241 received no input.
+
+There was no PC control, publishing, messaging, new media import, typing, FKA
+change, release replacement or promotion. No product source or native binary
+changed during this window. The preparation checks passed 56 tests and three
+actual local OCR checks; the prior full-suite result is not counted as a new run.
+
+**This is a successful bounded diagnostic, not full unattended marketing
+acceptance.** Native marketing job/UI integration, real interruption and process
+crash recovery, app-restart persistence and broader repeated reliability checks
+remain. The production live adapter stays disabled.
+
+The preparation archive contains 58 verified files. Final evidence, both journals,
+observation databases, phone frames, source snapshots and test logs are preserved
+outside the repository at
+`C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-evidence-archive\20261018-farm-live-final`,
+with SHA-256 checksums. The previous partial run and archives remain unchanged.
 
 ## Scope and acceptance
 

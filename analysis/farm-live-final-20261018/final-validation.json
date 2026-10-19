@@ -1,0 +1,28 @@
+{
+  "status": "bounded_live_validation_passed",
+  "liveAttempts": 2,
+  "fullLivePasses": 2,
+  "allOwnLeasesReleased": true,
+  "verifiedPhoneImages": 68,
+  "preparedCommit": "2369e9ff55e7cf341f785336c33e899dda0fe615",
+  "productSourceCommit": "d173ee1fdfeca06f2cbdd2fbfae3e8bff9894a70",
+  "sourceManifestSha256": "666abb02234a5f3894fb9ec5521bd7ba2c53761973ca4df07d226445c9ae7555",
+  "finalOptimizationLiveValidated": true,
+  "offlinePreparationTestsPassed": 56,
+  "retainedOcrChecks": 3,
+  "protectedFiles": 25,
+  "installedUnchanged": true,
+  "initialStoppedStateRestored": true,
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false,
+  "C241Input": false,
+  "productionLiveAdapterEnabled": false,
+  "appRestartTested": false,
+  "serverPersistenceProven": false,
+  "realInterruptionRecoveryTested": false,
+  "remaining": [
+    "Native marketing job/UI integration of the verified bounded workflow",
+    "Real interruption/crash recovery and broader repeated reliability validation"
+  ]
+}
