@@ -1,10 +1,12 @@
 """Product availability, separate from job success or low-level command replies."""
+from farm_format_coverage import coverage
 
 
 def capabilities():
     return {
         'allMarketingFeaturesAccepted': False,
         'liveAutomationReady': False,
+        'formats': coverage(),
         'features': [
             {'id': 'profiles', 'name': 'C24C profile editing', 'availability': 'Local candidate',
              'detail': 'Validated local storage. Other rack cards are profiles until phone identity is verified.'},
@@ -16,6 +18,8 @@ def capabilities():
              'detail': 'Expiring media link with start, status and stop. Delivery alone does not confirm a Photos or Instagram save.'},
             {'id': 'instagram-draft', 'name': 'Save an Instagram draft', 'availability': 'Supervised test passed',
              'detail': 'C24C: a three-slide carousel and a transferred MP4 Reel saved and reopened with their captions. The automatic phone workflow is not accepted.'},
+            {'id': 'reel-draft', 'name': 'Instagram Reel draft on C24C', 'availability': 'Offline candidate',
+             'detail': 'Imports one prepared Reel copy through Safari and Files, pastes an exact one-line caption, saves once and independently reopens and plays the draft. Tested on retained C24C layouts only; disabled without its isolated configuration; no live acceptance yet.'},
             {'id': 'video-drafts', 'name': 'Prepare and transfer video drafts', 'availability': 'Local candidate',
              'detail': 'Immutable H.264 video copies, whole-frame fitting, source checksums, saved-copy recovery and expiring links. App saves still require observation.'},
             {'id': 'other-drafts', 'name': 'TikTok, X and YouTube draft saves', 'availability': 'Supervised tests passed',

@@ -16,7 +16,7 @@ internal sealed partial class FarmDraftRunWindow
         internal string StoreId = Guid.NewGuid().ToString(), DraftId = Guid.NewGuid().ToString();
         internal string? Id, BookmarkPath, ImportedFrom, EligibleImportedFrom;
         internal string? CreationId, CreationStoreId, CreationRecordSha256, EligibleCreationId;
-        internal bool Inspection, WrongCreationProof;
+        internal bool Inspection, WrongCreationProof, Reel;
         internal int Starts, Cancels, EligibilityCalls;
         internal bool Missing, Terminal, Verified, Enabled = true, WrongResult, BookmarkBeforePost;
         internal bool CreationConfirmed = true, RetryBeforeImport, ContinueImported;
@@ -28,7 +28,7 @@ internal sealed partial class FarmDraftRunWindow
             terminal = Terminal, savedDraftVerified = Verified, retryBeforeImportAllowed = RetryBeforeImport, continueImportedAllowed = ContinueImported, cleanup = Terminal ? "confirmed" : "unconfirmed",
             reason = Verified ? "The matching draft was saved, reopened and checked." : "Save reply lost; no replay.", draftChangedSinceRun = true, publishing = false, messaging = false, automaticResume = false,
             inspectionOnly = Inspection, originalOutcomeChanged = false, appRestartVerified = false,
-            workflow = new { source = "candidate_phone_workflow", mode = Inspection ? "inspect_saved_draft" : "create_new_draft", inspectionOnly = Inspection, createdDraftVerified = CreationConfirmed, mediaDelivery = new { stopped = true }, actions = new[] { new { label = Inspection ? "inspect-open-draft" : "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
+            workflow = new { source = "candidate_phone_workflow", mode = Inspection ? "inspect_saved_draft" : Reel ? "create_reel_draft" : "create_new_draft", inspectionOnly = Inspection, createdDraftVerified = CreationConfirmed, mediaDelivery = new { stopped = true }, actions = new[] { new { label = Inspection ? "inspect-open-draft" : "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
                 observations = new[] { new { observationId = "frame1", role = "library", state = "observed" } } }
         };
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
@@ -46,7 +46,7 @@ internal sealed partial class FarmDraftRunWindow
                 BookmarkBeforePost = BookmarkPath is not null && System.IO.File.ReadAllText(BookmarkPath).Contains(Id!);
                 throw new HttpRequestException("Response lost after admission");
             }
-            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled }, draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false }, draftRecovery = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, inspectionOnly = true } });
+            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled }, draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false }, draftRecovery = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, inspectionOnly = true }, reelCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "ig_reel" } });
             if (route.EndsWith("/eligibility"))
             {
                 EligibilityCalls++;
@@ -59,7 +59,7 @@ internal sealed partial class FarmDraftRunWindow
                 }
                 return Response(new { protocolVersion = 2, eligibility = eligible });
             }
-            if (route is "/api/farm/draft-runs" or "/api/farm/draft-creations" or "/api/farm/draft-recoveries") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
+            if (route is "/api/farm/draft-runs" or "/api/farm/draft-creations" or "/api/farm/draft-recoveries" or "/api/farm/reel-creations") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
             if (route.Contains("/frames/")) return Response(new { protocolVersion = 2, frame = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=" });
             return Missing ? Response(new { error = "Saved result missing" }, HttpStatusCode.NotFound) : Response(new { protocolVersion = 2, run = Result() });
         }
@@ -179,6 +179,39 @@ internal sealed partial class FarmDraftRunWindow
             var recoveredCreation = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", createNew: true); windows.Add(recoveredCreation);
             await recoveredCreation.RunAsync(recoveredCreation.InitializeAsync); recoveredCreation._poll.Stop();
             check("A lost continuation reply recovers the same request and import provenance", recoveredCreation._pending?.Id == handler.Id && recoveredCreation._pending?.ImportedFrom == previousId && handler.Starts == continuationStarts && !recoveredCreation._start.IsEnabled);
+
+            handler.Id = null; handler.Terminal = handler.Verified = handler.RetryBeforeImport = false; handler.EligibleImportedFrom = null; handler.Reel = true;
+            int routesBefore = handler.Routes.Count;
+            var reel = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Reel acceptance", createNew: true, reel: true); windows.Add(reel);
+            handler.BookmarkPath = reel._bookmarkPath; await reel.RunAsync(reel.InitializeAsync);
+            check("Reel creation opens with its own capability, route and bookmark and sends nothing", reel._start.IsEnabled && reel._route == "/api/farm/reel-creations"
+                && reel._bookmarkPath.EndsWith("farm-pending-reel-creation.json") && reel._bookmarkPath != creation._bookmarkPath && handler.Starts == continuationStarts && reel._status.Text.Contains("acceptance"));
+            await reel.RunAsync(reel.StartAsync); reel._poll.Stop();
+            check("Reel creation journals admission before POST and keeps a lost reply", handler.Starts == continuationStarts + 1 && handler.BookmarkBeforePost && reel._pending?.Id == handler.Id && !reel._start.IsEnabled);
+            await reel.StopAsync();
+            check("Reel Stop uses the original Reel request route", handler.Routes.Last() == "/api/farm/reel-creations/" + handler.Id + "/cancel");
+            handler.Terminal = handler.Verified = true; handler.CreationConfirmed = false; await reel.RunAsync(reel.RecoverAsync);
+            check("A Reel result without confirmed creation cannot be shown as a new draft", reel._pending is not null && !reel._start.IsEnabled);
+            handler.CreationConfirmed = true; await reel.RunAsync(reel.RecoverAsync);
+            check("A verified Reel needs confirmed creation and stopped media delivery", reel._pending is null && reel._status.Text.Contains("NEW REEL DRAFT CREATED AND VERIFIED") && !reel._inspect.IsEnabled);
+            check("The Reel window calls only health and its own scoped route", handler.Routes.Skip(routesBefore).All(r => r == "/health" || r.StartsWith("/api/farm/reel-creations")));
+            var reelContent = (FrameworkElement)reel.Content; reelContent.Measure(new Size(840, 820)); reelContent.Arrange(new Rect(0, 0, 840, 820)); reelContent.UpdateLayout();
+            var reelImage = new RenderTargetBitmap(840, 820, 96, 96, PixelFormats.Pbgra32);
+            var reelBackground = new DrawingVisual(); using (var drawing = reelBackground.RenderOpen()) drawing.DrawRectangle(reel.Background, null, new Rect(0, 0, 840, 820));
+            reelImage.Render(reelBackground); reelImage.Render(reelContent); var reelPng = new PngBitmapEncoder(); reelPng.Frames.Add(BitmapFrame.Create(reelImage));
+            using (var file = System.IO.File.Create(System.IO.Path.Combine(AppContext.BaseDirectory, "qa", "farm-reel-draft-headless.png"))) reelPng.Save(file);
+            check("Reel creation renders without desktop control or a native window", reelContent.IsArrangeValid && new WindowInteropHelper(reel).Handle == IntPtr.Zero);
+            handler.Reel = false;
+            var report = JsonSerializer.Deserialize<JsonElement>("{\"features\":[{\"name\":\"Jobs\",\"availability\":\"Simulation tested\",\"detail\":\"Durable IDs.\"}],"
+                + "\"formats\":[{\"name\":\"Instagram Reel\",\"level\":\"integrated_offline\",\"remaining\":\"Fresh C24C acceptance.\"},"
+                + "{\"name\":\"Instagram story\",\"level\":\"unsupported_draft\",\"remaining\":\"No draft mechanism.\"}]}");
+            var readiness = new FarmReadinessWindow(report); var readinessContent = (FrameworkElement)readiness.Content;
+            readinessContent.Measure(new Size(760, 700)); readinessContent.Arrange(new Rect(0, 0, 760, 700)); readinessContent.UpdateLayout();
+            var readinessText = string.Join(" | ", ((System.Windows.Controls.StackPanel)((System.Windows.Controls.ScrollViewer)readiness.Content).Content).Children.OfType<System.Windows.Controls.TextBlock>().Select(t => t.Text));
+            check("Readiness lists draft formats with honest evidence levels", readinessText.Contains("Draft formats") && readinessText.Contains("Instagram Reel · Offline candidate · live acceptance pending")
+                && readinessText.Contains("Instagram story · Unsupported · no verified draft mechanism") && FarmReadinessWindow.Level("integrated_live") == "Scoped live acceptance"
+                && FarmReadinessWindow.Level("other") == "Unknown evidence level" && new WindowInteropHelper(readiness).Handle == IntPtr.Zero);
+            readiness.Close();
         }
         finally
         {

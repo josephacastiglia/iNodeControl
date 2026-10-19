@@ -2,6 +2,15 @@
 
 Updated 19 October 2026. **The full marketing product is not accepted for unattended use.** A fresh three-slide Instagram creation/save/reopen workflow has scoped native-interface acceptance on C24C. Other platform draft saves have supervised evidence. Automatic publishing and messaging remain disabled.
 
+## Priority 3 offline candidate (not accepted)
+
+An Instagram Reel draft-only candidate and a per-format evidence matrix were
+completed offline on 19 October. The Reel route imports one package-named video,
+pastes an exact one-line caption, saves once and independently reopens and plays
+the draft. It passed offline protocol, recognizer, service and native headless
+checks on retained C24C layouts, but **has no live phone acceptance yet** and is
+disabled without its isolated configuration. [Record](analysis/farm-reel-draft-20261019/README.md).
+
 ## Latest integrated candidate acceptance
 
 **Priority 2 scoped recovery passed** on C24C / @xs.halle.xo: three seven-action
@@ -105,7 +114,8 @@ interactive Windows hit-test result. See [the scoped live evidence](analysis/far
 | Keyword replies / DMs | Missing observations refuse; no invented keyword matches or messages | Observations, recipient verification, approved messaging scope and live acceptance |
 | Pins and cross-account actions | Simulation only | Separate authorization and observed outcomes; no acceptance claim |
 | Automatic creation + deployment | Combined path runs in simulation | Every live stage must pass before this can be enabled |
-| Instagram Reel/Post/Story | Earlier supervised Reel/carousel draft saves; the bounded native carousel save/reopen candidate also passed one integrated C24C run with prompt recovery | Other post/story modes, media-import integration, additional accounts and broader unattended acceptance remain open |
+| Instagram Reel | Supervised 17 Oct MP4 Reel saved, reopened and played. Integrated draft-only candidate implemented and tested offline (package-named import, exact one-line caption, single Save, independent reopen with playback) | Fresh integrated C24C acceptance, multiline captions, repeated runs and other accounts |
+| Instagram Post/Story | Single-image post: simulation only. Story: no verified draft mechanism, so unsupported | Observe a real draft mechanism first; a story is never posted in place of a draft |
 | TikTok video/photo/story/text | Three-photo draft and transferred MP4 draft saved and reopened with exact test labels; MP4 playback verified and suggested sound removed | Text/story modes, repeated recovery checks and unattended state validation |
 | X post/video/thread | Image and transferred MP4 drafts saved and reopened with exact labels; video played after tapping its initially blank preview | Threads, repeated recovery checks and unattended state validation |
 | YouTube Short/video/community | Photo-derived Short and transferred MP4 Short saved and reopened with exact titles; MP4 playback and 3.0-second trim view verified | Long video/community modes, unattended permission handling and state validation |

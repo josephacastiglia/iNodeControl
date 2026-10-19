@@ -4,7 +4,34 @@ For the continuation task and the original seven-priority roadmap, read
 [the Claude handoff](CLAUDE-HANDOFF-20261019.md). Priorities 1–2 have scoped
 Instagram acceptance; broader platform coverage is next.
 
-## Latest: Priority 2 scoped recovery checks passed on C24C
+## Latest: Priority 3 — Instagram Reel draft candidate prepared offline
+
+**Implemented and tested offline; not live-accepted and disabled by default.**
+A per-format evidence matrix now covers all 14 `UploadFormat` values
+(`tools/farm_format_coverage.py`), is reported by `/api/farm/capabilities` and is
+listed in the native readiness window. Only the Instagram carousel has scoped
+live acceptance; the Reel is an offline candidate; TikTok, X and YouTube Short
+drafts have supervised evidence only; story, text, thread, long-video and
+community formats stay unsupported because no draft mechanism was observed.
+
+The new `/api/farm/reel-creations` route saves one prepared Reel copy as a
+draft: Safari downloads the package-named file, Files saves it to Photos, the one
+matching Recents tile is selected, the exact one-line caption is pasted and
+checked on details, and Save draft is pressed once. A separate owned run reopens
+the unique matching Reels draft, checks the exact account and caption, requires
+visible playback of the package video and keeps the draft. Unknown outcomes stop
+without replay; Share is never a target. The native video window offers
+**Create Reel draft on C24C…** for saved Reel copies.
+
+Offline: 491 Python farm tests passed, none skipped (was 452); 578 native
+headless checks (was 564); a 9-test retained-frame protocol fault matrix and 12
+recognizer tests on the 17 Oct supervised Reel frames. No phone input, rack service, desktop control, publishing,
+messaging, FKA or installed-release change. A fresh C24C window is prepared
+(isolated run folder, labelled test video, pinned hashes, start/run/stop scripts)
+and waits for an agreed time. [Matrix, design, evidence limits and live
+plan](analysis/farm-reel-draft-20261019/README.md).
+
+## Previous: Priority 2 scoped recovery checks passed on C24C
 
 Three native-interface inspections reopened the saved three-slide creation on
 @xs.halle.xo, checked every slide and the exact caption, and released control.

@@ -24,6 +24,8 @@ internal sealed partial class VideoDraftWindow
         internal List<string> Routes = [];
         internal List<string> Queries = [];
         internal string Generation = new string('a', 32);
+        internal string Format = "tt_video";
+        internal string? CreatedId;
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
             var path = request.RequestUri!.AbsolutePath; Routes.Add(path);
@@ -38,8 +40,8 @@ internal sealed partial class VideoDraftWindow
                     BusyBeforeSave = false;
                     return new(HttpStatusCode.Conflict) { Content = new StringContent("{\"error\":\"Preparation busy\"}", Encoding.UTF8, "application/json") };
                 }
-                var data = JsonDocument.Parse(body).RootElement;
-                SavedDraft = new { id = data.GetProperty("id").GetString(), revision = 1, title = "Test video", caption = "DRAFT ONLY", platform = "TikTok", format = "tt_video",
+                var data = JsonDocument.Parse(body).RootElement; CreatedId = data.GetProperty("id").GetString();
+                SavedDraft = new { id = data.GetProperty("id").GetString(), revision = 1, title = "Test video", caption = "DRAFT ONLY", platform = Format == "ig_reel" ? "Instagram" : "TikTok", format = Format,
                     video = new { seconds = 2.0, codec = "h264", width = 720, height = 1280, fitted = true, upscaled = true }, published = false, savedInApp = false };
                 if (ServerErrorAfterSave)
                     return new(HttpStatusCode.InternalServerError) { Content = new StringContent("{\"error\":\"Response failed after saving\"}", Encoding.UTF8, "application/json") };
@@ -137,5 +139,28 @@ internal sealed partial class VideoDraftWindow
             check("A different video batch cannot silently replace the requested run", wrongBatch._sources.SelectedItem is null && wrongBatch._status.Text.Contains("another batch") && !wrongBatch._transfer.IsEnabled);
         }
         finally { wrongBatch.Close(); }
+        string folder = Path.Combine(Path.GetTempPath(), "video-reel-window-" + Guid.NewGuid()); Directory.CreateDirectory(folder);
+        var reelHandler = new TestHandler { LoseResponse = false, Format = "ig_reel" }; using var reelHttp = new HttpClient(reelHandler);
+        var reel = new VideoDraftWindow(new FarmApiClient(reelHttp, "http://video-test.invalid"), dataFolder: folder);
+        var plain = new VideoDraftWindow(new FarmApiClient(reelHttp, "http://video-test.invalid"));
+        try
+        {
+            reel._sources.ItemsSource = new[] { new Source("reel.mp4", new string('a', 64)) }; reel._sources.SelectedIndex = 0; reel._format.SelectedIndex = 3;
+            check("Reel draft action stays disabled before a saved Instagram Reel copy exists", !reel._reel.IsEnabled && reelHandler.Creates == 0);
+            await reel.RunAsync(reel.PrepareAsync);
+            var candidate = reel.ReelWindow();
+            check("A saved Instagram Reel copy enables only the bounded Reel candidate window", reel._reel.IsEnabled && candidate is not null && candidate.Route == "/api/farm/reel-creations"
+                && candidate.Capability == "reelCreation" && candidate.BookmarkPath.EndsWith("farm-pending-reel-creation.json") && candidate.DraftId == reelHandler.CreatedId && !candidate.InspectAvailable);
+            check("Opening the Reel candidate sends no phone, transfer or creation request", reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
+            candidate?.Close();
+            reel._caption.Text = "Edited caption";
+            check("Editing the caption disables the Reel draft action for the stale copy", !reel._reel.IsEnabled && reel.ReelWindow() is null);
+            reelHandler.Format = "tt_video"; reel._format.SelectedIndex = 0; reel._sources.SelectedIndex = 0;
+            await reel.RunAsync(reel.PrepareAsync);
+            check("Other video formats never offer the Reel draft action", reel._draft is not null && !reel._reel.IsEnabled && reel.ReelWindow() is null);
+            plain._draft = reel._draft; reelHandler.Format = "ig_reel";
+            check("Without a candidate data folder the Reel action is absent", !plain._reel.IsEnabled && plain.ReelWindow() is null);
+        }
+        finally { reel.Close(); plain.Close(); Directory.Delete(folder, recursive: true); }
     }
 }

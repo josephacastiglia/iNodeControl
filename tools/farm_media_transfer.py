@@ -232,7 +232,8 @@ class TransferHandler(BaseHTTPRequestHandler):
         if route == 'video.mp4' and hasattr(s.package, 'video'):
             data = s.package.video
             size = len(data)
-            headers = {'Accept-Ranges': 'bytes', 'Content-Disposition': 'inline; filename="imouse-draft.mp4"'}
+            name = getattr(s.package, 'download_name', 'imouse-draft')
+            headers = {'Accept-Ranges': 'bytes', 'Content-Disposition': f'inline; filename="{name}.mp4"'}
             interval = self.headers.get('Range')
             if interval:
                 import re

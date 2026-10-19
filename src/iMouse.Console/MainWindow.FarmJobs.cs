@@ -113,7 +113,7 @@ public partial class MainWindow
             var health = await FarmApi.SendAsync("/health");
             if (!health.TryGetProperty("videoDraftsVersion", out var version) || version.GetInt32() != 1)
                 throw new InvalidOperationException("Start the updated candidate backend for video drafts.");
-            new VideoDraftWindow(FarmApi) { Owner = this }.ShowDialog();
+            new VideoDraftWindow(FarmApi, dataFolder: _dataPath) { Owner = this }.ShowDialog();
         }
         catch (Exception ex) { AppendFarmLog("Video drafts: " + ex.Message); }
     }

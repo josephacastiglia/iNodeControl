@@ -122,15 +122,21 @@ def _validate(value, frame):
 
 def wait_for_transition(stage, capture, check, current, *, assets=(), index=None,
                         require_next=False, journal=lambda event: None,
-                        monotonic=time.monotonic, pause=time.sleep):
+                        monotonic=time.monotonic, pause=time.sleep, ready=None, compare=None):
     """Return the latest of two fresh stable observations, or stop within bounds.
 
     capture retains evidence through the owning workflow. check authenticates its
     lease and cancellation. current re-ages/revalidates the final immutable record.
     All intervening captures must be recognized and share one context; a later
     matching frame cannot erase a dialog, wrong slide or ownership discontinuity.
+    Another screen family supplies both its own ready and compare checks; the
+    capture, context and final-revalidation rules here stay the same.
     """
-    if stage not in ('create', 'picker', 'editor'): raise ValueError('Unsupported transition stage.')
+    if (ready is None) != (compare is None): raise ValueError('Supply both screen checks or neither.')
+    if ready is None and stage not in ('create', 'picker', 'editor'): raise ValueError('Unsupported transition stage.')
+    if ready is None:
+        ready = lambda frame, text: screen_ready(stage, frame, text, assets, index, require_next)
+        compare = lambda first, first_text, second, second_text: compare_frames(stage, first, first_text, second, second_text)
     started = monotonic()
     deadline = started+WAIT_SECONDS
     previous = None
@@ -142,14 +148,14 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
             check()
             if monotonic() >= deadline: raise InspectionStopped('Transition capture exceeded its settling budget.')
             context, sequence = _validate(value, frame)
-            screen_ready(stage, frame, value['text'], assets, index, require_next)
+            ready(frame, value['text'])
             if previous is None:
                 decision = dict(state='wait', reason='A second independently fresh observation is required.')
             else:
                 old, old_frame, old_context, old_sequence = previous
                 if old_context != context or sequence <= old_sequence or old['id'] == value['id']:
                     raise InspectionStopped('Settling changed context or reused a frame; no action sent.')
-                decision = compare_frames(stage, old_frame, old['text'], frame, value['text'])
+                decision = compare(old_frame, old['text'], frame, value['text'])
                 decision.update(beforeObservationId=old['id'], afterObservationId=value['id'])
             journal(dict(stage=stage, attempt=attempt, observationId=value['id'],
                          elapsedSeconds=round(monotonic()-started,3), **decision))

@@ -68,7 +68,7 @@ internal sealed partial class FarmPreparationWindow : Window
         {
             if (SelectedVideoBatch() is not { } batch) return;
             _timer.Stop();
-            try { new VideoDraftWindow(_api, batch) { Owner = this }.ShowDialog(); }
+            try { new VideoDraftWindow(_api, batch, _dataFolder) { Owner = this }.ShowDialog(); }
             finally { _timer.Start(); }
         };
     }

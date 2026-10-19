@@ -1,0 +1,45 @@
+{
+  "python": {
+    "tests": 491,
+    "seconds": 841.013,
+    "passed": true,
+    "skipped": 0,
+    "exitLine": "exit 0"
+  },
+  "native": {
+    "passed": 578,
+    "exitCode": 0,
+    "dllSha256": "58b4057833d360d2077617c4f0f49b14f7ae749ab780c9207a3b8fd619c83aa1"
+  },
+  "productSources": {
+    "tools/farm_format_coverage.py": "d3927f0c2433d3409c83fdbd12d52f7b6db609e6dddfbded1d047f2a84ce8b8d",
+    "tools/farm_capabilities.py": "2729f235914422d355a46b92518dedc97a9f1fc8e4640af0b3ae569756f425b9",
+    "tools/farm_reel_layout.py": "8e59284b71830072f3afb9c1487e1443f216325b3371b47e3895c5790fd70ada",
+    "tools/farm_reel_controls.json": "bbd7011783197fb7fcef26576348378b4e6a8b99bea1e5c44dc5c21d02dd3eff",
+    "tools/farm_reel_creation.py": "dd2a996aeaa9164edbe8cff59439ccdc52319741d14a547b5c9835c3db28fb82",
+    "tools/farm_reel_runs.py": "f8bc0192d24278e9180017afe434826cd9ec3e3887780da46e37c7f6edd1d93e",
+    "tools/farm_reel_test_media.py": "868a58ac0b6016e065400bbdf385c4b577ab1ec29c131e022302c6a6a7ec174e",
+    "tools/farm_video.py": "4dff1b22b0369a19a51864ef3f1fbce7648e4182541e15c693375c99bb9862fe",
+    "tools/farm_media_transfer.py": "8ee1126ecfb448276468eb80aa88e2936b4ffffc19e4b6336c56a7ae283db67b",
+    "tools/farm_transitions.py": "12156433269fb93f126a88a0c9e0d7b4aed8c7c46c13754814a286e772a79065",
+    "tools/imouse_farm_server.py": "aa6c8c3320a7d263b13c6b384e998fc6d9ba4c39bcacdb315b1be0bff13f31b7",
+    "src/iMouse.Console/FarmDraftRunWindow.cs": "9e0c937298654e48a1141406ce0e0850242685e09f0507926d6a2168db526d5f",
+    "src/iMouse.Console/VideoDraftWindow.cs": "abc8090e1484dcb538af9ce759a1edc55dd80a8acf672736c85577da536b3a98",
+    "src/iMouse.Console/FarmReadinessWindow.cs": "79773a41a2a2b83cc329838884927ce821b8dee940d7917fbfa9633955985cb1",
+    "src/iMouse.Console/FarmPreparationWindow.cs": "6fe02a281a70ab56e7df7d148d130d602aa35e9c28d237d40651f2aed03370de",
+    "src/iMouse.Console/MainWindow.FarmJobs.cs": "0a1bb2e8dffaef9fafd62942a1c308ca02875b4b0534b5ba5ffdc09f7b5a498c"
+  },
+  "testSources": {
+    "tools/test_farm_format_coverage.py": "ae75bb83bc180af2ee49124d7a20dce9752697ca56102a77998d351228da2c3d",
+    "tools/test_farm_reel_layout.py": "23a6bcd9d4a8c5b383090ef72771f95ace9f897e99c30079f7bbee8638775920",
+    "tools/test_farm_reel_creation.py": "fd3646df6e38db793f573daa19c2ce774fa3c810bcddbc6179033f0ab791c739",
+    "tools/test_farm_reel_runs.py": "e1bb444f6c304d1c1d98593f89c80d9e468729e1ebef0c48e57338e6bb13f662"
+  },
+  "phoneInput": false,
+  "desktopControl": false,
+  "serviceStarted": false,
+  "publishing": false,
+  "messaging": false,
+  "liveAccepted": false,
+  "meaning": "Offline candidate checks only; retained frames and simulated HID, not fresh-phone acceptance."
+}

@@ -18,6 +18,7 @@ internal sealed partial class FarmDraftRunWindow : Window
     private readonly string _route, _capability;
     private readonly bool _createNew;
     private readonly bool _inspection;
+    private readonly bool _reel;
     private readonly string _dataFolder;
     private readonly string? _creationSourceId;
     private string? _creationStoreId, _creationRecordSha256, _inspectionDraftId;
@@ -39,20 +40,27 @@ internal sealed partial class FarmDraftRunWindow : Window
     private string? _storeId, _shownId, _continueFrom;
     private bool _busy, _eligible, _terminal, _bookmarkBroken, _retryBeforeImport, _continueImported;
     private sealed record Choice(string Id, string Label) { public override string ToString() => Label; }
+    // Read-only identity for other windows' headless checks; never a way to start input.
+    internal string Route => _route; internal string Capability => _capability; internal string BookmarkPath => _bookmarkPath;
+    internal string DraftId => _draftId; internal bool InspectAvailable => _inspect.IsEnabled;
 
-    internal FarmDraftRunWindow(FarmApiClient api, string dataFolder, string draftId, int revision, string title, bool createNew = false, string? inspectCreationId = null)
+    internal FarmDraftRunWindow(FarmApiClient api, string dataFolder, string draftId, int revision, string title, bool createNew = false, string? inspectCreationId = null, bool reel = false)
     {
-        _api = api; _draftId = draftId; _revision = revision; _createNew = createNew;
+        _api = api; _draftId = draftId; _revision = revision; _createNew = createNew; _reel = reel;
         _dataFolder = dataFolder; _creationSourceId = inspectCreationId; _inspection = inspectCreationId is not null;
         if (_inspection && (createNew || !Guid.TryParse(inspectCreationId, out _))) throw new ArgumentException("Choose one recorded creation for inspection.");
+        if (reel && (!createNew || _inspection)) throw new ArgumentException("A Reel draft is created from one saved video copy.");
         _route = createNew ? "/api/farm/draft-creations" : "/api/farm/draft-runs";
         _capability = createNew ? "draftCreation" : "draftWorkflow";
         if (_inspection) { _route = "/api/farm/draft-recoveries"; _capability = "draftRecovery"; }
+        if (reel) { _route = "/api/farm/reel-creations"; _capability = "reelCreation"; }
         _bookmarkPath = Path.Combine(dataFolder, createNew ? "farm-pending-draft-creation.json" : "farm-pending-draft-run.json");
         if (_inspection) _bookmarkPath = Path.Combine(dataFolder, "farm-pending-draft-inspection.json");
+        if (reel) _bookmarkPath = Path.Combine(dataFolder, "farm-pending-reel-creation.json");
         Title = createNew ? "Create a verified C24C draft" : "C24C draft save and reopen";
         if (createNew) _start.Content = "Create and verify new draft on C24C"; Width = 840; Height = 820; MinWidth = 680; MinHeight = 600;
         if (_inspection) { Title = "Inspect the saved C24C draft"; _start.Content = "Inspect saved content on C24C"; }
+        if (reel) { Title = "Create a verified C24C Reel draft"; _start.Content = "Create and verify Reel draft on C24C"; }
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         SetResourceReference(BackgroundProperty, "SurfaceBrush"); SetResourceReference(ForegroundProperty, "TextBrush");
         var panel = new StackPanel { Margin = new Thickness(24) };
@@ -61,9 +69,14 @@ internal sealed partial class FarmDraftRunWindow : Window
         _subtitle.Text = $"{title} · saved revision {revision}"; panel.Children.Add(_subtitle);
         panel.Children.Add(new TextBlock { Text = createNew ? "C24C · Instagram @xs.halle.xo\nImports this saved revision into Photos, selects each slide in order, copies and pastes the exact caption, saves a draft and checks it after reopening. Start on the account profile. This replaces the phone clipboard. Three slides and a short visible caption are supported. Nothing is published or messaged." : "Candidate check · C24C · Instagram @xs.halle.xo\nChecks the already prepared, labelled three-slide test draft and its exact caption. Start on the account’s profile. The check saves, reopens, checks every slide and returns to the profile. It does not import media, type, publish or message. Other drafts are not supported by this first candidate.", TextWrapping = TextWrapping.Wrap });
         if (_inspection) ((TextBlock)panel.Children[^1]).Text = "C24C · Instagram @xs.halle.xo\nStart on the account profile. This separate check opens the unique saved draft and checks every slide and the full caption. It sends no Save, import, typing, publishing or messaging. The original outcome stays unchanged. It leaves the phone on draft details and does not prove an app restart.";
+        if (reel)
+        {
+            ((TextBlock)panel.Children[0]).Text = "Create a new verified Reel draft";
+            ((TextBlock)panel.Children[^1]).Text = "C24C · Instagram @xs.halle.xo\nSafari downloads this saved video and Files saves it to Photos. Instagram then selects that exact video for a new Reel, the one-line caption is pasted and Save draft is pressed once. A separate check reopens the draft, plays it and keeps it in Reels drafts. Start on the account profile. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced. Nothing is shared, published or messaged.";
+        }
         var buttons = new WrapPanel { Margin = new Thickness(0, 16, 0, 16) };
         buttons.Children.Add(_start); buttons.Children.Add(_recover); buttons.Children.Add(_stop); panel.Children.Add(buttons);
-        if (createNew) buttons.Children.Add(_inspect);
+        if (createNew && !reel) buttons.Children.Add(_inspect);
         panel.Children.Add(new TextBlock { Text = "Saved checks", FontWeight = FontWeights.SemiBold });
         panel.Children.Add(_history); panel.Children.Add(_status); panel.Children.Add(_frames); panel.Children.Add(_view); panel.Children.Add(_preview);
         Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
@@ -95,7 +108,7 @@ internal sealed partial class FarmDraftRunWindow : Window
         _stop.IsEnabled = sameStore && !_terminal;
         _history.IsEnabled = !_busy && _pending is null && !_bookmarkBroken;
         _view.IsEnabled = _frames.IsEnabled = !_busy && _shownId is not null && _terminal;
-        _inspect.IsEnabled = _createNew && !_busy && _terminal && _canInspect && _shownId is not null;
+        _inspect.IsEnabled = _createNew && !_reel && !_busy && _terminal && _canInspect && _shownId is not null;
     }
     private async Task RunAsync(Func<Task> action)
     {
@@ -126,6 +139,7 @@ internal sealed partial class FarmDraftRunWindow : Window
         if (capability.GetProperty("version").GetInt32() != 1) throw new InvalidOperationException("Use the matching draft candidate backend.");
         if ((_createNew || _inspection) && (capability.GetProperty("device").GetString() != "C24C" || capability.GetProperty("account").GetString() != "xs.halle.xo" || capability.GetProperty("publishing").GetBoolean() || capability.GetProperty("messaging").GetBoolean())) throw new InvalidOperationException("Use the designated C24C account and draft-only backend.");
         if (_inspection && !capability.GetProperty("inspectionOnly").GetBoolean()) throw new InvalidOperationException("This backend cannot inspect without Save.");
+        if (_reel && capability.GetProperty("format").GetString() != "ig_reel") throw new InvalidOperationException("This backend does not offer the Reel draft candidate.");
         _storeId = capability.GetProperty("storeId").GetString();
         if (!Guid.TryParse(_storeId, out _)) throw new InvalidOperationException("Candidate storage identity is missing.");
         if (_pending is not null && _pending.StoreId != _storeId) throw new InvalidOperationException("This is a different candidate data store. Reopen the original backend to retrieve the pending result.");
@@ -232,10 +246,10 @@ internal sealed partial class FarmDraftRunWindow : Window
             && request.GetProperty("draft_id").GetString() == _draftId && request.GetProperty("revision").GetInt32() == _revision;
         _continueFrom = _continueImported ? expectedId : null;
         if (_retryBeforeImport || _continueImported) _eligible = true;
-        if (_createNew) _start.Content = _continueImported ? "Continue · use imported images" : _retryBeforeImport ? "Start new attempt · no media imported" : "Create and verify new draft on C24C";
+        if (_createNew) _start.Content = _continueImported ? "Continue · use imported images" : _retryBeforeImport ? "Start new attempt · no media imported" : _reel ? "Create and verify Reel draft on C24C" : "Create and verify new draft on C24C";
         if (verified && _pending is not null) Keep(null);
         if (verified && _createNew) _eligible = false;
-        var lines = new List<string> { verified ? (_inspection ? "MATCHING SAVED DRAFT OBSERVED" : _createNew ? "NEW PHONE DRAFT CREATED AND VERIFIED" : "PHONE DRAFT VERIFIED") : terminal ? "STOPPED · REVIEW REQUIRED" : "CHECK IN PROGRESS", value.GetProperty("reason").GetString()!, "Lease cleanup: " + cleanup.Replace('_', ' '), "Nothing was published or messaged. A saved draft check does not prove app-restart persistence." };
+        var lines = new List<string> { verified ? (_inspection ? "MATCHING SAVED DRAFT OBSERVED" : _reel ? "NEW REEL DRAFT CREATED AND VERIFIED" : _createNew ? "NEW PHONE DRAFT CREATED AND VERIFIED" : "PHONE DRAFT VERIFIED") : terminal ? "STOPPED · REVIEW REQUIRED" : "CHECK IN PROGRESS", value.GetProperty("reason").GetString()!, "Lease cleanup: " + cleanup.Replace('_', ' '), "Nothing was published or messaged. A saved draft check does not prove app-restart persistence." };
         if (_inspection) lines.Add("No Save, import or caption entry is repeated. This result does not change the original request. A completed inspection leaves the phone on draft details.");
         if (value.GetProperty("draftChangedSinceRun").GetBoolean()) lines.Add("This evidence belongs to an older saved revision.");
         if (workflow.ValueKind == JsonValueKind.Object)
