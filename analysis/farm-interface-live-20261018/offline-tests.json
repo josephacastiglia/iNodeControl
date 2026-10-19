@@ -1,0 +1,11 @@
+{
+  "tests": 39,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": true,
+  "journalControlFailedAsExpected": true,
+  "network": "owned ephemeral loopback fixtures only",
+  "phoneInput": false,
+  "desktopControl": false
+}

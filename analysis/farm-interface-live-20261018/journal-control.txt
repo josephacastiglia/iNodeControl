@@ -1,0 +1,13 @@
+F
+======================================================================
+FAIL: test_reader_holding_old_record_does_not_fail_writer_or_expose_partial_json (test_farm_draft_journal.DraftJournalTests.test_reader_holding_old_record_does_not_fail_writer_or_expose_partial_json)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_draft_journal.py", line 31, in test_reader_holding_old_record_does_not_fail_writer_or_expose_partial_json
+    self.assertFalse(done.wait(.08), 'Replacement must wait for the existing reader')
+AssertionError: True is not false : Replacement must wait for the existing reader
+
+----------------------------------------------------------------------
+Ran 1 test in 0.010s
+
+FAILED (failures=1)

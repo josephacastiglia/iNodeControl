@@ -1,0 +1,89 @@
+test_invalid_value_never_replaces_previous_record (test_farm_draft_journal.DraftJournalTests.test_invalid_value_never_replaces_previous_record) ... ok
+test_permanent_sharing_denial_is_bounded_and_preserves_previous_record (test_farm_draft_journal.DraftJournalTests.test_permanent_sharing_denial_is_bounded_and_preserves_previous_record) ... ok
+test_reader_holding_old_record_does_not_fail_writer_or_expose_partial_json (test_farm_draft_journal.DraftJournalTests.test_reader_holding_old_record_does_not_fail_writer_or_expose_partial_json) ... ok
+test_unrelated_file_errors_fail_without_retry (test_farm_draft_journal.DraftJournalTests.test_unrelated_file_errors_fail_without_retry) ... ok
+test_changed_content_store_or_request_fields_never_reach_worker (test_farm_draft_runs.DraftRunTests.test_changed_content_store_or_request_fields_never_reach_worker) ... ok
+test_completed_record_and_retained_package_corruption_fail_closed (test_farm_draft_runs.DraftRunTests.test_completed_record_and_retained_package_corruption_fail_closed) ... ok
+test_confirmed_phone_result_is_bound_to_original_revision_and_content (test_farm_draft_runs.DraftRunTests.test_confirmed_phone_result_is_bound_to_original_revision_and_content) ... ok
+test_default_disabled_and_config_cannot_target_release_other_host_or_simulation (test_farm_draft_runs.DraftRunTests.test_default_disabled_and_config_cannot_target_release_other_host_or_simulation) ... ok
+test_graceful_shutdown_waits_for_scoped_cleanup_and_keeps_unknown_save (test_farm_draft_runs.DraftRunTests.test_graceful_shutdown_waits_for_scoped_cleanup_and_keeps_unknown_save) ... ok
+test_heartbeat_loss_stops_worker_without_an_extra_save (test_farm_draft_runs.DraftRunTests.test_heartbeat_loss_stops_worker_without_an_extra_save) ... ok
+test_lost_submit_reply_duplicate_and_restart_only_retrieve_original (test_farm_draft_runs.DraftRunTests.test_lost_submit_reply_duplicate_and_restart_only_retrieve_original) ... ok
+test_orphaned_admission_has_no_automatic_resume (test_farm_draft_runs.DraftRunTests.test_orphaned_admission_has_no_automatic_resume) ... ok
+test_real_child_process_death_after_unknown_save_never_replays (test_farm_draft_runs.DraftRunTests.test_real_child_process_death_after_unknown_save_never_replays) ... ok
+test_simulated_success_does_not_claim_a_phone_draft (test_farm_draft_runs.DraftRunTests.test_simulated_success_does_not_claim_a_phone_draft) ... ok
+test_start_returns_while_worker_runs_and_stop_remains_available (test_farm_draft_runs.DraftRunTests.test_start_returns_while_worker_runs_and_stop_remains_available) ... ok
+test_stop_before_admission_is_durable_and_never_starts_later (test_farm_draft_runs.DraftRunTests.test_stop_before_admission_is_durable_and_never_starts_later) ... ok
+test_configured_draft_candidate_cannot_fall_back_to_installed_kernel (test_farm_draft_runs_http.DraftRunHttpTests.test_configured_draft_candidate_cannot_fall_back_to_installed_kernel) ... [iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/state HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /kernel-proxy/ HTTP/1.1" 409 -
+ok
+test_default_simulation_backend_cannot_send_a_phone_workflow (test_farm_draft_runs_http.DraftRunHttpTests.test_default_simulation_backend_cannot_send_a_phone_workflow) ... [iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/01b83931-c49d-4359-a630-e87fecf73d75 HTTP/1.1" 404 -
+ok
+test_real_http_admission_history_duplicate_result_and_origins (test_farm_draft_runs_http.DraftRunHttpTests.test_real_http_admission_history_duplicate_result_and_origins) ... [iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/1819eb3b-cc26-4bf0-be48-fac2c60c5f7e HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=ff0ef663-8d0c-4e28-8f82-dc444d85799e HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/eligibility?draft_id=ff0ef663-8d0c-4e28-8f82-dc444d85799e&revision=3 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=ff0ef663-8d0c-4e28-8f82-dc444d85799e HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/1819eb3b-cc26-4bf0-be48-fac2c60c5f7e HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/eligibility?draft_id=ff0ef663-8d0c-4e28-8f82-dc444d85799e&revision=3 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/1819eb3b-cc26-4bf0-be48-fac2c60c5f7e/frames/bc6354c9-001e-49a2-9366-710c90f33db4 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 400 -
+ok
+test_stop_during_active_worker_bypasses_operation_lock_and_is_store_bound (test_farm_draft_runs_http.DraftRunHttpTests.test_stop_during_active_worker_bypasses_operation_lock_and_is_store_bound) ... [iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs/ef0aae5e-b3e5-4476-9299-1084b514d18e/cancel HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs/ef0aae5e-b3e5-4476-9299-1084b514d18e/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/ef0aae5e-b3e5-4476-9299-1084b514d18e HTTP/1.1" 200 -
+ok
+test_create_sheet_with_edits_row_needs_all_exact_positioned_anchors (test_farm_draft_transport.DraftTransportTests.test_create_sheet_with_edits_row_needs_all_exact_positioned_anchors) ... ok
+test_details_requires_exact_next_on_the_same_frame_at_the_target (test_farm_draft_transport.DraftTransportTests.test_details_requires_exact_next_on_the_same_frame_at_the_target) ... ok
+test_drafts_requires_actual_picker_not_words_on_an_unrelated_page (test_farm_draft_transport.DraftTransportTests.test_drafts_requires_actual_picker_not_words_on_an_unrelated_page) ... ok
+test_share_label_blocks_click_even_under_a_different_intent (test_farm_draft_transport.DraftTransportTests.test_share_label_blocks_click_even_under_a_different_intent) ... ok
+test_transport_allows_only_candidate_and_c24c_input (test_farm_draft_transport.DraftTransportTests.test_transport_allows_only_candidate_and_c24c_input) ... ok
+test_cancel_after_save_sends_no_followup_action (extracted_acceptance.ExtractionTests.test_cancel_after_save_sends_no_followup_action) ... ok
+test_cancel_at_last_journal_boundary_is_not_sent (extracted_acceptance.ExtractionTests.test_cancel_at_last_journal_boundary_is_not_sent) ... ok
+test_candidate_restart_after_save_stops_before_next_input (extracted_acceptance.ExtractionTests.test_candidate_restart_after_save_stops_before_next_input) ... ok
+test_cleanup_failure_revokes_verified_claim (extracted_acceptance.ExtractionTests.test_cleanup_failure_revokes_verified_claim) ... ok
+test_complete_extracted_sequence_through_durable_service_retains_and_checks_every_frame (extracted_acceptance.ExtractionTests.test_complete_extracted_sequence_through_durable_service_retains_and_checks_every_frame) ... ok
+test_extracted_sequence_keeps_all_19_actions_two_saves_and_full_slide_caption_checks (extracted_acceptance.ExtractionTests.test_extracted_sequence_keeps_all_19_actions_two_saves_and_full_slide_caption_checks) ... ok
+test_lost_reopen_answer_never_swipes_or_saves_again (extracted_acceptance.ExtractionTests.test_lost_reopen_answer_never_swipes_or_saves_again) ... ok
+test_lost_save_reply_stops_and_releases_without_parking_or_reopening (extracted_acceptance.ExtractionTests.test_lost_save_reply_stops_and_releases_without_parking_or_reopening) ... ok
+test_navigation_crops_match_the_exact_verified_pixels_and_reject_changed_icon (extracted_acceptance.ExtractionTests.test_navigation_crops_match_the_exact_verified_pixels_and_reject_changed_icon) ... ok
+test_stale_frames_or_wrong_account_never_click (extracted_acceptance.ExtractionTests.test_stale_frames_or_wrong_account_never_click) ... ok
+test_transients_settle_with_fresh_frames_without_repeating_actions (extracted_acceptance.ExtractionTests.test_transients_settle_with_fresh_frames_without_repeating_actions) ... ok
+test_wrong_caption_never_saves (extracted_acceptance.ExtractionTests.test_wrong_caption_never_saves) ... ok
+test_native_response_loss_recovers_original_http_request (native_acceptance.NativeProbeTests.test_native_response_loss_recovers_original_http_request) ... [iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/eligibility?draft_id=abf8654a-9f9c-4b56-8a73-73d87a04ee14&revision=3 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=abf8654a-9f9c-4b56-8a73-73d87a04ee14 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/8673ac84-01ed-4ab5-8c49-e2cfdafca079 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/8673ac84-01ed-4ab5-8c49-e2cfdafca079 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/8673ac84-01ed-4ab5-8c49-e2cfdafca079 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/8673ac84-01ed-4ab5-8c49-e2cfdafca079 HTTP/1.1" 200 -
+ok
+test_native_stop_and_reopen_never_resume_cancelled_worker (native_acceptance.NativeProbeTests.test_native_stop_and_reopen_never_resume_cancelled_worker) ... [iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/eligibility?draft_id=1a5c75ac-e94c-44a7-b4be-b7bcb4c2911d&revision=3 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=1a5c75ac-e94c-44a7-b4be-b7bcb4c2911d HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=1a5c75ac-e94c-44a7-b4be-b7bcb4c2911d HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs/2b452608-f448-4cfa-9998-44215ef51977/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/2b452608-f448-4cfa-9998-44215ef51977 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/2b452608-f448-4cfa-9998-44215ef51977 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/2b452608-f448-4cfa-9998-44215ef51977 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/2b452608-f448-4cfa-9998-44215ef51977 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/2b452608-f448-4cfa-9998-44215ef51977 HTTP/1.1" 200 -
+ok
+
+----------------------------------------------------------------------
+Ran 39 tests in 72.410s
+
+OK

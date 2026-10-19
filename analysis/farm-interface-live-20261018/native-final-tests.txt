@@ -1,0 +1,31 @@
+test_native_response_loss_recovers_original_http_request (__main__.NativeProbeTests.test_native_response_loss_recovers_original_http_request) ... ok
+test_native_stop_and_reopen_never_resume_cancelled_worker (__main__.NativeProbeTests.test_native_stop_and_reopen_never_resume_cancelled_worker) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.655s
+
+OK
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/eligibility?draft_id=8c5a3fc2-2b4f-4fd2-bd07-9e5c30a08bd0&revision=3 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=8c5a3fc2-2b4f-4fd2-bd07-9e5c30a08bd0 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/d72b86c3-4e2b-4b60-a7e2-aee4ed7d1f6b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/d72b86c3-4e2b-4b60-a7e2-aee4ed7d1f6b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/d72b86c3-4e2b-4b60-a7e2-aee4ed7d1f6b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/d72b86c3-4e2b-4b60-a7e2-aee4ed7d1f6b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/eligibility?draft_id=9c2ed56e-b98e-4094-901e-ee3e86714ee5&revision=3 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=9c2ed56e-b98e-4094-901e-ee3e86714ee5 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=9c2ed56e-b98e-4094-901e-ee3e86714ee5 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/4bf8094a-862f-4859-b966-0e2065811053 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs/4bf8094a-862f-4859-b966-0e2065811053/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/4bf8094a-862f-4859-b966-0e2065811053 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/4bf8094a-862f-4859-b966-0e2065811053 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/4bf8094a-862f-4859-b966-0e2065811053 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/4bf8094a-862f-4859-b966-0e2065811053 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/4bf8094a-862f-4859-b966-0e2065811053 HTTP/1.1" 200 -
