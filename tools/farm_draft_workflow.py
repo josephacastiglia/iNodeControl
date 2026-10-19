@@ -38,7 +38,20 @@ def atomic_json(path, value):
     with temporary.open('w', encoding='utf-8', newline='\n') as output:
         json.dump(value, output, indent=2, ensure_ascii=False, allow_nan=False)
         output.flush(); os.fsync(output.fileno())
-    temporary.replace(path)
+    # Windows readers do not normally share deletion. A status read can keep
+    # the old journal open for a moment and refuse this atomic replacement.
+    # Retry only that local file operation, never the associated phone command.
+    # Keep the old complete record until replacement succeeds; permanent access
+    # errors still fail closed within a fixed part of the workflow age budget.
+    deadline = time.monotonic() + .5
+    while True:
+        try:
+            temporary.replace(path)
+            break
+        except OSError as error:
+            if getattr(error, 'winerror', None) not in (5, 32, 33) or time.monotonic() >= deadline:
+                raise
+            time.sleep(.01)
 
 
 def references():
