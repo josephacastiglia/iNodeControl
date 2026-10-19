@@ -13,6 +13,7 @@ public partial class CarouselDraftWindow : Window
     private readonly FarmApiClient _api;
     private readonly CarouselRecovery _recovery;
     private readonly string _mode;
+    private readonly string _dataFolder;
     private readonly string? _initialDraftId;
     private readonly ObservableCollection<CarouselSlide> _slides = [];
     private CarouselDraft? _draft;
@@ -27,6 +28,7 @@ public partial class CarouselDraftWindow : Window
         _api = api;
         _recovery = new CarouselRecovery(dataFolder);
         _mode = mode;
+        _dataFolder = dataFolder;
         _initialDraftId = initialDraftId is null ? null : Guid.Parse(initialDraftId).ToString();
         InitializeComponent();
         SlidesList.ItemsSource = _slides;
@@ -42,13 +44,15 @@ public partial class CarouselDraftWindow : Window
         };
     }
 
-    private async Task RunAsync(Func<Task> action)
+    private async Task RunAsync(Func<Task> action, bool phoneWorkflow = false)
     {
         if (_busy) return;
         _busy = true;
         LibraryControls.IsEnabled = EditorControls.IsEnabled = false;
         try { await action(); }
-        catch (Exception ex) { StatusText.Text = ex.Message + " No phone action was sent."; }
+        catch (Exception ex) { StatusText.Text = ex.Message + (phoneWorkflow
+            ? " Reopen Check phone draft to retrieve any saved request. No check is replayed."
+            : " No phone action was sent."); }
         finally
         {
             _busy = false;
@@ -189,6 +193,13 @@ public partial class CarouselDraftWindow : Window
     }
 
     private Task SaveBeforeLeavingAsync() => _dirty ? SaveAsync() : Task.CompletedTask;
+    private async void PhoneDraft_Click(object sender, RoutedEventArgs e) => await RunAsync(async () =>
+    {
+        await SaveBeforeLeavingAsync();
+        if (_draft is null) return;
+        new FarmDraftRunWindow(_api, _dataFolder, _draft.Id, _draft.Revision, _draft.Title) { Owner = this }.ShowDialog();
+    }, phoneWorkflow: true);
+
     private async void Rehearsal_Click(object sender, RoutedEventArgs e) => await RunAsync(async () =>
     {
         if (_draft is null) throw new InvalidOperationException("Open a local draft first.");

@@ -1,6 +1,24 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Latest: optimized draft save/reopen passed twice on C24C
+## Latest: native draft workflow integration prepared offline
+
+The carousel editor now exposes **Check phone draft…**, backed by a durable
+save/reopen job, retained evidence, cancellation and restart recovery without
+replay. The verified sequence was extracted into product modules; fixed C24C,
+account, test-content, kernel-identity and freshness restrictions remain. The
+interface integration is **not yet live-accepted** and is disabled by default.
+
+Offline checks: 388 broad Python tests, 21 focused follow-ups (six additional
+unique checks), 12 retained-frame sequence/link checks, and 546 native headless
+checks passed. Build: zero warnings/errors. All 25 protected files are unchanged;
+no rack software or phone/desktop input was used. The separate prepared candidate
+and test-draft snapshot are in `output/codex-farm-interface-20261018`.
+
+See [the integration record](analysis/farm-interface-integration-20261018/README.md)
+for the exact scope, tests and next C24C acceptance window. An interrupted unknown
+phone action remains review-only; no automatic resume or repeated Save was added.
+
+## Previous: optimized draft save/reopen passed twice on C24C
 
 Two complete bounded runs passed on the unchanged `d173ee1` product source. Each
 used one lease, opened the existing test draft, verified all three slides and the

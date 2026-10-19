@@ -262,6 +262,20 @@ class FarmJobs:
                 return self.cancel(self._active)
             return None
 
+    def close(self, timeout=20):
+        """Give this process's worker a bounded chance to release its own lease.
+
+        Killing the process can still leave an uncertain action/cleanup. Startup
+        reports that interruption and never tries to resume or take its lease.
+        """
+        with self._lock:
+            job = self._jobs.get(self._active)
+        if job is None: return True
+        self.cancel(job.id)
+        if not job.done.wait(timeout): return False
+        with self._lock:
+            return self._active is None
+
     def current(self):
         with self._lock:
             return self._jobs[self._active].public() if self._active else None

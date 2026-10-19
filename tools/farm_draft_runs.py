@@ -1,0 +1,202 @@
+"""Durable admission and retrieval for the bounded C24C draft candidate.
+
+GET never connects to the phone. Reusing an ID only retrieves its journal, even
+after a process dies between admission and execution. No startup resumes work.
+"""
+from contextlib import contextmanager
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import sqlite3
+import threading
+import uuid
+import zipfile
+
+from farm_drafts import DraftConflict, identifier
+from farm_draft_workflow import Workflow, references
+from farm_draft_transport import StepKernel
+from farm_observations import ObservationStore
+from imouse_social_automation import KernelSafetyError
+
+
+ACCOUNT = 'xs.halle.xo'
+CONTENT_SHA256 = 'fa226761c643c72800a2fada366652ae4baa49177cea3e76e5280b71f673a058'
+API = 'http://127.0.0.1:9916/api'
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def source_content(package):
+    with zipfile.ZipFile(io.BytesIO(package)) as archive:
+        manifest = json.loads(archive.read('manifest.json'))
+        assets = [archive.read(row['file']) for row in manifest['assets']]
+    identity = dict(caption=manifest['caption'], slides=[sha(raw) for raw in assets])
+    digest = sha(json.dumps(identity, sort_keys=True, separators=(',', ':')).encode('utf-8'))
+    return assets, manifest['caption'], digest
+
+
+def load_config(path, mode):
+    if path is None: return None
+    if mode != 'live': raise ValueError('A phone draft configuration requires explicit live mode.')
+    config = json.loads(Path(path).read_text(encoding='utf-8-sig'))
+    if (not isinstance(config, dict) or set(config) != {'version', 'api', 'kernelSha256', 'expectedUid'}
+            or type(config['version']) is not int or config['version'] != 1 or config['api'] != API
+            or not isinstance(config['kernelSha256'], str) or not re.fullmatch('[0-9a-f]{64}', config['kernelSha256'])
+            or not isinstance(config['expectedUid'], str) or not 1 <= len(config['expectedUid']) <= 64):
+        raise ValueError('Draft candidate needs version 1, the isolated 9916 API, kernel SHA-256 and C24C UID.')
+    return config
+
+
+class DraftRuns:
+    def __init__(self, folder, drafts, jobs, config=None):
+        self.folder = Path(folder); self.folder.mkdir(parents=True, exist_ok=True)
+        self.drafts, self.jobs, self.config = drafts, jobs, config
+        self.lock = threading.RLock()
+        with self.connect() as db:
+            db.execute('CREATE TABLE IF NOT EXISTS identity(id TEXT PRIMARY KEY)')
+            db.execute('INSERT INTO identity SELECT ? WHERE NOT EXISTS (SELECT 1 FROM identity)', (str(uuid.uuid4()),))
+            self.store_id = db.execute('SELECT id FROM identity').fetchone()[0]
+            db.execute('CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY, request TEXT, package BLOB, package_hash TEXT)')
+
+    @contextmanager
+    def connect(self):
+        connection = sqlite3.connect(self.folder / 'runs.db', timeout=10)
+        try:
+            with connection: yield connection
+        finally: connection.close()
+
+    def capability(self):
+        return dict(version=1, storeId=self.store_id, enabled=self.config is not None,
+            device='C24C', account=ACCOUNT, candidateOnly=True, integratedLiveValidated=False,
+            publishing=False, messaging=False, desktopControl=False,
+            reason=('Prepared candidate only: the existing labelled three-slide test draft on @'+ACCOUNT+'.'
+                    if self.config else 'Phone verification is disabled. Prepare the isolated C24C candidate first.'),
+            contentSha256=CONTENT_SHA256)
+
+    def eligibility(self, draft_id, revision):
+        package = self.drafts.export(identifier(draft_id), revision)
+        _, _, content = source_content(package)
+        supported = content == CONTENT_SHA256
+        return dict(**self.capability(), eligible=self.config is not None and supported,
+            supportedContent=supported, draftId=draft_id, revision=revision,
+            packageSha256=sha(package),
+            contentReason=('The saved slides and caption match the verified test draft.' if supported else
+                           'This first candidate supports only the verified three-slide test draft and exact caption.'))
+
+    @staticmethod
+    def validate_request(spec):
+        if not isinstance(spec, dict) or set(spec) != {'id', 'draft_id', 'revision', 'store_id'}:
+            raise ValueError('Choose a saved draft revision; account, device, actions and endpoint cannot be overridden.')
+        spec = dict(spec)
+        for key in ('id', 'draft_id', 'store_id'): spec[key] = identifier(spec[key])
+        if type(spec['revision']) is not int or spec['revision'] < 1: raise ValueError('Invalid saved revision.')
+        return spec
+
+    def row(self, run_id):
+        with self.connect() as db:
+            row = db.execute('SELECT request,package,package_hash FROM runs WHERE id=?', (identifier(run_id),)).fetchone()
+        if row is None: raise KeyError('Draft run not found. Absence does not authorize resubmission.')
+        if sha(row[1]) != row[2]: raise ValueError('Retained draft package is damaged.')
+        return json.loads(row[0]), row[1], row[2]
+
+    def start(self, spec):
+        spec = self.validate_request(spec)
+        if spec['store_id'] != self.store_id: raise DraftConflict('The candidate data store changed. No new run was admitted.')
+        with self.lock:
+            try: previous, _, _ = self.row(spec['id'])
+            except KeyError: previous = None
+            if previous is not None:
+                if previous != spec: raise DraftConflict('This request ID belongs to another draft or revision.')
+                return self.get(spec['id'])
+            if not self.config: raise KernelSafetyError('Prepare the isolated candidate; phone draft execution is disabled.')
+            self.jobs.assert_available()
+            package = self.drafts.export(spec['draft_id'], spec['revision'])
+            assets, caption, content = source_content(package)
+            if content != CONTENT_SHA256:
+                raise ValueError('Saved content is outside the currently verified draft candidate.')
+            # Reserve the ID before any worker can send input. An orphaned
+            # admission is review-only, never an instruction to start it again.
+            with self.connect() as db:
+                try: db.execute('INSERT INTO runs VALUES (?,?,?,?)', (spec['id'], json.dumps(spec), package, sha(package)))
+                except sqlite3.IntegrityError: raise DraftConflict('This request was admitted concurrently; retrieve its saved result.')
+            folder = self.folder / spec['id']; folder.mkdir(exist_ok=False)
+            def run(cancelled):
+                result = self.execute(folder, assets, caption, sha(package), cancelled)
+                return dict(recordSha256=sha((folder / 'record.json').read_bytes()), state=result['state'])
+            self.jobs.submit(spec['id'], 'draft-save-reopen', spec, run)
+            return self.get(spec['id'])
+
+    def execute(self, folder, assets, caption, package_hash, cancelled):
+        kernel = StepKernel(self.config['api'])
+        store = ObservationStore(folder / 'observations.sqlite3')
+        return Workflow(folder, kernel, store, assets, caption, references(),
+            self.config['kernelSha256'], self.config['expectedUid'], account=ACCOUNT,
+            package_hash=package_hash, cancelled=cancelled).run()
+
+    def get(self, run_id):
+        run_id = identifier(run_id)
+        spec, package, package_hash = self.row(run_id)
+        try: job = self.jobs.get(run_id)
+        except KeyError:
+            job = dict(status='interrupted', terminal=True, result=None,
+                error='Admission was interrupted before a durable job result. No action will be replayed.')
+        result = None; folder = self.folder / run_id; path = folder / 'record.json'
+        if path.exists():
+            raw = path.read_bytes(); result = json.loads(raw)
+            if result.get('packageSha256') != package_hash: raise ValueError('Run source no longer matches its saved package.')
+            if job.get('result') and sha(raw) != job['result']['recordSha256']:
+                raise ValueError('Completed draft run journal is damaged.')
+            if job['terminal']:
+                # Verify the retained bytes before displaying a completion claim.
+                store = ObservationStore(folder / 'observations.sqlite3')
+                for entry in result.get('observations', []):
+                    if entry.get('state') != 'observed': continue
+                    value, frame = store.evidence(entry['observationId'])
+                    digest = sha(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode('utf-8'))
+                    if (sha(frame) != entry['observation']['reviewFrameSha256']
+                            or digest != entry['observation']['evidenceRecordSha256']):
+                        raise ValueError('Retained run evidence changed.')
+        accepted = bool(job['status'] == 'succeeded' and job['terminal'] and result
+            and result.get('state') == 'validation_passed' and result.get('cleanup') == 'confirmed'
+            and result.get('evidenceExport') == 'confirmed' and result.get('source') == 'candidate_phone_workflow'
+            and all(action.get('state') == 'answered' for action in result.get('actions', []))
+            and result.get('savedDraftVerified') is True)
+        state = ('verified' if accepted else 'review_required') if job['terminal'] else 'running'
+        try: changed = self.drafts.get(spec['draft_id'])['revision'] != spec['revision']
+        except KeyError: changed = True
+        return dict(id=run_id, storeId=self.store_id, request=spec, packageSha256=package_hash,
+            state=state, terminal=job['terminal'], jobStatus=job['status'],
+            reason=(result.get('error') if result else None) or job.get('error') or
+                   ('The matching draft was saved, reopened and checked.' if accepted else
+                    'Inspect the retained result; unknown phone actions are never replayed.' if job['terminal'] else
+                    'Checking the existing C24C test draft. Keep this window open.'),
+            savedDraftVerified=accepted, draftChangedSinceRun=changed,
+            cleanup=result.get('cleanup', 'unconfirmed') if result else 'not_started_or_unknown',
+            workflow=result, publishing=False, messaging=False, desktopControl=False,
+            automaticResume=False, integratedLiveValidated=False)
+
+    def list(self, draft_id):
+        draft_id = identifier(draft_id)
+        with self.connect() as db: rows = db.execute('SELECT id,request FROM runs ORDER BY rowid DESC').fetchall()
+        # Full evidence is checked on explicit retrieval, not every history poll.
+        return [dict(id=key, revision=json.loads(request)['revision']) for key, request in rows
+                if json.loads(request)['draft_id'] == draft_id]
+
+    def cancel(self, run_id):
+        # Cancellation before POST admission creates a durable tombstone as well.
+        return self.jobs.cancel(identifier(run_id))
+
+    def frame(self, run_id, observation_id):
+        run_id, observation_id = identifier(run_id), identifier(observation_id)
+        result = self.get(run_id)
+        if not result['terminal']: raise ValueError('Wait for cleanup before opening retained frames.')
+        workflow = result.get('workflow') or {}
+        entries = [e for e in workflow.get('observations', []) if e.get('observationId') == observation_id and e.get('state') == 'observed']
+        if len(entries) != 1: raise KeyError('This capture does not belong to the selected draft run.')
+        _, raw = ObservationStore(self.folder / run_id / 'observations.sqlite3').evidence(observation_id)
+        if sha(raw) != entries[0]['observation']['reviewFrameSha256']: raise ValueError('Capture is damaged.')
+        return raw
