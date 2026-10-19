@@ -8,6 +8,7 @@ import subprocess
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 ARCHIVE = ROOT.parent / 'iMouseXP-2.0-evidence-archive/20261018-farm-live-final'
+REFERENCES = ROOT.parent / 'iMouseXP-2.0-evidence-archive/20261018-farm-live-layout'
 
 
 def read(path):
@@ -18,10 +19,10 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def copy_verified(source, destination):
+def copy_verified(source, destination, *, source_root=ROOT):
     source = source.resolve()
-    if not source.is_relative_to(ROOT.resolve()):
-        raise ValueError('Source escapes the candidate workspace: ' + str(source))
+    if not source.is_relative_to(source_root.resolve()):
+        raise ValueError('Source escapes its verified root: ' + str(source))
     raw = source.read_bytes()
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_bytes(raw)
@@ -38,6 +39,12 @@ def main():
     sources = read(HERE / 'validation-sources.json')['files']
     for path, expected in sources.items():
         assert digest(Path(path)) == expected, path
+    references = read(HERE / 'reference-frames.json')
+    for row in references.values():
+        reference = Path(row['path']).resolve()
+        assert reference.is_relative_to(REFERENCES.resolve())
+        assert digest(reference) == row['sha256']
+        assert (reference.parent / 'record.json').is_file()
     commit = subprocess.check_output(
         ['git', '-c', 'safe.directory=' + ROOT.as_posix(), 'rev-parse', 'HEAD'],
         cwd=ROOT, text=True).strip()
@@ -56,11 +63,12 @@ def main():
     ):
         copy_verified(source, ARCHIVE / 'source' / source.relative_to(ROOT))
     # Retain the original control images and OCR records used by the offline suite.
-    for row in read(HERE / 'reference-frames.json').values():
+    for row in references.values():
         source = Path(row['path'])
         assert digest(source) == row['sha256']
         for item in (source, source.parent / 'record.json'):
-            copy_verified(item, ARCHIVE / 'references' / item.relative_to(ROOT))
+            copy_verified(item, ARCHIVE / 'references' / item.relative_to(REFERENCES),
+                          source_root=REFERENCES)
     preparation = read(HERE / 'preparation.json')
     native = Path(preparation['kernel'])
     assert digest(native.with_suffix('.dll')) == preparation['validation']['build']['sha256']
