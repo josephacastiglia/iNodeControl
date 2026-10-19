@@ -1,0 +1,34 @@
+{
+  "imageSha256": "f248bf4db64a0f4c13b46caec12f64d2145c72844a3d919ac171b604aa9af49a",
+  "provider": "windows-ocr",
+  "language": "en-US",
+  "lines": [
+    {
+      "text": "4:56",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 42,
+          "text": "4:56",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "192.168.4.26",
+      "words": [
+        {
+          "y": 947,
+          "height": 16,
+          "width": 116,
+          "text": "192.168.4.26",
+          "x": 192
+        }
+      ]
+    }
+  ],
+  "height": 1080,
+  "width": 500,
+  "frameSha256": "f248bf4db64a0f4c13b46caec12f64d2145c72844a3d919ac171b604aa9af49a"
+}

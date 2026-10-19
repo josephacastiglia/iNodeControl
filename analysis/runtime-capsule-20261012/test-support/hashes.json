@@ -1,0 +1,5 @@
+{
+  "plugins/libgstvideotestsrc.dll": "91cab2eed081d48187cf1af92062d7eedfbe87769209b5b9767baf4f7f3a68b2",
+  "plugins/libgstopenh264.dll": "f38f31586bd1fed0508e28e5aa0516b3ede73470055ca84ce3aca545fec0eb51",
+  "bin/libopenh264-7.dll": "6722d93cb98a1d804c5469b9f21a46e2a7acc4aa134c932b339cbd59fbe03ca2"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "suite": "workflow",
+    "exitCode": 0,
+    "seconds": 63.906,
+    "log": "workflow-preparation-tests.txt"
+  },
+  {
+    "suite": "transport",
+    "exitCode": 0,
+    "seconds": 0.969,
+    "log": "transport-preparation-tests.txt"
+  },
+  {
+    "suite": "transitions",
+    "exitCode": 0,
+    "seconds": 3.093,
+    "log": "transitions-preparation-tests.txt"
+  },
+  {
+    "suite": "library-continuity",
+    "exitCode": 0,
+    "seconds": 7.641,
+    "log": "library-continuity-preparation-tests.txt"
+  }
+]

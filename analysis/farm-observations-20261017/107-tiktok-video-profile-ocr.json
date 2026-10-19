@@ -1,0 +1,377 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:49",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 42,
+          "text": "6:49",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "Halle",
+      "words": [
+        {
+          "y": 134,
+          "height": 28,
+          "width": 85,
+          "text": "Halle",
+          "x": 22
+        }
+      ]
+    },
+    {
+      "text": "@xs.halle.xo",
+      "words": [
+        {
+          "y": 178,
+          "height": 13,
+          "width": 85,
+          "text": "@xs.halle.xo",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "Following",
+      "words": [
+        {
+          "y": 237,
+          "height": 15,
+          "width": 66,
+          "text": "Following",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "Follower",
+      "words": [
+        {
+          "y": 237,
+          "height": 12,
+          "width": 59,
+          "text": "Follower",
+          "x": 118
+        }
+      ]
+    },
+    {
+      "text": "Likes",
+      "words": [
+        {
+          "y": 237,
+          "height": 12,
+          "width": 35,
+          "text": "Likes",
+          "x": 207
+        }
+      ]
+    },
+    {
+      "text": "+ Add bio + Add college",
+      "words": [
+        {
+          "y": 284,
+          "height": 11,
+          "width": 11,
+          "text": "+",
+          "x": 34
+        },
+        {
+          "y": 283,
+          "height": 12,
+          "width": 29,
+          "text": "Add",
+          "x": 52
+        },
+        {
+          "y": 283,
+          "height": 12,
+          "width": 22,
+          "text": "bio",
+          "x": 87
+        },
+        {
+          "y": 284,
+          "height": 11,
+          "width": 11,
+          "text": "+",
+          "x": 144
+        },
+        {
+          "y": 283,
+          "height": 12,
+          "width": 29,
+          "text": "Add",
+          "x": 162
+        },
+        {
+          "y": 283,
+          "height": 15,
+          "width": 53,
+          "text": "college",
+          "x": 196
+        }
+      ]
+    },
+    {
+      "text": "Drafts: 2",
+      "words": [
+        {
+          "y": 376,
+          "height": 13,
+          "width": 52,
+          "text": "Drafts:",
+          "x": 9
+        },
+        {
+          "y": 376,
+          "height": 13,
+          "width": 10,
+          "text": "2",
+          "x": 67
+        }
+      ]
+    },
+    {
+      "text": "2.6MB",
+      "words": [
+        {
+          "y": 565,
+          "height": 12,
+          "width": 47,
+          "text": "2.6MB",
+          "x": 31
+        }
+      ]
+    },
+    {
+      "text": "> 26",
+      "words": [
+        {
+          "y": 785,
+          "height": 16,
+          "width": 14,
+          "text": ">",
+          "x": 175
+        },
+        {
+          "y": 787,
+          "height": 12,
+          "width": 18,
+          "text": "26",
+          "x": 197
+        }
+      ]
+    },
+    {
+      "text": "No more results",
+      "words": [
+        {
+          "y": 827,
+          "height": 12,
+          "width": 19,
+          "text": "No",
+          "x": 194
+        },
+        {
+          "y": 830,
+          "height": 9,
+          "width": 35,
+          "text": "more",
+          "x": 219
+        },
+        {
+          "y": 827,
+          "height": 12,
+          "width": 46,
+          "text": "results",
+          "x": 260
+        }
+      ]
+    },
+    {
+      "text": "Create your Al Self",
+      "words": [
+        {
+          "y": 911,
+          "height": 14,
+          "width": 51,
+          "text": "Create",
+          "x": 74
+        },
+        {
+          "y": 915,
+          "height": 13,
+          "width": 35,
+          "text": "your",
+          "x": 130
+        },
+        {
+          "y": 912,
+          "height": 12,
+          "width": 15,
+          "text": "Al",
+          "x": 170
+        },
+        {
+          "y": 911,
+          "height": 14,
+          "width": 31,
+          "text": "Self",
+          "x": 191
+        }
+      ]
+    },
+    {
+      "text": "Cast or be cast in Al videos",
+      "words": [
+        {
+          "y": 939,
+          "height": 11,
+          "width": 29,
+          "text": "Cast",
+          "x": 74
+        },
+        {
+          "y": 942,
+          "height": 8,
+          "width": 13,
+          "text": "or",
+          "x": 108
+        },
+        {
+          "y": 939,
+          "height": 11,
+          "width": 16,
+          "text": "be",
+          "x": 125
+        },
+        {
+          "y": 940,
+          "height": 10,
+          "width": 27,
+          "text": "cast",
+          "x": 146
+        },
+        {
+          "y": 939,
+          "height": 11,
+          "width": 10,
+          "text": "in",
+          "x": 178
+        },
+        {
+          "y": 939,
+          "height": 11,
+          "width": 12,
+          "text": "Al",
+          "x": 193
+        },
+        {
+          "y": 939,
+          "height": 11,
+          "width": 43,
+          "text": "videos",
+          "x": 210
+        }
+      ]
+    },
+    {
+      "text": "Home",
+      "words": [
+        {
+          "y": 1021,
+          "height": 9,
+          "width": 32,
+          "text": "Home",
+          "x": 35
+        }
+      ]
+    },
+    {
+      "text": "00",
+      "words": [
+        {
+          "y": 990,
+          "height": 12,
+          "width": 22,
+          "text": "00",
+          "x": 141
+        }
+      ]
+    },
+    {
+      "text": "Friends",
+      "words": [
+        {
+          "y": 1021,
+          "height": 9,
+          "width": 41,
+          "text": "Friends",
+          "x": 130
+        }
+      ]
+    },
+    {
+      "text": "Coffee or tea?",
+      "words": [
+        {
+          "y": 131,
+          "height": 10,
+          "width": 42,
+          "text": "Coffee",
+          "x": 378
+        },
+        {
+          "y": 134,
+          "height": 7,
+          "width": 12,
+          "text": "or",
+          "x": 424
+        },
+        {
+          "y": 131,
+          "height": 10,
+          "width": 26,
+          "text": "tea?",
+          "x": 440
+        }
+      ]
+    },
+    {
+      "text": "Create",
+      "words": [
+        {
+          "y": 924,
+          "height": 12,
+          "width": 47,
+          "text": "Create",
+          "x": 379
+        }
+      ]
+    },
+    {
+      "text": "Profile",
+      "words": [
+        {
+          "y": 1021,
+          "height": 9,
+          "width": 37,
+          "text": "Profile",
+          "x": 431
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "d2fb18102185a926d8e2463e78079bb11e9cdb0d4a6eb6c5411c76f7b93caf06"
+}

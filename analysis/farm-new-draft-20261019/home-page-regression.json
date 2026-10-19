@@ -1,0 +1,235 @@
+{
+  "passed": true,
+  "ocr": {
+    "imageSha256": "74f1d9b2dae2f9e3cd814c486d80bd50eac1328faa82a9d8d63bd4189633415d",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "12:01",
+        "words": [
+          {
+            "y": 23,
+            "height": 15,
+            "width": 46,
+            "text": "12:01",
+            "x": 40
+          }
+        ]
+      },
+      {
+        "text": "TikTok",
+        "words": [
+          {
+            "y": 170,
+            "height": 12,
+            "width": 45,
+            "text": "TikTok",
+            "x": 169
+          }
+        ]
+      },
+      {
+        "text": "Instagram",
+        "words": [
+          {
+            "y": 171,
+            "height": 14,
+            "width": 68,
+            "text": "Instagram",
+            "x": 43
+          }
+        ]
+      },
+      {
+        "text": "Bluesky",
+        "words": [
+          {
+            "y": 297,
+            "height": 14,
+            "width": 52,
+            "text": "Bluesky",
+            "x": 166
+          }
+        ]
+      },
+      {
+        "text": "Zoho Mail",
+        "words": [
+          {
+            "y": 424,
+            "height": 11,
+            "width": 34,
+            "text": "Zoho",
+            "x": 45
+          },
+          {
+            "y": 423,
+            "height": 12,
+            "width": 27,
+            "text": "Mail",
+            "x": 84
+          }
+        ]
+      },
+      {
+        "text": "Gmail",
+        "words": [
+          {
+            "y": 424,
+            "height": 11,
+            "width": 38,
+            "text": "Gmail",
+            "x": 173
+          }
+        ]
+      },
+      {
+        "text": "\u2022o",
+        "words": [
+          {
+            "y": 464,
+            "height": 77,
+            "width": 174,
+            "text": "\u2022o",
+            "x": 57
+          }
+        ]
+      },
+      {
+        "text": "EXPO GO",
+        "words": [
+          {
+            "y": 551,
+            "height": 13,
+            "width": 33,
+            "text": "EXPO",
+            "x": 164
+          },
+          {
+            "y": 551,
+            "height": 10,
+            "width": 18,
+            "text": "GO",
+            "x": 202
+          }
+        ]
+      },
+      {
+        "text": "lapper",
+        "words": [
+          {
+            "y": 297,
+            "height": 14,
+            "width": 43,
+            "text": "lapper",
+            "x": 291
+          }
+        ]
+      },
+      {
+        "text": "N",
+        "words": [
+          {
+            "y": 424,
+            "height": 11,
+            "width": 10,
+            "text": "N",
+            "x": 341
+          }
+        ]
+      },
+      {
+        "text": "sos",
+        "words": [
+          {
+            "y": 23,
+            "height": 9,
+            "width": 17,
+            "text": "sos",
+            "x": 396
+          }
+        ]
+      },
+      {
+        "text": "YouTube",
+        "words": [
+          {
+            "y": 171,
+            "height": 11,
+            "width": 58,
+            "text": "YouTube",
+            "x": 393
+          }
+        ]
+      },
+      {
+        "text": "SMS",
+        "words": [
+          {
+            "y": 243,
+            "height": 9,
+            "width": 26,
+            "text": "SMS",
+            "x": 395
+          }
+        ]
+      },
+      {
+        "text": "Proton VPN",
+        "words": [
+          {
+            "y": 424,
+            "height": 11,
+            "width": 44,
+            "text": "Proton",
+            "x": 383
+          },
+          {
+            "y": 424,
+            "height": 11,
+            "width": 28,
+            "text": "VPN",
+            "x": 433
+          }
+        ]
+      },
+      {
+        "text": "Search",
+        "words": [
+          {
+            "y": 893,
+            "height": 12,
+            "width": 48,
+            "text": "Search",
+            "x": 235
+          }
+        ]
+      },
+      {
+        "text": "O, po",
+        "words": [
+          {
+            "y": 973,
+            "height": 57,
+            "width": 62,
+            "text": "O,",
+            "x": 278
+          },
+          {
+            "y": 988,
+            "height": 30,
+            "width": 52,
+            "text": "po",
+            "x": 396
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "93a1811af6f91542bf5c300a72f7b2a0a6b5705de87f92e4f3f8d60c8d8be94c"
+  },
+  "frameSha256": "93a1811af6f91542bf5c300a72f7b2a0a6b5705de87f92e4f3f8d60c8d8be94c",
+  "phoneInput": false
+}

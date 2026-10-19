@@ -1,0 +1,33 @@
+{
+  "status": "visual_match",
+  "matchedIndex": 1,
+  "scores": [
+    {
+      "index": 1,
+      "meanError": 0.02159218464192676,
+      "worstBlock": 0.11477504904171203,
+      "rendering": "library_lower_gradient"
+    },
+    {
+      "index": 2,
+      "meanError": 0.11068163651185525,
+      "worstBlock": 0.2755024520209517,
+      "rendering": "library_lower_gradient"
+    },
+    {
+      "index": 3,
+      "meanError": 0.10503322849046585,
+      "worstBlock": 0.22132664991763917,
+      "rendering": "library_lower_gradient"
+    }
+  ],
+  "margin": 0.08344104384853909,
+  "byteIdentityVerified": false,
+  "fullImageVisible": false,
+  "libraryCell": {
+    "row": 1,
+    "column": 1
+  },
+  "candidateCells": 2,
+  "matchingCovers": 1
+}

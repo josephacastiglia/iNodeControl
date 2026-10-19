@@ -1,0 +1,7 @@
+System.Exception: Failed: The last hover received during a send is delivered exactly once
+   at IMouse2.SelfTests.<>c__DisplayClass0_0.<RunAsync>g__Check|0(String name, Boolean ok) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\pointer-queue-20261012\negative-lost-move\SelfTests.cs:line 350
+   at IMouse2.PointerMovePumpTests.RunAsync(Action`2 check)
+   at IMouse2.PointerMovePumpTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\pointer-queue-20261012\negative-lost-move\PointerMovePumpTests.cs:line 148
+   at IMouse2.PointerMovePumpTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\pointer-queue-20261012\negative-lost-move\PointerMovePumpTests.cs:line 148
+   at IMouse2.SelfTests.RunAsync() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\pointer-queue-20261012\negative-lost-move\SelfTests.cs:line 620
+   at IMouse2.App.OnStartup(StartupEventArgs e) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\pointer-queue-20261012\negative-lost-move\App.xaml.cs:line 164

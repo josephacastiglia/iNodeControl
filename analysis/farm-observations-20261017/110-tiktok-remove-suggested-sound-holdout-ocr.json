@@ -1,0 +1,222 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:49",
+      "words": [
+        {
+          "y": 22,
+          "height": 16,
+          "width": 42,
+          "text": "6:49",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "Add sound",
+      "words": [
+        {
+          "y": 108,
+          "height": 14,
+          "width": 34,
+          "text": "Add",
+          "x": 215
+        },
+        {
+          "y": 108,
+          "height": 14,
+          "width": 53,
+          "text": "sound",
+          "x": 255
+        }
+      ]
+    },
+    {
+      "text": "iMouse VIDEO DRAFT TEST",
+      "words": [
+        {
+          "y": 284,
+          "height": 17,
+          "width": 70,
+          "text": "iMouse",
+          "x": 59
+        },
+        {
+          "y": 285,
+          "height": 16,
+          "width": 62,
+          "text": "VIDEO",
+          "x": 135
+        },
+        {
+          "y": 285,
+          "height": 16,
+          "width": 65,
+          "text": "DRAFT",
+          "x": 205
+        },
+        {
+          "y": 285,
+          "height": 16,
+          "width": 48,
+          "text": "TEST",
+          "x": 276
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY - DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 339,
+          "height": 12,
+          "width": 48,
+          "text": "DRAFT",
+          "x": 59
+        },
+        {
+          "y": 339,
+          "height": 12,
+          "width": 42,
+          "text": "ONLY",
+          "x": 112
+        },
+        {
+          "y": 346,
+          "height": 2,
+          "width": 5,
+          "text": "-",
+          "x": 159
+        },
+        {
+          "y": 339,
+          "height": 12,
+          "width": 23,
+          "text": "DO",
+          "x": 171
+        },
+        {
+          "y": 339,
+          "height": 12,
+          "width": 33,
+          "text": "NOT",
+          "x": 200
+        },
+        {
+          "y": 339,
+          "height": 12,
+          "width": 60,
+          "text": "PUBLISH",
+          "x": 239
+        }
+      ]
+    },
+    {
+      "text": "TEST: 95%",
+      "words": [
+        {
+          "y": 408,
+          "height": 13,
+          "width": 38,
+          "text": "TEST:",
+          "x": 58
+        },
+        {
+          "y": 408,
+          "height": 13,
+          "width": 31,
+          "text": "95%",
+          "x": 102
+        }
+      ]
+    },
+    {
+      "text": "DEVICE C24C I AUTO-RENDER",
+      "words": [
+        {
+          "y": 861,
+          "height": 14,
+          "width": 60,
+          "text": "DEVICE",
+          "x": 57
+        },
+        {
+          "y": 861,
+          "height": 14,
+          "width": 42,
+          "text": "C24C",
+          "x": 123
+        },
+        {
+          "y": 860,
+          "height": 19,
+          "width": 3,
+          "text": "I",
+          "x": 171
+        },
+        {
+          "y": 861,
+          "height": 14,
+          "width": 129,
+          "text": "AUTO-RENDER",
+          "x": 180
+        }
+      ]
+    },
+    {
+      "text": "+++ AutoCut",
+      "words": [
+        {
+          "y": 900,
+          "height": 19,
+          "width": 19,
+          "text": "+++",
+          "x": 207
+        },
+        {
+          "y": 904,
+          "height": 12,
+          "width": 60,
+          "text": "AutoCut",
+          "x": 231
+        }
+      ]
+    },
+    {
+      "text": "Your Story",
+      "words": [
+        {
+          "y": 1000,
+          "height": 15,
+          "width": 40,
+          "text": "Your",
+          "x": 103
+        },
+        {
+          "y": 1000,
+          "height": 19,
+          "width": 48,
+          "text": "Story",
+          "x": 149
+        }
+      ]
+    },
+    {
+      "text": "Next",
+      "words": [
+        {
+          "y": 1001,
+          "height": 14,
+          "width": 42,
+          "text": "Next",
+          "x": 349
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "86c03c59e76a0b1cdc4c08a76fd598d70a5083ec76610ba5a1988a68552d7f09"
+}

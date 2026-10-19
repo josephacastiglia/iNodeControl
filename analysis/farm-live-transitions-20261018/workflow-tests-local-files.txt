@@ -1,0 +1,36 @@
+test_cancel_after_save_releases_without_navigation (__main__.WorkflowTests.test_cancel_after_save_releases_without_navigation) ... ok
+test_changed_navigation_icon_is_not_guessed (__main__.WorkflowTests.test_changed_navigation_icon_is_not_guessed) ... ok
+test_duplicate_action_label_cannot_be_replayed (__main__.WorkflowTests.test_duplicate_action_label_cannot_be_replayed) ... ok
+test_known_transients_collect_new_pairs_without_semantic_retries (__main__.WorkflowTests.test_known_transients_collect_new_pairs_without_semantic_retries) ... FAIL
+test_stale_capture_never_reaches_click_or_swipe (__main__.WorkflowTests.test_stale_capture_never_reaches_click_or_swipe) ... ok
+test_unknown_save_response_stops_without_another_input (__main__.WorkflowTests.test_unknown_save_response_stops_without_another_input) ... ok
+test_whole_flow_uses_one_lease_all_slides_caption_and_returns_profile (__main__.WorkflowTests.test_whole_flow_uses_one_lease_all_slides_caption_and_returns_profile) ... FAIL
+test_wrong_account_refuses_even_pointer_input (__main__.WorkflowTests.test_wrong_account_refuses_even_pointer_input) ... ok
+test_wrong_caption_stops_before_save (__main__.WorkflowTests.test_wrong_caption_stops_before_save) ... ok
+
+======================================================================
+FAIL: test_known_transients_collect_new_pairs_without_semantic_retries (__main__.WorkflowTests.test_known_transients_collect_new_pairs_without_semantic_retries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\farm-live-transitions-20261018\test_validate_workflow.py", line 153, in test_known_transients_collect_new_pairs_without_semantic_retries
+    self.assertEqual('validation_passed',result['state'],result.get('error'))
+AssertionError: 'validation_passed' != 'review_required'
+- validation_passed
++ review_required
+ : KeyError: 'caption'
+
+======================================================================
+FAIL: test_whole_flow_uses_one_lease_all_slides_caption_and_returns_profile (__main__.WorkflowTests.test_whole_flow_uses_one_lease_all_slides_caption_and_returns_profile)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\farm-live-transitions-20261018\test_validate_workflow.py", line 142, in test_whole_flow_uses_one_lease_all_slides_caption_and_returns_profile
+    self.assertEqual('validation_passed',result['state'],result.get('error'))
+AssertionError: 'validation_passed' != 'review_required'
+- validation_passed
++ review_required
+ : KeyError: 'caption'
+
+----------------------------------------------------------------------
+Ran 9 tests in 60.991s
+
+FAILED (failures=2)

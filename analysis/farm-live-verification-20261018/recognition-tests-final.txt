@@ -1,0 +1,17 @@
+test_caption_comparison_does_not_use_navigation_or_footer_text (test_farm_screen_recognition.ScreenRecognitionTests.test_caption_comparison_does_not_use_navigation_or_footer_text) ... ok
+test_caption_sheet_is_an_editing_interruption_not_background_details (test_farm_screen_recognition.ScreenRecognitionTests.test_caption_sheet_is_an_editing_interruption_not_background_details) ... ok
+test_carousel_details_excludes_slide_text_from_caption (test_farm_screen_recognition.ScreenRecognitionTests.test_carousel_details_excludes_slide_text_from_caption) ... ok
+test_geometry_scales_but_invalid_geometry_is_refused (test_farm_screen_recognition.ScreenRecognitionTests.test_geometry_scales_but_invalid_geometry_is_refused) ... ok
+test_isolated_caption_words_do_not_fake_a_photo_details_screen (test_farm_screen_recognition.ScreenRecognitionTests.test_isolated_caption_words_do_not_fake_a_photo_details_screen) ... ok
+test_known_ui_label_variant_never_changes_caption_or_account_text (test_farm_screen_recognition.ScreenRecognitionTests.test_known_ui_label_variant_never_changes_caption_or_account_text) ... ok
+test_photo_draft_details_without_video_edit_cover (test_farm_screen_recognition.ScreenRecognitionTests.test_photo_draft_details_without_video_edit_cover) ... ok
+test_sparse_drafts_title_does_not_identify_instagram (test_farm_screen_recognition.ScreenRecognitionTests.test_sparse_drafts_title_does_not_identify_instagram) ... ok
+test_system_permission_overrides_caption_sheet (test_farm_screen_recognition.ScreenRecognitionTests.test_system_permission_overrides_caption_sheet) ... ok
+test_truncated_label_outside_audio_region_or_partial_next_stays_unknown (test_farm_screen_recognition.ScreenRecognitionTests.test_truncated_label_outside_audio_region_or_partial_next_stays_unknown) ... ok
+test_truncated_suggested_audio_requires_the_complete_carousel_toolbar (test_farm_screen_recognition.ScreenRecognitionTests.test_truncated_suggested_audio_requires_the_complete_carousel_toolbar) ... ok
+test_video_details_use_independent_anchors_without_repairing_ocr (test_farm_screen_recognition.ScreenRecognitionTests.test_video_details_use_independent_anchors_without_repairing_ocr) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.001s
+
+OK

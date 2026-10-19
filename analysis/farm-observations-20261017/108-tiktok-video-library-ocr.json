@@ -1,0 +1,302 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:49",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 42,
+          "text": "6:49",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "2 drafts • 2.6MB",
+      "words": [
+        {
+          "y": 137,
+          "height": 18,
+          "width": 14,
+          "text": "2",
+          "x": 21
+        },
+        {
+          "y": 136,
+          "height": 19,
+          "width": 68,
+          "text": "drafts",
+          "x": 41
+        },
+        {
+          "y": 145,
+          "height": 5,
+          "width": 5,
+          "text": "•",
+          "x": 117
+        },
+        {
+          "y": 137,
+          "height": 18,
+          "width": 72,
+          "text": "2.6MB",
+          "x": 130
+        }
+      ]
+    },
+    {
+      "text": "Sort by: File size Uses effect",
+      "words": [
+        {
+          "y": 189,
+          "height": 13,
+          "width": 32,
+          "text": "Sort",
+          "x": 31
+        },
+        {
+          "y": 189,
+          "height": 16,
+          "width": 22,
+          "text": "by:",
+          "x": 69
+        },
+        {
+          "y": 189,
+          "height": 13,
+          "width": 26,
+          "text": "File",
+          "x": 98
+        },
+        {
+          "y": 189,
+          "height": 13,
+          "width": 31,
+          "text": "size",
+          "x": 129
+        },
+        {
+          "y": 189,
+          "height": 13,
+          "width": 37,
+          "text": "Uses",
+          "x": 192
+        },
+        {
+          "y": 189,
+          "height": 13,
+          "width": 48,
+          "text": "effect",
+          "x": 234
+        }
+      ]
+    },
+    {
+      "text": "2.0",
+      "words": [
+        {
+          "y": 255,
+          "height": 7,
+          "width": 13,
+          "text": "2.0",
+          "x": 208
+        }
+      ]
+    },
+    {
+      "text": "CA TRANSFER",
+      "words": [
+        {
+          "y": 277,
+          "height": 6,
+          "width": 10,
+          "text": "CA",
+          "x": 176
+        },
+        {
+          "y": 277,
+          "height": 6,
+          "width": 39,
+          "text": "TRANSFER",
+          "x": 217
+        }
+      ]
+    },
+    {
+      "text": "SLIDE 1 OF 3",
+      "words": [
+        {
+          "y": 385,
+          "height": 9,
+          "width": 30,
+          "text": "SLIDE",
+          "x": 177
+        },
+        {
+          "y": 385,
+          "height": 9,
+          "width": 4,
+          "text": "1",
+          "x": 211
+        },
+        {
+          "y": 385,
+          "height": 9,
+          "width": 14,
+          "text": "OF",
+          "x": 220
+        },
+        {
+          "y": 385,
+          "height": 9,
+          "width": 5,
+          "text": "3",
+          "x": 238
+        }
+      ]
+    },
+    {
+      "text": "Whispers",
+      "words": [
+        {
+          "y": 412,
+          "height": 16,
+          "width": 68,
+          "text": "Whispers",
+          "x": 50
+        }
+      ]
+    },
+    {
+      "text": "Select",
+      "words": [
+        {
+          "y": 76,
+          "height": 16,
+          "width": 56,
+          "text": "Select",
+          "x": 423
+        }
+      ]
+    },
+    {
+      "text": "Uses template",
+      "words": [
+        {
+          "y": 189,
+          "height": 13,
+          "width": 37,
+          "text": "Uses",
+          "x": 314
+        },
+        {
+          "y": 189,
+          "height": 16,
+          "width": 70,
+          "text": "template",
+          "x": 356
+        }
+      ]
+    },
+    {
+      "text": "Only you can see your drafts. Uninstalling TikTok will",
+      "words": [
+        {
+          "y": 976,
+          "height": 15,
+          "width": 32,
+          "text": "Only",
+          "x": 60
+        },
+        {
+          "y": 979,
+          "height": 12,
+          "width": 25,
+          "text": "you",
+          "x": 97
+        },
+        {
+          "y": 979,
+          "height": 9,
+          "width": 25,
+          "text": "can",
+          "x": 128
+        },
+        {
+          "y": 979,
+          "height": 9,
+          "width": 24,
+          "text": "see",
+          "x": 159
+        },
+        {
+          "y": 979,
+          "height": 12,
+          "width": 31,
+          "text": "your",
+          "x": 189
+        },
+        {
+          "y": 976,
+          "height": 12,
+          "width": 46,
+          "text": "drafts.",
+          "x": 225
+        },
+        {
+          "y": 976,
+          "height": 15,
+          "width": 84,
+          "text": "Uninstalling",
+          "x": 277
+        },
+        {
+          "y": 976,
+          "height": 12,
+          "width": 46,
+          "text": "TikTok",
+          "x": 366
+        },
+        {
+          "y": 976,
+          "height": 12,
+          "width": 22,
+          "text": "will",
+          "x": 418
+        }
+      ]
+    },
+    {
+      "text": "discard all drafts.",
+      "words": [
+        {
+          "y": 995,
+          "height": 12,
+          "width": 53,
+          "text": "discard",
+          "x": 187
+        },
+        {
+          "y": 995,
+          "height": 12,
+          "width": 14,
+          "text": "all",
+          "x": 246
+        },
+        {
+          "y": 995,
+          "height": 12,
+          "width": 46,
+          "text": "drafts.",
+          "x": 266
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "82a5970fe9c68f2a14f7df8837a274642cfeb368100834b63d3eba89f8692f65"
+}

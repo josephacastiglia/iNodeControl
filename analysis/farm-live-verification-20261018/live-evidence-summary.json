@@ -1,0 +1,230 @@
+{
+  "source": "agent_supervised_phone",
+  "sourcePackageSha256": "7f910284d9c7dc26d3c443183fdda33c78bdd4553036dabc75e38d158f48b616",
+  "reopenedSlides": [
+    {
+      "folder": "20-reopen-saved-carousel",
+      "expected": 1,
+      "comparison": {
+        "status": "visual_match",
+        "matchedIndex": 1,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.007949465429304579,
+            "worstBlock": 0.025047055859380784,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.11188775846535849,
+            "worstBlock": 0.2613681917211329,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.11498067537312523,
+            "worstBlock": 0.22704014939309058,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.10393829303605391,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true,
+        "position": {
+          "status": "visible_position",
+          "index": 1,
+          "count": 3
+        }
+      },
+      "frameSha256": "412cbd31b9fc18e1692b2106790ece49ba2957213e591f9b63e0f15e4c51455c"
+    },
+    {
+      "folder": "23-reopened-slide-two-verified",
+      "expected": 2,
+      "comparison": {
+        "status": "visual_match",
+        "matchedIndex": 2,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.10455453255888335,
+            "worstBlock": 0.2575636476812947,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.008069221960979634,
+            "worstBlock": 0.024006639692914198,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.2070928583112986,
+            "worstBlock": 0.24949393090569563,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.09648531059790372,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true,
+        "position": {
+          "status": "visible_position",
+          "index": 2,
+          "count": 3
+        }
+      },
+      "frameSha256": "371a4cc226f8cac3ae62f0fde021dd27b97798c2df68c5b806b44d2525004e97"
+    },
+    {
+      "folder": "24-reopened-slide-three",
+      "expected": 3,
+      "comparison": {
+        "status": "visual_match",
+        "matchedIndex": 3,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.12378613754055974,
+            "worstBlock": 0.2358543417366947,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.21618873922374335,
+            "worstBlock": 0.2522527233115469,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.00937567904761209,
+            "worstBlock": 0.02245342581477036,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.11441045849294765,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true,
+        "position": {
+          "status": "visible_position",
+          "index": 3,
+          "count": 3
+        }
+      },
+      "frameSha256": "dde2e98ff22a5635def210c89abdea7a26c48af08c5a4cc576414e55fcd0a32c"
+    }
+  ],
+  "captionAfter": {
+    "status": "exact_visible_lines",
+    "visibleText": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish.",
+    "reason": "Only the supported visible caption area was compared; hidden or truncated text cannot pass."
+  },
+  "accountBoundaryChecks": [
+    {
+      "folder": "02-pointer-challenge",
+      "phase": "fresh",
+      "result": "exact_text_match",
+      "receiverSession": "47e3e1c0dd3f42e48876070e71d5b193",
+      "generation": 0,
+      "ageUpperBoundMs": 914.3809999999863
+    },
+    {
+      "folder": "31-exit-picker",
+      "phase": "after",
+      "result": "exact_text_match",
+      "receiverSession": "47e3e1c0dd3f42e48876070e71d5b193",
+      "generation": 26,
+      "ageUpperBoundMs": 610.2310000000509
+    },
+    {
+      "folder": "32-final-freshness",
+      "phase": "after",
+      "result": "exact_text_match",
+      "receiverSession": "47e3e1c0dd3f42e48876070e71d5b193",
+      "generation": 27,
+      "ageUpperBoundMs": 627.6060000001255
+    }
+  ],
+  "continuousAccountTracking": false,
+  "automaticInputAllowed": false,
+  "productSavedDraftVerified": false,
+  "savedDraftObservation": "Existing test carousel saved, returned to library, reopened and inspected; not a newly created draft.",
+  "saveClicks": [
+    "17-save-existing-test-draft",
+    "28-preserve-on-exit"
+  ],
+  "retainedExpiry": {
+    "freshness": "stale",
+    "frameEvidence": {
+      "freshness": "stale",
+      "pairedMetadata": true,
+      "ageUpperBoundMs": 627.6060000001255,
+      "deliveryAdvanced": true,
+      "phoneCaptureTimeKnown": false,
+      "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+      "session": "47e3e1c0dd3f42e48876070e71d5b193",
+      "sequence": 21647,
+      "reportedAgeMs": 65.606,
+      "observationElapsedMs": 562.0000000001255,
+      "reason": "Saved frame aged beyond the receiver-delivery budget; capture again.",
+      "currentAgeUpperBoundMs": 2339.4127741395296
+    },
+    "recaptured": false
+  },
+  "savedRecognitionRegressionCases": 36,
+  "steps": 29,
+  "answeredCommands": 94,
+  "reviewRequired": [
+    {
+      "folder": "04-open-post-picker",
+      "reason": "Page changed since visual review; inspect the retained fresh frame before another explicit step.",
+      "semanticCommands": 0
+    },
+    {
+      "folder": "08-open-test-carousel",
+      "reason": "App image did not settle; no further action is permitted.",
+      "semanticCommands": 1
+    },
+    {
+      "folder": "10-inspect-slide-two",
+      "reason": "Slide movement requires a recognized carousel editor.",
+      "semanticCommands": 0
+    },
+    {
+      "folder": "12-slide-three",
+      "reason": "No recent settled paired frame after the pointer challenge.",
+      "semanticCommands": 0
+    },
+    {
+      "folder": "17-save-existing-test-draft",
+      "reason": "App image did not settle; no further action is permitted.",
+      "semanticCommands": 1
+    },
+    {
+      "folder": "18-library-after-save",
+      "reason": "Drafts control is not located in the reviewed post picker.",
+      "semanticCommands": 0
+    },
+    {
+      "folder": "21-reopened-slide-two",
+      "reason": "Slide movement requires a recognized carousel editor.",
+      "semanticCommands": 0
+    },
+    {
+      "folder": "22-reopened-slide-two-reviewed",
+      "reason": "Slide movement requires a recognized carousel editor.",
+      "semanticCommands": 0
+    },
+    {
+      "folder": "28-preserve-on-exit",
+      "reason": "App image did not settle; no further action is permitted.",
+      "semanticCommands": 1
+    },
+    {
+      "folder": "30-leave-draft-library",
+      "reason": "App image did not settle; no further action is permitted.",
+      "semanticCommands": 1
+    }
+  ],
+  "restorationConfirmed": true
+}

@@ -1,0 +1,278 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "7:07",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 39,
+          "text": "7:07",
+          "x": 44
+        }
+      ]
+    },
+    {
+      "text": "x",
+      "words": [
+        {
+          "y": 71,
+          "height": 25,
+          "width": 25,
+          "text": "x",
+          "x": 27
+        }
+      ]
+    },
+    {
+      "text": "Reels drafts",
+      "words": [
+        {
+          "y": 77,
+          "height": 15,
+          "width": 50,
+          "text": "Reels",
+          "x": 195
+        },
+        {
+          "y": 77,
+          "height": 15,
+          "width": 56,
+          "text": "drafts",
+          "x": 250
+        }
+      ]
+    },
+    {
+      "text": "Edited just now",
+      "words": [
+        {
+          "y": 163,
+          "height": 11,
+          "width": 41,
+          "text": "Edited",
+          "x": 132
+        },
+        {
+          "y": 163,
+          "height": 14,
+          "width": 25,
+          "text": "just",
+          "x": 178
+        },
+        {
+          "y": 166,
+          "height": 8,
+          "width": 26,
+          "text": "now",
+          "x": 208
+        }
+      ]
+    },
+    {
+      "text": "0:03 1 137 KB",
+      "words": [
+        {
+          "y": 186,
+          "height": 11,
+          "width": 30,
+          "text": "0:03",
+          "x": 132
+        },
+        {
+          "y": 186,
+          "height": 12,
+          "width": 2,
+          "text": "1",
+          "x": 168
+        },
+        {
+          "y": 186,
+          "height": 11,
+          "width": 23,
+          "text": "137",
+          "x": 175
+        },
+        {
+          "y": 186,
+          "height": 11,
+          "width": 18,
+          "text": "KB",
+          "x": 203
+        }
+      ]
+    },
+    {
+      "text": "Edit to add audio, text, stickers and more.",
+      "words": [
+        {
+          "y": 215,
+          "height": 14,
+          "width": 30,
+          "text": "Edit",
+          "x": 142
+        },
+        {
+          "y": 217,
+          "height": 12,
+          "width": 16,
+          "text": "to",
+          "x": 176
+        },
+        {
+          "y": 216,
+          "height": 13,
+          "width": 29,
+          "text": "add",
+          "x": 198
+        },
+        {
+          "y": 215,
+          "height": 17,
+          "width": 48,
+          "text": "audio,",
+          "x": 233
+        },
+        {
+          "y": 217,
+          "height": 15,
+          "width": 36,
+          "text": "text,",
+          "x": 286
+        },
+        {
+          "y": 215,
+          "height": 14,
+          "width": 63,
+          "text": "stickers",
+          "x": 328
+        },
+        {
+          "y": 216,
+          "height": 13,
+          "width": 29,
+          "text": "and",
+          "x": 396
+        },
+        {
+          "y": 219,
+          "height": 10,
+          "width": 45,
+          "text": "more.",
+          "x": 431
+        }
+      ]
+    },
+    {
+      "text": "If you uninstall the Instagram app, all your",
+      "words": [
+        {
+          "y": 971,
+          "height": 14,
+          "width": 9,
+          "text": "If",
+          "x": 74
+        },
+        {
+          "y": 975,
+          "height": 13,
+          "width": 27,
+          "text": "you",
+          "x": 88
+        },
+        {
+          "y": 971,
+          "height": 14,
+          "width": 63,
+          "text": "uninstall",
+          "x": 121
+        },
+        {
+          "y": 971,
+          "height": 14,
+          "width": 24,
+          "text": "the",
+          "x": 190
+        },
+        {
+          "y": 972,
+          "height": 16,
+          "width": 76,
+          "text": "Instagram",
+          "x": 220
+        },
+        {
+          "y": 975,
+          "height": 13,
+          "width": 32,
+          "text": "app,",
+          "x": 302
+        },
+        {
+          "y": 971,
+          "height": 14,
+          "width": 16,
+          "text": "all",
+          "x": 340
+        },
+        {
+          "y": 975,
+          "height": 13,
+          "width": 34,
+          "text": "your",
+          "x": 362
+        }
+      ]
+    },
+    {
+      "text": "drafts will be lost.",
+      "words": [
+        {
+          "y": 993,
+          "height": 13,
+          "width": 44,
+          "text": "drafts",
+          "x": 74
+        },
+        {
+          "y": 993,
+          "height": 13,
+          "width": 24,
+          "text": "will",
+          "x": 124
+        },
+        {
+          "y": 993,
+          "height": 13,
+          "width": 18,
+          "text": "be",
+          "x": 154
+        },
+        {
+          "y": 993,
+          "height": 13,
+          "width": 31,
+          "text": "lost.",
+          "x": 178
+        }
+      ]
+    },
+    {
+      "text": "0K",
+      "words": [
+        {
+          "y": 982,
+          "height": 13,
+          "width": 24,
+          "text": "0K",
+          "x": 435
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "d3d5d1703e2b87b3e1b29b82851e82726343b6c93abbd2a1f0d2537356be1ef7"
+}

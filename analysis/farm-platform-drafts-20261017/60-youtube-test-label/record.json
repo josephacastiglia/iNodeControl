@@ -1,0 +1,111 @@
+{
+  "started": "2026-10-17T22:24:19.820612+00:00",
+  "action": "text",
+  "values": [
+    "IMOUSE-DRAFT-TEST-20261017"
+  ],
+  "preflight": {
+    "receiver": {
+      "deviceid": "86:1D:4A:04:2F:F6",
+      "name": "iMouse2-C24C",
+      "receiver_pid": 6700,
+      "receiver_restarts": 0,
+      "receiver_state": "mirroring",
+      "live": true,
+      "frames": 136172
+    },
+    "input_status": {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 131,
+      "lease_remaining_ms": 0
+    },
+    "resolved_id": "86:1D:4A:04:2F:F6",
+    "simulated": false
+  },
+  "beforeHeaders": {
+    "Cache-Control": "no-store",
+    "Content-Length": "1620054",
+    "Content-Type": "image/bmp",
+    "Server": "Microsoft-HTTPAPI/2.0",
+    "Date": "Sat, 17 Oct 2026 22:24:19 GMT",
+    "Connection": "close"
+  },
+  "commands": [
+    {
+      "fun": "/key/sendkey",
+      "data": {
+        "key": "IMOUSE-DRAFT"
+      },
+      "result": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 1845.9
+      }
+    },
+    {
+      "fun": "/key/sendkey",
+      "data": {
+        "key": "-TEST-202610"
+      },
+      "result": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 1714.4
+      }
+    },
+    {
+      "fun": "/key/sendkey",
+      "data": {
+        "key": "17"
+      },
+      "result": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 287.9
+      }
+    }
+  ],
+  "afterHeaders": {
+    "Cache-Control": "no-store",
+    "Content-Length": "1620054",
+    "Content-Type": "image/bmp",
+    "Server": "Microsoft-HTTPAPI/2.0",
+    "Date": "Sat, 17 Oct 2026 22:24:25 GMT",
+    "Connection": "close"
+  },
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 132,
+    "lease_remaining_ms": 0
+  }
+}

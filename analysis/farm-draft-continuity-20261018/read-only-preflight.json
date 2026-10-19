@@ -1,0 +1,166 @@
+{
+  "phoneInput": false,
+  "status": {
+    "code": 0,
+    "input": "direct-hid",
+    "input_protocol": 1,
+    "input_leases_required": true,
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 6700,
+    "receiver_restarts": 0,
+    "frames": 191067,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 6700,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 191067
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 37088,
+        "receiver_restarts": 0,
+        "receiver_state": "offline",
+        "live": false,
+        "frames": 0
+      }
+    ]
+  },
+  "preflight": {
+    "receiver": {
+      "deviceid": "86:1D:4A:04:2F:F6",
+      "name": "iMouse2-C24C",
+      "receiver_pid": 6700,
+      "receiver_restarts": 0,
+      "receiver_state": "mirroring",
+      "live": true,
+      "frames": 191067
+    },
+    "input_status": {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 230,
+      "lease_remaining_ms": 0
+    },
+    "resolved_id": "86:1D:4A:04:2F:F6",
+    "simulated": false
+  },
+  "headers": {
+    "Cache-Control": "no-store",
+    "Content-Length": "1620054",
+    "Content-Type": "image/bmp",
+    "Server": "Microsoft-HTTPAPI/2.0",
+    "Date": "Sun, 18 Oct 2026 05:16:19 GMT",
+    "Connection": "close"
+  },
+  "endInput": {
+    "86:1D:4A:04:2F:F6": {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 230,
+      "lease_remaining_ms": 0
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "id": "FE:A9:BC:D7:A0:44",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "",
+      "generation": 0,
+      "lease_remaining_ms": 0
+    }
+  },
+  "audit": [
+    {
+      "at": "2026-10-18T05:16:19.700+00:00",
+      "fun": "/input/status",
+      "data": {},
+      "reply": {
+        "code": 0,
+        "protocol": 1,
+        "phones": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "owned": false,
+            "active": false,
+            "stopped": false,
+            "releasing": false,
+            "release_failed": false,
+            "message": "Controller released.",
+            "generation": 230,
+            "lease_remaining_ms": 0
+          },
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "owned": false,
+            "active": false,
+            "stopped": false,
+            "releasing": false,
+            "release_failed": false,
+            "message": "",
+            "generation": 0,
+            "lease_remaining_ms": 0
+          }
+        ]
+      },
+      "simulated": false
+    },
+    {
+      "at": "2026-10-18T05:16:19.826+00:00",
+      "fun": "/input/status",
+      "data": {},
+      "reply": {
+        "code": 0,
+        "protocol": 1,
+        "phones": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "owned": false,
+            "active": false,
+            "stopped": false,
+            "releasing": false,
+            "release_failed": false,
+            "message": "Controller released.",
+            "generation": 230,
+            "lease_remaining_ms": 0
+          },
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "owned": false,
+            "active": false,
+            "stopped": false,
+            "releasing": false,
+            "release_failed": false,
+            "message": "",
+            "generation": 0,
+            "lease_remaining_ms": 0
+          }
+        ]
+      },
+      "simulated": false
+    }
+  ]
+}

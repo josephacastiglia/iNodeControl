@@ -1,0 +1,3386 @@
+{
+  "04-post-picker/fresh.png": {
+    "imageSha256": "cba7b78e4556c6a019284864616e22b4f28a839fe000e99fb2c284e919fbe8c9",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:38",
+        "words": [
+          {
+            "y": 23,
+            "height": 15,
+            "width": 42,
+            "text": "6:38",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "space you...",
+        "words": [
+          {
+            "y": 146,
+            "height": 10,
+            "width": 36,
+            "text": "space",
+            "x": 35
+          },
+          {
+            "y": 146,
+            "height": 10,
+            "width": 31,
+            "text": "you...",
+            "x": 76
+          }
+        ]
+      },
+      {
+        "text": "xs.halle.xo v ,",
+        "words": [
+          {
+            "y": 78,
+            "height": 21,
+            "width": 141,
+            "text": "xs.halle.xo",
+            "x": 162
+          },
+          {
+            "y": 85,
+            "height": 7,
+            "width": 13,
+            "text": "v",
+            "x": 310
+          },
+          {
+            "y": 83,
+            "height": 10,
+            "width": 10,
+            "text": ",",
+            "x": 328
+          }
+        ]
+      },
+      {
+        "text": "Halle",
+        "words": [
+          {
+            "y": 146,
+            "height": 14,
+            "width": 40,
+            "text": "Halle",
+            "x": 150
+          }
+        ]
+      },
+      {
+        "text": "5",
+        "words": [
+          {
+            "y": 179,
+            "height": 15,
+            "width": 10,
+            "text": "5",
+            "x": 151
+          }
+        ]
+      },
+      {
+        "text": "posts",
+        "words": [
+          {
+            "y": 203,
+            "height": 15,
+            "width": 42,
+            "text": "posts",
+            "x": 150
+          }
+        ]
+      },
+      {
+        "text": "follower",
+        "words": [
+          {
+            "y": 202,
+            "height": 13,
+            "width": 60,
+            "text": "follower",
+            "x": 250
+          }
+        ]
+      },
+      {
+        "text": "sos",
+        "words": [
+          {
+            "y": 23,
+            "height": 9,
+            "width": 17,
+            "text": "sos",
+            "x": 396
+          }
+        ]
+      },
+      {
+        "text": "following",
+        "words": [
+          {
+            "y": 202,
+            "height": 16,
+            "width": 68,
+            "text": "following",
+            "x": 368
+          }
+        ]
+      },
+      {
+        "text": "Add banners",
+        "words": [
+          {
+            "y": 284,
+            "height": 11,
+            "width": 26,
+            "text": "Add",
+            "x": 50
+          },
+          {
+            "y": 284,
+            "height": 11,
+            "width": 56,
+            "text": "banners",
+            "x": 82
+          }
+        ]
+      },
+      {
+        "text": "Your dashboard",
+        "words": [
+          {
+            "y": 337,
+            "height": 13,
+            "width": 36,
+            "text": "Your",
+            "x": 38
+          },
+          {
+            "y": 337,
+            "height": 13,
+            "width": 85,
+            "text": "dashboard",
+            "x": 79
+          }
+        ]
+      },
+      {
+        "text": "Audience insight' inspiration and too",
+        "words": [
+          {
+            "y": 357,
+            "height": 11,
+            "width": 60,
+            "text": "Audience",
+            "x": 39
+          },
+          {
+            "y": 357,
+            "height": 13,
+            "width": 51,
+            "text": "insight'",
+            "x": 105
+          },
+          {
+            "y": 357,
+            "height": 13,
+            "width": 70,
+            "text": "inspiration",
+            "x": 166
+          },
+          {
+            "y": 357,
+            "height": 11,
+            "width": 23,
+            "text": "and",
+            "x": 242
+          },
+          {
+            "y": 358,
+            "height": 10,
+            "width": 21,
+            "text": "too",
+            "x": 271
+          }
+        ]
+      },
+      {
+        "text": "CD",
+        "words": [
+          {
+            "y": 615,
+            "height": 29,
+            "width": 27,
+            "text": "CD",
+            "x": 21
+          }
+        ]
+      },
+      {
+        "text": "Edit profile",
+        "words": [
+          {
+            "y": 409,
+            "height": 13,
+            "width": 30,
+            "text": "Edit",
+            "x": 80
+          },
+          {
+            "y": 409,
+            "height": 16,
+            "width": 51,
+            "text": "profile",
+            "x": 115
+          }
+        ]
+      },
+      {
+        "text": "Edits",
+        "words": [
+          {
+            "y": 621,
+            "height": 15,
+            "width": 41,
+            "text": "Edits",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "post",
+        "words": [
+          {
+            "y": 675,
+            "height": 14,
+            "width": 37,
+            "text": "post",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Story",
+        "words": [
+          {
+            "y": 728,
+            "height": 18,
+            "width": 46,
+            "text": "Story",
+            "x": 69
+          }
+        ]
+      },
+      {
+        "text": "Instants",
+        "words": [
+          {
+            "y": 781,
+            "height": 15,
+            "width": 67,
+            "text": "Instants",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Highlights",
+        "words": [
+          {
+            "y": 833,
+            "height": 19,
+            "width": 86,
+            "text": "Highlights",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Live",
+        "words": [
+          {
+            "y": 886,
+            "height": 16,
+            "width": 33,
+            "text": "Live",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Fundraiser",
+        "words": [
+          {
+            "y": 939,
+            "height": 16,
+            "width": 91,
+            "text": "Fundraiser",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Share profile",
+        "words": [
+          {
+            "y": 409,
+            "height": 13,
+            "width": 46,
+            "text": "Share",
+            "x": 282
+          },
+          {
+            "y": 409,
+            "height": 16,
+            "width": 51,
+            "text": "profile",
+            "x": 334
+          }
+        ]
+      },
+      {
+        "text": "Create",
+        "words": [
+          {
+            "y": 516,
+            "height": 15,
+            "width": 62,
+            "text": "Create",
+            "x": 219
+          }
+        ]
+      },
+      {
+        "text": "New",
+        "words": [
+          {
+            "y": 783,
+            "height": 11,
+            "width": 30,
+            "text": "New",
+            "x": 435
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "cba7b78e4556c6a019284864616e22b4f28a839fe000e99fb2c284e919fbe8c9"
+  },
+  "05-open-post-picker/fresh.png": {
+    "imageSha256": "10d93704c398b7cc229c082b1748da5b100e7246e4bfd28fdce393d309bb8d5c",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:39",
+        "words": [
+          {
+            "y": 23,
+            "height": 15,
+            "width": 42,
+            "text": "6:39",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "space you...",
+        "words": [
+          {
+            "y": 146,
+            "height": 10,
+            "width": 36,
+            "text": "space",
+            "x": 35
+          },
+          {
+            "y": 146,
+            "height": 10,
+            "width": 31,
+            "text": "you...",
+            "x": 76
+          }
+        ]
+      },
+      {
+        "text": "xs.halle.xo v ,",
+        "words": [
+          {
+            "y": 78,
+            "height": 21,
+            "width": 141,
+            "text": "xs.halle.xo",
+            "x": 162
+          },
+          {
+            "y": 85,
+            "height": 7,
+            "width": 13,
+            "text": "v",
+            "x": 310
+          },
+          {
+            "y": 83,
+            "height": 10,
+            "width": 10,
+            "text": ",",
+            "x": 328
+          }
+        ]
+      },
+      {
+        "text": "Halle",
+        "words": [
+          {
+            "y": 146,
+            "height": 14,
+            "width": 40,
+            "text": "Halle",
+            "x": 150
+          }
+        ]
+      },
+      {
+        "text": "5",
+        "words": [
+          {
+            "y": 179,
+            "height": 15,
+            "width": 10,
+            "text": "5",
+            "x": 151
+          }
+        ]
+      },
+      {
+        "text": "posts",
+        "words": [
+          {
+            "y": 203,
+            "height": 15,
+            "width": 42,
+            "text": "posts",
+            "x": 150
+          }
+        ]
+      },
+      {
+        "text": "follower",
+        "words": [
+          {
+            "y": 202,
+            "height": 13,
+            "width": 60,
+            "text": "follower",
+            "x": 250
+          }
+        ]
+      },
+      {
+        "text": "sos",
+        "words": [
+          {
+            "y": 23,
+            "height": 9,
+            "width": 17,
+            "text": "sos",
+            "x": 396
+          }
+        ]
+      },
+      {
+        "text": "following",
+        "words": [
+          {
+            "y": 202,
+            "height": 16,
+            "width": 68,
+            "text": "following",
+            "x": 368
+          }
+        ]
+      },
+      {
+        "text": "Add banners",
+        "words": [
+          {
+            "y": 284,
+            "height": 11,
+            "width": 26,
+            "text": "Add",
+            "x": 50
+          },
+          {
+            "y": 284,
+            "height": 11,
+            "width": 56,
+            "text": "banners",
+            "x": 82
+          }
+        ]
+      },
+      {
+        "text": "Your dashboard",
+        "words": [
+          {
+            "y": 337,
+            "height": 13,
+            "width": 36,
+            "text": "Your",
+            "x": 38
+          },
+          {
+            "y": 337,
+            "height": 13,
+            "width": 85,
+            "text": "dashboard",
+            "x": 79
+          }
+        ]
+      },
+      {
+        "text": "Audience insight' inspiration and too",
+        "words": [
+          {
+            "y": 357,
+            "height": 11,
+            "width": 60,
+            "text": "Audience",
+            "x": 39
+          },
+          {
+            "y": 357,
+            "height": 13,
+            "width": 51,
+            "text": "insight'",
+            "x": 105
+          },
+          {
+            "y": 357,
+            "height": 13,
+            "width": 70,
+            "text": "inspiration",
+            "x": 166
+          },
+          {
+            "y": 357,
+            "height": 11,
+            "width": 23,
+            "text": "and",
+            "x": 242
+          },
+          {
+            "y": 358,
+            "height": 10,
+            "width": 21,
+            "text": "too",
+            "x": 271
+          }
+        ]
+      },
+      {
+        "text": "CD",
+        "words": [
+          {
+            "y": 615,
+            "height": 29,
+            "width": 27,
+            "text": "CD",
+            "x": 21
+          }
+        ]
+      },
+      {
+        "text": "Edit profile",
+        "words": [
+          {
+            "y": 409,
+            "height": 13,
+            "width": 30,
+            "text": "Edit",
+            "x": 80
+          },
+          {
+            "y": 409,
+            "height": 16,
+            "width": 51,
+            "text": "profile",
+            "x": 115
+          }
+        ]
+      },
+      {
+        "text": "Edits",
+        "words": [
+          {
+            "y": 621,
+            "height": 15,
+            "width": 41,
+            "text": "Edits",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "post",
+        "words": [
+          {
+            "y": 675,
+            "height": 14,
+            "width": 37,
+            "text": "post",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Story",
+        "words": [
+          {
+            "y": 728,
+            "height": 18,
+            "width": 46,
+            "text": "Story",
+            "x": 69
+          }
+        ]
+      },
+      {
+        "text": "Instants",
+        "words": [
+          {
+            "y": 781,
+            "height": 15,
+            "width": 67,
+            "text": "Instants",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Highlights",
+        "words": [
+          {
+            "y": 833,
+            "height": 19,
+            "width": 86,
+            "text": "Highlights",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Live",
+        "words": [
+          {
+            "y": 886,
+            "height": 16,
+            "width": 33,
+            "text": "Live",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Fundraiser",
+        "words": [
+          {
+            "y": 939,
+            "height": 16,
+            "width": 91,
+            "text": "Fundraiser",
+            "x": 70
+          }
+        ]
+      },
+      {
+        "text": "Share profile",
+        "words": [
+          {
+            "y": 409,
+            "height": 13,
+            "width": 46,
+            "text": "Share",
+            "x": 282
+          },
+          {
+            "y": 409,
+            "height": 16,
+            "width": 51,
+            "text": "profile",
+            "x": 334
+          }
+        ]
+      },
+      {
+        "text": "Create",
+        "words": [
+          {
+            "y": 516,
+            "height": 15,
+            "width": 62,
+            "text": "Create",
+            "x": 219
+          }
+        ]
+      },
+      {
+        "text": "New",
+        "words": [
+          {
+            "y": 783,
+            "height": 11,
+            "width": 30,
+            "text": "New",
+            "x": 435
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "10d93704c398b7cc229c082b1748da5b100e7246e4bfd28fdce393d309bb8d5c"
+  },
+  "05-open-post-picker/after-first.png": {
+    "imageSha256": "569a1e8fe35c5a4cb2559cd482b4525a316d23bc90ef5b7c9d8a95dad0f43e12",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:39",
+        "words": [
+          {
+            "y": 22,
+            "height": 16,
+            "width": 42,
+            "text": "6:39",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 71,
+            "height": 25,
+            "width": 25,
+            "text": "x",
+            "x": 27
+          }
+        ]
+      },
+      {
+        "text": "New post",
+        "words": [
+          {
+            "y": 78,
+            "height": 14,
+            "width": 39,
+            "text": "New",
+            "x": 208
+          },
+          {
+            "y": 78,
+            "height": 18,
+            "width": 41,
+            "text": "post",
+            "x": 253
+          }
+        ]
+      },
+      {
+        "text": "iMouse VIDEO DRAFT TEST",
+        "words": [
+          {
+            "y": 231,
+            "height": 13,
+            "width": 53,
+            "text": "iMouse",
+            "x": 106
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 47,
+            "text": "VIDEO",
+            "x": 163
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 50,
+            "text": "DRAFT",
+            "x": 215
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 36,
+            "text": "TEST",
+            "x": 269
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY - DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 272,
+            "height": 10,
+            "width": 36,
+            "text": "DRAFT",
+            "x": 106
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 31,
+            "text": "ONLY",
+            "x": 146
+          },
+          {
+            "y": 278,
+            "height": 1,
+            "width": 4,
+            "text": "-",
+            "x": 181
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 18,
+            "text": "DO",
+            "x": 190
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 25,
+            "text": "NOT",
+            "x": 212
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 46,
+            "text": "PUBLISH",
+            "x": 241
+          }
+        ]
+      },
+      {
+        "text": "TEST:",
+        "words": [
+          {
+            "y": 324,
+            "height": 10,
+            "width": 29,
+            "text": "TEST:",
+            "x": 105
+          }
+        ]
+      },
+      {
+        "text": "Recents > Drafts",
+        "words": [
+          {
+            "y": 637,
+            "height": 15,
+            "width": 74,
+            "text": "Recents",
+            "x": 22
+          },
+          {
+            "y": 639,
+            "height": 12,
+            "width": 7,
+            "text": ">",
+            "x": 105
+          },
+          {
+            "y": 636,
+            "height": 16,
+            "width": 57,
+            "text": "Drafts",
+            "x": 136
+          }
+        ]
+      },
+      {
+        "text": "3",
+        "words": [
+          {
+            "y": 721,
+            "height": 30,
+            "width": 18,
+            "text": "3",
+            "x": 262
+          }
+        ]
+      },
+      {
+        "text": "Next",
+        "words": [
+          {
+            "y": 77,
+            "height": 15,
+            "width": 42,
+            "text": "Next",
+            "x": 437
+          }
+        ]
+      },
+      {
+        "text": "Select",
+        "words": [
+          {
+            "y": 639,
+            "height": 11,
+            "width": 44,
+            "text": "Select",
+            "x": 416
+          }
+        ]
+      },
+      {
+        "text": "2",
+        "words": [
+          {
+            "y": 721,
+            "height": 30,
+            "width": 20,
+            "text": "2",
+            "x": 386
+          }
+        ]
+      },
+      {
+        "text": "1",
+        "words": [
+          {
+            "y": 846,
+            "height": 30,
+            "width": 14,
+            "text": "1",
+            "x": 13
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 17,
+            "width": 49,
+            "text": "005",
+            "x": 64
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 18,
+            "width": 47,
+            "text": "005",
+            "x": 192
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 18,
+            "width": 46,
+            "text": "005",
+            "x": 318
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 17,
+            "width": 48,
+            "text": "005",
+            "x": 441
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "569a1e8fe35c5a4cb2559cd482b4525a316d23bc90ef5b7c9d8a95dad0f43e12"
+  },
+  "05-open-post-picker/after.png": {
+    "imageSha256": "3f68730ed88d4118269dcaaa592c5dd1483c6f21a8291722f3c18729eb2d1dc2",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:39",
+        "words": [
+          {
+            "y": 22,
+            "height": 16,
+            "width": 42,
+            "text": "6:39",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 71,
+            "height": 25,
+            "width": 25,
+            "text": "x",
+            "x": 27
+          }
+        ]
+      },
+      {
+        "text": "New post",
+        "words": [
+          {
+            "y": 78,
+            "height": 14,
+            "width": 39,
+            "text": "New",
+            "x": 208
+          },
+          {
+            "y": 78,
+            "height": 18,
+            "width": 41,
+            "text": "post",
+            "x": 253
+          }
+        ]
+      },
+      {
+        "text": "iMouse VIDEO DRAFT TEST",
+        "words": [
+          {
+            "y": 231,
+            "height": 13,
+            "width": 53,
+            "text": "iMouse",
+            "x": 106
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 47,
+            "text": "VIDEO",
+            "x": 163
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 50,
+            "text": "DRAFT",
+            "x": 215
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 36,
+            "text": "TEST",
+            "x": 269
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY - DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 272,
+            "height": 10,
+            "width": 36,
+            "text": "DRAFT",
+            "x": 106
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 31,
+            "text": "ONLY",
+            "x": 146
+          },
+          {
+            "y": 278,
+            "height": 1,
+            "width": 4,
+            "text": "-",
+            "x": 181
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 18,
+            "text": "DO",
+            "x": 190
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 25,
+            "text": "NOT",
+            "x": 212
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 46,
+            "text": "PUBLISH",
+            "x": 241
+          }
+        ]
+      },
+      {
+        "text": "TEST:",
+        "words": [
+          {
+            "y": 324,
+            "height": 10,
+            "width": 29,
+            "text": "TEST:",
+            "x": 105
+          }
+        ]
+      },
+      {
+        "text": "Recents > Drafts",
+        "words": [
+          {
+            "y": 637,
+            "height": 15,
+            "width": 74,
+            "text": "Recents",
+            "x": 22
+          },
+          {
+            "y": 639,
+            "height": 12,
+            "width": 7,
+            "text": ">",
+            "x": 105
+          },
+          {
+            "y": 636,
+            "height": 16,
+            "width": 57,
+            "text": "Drafts",
+            "x": 136
+          }
+        ]
+      },
+      {
+        "text": "3",
+        "words": [
+          {
+            "y": 721,
+            "height": 30,
+            "width": 18,
+            "text": "3",
+            "x": 262
+          }
+        ]
+      },
+      {
+        "text": "Next",
+        "words": [
+          {
+            "y": 77,
+            "height": 15,
+            "width": 42,
+            "text": "Next",
+            "x": 437
+          }
+        ]
+      },
+      {
+        "text": "Select",
+        "words": [
+          {
+            "y": 639,
+            "height": 11,
+            "width": 44,
+            "text": "Select",
+            "x": 416
+          }
+        ]
+      },
+      {
+        "text": "2",
+        "words": [
+          {
+            "y": 721,
+            "height": 30,
+            "width": 20,
+            "text": "2",
+            "x": 386
+          }
+        ]
+      },
+      {
+        "text": "1",
+        "words": [
+          {
+            "y": 846,
+            "height": 30,
+            "width": 14,
+            "text": "1",
+            "x": 13
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 17,
+            "width": 49,
+            "text": "005",
+            "x": 64
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 18,
+            "width": 47,
+            "text": "005",
+            "x": 192
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 18,
+            "width": 46,
+            "text": "005",
+            "x": 318
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 17,
+            "width": 48,
+            "text": "005",
+            "x": 441
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "3f68730ed88d4118269dcaaa592c5dd1483c6f21a8291722f3c18729eb2d1dc2"
+  },
+  "06-open-drafts/before.png": {
+    "imageSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:40",
+        "words": [
+          {
+            "y": 22,
+            "height": 16,
+            "width": 42,
+            "text": "6:40",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 71,
+            "height": 25,
+            "width": 25,
+            "text": "x",
+            "x": 27
+          }
+        ]
+      },
+      {
+        "text": "New post",
+        "words": [
+          {
+            "y": 78,
+            "height": 14,
+            "width": 39,
+            "text": "New",
+            "x": 208
+          },
+          {
+            "y": 78,
+            "height": 18,
+            "width": 41,
+            "text": "post",
+            "x": 253
+          }
+        ]
+      },
+      {
+        "text": "iMouse VIDEO DRAFT TEST",
+        "words": [
+          {
+            "y": 231,
+            "height": 13,
+            "width": 53,
+            "text": "iMouse",
+            "x": 106
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 47,
+            "text": "VIDEO",
+            "x": 163
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 50,
+            "text": "DRAFT",
+            "x": 215
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 36,
+            "text": "TEST",
+            "x": 269
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY - DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 272,
+            "height": 10,
+            "width": 36,
+            "text": "DRAFT",
+            "x": 106
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 31,
+            "text": "ONLY",
+            "x": 146
+          },
+          {
+            "y": 278,
+            "height": 1,
+            "width": 4,
+            "text": "-",
+            "x": 181
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 18,
+            "text": "DO",
+            "x": 190
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 25,
+            "text": "NOT",
+            "x": 212
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 46,
+            "text": "PUBLISH",
+            "x": 241
+          }
+        ]
+      },
+      {
+        "text": "TEST:",
+        "words": [
+          {
+            "y": 324,
+            "height": 10,
+            "width": 29,
+            "text": "TEST:",
+            "x": 105
+          }
+        ]
+      },
+      {
+        "text": "Recents > Drafts",
+        "words": [
+          {
+            "y": 637,
+            "height": 15,
+            "width": 74,
+            "text": "Recents",
+            "x": 22
+          },
+          {
+            "y": 639,
+            "height": 12,
+            "width": 7,
+            "text": ">",
+            "x": 105
+          },
+          {
+            "y": 636,
+            "height": 16,
+            "width": 57,
+            "text": "Drafts",
+            "x": 136
+          }
+        ]
+      },
+      {
+        "text": "3",
+        "words": [
+          {
+            "y": 721,
+            "height": 30,
+            "width": 18,
+            "text": "3",
+            "x": 262
+          }
+        ]
+      },
+      {
+        "text": "Next",
+        "words": [
+          {
+            "y": 77,
+            "height": 15,
+            "width": 42,
+            "text": "Next",
+            "x": 437
+          }
+        ]
+      },
+      {
+        "text": "Select",
+        "words": [
+          {
+            "y": 639,
+            "height": 11,
+            "width": 44,
+            "text": "Select",
+            "x": 416
+          }
+        ]
+      },
+      {
+        "text": "2",
+        "words": [
+          {
+            "y": 721,
+            "height": 30,
+            "width": 20,
+            "text": "2",
+            "x": 386
+          }
+        ]
+      },
+      {
+        "text": "1",
+        "words": [
+          {
+            "y": 846,
+            "height": 30,
+            "width": 14,
+            "text": "1",
+            "x": 13
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 17,
+            "width": 49,
+            "text": "005",
+            "x": 64
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 18,
+            "width": 47,
+            "text": "005",
+            "x": 192
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 18,
+            "width": 46,
+            "text": "005",
+            "x": 318
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 17,
+            "width": 48,
+            "text": "005",
+            "x": 441
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23"
+  },
+  "07-drafts-from-settled-picker/fresh.png": {
+    "imageSha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:41",
+        "words": [
+          {
+            "y": 22,
+            "height": 16,
+            "width": 38,
+            "text": "6:41",
+            "x": 44
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 71,
+            "height": 25,
+            "width": 25,
+            "text": "x",
+            "x": 27
+          }
+        ]
+      },
+      {
+        "text": "New post",
+        "words": [
+          {
+            "y": 78,
+            "height": 14,
+            "width": 39,
+            "text": "New",
+            "x": 208
+          },
+          {
+            "y": 78,
+            "height": 18,
+            "width": 41,
+            "text": "post",
+            "x": 253
+          }
+        ]
+      },
+      {
+        "text": "iMouse VIDEO DRAFT TEST",
+        "words": [
+          {
+            "y": 231,
+            "height": 13,
+            "width": 53,
+            "text": "iMouse",
+            "x": 106
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 47,
+            "text": "VIDEO",
+            "x": 163
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 50,
+            "text": "DRAFT",
+            "x": 215
+          },
+          {
+            "y": 232,
+            "height": 12,
+            "width": 36,
+            "text": "TEST",
+            "x": 269
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY - DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 272,
+            "height": 10,
+            "width": 36,
+            "text": "DRAFT",
+            "x": 106
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 31,
+            "text": "ONLY",
+            "x": 146
+          },
+          {
+            "y": 278,
+            "height": 1,
+            "width": 4,
+            "text": "-",
+            "x": 181
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 18,
+            "text": "DO",
+            "x": 190
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 25,
+            "text": "NOT",
+            "x": 212
+          },
+          {
+            "y": 272,
+            "height": 10,
+            "width": 46,
+            "text": "PUBLISH",
+            "x": 241
+          }
+        ]
+      },
+      {
+        "text": "TEST:",
+        "words": [
+          {
+            "y": 324,
+            "height": 10,
+            "width": 29,
+            "text": "TEST:",
+            "x": 105
+          }
+        ]
+      },
+      {
+        "text": "Recents > Drafts",
+        "words": [
+          {
+            "y": 637,
+            "height": 15,
+            "width": 74,
+            "text": "Recents",
+            "x": 22
+          },
+          {
+            "y": 639,
+            "height": 12,
+            "width": 7,
+            "text": ">",
+            "x": 105
+          },
+          {
+            "y": 636,
+            "height": 16,
+            "width": 57,
+            "text": "Drafts",
+            "x": 136
+          }
+        ]
+      },
+      {
+        "text": "3",
+        "words": [
+          {
+            "y": 721,
+            "height": 30,
+            "width": 18,
+            "text": "3",
+            "x": 262
+          }
+        ]
+      },
+      {
+        "text": "Next",
+        "words": [
+          {
+            "y": 77,
+            "height": 15,
+            "width": 42,
+            "text": "Next",
+            "x": 437
+          }
+        ]
+      },
+      {
+        "text": "Select",
+        "words": [
+          {
+            "y": 639,
+            "height": 11,
+            "width": 44,
+            "text": "Select",
+            "x": 416
+          }
+        ]
+      },
+      {
+        "text": "2",
+        "words": [
+          {
+            "y": 721,
+            "height": 30,
+            "width": 20,
+            "text": "2",
+            "x": 386
+          }
+        ]
+      },
+      {
+        "text": "1",
+        "words": [
+          {
+            "y": 846,
+            "height": 30,
+            "width": 14,
+            "text": "1",
+            "x": 13
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 17,
+            "width": 49,
+            "text": "005",
+            "x": 64
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 18,
+            "width": 47,
+            "text": "005",
+            "x": 192
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 18,
+            "width": 46,
+            "text": "005",
+            "x": 318
+          }
+        ]
+      },
+      {
+        "text": "005",
+        "words": [
+          {
+            "y": 1027,
+            "height": 17,
+            "width": 48,
+            "text": "005",
+            "x": 441
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a"
+  },
+  "08-open-test-draft/after-first.png": {
+    "imageSha256": "e641ad56c1509833a28953a8d55b9d868d4220d9938bb0b994456db192c03ce4",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:41",
+        "words": [
+          {
+            "y": 22,
+            "height": 16,
+            "width": 38,
+            "text": "6:41",
+            "x": 44
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 88,
+            "height": 22,
+            "width": 22,
+            "text": "x",
+            "x": 30
+          }
+        ]
+      },
+      {
+        "text": "iMouse 2.0",
+        "words": [
+          {
+            "y": 214,
+            "height": 20,
+            "width": 85,
+            "text": "iMouse",
+            "x": 37
+          },
+          {
+            "y": 215,
+            "height": 19,
+            "width": 34,
+            "text": "2.0",
+            "x": 130
+          }
+        ]
+      },
+      {
+        "text": "CAROUSEL TRANSFER TEST",
+        "words": [
+          {
+            "y": 278,
+            "height": 17,
+            "width": 112,
+            "text": "CAROUSEL",
+            "x": 37
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 110,
+            "text": "TRANSFER",
+            "x": 155
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 51,
+            "text": "TEST",
+            "x": 271
+          }
+        ]
+      },
+      {
+        "text": "SLIDE 1 OF 3",
+        "words": [
+          {
+            "y": 592,
+            "height": 25,
+            "width": 87,
+            "text": "SLIDE",
+            "x": 37
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 11,
+            "text": "1",
+            "x": 136
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 41,
+            "text": "OF",
+            "x": 162
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 15,
+            "text": "3",
+            "x": 215
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY",
+        "words": [
+          {
+            "y": 661,
+            "height": 21,
+            "width": 92,
+            "text": "DRAFT",
+            "x": 38
+          },
+          {
+            "y": 660,
+            "height": 23,
+            "width": 78,
+            "text": "ONLY",
+            "x": 140
+          }
+        ]
+      },
+      {
+        "text": "DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 705,
+            "height": 19,
+            "width": 35,
+            "text": "DO",
+            "x": 38
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 52,
+            "text": "NOT",
+            "x": 82
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 100,
+            "text": "PUBLISH",
+            "x": 142
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 187,
+            "height": 12,
+            "width": 13,
+            "text": "x",
+            "x": 464
+          }
+        ]
+      },
+      {
+        "text": "Audio",
+        "words": [
+          {
+            "y": 921,
+            "height": 9,
+            "width": 33,
+            "text": "Audio",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "Overlay",
+        "words": [
+          {
+            "y": 921,
+            "height": 12,
+            "width": 44,
+            "text": "Overlay",
+            "x": 190
+          }
+        ]
+      },
+      {
+        "text": "Filter",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 30,
+            "text": "Filter",
+            "x": 273
+          }
+        ]
+      },
+      {
+        "text": "Edit",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 23,
+            "text": "Edit",
+            "x": 353
+          }
+        ]
+      },
+      {
+        "text": "Ratio",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 29,
+            "text": "Ratio",
+            "x": 427
+          }
+        ]
+      },
+      {
+        "text": "ext",
+        "words": [
+          {
+            "y": 1001,
+            "height": 10,
+            "width": 21,
+            "text": "ext",
+            "x": 422
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "e641ad56c1509833a28953a8d55b9d868d4220d9938bb0b994456db192c03ce4",
+    "controlOcr": {
+      "next": {
+        "imageSha256": "b70e619e348174ade181c8a5883d2e513b6ae47685aeb949f603bd1bae31c931",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "Next",
+            "words": [
+              {
+                "y": 39,
+                "height": 33,
+                "width": 94,
+                "text": "Next",
+                "x": 23
+              }
+            ]
+          }
+        ],
+        "height": 117,
+        "width": 129,
+        "sourceFrameSha256": "e641ad56c1509833a28953a8d55b9d868d4220d9938bb0b994456db192c03ce4",
+        "sourcePixelsSha256": "f1592a88753750536eea644e3568d58536b0bda9a8656a11f6703f00756abf5e",
+        "bounds": [
+          404,
+          987,
+          447,
+          1026
+        ],
+        "scale": 3
+      }
+    }
+  },
+  "08-open-test-draft/after.png": {
+    "imageSha256": "960271dab42669a0edffd555cdf339ee45609b1d10654c0ad9dfde68b3a39036",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:41",
+        "words": [
+          {
+            "y": 22,
+            "height": 16,
+            "width": 38,
+            "text": "6:41",
+            "x": 44
+          }
+        ]
+      },
+      {
+        "text": "naria \u2022 Day By",
+        "words": [
+          {
+            "y": 84,
+            "height": 12,
+            "width": 33,
+            "text": "naria",
+            "x": 197
+          },
+          {
+            "y": 90,
+            "height": 2,
+            "width": 3,
+            "text": "\u2022",
+            "x": 236
+          },
+          {
+            "y": 85,
+            "height": 13,
+            "width": 26,
+            "text": "Day",
+            "x": 244
+          },
+          {
+            "y": 85,
+            "height": 13,
+            "width": 17,
+            "text": "By",
+            "x": 275
+          }
+        ]
+      },
+      {
+        "text": "Suggested au...",
+        "words": [
+          {
+            "y": 102,
+            "height": 14,
+            "width": 72,
+            "text": "Suggested",
+            "x": 196
+          },
+          {
+            "y": 105,
+            "height": 8,
+            "width": 27,
+            "text": "au...",
+            "x": 273
+          }
+        ]
+      },
+      {
+        "text": "iMouse 2.0",
+        "words": [
+          {
+            "y": 214,
+            "height": 20,
+            "width": 85,
+            "text": "iMouse",
+            "x": 37
+          },
+          {
+            "y": 215,
+            "height": 19,
+            "width": 34,
+            "text": "2.0",
+            "x": 130
+          }
+        ]
+      },
+      {
+        "text": "CAROUSEL TRANSFER TEST",
+        "words": [
+          {
+            "y": 278,
+            "height": 17,
+            "width": 112,
+            "text": "CAROUSEL",
+            "x": 37
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 110,
+            "text": "TRANSFER",
+            "x": 155
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 51,
+            "text": "TEST",
+            "x": 271
+          }
+        ]
+      },
+      {
+        "text": "SLIDE 1 OF 3",
+        "words": [
+          {
+            "y": 592,
+            "height": 25,
+            "width": 87,
+            "text": "SLIDE",
+            "x": 37
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 11,
+            "text": "1",
+            "x": 136
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 41,
+            "text": "OF",
+            "x": 162
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 15,
+            "text": "3",
+            "x": 215
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY",
+        "words": [
+          {
+            "y": 661,
+            "height": 21,
+            "width": 92,
+            "text": "DRAFT",
+            "x": 38
+          },
+          {
+            "y": 660,
+            "height": 23,
+            "width": 78,
+            "text": "ONLY",
+            "x": 140
+          }
+        ]
+      },
+      {
+        "text": "DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 705,
+            "height": 19,
+            "width": 35,
+            "text": "DO",
+            "x": 38
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 52,
+            "text": "NOT",
+            "x": 82
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 100,
+            "text": "PUBLISH",
+            "x": 142
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 187,
+            "height": 12,
+            "width": 13,
+            "text": "x",
+            "x": 464
+          }
+        ]
+      },
+      {
+        "text": "Audio",
+        "words": [
+          {
+            "y": 921,
+            "height": 9,
+            "width": 33,
+            "text": "Audio",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "Overlay",
+        "words": [
+          {
+            "y": 921,
+            "height": 12,
+            "width": 44,
+            "text": "Overlay",
+            "x": 190
+          }
+        ]
+      },
+      {
+        "text": "Filter",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 30,
+            "text": "Filter",
+            "x": 273
+          }
+        ]
+      },
+      {
+        "text": "Edit",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 23,
+            "text": "Edit",
+            "x": 353
+          }
+        ]
+      },
+      {
+        "text": "Ratio",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 29,
+            "text": "Ratio",
+            "x": 427
+          }
+        ]
+      },
+      {
+        "text": "ext",
+        "words": [
+          {
+            "y": 1001,
+            "height": 10,
+            "width": 21,
+            "text": "ext",
+            "x": 422
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "960271dab42669a0edffd555cdf339ee45609b1d10654c0ad9dfde68b3a39036",
+    "controlOcr": {
+      "next": {
+        "imageSha256": "b70e619e348174ade181c8a5883d2e513b6ae47685aeb949f603bd1bae31c931",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "Next",
+            "words": [
+              {
+                "y": 39,
+                "height": 33,
+                "width": 94,
+                "text": "Next",
+                "x": 23
+              }
+            ]
+          }
+        ],
+        "height": 117,
+        "width": 129,
+        "sourceFrameSha256": "960271dab42669a0edffd555cdf339ee45609b1d10654c0ad9dfde68b3a39036",
+        "sourcePixelsSha256": "4b3e9874cb89303dcb4ddca3119a9869b7fc9313e050fb54a292b2f30af38afd",
+        "bounds": [
+          404,
+          987,
+          447,
+          1026
+        ],
+        "scale": 3
+      }
+    }
+  },
+  "09-inspect-second-slide/fresh.png": {
+    "imageSha256": "1fb8ee06bb4ab7af9658a3ead675d8b54a321e70d26f401c25927a13165d4d5f",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:42",
+        "words": [
+          {
+            "y": 22,
+            "height": 16,
+            "width": 42,
+            "text": "6:42",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "\u2022 Day By",
+        "words": [
+          {
+            "y": 90,
+            "height": 2,
+            "width": 3,
+            "text": "\u2022",
+            "x": 245
+          },
+          {
+            "y": 85,
+            "height": 13,
+            "width": 26,
+            "text": "Day",
+            "x": 254
+          },
+          {
+            "y": 85,
+            "height": 13,
+            "width": 13,
+            "text": "By",
+            "x": 285
+          }
+        ]
+      },
+      {
+        "text": "Suggested au...",
+        "words": [
+          {
+            "y": 102,
+            "height": 14,
+            "width": 72,
+            "text": "Suggested",
+            "x": 196
+          },
+          {
+            "y": 105,
+            "height": 8,
+            "width": 27,
+            "text": "au...",
+            "x": 273
+          }
+        ]
+      },
+      {
+        "text": "iMouse 2.0",
+        "words": [
+          {
+            "y": 214,
+            "height": 20,
+            "width": 85,
+            "text": "iMouse",
+            "x": 37
+          },
+          {
+            "y": 215,
+            "height": 19,
+            "width": 34,
+            "text": "2.0",
+            "x": 130
+          }
+        ]
+      },
+      {
+        "text": "CAROUSEL TRANSFER TEST",
+        "words": [
+          {
+            "y": 278,
+            "height": 17,
+            "width": 112,
+            "text": "CAROUSEL",
+            "x": 37
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 110,
+            "text": "TRANSFER",
+            "x": 155
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 51,
+            "text": "TEST",
+            "x": 271
+          }
+        ]
+      },
+      {
+        "text": "SLIDE 1 OF 3",
+        "words": [
+          {
+            "y": 592,
+            "height": 25,
+            "width": 87,
+            "text": "SLIDE",
+            "x": 37
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 11,
+            "text": "1",
+            "x": 136
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 41,
+            "text": "OF",
+            "x": 162
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 15,
+            "text": "3",
+            "x": 215
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY",
+        "words": [
+          {
+            "y": 661,
+            "height": 21,
+            "width": 92,
+            "text": "DRAFT",
+            "x": 38
+          },
+          {
+            "y": 660,
+            "height": 23,
+            "width": 78,
+            "text": "ONLY",
+            "x": 140
+          }
+        ]
+      },
+      {
+        "text": "DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 705,
+            "height": 19,
+            "width": 35,
+            "text": "DO",
+            "x": 38
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 52,
+            "text": "NOT",
+            "x": 82
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 100,
+            "text": "PUBLISH",
+            "x": 142
+          }
+        ]
+      },
+      {
+        "text": "Audio",
+        "words": [
+          {
+            "y": 921,
+            "height": 9,
+            "width": 33,
+            "text": "Audio",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "Overlay",
+        "words": [
+          {
+            "y": 921,
+            "height": 12,
+            "width": 44,
+            "text": "Overlay",
+            "x": 190
+          }
+        ]
+      },
+      {
+        "text": "Filter",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 30,
+            "text": "Filter",
+            "x": 273
+          }
+        ]
+      },
+      {
+        "text": "Edit",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 23,
+            "text": "Edit",
+            "x": 353
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 187,
+            "height": 12,
+            "width": 13,
+            "text": "x",
+            "x": 464
+          }
+        ]
+      },
+      {
+        "text": "Ratio",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 29,
+            "text": "Ratio",
+            "x": 427
+          }
+        ]
+      },
+      {
+        "text": "ext",
+        "words": [
+          {
+            "y": 1001,
+            "height": 10,
+            "width": 21,
+            "text": "ext",
+            "x": 422
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "1fb8ee06bb4ab7af9658a3ead675d8b54a321e70d26f401c25927a13165d4d5f",
+    "controlOcr": {
+      "next": {
+        "imageSha256": "b70e619e348174ade181c8a5883d2e513b6ae47685aeb949f603bd1bae31c931",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "Next",
+            "words": [
+              {
+                "y": 39,
+                "height": 33,
+                "width": 94,
+                "text": "Next",
+                "x": 23
+              }
+            ]
+          }
+        ],
+        "height": 117,
+        "width": 129,
+        "sourceFrameSha256": "1fb8ee06bb4ab7af9658a3ead675d8b54a321e70d26f401c25927a13165d4d5f",
+        "sourcePixelsSha256": "4a4bf59071aff357c52e6ab20f7d0e9b3f87632a435ee0bcfadfa3f078e74db5",
+        "bounds": [
+          404,
+          987,
+          447,
+          1026
+        ],
+        "scale": 3
+      }
+    }
+  },
+  "11-caption-details/fresh.png": {
+    "imageSha256": "ea0637c2a3596495778c346cabe599635e4d8deb9676f83c58ff854307e84813",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:42",
+        "words": [
+          {
+            "y": 22,
+            "height": 16,
+            "width": 42,
+            "text": "6:42",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "\u2022ay By Day Am",
+        "words": [
+          {
+            "y": 87,
+            "height": 11,
+            "width": 18,
+            "text": "\u2022ay",
+            "x": 197
+          },
+          {
+            "y": 85,
+            "height": 13,
+            "width": 17,
+            "text": "By",
+            "x": 220
+          },
+          {
+            "y": 85,
+            "height": 13,
+            "width": 26,
+            "text": "Day",
+            "x": 242
+          },
+          {
+            "y": 85,
+            "height": 11,
+            "width": 22,
+            "text": "Am",
+            "x": 275
+          }
+        ]
+      },
+      {
+        "text": "Suggested au...",
+        "words": [
+          {
+            "y": 102,
+            "height": 14,
+            "width": 72,
+            "text": "Suggested",
+            "x": 196
+          },
+          {
+            "y": 105,
+            "height": 8,
+            "width": 27,
+            "text": "au...",
+            "x": 273
+          }
+        ]
+      },
+      {
+        "text": "iMouse 2.0",
+        "words": [
+          {
+            "y": 214,
+            "height": 20,
+            "width": 85,
+            "text": "iMouse",
+            "x": 37
+          },
+          {
+            "y": 215,
+            "height": 19,
+            "width": 35,
+            "text": "2.0",
+            "x": 129
+          }
+        ]
+      },
+      {
+        "text": "CAROUSEL TRANSFER TEST",
+        "words": [
+          {
+            "y": 278,
+            "height": 17,
+            "width": 112,
+            "text": "CAROUSEL",
+            "x": 37
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 110,
+            "text": "TRANSFER",
+            "x": 155
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 51,
+            "text": "TEST",
+            "x": 271
+          }
+        ]
+      },
+      {
+        "text": "SLIDE 3 OF 3",
+        "words": [
+          {
+            "y": 592,
+            "height": 25,
+            "width": 87,
+            "text": "SLIDE",
+            "x": 37
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 15,
+            "text": "3",
+            "x": 135
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 40,
+            "text": "OF",
+            "x": 163
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 15,
+            "text": "3",
+            "x": 215
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY",
+        "words": [
+          {
+            "y": 661,
+            "height": 21,
+            "width": 92,
+            "text": "DRAFT",
+            "x": 38
+          },
+          {
+            "y": 660,
+            "height": 23,
+            "width": 78,
+            "text": "ONLY",
+            "x": 140
+          }
+        ]
+      },
+      {
+        "text": "DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 705,
+            "height": 19,
+            "width": 35,
+            "text": "DO",
+            "x": 38
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 52,
+            "text": "NOT",
+            "x": 82
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 100,
+            "text": "PUBLISH",
+            "x": 142
+          }
+        ]
+      },
+      {
+        "text": "Audio",
+        "words": [
+          {
+            "y": 921,
+            "height": 9,
+            "width": 33,
+            "text": "Audio",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "Overlay",
+        "words": [
+          {
+            "y": 921,
+            "height": 12,
+            "width": 44,
+            "text": "Overlay",
+            "x": 190
+          }
+        ]
+      },
+      {
+        "text": "Filter",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 30,
+            "text": "Filter",
+            "x": 273
+          }
+        ]
+      },
+      {
+        "text": "Edit",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 23,
+            "text": "Edit",
+            "x": 353
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 187,
+            "height": 12,
+            "width": 12,
+            "text": "x",
+            "x": 464
+          }
+        ]
+      },
+      {
+        "text": "Ratio",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 29,
+            "text": "Ratio",
+            "x": 427
+          }
+        ]
+      },
+      {
+        "text": "ext",
+        "words": [
+          {
+            "y": 1001,
+            "height": 10,
+            "width": 21,
+            "text": "ext",
+            "x": 422
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "ea0637c2a3596495778c346cabe599635e4d8deb9676f83c58ff854307e84813",
+    "controlOcr": {
+      "next": {
+        "imageSha256": "e241981c33737c108c45fbc24afed0537684d7aadc20ca8a37ef4266f868392a",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "Next",
+            "words": [
+              {
+                "y": 39,
+                "height": 33,
+                "width": 94,
+                "text": "Next",
+                "x": 23
+              }
+            ]
+          }
+        ],
+        "height": 117,
+        "width": 129,
+        "sourceFrameSha256": "ea0637c2a3596495778c346cabe599635e4d8deb9676f83c58ff854307e84813",
+        "sourcePixelsSha256": "daa3bc2c925e3aaea365167ff397a03cf01d4f593f4e3356471352543e9fbf33",
+        "bounds": [
+          404,
+          987,
+          447,
+          1026
+        ],
+        "scale": 3
+      }
+    }
+  },
+  "12-caption-with-label-crop/fresh.png": {
+    "imageSha256": "8fc2e4a1714e31f28ab653c3817bccd176bee0fe9a0973a8a60fdf4839fd7e4b",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "6:46",
+        "words": [
+          {
+            "y": 22,
+            "height": 16,
+            "width": 42,
+            "text": "6:46",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "naria \u2022 Day By",
+        "words": [
+          {
+            "y": 84,
+            "height": 12,
+            "width": 34,
+            "text": "naria",
+            "x": 196
+          },
+          {
+            "y": 90,
+            "height": 3,
+            "width": 3,
+            "text": "\u2022",
+            "x": 235
+          },
+          {
+            "y": 85,
+            "height": 13,
+            "width": 26,
+            "text": "Day",
+            "x": 244
+          },
+          {
+            "y": 85,
+            "height": 13,
+            "width": 17,
+            "text": "By",
+            "x": 275
+          }
+        ]
+      },
+      {
+        "text": "Suggested au...",
+        "words": [
+          {
+            "y": 102,
+            "height": 14,
+            "width": 72,
+            "text": "Suggested",
+            "x": 196
+          },
+          {
+            "y": 105,
+            "height": 8,
+            "width": 27,
+            "text": "au...",
+            "x": 273
+          }
+        ]
+      },
+      {
+        "text": "iMouse 2.0",
+        "words": [
+          {
+            "y": 214,
+            "height": 20,
+            "width": 85,
+            "text": "iMouse",
+            "x": 37
+          },
+          {
+            "y": 215,
+            "height": 19,
+            "width": 35,
+            "text": "2.0",
+            "x": 129
+          }
+        ]
+      },
+      {
+        "text": "CAROUSEL TRANSFER TEST",
+        "words": [
+          {
+            "y": 278,
+            "height": 17,
+            "width": 112,
+            "text": "CAROUSEL",
+            "x": 37
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 110,
+            "text": "TRANSFER",
+            "x": 155
+          },
+          {
+            "y": 278,
+            "height": 17,
+            "width": 51,
+            "text": "TEST",
+            "x": 271
+          }
+        ]
+      },
+      {
+        "text": "SLIDE 3 OF 3",
+        "words": [
+          {
+            "y": 592,
+            "height": 25,
+            "width": 87,
+            "text": "SLIDE",
+            "x": 37
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 15,
+            "text": "3",
+            "x": 135
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 40,
+            "text": "OF",
+            "x": 163
+          },
+          {
+            "y": 592,
+            "height": 25,
+            "width": 15,
+            "text": "3",
+            "x": 215
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY",
+        "words": [
+          {
+            "y": 661,
+            "height": 21,
+            "width": 92,
+            "text": "DRAFT",
+            "x": 38
+          },
+          {
+            "y": 660,
+            "height": 23,
+            "width": 78,
+            "text": "ONLY",
+            "x": 140
+          }
+        ]
+      },
+      {
+        "text": "DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 705,
+            "height": 19,
+            "width": 35,
+            "text": "DO",
+            "x": 38
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 52,
+            "text": "NOT",
+            "x": 82
+          },
+          {
+            "y": 705,
+            "height": 19,
+            "width": 100,
+            "text": "PUBLISH",
+            "x": 142
+          }
+        ]
+      },
+      {
+        "text": "Audio",
+        "words": [
+          {
+            "y": 921,
+            "height": 9,
+            "width": 33,
+            "text": "Audio",
+            "x": 42
+          }
+        ]
+      },
+      {
+        "text": "Overlay",
+        "words": [
+          {
+            "y": 921,
+            "height": 12,
+            "width": 44,
+            "text": "Overlay",
+            "x": 190
+          }
+        ]
+      },
+      {
+        "text": "Filter",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 30,
+            "text": "Filter",
+            "x": 273
+          }
+        ]
+      },
+      {
+        "text": "Edit",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 23,
+            "text": "Edit",
+            "x": 353
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 187,
+            "height": 12,
+            "width": 12,
+            "text": "x",
+            "x": 464
+          }
+        ]
+      },
+      {
+        "text": "Ratio",
+        "words": [
+          {
+            "y": 920,
+            "height": 10,
+            "width": 29,
+            "text": "Ratio",
+            "x": 427
+          }
+        ]
+      },
+      {
+        "text": "ext",
+        "words": [
+          {
+            "y": 1001,
+            "height": 10,
+            "width": 21,
+            "text": "ext",
+            "x": 422
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "8fc2e4a1714e31f28ab653c3817bccd176bee0fe9a0973a8a60fdf4839fd7e4b",
+    "controlOcr": {
+      "next": {
+        "imageSha256": "e241981c33737c108c45fbc24afed0537684d7aadc20ca8a37ef4266f868392a",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "Next",
+            "words": [
+              {
+                "y": 39,
+                "height": 33,
+                "width": 94,
+                "text": "Next",
+                "x": 23
+              }
+            ]
+          }
+        ],
+        "height": 117,
+        "width": 129,
+        "sourceFrameSha256": "8fc2e4a1714e31f28ab653c3817bccd176bee0fe9a0973a8a60fdf4839fd7e4b",
+        "sourcePixelsSha256": "4721a00974fde04412072df517646c1d71605a8c7c4c194948ecb59ac4214ffd",
+        "bounds": [
+          404,
+          987,
+          447,
+          1026
+        ],
+        "scale": 3
+      }
+    }
+  }
+}

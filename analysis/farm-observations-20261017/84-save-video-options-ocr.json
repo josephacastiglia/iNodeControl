@@ -1,0 +1,249 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:44",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 42,
+          "text": "6:44",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "Cancel",
+      "words": [
+        {
+          "y": 156,
+          "height": 16,
+          "width": 61,
+          "text": "Cancel",
+          "x": 26
+        }
+      ]
+    },
+    {
+      "text": "imouse-draft",
+      "words": [
+        {
+          "y": 76,
+          "height": 16,
+          "width": 124,
+          "text": "imouse-draft",
+          "x": 172
+        }
+      ]
+    },
+    {
+      "text": "New Shared Album",
+      "words": [
+        {
+          "y": 157,
+          "height": 15,
+          "width": 41,
+          "text": "New",
+          "x": 160
+        },
+        {
+          "y": 156,
+          "height": 16,
+          "width": 66,
+          "text": "Shared",
+          "x": 207
+        },
+        {
+          "y": 156,
+          "height": 16,
+          "width": 60,
+          "text": "Album",
+          "x": 280
+        }
+      ]
+    },
+    {
+      "text": "Add Photos",
+      "words": [
+        {
+          "y": 451,
+          "height": 13,
+          "width": 29,
+          "text": "Add",
+          "x": 207
+        },
+        {
+          "y": 451,
+          "height": 13,
+          "width": 51,
+          "text": "Photos",
+          "x": 242
+        }
+      ]
+    },
+    {
+      "text": "CED'",
+      "words": [
+        {
+          "y": 22,
+          "height": 16,
+          "width": 32,
+          "text": "CED'",
+          "x": 447
+        }
+      ]
+    },
+    {
+      "text": "Done",
+      "words": [
+        {
+          "y": 77,
+          "height": 15,
+          "width": 48,
+          "text": "Done",
+          "x": 426
+        }
+      ]
+    },
+    {
+      "text": "Create",
+      "words": [
+        {
+          "y": 157,
+          "height": 15,
+          "width": 62,
+          "text": "Create",
+          "x": 412
+        }
+      ]
+    },
+    {
+      "text": "Shared Album Name",
+      "words": [
+        {
+          "y": 543,
+          "height": 15,
+          "width": 65,
+          "text": "Shared",
+          "x": 46
+        },
+        {
+          "y": 543,
+          "height": 15,
+          "width": 60,
+          "text": "Album",
+          "x": 118
+        },
+        {
+          "y": 544,
+          "height": 14,
+          "width": 53,
+          "text": "Name",
+          "x": 186
+        }
+      ]
+    },
+    {
+      "text": "PARTICIPANTS",
+      "words": [
+        {
+          "y": 620,
+          "height": 13,
+          "width": 108,
+          "text": "PARTICIPANTS",
+          "x": 55
+        }
+      ]
+    },
+    {
+      "text": "Add Participants",
+      "words": [
+        {
+          "y": 662,
+          "height": 16,
+          "width": 35,
+          "text": "Add",
+          "x": 55
+        },
+        {
+          "y": 662,
+          "height": 19,
+          "width": 106,
+          "text": "Participants",
+          "x": 97
+        }
+      ]
+    },
+    {
+      "text": "Invitation will be sent from Taylor Novensky",
+      "words": [
+        {
+          "y": 707,
+          "height": 12,
+          "width": 65,
+          "text": "Invitation",
+          "x": 55
+        },
+        {
+          "y": 707,
+          "height": 12,
+          "width": 22,
+          "text": "will",
+          "x": 125
+        },
+        {
+          "y": 707,
+          "height": 12,
+          "width": 16,
+          "text": "be",
+          "x": 154
+        },
+        {
+          "y": 708,
+          "height": 11,
+          "width": 30,
+          "text": "sent",
+          "x": 176
+        },
+        {
+          "y": 707,
+          "height": 12,
+          "width": 32,
+          "text": "from",
+          "x": 212
+        },
+        {
+          "y": 707,
+          "height": 15,
+          "width": 43,
+          "text": "Taylor",
+          "x": 250
+        },
+        {
+          "y": 707,
+          "height": 15,
+          "width": 70,
+          "text": "Novensky",
+          "x": 298
+        }
+      ]
+    },
+    {
+      "text": "(taylorofm39@icloud.com).",
+      "words": [
+        {
+          "y": 729,
+          "height": 15,
+          "width": 195,
+          "text": "(taylorofm39@icloud.com).",
+          "x": 56
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "f28272df630e8c1ea675d7a8a30afd62e717a6517605f2da56d9fceb7ae02fd8"
+}

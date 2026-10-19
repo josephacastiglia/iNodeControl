@@ -1,0 +1,5 @@
+Lookup iMouse2-C241._airplay._tcp.local
+ 0:27:52.476  iMouse2-C241._airplay._tcp.local. can be reached at JoeyDesktop.local.:7121 (interface 6) Flags: 1
+ deviceid=02:49:4d:32:c2:41 features=0x527FFEE6,0x0 pw=false flags=0x4 model=AppleTV3,2 pk=72a62aa5e9d705c2cc78d84a41644f2d9a787748bd7bfc821ce8943ee2b73419 pi=2e388006-13ba-4041-9a67-25dd4a43d536 srcvers=220.68 vv=2
+ 0:27:52.476  iMouse2-C241._airplay._tcp.local. can be reached at JoeyDesktop.local.:7121 (interface 21)
+ deviceid=02:49:4d:32:c2:41 features=0x527FFEE6,0x0 pw=false flags=0x4 model=AppleTV3,2 pk=72a62aa5e9d705c2cc78d84a41644f2d9a787748bd7bfc821ce8943ee2b73419 pi=2e388006-13ba-4041-9a67-25dd4a43d536 srcvers=220.68 vv=2

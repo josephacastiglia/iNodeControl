@@ -1,0 +1,326 @@
+diff --git a/src/iMouse.Console/InputControls.cs b/src/iMouse.Console/InputControls.cs
+index ee276b7..99dffac 100644
+--- a/src/iMouse.Console/InputControls.cs
++++ b/src/iMouse.Console/InputControls.cs
+@@ -39,6 +39,14 @@ public partial class MainWindow
+     private void RefreshInputOwnershipUi()
+     {
+         if (StopInputButton is null || ResumeInputButton is null || InputStateText is null) return;
++        if (_farmOwnsInput)
++        {
++            ResumeInputButton.IsEnabled = false;
++            StopInputButton.IsEnabled = !_stopPending;
++            if (_closing || !_connected || !FarmTargetPolicy.IsC24C(InputTargetIds()))
++                _ = RequestFarmCancellationAsync();
++            return;
++        }
+         bool managed = !_closing && _api?.UsesInputOwnership == true;
+         var ids = managed ? InputTargetIds() : "";
+         if (managed && (_controlApi != _api || ids != _controlScope))
+@@ -75,6 +83,8 @@ public partial class MainWindow
+     }
+     private async void StopInput_Click(object sender, RoutedEventArgs e)
+     {
++        if (_farmOwnsInput) { FarmEmergencyStop_Click(sender, e); return; }
++        if (_farmJobId is not null) _ = RequestFarmCancellationAsync();
+         var api = _api; string ids = StopTargetIds();
+         if (api is null || ids.Length == 0 || _stopPending) return;
+         long revision = ++_controlRevision;
+@@ -92,6 +102,7 @@ public partial class MainWindow
+     }
+     private async void ResumeInput_Click(object sender, RoutedEventArgs e)
+     {
++        if (_farmOwnsInput) { AppendFarmLog("Wait for the farm job's cleanup before resuming input."); return; }
+         var api = _api; string ids = StopTargetIds();
+         if (api is null || ids.Length == 0 || _stopPending || _resumePending) return;
+         long revision = ++_controlRevision;
+diff --git a/src/iMouse.Console/MainWindow.xaml b/src/iMouse.Console/MainWindow.xaml
+index 1712b6c..928d295 100644
+--- a/src/iMouse.Console/MainWindow.xaml
++++ b/src/iMouse.Console/MainWindow.xaml
+@@ -19,9 +19,14 @@
+             <TextBlock Text=" 2.0" FontSize="16" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+           </StackPanel>
+           <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="18,0,0,0" VerticalAlignment="Center">
++            <Button x:Name="RackViewTabButton" Content="Rack View" Click="RackViewTab_Click" Margin="0,0,4,0" MinHeight="28" Padding="12,5"
++                    Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}"/>
++            <Button x:Name="FarmTabButton" Content="Marketing Farm (Test Tab)" Click="FarmTab_Click" Margin="0,0,8,0" MinHeight="28" Padding="12,5"
++                    ToolTip="Switch to 19-iPhone Marketing Farm &amp; Social Automation Test Tab"/>
++            <Rectangle Width="1" Height="20" Fill="{DynamicResource EdgeBrush}" Margin="4,0,8,0"/>
+             <Button x:Name="ControlsButton" Content="Controls" Click="OpenControls_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
+             <Button x:Name="SettingsButton" Content="Settings" Click="OpenSettings_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
+-            <Button x:Name="ActivityButton" Content="Activity" Click="OpenActivity_Click" MinHeight="28" Padding="12,5"/>
++            <Button x:Name="ActivityButton" Content="Activity" Click="OpenActivity_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
+             <Button x:Name="StopInputButton" Content="Stop input" Click="StopInput_Click" Margin="8,0,4,0" Foreground="#C62828" ToolTip="Stop input on the selected phone and enabled followers; video continues"/>
+             <Button x:Name="ResumeInputButton" Content="Resume input" Click="ResumeInput_Click" ToolTip="Explicitly allow new input after cleanup"/>
+           </StackPanel>
+@@ -48,7 +53,7 @@
+            the Large screen slider says, and the small screens flow to its right and wrap,
+            the way the original console lays them out. The whole surface scrolls, so the
+            master can be pushed past the window and panned. -->
+-      <Grid Grid.Row="1" Margin="10">
++      <Grid x:Name="RackViewSurface" Grid.Row="1" Margin="10">
+         <Grid.ColumnDefinitions>
+           <ColumnDefinition x:Name="DeviceColumn" Width="212" MinWidth="0"/>
+           <ColumnDefinition Width="8"/>
+@@ -243,6 +248,129 @@
+           </Grid>
+         </Border>
+       </Grid>
++      <!-- ================= Marketing Farm Test Tab ================= -->
++      <Grid x:Name="FarmViewSurface" Grid.Row="1" Margin="10" Visibility="Collapsed">
++        <Grid.ColumnDefinitions>
++          <ColumnDefinition Width="300" MinWidth="260"/>
++          <ColumnDefinition Width="*"/>
++          <ColumnDefinition Width="380" MinWidth="320"/>
++        </Grid.ColumnDefinitions>
++
++        <!-- 1. Left Column: Live Screen & Jitter Touch Inspector -->
++        <Border Grid.Column="0" Style="{StaticResource Panel}" Padding="10" Margin="0,0,8,0">
++          <DockPanel LastChildFill="True">
++            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
++              <TextBlock x:Name="FarmSelectedPhoneText" Text="Select an iPhone" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis"/>
++              <TextBlock x:Name="FarmMirrorBadge" Text="○ Offline" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,2,0,0"/>
++              <TextBlock x:Name="FarmExecutionModeText" Text="Automation mode: not checked" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
++            </StackPanel>
++
++            <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
++              <Border Background="{DynamicResource TargetBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="5" Padding="8,6" Margin="0,0,0,6">
++                <StackPanel>
++                  <TextBlock Text="LAST CONFIRMED TAP" Style="{StaticResource SectionLabel}" Margin="0,0,0,3"/>
++                  <TextBlock x:Name="FarmLastCoordText" Text="(---, ---)" FontWeight="SemiBold" FontSize="12"/>
++                  <TextBlock x:Name="FarmLastApproachText" Text="Exact selected point" Style="{StaticResource Muted}" FontSize="10.5"/>
++                  <TextBlock x:Name="FarmLastDwellText" Text="No tap sent" Style="{StaticResource Muted}" FontSize="10.5"/>
++                </StackPanel>
++              </Border>
++              <TextBlock Text="Manual preview controls the real C24C" Style="{StaticResource Muted}" FontSize="10"/>
++            </StackPanel>
++
++            <Border Background="{DynamicResource StageBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="8" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center">
++              <Grid Width="250" Height="540">
++                <Image x:Name="FarmPhoneImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
++                <Canvas x:Name="FarmTapCanvas" Background="#01000000" MouseLeftButtonDown="FarmPreview_Down" Cursor="Cross" ToolTip="Tap the selected C24C at the exact point shown; margins are ignored"/>
++              </Grid>
++            </Border>
++          </DockPanel>
++        </Border>
++
++        <!-- 2. Middle Column: 1-Click Pipeline, Actions & Phone Wall Cards -->
++        <Border Grid.Column="1" Style="{StaticResource Panel}" Padding="12" Margin="0,0,8,0">
++          <Grid>
++            <Grid.RowDefinitions>
++              <RowDefinition Height="Auto"/>
++              <RowDefinition Height="Auto"/>
++              <RowDefinition Height="*"/>
++            </Grid.RowDefinitions>
++
++            <!-- Action Buttons Strip -->
++            <WrapPanel Grid.Row="0" Margin="0,0,0,10">
++              <Button Content="Create content only" Click="FarmCreateContent_Click" MinHeight="30" Padding="10,5"/>
++              <Button Content="Review content" Click="FarmOpenContent_Click" MinHeight="30" Padding="10,5"/>
++              <Button Content="Check job" Click="FarmCheckJob_Click" MinHeight="30" Padding="10,5"/>
++              <Button Content="Resume simulation" Click="FarmResumeSimulation_Click" MinHeight="30" Padding="10,5"/>
++              <Button Content="Create &amp; deploy C24C" Click="FarmAutoCreate_Click" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}" MinHeight="30" Padding="10,5"/>
++              <Button Content="Run C24C warmup" Click="FarmCohortWarmup_Click" MinHeight="30" Padding="10,5"/>
++              <Button Content="Preview schedule" Click="FarmSchedulerTick_Click" MinHeight="30" Padding="10,5"/>
++              <Button Content="Check keyword replies" Click="FarmFunnel_Click" MinHeight="30" Padding="10,5"/>
++              <Button Content="🔍 Test C24C Spotlight &amp; Notes" Click="FarmSpotlightTest_Click" MinHeight="30" Padding="10,5" ToolTip="Runs live Spotlight Search pill click &amp; types Notes"/>
++              <Button Content="Stop C24C + cancel job" Click="FarmEmergencyStop_Click" Foreground="#C62828" MinHeight="30" Padding="10,5"/>
++            </WrapPanel>
++
++            <!-- 5-Stage Pipeline Indicator Strip -->
++            <Border Grid.Row="1" Background="{DynamicResource TargetBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,0,0,10">
++              <UniformGrid Columns="5">
++                <StackPanel Margin="4,0"><TextBlock Text="1. DRAFT STUDIO" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Local templates" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
++                <StackPanel Margin="4,0"><TextBlock Text="2. ASSETS" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="JPEG + MP4" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
++                <StackPanel Margin="4,0"><TextBlock Text="3. REVIEW" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Preview before use" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
++                <StackPanel Margin="4,0"><TextBlock Text="4. KERNEL 9913" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Scoped input" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
++                <StackPanel Margin="4,0"><TextBlock Text="5. REPLIES" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Observation required" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
++              </UniformGrid>
++            </Border>
++
++            <!-- Phone Wall Cards List -->
++            <DockPanel Grid.Row="2" LastChildFill="True">
++              <TextBlock DockPanel.Dock="Top" Text="MARKETING PROFILES · ONLY C24C ENABLED FOR TESTING" Style="{StaticResource SectionLabel}" Margin="0,0,0,6"/>
++              <ScrollViewer VerticalScrollBarVisibility="Auto">
++                <StackPanel x:Name="FarmPhoneListPanel"/>
++              </ScrollViewer>
++            </DockPanel>
++          </Grid>
++        </Border>
++
++        <!-- 3. Right Column: Persona Profile, Content Slate & Live RPC Log -->
++        <Border Grid.Column="2" Style="{StaticResource Panel}" Padding="12">
++          <Grid>
++            <Grid.RowDefinitions>
++              <RowDefinition Height="Auto"/>
++              <RowDefinition Height="Auto"/>
++              <RowDefinition Height="*"/>
++            </Grid.RowDefinitions>
++
++            <!-- Persona Profile Editor -->
++            <StackPanel Grid.Row="0" Margin="0,0,0,8">
++              <TextBlock Text="C24C MARKETING PROFILE" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
++              <TextBlock Text="Niche / Offer Title:" FontSize="11" Style="{StaticResource Muted}"/>
++              <TextBox x:Name="FarmNicheBox" Text="AI Workflow &amp; SaaS Clips" MinHeight="26" Margin="0,2,0,6" FontSize="12"/>
++              <TextBlock Text="CTA Keyword Trigger:" FontSize="11" Style="{StaticResource Muted}"/>
++              <TextBox x:Name="FarmKeywordBox" Text="SYSTEM" MinHeight="26" Margin="0,2,0,6" FontSize="12"/>
++              <Button Content="Save C24C profile" Click="FarmSavePersona_Click" MinHeight="26" Margin="0,0,0,6"/>
++            </StackPanel>
++
++            <!-- Content Slate Actions -->
++            <StackPanel Grid.Row="1" Margin="0,0,0,8">
++              <TextBlock Text="1-CLICK CONTENT DEPLOY SLATE" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
++              <UniformGrid Columns="2" Margin="0,0,0,4">
++                <Button Content="🖼️ IG Carousel (4:5)" Tag="instagram|ig_carousel" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
++                <Button Content="🎵 TikTok Video" Tag="tiktok|tt_video" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
++              </UniformGrid>
++              <UniformGrid Columns="2">
++                <Button Content="𝕏 Video" Tag="x|x_video" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
++                <Button Content="▶️ YouTube Short" Tag="youtube|yt_short" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
++              </UniformGrid>
++            </StackPanel>
++
++            <!-- Live Kernel JSON-RPC & Activity Log -->
++            <DockPanel Grid.Row="2" LastChildFill="True">
++              <TextBlock DockPanel.Dock="Top" Text="JOB STATUS &amp; ACTIVITY" Style="{StaticResource SectionLabel}" Margin="0,4,0,4"/>
++              <TextBox x:Name="FarmLogBox" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LogBrush}"
++                       Foreground="{DynamicResource TextBrush}" FontFamily="Consolas" FontSize="10.5" TextWrapping="Wrap"/>
++            </DockPanel>
++          </Grid>
++        </Border>
++      </Grid>
+ 
+       <!-- ================= status bar ================= -->
+       <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,0" Padding="12,5">
+diff --git a/src/iMouse.Console/MainWindow.xaml.cs b/src/iMouse.Console/MainWindow.xaml.cs
+index 0418597..b261564 100644
+--- a/src/iMouse.Console/MainWindow.xaml.cs
++++ b/src/iMouse.Console/MainWindow.xaml.cs
+@@ -211,9 +211,30 @@ public partial class MainWindow : Window
+         DrawerHost.Margin = new Thickness(0, TopBar.ActualHeight, 0, 0);
+         DrawerHost.Visibility = Visibility.Visible;
+     }
++    private IMouse2.ConsoleApp.FarmAutomationWindow? _farmWindow;
+     private void OpenControls_Click(object sender, RoutedEventArgs e) { ShowDrawer("Controls", ControlsPane); UpdateControls(); }
+     private void OpenSettings_Click(object sender, RoutedEventArgs e) { ShowDrawer("Settings", SettingsPane); UpdateControls(); }
+     private void OpenActivity_Click(object sender, RoutedEventArgs e) => ShowDrawer("Activity", ActivityPane);
++    private void OpenFarm_Click(object sender, RoutedEventArgs e)
++    {
++        if (_farmWindow is { IsLoaded: true })
++        {
++            _farmWindow.Activate();
++            return;
++        }
++
++        string rawAddress = AddressBox?.Text ?? "";
++        string kernelUrl = string.IsNullOrWhiteSpace(rawAddress) || rawAddress.Contains(":9911", StringComparison.Ordinal)
++            ? "http://127.0.0.1:9913/api"
++            : IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl(rawAddress);
++
++        _farmWindow = new IMouse2.ConsoleApp.FarmAutomationWindow("http://127.0.0.1:9914", kernelUrl)
++        {
++            Owner = this
++        };
++        _farmWindow.Closed += (_, _) => _farmWindow = null;
++        _farmWindow.Show();
++    }
+     private void CloseDrawer_Click(object sender, RoutedEventArgs e) => DrawerHost.Visibility = Visibility.Collapsed;
+     private void CloseDrawer_Click(object sender, MouseButtonEventArgs e) => DrawerHost.Visibility = Visibility.Collapsed;
+ 
+@@ -320,6 +341,7 @@ public partial class MainWindow : Window
+         // lives in Settings, where binding is done.
+         SelectedDetails.Text = device is null ? ""
+             : $"iOS {device.Os}   ·   {device.Ip}   ·   {device.VideoStatus}   ·   {device.ControlStatus}";
++        UpdateFarmSelectedHeader();
+     }
+ 
+     private void UpdateStatusBar()
+@@ -553,6 +575,7 @@ public partial class MainWindow : Window
+     {
+         ReleaseCurrentGesture();
+         PhoneImage.Source = null; _frame = null; _frameId = null; _frameAt = DateTime.MinValue;
++        if (FarmPhoneImage is not null) FarmPhoneImage.Source = null;
+         _live.Reset(); _rate.Reset(); _jitter.Reset(); _frameEpoch++; _lastFrameAt = DateTime.MinValue; _lastDelivered = DateTime.MinValue; _idleStreak = 0; _errorStreak = 0;
+         _previewFreshness.Reset(_frameEpoch);
+         _responseTiming?.Reset(_frameEpoch);
+@@ -782,6 +805,7 @@ public partial class MainWindow : Window
+         if (_live.Present(frame))
+         {
+             if (!ReferenceEquals(PhoneImage.Source, _live.Source)) PhoneImage.Source = _live.Source;
++            SyncFarmPhoneImage();
+             _responseTiming?.BitmapApplied(_frameEpoch, Selected?.Id ?? "", frame.PreviewStamp,
+                 frame.Width, frame.Height, "pump");
+             PreviewPlaceholder.Visibility = Visibility.Collapsed;
+@@ -841,6 +865,7 @@ public partial class MainWindow : Window
+                 if (_live.Present(prepared))
+                 {
+                     if (!ReferenceEquals(PhoneImage.Source, _live.Source)) PhoneImage.Source = _live.Source;
++                    SyncFarmPhoneImage();
+                     _responseTiming?.BitmapApplied(epoch, device.Id, stamp, prepared.Width, prepared.Height, "manual");
+                 }
+                 _live.Recycle(prepared);
+@@ -851,6 +876,7 @@ public partial class MainWindow : Window
+                 var decoded = new BitmapImage();
+                 decoded.BeginInit(); decoded.CacheOption = BitmapCacheOption.OnLoad; decoded.StreamSource = stream; decoded.EndInit(); decoded.Freeze();
+                 PhoneImage.Source = decoded;
++                SyncFarmPhoneImage();
+                 _responseTiming?.BitmapApplied(epoch, device.Id, stamp, decoded.PixelWidth, decoded.PixelHeight, "manual_decoded");
+             }
+             _previewFreshness.Presented(stamp);
+@@ -2737,6 +2763,9 @@ public partial class MainWindow : Window
+         ShowDrawer("Controls", ControlsPane);
+         bool stopReachable = Hits(StopInputButton);
+         Check("Stop input takes the first click while the Send text drawer is open" + (stopReachable ? "" : hitDetail), stopReachable);
++        bool farmReachable = Hits(FarmTabButton);
++        Check("Farm button is reachable in the top bar while a drawer is open" + (farmReachable ? "" : hitDetail),
++            farmReachable && Equals(FarmTabButton.Content, "Marketing Farm (Test Tab)"));
+         CloseDrawer_Click(this, new RoutedEventArgs());
+         Check("Stop button tooltip lists master and all checked phones",
+             StopInputButton.ToolTip.ToString()!.Contains("Test phone 01") &&
+diff --git a/src/iMouse.Console/SelfTests.cs b/src/iMouse.Console/SelfTests.cs
+index 891e934..0a61881 100644
+--- a/src/iMouse.Console/SelfTests.cs
++++ b/src/iMouse.Console/SelfTests.cs
+@@ -629,11 +629,41 @@ public static class SelfTests
+         await DragInputTests.RunAsync(Check);
+         await ConnectionCleanupTests.RunAsync(Check);
+         await MainWindow.CheckConnectionLifecycleAsync(Check);
++        RunFarmAutomationWindowTests(Check);
++        await FarmApiTests.RunAsync(Check);
++        await MainWindow.CheckFarmHeadlessAsync(Check);
+ 
+         var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+         File.WriteAllText(Path.Combine(qa, "self-tests.json"), JsonSerializer.Serialize(new { passed = passed.Count, tests = passed, allCommandsUsedMockTransport = true, at = DateTime.Now }, new JsonSerializerOptions { WriteIndented = true }));
+     }
+ 
++    private static void RunFarmAutomationWindowTests(Action<string, bool> check)
++    {
++        check("Farm controls accept the explicit C24C identity",
++            FarmTargetPolicy.IsC24C("C24C") && FarmTargetPolicy.IsC24C(FarmTargetPolicy.DeviceId.ToLowerInvariant()));
++        check("Farm controls refuse protected, unknown and grouped identities",
++            new string?[] { null, "", "C241", "FE:A9:BC:D7:A0:44", "RACK-03", "XR C24C", "C24C,C241" }
++                .All(id => !FarmTargetPolicy.IsC24C(id)));
++        check("FarmAutomationWindow normalizes kernel address to /api on port 9913",
++            IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl("localhost:9913") == "http://localhost:9913/api" &&
++            IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl(null) == "http://127.0.0.1:9913/api");
++
++        bool refused9911 = false;
++        try { _ = IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl("http://127.0.0.1:9911"); }
++        catch (InvalidOperationException) { refused9911 = true; }
++        check("FarmAutomationWindow refuses vendor port 9911", refused9911);
++
++        string? resolvedScript = IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath();
++        check("FarmAutomationWindow resolves tools/imouse_farm_server.py from parent directories",
++            !string.IsNullOrWhiteSpace(resolvedScript) && File.Exists(resolvedScript));
++
++        var farmWin = new IMouse2.ConsoleApp.FarmAutomationWindow("http://127.0.0.1:9914", "http://127.0.0.1:9913/api");
++        check("FarmAutomationWindow constructs layout offline with port 9913 and 9914 endpoints",
++            farmWin.FarmServerUrl == "http://127.0.0.1:9914" &&
++            farmWin.KernelApiUrl == "http://127.0.0.1:9913/api" &&
++            farmWin.Content is not null);
++    }
++
+     public static async Task RunOwnershipTestsAsync(List<string> passed)
+     {
+         void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }

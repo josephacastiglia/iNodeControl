@@ -1,0 +1,26 @@
+{
+  "id": "e300f851-9554-4c6a-a0d4-305f1066be4a",
+  "revision": 1,
+  "title": "iMouse video draft test",
+  "caption": "IMOUSE-VIDEO-DRAFT-TEST-20261017",
+  "deviceId": "C24C",
+  "format": "tt_video",
+  "platform": "TikTok",
+  "published": false,
+  "savedInApp": false,
+  "sourceSha256": "c64c91f71024385e734475c1f8ffb840d9edf8732a5f2485700fffb55fc84955",
+  "sha256": "cb512a27903b53600f512936f47c49acc72fec3158e5b5f4d4f828a09c051673",
+  "bytes": 78953,
+  "video": {
+    "width": 720,
+    "height": 1280,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "seconds": 3.0,
+    "audio": false,
+    "sourceWidth": 720,
+    "sourceHeight": 1280,
+    "fitted": false,
+    "upscaled": false
+  }
+}

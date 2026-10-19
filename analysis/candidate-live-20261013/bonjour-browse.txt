@@ -1,0 +1,7 @@
+Browsing for _airplay._tcp.local
+Timestamp     A/R Flags if Domain                    Service Type              Instance Name
+ 0:27:47.457  Add     3 21 local.                    _airplay._tcp.            Bedroom TV
+ 0:27:47.457  Add     3  6 local.                    _airplay._tcp.            iMouse2-C241
+ 0:27:47.457  Add     2  6 local.                    _airplay._tcp.            iMouse2-C24C
+ 0:27:47.503  Add     2 21 local.                    _airplay._tcp.            iMouse2-C241
+ 0:27:47.503  Add     2 21 local.                    _airplay._tcp.            iMouse2-C24C

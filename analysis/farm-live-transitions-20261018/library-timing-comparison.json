@@ -1,0 +1,32 @@
+[
+  {
+    "frame": "attempt-02/08-library.png",
+    "oldMs": 304.58,
+    "newMs": 58.96,
+    "identicalResult": true
+  },
+  {
+    "frame": "attempt-03/07-library.png",
+    "oldMs": 298.76,
+    "newMs": 64.75,
+    "identicalResult": true
+  },
+  {
+    "frame": "attempt-03/20-library.png",
+    "oldMs": 323.98,
+    "newMs": 70.59,
+    "identicalResult": true
+  },
+  {
+    "frame": "attempt-05/08-library.png",
+    "oldMs": 326.43,
+    "newMs": 69.07,
+    "identicalResult": true
+  },
+  {
+    "frame": "attempt-05/21-library.png",
+    "oldMs": 351.24,
+    "newMs": 70.02,
+    "identicalResult": true
+  }
+]

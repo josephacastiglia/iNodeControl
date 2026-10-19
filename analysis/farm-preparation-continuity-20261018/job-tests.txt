@@ -1,0 +1,51 @@
+test_another_registry_cannot_run_work_or_report_active_work_as_interrupted (test_farm_jobs.FarmJobTests.test_another_registry_cannot_run_work_or_report_active_work_as_interrupted) ... ok
+test_cancel_before_admission_survives_restart_and_delayed_submission (test_farm_jobs.FarmJobTests.test_cancel_before_admission_survives_restart_and_delayed_submission) ... ok
+test_cancel_from_another_registry_reaches_active_worker (test_farm_jobs.FarmJobTests.test_cancel_from_another_registry_reaches_active_worker) ... ok
+test_cancel_interrupts_wait_and_releases_owned_mock_phone (test_farm_jobs.FarmJobTests.test_cancel_interrupts_wait_and_releases_owned_mock_phone) ... ok
+test_cancel_preserves_completed_result_and_rejects_invalid_ids (test_farm_jobs.FarmJobTests.test_cancel_preserves_completed_result_and_rejects_invalid_ids) ... ok
+test_cancellation_at_atomic_admission_boundary_prevents_work (test_farm_jobs.FarmJobTests.test_cancellation_at_atomic_admission_boundary_prevents_work) ... ok
+test_cancelled_context_never_acquires_or_sends_but_allows_cleanup (test_farm_jobs.FarmJobTests.test_cancelled_context_never_acquires_or_sends_but_allows_cleanup) ... ok
+test_cleanup_failure_during_cancellation_is_reported (test_farm_jobs.FarmJobTests.test_cleanup_failure_during_cancellation_is_reported) ... ok
+test_content_job_generates_media_without_kernel_input (test_farm_jobs.FarmJobTests.test_content_job_generates_media_without_kernel_input) ... FAIL
+test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow (test_farm_jobs.FarmJobTests.test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow) ... FAIL
+test_duplicate_completed_submission_never_replays (test_farm_jobs.FarmJobTests.test_duplicate_completed_submission_never_replays) ... ok
+test_duplicate_id_with_different_payload_is_refused (test_farm_jobs.FarmJobTests.test_duplicate_id_with_different_payload_is_refused) ... ok
+test_every_upload_format_dispatches_and_releases_in_simulation (test_farm_jobs.FarmJobTests.test_every_upload_format_dispatches_and_releases_in_simulation) ... ok
+test_failure_is_not_success_or_automatically_retried (test_farm_jobs.FarmJobTests.test_failure_is_not_success_or_automatically_retried) ... ok
+test_interrupted_record_is_unknown_not_rerun (test_farm_jobs.FarmJobTests.test_interrupted_record_is_unknown_not_rerun) ... ok
+test_invalid_job_ids_and_actions_are_refused (test_farm_jobs.FarmJobTests.test_invalid_job_ids_and_actions_are_refused) ... ok
+test_live_automation_refuses_before_any_kernel_probe (test_farm_jobs.FarmJobTests.test_live_automation_refuses_before_any_kernel_probe) ... ok
+test_lost_client_heartbeat_cancels_job (test_farm_jobs.FarmJobTests.test_lost_client_heartbeat_cancels_job) ... ok
+test_new_instance_recovers_completed_result_without_replaying (test_farm_jobs.FarmJobTests.test_new_instance_recovers_completed_result_without_replaying) ... ok
+test_second_concurrent_job_is_refused (test_farm_jobs.FarmJobTests.test_second_concurrent_job_is_refused) ... ok
+test_unavailable_counts_do_not_clear_an_existing_pause (test_farm_jobs.FarmJobTests.test_unavailable_counts_do_not_clear_an_existing_pause) ... ok
+test_unknown_observations_do_not_claim_dm_success (test_farm_jobs.FarmJobTests.test_unknown_observations_do_not_claim_dm_success) ... ok
+test_warmup_job_accepts_console_id_and_releases (test_farm_jobs.FarmJobTests.test_warmup_job_accepts_console_id_and_releases) ... ok
+test_worker_start_failure_releases_registry_and_cannot_replay (test_farm_jobs.FarmJobTests.test_worker_start_failure_releases_registry_and_cannot_replay) ... ok
+
+======================================================================
+FAIL: test_content_job_generates_media_without_kernel_input (test_farm_jobs.FarmJobTests.test_content_job_generates_media_without_kernel_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_jobs.py", line 217, in test_content_job_generates_media_without_kernel_input
+    self.assertEqual("succeeded", job["status"], job)
+AssertionError: 'succeeded' != 'failed'
+- succeeded
++ failed
+ : {'id': '5f83b8cc-b68d-4297-b048-5b07bf9cb479', 'action': 'create-content', 'status': 'failed', 'result': None, 'error': "[WinError 5] Access is denied: 'C:\\\\Users\\\\joey_\\\\AppData\\\\Local\\\\Packages\\\\sandbox.{17118eb3-875d-48c9-ad01-a6df2ce112e2}\\\\AC\\\\Temp\\\\farm-jobs-test-icnsqx0g\\\\stage\\\\C24C\\\\manifest_d85390c495754785b945c8229fe74423.tmp' -> 'C:\\\\Users\\\\joey_\\\\AppData\\\\Local\\\\Packages\\\\sandbox.{17118eb3-875d-48c9-ad01-a6df2ce112e2}\\\\AC\\\\Temp\\\\farm-jobs-test-icnsqx0g\\\\stage\\\\C24C\\\\manifest_d85390c495754785b945c8229fe74423.json'", 'terminal': True}
+
+======================================================================
+FAIL: test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow (test_farm_jobs.FarmJobTests.test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_jobs.py", line 230, in test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow
+    self.assertEqual("succeeded", job["status"], job)
+AssertionError: 'succeeded' != 'failed'
+- succeeded
++ failed
+ : {'id': '57d2b50a-7f36-44d7-ae7d-01cc7ce7e277', 'action': 'auto-create-and-deploy', 'status': 'failed', 'result': None, 'error': "[WinError 5] Access is denied: 'C:\\\\Users\\\\joey_\\\\AppData\\\\Local\\\\Packages\\\\sandbox.{17118eb3-875d-48c9-ad01-a6df2ce112e2}\\\\AC\\\\Temp\\\\farm-jobs-test-td8o6uiw\\\\stage\\\\C24C\\\\manifest_bab7e5cedf4944979028cf29c7fe266d.tmp' -> 'C:\\\\Users\\\\joey_\\\\AppData\\\\Local\\\\Packages\\\\sandbox.{17118eb3-875d-48c9-ad01-a6df2ce112e2}\\\\AC\\\\Temp\\\\farm-jobs-test-td8o6uiw\\\\stage\\\\C24C\\\\manifest_bab7e5cedf4944979028cf29c7fe266d.json'", 'terminal': True}
+
+----------------------------------------------------------------------
+Ran 24 tests in 4.654s
+
+FAILED (failures=2)

@@ -1,0 +1,113 @@
+[
+  {
+    "folder": "11-slide-two",
+    "phase": "fresh",
+    "expected": 1,
+    "comparison": {
+      "status": "visual_match",
+      "matchedIndex": 1,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.007853879940719902,
+          "worstBlock": 0.02481881641545507,
+          "rendering": "plain"
+        },
+        {
+          "index": 2,
+          "meanError": 0.11190301796225899,
+          "worstBlock": 0.26121630874572055,
+          "rendering": "plain"
+        },
+        {
+          "index": 3,
+          "meanError": 0.11482185452938493,
+          "worstBlock": 0.22668907563025212,
+          "rendering": "plain"
+        }
+      ],
+      "margin": 0.10404913802153909,
+      "byteIdentityVerified": false,
+      "fullImageVisible": true,
+      "position": {
+        "status": "visible_position",
+        "index": 1,
+        "count": 3
+      }
+    }
+  },
+  {
+    "folder": "11-slide-two",
+    "phase": "after",
+    "expected": 2,
+    "comparison": {
+      "status": "visual_match",
+      "matchedIndex": 2,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.10431941423064056,
+          "worstBlock": 0.25766822284469343,
+          "rendering": "plain"
+        },
+        {
+          "index": 2,
+          "meanError": 0.008199354950547022,
+          "worstBlock": 0.02390289449112978,
+          "rendering": "plain"
+        },
+        {
+          "index": 3,
+          "meanError": 0.20683894028287442,
+          "worstBlock": 0.24967818238406478,
+          "rendering": "plain"
+        }
+      ],
+      "margin": 0.09612005928009354,
+      "byteIdentityVerified": false,
+      "fullImageVisible": true,
+      "position": {
+        "status": "visible_position",
+        "index": 2,
+        "count": 3
+      }
+    }
+  },
+  {
+    "folder": "13-slide-three-reviewed",
+    "phase": "after",
+    "expected": 3,
+    "comparison": {
+      "status": "visual_match",
+      "matchedIndex": 3,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.12384876251583939,
+          "worstBlock": 0.2353289760348584,
+          "rendering": "plain"
+        },
+        {
+          "index": 2,
+          "meanError": 0.2162572238458327,
+          "worstBlock": 0.251821973233738,
+          "rendering": "plain"
+        },
+        {
+          "index": 3,
+          "meanError": 0.009364814285818939,
+          "worstBlock": 0.021955448846205157,
+          "rendering": "plain"
+        }
+      ],
+      "margin": 0.11448394823002045,
+      "byteIdentityVerified": false,
+      "fullImageVisible": true,
+      "position": {
+        "status": "visible_position",
+        "index": 3,
+        "count": 3
+      }
+    }
+  }
+]

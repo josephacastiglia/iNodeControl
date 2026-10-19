@@ -1,0 +1,140 @@
+[
+  {
+    "step": "47-open-drafts-library",
+    "screen": "unknown",
+    "frameSha256": "d614d9241c8f49ac87004dbd93e14a8b8aefae49598084e8335ab8562a233944",
+    "media": {
+      "status": "visual_match",
+      "matchedIndex": 1,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.021912510472577224,
+          "worstBlock": 0.11770498474758637,
+          "rendering": "library_lower_gradient"
+        },
+        {
+          "index": 2,
+          "meanError": 0.11092495235402564,
+          "worstBlock": 0.2753690603972319,
+          "rendering": "library_lower_gradient"
+        },
+        {
+          "index": 3,
+          "meanError": 0.1048875317280401,
+          "worstBlock": 0.22116278399715947,
+          "rendering": "library_lower_gradient"
+        }
+      ],
+      "margin": 0.08297502125546288,
+      "byteIdentityVerified": false,
+      "fullImageVisible": false
+    }
+  },
+  {
+    "step": "48-reopen-saved-draft",
+    "screen": "draft_editor",
+    "frameSha256": "f54c2e3115d8dca689c3c3f96672ed22ed8c38152349830bb2a545d2733407f4",
+    "media": {
+      "status": "visual_match",
+      "matchedIndex": 1,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.007744866094862795,
+          "worstBlock": 0.024697286321936178,
+          "rendering": "plain"
+        },
+        {
+          "index": 2,
+          "meanError": 0.11186456403006974,
+          "worstBlock": 0.2611565515094927,
+          "rendering": "plain"
+        },
+        {
+          "index": 3,
+          "meanError": 0.11474238306952718,
+          "worstBlock": 0.2267836912542795,
+          "rendering": "plain"
+        }
+      ],
+      "margin": 0.10411969793520694,
+      "byteIdentityVerified": false,
+      "fullImageVisible": true,
+      "position": {
+        "status": "visible_position",
+        "index": 1,
+        "count": 3
+      }
+    }
+  },
+  {
+    "step": "49-reopened-third-slide",
+    "screen": "draft_editor",
+    "frameSha256": "6a87659b908114867c4cdfea6164ade2d7feeca33def336bd93d042d700f454b",
+    "media": {
+      "status": "visual_match",
+      "matchedIndex": 3,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.12384912874376497,
+          "worstBlock": 0.23570992841581076,
+          "rendering": "plain"
+        },
+        {
+          "index": 2,
+          "meanError": 0.21629274795461712,
+          "worstBlock": 0.2520435729847495,
+          "rendering": "plain"
+        },
+        {
+          "index": 3,
+          "meanError": 0.009247743425598373,
+          "worstBlock": 0.022240007113956704,
+          "rendering": "plain"
+        }
+      ],
+      "margin": 0.11460138531816659,
+      "byteIdentityVerified": false,
+      "fullImageVisible": true,
+      "position": {
+        "status": "visible_position",
+        "index": 3,
+        "count": 3
+      }
+    }
+  },
+  {
+    "step": "54-final-drafts-library",
+    "screen": "unknown",
+    "frameSha256": "c6d1dc6cf910578fd049e6dc68be7d808bf4db952e0486baf3d7e69ac9194086",
+    "media": {
+      "status": "visual_match",
+      "matchedIndex": 1,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.021948015280960947,
+          "worstBlock": 0.11978594228789936,
+          "rendering": "library_lower_gradient"
+        },
+        {
+          "index": 2,
+          "meanError": 0.11101880893290543,
+          "worstBlock": 0.275266069833028,
+          "rendering": "library_lower_gradient"
+        },
+        {
+          "index": 3,
+          "meanError": 0.10471280067214893,
+          "worstBlock": 0.22121403892645722,
+          "rendering": "library_lower_gradient"
+        }
+      ],
+      "margin": 0.08276478539118798,
+      "byteIdentityVerified": false,
+      "fullImageVisible": false
+    }
+  }
+]

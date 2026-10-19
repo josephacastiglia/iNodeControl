@@ -1,0 +1,1 @@
+{"state": "review_required", "cleanup": "confirmed", "error": "InspectionStopped: Capture failed: Inspection exceeded its 90-second budget.", "folder": "analysis\\farm-live-transitions-20261018\\attempt-03"}

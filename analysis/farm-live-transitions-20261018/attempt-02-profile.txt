@@ -1,0 +1,28 @@
+         64563 function calls (63809 primitive calls) in 0.771 seconds
+
+   Ordered by: cumulative time
+   List reduced from 574 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        5    0.001    0.000    0.395    0.079 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_transitions.py:38(screen_ready)
+        5    0.027    0.005    0.369    0.074 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_transitions.py:61(compare_frames)
+        5    0.001    0.000    0.263    0.053 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_draft_media.py:10(media_comparison)
+        5    0.011    0.002    0.262    0.052 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_draft_media.py:30(_compare)
+       60    0.000    0.000    0.253    0.004 C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\site-packages\PIL\Image.py:885(convert)
+      125    0.002    0.000    0.247    0.002 C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\site-packages\PIL\ImageFile.py:155(load)
+      185    0.241    0.001    0.241    0.001 {method 'decode' of 'ImagingDecoder' objects}
+       40    0.005    0.000    0.236    0.006 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_screen_layout.py:47(pixels)
+        5    0.082    0.016    0.215    0.043 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_transitions.py:25(_difference)
+        5    0.001    0.000    0.131    0.026 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_screen_layout.py:139(editor_controls)
+       65    0.000    0.000    0.119    0.002 C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\site-packages\PIL\Image.py:2090(resize)
+      905    0.116    0.000    0.116    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+       25    0.106    0.004    0.106    0.004 {method 'resize' of 'ImagingCore' objects}
+       45    0.000    0.000    0.103    0.002 {method 'max' of 'numpy.ndarray' objects}
+       45    0.000    0.000    0.103    0.002 C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\site-packages\numpy\_core\_methods.py:41(_amax)
+       10    0.001    0.000    0.071    0.007 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_screen_layout.py:117(carousel_position)
+        5    0.000    0.000    0.047    0.009 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_screen_layout.py:30(next_label)
+        5    0.001    0.000    0.046    0.009 C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_screen_layout.py:22(next_crop)
+      100    0.000    0.000    0.039    0.000 C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\site-packages\PIL\Image.py:1193(copy)
+      100    0.038    0.000    0.038    0.000 {method 'copy' of 'ImagingCore' objects}
+
+

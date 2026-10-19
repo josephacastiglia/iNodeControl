@@ -1,0 +1,23 @@
+test_new_permission_before_swipe_is_seen_before_any_input (test_farm_inspection_evidence.InspectionEvidenceTests.test_new_permission_before_swipe_is_seen_before_any_input) ... FAIL
+test_saved_result_rejects_damaged_evidence_without_waiting_for_image_request (test_farm_inspection_evidence.InspectionEvidenceTests.test_saved_result_rejects_damaged_evidence_without_waiting_for_image_request) ... FAIL
+
+======================================================================
+FAIL: test_new_permission_before_swipe_is_seen_before_any_input (test_farm_inspection_evidence.InspectionEvidenceTests.test_new_permission_before_swipe_is_seen_before_any_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_inspection_evidence.py", line 21, in test_new_permission_before_swipe_is_seen_before_any_input
+    self.assertNotIn('swipe', f.kernel.calls)
+AssertionError: 'swipe' unexpectedly found in ['acquire', 'renew', 'renew', 'renew', 'renew', 'swipe', 'renew', 'renew', 'release']
+
+======================================================================
+FAIL: test_saved_result_rejects_damaged_evidence_without_waiting_for_image_request (test_farm_inspection_evidence.InspectionEvidenceTests.test_saved_result_rejects_damaged_evidence_without_waiting_for_image_request)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_inspection_evidence.py", line 29, in test_saved_result_rejects_damaged_evidence_without_waiting_for_image_request
+    with self.assertRaisesRegex(ValueError, 'damaged'): f.store.get(result['id'])
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.747s
+
+FAILED (failures=2)

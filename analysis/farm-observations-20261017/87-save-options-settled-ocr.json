@@ -1,0 +1,375 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:44",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 42,
+          "text": "6:44",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "imouse-draft",
+      "words": [
+        {
+          "y": 76,
+          "height": 16,
+          "width": 124,
+          "text": "imouse-draft",
+          "x": 172
+        }
+      ]
+    },
+    {
+      "text": "END OF TEST VIDEO",
+      "words": [
+        {
+          "y": 307,
+          "height": 15,
+          "width": 41,
+          "text": "END",
+          "x": 59
+        },
+        {
+          "y": 307,
+          "height": 15,
+          "width": 25,
+          "text": "OF",
+          "x": 107
+        },
+        {
+          "y": 307,
+          "height": 15,
+          "width": 47,
+          "text": "TEST",
+          "x": 139
+        },
+        {
+          "y": 307,
+          "height": 15,
+          "width": 62,
+          "text": "VIDEO",
+          "x": 192
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY - DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 360,
+          "height": 13,
+          "width": 47,
+          "text": "DRAFT",
+          "x": 59
+        },
+        {
+          "y": 360,
+          "height": 13,
+          "width": 41,
+          "text": "ONLY",
+          "x": 112
+        },
+        {
+          "y": 367,
+          "height": 2,
+          "width": 5,
+          "text": "-",
+          "x": 159
+        },
+        {
+          "y": 360,
+          "height": 13,
+          "width": 23,
+          "text": "DO",
+          "x": 171
+        },
+        {
+          "y": 360,
+          "height": 13,
+          "width": 32,
+          "text": "NOT",
+          "x": 200
+        },
+        {
+          "y": 360,
+          "height": 13,
+          "width": 60,
+          "text": "PUBLISH",
+          "x": 239
+        }
+      ]
+    },
+    {
+      "text": "TEST: 100%",
+      "words": [
+        {
+          "y": 430,
+          "height": 12,
+          "width": 38,
+          "text": "TEST:",
+          "x": 58
+        },
+        {
+          "y": 430,
+          "height": 12,
+          "width": 39,
+          "text": "100%",
+          "x": 103
+        }
+      ]
+    },
+    {
+      "text": "imouse-draft",
+      "words": [
+        {
+          "y": 521,
+          "height": 15,
+          "width": 112,
+          "text": "imouse-draft",
+          "x": 69
+        }
+      ]
+    },
+    {
+      "text": "Video 79 KB",
+      "words": [
+        {
+          "y": 545,
+          "height": 12,
+          "width": 40,
+          "text": "Video",
+          "x": 69
+        },
+        {
+          "y": 545,
+          "height": 12,
+          "width": 17,
+          "text": "79",
+          "x": 124
+        },
+        {
+          "y": 546,
+          "height": 11,
+          "width": 19,
+          "text": "KB",
+          "x": 147
+        }
+      ]
+    },
+    {
+      "text": "AirDrop",
+      "words": [
+        {
+          "y": 696,
+          "height": 12,
+          "width": 48,
+          "text": "AirDrop",
+          "x": 38
+        }
+      ]
+    },
+    {
+      "text": "Copy",
+      "words": [
+        {
+          "y": 765,
+          "height": 19,
+          "width": 46,
+          "text": "Copy",
+          "x": 50
+        }
+      ]
+    },
+    {
+      "text": "Save Video",
+      "words": [
+        {
+          "y": 838,
+          "height": 16,
+          "width": 43,
+          "text": "Save",
+          "x": 50
+        },
+        {
+          "y": 837,
+          "height": 16,
+          "width": 52,
+          "text": "Video",
+          "x": 99
+        }
+      ]
+    },
+    {
+      "text": "VLC",
+      "words": [
+        {
+          "y": 696,
+          "height": 10,
+          "width": 25,
+          "text": "VLC",
+          "x": 162
+        }
+      ]
+    },
+    {
+      "text": "Messages",
+      "words": [
+        {
+          "y": 696,
+          "height": 12,
+          "width": 62,
+          "text": "Messages",
+          "x": 256
+        }
+      ]
+    },
+    {
+      "text": "CED'",
+      "words": [
+        {
+          "y": 22,
+          "height": 16,
+          "width": 32,
+          "text": "CED'",
+          "x": 447
+        }
+      ]
+    },
+    {
+      "text": "Done",
+      "words": [
+        {
+          "y": 77,
+          "height": 15,
+          "width": 48,
+          "text": "Done",
+          "x": 426
+        }
+      ]
+    },
+    {
+      "text": "x",
+      "words": [
+        {
+          "y": 524,
+          "height": 15,
+          "width": 15,
+          "text": "x",
+          "x": 453
+        }
+      ]
+    },
+    {
+      "text": "Mail",
+      "words": [
+        {
+          "y": 696,
+          "height": 10,
+          "width": 24,
+          "text": "Mail",
+          "x": 388
+        }
+      ]
+    },
+    {
+      "text": "C)",
+      "words": [
+        {
+          "y": 894,
+          "height": 29,
+          "width": 29,
+          "text": "C)",
+          "x": 428
+        }
+      ]
+    },
+    {
+      "text": "Add Tags",
+      "words": [
+        {
+          "y": 899,
+          "height": 15,
+          "width": 35,
+          "text": "Add",
+          "x": 50
+        },
+        {
+          "y": 899,
+          "height": 19,
+          "width": 43,
+          "text": "Tags",
+          "x": 91
+        }
+      ]
+    },
+    {
+      "text": "Save to Files",
+      "words": [
+        {
+          "y": 960,
+          "height": 15,
+          "width": 43,
+          "text": "Save",
+          "x": 50
+        },
+        {
+          "y": 961,
+          "height": 14,
+          "width": 17,
+          "text": "to",
+          "x": 99
+        },
+        {
+          "y": 959,
+          "height": 16,
+          "width": 39,
+          "text": "Files",
+          "x": 124
+        }
+      ]
+    },
+    {
+      "text": "Add to Shared Album",
+      "words": [
+        {
+          "y": 1020,
+          "height": 16,
+          "width": 35,
+          "text": "Add",
+          "x": 50
+        },
+        {
+          "y": 1022,
+          "height": 14,
+          "width": 18,
+          "text": "to",
+          "x": 91
+        },
+        {
+          "y": 1020,
+          "height": 16,
+          "width": 63,
+          "text": "Shared",
+          "x": 115
+        },
+        {
+          "y": 1020,
+          "height": 16,
+          "width": 58,
+          "text": "Album",
+          "x": 185
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "f079a24111ad1fa0d04518697d8736e07a92701c39d861511f73f8ed1bc90b5c"
+}

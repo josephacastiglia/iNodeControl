@@ -1,0 +1,30 @@
+[
+  {
+    "deviceid": "86:1D:4A:04:2F:F6",
+    "name": "XR C24C",
+    "device_name": "iPhone XR",
+    "width": 414,
+    "height": 896,
+    "imgw": 500,
+    "imgh": 1080,
+    "vid": "720A",
+    "pid": "C24C",
+    "uid": "C24CBFBD",
+    "version": "18.7.10",
+    "gname": "Two-phone test"
+  },
+  {
+    "deviceid": "FE:A9:BC:D7:A0:44",
+    "name": "Phone in hand - C241",
+    "device_name": "iPhone XR",
+    "width": 414,
+    "height": 896,
+    "imgw": 500,
+    "imgh": 1080,
+    "vid": "720A",
+    "pid": "C241",
+    "uid": "C241BFBD",
+    "version": "18.7.10",
+    "gname": "Two-phone test"
+  }
+]

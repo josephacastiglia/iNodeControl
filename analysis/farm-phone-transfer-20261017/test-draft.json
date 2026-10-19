@@ -1,0 +1,24 @@
+{
+  "id": "eeb59816-5805-4169-aa1c-d91fe1e2c14f",
+  "title": "iMouse transfer test \u00b7 17 Oct 2026",
+  "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish.",
+  "slideIds": [
+    "c0520837d49600a4f333b815c4749432d845a9307368eef9ff4b7f969b9e04de",
+    "b3b8dd44037f031539a34c310f4f3773d5a043cd884bf1665f90bf4c618225f1",
+    "10cdd78dd3bc41913085e6531865f8903ed08e547a1b0ba53d2519424ef92d3e"
+  ],
+  "revision": 5,
+  "platform": "instagram",
+  "format": "ig_carousel",
+  "deviceId": "C24C",
+  "updatedAt": "2026-10-17T20:55:21.659327+00:00",
+  "sourceGeneration": null,
+  "validation": {
+    "errors": [],
+    "warnings": [
+      "Phone typing, including first-space handling, still requires live validation."
+    ]
+  },
+  "status": "ready_local",
+  "savedInInstagram": false
+}

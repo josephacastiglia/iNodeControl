@@ -1,0 +1,1 @@
+{"state": "review_required", "cleanup": "confirmed", "error": "InspectionStopped: Settled evidence expired or changed before the decision.", "folder": "analysis\\farm-live-transitions-20261018\\attempt-04"}

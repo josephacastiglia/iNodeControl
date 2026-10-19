@@ -1,0 +1,900 @@
+{
+  "source": "agent_supervised_phone",
+  "action": "tap",
+  "intent": "request_save",
+  "point": [
+    41,
+    98
+  ],
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "data": {},
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 203.1
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 732.6
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 41,
+        "y": 98,
+        "button": 1
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 913.4
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 661.5
+      }
+    }
+  ],
+  "captures": [
+    {
+      "name": "fresh",
+      "observation": {
+        "id": "b507692e-df53-4e06-b690-b81696bcc0ed",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": ""
+        },
+        "requestedAt": 1792354649.4494593,
+        "observerSession": "a6456f121e9f4d768db747a78483a0ca",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "9b62e30f-b500-46a7-ad70-e6288141d991",
+          "generation": 11,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "not_requested",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "text": {
+          "imageSha256": "25b43e95f9c20c8d8820f55944c9270322d9e1c27457aa8f955a503132cc549f",
+          "provider": "windows-ocr",
+          "language": "en-US",
+          "lines": [
+            {
+              "text": "4-17",
+              "words": [
+                {
+                  "y": 23,
+                  "height": 15,
+                  "width": 38,
+                  "text": "4-17",
+                  "x": 44
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 88,
+                  "height": 22,
+                  "width": 22,
+                  "text": "x",
+                  "x": 30
+                }
+              ]
+            },
+            {
+              "text": "iMouse 2.0",
+              "words": [
+                {
+                  "y": 214,
+                  "height": 20,
+                  "width": 85,
+                  "text": "iMouse",
+                  "x": 37
+                },
+                {
+                  "y": 215,
+                  "height": 19,
+                  "width": 35,
+                  "text": "2.0",
+                  "x": 129
+                }
+              ]
+            },
+            {
+              "text": "It JMSN \u2022 'BOC",
+              "words": [
+                {
+                  "y": 85,
+                  "height": 11,
+                  "width": 9,
+                  "text": "It",
+                  "x": 215
+                },
+                {
+                  "y": 85,
+                  "height": 11,
+                  "width": 40,
+                  "text": "JMSN",
+                  "x": 232
+                },
+                {
+                  "y": 90,
+                  "height": 2,
+                  "width": 3,
+                  "text": "\u2022",
+                  "x": 278
+                },
+                {
+                  "y": 85,
+                  "height": 11,
+                  "width": 28,
+                  "text": "'BOC",
+                  "x": 287
+                }
+              ]
+            },
+            {
+              "text": "Suggested audio",
+              "words": [
+                {
+                  "y": 102,
+                  "height": 14,
+                  "width": 71,
+                  "text": "Suggested",
+                  "x": 191
+                },
+                {
+                  "y": 102,
+                  "height": 11,
+                  "width": 36,
+                  "text": "audio",
+                  "x": 268
+                }
+              ]
+            },
+            {
+              "text": "CAROUSEL TRANSFER TEST",
+              "words": [
+                {
+                  "y": 278,
+                  "height": 17,
+                  "width": 112,
+                  "text": "CAROUSEL",
+                  "x": 37
+                },
+                {
+                  "y": 278,
+                  "height": 17,
+                  "width": 110,
+                  "text": "TRANSFER",
+                  "x": 155
+                },
+                {
+                  "y": 278,
+                  "height": 17,
+                  "width": 51,
+                  "text": "TEST",
+                  "x": 271
+                }
+              ]
+            },
+            {
+              "text": "SLIDE 3 OF 3",
+              "words": [
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 87,
+                  "text": "SLIDE",
+                  "x": 37
+                },
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 15,
+                  "text": "3",
+                  "x": 135
+                },
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 41,
+                  "text": "OF",
+                  "x": 162
+                },
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 15,
+                  "text": "3",
+                  "x": 215
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY",
+              "words": [
+                {
+                  "y": 661,
+                  "height": 21,
+                  "width": 92,
+                  "text": "DRAFT",
+                  "x": 38
+                },
+                {
+                  "y": 660,
+                  "height": 23,
+                  "width": 78,
+                  "text": "ONLY",
+                  "x": 140
+                }
+              ]
+            },
+            {
+              "text": "DO NOT PUBLISH",
+              "words": [
+                {
+                  "y": 705,
+                  "height": 19,
+                  "width": 35,
+                  "text": "DO",
+                  "x": 38
+                },
+                {
+                  "y": 705,
+                  "height": 19,
+                  "width": 52,
+                  "text": "NOT",
+                  "x": 82
+                },
+                {
+                  "y": 705,
+                  "height": 19,
+                  "width": 100,
+                  "text": "PUBLISH",
+                  "x": 142
+                }
+              ]
+            },
+            {
+              "text": "Audio",
+              "words": [
+                {
+                  "y": 921,
+                  "height": 9,
+                  "width": 33,
+                  "text": "Audio",
+                  "x": 42
+                }
+              ]
+            },
+            {
+              "text": "t:oo",
+              "words": [
+                {
+                  "y": 978,
+                  "height": 54,
+                  "width": 138,
+                  "text": "t:oo",
+                  "x": 23
+                }
+              ]
+            },
+            {
+              "text": "Overlay",
+              "words": [
+                {
+                  "y": 921,
+                  "height": 12,
+                  "width": 44,
+                  "text": "Overlay",
+                  "x": 190
+                }
+              ]
+            },
+            {
+              "text": "Filter",
+              "words": [
+                {
+                  "y": 920,
+                  "height": 10,
+                  "width": 30,
+                  "text": "Filter",
+                  "x": 273
+                }
+              ]
+            },
+            {
+              "text": "Edit",
+              "words": [
+                {
+                  "y": 920,
+                  "height": 10,
+                  "width": 23,
+                  "text": "Edit",
+                  "x": 353
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 187,
+                  "height": 12,
+                  "width": 13,
+                  "text": "x",
+                  "x": 464
+                }
+              ]
+            },
+            {
+              "text": "Ratio",
+              "words": [
+                {
+                  "y": 920,
+                  "height": 10,
+                  "width": 29,
+                  "text": "Ratio",
+                  "x": 427
+                }
+              ]
+            },
+            {
+              "text": "ext",
+              "words": [
+                {
+                  "y": 1001,
+                  "height": 10,
+                  "width": 21,
+                  "text": "ext",
+                  "x": 422
+                }
+              ]
+            }
+          ],
+          "height": 1080,
+          "width": 500,
+          "frameSha256": "e30748ab0f66f5ad2d2788bcb888f973698b7f4613c103b60bd1dd5cdf7e8ec9"
+        },
+        "frameSha256": "e30748ab0f66f5ad2d2788bcb888f973698b7f4613c103b60bd1dd5cdf7e8ec9",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 468.67799999997453,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "47e3e1c0dd3f42e48876070e71d5b193",
+          "sequence": 7592,
+          "reportedAgeMs": 15.678,
+          "observationElapsedMs": 452.99999999997453,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 484.67799999982356
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 24592,
+        "inputGeneration": 11,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "25b43e95f9c20c8d8820f55944c9270322d9e1c27457aa8f955a503132cc549f",
+        "completedAt": 1792354649.918102,
+        "ageSeconds": 0.47844433784484863,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        }
+      }
+    },
+    {
+      "name": "after",
+      "observation": {
+        "id": "737cd850-ffbb-4f8e-a211-75dba5d89f7c",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": ""
+        },
+        "requestedAt": 1792354652.9749138,
+        "observerSession": "a6456f121e9f4d768db747a78483a0ca",
+        "state": "observed",
+        "reason": "The screen is not recognized.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "9b62e30f-b500-46a7-ad70-e6288141d991",
+          "generation": 11,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "unknown",
+          "layout": null,
+          "appPattern": null,
+          "expectedAppMatches": false,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "not_requested",
+          "reason": "The screen is not recognized.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "text": {
+          "imageSha256": "fcf68cb41cecad5d681fd78f78d8b0d2e05e2423514d9e86797ae5fecd5a4d1a",
+          "provider": "windows-ocr",
+          "language": "en-US",
+          "lines": [
+            {
+              "text": "4:17",
+              "words": [
+                {
+                  "y": 23,
+                  "height": 14,
+                  "width": 38,
+                  "text": "4:17",
+                  "x": 44
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 88,
+                  "height": 22,
+                  "width": 21,
+                  "text": "x",
+                  "x": 31
+                }
+              ]
+            },
+            {
+              "text": "iMouse 2.0",
+              "words": [
+                {
+                  "y": 215,
+                  "height": 18,
+                  "width": 83,
+                  "text": "iMouse",
+                  "x": 38
+                },
+                {
+                  "y": 215,
+                  "height": 18,
+                  "width": 33,
+                  "text": "2.0",
+                  "x": 130
+                }
+              ]
+            },
+            {
+              "text": "\u2022 'Bout It JMSI",
+              "words": [
+                {
+                  "y": 90,
+                  "height": 2,
+                  "width": 2,
+                  "text": "\u2022",
+                  "x": 214
+                },
+                {
+                  "y": 85,
+                  "height": 10,
+                  "width": 35,
+                  "text": "'Bout",
+                  "x": 223
+                },
+                {
+                  "y": 85,
+                  "height": 10,
+                  "width": 8,
+                  "text": "It",
+                  "x": 264
+                },
+                {
+                  "y": 85,
+                  "height": 11,
+                  "width": 33,
+                  "text": "JMSI",
+                  "x": 280
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 187,
+                  "height": 12,
+                  "width": 12,
+                  "text": "x",
+                  "x": 464
+                }
+              ]
+            },
+            {
+              "text": "CAROUSEL TRANSFER TEST",
+              "words": [
+                {
+                  "y": 279,
+                  "height": 15,
+                  "width": 111,
+                  "text": "CAROUSEL",
+                  "x": 37
+                },
+                {
+                  "y": 279,
+                  "height": 15,
+                  "width": 110,
+                  "text": "TRANSFER",
+                  "x": 155
+                },
+                {
+                  "y": 279,
+                  "height": 15,
+                  "width": 49,
+                  "text": "TEST",
+                  "x": 272
+                }
+              ]
+            },
+            {
+              "text": "SLIDE 3 OF 3",
+              "words": [
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 85,
+                  "text": "SLIDE",
+                  "x": 38
+                },
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 15,
+                  "text": "3",
+                  "x": 135
+                },
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 40,
+                  "text": "OF",
+                  "x": 163
+                },
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 15,
+                  "text": "3",
+                  "x": 215
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY",
+              "words": [
+                {
+                  "y": 661,
+                  "height": 21,
+                  "width": 91,
+                  "text": "DRAFT",
+                  "x": 39
+                },
+                {
+                  "y": 661,
+                  "height": 21,
+                  "width": 78,
+                  "text": "ONLY",
+                  "x": 140
+                }
+              ]
+            },
+            {
+              "text": "DO NOT PUBLISH",
+              "words": [
+                {
+                  "y": 705,
+                  "height": 18,
+                  "width": 34,
+                  "text": "DO",
+                  "x": 38
+                },
+                {
+                  "y": 705,
+                  "height": 18,
+                  "width": 51,
+                  "text": "NOT",
+                  "x": 82
+                },
+                {
+                  "y": 705,
+                  "height": 18,
+                  "width": 99,
+                  "text": "PUBLISH",
+                  "x": 143
+                }
+              ]
+            },
+            {
+              "text": "If you go back now, your edits will be discarded.",
+              "words": [
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 10,
+                  "text": "If",
+                  "x": 58
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 28,
+                  "text": "you",
+                  "x": 73
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 20,
+                  "text": "go",
+                  "x": 106
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 39,
+                  "text": "back",
+                  "x": 131
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 35,
+                  "text": "now,",
+                  "x": 175
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 36,
+                  "text": "your",
+                  "x": 217
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 39,
+                  "text": "edits",
+                  "x": 257
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 27,
+                  "text": "will",
+                  "x": 301
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 20,
+                  "text": "be",
+                  "x": 333
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 84,
+                  "text": "discarded.",
+                  "x": 358
+                }
+              ]
+            },
+            {
+              "text": "Discard",
+              "words": [
+                {
+                  "y": 856,
+                  "height": 15,
+                  "width": 65,
+                  "text": "Discard",
+                  "x": 218
+                }
+              ]
+            },
+            {
+              "text": "Save draft",
+              "words": [
+                {
+                  "y": 922,
+                  "height": 15,
+                  "width": 41,
+                  "text": "Save",
+                  "x": 206
+                },
+                {
+                  "y": 921,
+                  "height": 15,
+                  "width": 41,
+                  "text": "draft",
+                  "x": 253
+                }
+              ]
+            },
+            {
+              "text": "Cancel",
+              "words": [
+                {
+                  "y": 999,
+                  "height": 15,
+                  "width": 58,
+                  "text": "Cancel",
+                  "x": 221
+                }
+              ]
+            }
+          ],
+          "height": 1080,
+          "width": 500,
+          "frameSha256": "6109e52b19dece73f17f59af1e5d78b1589ef79eacb2b28b823ee7a7950e30c0"
+        },
+        "frameSha256": "6109e52b19dece73f17f59af1e5d78b1589ef79eacb2b28b823ee7a7950e30c0",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 581.3510000001255,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "47e3e1c0dd3f42e48876070e71d5b193",
+          "sequence": 7699,
+          "reportedAgeMs": 19.351,
+          "observationElapsedMs": 562.0000000001255,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 613.3510000000509
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 24592,
+        "inputGeneration": 11,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "fcf68cb41cecad5d681fd78f78d8b0d2e05e2423514d9e86797ae5fecd5a4d1a",
+        "completedAt": 1792354653.54506,
+        "ageSeconds": 0.5940000000000509,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected app pattern is missing.",
+            "Expected account is not visible as exact text."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        }
+      }
+    }
+  ],
+  "cleanup": "confirmed",
+  "state": "observed",
+  "savedDraftVerified": false,
+  "automaticInputAllowed": false,
+  "reviewFrameSha256": "420f0ca4641d3ed65e315819ef0bb982adeddc95e5f2d372cb421b98176058e9",
+  "preflightReview": {
+    "meanError": 0.0008211220596529643,
+    "changedFraction": 0.0014700507614213197
+  },
+  "freshReview": {
+    "meanError": 0.0009178142729172889,
+    "changedFraction": 0.0013928934010152285
+  },
+  "settle": {
+    "polls": 2,
+    "comparison": {
+      "meanError": 0.00021414020769052123,
+      "changedFraction": 0.0006071065989847716
+    }
+  },
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 12,
+    "lease_remaining_ms": 0
+  }
+}

@@ -1,0 +1,16 @@
+test_autoplay_cannot_hide_changed_controls_or_library (__main__.RunGuardTests.test_autoplay_cannot_hide_changed_controls_or_library) ... ok
+test_autoplay_pair_uses_production_stability_and_keeps_freshness_separate (__main__.RunGuardTests.test_autoplay_pair_uses_production_stability_and_keeps_freshness_separate) ... ok
+test_changed_receiver_lease_stream_or_repeated_frame_holds (__main__.RunGuardTests.test_changed_receiver_lease_stream_or_repeated_frame_holds) ... ok
+test_create_sheet_with_edits_row_needs_all_exact_positioned_anchors (__main__.RunGuardTests.test_create_sheet_with_edits_row_needs_all_exact_positioned_anchors) ... ok
+test_details_requires_exact_next_on_the_same_frame_at_the_target (__main__.RunGuardTests.test_details_requires_exact_next_on_the_same_frame_at_the_target) ... ok
+test_drafts_requires_actual_picker_not_words_on_an_unrelated_page (__main__.RunGuardTests.test_drafts_requires_actual_picker_not_words_on_an_unrelated_page) ... ok
+test_manual_editor_override_is_removed (__main__.RunGuardTests.test_manual_editor_override_is_removed) ... ok
+test_share_label_blocks_click_even_under_a_different_intent (__main__.RunGuardTests.test_share_label_blocks_click_even_under_a_different_intent) ... ok
+test_stale_or_unsettled_comparison_does_not_grant_input (__main__.RunGuardTests.test_stale_or_unsettled_comparison_does_not_grant_input) ... ok
+test_transport_allows_only_candidate_and_c24c_input (__main__.RunGuardTests.test_transport_allows_only_candidate_and_c24c_input) ... ok
+test_unknown_picker_never_receives_a_preview_mask (__main__.RunGuardTests.test_unknown_picker_never_receives_a_preview_mask) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.546s
+
+OK

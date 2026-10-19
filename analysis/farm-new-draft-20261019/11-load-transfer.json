@@ -1,0 +1,519 @@
+{
+  "imageSha256": "799f03403ba4151d7d0cb327534da050a11fb38a28d3cc8b5ff5cc3d668c8cb0",
+  "provider": "windows-ocr",
+  "language": "en-US",
+  "lines": [
+    {
+      "text": "4:57",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 40,
+          "text": "4:57",
+          "x": 43
+        }
+      ]
+    },
+    {
+      "text": "iMouse transfer test \u2022",
+      "words": [
+        {
+          "y": 88,
+          "height": 22,
+          "width": 96,
+          "text": "iMouse",
+          "x": 24
+        },
+        {
+          "y": 89,
+          "height": 21,
+          "width": 107,
+          "text": "transfer",
+          "x": 126
+        },
+        {
+          "y": 90,
+          "height": 20,
+          "width": 51,
+          "text": "test",
+          "x": 239
+        },
+        {
+          "y": 99,
+          "height": 5,
+          "width": 5,
+          "text": "\u2022",
+          "x": 299
+        }
+      ]
+    },
+    {
+      "text": "Draft only nothing published",
+      "words": [
+        {
+          "y": 144,
+          "height": 16,
+          "width": 45,
+          "text": "Draft",
+          "x": 24
+        },
+        {
+          "y": 144,
+          "height": 19,
+          "width": 37,
+          "text": "only",
+          "x": 75
+        },
+        {
+          "y": 144,
+          "height": 19,
+          "width": 67,
+          "text": "nothing",
+          "x": 129
+        },
+        {
+          "y": 144,
+          "height": 19,
+          "width": 87,
+          "text": "published",
+          "x": 204
+        }
+      ]
+    },
+    {
+      "text": "17 Oct 2026",
+      "words": [
+        {
+          "y": 89,
+          "height": 21,
+          "width": 30,
+          "text": "17",
+          "x": 312
+        },
+        {
+          "y": 89,
+          "height": 21,
+          "width": 46,
+          "text": "Oct",
+          "x": 350
+        },
+        {
+          "y": 89,
+          "height": 21,
+          "width": 70,
+          "text": "2026",
+          "x": 405
+        }
+      ]
+    },
+    {
+      "text": "I. Save the slides in order",
+      "words": [
+        {
+          "y": 208,
+          "height": 18,
+          "width": 16,
+          "text": "I.",
+          "x": 24
+        },
+        {
+          "y": 208,
+          "height": 18,
+          "width": 53,
+          "text": "Save",
+          "x": 47
+        },
+        {
+          "y": 207,
+          "height": 19,
+          "width": 37,
+          "text": "the",
+          "x": 106
+        },
+        {
+          "y": 207,
+          "height": 19,
+          "width": 66,
+          "text": "slides",
+          "x": 149
+        },
+        {
+          "y": 207,
+          "height": 19,
+          "width": 19,
+          "text": "in",
+          "x": 221
+        },
+        {
+          "y": 207,
+          "height": 19,
+          "width": 60,
+          "text": "order",
+          "x": 247
+        }
+      ]
+    },
+    {
+      "text": "Open slide 1 of 3",
+      "words": [
+        {
+          "y": 276,
+          "height": 19,
+          "width": 48,
+          "text": "Open",
+          "x": 174
+        },
+        {
+          "y": 276,
+          "height": 16,
+          "width": 42,
+          "text": "slide",
+          "x": 229
+        },
+        {
+          "y": 276,
+          "height": 15,
+          "width": 6,
+          "text": "1",
+          "x": 277
+        },
+        {
+          "y": 276,
+          "height": 16,
+          "width": 18,
+          "text": "of",
+          "x": 291
+        },
+        {
+          "y": 276,
+          "height": 16,
+          "width": 11,
+          "text": "3",
+          "x": 315
+        }
+      ]
+    },
+    {
+      "text": "Open slide 2 of 3",
+      "words": [
+        {
+          "y": 356,
+          "height": 19,
+          "width": 48,
+          "text": "Open",
+          "x": 173
+        },
+        {
+          "y": 355,
+          "height": 16,
+          "width": 41,
+          "text": "slide",
+          "x": 228
+        },
+        {
+          "y": 356,
+          "height": 15,
+          "width": 10,
+          "text": "2",
+          "x": 276
+        },
+        {
+          "y": 355,
+          "height": 16,
+          "width": 18,
+          "text": "of",
+          "x": 292
+        },
+        {
+          "y": 356,
+          "height": 15,
+          "width": 10,
+          "text": "3",
+          "x": 317
+        }
+      ]
+    },
+    {
+      "text": "Open slide 3 of 3",
+      "words": [
+        {
+          "y": 435,
+          "height": 19,
+          "width": 47,
+          "text": "Open",
+          "x": 173
+        },
+        {
+          "y": 435,
+          "height": 16,
+          "width": 41,
+          "text": "slide",
+          "x": 228
+        },
+        {
+          "y": 435,
+          "height": 16,
+          "width": 11,
+          "text": "3",
+          "x": 276
+        },
+        {
+          "y": 435,
+          "height": 16,
+          "width": 17,
+          "text": "of",
+          "x": 293
+        },
+        {
+          "y": 435,
+          "height": 16,
+          "width": 10,
+          "text": "3",
+          "x": 317
+        }
+      ]
+    },
+    {
+      "text": "2. Copy the caption",
+      "words": [
+        {
+          "y": 516,
+          "height": 18,
+          "width": 19,
+          "text": "2.",
+          "x": 24
+        },
+        {
+          "y": 516,
+          "height": 22,
+          "width": 58,
+          "text": "Copy",
+          "x": 50
+        },
+        {
+          "y": 515,
+          "height": 19,
+          "width": 36,
+          "text": "the",
+          "x": 114
+        },
+        {
+          "y": 515,
+          "height": 23,
+          "width": 84,
+          "text": "caption",
+          "x": 156
+        }
+      ]
+    },
+    {
+      "text": "iMouse carousel draft test.",
+      "words": [
+        {
+          "y": 580,
+          "height": 15,
+          "width": 62,
+          "text": "iMouse",
+          "x": 39
+        },
+        {
+          "y": 580,
+          "height": 15,
+          "width": 72,
+          "text": "carousel",
+          "x": 107
+        },
+        {
+          "y": 580,
+          "height": 15,
+          "width": 41,
+          "text": "draft",
+          "x": 186
+        },
+        {
+          "y": 581,
+          "height": 14,
+          "width": 38,
+          "text": "test.",
+          "x": 232
+        }
+      ]
+    },
+    {
+      "text": "Three numbered slides in order: I, 2, 3.",
+      "words": [
+        {
+          "y": 604,
+          "height": 15,
+          "width": 50,
+          "text": "Three",
+          "x": 39
+        },
+        {
+          "y": 604,
+          "height": 15,
+          "width": 87,
+          "text": "numbered",
+          "x": 95
+        },
+        {
+          "y": 604,
+          "height": 15,
+          "width": 49,
+          "text": "slides",
+          "x": 189
+        },
+        {
+          "y": 604,
+          "height": 15,
+          "width": 14,
+          "text": "in",
+          "x": 244
+        },
+        {
+          "y": 604,
+          "height": 15,
+          "width": 51,
+          "text": "order:",
+          "x": 264
+        },
+        {
+          "y": 604,
+          "height": 18,
+          "width": 12,
+          "text": "I,",
+          "x": 321
+        },
+        {
+          "y": 604,
+          "height": 18,
+          "width": 14,
+          "text": "2,",
+          "x": 340
+        },
+        {
+          "y": 604,
+          "height": 15,
+          "width": 14,
+          "text": "3.",
+          "x": 362
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY - do not publish.",
+      "words": [
+        {
+          "y": 629,
+          "height": 14,
+          "width": 59,
+          "text": "DRAFT",
+          "x": 40
+        },
+        {
+          "y": 629,
+          "height": 14,
+          "width": 48,
+          "text": "ONLY",
+          "x": 105
+        },
+        {
+          "y": 636,
+          "height": 2,
+          "width": 7,
+          "text": "-",
+          "x": 160
+        },
+        {
+          "y": 628,
+          "height": 15,
+          "width": 21,
+          "text": "do",
+          "x": 173
+        },
+        {
+          "y": 629,
+          "height": 14,
+          "width": 27,
+          "text": "not",
+          "x": 201
+        },
+        {
+          "y": 628,
+          "height": 18,
+          "width": 67,
+          "text": "publish.",
+          "x": 234
+        }
+      ]
+    },
+    {
+      "text": "Copy caption",
+      "words": [
+        {
+          "y": 785,
+          "height": 19,
+          "width": 46,
+          "text": "Copy",
+          "x": 43
+        },
+        {
+          "y": 785,
+          "height": 19,
+          "width": 66,
+          "text": "caption",
+          "x": 96
+        }
+      ]
+    },
+    {
+      "text": "3. Save in Instagram",
+      "words": [
+        {
+          "y": 866,
+          "height": 18,
+          "width": 19,
+          "text": "3.",
+          "x": 24
+        },
+        {
+          "y": 866,
+          "height": 18,
+          "width": 53,
+          "text": "Save",
+          "x": 50
+        },
+        {
+          "y": 865,
+          "height": 19,
+          "width": 19,
+          "text": "in",
+          "x": 110
+        },
+        {
+          "y": 866,
+          "height": 22,
+          "width": 112,
+          "text": "Instagram",
+          "x": 137
+        }
+      ]
+    },
+    {
+      "text": "192.168.4.26",
+      "words": [
+        {
+          "y": 947,
+          "height": 16,
+          "width": 116,
+          "text": "192.168.4.26",
+          "x": 192
+        }
+      ]
+    }
+  ],
+  "height": 1080,
+  "width": 500,
+  "frameSha256": "799f03403ba4151d7d0cb327534da050a11fb38a28d3cc8b5ff5cc3d668c8cb0"
+}

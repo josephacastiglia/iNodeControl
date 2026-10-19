@@ -1,0 +1,221 @@
+Warning: truncated output (original token count: 7354)
+Total output lines: 331
+
+ok
+test_cancelled_context_never_acquires_or_sends_but_allows_cleanup (test_farm_jobs.FarmJobTests.test_cancelled_context_never_acquires_or_sends_but_allows_cleanup) ... ok
+test_cleanup_failure_during_cancellation_is_reported (test_farm_jobs.FarmJobTests.test_cleanup_failure_during_cancellation_is_reported) ... ok
+test_content_job_generates_media_without_kernel_input (test_farm_jobs.FarmJobTests.test_content_job_generates_media_without_kernel_input) ... ok
+test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow (test_farm_jobs.FarmJobTests.test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow) ... ok
+test_duplicate_completed_submission_never_replays (test_farm_jobs.FarmJobTests.test_duplicate_completed_submission_never_replays) ... ok
+test_duplicate_id_with_different_payload_is_refused (test_farm_jobs.FarmJobTests.test_duplicate_id_with_different_payload_is_refused) ... ok
+test_every_upload_format_dispatches_and_releases_in_simulation (test_farm_jobs.FarmJobTests.test_every_upload_format_dispatches_and_releases_in_simulation) ... ok
+test_failure_is_not_success_or_automatically_retried (test_farm_jobs.FarmJobTests.test_failure_is_not_success_or_automatically_retried) ... ok
+test_interrupted_record_is_unknown_not_rerun (test_farm_jobs.FarmJobTests.test_interrupted_record_is_unknown_not_rerun) ... ok
+test_invalid_job_ids_and_actions_are_refused (test_farm_jobs.FarmJobTests.test_invalid_job_ids_and_actions_are_refused) ... ok
+test_live_automation_refuses_before_any_kernel_probe (test_farm_jobs.FarmJobTests.test_live_automation_refuses_before_any_kernel_probe) ... ok
+test_lost_client_heartbeat_cancels_job (test_farm_jobs.FarmJobTests.test_lost_client_heartbeat_cancels_job) ... ok
+test_new_instance_recovers_completed_result_without_replaying (test_farm_jobs.FarmJobTests.test_new_instance_recovers_completed_result_without_replaying) ... ok
+test_second_concurrent_job_is_refused (test_farm_jobs.FarmJobTests.test_second_concurrent_job_is_refused) ... ok
+test_unavailable_counts_do_not_clear_an_existing_pause (test_farm_jobs.FarmJobTests.test_unavailable_counts_do_not_clear_an_existing_pause) ... ok
+test_unknown_observations_do_not_claim_dm_success (test_farm_jobs.FarmJobTests.test_unknown_observations_do_not_claim_dm_success) ... ok
+test_warmup_job_accepts_console_id_and_releases (test_farm_jobs.FarmJobTests.test_warmup_job_accepts_console_id_and_releases) ... ok
+test_bind_must_be_explicit_private_address_and_time_bounded (test_farm_media_transfer.MediaTransferTests.test_bind_must_be_explicit_private_address_and_time_bounded) ... ok
+test_bound_port_collision_is_failure (test_farm_media_transfer.MediaTransferTests.test_bound_port_collision_is_failure) ... ok
+test_corrupt_or_substituted_package_is_refused (test_farm_media_transfer.MediaTransferTests.test_corrupt_or_substituted_package_is_refused) ... ok
+test_expiration_prevents_more_downloads (test_farm_media_transfer.MediaTransferTests.test_expiration_prevents_more_downloads) ... FAIL
+C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\case.py:622: ResourceWarning: unclosed <socket.socket fd=1064, family=2, type=1, proto=0>
+  with outcome.testPartExecutor(self):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_logs_do_not_contain_secret_url_or_caption (test_farm_media_transfer.MediaTransferTests.test_logs_do_not_contain_secret_url_or_caption) ... FAIL
+C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\case.py:622: ResourceWarning: unclosed <socket.socket fd=1592, family=2, type=1, proto=0>
+  with outcome.testPartExecutor(self):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_mutations_refused_and_head_does_not_count_as_delivery (test_farm_media_transfer.MediaTransferTests.test_mutations_refused_and_head_does_not_count_as_delivery) ... FAIL
+C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\case.py:622: ResourceWarning: unclosed <socket.socket fd=1544, family=2, type=1, proto=0>
+  with outcome.testPartExecutor(self):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_ordered_image_bytes_and_caption_survive_real_http (test_farm_media_transfer.MediaTransferTests.test_ordered_image_bytes_and_caption_survive_real_http) ... FAIL
+C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\case.py:622: ResourceWarning: unclosed <socket.socket fd=1500, family=2, type=1, proto=0>
+  with outcome.testPartExecutor(self):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_other_phone_package_refused (test_farm_media_transfer.MediaTransferTests.test_other_phone_package_refused) ... ok
+test_page_escapes_user_text_and_has_no_control_or_publish_route (test_farm_media_transfer.MediaTransferTests.test_page_escapes_user_text_and_has_no_control_or_publish_route) ... FAIL
+C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\case.py:622: ResourceWarning: unclosed <socket.socket fd=1788, family=2, type=1, proto=0>
+  with outcome.testPartExecutor(self):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_wrong_host_refused_and_no_cross_origin_permission (test_farm_media_transfer.MediaTransferTests.test_wrong_host_refused_and_no_cross_origin_permission) ... FAIL
+C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\case.py:622: ResourceWarning: unclosed <socket.socket fd=1780, family=2, type=1, proto=0>
+  with outcome.testPartExecutor(self):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_wrong_phone_refused (test_farm_media_transfer.MediaTransferTests.test_wrong_phone_refused) ... FAIL
+C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\case.py:622: ResourceWarning: unclosed <socket.socket fd=1696, family=2, type=1, proto=0>
+  with outcome.testPartExecutor(self):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_wrong_token_and_path_traversal_and_query_refused (test_farm_media_transfer.MediaTransferTests.test_wrong_token_and_path_traversal_and_query_refused) ... FAIL
+C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\case.py:622: ResourceWarning: unclosed <socket.socket fd=1688, family=2, type=1, proto=0>
+  with outcome.testPartExecutor(self):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+
+======================================================================
+FAIL: test_expiration_prevents_more_downloads (test_farm_media_transfer.MediaTransferTests.test_expiration_prevents_more_downloads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 102, in test_expiration_prevents_more_downloads
+    self.assertEqual(200, self.request()[0])
+                          ^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 54, in request
+    client.request(method, path or self.server.prefix, headers={'Host': host or self.server.authority})
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1286, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1332, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1281, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1041, in _send_output
+    self.send(msg)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 979, in send
+    self.connect()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 945, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 836, in create_connection
+    sock.connect(sa)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_http_jobs.py", line 23, in _network_guard
+    raise AssertionError("HTTP tests may connect only to their own ephemeral server.")
+AssertionError: HTTP tests may connect only to their own ephemeral server.
+
+======================================================================
+FAIL: test_logs_do_not_contain_secret_url_or_caption (test_farm_media_transfer.MediaTransferTests.test_logs_do_not_contain_secret_url_or_caption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 121, in test_logs_do_not_contain_secret_url_or_caption
+    self.request(self.server.prefix + '01.jpg')
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 54, in request
+    client.request(method, path or self.server.prefix, headers={'Host': host or self.server.authority})
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1286, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1332, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1281, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Progr…2354 tokens truncated…
+    self.connect()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 945, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 836, in create_connection
+    sock.connect(sa)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_http_jobs.py", line 23, in _network_guard
+    raise AssertionError("HTTP tests may connect only to their own ephemeral server.")
+AssertionError: HTTP tests may connect only to their own ephemeral server.
+
+======================================================================
+FAIL: test_wrong_phone_refused (test_farm_media_transfer.MediaTransferTests.test_wrong_phone_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 91, in test_wrong_phone_refused
+    self.assertEqual(404, self.request()[0])
+                          ^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 54, in request
+    client.request(method, path or self.server.prefix, headers={'Host': host or self.server.authority})
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1286, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1332, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1281, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1041, in _send_output
+    self.send(msg)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 979, in send
+    self.connect()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 945, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 836, in create_connection
+    sock.connect(sa)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_http_jobs.py", line 23, in _network_guard
+    raise AssertionError("HTTP tests may connect only to their own ephemeral server.")
+AssertionError: HTTP tests may connect only to their own ephemeral server.
+
+======================================================================
+FAIL: test_wrong_token_and_path_traversal_and_query_refused (test_farm_media_transfer.MediaTransferTests.test_wrong_token_and_path_traversal_and_query_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 87, in test_wrong_token_and_path_traversal_and_query_refused
+    self.assertEqual(404, self.request(path)[0], path)
+                          ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 54, in request
+    client.request(method, path or self.server.prefix, headers={'Host': host or self.server.authority})
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1286, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1332, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1281, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1041, in _send_output
+    self.send(msg)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 979, in send
+    self.connect()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 945, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 836, in create_connection
+    sock.connect(sa)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_http_jobs.py", line 23, in _network_guard
+    raise AssertionError("HTTP tests may connect only to their own ephemeral server.")
+AssertionError: HTTP tests may connect only to their own ephemeral server.
+
+----------------------------------------------------------------------
+Ran 118 tests in 11.597s
+
+FAILED (failures=8)
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/acf5c6b2-aecd-419c-8851-01a0beb99293 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/acf5c6b2-aecd-419c-8851-01a0beb99293 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs/a3f25a66-9b29-4fc9-acd9-7faf129320bf/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/a3f25a66-9b29-4fc9-acd9-7faf129320bf HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/9e6a3efc-32b6-4be3-80d9-f68f29ad70c6/import HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/9e6a3efc-32b6-4be3-80d9-f68f29ad70c6/import HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/9e6a3efc-32b6-4be3-80d9-f68f29ad70c6/save HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/9e6a3efc-32b6-4be3-80d9-f68f29ad70c6/export HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/de4669c3-4e76-4eb2-90cb-25ea9da1f94c HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/de4669c3-4e76-4eb2-90cb-25ea9da1f94c HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/de4669c3-4e76-4eb2-90cb-25ea9da1f94c HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/e291c749-dc2a-4f4f-b94e-34b26cf9410b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/manifest.json HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/video_06d2b527877a4e139779754801f9898e_18271e1e.mp4 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_06d2b527877a4e139779754801f9898e_01_3c0c1c2f.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_06d2b527877a4e139779754801f9898e_02_3c1c3e7e.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_06d2b527877a4e139779754801f9898e_03_7c1c5c63.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_06d2b527877a4e139779754801f9898e_04_3c5c1c47.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 413 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/cf888309-d1dd-4a6d-937c-11424ddf21c3 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/resume-simulation HTTP/1.1" 200 -
+

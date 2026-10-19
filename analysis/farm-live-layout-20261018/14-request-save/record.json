@@ -1,0 +1,1300 @@
+{
+  "source": "agent_supervised_phone",
+  "action": "tap",
+  "intent": "request_save",
+  "point": [
+    40,
+    100
+  ],
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "data": {},
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 186.2
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 740.8
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 40,
+        "y": 100,
+        "button": 1
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 922.5
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 691.8
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 49.7
+      }
+    }
+  ],
+  "captures": [
+    {
+      "name": "fresh",
+      "observation": {
+        "id": "76291e78-de12-48d4-9981-5bca9a48aa73",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": ""
+        },
+        "requestedAt": 1792363635.0103378,
+        "observerSession": "55d22b881a3a41d8998d60041bf9617e",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "fc9323f7-56f5-4fa4-a9df-08bae3f9a05f",
+          "generation": 11,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "not_requested",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "text": {
+          "imageSha256": "b71ada9355909d9ee26912e53ca0c62d15d0ebfe2a4c8442b6ed2f120c058561",
+          "provider": "windows-ocr",
+          "language": "en-US",
+          "lines": [
+            {
+              "text": "6:47",
+              "words": [
+                {
+                  "y": 22,
+                  "height": 16,
+                  "width": 42,
+                  "text": "6:47",
+                  "x": 42
+                }
+              ]
+            },
+            {
+              "text": "aria \u2022 Day By Day",
+              "words": [
+                {
+                  "y": 84,
+                  "height": 12,
+                  "width": 25,
+                  "text": "aria",
+                  "x": 188
+                },
+                {
+                  "y": 90,
+                  "height": 2,
+                  "width": 3,
+                  "text": "\u2022",
+                  "x": 218
+                },
+                {
+                  "y": 85,
+                  "height": 13,
+                  "width": 26,
+                  "text": "Day",
+                  "x": 226
+                },
+                {
+                  "y": 85,
+                  "height": 13,
+                  "width": 16,
+                  "text": "By",
+                  "x": 258
+                },
+                {
+                  "y": 85,
+                  "height": 13,
+                  "width": 25,
+                  "text": "Day",
+                  "x": 280
+                }
+              ]
+            },
+            {
+              "text": "Suggested audio",
+              "words": [
+                {
+                  "y": 102,
+                  "height": 14,
+                  "width": 71,
+                  "text": "Suggested",
+                  "x": 187
+                },
+                {
+                  "y": 102,
+                  "height": 11,
+                  "width": 37,
+                  "text": "audio",
+                  "x": 263
+                }
+              ]
+            },
+            {
+              "text": "iMouse 2.0",
+              "words": [
+                {
+                  "y": 214,
+                  "height": 20,
+                  "width": 85,
+                  "text": "iMouse",
+                  "x": 37
+                },
+                {
+                  "y": 215,
+                  "height": 19,
+                  "width": 35,
+                  "text": "2.0",
+                  "x": 129
+                }
+              ]
+            },
+            {
+              "text": "CAROUSEL TRANSFER TEST",
+              "words": [
+                {
+                  "y": 278,
+                  "height": 17,
+                  "width": 112,
+                  "text": "CAROUSEL",
+                  "x": 37
+                },
+                {
+                  "y": 278,
+                  "height": 17,
+                  "width": 110,
+                  "text": "TRANSFER",
+                  "x": 155
+                },
+                {
+                  "y": 278,
+                  "height": 17,
+                  "width": 51,
+                  "text": "TEST",
+                  "x": 271
+                }
+              ]
+            },
+            {
+              "text": "SLIDE 3 OF 3",
+              "words": [
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 87,
+                  "text": "SLIDE",
+                  "x": 37
+                },
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 15,
+                  "text": "3",
+                  "x": 135
+                },
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 40,
+                  "text": "OF",
+                  "x": 163
+                },
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 15,
+                  "text": "3",
+                  "x": 215
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY",
+              "words": [
+                {
+                  "y": 661,
+                  "height": 21,
+                  "width": 92,
+                  "text": "DRAFT",
+                  "x": 38
+                },
+                {
+                  "y": 660,
+                  "height": 23,
+                  "width": 78,
+                  "text": "ONLY",
+                  "x": 140
+                }
+              ]
+            },
+            {
+              "text": "DO NOT PUBLISH",
+              "words": [
+                {
+                  "y": 705,
+                  "height": 19,
+                  "width": 35,
+                  "text": "DO",
+                  "x": 38
+                },
+                {
+                  "y": 705,
+                  "height": 19,
+                  "width": 52,
+                  "text": "NOT",
+                  "x": 82
+                },
+                {
+                  "y": 705,
+                  "height": 19,
+                  "width": 100,
+                  "text": "PUBLISH",
+                  "x": 142
+                }
+              ]
+            },
+            {
+              "text": "Audio",
+              "words": [
+                {
+                  "y": 921,
+                  "height": 9,
+                  "width": 33,
+                  "text": "Audio",
+                  "x": 42
+                }
+              ]
+            },
+            {
+              "text": "Overlay",
+              "words": [
+                {
+                  "y": 921,
+                  "height": 12,
+                  "width": 44,
+                  "text": "Overlay",
+                  "x": 190
+                }
+              ]
+            },
+            {
+              "text": "Filter",
+              "words": [
+                {
+                  "y": 920,
+                  "height": 10,
+                  "width": 30,
+                  "text": "Filter",
+                  "x": 273
+                }
+              ]
+            },
+            {
+              "text": "Edit",
+              "words": [
+                {
+                  "y": 920,
+                  "height": 10,
+                  "width": 23,
+                  "text": "Edit",
+                  "x": 353
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 187,
+                  "height": 12,
+                  "width": 13,
+                  "text": "x",
+                  "x": 464
+                }
+              ]
+            },
+            {
+              "text": "Ratio",
+              "words": [
+                {
+                  "y": 920,
+                  "height": 10,
+                  "width": 29,
+                  "text": "Ratio",
+                  "x": 427
+                }
+              ]
+            },
+            {
+              "text": "ext",
+              "words": [
+                {
+                  "y": 1001,
+                  "height": 10,
+                  "width": 21,
+                  "text": "ext",
+                  "x": 422
+                }
+              ]
+            }
+          ],
+          "height": 1080,
+          "width": 500,
+          "frameSha256": "4eceb06a172129d8ce4aaa629c89f995004b0c905f033c878728c734c3bdf844",
+          "controlOcr": {
+            "next": {
+              "imageSha256": "99e4456cb899a7fcc3ed018fd8a9b3e38afcab778312f5401db430d73d4639d0",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "Next",
+                  "words": [
+                    {
+                      "y": 39,
+                      "height": 33,
+                      "width": 94,
+                      "text": "Next",
+                      "x": 23
+                    }
+                  ]
+                }
+              ],
+              "height": 117,
+              "width": 129,
+              "sourceFrameSha256": "4eceb06a172129d8ce4aaa629c89f995004b0c905f033c878728c734c3bdf844",
+              "sourcePixelsSha256": "64cff3cdc34559207e70fda5f723f9ae77c3e2189880c8536643735f226ccb2d",
+              "bounds": [
+                404,
+                987,
+                447,
+                1026
+              ],
+              "scale": 3
+            }
+          }
+        },
+        "frameSha256": "4eceb06a172129d8ce4aaa629c89f995004b0c905f033c878728c734c3bdf844",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 1021.1899999996217,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "0015cfdea3c44725ba1fd74e1e2c8a3a",
+          "sequence": 11096,
+          "reportedAgeMs": 5.19,
+          "observationElapsedMs": 1015.9999999996217,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 1029.7461275478395
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 34420,
+        "inputGeneration": 11,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "b71ada9355909d9ee26912e53ca0c62d15d0ebfe2a4c8442b6ed2f120c058561",
+        "completedAt": 1792363636.111083,
+        "ageSeconds": 1.1093013286590576,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        }
+      }
+    },
+    {
+      "name": "after-first",
+      "observation": {
+        "id": "b8006cf7-64cd-4454-9bf5-42b5dde91319",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": ""
+        },
+        "requestedAt": 1792363638.6905036,
+        "observerSession": "55d22b881a3a41d8998d60041bf9617e",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "fc9323f7-56f5-4fa4-a9df-08bae3f9a05f",
+          "generation": 11,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "save_prompt",
+          "layout": null,
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "not_requested",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "text": {
+          "imageSha256": "48aa5349d5fe190a1716e5b353564690ed0f673047f0a8cc71cb30ab3c7792dd",
+          "provider": "windows-ocr",
+          "language": "en-US",
+          "lines": [
+            {
+              "text": "6:47",
+              "words": [
+                {
+                  "y": 22,
+                  "height": 16,
+                  "width": 42,
+                  "text": "6:47",
+                  "x": 42
+                }
+              ]
+            },
+            {
+              "text": "iMouse 2.0",
+              "words": [
+                {
+                  "y": 214,
+                  "height": 19,
+                  "width": 83,
+                  "text": "iMouse",
+                  "x": 38
+                },
+                {
+                  "y": 215,
+                  "height": 18,
+                  "width": 33,
+                  "text": "2.0",
+                  "x": 130
+                }
+              ]
+            },
+            {
+              "text": "By Day Amaria",
+              "words": [
+                {
+                  "y": 85,
+                  "height": 13,
+                  "width": 16,
+                  "text": "By",
+                  "x": 195
+                },
+                {
+                  "y": 85,
+                  "height": 13,
+                  "width": 25,
+                  "text": "Day",
+                  "x": 217
+                },
+                {
+                  "y": 84,
+                  "height": 11,
+                  "width": 48,
+                  "text": "Amaria",
+                  "x": 250
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 187,
+                  "height": 12,
+                  "width": 12,
+                  "text": "x",
+                  "x": 464
+                }
+              ]
+            },
+            {
+              "text": "CAROUSEL TRANSFER TEST",
+              "words": [
+                {
+                  "y": 279,
+                  "height": 15,
+                  "width": 111,
+                  "text": "CAROUSEL",
+                  "x": 37
+                },
+                {
+                  "y": 279,
+                  "height": 15,
+                  "width": 110,
+                  "text": "TRANSFER",
+                  "x": 155
+                },
+                {
+                  "y": 279,
+                  "height": 15,
+                  "width": 49,
+                  "text": "TEST",
+                  "x": 272
+                }
+              ]
+            },
+            {
+              "text": "SLIDE 3 OF 3",
+              "words": [
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 85,
+                  "text": "SLIDE",
+                  "x": 38
+                },
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 15,
+                  "text": "3",
+                  "x": 135
+                },
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 40,
+                  "text": "OF",
+                  "x": 163
+                },
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 15,
+                  "text": "3",
+                  "x": 215
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY",
+              "words": [
+                {
+                  "y": 661,
+                  "height": 21,
+                  "width": 91,
+                  "text": "DRAFT",
+                  "x": 39
+                },
+                {
+                  "y": 661,
+                  "height": 21,
+                  "width": 78,
+                  "text": "ONLY",
+                  "x": 140
+                }
+              ]
+            },
+            {
+              "text": "DO NOT PUBLISH",
+              "words": [
+                {
+                  "y": 705,
+                  "height": 18,
+                  "width": 34,
+                  "text": "DO",
+                  "x": 38
+                },
+                {
+                  "y": 705,
+                  "height": 18,
+                  "width": 51,
+                  "text": "NOT",
+                  "x": 82
+                },
+                {
+                  "y": 705,
+                  "height": 18,
+                  "width": 99,
+                  "text": "PUBLISH",
+                  "x": 143
+                }
+              ]
+            },
+            {
+              "text": "If you go back now, your edits will be discarded.",
+              "words": [
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 10,
+                  "text": "If",
+                  "x": 58
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 28,
+                  "text": "you",
+                  "x": 73
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 20,
+                  "text": "go",
+                  "x": 106
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 39,
+                  "text": "back",
+                  "x": 131
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 35,
+                  "text": "now,",
+                  "x": 175
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 36,
+                  "text": "your",
+                  "x": 217
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 39,
+                  "text": "edits",
+                  "x": 257
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 27,
+                  "text": "will",
+                  "x": 301
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 20,
+                  "text": "be",
+                  "x": 333
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 84,
+                  "text": "discarded.",
+                  "x": 358
+                }
+              ]
+            },
+            {
+              "text": "Discard",
+              "words": [
+                {
+                  "y": 856,
+                  "height": 15,
+                  "width": 65,
+                  "text": "Discard",
+                  "x": 218
+                }
+              ]
+            },
+            {
+              "text": "Save draft",
+              "words": [
+                {
+                  "y": 922,
+                  "height": 15,
+                  "width": 41,
+                  "text": "Save",
+                  "x": 206
+                },
+                {
+                  "y": 921,
+                  "height": 15,
+                  "width": 41,
+                  "text": "draft",
+                  "x": 253
+                }
+              ]
+            },
+            {
+              "text": "Cancel",
+              "words": [
+                {
+                  "y": 999,
+                  "height": 15,
+                  "width": 58,
+                  "text": "Cancel",
+                  "x": 221
+                }
+              ]
+            }
+          ],
+          "height": 1080,
+          "width": 500,
+          "frameSha256": "50eca97827235674577034e7cf783b2f52df23deccc24550f9afa1900f03e607"
+        },
+        "frameSha256": "50eca97827235674577034e7cf783b2f52df23deccc24550f9afa1900f03e607",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 507.39100000037837,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "0015cfdea3c44725ba1fd74e1e2c8a3a",
+          "sequence": 11200,
+          "reportedAgeMs": 23.391,
+          "observationElapsedMs": 484.00000000037835,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 523.3910000000001
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 34420,
+        "inputGeneration": 11,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "48aa5349d5fe190a1716e5b353564690ed0f673047f0a8cc71cb30ab3c7792dd",
+        "completedAt": 1792363639.1831253,
+        "ageSeconds": 0.5001285076141357,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        }
+      }
+    },
+    {
+      "name": "after",
+      "observation": {
+        "id": "75fc058c-b117-4e27-b649-ab8b53c10d6a",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": ""
+        },
+        "requestedAt": 1792363639.400627,
+        "observerSession": "55d22b881a3a41d8998d60041bf9617e",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "fc9323f7-56f5-4fa4-a9df-08bae3f9a05f",
+          "generation": 11,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "save_prompt",
+          "layout": null,
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "not_requested",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "text": {
+          "imageSha256": "73c4905b6976803d4c5d06bdcea73134435690976f66d348fe2bb16976884d8e",
+          "provider": "windows-ocr",
+          "language": "en-US",
+          "lines": [
+            {
+              "text": "6:47",
+              "words": [
+                {
+                  "y": 22,
+                  "height": 16,
+                  "width": 42,
+                  "text": "6:47",
+                  "x": 42
+                }
+              ]
+            },
+            {
+              "text": "Day Amaria C",
+              "words": [
+                {
+                  "y": 85,
+                  "height": 13,
+                  "width": 25,
+                  "text": "Day",
+                  "x": 204
+                },
+                {
+                  "y": 84,
+                  "height": 11,
+                  "width": 48,
+                  "text": "Amaria",
+                  "x": 237
+                },
+                {
+                  "y": 85,
+                  "height": 11,
+                  "width": 8,
+                  "text": "C",
+                  "x": 299
+                }
+              ]
+            },
+            {
+              "text": "iMouse 2.0",
+              "words": [
+                {
+                  "y": 214,
+                  "height": 19,
+                  "width": 83,
+                  "text": "iMouse",
+                  "x": 38
+                },
+                {
+                  "y": 215,
+                  "height": 18,
+                  "width": 33,
+                  "text": "2.0",
+                  "x": 130
+                }
+              ]
+            },
+            {
+              "text": "CAROUSEL TRANSFER TEST",
+              "words": [
+                {
+                  "y": 279,
+                  "height": 15,
+                  "width": 111,
+                  "text": "CAROUSEL",
+                  "x": 37
+                },
+                {
+                  "y": 279,
+                  "height": 15,
+                  "width": 110,
+                  "text": "TRANSFER",
+                  "x": 155
+                },
+                {
+                  "y": 279,
+                  "height": 15,
+                  "width": 49,
+                  "text": "TEST",
+                  "x": 272
+                }
+              ]
+            },
+            {
+              "text": "SLIDE 3 OF 3",
+              "words": [
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 85,
+                  "text": "SLIDE",
+                  "x": 38
+                },
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 15,
+                  "text": "3",
+                  "x": 135
+                },
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 40,
+                  "text": "OF",
+                  "x": 163
+                },
+                {
+                  "y": 593,
+                  "height": 24,
+                  "width": 15,
+                  "text": "3",
+                  "x": 215
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY",
+              "words": [
+                {
+                  "y": 661,
+                  "height": 21,
+                  "width": 91,
+                  "text": "DRAFT",
+                  "x": 39
+                },
+                {
+                  "y": 661,
+                  "height": 21,
+                  "width": 78,
+                  "text": "ONLY",
+                  "x": 140
+                }
+              ]
+            },
+            {
+              "text": "DO NOT PUBLISH",
+              "words": [
+                {
+                  "y": 705,
+                  "height": 18,
+                  "width": 34,
+                  "text": "DO",
+                  "x": 38
+                },
+                {
+                  "y": 705,
+                  "height": 18,
+                  "width": 51,
+                  "text": "NOT",
+                  "x": 82
+                },
+                {
+                  "y": 705,
+                  "height": 18,
+                  "width": 99,
+                  "text": "PUBLISH",
+                  "x": 143
+                }
+              ]
+            },
+            {
+              "text": "If you go back now, your edits will be discarded.",
+              "words": [
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 10,
+                  "text": "If",
+                  "x": 58
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 28,
+                  "text": "you",
+                  "x": 73
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 20,
+                  "text": "go",
+                  "x": 106
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 39,
+                  "text": "back",
+                  "x": 131
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 35,
+                  "text": "now,",
+                  "x": 175
+                },
+                {
+                  "y": 796,
+                  "height": 13,
+                  "width": 36,
+                  "text": "your",
+                  "x": 217
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 39,
+                  "text": "edits",
+                  "x": 257
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 27,
+                  "text": "will",
+                  "x": 301
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 20,
+                  "text": "be",
+                  "x": 333
+                },
+                {
+                  "y": 793,
+                  "height": 13,
+                  "width": 84,
+                  "text": "discarded.",
+                  "x": 358
+                }
+              ]
+            },
+            {
+              "text": "Discard",
+              "words": [
+                {
+                  "y": 856,
+                  "height": 15,
+                  "width": 65,
+                  "text": "Discard",
+                  "x": 218
+                }
+              ]
+            },
+            {
+              "text": "Save draft",
+              "words": [
+                {
+                  "y": 922,
+                  "height": 15,
+                  "width": 41,
+                  "text": "Save",
+                  "x": 206
+                },
+                {
+                  "y": 921,
+                  "height": 15,
+                  "width": 41,
+                  "text": "draft",
+                  "x": 253
+                }
+              ]
+            },
+            {
+              "text": "Cancel",
+              "words": [
+                {
+                  "y": 999,
+                  "height": 15,
+                  "width": 58,
+                  "text": "Cancel",
+                  "x": 221
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 187,
+                  "height": 12,
+                  "width": 12,
+                  "text": "x",
+                  "x": 464
+                }
+              ]
+            }
+          ],
+          "height": 1080,
+          "width": 500,
+          "frameSha256": "9b98eaa50a8a70c021dd42424bb751d52e3d9b6365104a1635925fc25c0c99e5"
+        },
+        "frameSha256": "9b98eaa50a8a70c021dd42424bb751d52e3d9b6365104a1635925fc25c0c99e5",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 539.0759999996217,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "0015cfdea3c44725ba1fd74e1e2c8a3a",
+          "sequence": 11222,
+          "reportedAgeMs": 23.076,
+          "observationElapsedMs": 515.9999999996217,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 559.6591527706178
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 34420,
+        "inputGeneration": 11,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "73c4905b6976803d4c5d06bdcea73134435690976f66d348fe2bb16976884d8e",
+        "completedAt": 1792363639.9284172,
+        "ageSeconds": 0.5483734607696533,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        }
+      }
+    }
+  ],
+  "cleanup": "confirmed",
+  "state": "observed",
+  "savedDraftVerified": false,
+  "helperSha256": "44c349fca459f60f5f67f2019a3ff0f64f3ec457463c815078c6017ee101e9e1",
+  "automaticInputAllowed": false,
+  "reviewFrameSha256": "a699b250a4ef87bb26f24e6ec70143aac059d16518869af257daf4920a107981",
+  "preflightReview": {
+    "meanError": 0.0009723552635944395,
+    "changedFraction": 0.0017644670050761422
+  },
+  "freshReview": {
+    "meanError": 0.0011128761487674596,
+    "changedFraction": 0.0016730964467005075
+  },
+  "framePairs": [
+    {
+      "meanError": 0.000328705749643343,
+      "changedFraction": 0.0008771573604060914,
+      "beforeObservationId": "b8006cf7-64cd-4454-9bf5-42b5dde91319",
+      "afterObservationId": "75fc058c-b117-4e27-b649-ab8b53c10d6a",
+      "freshAtEachCapture": true,
+      "automaticInputAllowed": false
+    }
+  ],
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 12,
+    "lease_remaining_ms": 0
+  }
+}

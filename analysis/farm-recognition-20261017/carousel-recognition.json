@@ -1,0 +1,32 @@
+[
+  {
+    "step": "39-caption-review",
+    "frameSha256": "e83edbad96b00f95138a1a87520995eba76d2346bd5c2537b00d920b669d8251",
+    "expected": "draft_details",
+    "actual": "draft_details",
+    "matched": true,
+    "captionStatus": "needs_review",
+    "accountStatus": "not_visible",
+    "automaticInputAllowed": false
+  },
+  {
+    "step": "47-open-drafts-library",
+    "frameSha256": "d614d9241c8f49ac87004dbd93e14a8b8aefae49598084e8335ab8562a233944",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "captionStatus": "not_requested",
+    "accountStatus": "not_visible",
+    "automaticInputAllowed": false
+  },
+  {
+    "step": "50-reopened-caption",
+    "frameSha256": "867c452b89dce42c7fdc370970d774442397d43fab2e77e280414ea065ecace2",
+    "expected": "draft_details",
+    "actual": "draft_details",
+    "matched": true,
+    "captionStatus": "exact_line_match",
+    "accountStatus": "not_visible",
+    "automaticInputAllowed": false
+  }
+]

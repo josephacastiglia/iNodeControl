@@ -1,0 +1,44 @@
+{
+  "run": {
+    "id": "25326d74-ef68-487b-8358-bdc32a910302",
+    "storeId": "66ebd29f-7a02-44ad-af44-5bfc16855ff8",
+    "request": {
+      "id": "25326d74-ef68-487b-8358-bdc32a910302",
+      "draft_id": "5f14d817-0c72-4354-8a25-b74ba085ef92",
+      "revision": 3,
+      "store_id": "66ebd29f-7a02-44ad-af44-5bfc16855ff8"
+    },
+    "packageSha256": "e9910b561781a2c09059bca3522db616a64d316f5e37846a624dfc26b7ed9d0f",
+    "state": "review_required",
+    "terminal": true,
+    "jobStatus": "cancelled",
+    "reason": "Save reply was lost; no replay.",
+    "savedDraftVerified": false,
+    "draftChangedSinceRun": false,
+    "cleanup": "confirmed",
+    "workflow": {
+      "packageSha256": "e9910b561781a2c09059bca3522db616a64d316f5e37846a624dfc26b7ed9d0f",
+      "state": "review_required",
+      "source": "candidate_phone_workflow",
+      "cleanup": "confirmed",
+      "savedDraftVerified": false,
+      "observations": [],
+      "actions": [
+        {
+          "label": "prepared-save-once",
+          "state": "outcome_unknown"
+        }
+      ],
+      "error": "Save reply was lost; no replay.",
+      "evidenceExport": "confirmed"
+    },
+    "publishing": false,
+    "messaging": false,
+    "desktopControl": false,
+    "automaticResume": false,
+    "integratedLiveValidated": false
+  },
+  "protocolVersion": 2,
+  "executionMode": "live",
+  "simulated": false
+}

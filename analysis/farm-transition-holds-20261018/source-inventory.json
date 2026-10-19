@@ -1,0 +1,262 @@
+[
+  {
+    "path": "analysis/farm-transition-holds-20261018/README.md",
+    "sha256": "89cf7904d1227475e6903d9cc1de66bcc30eb7e64efbd452ce502210a979b89e",
+    "bytes": 7393
+  },
+  {
+    "path": "analysis/farm-transition-holds-20261018/replay_holds.py",
+    "sha256": "521d621e0fdad59002c6c33e788635fd4a14e872de2cb1f55385c2be58b53a9d",
+    "bytes": 4494
+  },
+  {
+    "path": "MARKETING-FARM-ACCEPTANCE.md",
+    "sha256": "428f19e719c66579c73569be5a6d68c703896aefdb5e2a873b0f6c715233ba96",
+    "bytes": 15067
+  },
+  {
+    "path": "MARKETING-FARM-STATUS.md",
+    "sha256": "2dfac7025eb07713a37a391c6b67bdcce850a2696a3b026d000a619b8c6619dd",
+    "bytes": 35711
+  },
+  {
+    "path": "Open Marketing Farm Candidate.ps1",
+    "sha256": "7bfcddb099a1ca794dcd6be0632c2bab5db070e4dde8e349f1132ee85faf8c8c",
+    "bytes": 4127
+  },
+  {
+    "path": "tools/farm_capabilities.py",
+    "sha256": "4cedef5ed89fba585450516607173b4afc95751ceffc8b42b6798573fac9e18d",
+    "bytes": 5797
+  },
+  {
+    "path": "tools/farm_carousel_inspection.py",
+    "sha256": "27fd944ad7bdfa00b021907550eb65a335f33fb430ccf234a770fbeae1925e8b",
+    "bytes": 20696
+  },
+  {
+    "path": "tools/farm_draft_media.py",
+    "sha256": "6afb03fccb8d22c7ba682b4e940ad06a653b8bd20330031d3062a767967abb64",
+    "bytes": 4579
+  },
+  {
+    "path": "tools/farm_draft_rehearsal.py",
+    "sha256": "863bad817c5eb39df2caa9b2f86a6a436b361f2875c54d520ba724d7dd0ee16c",
+    "bytes": 27274
+  },
+  {
+    "path": "tools/farm_draft_verification.py",
+    "sha256": "2cc13942941d2ff1d3746b466bed1146e30f562862cdd83d6a40d00f677cb951",
+    "bytes": 20508
+  },
+  {
+    "path": "tools/farm_drafts.py",
+    "sha256": "aa4122f823055ac8070e55995d322223fc0050c21ed35ecd348db1f0cf44d71e",
+    "bytes": 18672
+  },
+  {
+    "path": "tools/farm_frame_evidence.py",
+    "sha256": "59a6baf5dcaa75b0a9bb7b70c4ab5e0bdb341a3a9508edc3571b7add0c36b4a4",
+    "bytes": 5813
+  },
+  {
+    "path": "tools/farm_jobs.py",
+    "sha256": "9ca6b23b11299bc3906031399cac26e83999b3b477225cb02fc73203cd8664db",
+    "bytes": 12559
+  },
+  {
+    "path": "tools/farm_live_verification.py",
+    "sha256": "d03d1fa8d61eb7c3f041836b31ee29dbdb9821e4f13d858bf30bb06d4191133a",
+    "bytes": 9652
+  },
+  {
+    "path": "tools/farm_media_transfer.py",
+    "sha256": "117067930a12f5dc17cf2a9f55499a7ebb1aec477aadd0458e038dd946bafae3",
+    "bytes": 16196
+  },
+  {
+    "path": "tools/farm_observations.py",
+    "sha256": "071190da1c60ef723cea7cefd9391433e3161a36f6c80600d7423f3e23b48eb7",
+    "bytes": 25229
+  },
+  {
+    "path": "tools/farm_preparation_schedule.py",
+    "sha256": "8bc713684cc15c6ed2c0c28413af1060284a793205f74c9c300c71970c8a3d4c",
+    "bytes": 10347
+  },
+  {
+    "path": "tools/farm_screen_layout.py",
+    "sha256": "c6b5cfd9dfcde35a9fed50082d8c7a1a20fa18fcc532203e7fb824b8ce7095a3",
+    "bytes": 11630
+  },
+  {
+    "path": "tools/farm_test_network.py",
+    "sha256": "db94c6bc5440c8c6e6f9ac71cf5b2b086a0028252960e5e2a1adf65289e82048",
+    "bytes": 447
+  },
+  {
+    "path": "tools/farm_transfers.py",
+    "sha256": "9ca8004fea938d346117b3a216602338980a54b43391985fc313b8c1c9d1aca8",
+    "bytes": 11619
+  },
+  {
+    "path": "tools/farm_transitions.py",
+    "sha256": "daeeaeecfdbb6f902a07fd39cea6c673e6eb0b1758b991e706adaf4086a36c69",
+    "bytes": 9436
+  },
+  {
+    "path": "tools/farm_video.py",
+    "sha256": "080a8aa82bdcadbcd917d22ea08ec8a73c94c6305abe66613d56a6fcab3ad204",
+    "bytes": 15076
+  },
+  {
+    "path": "tools/imouse_farm_server.py",
+    "sha256": "6861cf77c6a2f3f36ee56bd36228b00f879e568b94ab84fbc181e0b05a67f1c9",
+    "bytes": 111564
+  },
+  {
+    "path": "tools/imouse_social_automation.py",
+    "sha256": "4ff2de0e78cf36e08fbf8057ee1e73521fe935fd17bf41d3fa1cc2953cfbf9e4",
+    "bytes": 176605
+  },
+  {
+    "path": "tools/Read-FarmImageText.ps1",
+    "sha256": "4fb3e5fb786943eb93d0dcdd5aed9dd6b6efbbbc38255dd353a081eedf52230c",
+    "bytes": 4055
+  },
+  {
+    "path": "tools/test_farm_carousel_continuity.py",
+    "sha256": "736a2b1eaaec8af77dd8be39887b7cee6d2935f001b39e2062ebc37bbbe97b95",
+    "bytes": 9568
+  },
+  {
+    "path": "tools/test_farm_carousel_inspection.py",
+    "sha256": "ab9a29262626ab7ba74aaf8ae3425752cfc232af13a27c80a47f2e06c190b8d5",
+    "bytes": 17291
+  },
+  {
+    "path": "tools/test_farm_content.py",
+    "sha256": "5a50215f5fd4ca612c086049fb327b39dd74a31d1475f9ad13adc938901e0bae",
+    "bytes": 8614
+  },
+  {
+    "path": "tools/test_farm_draft_rehearsal.py",
+    "sha256": "08019aa8caa8eb7d8455fa4b5f30403084c2c91496db3806de240ae608369225",
+    "bytes": 21939
+  },
+  {
+    "path": "tools/test_farm_draft_verification.py",
+    "sha256": "72ca6957de14fab55a77d4eaa6cf714d1ddb1c248dae13d85be702633d468166",
+    "bytes": 15978
+  },
+  {
+    "path": "tools/test_farm_drafts.py",
+    "sha256": "2691d4fa9a245b145b5919faa0e769c9f4c7efd5a57dcf4987f879734fb23a1e",
+    "bytes": 12727
+  },
+  {
+    "path": "tools/test_farm_execution_safety.py",
+    "sha256": "8fbc7d3366d9b742362ff2c8e35eeae9fefb02c83562817242ffb4038f4d7f90",
+    "bytes": 8642
+  },
+  {
+    "path": "tools/test_farm_feature_validation.py",
+    "sha256": "12ca334a95a06e90ec714bd955977ab4769337da51e1805715a1ed207f5c7b0e",
+    "bytes": 21510
+  },
+  {
+    "path": "tools/test_farm_frame_evidence.py",
+    "sha256": "918068f80cfec2855cbcd1e05ed9d3ea6253c802a17a065213d51154303aff22",
+    "bytes": 4061
+  },
+  {
+    "path": "tools/test_farm_http_jobs.py",
+    "sha256": "4913a5714a244a1b8cb412ac3cbe2edec677d4b572ce18f7f96a37be62069cda",
+    "bytes": 12474
+  },
+  {
+    "path": "tools/test_farm_inspection_evidence.py",
+    "sha256": "1a284ed2a4002b54a7a3d4f8fe0f941fbdd7c2cc498032636051c296a2fb54ca",
+    "bytes": 8122
+  },
+  {
+    "path": "tools/test_farm_inspection_http.py",
+    "sha256": "4a8befd9de3242b66da4fde1b7ff27d95096198fa1d724171f3ee34f379c4d92",
+    "bytes": 3088
+  },
+  {
+    "path": "tools/test_farm_jobs.py",
+    "sha256": "9ab79ebe1461ab5c69a2bf6f08f3e0a4b14695fda550fc53fa7d6c335bc8bfe5",
+    "bytes": 19304
+  },
+  {
+    "path": "tools/test_farm_live_verification.py",
+    "sha256": "f9f96eadc1960b975696aac7d460b6d0fbbc094a6177d3b005036054991ceb0e",
+    "bytes": 7593
+  },
+  {
+    "path": "tools/test_farm_media_transfer.py",
+    "sha256": "752db8fd59bb14bdf6b5d76c9d1b18ee1a304b8530501da850bcf4bd5b18bce5",
+    "bytes": 8094
+  },
+  {
+    "path": "tools/test_farm_observation_http.py",
+    "sha256": "1ef18db79d18de7af2a3245224f69c81e0ae5e3613341705cbfff115c9a83ce8",
+    "bytes": 5470
+  },
+  {
+    "path": "tools/test_farm_observations.py",
+    "sha256": "e4c3cf6263f359defd326a17a5e6c0f06006ea3a4a98443abc9d1f301d4517c9",
+    "bytes": 11126
+  },
+  {
+    "path": "tools/test_farm_preparation_schedule.py",
+    "sha256": "4239fca5a5e2fd7bdce5f095c5948254b6d148a7fe9bb60479c07185905ab215",
+    "bytes": 7450
+  },
+  {
+    "path": "tools/test_farm_prepared_batches.py",
+    "sha256": "38e36057f2b05496be0ccedff1edf548d55c244e5624d02e096dba3a888a3dba",
+    "bytes": 12289
+  },
+  {
+    "path": "tools/test_farm_readiness.py",
+    "sha256": "7223ef2ee7a02705cfd6aea5abc5c30eeadab7f9f023a202bbf562ea7ce50f84",
+    "bytes": 10776
+  },
+  {
+    "path": "tools/test_farm_rehearsal_http.py",
+    "sha256": "f13e2ce0439d97e4b9c4fa9b790847359487c56410fc1c5443f3b2963eaac347",
+    "bytes": 4378
+  },
+  {
+    "path": "tools/test_farm_screen_layout.py",
+    "sha256": "b55ee3b29ea1e2da633e2e1ce7219624c4b1b38aa9bcf26d93109294f4e5de52",
+    "bytes": 12537
+  },
+  {
+    "path": "tools/test_farm_screen_recognition.py",
+    "sha256": "4c5b02f92b5b464e2256ab20f292f45315c5ffabcb2070d0b8b73f355d407074",
+    "bytes": 7166
+  },
+  {
+    "path": "tools/test_farm_transfer_sessions.py",
+    "sha256": "6897a1a5ff9a98d05b91c1ce1c3df5d5dc1b9205a0eb6af0f5569f715dd62a09",
+    "bytes": 12893
+  },
+  {
+    "path": "tools/test_farm_transitions.py",
+    "sha256": "6cb3b52d2b7ed779e31dbd3549b7778baf38c0b802d7a1d6ed55890572a1b856",
+    "bytes": 10832
+  },
+  {
+    "path": "tools/test_farm_verification_http.py",
+    "sha256": "3ee57c1153b3a3585b232cea3eb7410eb6d0d66e598a5b8021990d669b179968",
+    "bytes": 2779
+  },
+  {
+    "path": "tools/test_farm_video.py",
+    "sha256": "c6381e8fddc8a4eea60765ec5cdcdf844dd57e78fb6bb34e4ecec6b05b5bd240",
+    "bytes": 13877
+  }
+]

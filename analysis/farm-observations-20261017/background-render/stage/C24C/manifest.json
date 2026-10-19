@@ -1,0 +1,47 @@
+{
+  "deviceId": "C24C",
+  "niche": "AI Workflow & SaaS Clipping",
+  "ctaKeyword": "SYSTEM",
+  "offerUrl": "https://nodetheory.io/system",
+  "caption": "Four questions to ask before starting AI Workflow & SaaS Clipping. Explore https://nodetheory.io/system #system",
+  "generatedAt": "2026-10-18T01:18:15.090+00:00",
+  "phashHex": "18273a1bc0000d0d",
+  "sha256Hex": "72cd49b52305dd0c989d458d70ea06346142dcb0739266c488e6b1e5940c3b41",
+  "generation": "c41526cc69d742b58de5ba651bdb4726",
+  "contentSource": "local_templates",
+  "reviewRequired": true,
+  "files": [
+    "/stage/C24C/video_c41526cc69d742b58de5ba651bdb4726_18273a1b.mp4",
+    "/stage/C24C/slide_c41526cc69d742b58de5ba651bdb4726_01_7c3c7c6f.jpg",
+    "/stage/C24C/slide_c41526cc69d742b58de5ba651bdb4726_02_3d2c3c3f.jpg",
+    "/stage/C24C/slide_c41526cc69d742b58de5ba651bdb4726_03_3c3c5c67.jpg",
+    "/stage/C24C/slide_c41526cc69d742b58de5ba651bdb4726_04_3d3c3c4f.jpg"
+  ],
+  "assets": [
+    {
+      "url": "/stage/C24C/video_c41526cc69d742b58de5ba651bdb4726_18273a1b.mp4",
+      "sha256": "72cd49b52305dd0c989d458d70ea06346142dcb0739266c488e6b1e5940c3b41",
+      "bytes": 115001
+    },
+    {
+      "url": "/stage/C24C/slide_c41526cc69d742b58de5ba651bdb4726_01_7c3c7c6f.jpg",
+      "sha256": "ba2178287340ca0c7f753bc69623b8c41b09572cb84c26f5e4991e57b7f239e0",
+      "bytes": 44636
+    },
+    {
+      "url": "/stage/C24C/slide_c41526cc69d742b58de5ba651bdb4726_02_3d2c3c3f.jpg",
+      "sha256": "73fbbd164e6a09a27c260acc3403f82acb8552e7b58326dd2a524d20b62896b4",
+      "bytes": 47557
+    },
+    {
+      "url": "/stage/C24C/slide_c41526cc69d742b58de5ba651bdb4726_03_3c3c5c67.jpg",
+      "sha256": "f362ffb07a8483450d8aa23fb16fe14350f4ec22766ebc13a1d9bcbd02b31649",
+      "bytes": 50967
+    },
+    {
+      "url": "/stage/C24C/slide_c41526cc69d742b58de5ba651bdb4726_04_3d3c3c4f.jpg",
+      "sha256": "7978edc400090dfbe5b08e2987b17fb7875e5e62360d274e742b4e1b1d8f52bc",
+      "bytes": 41323
+    }
+  ]
+}

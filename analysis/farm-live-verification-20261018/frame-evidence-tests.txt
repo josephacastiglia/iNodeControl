@@ -1,0 +1,11 @@
+test_bad_partial_metadata_and_nonfinite_timing_never_pass (test_farm_frame_evidence.FrameEvidenceTests.test_bad_partial_metadata_and_nonfinite_timing_never_pass) ... ok
+test_frame_counter_progress_alone_is_not_freshness (test_farm_frame_evidence.FrameEvidenceTests.test_frame_counter_progress_alone_is_not_freshness) ... ok
+test_matching_frame_metadata_uses_a_conservative_total_age (test_farm_frame_evidence.FrameEvidenceTests.test_matching_frame_metadata_uses_a_conservative_total_age) ... ok
+test_restarts_sessions_sequence_and_identity_must_agree (test_farm_frame_evidence.FrameEvidenceTests.test_restarts_sessions_sequence_and_identity_must_agree) ... ok
+test_review_never_grants_input_or_infers_draft_save (test_farm_frame_evidence.FrameEvidenceTests.test_review_never_grants_input_or_infers_draft_save) ... ok
+test_slow_transport_and_ocr_or_quiet_delivery_hold_the_frame (test_farm_frame_evidence.FrameEvidenceTests.test_slow_transport_and_ocr_or_quiet_delivery_hold_the_frame) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.000s
+
+OK

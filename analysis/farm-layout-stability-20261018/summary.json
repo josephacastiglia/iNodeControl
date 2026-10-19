@@ -1,0 +1,28 @@
+{
+  "source": "offline",
+  "phoneCalls": 0,
+  "pcControl": false,
+  "publishing": false,
+  "messaging": false,
+  "retainedFrames": 47,
+  "formerlyUnknownRecognized": 17,
+  "oldOcrOutcomesPreserved": 36,
+  "ambiguousEditorCropsExact": 8,
+  "distinctSuccessfulCrops": 2,
+  "actualWindowsOcrMs": {
+    "min": 943.38,
+    "max": 1070.24
+  },
+  "pickerPairs": [
+    true,
+    false
+  ],
+  "negativeControls": 4,
+  "candidateBackendSourceHash": "234b585d6773dabd89db4a720bd45128970bb6321fcd6358432359cbebc11625",
+  "automaticInputAllowed": false,
+  "independentAccuracySet": false,
+  "pythonTests": 353,
+  "pythonTestSeconds": 163.776,
+  "pythonTestsSkipped": 0,
+  "pythonLogSha256": "f54b394807153a0cdac2daa547c2f2c2ecf4be06a4e856a4d8916ec79f95ef41"
+}

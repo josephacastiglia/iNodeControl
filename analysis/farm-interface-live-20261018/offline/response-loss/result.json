@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "phase": "offline",
+  "scenario": "response-loss",
+  "candidateHash": "effa8083c8c71a7f1522cfaf9765de315e6bca9c18891c2a1bd42822bf49570a",
+  "requestId": "866b0a4f-9569-46f3-af9d-22948ff372e1",
+  "storeId": "40825bba-2f1c-4179-9942-25a5b3d3a116",
+  "startRequests": 1,
+  "cancellationRequests": 0,
+  "desktopControl": false,
+  "windowHandles": 0,
+  "publishing": false,
+  "messaging": false,
+  "checks": 15,
+  "statusText": "PHONE DRAFT VERIFIED\n\nThe matching draft was saved, reopened and checked.\n\nLease cleanup: confirmed\n\nNothing was published or messaged. A saved draft check does not prove app-restart persistence.\n\nprepared save once: answered"
+}

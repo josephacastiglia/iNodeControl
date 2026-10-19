@@ -1,0 +1,110 @@
+{
+  "time_utc": "2026-10-13T04:54:09.1208562Z",
+  "processes": [
+    {
+      "ProcessId": 20432,
+      "ParentProcessId": 32072,
+      "Name": "iMouse2.Kernel.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+      "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe\" http://127.0.0.1:9913/api/ --data-dir \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\" --input-pid C24C,C241 --receivers \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\receivers.json\" --receiver \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" --receiver-runtime \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\msys64\\ucrt64\"",
+      "CreationDate": "2026-10-13T00:19:14.789591-04:00"
+    },
+    {
+      "ProcessId": 35256,
+      "ParentProcessId": 20432,
+      "Name": "uxplay.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+      "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" -n iMouse2-C24C -nh -s 500x1080 -fps 30 -avdec -vs appsink -as fakesink -p 7110 -restrict -allow 86:1D:4A:04:2F:F6 -m 02:49:4D:32:C2:4C",
+      "CreationDate": "2026-10-13T00:19:15.027507-04:00"
+    },
+    {
+      "ProcessId": 18808,
+      "ParentProcessId": 20432,
+      "Name": "uxplay.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+      "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" -n iMouse2-C241 -nh -s 500x1080 -fps 30 -avdec -vs appsink -as fakesink -p 7120 -restrict -allow FE:A9:BC:D7:A0:44 -m 02:49:4D:32:C2:41",
+      "CreationDate": "2026-10-13T00:19:15.045777-04:00"
+    },
+    {
+      "ProcessId": 36940,
+      "ParentProcessId": 32072,
+      "Name": "iMouse2.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+      "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe\" ",
+      "CreationDate": "2026-10-13T00:19:15.443616-04:00"
+    }
+  ],
+  "status": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "input": "direct-hid",
+      "input_protocol": 1,
+      "input_leases_required": true,
+      "allowed": [
+        "C24C",
+        "C241"
+      ],
+      "receiver": "iMouse2-C24C / iMouse2-C241",
+      "receiver_state": "mirroring",
+      "receiver_message": "",
+      "receiver_pid": 35256,
+      "receiver_restarts": 0,
+      "frames": 34628,
+      "live": true,
+      "receivers": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "iMouse2-C24C",
+          "receiver_pid": 35256,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 34628
+        },
+        {
+          "deviceid": "FE:A9:BC:D7:A0:44",
+          "name": "iMouse2-C241",
+          "receiver_pid": 18808,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 795
+        }
+      ]
+    }
+  },
+  "input": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "protocol": 1,
+      "phones": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "owned": false,
+          "active": false,
+          "stopped": false,
+          "releasing": false,
+          "release_failed": false,
+          "message": "",
+          "generation": 0,
+          "lease_remaining_ms": 0
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "owned": false,
+          "active": false,
+          "stopped": false,
+          "releasing": false,
+          "release_failed": false,
+          "message": "",
+          "generation": 0,
+          "lease_remaining_ms": 0
+        }
+      ]
+    }
+  }
+}

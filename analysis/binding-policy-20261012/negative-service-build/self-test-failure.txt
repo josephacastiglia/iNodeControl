@@ -1,0 +1,10 @@
+System.InvalidOperationException: Unexpected write in read-only binding check
+   at IMouse2.ServicePolicyTests.ReadOnlyHandler.SendAsync(HttpRequestMessage request, CancellationToken ct) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\binding-policy-20261012\negative-service-policy\ServicePolicyTests.cs:line 15
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at IMouse2.ApiClient.RawCommandAsync(String function, Dictionary`2 data, CancellationToken ct) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\binding-policy-20261012\negative-service-policy\ApiClient.cs:line 222
+   at IMouse2.ServicePolicyTests.<>c__DisplayClass1_0.<<RunAsync>g__Refused|0>d.MoveNext() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\binding-policy-20261012\negative-service-policy\ServicePolicyTests.cs:line 32
+--- End of stack trace from previous location ---
+   at IMouse2.ServicePolicyTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\binding-policy-20261012\negative-service-policy\ServicePolicyTests.cs:line 36
+   at IMouse2.ServicePolicyTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\binding-policy-20261012\negative-service-policy\ServicePolicyTests.cs:line 56
+   at IMouse2.SelfTests.RunAsync() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\binding-policy-20261012\negative-service-policy\SelfTests.cs:line 619
+   at IMouse2.App.OnStartup(StartupEventArgs e) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\binding-policy-20261012\negative-service-policy\App.xaml.cs:line 164

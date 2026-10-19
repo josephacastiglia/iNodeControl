@@ -1,0 +1,47 @@
+{
+  "deviceId": "C24C",
+  "niche": "Offline workflow review",
+  "ctaKeyword": "REVIEW",
+  "offerUrl": "https://example.invalid/review",
+  "caption": "A practical checklist for Offline workflow review. Explore https://example.invalid/review #review",
+  "generatedAt": "2026-10-18T09:19:24.068+00:00",
+  "phashHex": "18071e3e80000d0d",
+  "sha256Hex": "390ea7fd351771f9b8b222d9385668b8ae6177be67ff52e269c51f8b6d4f4f70",
+  "generation": "171b2fce53204c1b83f3856824f2c1aa",
+  "contentSource": "local_templates",
+  "reviewRequired": true,
+  "files": [
+    "/stage/C24C/video_171b2fce53204c1b83f3856824f2c1aa_18071e3e.mp4",
+    "/stage/C24C/slide_171b2fce53204c1b83f3856824f2c1aa_01_3d1c1e2e.jpg",
+    "/stage/C24C/slide_171b2fce53204c1b83f3856824f2c1aa_02_3c0c3e36.jpg",
+    "/stage/C24C/slide_171b2fce53204c1b83f3856824f2c1aa_03_3c1c7c6e.jpg",
+    "/stage/C24C/slide_171b2fce53204c1b83f3856824f2c1aa_04_3d1c7e66.jpg"
+  ],
+  "assets": [
+    {
+      "url": "/stage/C24C/video_171b2fce53204c1b83f3856824f2c1aa_18071e3e.mp4",
+      "sha256": "390ea7fd351771f9b8b222d9385668b8ae6177be67ff52e269c51f8b6d4f4f70",
+      "bytes": 109272
+    },
+    {
+      "url": "/stage/C24C/slide_171b2fce53204c1b83f3856824f2c1aa_01_3d1c1e2e.jpg",
+      "sha256": "54778a5f5e7add2e260fbdc14344df78e57c40310af956e7150a3f33fd445219",
+      "bytes": 49308
+    },
+    {
+      "url": "/stage/C24C/slide_171b2fce53204c1b83f3856824f2c1aa_02_3c0c3e36.jpg",
+      "sha256": "d7de520d8e0f5bab98b2224b0e68f60bf1771439cb0701c7ab308485d36ae82e",
+      "bytes": 58201
+    },
+    {
+      "url": "/stage/C24C/slide_171b2fce53204c1b83f3856824f2c1aa_03_3c1c7c6e.jpg",
+      "sha256": "ce83fad1cd64de5c1c4c9dc7b693b33cb39e16b06adec891d98c1a69ca1e185a",
+      "bytes": 41713
+    },
+    {
+      "url": "/stage/C24C/slide_171b2fce53204c1b83f3856824f2c1aa_04_3d1c7e66.jpg",
+      "sha256": "730f611f9af004b79c838cc7af5346a9f4b6d55487410a4946e503ea39874fbf",
+      "bytes": 43300
+    }
+  ]
+}

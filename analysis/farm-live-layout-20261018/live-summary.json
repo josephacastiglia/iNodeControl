@@ -1,0 +1,924 @@
+{
+  "steps": [
+    {
+      "step": "02-profile-freshness",
+      "state": "observed",
+      "error": null,
+      "intent": "frame_challenge",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 0
+    },
+    {
+      "step": "03-open-create",
+      "state": "observed",
+      "error": null,
+      "intent": "profile_create",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "04-post-picker",
+      "state": "review_required",
+      "error": "Target overlaps a prohibited or ambiguous action label.",
+      "intent": "choose_post_format",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 0
+    },
+    {
+      "step": "05-open-post-picker",
+      "state": "review_required",
+      "error": "Controls or library pixels changed; inspect again.",
+      "intent": "choose_post_format",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "06-open-drafts",
+      "state": "review_required",
+      "error": "Controls or library pixels changed; inspect again.",
+      "intent": "open_drafts",
+      "commands": [],
+      "cleanup": "not_needed",
+      "finalFree": true,
+      "semanticActions": 0
+    },
+    {
+      "step": "07-drafts-from-settled-picker",
+      "state": "observed",
+      "error": null,
+      "intent": "open_drafts",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "08-open-test-draft",
+      "state": "review_required",
+      "error": "Page changed since visual review; inspect the retained fresh frame before another explicit step.",
+      "intent": "open_test_draft",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "09-inspect-second-slide",
+      "state": "observed",
+      "error": null,
+      "intent": "inspect_slide",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/swipe",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "10-inspect-third-slide",
+      "state": "observed",
+      "error": null,
+      "intent": "inspect_slide",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/swipe",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "11-caption-details",
+      "state": "review_required",
+      "error": "The exact Next label and its editor target are not verified.",
+      "intent": "details",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 0
+    },
+    {
+      "step": "12-caption-with-label-crop",
+      "state": "observed",
+      "error": null,
+      "intent": "details",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "13-return-to-editor",
+      "state": "observed",
+      "error": null,
+      "intent": "back_to_editor",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "14-request-save",
+      "state": "observed",
+      "error": null,
+      "intent": "request_save",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "15-save-once",
+      "state": "observed",
+      "error": null,
+      "intent": "save_draft",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "17-saved-draft-library",
+      "state": "observed",
+      "error": null,
+      "intent": "open_drafts",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "18-reopen-saved-carousel",
+      "state": "observed",
+      "error": null,
+      "intent": "open_test_draft",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "19-reopened-slide-two",
+      "state": "observed",
+      "error": null,
+      "intent": "inspect_slide",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/swipe",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "20-reopened-slide-three",
+      "state": "observed",
+      "error": null,
+      "intent": "inspect_slide",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/swipe",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "21-reopened-caption",
+      "state": "observed",
+      "error": null,
+      "intent": "details",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "22-close-reopened-details",
+      "state": "observed",
+      "error": null,
+      "intent": "back_to_editor",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "23-exit-sheet",
+      "state": "observed",
+      "error": null,
+      "intent": "request_save",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "24-preserve-on-exit",
+      "state": "observed",
+      "error": null,
+      "intent": "save_draft",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "26-return-profile",
+      "state": "observed",
+      "error": null,
+      "intent": "leave_picker",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    }
+  ],
+  "stepCount": 23,
+  "holds": [
+    {
+      "step": "04-post-picker",
+      "state": "review_required",
+      "error": "Target overlaps a prohibited or ambiguous action label.",
+      "intent": "choose_post_format",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 0
+    },
+    {
+      "step": "05-open-post-picker",
+      "state": "review_required",
+      "error": "Controls or library pixels changed; inspect again.",
+      "intent": "choose_post_format",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "06-open-drafts",
+      "state": "review_required",
+      "error": "Controls or library pixels changed; inspect again.",
+      "intent": "open_drafts",
+      "commands": [],
+      "cleanup": "not_needed",
+      "finalFree": true,
+      "semanticActions": 0
+    },
+    {
+      "step": "08-open-test-draft",
+      "state": "review_required",
+      "error": "Page changed since visual review; inspect the retained fresh frame before another explicit step.",
+      "intent": "open_test_draft",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move",
+        "/mouse/click",
+        "/mouse/move",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 1
+    },
+    {
+      "step": "11-caption-details",
+      "state": "review_required",
+      "error": "The exact Next label and its editor target are not verified.",
+      "intent": "details",
+      "commands": [
+        "/mouse/reset",
+        "/mouse/move"
+      ],
+      "cleanup": "confirmed",
+      "finalFree": true,
+      "semanticActions": 0
+    }
+  ],
+  "semanticActionCount": 19,
+  "observationAgeRangeMs": [
+    473.4649999991414,
+    1127.6450000003783
+  ],
+  "croppedLabels": [
+    {
+      "step": "08-open-test-draft",
+      "capture": "after-first",
+      "ageMs": 974.9860000009604,
+      "text": [],
+      "bounds": [
+        396,
+        980,
+        478,
+        1032
+      ]
+    },
+    {
+      "step": "08-open-test-draft",
+      "capture": "after",
+      "ageMs": 932.8380000008585,
+      "text": [],
+      "bounds": [
+        396,
+        980,
+        478,
+        1032
+      ]
+    },
+    {
+      "step": "09-inspect-second-slide",
+      "capture": "fresh",
+      "ageMs": 949.5759239641153,
+      "text": [],
+      "bounds": [
+        396,
+        980,
+        478,
+        1032
+      ]
+    },
+    {
+      "step": "09-inspect-second-slide",
+      "capture": "after-first",
+      "ageMs": 901.0539999996216,
+      "text": [],
+      "bounds": [
+        396,
+        980,
+        478,
+        1032
+      ]
+    },
+    {
+      "step": "09-inspect-second-slide",
+      "capture": "after",
+      "ageMs": 921.4450000002765,
+      "text": [],
+      "bounds": [
+        396,
+        980,
+        478,
+        1032
+      ]
+    },
+    {
+      "step": "10-inspect-third-slide",
+      "capture": "fresh",
+      "ageMs": 829.3757435606891,
+      "text": [],
+      "bounds": [
+        396,
+        980,
+        478,
+        1032
+      ]
+    },
+    {
+      "step": "10-inspect-third-slide",
+      "capture": "after-first",
+      "ageMs": 911.1037310650797,
+      "text": [],
+      "bounds": [
+        396,
+        980,
+        478,
+        1032
+      ]
+    },
+    {
+      "step": "10-inspect-third-slide",
+      "capture": "after",
+      "ageMs": 909.4499999996217,
+      "text": [],
+      "bounds": [
+        396,
+        980,
+        478,
+        1032
+      ]
+    },
+    {
+      "step": "11-caption-details",
+      "capture": "fresh",
+      "ageMs": 852.9826486976561,
+      "text": [],
+      "bounds": [
+        396,
+        980,
+        478,
+        1032
+      ]
+    },
+    {
+      "step": "12-caption-with-label-crop",
+      "capture": "fresh",
+      "ageMs": 837.9989956373252,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "13-return-to-editor",
+      "capture": "after-first",
+      "ageMs": 996.2017839674032,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "13-return-to-editor",
+      "capture": "after",
+      "ageMs": 886.9449999987631,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "14-request-save",
+      "capture": "fresh",
+      "ageMs": 1029.7461275478395,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "18-reopen-saved-carousel",
+      "capture": "after-first",
+      "ageMs": 962.5224463194783,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "18-reopen-saved-carousel",
+      "capture": "after",
+      "ageMs": 1127.6450000003783,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "19-reopened-slide-two",
+      "capture": "fresh",
+      "ageMs": 1087.6499999995199,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "19-reopened-slide-two",
+      "capture": "after-first",
+      "ageMs": 864.219757218746,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "19-reopened-slide-two",
+      "capture": "after",
+      "ageMs": 961.1379694810831,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "20-reopened-slide-three",
+      "capture": "fresh",
+      "ageMs": 861.4056114497151,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "20-reopened-slide-three",
+      "capture": "after-first",
+      "ageMs": 834.6000000013388,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "20-reopened-slide-three",
+      "capture": "after",
+      "ageMs": 862.8797308188435,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "21-reopened-caption",
+      "capture": "fresh",
+      "ageMs": 931.2392214821818,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "22-close-reopened-details",
+      "capture": "after-first",
+      "ageMs": 977.0941354212728,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "22-close-reopened-details",
+      "capture": "after",
+      "ageMs": 898.1862156982422,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    },
+    {
+      "step": "23-exit-sheet",
+      "capture": "fresh",
+      "ageMs": 929.0406384118935,
+      "text": [
+        "Next"
+      ],
+      "bounds": [
+        404,
+        987,
+        447,
+        1026
+      ]
+    }
+  ],
+  "pickerPairs": [
+    {
+      "step": "07-drafts-from-settled-picker",
+      "controlsStable": true,
+      "previewChanged": false,
+      "automaticInputAllowed": false,
+      "beforeSha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a",
+      "afterSha256": "c9b397bf80f75652257a9514379613659e2dd7cc8b480445812ce99800eee473",
+      "protectedMeanError": 0.0,
+      "protectedChangedFraction": 0.0,
+      "worstProtectedBlock": 0.0,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Picker controls/grid agree; preview motion was excluded.",
+      "beforeObservationId": "dab77315-15ba-46c0-b119-13877d35e9d7",
+      "afterObservationId": "88e9dc88-7e9a-4edd-9121-ec9b6dbc79fd",
+      "freshAtEachCapture": true
+    },
+    {
+      "step": "15-save-once",
+      "controlsStable": true,
+      "previewChanged": true,
+      "automaticInputAllowed": false,
+      "beforeSha256": "9ff9e70921100a55d08eabb07eaa677313f2c07e86d7a5ae12191395f9a73355",
+      "afterSha256": "cbfca24850cee0cd6adbc6e674a20baa13655f4b29fed754df55bb855155c11d",
+      "protectedMeanError": 1.2183514182371978e-07,
+      "protectedChangedFraction": 0.0,
+      "worstProtectedBlock": 5.019607843137255e-05,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Picker controls/grid agree; preview motion was excluded.",
+      "beforeObservationId": "197d97a9-1a8a-4785-b914-66eae16e43e1",
+      "afterObservationId": "61b566d8-f61f-4578-8811-056c238b9f48",
+      "freshAtEachCapture": true
+    },
+    {
+      "step": "17-saved-draft-library",
+      "controlsStable": true,
+      "previewChanged": true,
+      "automaticInputAllowed": false,
+      "beforeSha256": "bacd0a784a51d70bc26b241d62415b63aea951aa64bac79900a556939ed69e3e",
+      "afterSha256": "289f26e8e05d9bef0b0206fa174e20f9191585db5bcff0a36c872074ef3c4cc6",
+      "protectedMeanError": 0.0,
+      "protectedChangedFraction": 0.0,
+      "worstProtectedBlock": 0.0,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Picker controls/grid agree; preview motion was excluded.",
+      "beforeObservationId": "37d2a97c-6294-4b7a-8226-96f9aa1c8d0a",
+      "afterObservationId": "dd3ba4c8-d52a-4dff-a59f-56989517431f",
+      "freshAtEachCapture": true
+    },
+    {
+      "step": "24-preserve-on-exit",
+      "controlsStable": true,
+      "previewChanged": true,
+      "automaticInputAllowed": false,
+      "beforeSha256": "147317cbb80c482fc28e1b1e639c7da50b39f54fb32eba43110d2c379b414b5b",
+      "afterSha256": "1b1df622cd2a727b1fdc3c6833313da98796a8f99f9d9761f6f42d0224214b54",
+      "protectedMeanError": 1.1645408972650546e-05,
+      "protectedChangedFraction": 0.0,
+      "worstProtectedBlock": 0.0009976470588235293,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Picker controls/grid agree; preview motion was excluded.",
+      "beforeObservationId": "41d64b5c-df48-41c5-a917-dd63c0a5c583",
+      "afterObservationId": "9b712f8b-afef-4860-8ffd-df32ea328cc8",
+      "freshAtEachCapture": true
+    },
+    {
+      "step": "26-return-profile",
+      "controlsStable": true,
+      "previewChanged": true,
+      "automaticInputAllowed": false,
+      "beforeSha256": "ae9dddb965e744aa60a03474792517dcb808689ae864ec2339e71430bac6c757",
+      "afterSha256": "94e343e5627a714091a32b808a7ee79ae1ec47e9fa6116917f7bcc1e43439b4c",
+      "protectedMeanError": 4.314994606256742e-07,
+      "protectedChangedFraction": 0.0,
+      "worstProtectedBlock": 0.000906318082788671,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Picker controls/grid agree; preview motion was excluded.",
+      "beforeObservationId": "b13dfad4-7c10-4e43-8907-d8fbdca5e316",
+      "afterObservationId": "5db19830-8cae-4c36-b9bb-a64763619ac7",
+      "freshAtEachCapture": true
+    }
+  ],
+  "fullAutomationAccepted": false
+}

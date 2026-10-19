@@ -1,0 +1,8 @@
+{
+  "Candidate": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-continuity-20261018\\iMouse2.exe",
+  "DataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-continuity-20261018\\candidate-data",
+  "FarmEndpoint": "http://127.0.0.1:9915",
+  "Mode": "simulate",
+  "SourceHash": "20d88de8c8ba0879421ea24d99ae55e502b81b3255ff22b0967f608a05b3c721",
+  "StartsProcesses": false
+}

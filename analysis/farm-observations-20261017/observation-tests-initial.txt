@@ -1,0 +1,16 @@
+test_caption_account_mentions_do_not_establish_identity (test_farm_observations.ObservationTests.test_caption_account_mentions_do_not_establish_identity) ... ok
+test_caption_requires_exact_text_and_draft_context (test_farm_observations.ObservationTests.test_caption_requires_exact_text_and_draft_context) ... ok
+test_capture_persists_frame_and_duplicate_reads_never_replay (test_farm_observations.ObservationTests.test_capture_persists_frame_and_duplicate_reads_never_replay) ... ok
+test_offline_and_ocr_failures_persist_and_do_not_retry (test_farm_observations.ObservationTests.test_offline_and_ocr_failures_persist_and_do_not_retry) ... ok
+test_older_frames_pruned_but_request_ids_still_cannot_replay (test_farm_observations.ObservationTests.test_older_frames_pruned_but_request_ids_still_cannot_replay) ... ok
+test_other_targets_and_bad_expectations_refused_before_capture (test_farm_observations.ObservationTests.test_other_targets_and_bad_expectations_refused_before_capture) ... ok
+test_permission_and_sharing_interruptions_override_background_app (test_farm_observations.ObservationTests.test_permission_and_sharing_interruptions_override_background_app) ... ok
+test_profile_account_exact_match_never_authorizes_input_or_invents_metrics (test_farm_observations.ObservationTests.test_profile_account_exact_match_never_authorizes_input_or_invents_metrics) ... ok
+test_restart_with_uncertain_capture_keeps_review_hold_without_retry (test_farm_observations.ObservationTests.test_restart_with_uncertain_capture_keeps_review_hold_without_retry) ... ok
+test_stale_missing_freshness_and_changed_receiver_are_not_hidden (test_farm_observations.ObservationTests.test_stale_missing_freshness_and_changed_receiver_are_not_hidden) ... ok
+test_wrong_handle_homoglyph_and_wrong_platform_do_not_pass (test_farm_observations.ObservationTests.test_wrong_handle_homoglyph_and_wrong_platform_do_not_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.128s
+
+OK

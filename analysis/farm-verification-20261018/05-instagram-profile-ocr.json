@@ -1,0 +1,359 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "4:52",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 41,
+          "text": "4:52",
+          "x": 43
+        }
+      ]
+    },
+    {
+      "text": "Make this",
+      "words": [
+        {
+          "y": 135,
+          "height": 11,
+          "width": 32,
+          "text": "Make",
+          "x": 42
+        },
+        {
+          "y": 135,
+          "height": 11,
+          "width": 22,
+          "text": "this",
+          "x": 79
+        }
+      ]
+    },
+    {
+      "text": "space you...",
+      "words": [
+        {
+          "y": 154,
+          "height": 9,
+          "width": 36,
+          "text": "space",
+          "x": 35
+        },
+        {
+          "y": 154,
+          "height": 9,
+          "width": 32,
+          "text": "you...",
+          "x": 76
+        }
+      ]
+    },
+    {
+      "text": "xs.halle.xo",
+      "words": [
+        {
+          "y": 77,
+          "height": 22,
+          "width": 141,
+          "text": "xs.halle.xo",
+          "x": 162
+        }
+      ]
+    },
+    {
+      "text": "Halle",
+      "words": [
+        {
+          "y": 154,
+          "height": 13,
+          "width": 40,
+          "text": "Halle",
+          "x": 150
+        }
+      ]
+    },
+    {
+      "text": "5",
+      "words": [
+        {
+          "y": 186,
+          "height": 15,
+          "width": 10,
+          "text": "5",
+          "x": 151
+        }
+      ]
+    },
+    {
+      "text": "posts",
+      "words": [
+        {
+          "y": 210,
+          "height": 15,
+          "width": 42,
+          "text": "posts",
+          "x": 150
+        }
+      ]
+    },
+    {
+      "text": "follower",
+      "words": [
+        {
+          "y": 209,
+          "height": 13,
+          "width": 62,
+          "text": "follower",
+          "x": 249
+        }
+      ]
+    },
+    {
+      "text": "following",
+      "words": [
+        {
+          "y": 209,
+          "height": 16,
+          "width": 69,
+          "text": "following",
+          "x": 367
+        }
+      ]
+    },
+    {
+      "text": "+ Add banners",
+      "words": [
+        {
+          "y": 290,
+          "height": 13,
+          "width": 12,
+          "text": "+",
+          "x": 31
+        },
+        {
+          "y": 291,
+          "height": 11,
+          "width": 26,
+          "text": "Add",
+          "x": 50
+        },
+        {
+          "y": 291,
+          "height": 11,
+          "width": 56,
+          "text": "banners",
+          "x": 82
+        }
+      ]
+    },
+    {
+      "text": "Edit profile",
+      "words": [
+        {
+          "y": 338,
+          "height": 13,
+          "width": 30,
+          "text": "Edit",
+          "x": 80
+        },
+        {
+          "y": 338,
+          "height": 16,
+          "width": 52,
+          "text": "profile",
+          "x": 115
+        }
+      ]
+    },
+    {
+      "text": "Discover people",
+      "words": [
+        {
+          "y": 397,
+          "height": 14,
+          "width": 70,
+          "text": "Discover",
+          "x": 21
+        },
+        {
+          "y": 398,
+          "height": 16,
+          "width": 54,
+          "text": "people",
+          "x": 96
+        }
+      ]
+    },
+    {
+      "text": "Halle",
+      "words": [
+        {
+          "y": 565,
+          "height": 14,
+          "width": 40,
+          "text": "Halle",
+          "x": 89
+        }
+      ]
+    },
+    {
+      "text": "Suggested for you",
+      "words": [
+        {
+          "y": 588,
+          "height": 14,
+          "width": 71,
+          "text": "Suggested",
+          "x": 48
+        },
+        {
+          "y": 588,
+          "height": 11,
+          "width": 19,
+          "text": "for",
+          "x": 124
+        },
+        {
+          "y": 591,
+          "height": 11,
+          "width": 24,
+          "text": "you",
+          "x": 147
+        }
+      ]
+    },
+    {
+      "text": "Follow",
+      "words": [
+        {
+          "y": 627,
+          "height": 13,
+          "width": 51,
+          "text": "Follow",
+          "x": 84
+        }
+      ]
+    },
+    {
+      "text": "Share profile",
+      "words": [
+        {
+          "y": 338,
+          "height": 13,
+          "width": 46,
+          "text": "Share",
+          "x": 282
+        },
+        {
+          "y": 338,
+          "height": 16,
+          "width": 51,
+          "text": "profile",
+          "x": 334
+        }
+      ]
+    },
+    {
+      "text": "Suriel Strange",
+      "words": [
+        {
+          "y": 565,
+          "height": 14,
+          "width": 45,
+          "text": "Suriel",
+          "x": 255
+        },
+        {
+          "y": 566,
+          "height": 16,
+          "width": 63,
+          "text": "Strange",
+          "x": 306
+        }
+      ]
+    },
+    {
+      "text": "Suggested for you",
+      "words": [
+        {
+          "y": 588,
+          "height": 14,
+          "width": 71,
+          "text": "Suggested",
+          "x": 250
+        },
+        {
+          "y": 588,
+          "height": 11,
+          "width": 19,
+          "text": "for",
+          "x": 326
+        },
+        {
+          "y": 591,
+          "height": 11,
+          "width": 23,
+          "text": "you",
+          "x": 350
+        }
+      ]
+    },
+    {
+      "text": "Follow back",
+      "words": [
+        {
+          "y": 627,
+          "height": 13,
+          "width": 51,
+          "text": "Follow",
+          "x": 264
+        },
+        {
+          "y": 627,
+          "height": 13,
+          "width": 38,
+          "text": "back",
+          "x": 321
+        }
+      ]
+    },
+    {
+      "text": "See all",
+      "words": [
+        {
+          "y": 398,
+          "height": 13,
+          "width": 29,
+          "text": "See",
+          "x": 426
+        },
+        {
+          "y": 397,
+          "height": 14,
+          "width": 17,
+          "text": "all",
+          "x": 461
+        }
+      ]
+    },
+    {
+      "text": "Jen",
+      "words": [
+        {
+          "y": 566,
+          "height": 13,
+          "width": 28,
+          "text": "Jen",
+          "x": 465
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "65b4943342bef67c52f54429a4360d25553e5ec2e7a01e9fabf9b6cd9b07e4cf"
+}

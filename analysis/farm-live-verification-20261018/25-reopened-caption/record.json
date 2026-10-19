@@ -1,0 +1,1321 @@
+{
+  "source": "agent_supervised_phone",
+  "action": "tap",
+  "intent": "details",
+  "point": [
+    435,
+    1006
+  ],
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "data": {},
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 198.0
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 736.1
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 435,
+        "y": 1006,
+        "button": 1
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 1341.1
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 1135.2
+      }
+    }
+  ],
+  "captures": [
+    {
+      "name": "fresh",
+      "observation": {
+        "id": "1193ccb8-9e12-4aae-9b5f-d206086df64c",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": ""
+        },
+        "requestedAt": 1792355046.4040873,
+        "observerSession": "56aa3196b491442393afcdf878092462",
+        "state": "observed",
+        "reason": "The screen is not recognized.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "402d794d-3726-45f0-bf45-5d37ea81c694",
+          "generation": 20,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "unknown",
+          "layout": null,
+          "appPattern": null,
+          "expectedAppMatches": false,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "not_requested",
+          "reason": "The screen is not recognized.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "text": {
+          "imageSha256": "3abc3f1952bb7ad7b0c571ea43d487f2622a005183da06e12840f30673d8b37b",
+          "provider": "windows-ocr",
+          "language": "en-US",
+          "lines": [
+            {
+              "text": "4:24",
+              "words": [
+                {
+                  "y": 22,
+                  "height": 16,
+                  "width": 42,
+                  "text": "4:24",
+                  "x": 42
+                }
+              ]
+            },
+            {
+              "text": "iMouse 2.0",
+              "words": [
+                {
+                  "y": 214,
+                  "height": 20,
+                  "width": 85,
+                  "text": "iMouse",
+                  "x": 37
+                },
+                {
+                  "y": 215,
+                  "height": 19,
+                  "width": 35,
+                  "text": "2.0",
+                  "x": 129
+                }
+              ]
+            },
+            {
+              "text": "NewDad \u2022",
+              "words": [
+                {
+                  "y": 84,
+                  "height": 12,
+                  "width": 58,
+                  "text": "NewDad",
+                  "x": 221
+                },
+                {
+                  "y": 90,
+                  "height": 2,
+                  "width": 3,
+                  "text": "\u2022",
+                  "x": 284
+                }
+              ]
+            },
+            {
+              "text": "Suggested \u201e",
+              "words": [
+                {
+                  "y": 102,
+                  "height": 14,
+                  "width": 71,
+                  "text": "Suggested",
+                  "x": 210
+                },
+                {
+                  "y": 111,
+                  "height": 2,
+                  "width": 5,
+                  "text": "\u201e",
+                  "x": 284
+                }
+              ]
+            },
+            {
+              "text": "CAROUSEL TRANSFER TEST",
+              "words": [
+                {
+                  "y": 278,
+                  "height": 17,
+                  "width": 112,
+                  "text": "CAROUSEL",
+                  "x": 37
+                },
+                {
+                  "y": 278,
+                  "height": 17,
+                  "width": 110,
+                  "text": "TRANSFER",
+                  "x": 155
+                },
+                {
+                  "y": 278,
+                  "height": 17,
+                  "width": 51,
+                  "text": "TEST",
+                  "x": 271
+                }
+              ]
+            },
+            {
+              "text": "SLIDE 3 OF 3",
+              "words": [
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 87,
+                  "text": "SLIDE",
+                  "x": 37
+                },
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 15,
+                  "text": "3",
+                  "x": 135
+                },
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 40,
+                  "text": "OF",
+                  "x": 163
+                },
+                {
+                  "y": 592,
+                  "height": 25,
+                  "width": 15,
+                  "text": "3",
+                  "x": 215
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY",
+              "words": [
+                {
+                  "y": 661,
+                  "height": 21,
+                  "width": 92,
+                  "text": "DRAFT",
+                  "x": 38
+                },
+                {
+                  "y": 660,
+                  "height": 23,
+                  "width": 78,
+                  "text": "ONLY",
+                  "x": 140
+                }
+              ]
+            },
+            {
+              "text": "DO NOT PUBLISH",
+              "words": [
+                {
+                  "y": 705,
+                  "height": 19,
+                  "width": 35,
+                  "text": "DO",
+                  "x": 38
+                },
+                {
+                  "y": 705,
+                  "height": 19,
+                  "width": 52,
+                  "text": "NOT",
+                  "x": 82
+                },
+                {
+                  "y": 705,
+                  "height": 19,
+                  "width": 100,
+                  "text": "PUBLISH",
+                  "x": 142
+                }
+              ]
+            },
+            {
+              "text": "Audio",
+              "words": [
+                {
+                  "y": 921,
+                  "height": 9,
+                  "width": 33,
+                  "text": "Audio",
+                  "x": 42
+                }
+              ]
+            },
+            {
+              "text": "Overlay",
+              "words": [
+                {
+                  "y": 921,
+                  "height": 12,
+                  "width": 44,
+                  "text": "Overlay",
+                  "x": 190
+                }
+              ]
+            },
+            {
+              "text": "Filter",
+              "words": [
+                {
+                  "y": 920,
+                  "height": 10,
+                  "width": 30,
+                  "text": "Filter",
+                  "x": 273
+                }
+              ]
+            },
+            {
+              "text": "Edit",
+              "words": [
+                {
+                  "y": 920,
+                  "height": 10,
+                  "width": 23,
+                  "text": "Edit",
+                  "x": 353
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 187,
+                  "height": 12,
+                  "width": 13,
+                  "text": "x",
+                  "x": 464
+                }
+              ]
+            },
+            {
+              "text": "Ratio",
+              "words": [
+                {
+                  "y": 920,
+                  "height": 10,
+                  "width": 29,
+                  "text": "Ratio",
+                  "x": 427
+                }
+              ]
+            },
+            {
+              "text": "ext",
+              "words": [
+                {
+                  "y": 1001,
+                  "height": 10,
+                  "width": 21,
+                  "text": "ext",
+                  "x": 422
+                }
+              ]
+            }
+          ],
+          "height": 1080,
+          "width": 500,
+          "frameSha256": "a4761a80d254380fbcc18f35b3114b633b624e1740d08e17bf5a2d80f932d193"
+        },
+        "frameSha256": "a4761a80d254380fbcc18f35b3114b633b624e1740d08e17bf5a2d80f932d193",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 625.867,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "47e3e1c0dd3f42e48876070e71d5b193",
+          "sequence": 17899,
+          "reportedAgeMs": 0.867,
+          "observationElapsedMs": 625.0,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 631.1014799041748
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 24592,
+        "inputGeneration": 20,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "3abc3f1952bb7ad7b0c571ea43d487f2622a005183da06e12840f30673d8b37b",
+        "completedAt": 1792355047.0201843,
+        "ageSeconds": 0.625,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected app pattern is missing.",
+            "Expected account is not visible as exact text."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        }
+      }
+    },
+    {
+      "name": "after",
+      "observation": {
+        "id": "07fb08fd-019d-4817-bd24-e883df326040",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": ""
+        },
+        "requestedAt": 1792355051.5154011,
+        "observerSession": "56aa3196b491442393afcdf878092462",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "402d794d-3726-45f0-bf45-5d37ea81c694",
+          "generation": 20,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_details",
+          "layout": "carousel_details",
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "not_requested",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "text": {
+          "imageSha256": "410991cfc10e075a3042c07fbefa80126e3ed56f87099591996b5d1b5806d5b3",
+          "provider": "windows-ocr",
+          "language": "en-US",
+          "lines": [
+            {
+              "text": "4:24",
+              "words": [
+                {
+                  "y": 23,
+                  "height": 14,
+                  "width": 41,
+                  "text": "4:24",
+                  "x": 43
+                }
+              ]
+            },
+            {
+              "text": "iMouse 2.0",
+              "words": [
+                {
+                  "y": 150,
+                  "height": 9,
+                  "width": 41,
+                  "text": "iMouse",
+                  "x": 38
+                },
+                {
+                  "y": 150,
+                  "height": 9,
+                  "width": 17,
+                  "text": "2.0",
+                  "x": 82
+                }
+              ]
+            },
+            {
+              "text": "CAROUSEL TRANSFER TEST",
+              "words": [
+                {
+                  "y": 180,
+                  "height": 9,
+                  "width": 55,
+                  "text": "CAROUSEL",
+                  "x": 37
+                },
+                {
+                  "y": 180,
+                  "height": 9,
+                  "width": 54,
+                  "text": "TRANSFER",
+                  "x": 94
+                },
+                {
+                  "y": 180,
+                  "height": 9,
+                  "width": 24,
+                  "text": "TEST",
+                  "x": 151
+                }
+              ]
+            },
+            {
+              "text": "SLIDE 1 OF 3",
+              "words": [
+                {
+                  "y": 332,
+                  "height": 12,
+                  "width": 42,
+                  "text": "SLIDE",
+                  "x": 38
+                },
+                {
+                  "y": 332,
+                  "height": 12,
+                  "width": 5,
+                  "text": "1",
+                  "x": 86
+                },
+                {
+                  "y": 332,
+                  "height": 12,
+                  "width": 20,
+                  "text": "OF",
+                  "x": 98
+                },
+                {
+                  "y": 332,
+                  "height": 12,
+                  "width": 8,
+                  "text": "3",
+                  "x": 123
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY",
+              "words": [
+                {
+                  "y": 365,
+                  "height": 11,
+                  "width": 45,
+                  "text": "DRAFT",
+                  "x": 38
+                },
+                {
+                  "y": 365,
+                  "height": 11,
+                  "width": 38,
+                  "text": "ONLY",
+                  "x": 87
+                }
+              ]
+            },
+            {
+              "text": "DO NOT PUBLISH",
+              "words": [
+                {
+                  "y": 386,
+                  "height": 10,
+                  "width": 17,
+                  "text": "DO",
+                  "x": 38
+                },
+                {
+                  "y": 386,
+                  "height": 10,
+                  "width": 25,
+                  "text": "NOT",
+                  "x": 59
+                },
+                {
+                  "y": 386,
+                  "height": 10,
+                  "width": 49,
+                  "text": "PUBLISH",
+                  "x": 88
+                }
+              ]
+            },
+            {
+              "text": "soy",
+              "words": [
+                {
+                  "y": 23,
+                  "height": 14,
+                  "width": 16,
+                  "text": "soy",
+                  "x": 397
+                }
+              ]
+            },
+            {
+              "text": "Edit",
+              "words": [
+                {
+                  "y": 76,
+                  "height": 15,
+                  "width": 35,
+                  "text": "Edit",
+                  "x": 444
+                }
+              ]
+            },
+            {
+              "text": "New post",
+              "words": [
+                {
+                  "y": 78,
+                  "height": 14,
+                  "width": 40,
+                  "text": "New",
+                  "x": 207
+                },
+                {
+                  "y": 78,
+                  "height": 17,
+                  "width": 41,
+                  "text": "post",
+                  "x": 253
+                }
+              ]
+            },
+            {
+              "text": "iMouse 2.0",
+              "words": [
+                {
+                  "y": 149,
+                  "height": 10,
+                  "width": 42,
+                  "text": "iMouse",
+                  "x": 284
+                },
+                {
+                  "y": 150,
+                  "height": 9,
+                  "width": 17,
+                  "text": "2.0",
+                  "x": 329
+                }
+              ]
+            },
+            {
+              "text": "CAROUSEL TRANSFER TEST",
+              "words": [
+                {
+                  "y": 180,
+                  "height": 9,
+                  "width": 54,
+                  "text": "CAROUSEL",
+                  "x": 284
+                },
+                {
+                  "y": 180,
+                  "height": 9,
+                  "width": 54,
+                  "text": "TRANSFER",
+                  "x": 341
+                },
+                {
+                  "y": 180,
+                  "height": 9,
+                  "width": 25,
+                  "text": "TEST",
+                  "x": 397
+                }
+              ]
+            },
+            {
+              "text": "SLIDE 2 OF 3",
+              "words": [
+                {
+                  "y": 332,
+                  "height": 12,
+                  "width": 42,
+                  "text": "SLIDE",
+                  "x": 284
+                },
+                {
+                  "y": 332,
+                  "height": 12,
+                  "width": 8,
+                  "text": "2",
+                  "x": 331
+                },
+                {
+                  "y": 332,
+                  "height": 12,
+                  "width": 20,
+                  "text": "OF",
+                  "x": 345
+                },
+                {
+                  "y": 332,
+                  "height": 12,
+                  "width": 8,
+                  "text": "3",
+                  "x": 370
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY",
+              "words": [
+                {
+                  "y": 365,
+                  "height": 11,
+                  "width": 45,
+                  "text": "DRAFT",
+                  "x": 285
+                },
+                {
+                  "y": 365,
+                  "height": 11,
+                  "width": 38,
+                  "text": "ONLY",
+                  "x": 334
+                }
+              ]
+            },
+            {
+              "text": "DO NOT PUBLISH",
+              "words": [
+                {
+                  "y": 386,
+                  "height": 10,
+                  "width": 18,
+                  "text": "DO",
+                  "x": 284
+                },
+                {
+                  "y": 386,
+                  "height": 10,
+                  "width": 25,
+                  "text": "NOT",
+                  "x": 306
+                },
+                {
+                  "y": 386,
+                  "height": 10,
+                  "width": 48,
+                  "text": "PUBLISH",
+                  "x": 335
+                }
+              ]
+            },
+            {
+              "text": "iMouse carousel draft test.",
+              "words": [
+                {
+                  "y": 454,
+                  "height": 14,
+                  "width": 55,
+                  "text": "iMouse",
+                  "x": 21
+                },
+                {
+                  "y": 454,
+                  "height": 13,
+                  "width": 65,
+                  "text": "carousel",
+                  "x": 81
+                },
+                {
+                  "y": 454,
+                  "height": 13,
+                  "width": 36,
+                  "text": "draft",
+                  "x": 152
+                },
+                {
+                  "y": 455,
+                  "height": 12,
+                  "width": 33,
+                  "text": "test.",
+                  "x": 193
+                }
+              ]
+            },
+            {
+              "text": "Three numbered slides in order: 1, 2, 3.",
+              "words": [
+                {
+                  "y": 474,
+                  "height": 13,
+                  "width": 44,
+                  "text": "Three",
+                  "x": 21
+                },
+                {
+                  "y": 474,
+                  "height": 13,
+                  "width": 77,
+                  "text": "numbered",
+                  "x": 71
+                },
+                {
+                  "y": 474,
+                  "height": 13,
+                  "width": 44,
+                  "text": "slides",
+                  "x": 154
+                },
+                {
+                  "y": 474,
+                  "height": 13,
+                  "width": 12,
+                  "text": "in",
+                  "x": 204
+                },
+                {
+                  "y": 474,
+                  "height": 13,
+                  "width": 45,
+                  "text": "order:",
+                  "x": 221
+                },
+                {
+                  "y": 475,
+                  "height": 15,
+                  "width": 10,
+                  "text": "1,",
+                  "x": 273
+                },
+                {
+                  "y": 475,
+                  "height": 15,
+                  "width": 13,
+                  "text": "2,",
+                  "x": 289
+                },
+                {
+                  "y": 475,
+                  "height": 13,
+                  "width": 12,
+                  "text": "3.",
+                  "x": 309
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY - do not publish.",
+              "words": [
+                {
+                  "y": 495,
+                  "height": 12,
+                  "width": 53,
+                  "text": "DRAFT",
+                  "x": 21
+                },
+                {
+                  "y": 495,
+                  "height": 13,
+                  "width": 43,
+                  "text": "ONLY",
+                  "x": 79
+                },
+                {
+                  "y": 501,
+                  "height": 2,
+                  "width": 6,
+                  "text": "-",
+                  "x": 128
+                },
+                {
+                  "y": 494,
+                  "height": 13,
+                  "width": 19,
+                  "text": "do",
+                  "x": 140
+                },
+                {
+                  "y": 495,
+                  "height": 12,
+                  "width": 24,
+                  "text": "not",
+                  "x": 165
+                },
+                {
+                  "y": 494,
+                  "height": 16,
+                  "width": 59,
+                  "text": "publish.",
+                  "x": 195
+                }
+              ]
+            },
+            {
+              "text": "poll",
+              "words": [
+                {
+                  "y": 581,
+                  "height": 12,
+                  "width": 25,
+                  "text": "poll",
+                  "x": 62
+                }
+              ]
+            },
+            {
+              "text": "Prompt",
+              "words": [
+                {
+                  "y": 582,
+                  "height": 13,
+                  "width": 50,
+                  "text": "Prompt",
+                  "x": 154
+                }
+              ]
+            },
+            {
+              "text": "Add audio",
+              "words": [
+                {
+                  "y": 641,
+                  "height": 15,
+                  "width": 34,
+                  "text": "Add",
+                  "x": 64
+                },
+                {
+                  "y": 641,
+                  "height": 15,
+                  "width": 47,
+                  "text": "audio",
+                  "x": 104
+                }
+              ]
+            },
+            {
+              "text": "1 Thought I Saw Your F...",
+              "words": [
+                {
+                  "y": 691,
+                  "height": 12,
+                  "width": 2,
+                  "text": "1",
+                  "x": 91
+                },
+                {
+                  "y": 690,
+                  "height": 16,
+                  "width": 65,
+                  "text": "Thought",
+                  "x": 99
+                },
+                {
+                  "y": 690,
+                  "height": 13,
+                  "width": 2,
+                  "text": "I",
+                  "x": 170
+                },
+                {
+                  "y": 690,
+                  "height": 13,
+                  "width": 31,
+                  "text": "Saw",
+                  "x": 178
+                },
+                {
+                  "y": 690,
+                  "height": 13,
+                  "width": 35,
+                  "text": "Your",
+                  "x": 215
+                },
+                {
+                  "y": 690,
+                  "height": 13,
+                  "width": 20,
+                  "text": "F...",
+                  "x": 255
+                }
+              ]
+            },
+            {
+              "text": "Tag people",
+              "words": [
+                {
+                  "y": 754,
+                  "height": 18,
+                  "width": 30,
+                  "text": "Tag",
+                  "x": 64
+                },
+                {
+                  "y": 754,
+                  "height": 18,
+                  "width": 58,
+                  "text": "people",
+                  "x": 101
+                }
+              ]
+            },
+            {
+              "text": "Add location",
+              "words": [
+                {
+                  "y": 812,
+                  "height": 15,
+                  "width": 34,
+                  "text": "Add",
+                  "x": 65
+                },
+                {
+                  "y": 812,
+                  "height": 15,
+                  "width": 67,
+                  "text": "location",
+                  "x": 106
+                }
+              ]
+            },
+            {
+              "text": "Add Al Label",
+              "words": [
+                {
+                  "y": 865,
+                  "height": 15,
+                  "width": 34,
+                  "text": "Add",
+                  "x": 64
+                },
+                {
+                  "y": 866,
+                  "height": 14,
+                  "width": 16,
+                  "text": "Al",
+                  "x": 104
+                },
+                {
+                  "y": 865,
+                  "height": 15,
+                  "width": 45,
+                  "text": "Label",
+                  "x": 127
+                }
+              ]
+            },
+            {
+              "text": "This label is required for realistic photos",
+              "words": [
+                {
+                  "y": 888,
+                  "height": 13,
+                  "width": 32,
+                  "text": "This",
+                  "x": 64
+                },
+                {
+                  "y": 888,
+                  "height": 13,
+                  "width": 35,
+                  "text": "label",
+                  "x": 102
+                },
+                {
+                  "y": 888,
+                  "height": 13,
+                  "width": 11,
+                  "text": "is",
+                  "x": 143
+                },
+                {
+                  "y": 888,
+                  "height": 16,
+                  "width": 62,
+                  "text": "required",
+                  "x": 161
+                },
+                {
+                  "y": 888,
+                  "height": 13,
+                  "width": 21,
+                  "text": "for",
+                  "x": 229
+                },
+                {
+                  "y": 888,
+                  "height": 13,
+                  "width": 59,
+                  "text": "realistic",
+                  "x": 256
+                },
+                {
+                  "y": 888,
+                  "height": 16,
+                  "width": 52,
+                  "text": "photos",
+                  "x": 321
+                }
+              ]
+            },
+            {
+              "text": "and videos made with Al. People will see it",
+              "words": [
+                {
+                  "y": 909,
+                  "height": 13,
+                  "width": 27,
+                  "text": "and",
+                  "x": 64
+                },
+                {
+                  "y": 909,
+                  "height": 13,
+                  "width": 49,
+                  "text": "videos",
+                  "x": 98
+                },
+                {
+                  "y": 909,
+                  "height": 13,
+                  "width": 42,
+                  "text": "made",
+                  "x": 153
+                },
+                {
+                  "y": 909,
+                  "height": 13,
+                  "width": 31,
+                  "text": "with",
+                  "x": 201
+                },
+                {
+                  "y": 909,
+                  "height": 13,
+                  "width": 18,
+                  "text": "Al.",
+                  "x": 238
+                },
+                {
+                  "y": 909,
+                  "height": 16,
+                  "width": 52,
+                  "text": "People",
+                  "x": 263
+                },
+                {
+                  "y": 909,
+                  "height": 13,
+                  "width": 24,
+                  "text": "will",
+                  "x": 320
+                },
+                {
+                  "y": 912,
+                  "height": 10,
+                  "width": 26,
+                  "text": "see",
+                  "x": 350
+                },
+                {
+                  "y": 909,
+                  "height": 13,
+                  "width": 9,
+                  "text": "it",
+                  "x": 382
+                }
+              ]
+            },
+            {
+              "text": "on your content. Learn more",
+              "words": [
+                {
+                  "y": 932,
+                  "height": 10,
+                  "width": 18,
+                  "text": "on",
+                  "x": 64
+                },
+                {
+                  "y": 932,
+                  "height": 13,
+                  "width": 33,
+                  "text": "your",
+                  "x": 88
+                },
+                {
+                  "y": 930,
+                  "height": 12,
+                  "width": 62,
+                  "text": "content.",
+                  "x": 127
+                },
+                {
+                  "y": 929,
+                  "height": 13,
+                  "width": 42,
+                  "text": "Learn",
+                  "x": 196
+                },
+                {
+                  "y": 932,
+                  "height": 10,
+                  "width": 39,
+                  "text": "more",
+                  "x": 244
+                }
+              ]
+            },
+            {
+              "text": "Share",
+              "words": [
+                {
+                  "y": 991,
+                  "height": 13,
+                  "width": 46,
+                  "text": "Share",
+                  "x": 227
+                }
+              ]
+            }
+          ],
+          "height": 1080,
+          "width": 500,
+          "frameSha256": "a8bf9181b1cd52cd65aff0fe45d39ba84e9844cc7e33f12c103435ae538de2e3"
+        },
+        "frameSha256": "a8bf9181b1cd52cd65aff0fe45d39ba84e9844cc7e33f12c103435ae538de2e3",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 649.4360000001001,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "47e3e1c0dd3f42e48876070e71d5b193",
+          "sequence": 18051,
+          "reportedAgeMs": 9.436,
+          "observationElapsedMs": 640.0000000001,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 665.4359999999491
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 24592,
+        "inputGeneration": 20,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "410991cfc10e075a3042c07fbefa80126e3ed56f87099591996b5d1b5806d5b3",
+        "completedAt": 1792355052.1674173,
+        "ageSeconds": 0.6595220565795898,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Expected account is not visible as exact text."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        }
+      }
+    }
+  ],
+  "cleanup": "confirmed",
+  "state": "observed",
+  "savedDraftVerified": false,
+  "automaticInputAllowed": false,
+  "reviewFrameSha256": "dde2e98ff22a5635def210c89abdea7a26c48af08c5a4cc576414e55fcd0a32c",
+  "preflightReview": {
+    "meanError": 0.0005844451079924357,
+    "changedFraction": 0.0010781725888324874
+  },
+  "freshReview": {
+    "meanError": 0.0007425924820012607,
+    "changedFraction": 0.0010477157360406092
+  },
+  "settle": {
+    "polls": 4,
+    "comparison": {
+      "meanError": 9.09060747818586e-06,
+      "changedFraction": 0.0
+    }
+  },
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 21,
+    "lease_remaining_ms": 0
+  }
+}

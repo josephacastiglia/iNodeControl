@@ -1,0 +1,1 @@
+Preparation-only probe omitted expected caption: classify raised KeyError: caption before any phone access. Probe corrected to read the exact package caption; no product source changed.

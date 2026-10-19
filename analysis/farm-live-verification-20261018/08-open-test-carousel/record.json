@@ -1,0 +1,266 @@
+{
+  "source": "agent_supervised_phone",
+  "action": "tap",
+  "intent": "open_test_draft",
+  "point": [
+    185,
+    169
+  ],
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "data": {},
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 207.2
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 745.4
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 185,
+        "y": 169,
+        "button": 1
+      },
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 680.2
+      }
+    }
+  ],
+  "captures": [
+    {
+      "name": "fresh",
+      "observation": {
+        "id": "10530f8d-a5e6-49d5-9746-91d3848d3c63",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": ""
+        },
+        "requestedAt": 1792354441.4811485,
+        "observerSession": "42708f84b68d42e0a3c688c20e45cb44",
+        "state": "observed",
+        "reason": "The screen is not recognized.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "cbc6e642-78d4-49f1-86e4-1fc3263b27ed",
+          "generation": 4,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "unknown",
+          "layout": null,
+          "appPattern": null,
+          "expectedAppMatches": false,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "not_requested",
+          "reason": "The screen is not recognized.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "text": {
+          "imageSha256": "ae1493c531dd6beeee68bf4564c1ea52c4e4db01252450b1d6c66f415a0cde1e",
+          "provider": "windows-ocr",
+          "language": "en-US",
+          "lines": [
+            {
+              "text": "4:14",
+              "words": [
+                {
+                  "y": 23,
+                  "height": 14,
+                  "width": 39,
+                  "text": "4:14",
+                  "x": 44
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 71,
+                  "height": 25,
+                  "width": 25,
+                  "text": "x",
+                  "x": 27
+                }
+              ]
+            },
+            {
+              "text": "1",
+              "words": [
+                {
+                  "y": 154,
+                  "height": 29,
+                  "width": 13,
+                  "text": "1",
+                  "x": 138
+                }
+              ]
+            },
+            {
+              "text": "0:03",
+              "words": [
+                {
+                  "y": 209,
+                  "height": 15,
+                  "width": 43,
+                  "text": "0:03",
+                  "x": 71
+                }
+              ]
+            },
+            {
+              "text": "Drafts",
+              "words": [
+                {
+                  "y": 77,
+                  "height": 15,
+                  "width": 57,
+                  "text": "Drafts",
+                  "x": 222
+                }
+              ]
+            },
+            {
+              "text": "sos",
+              "words": [
+                {
+                  "y": 23,
+                  "height": 9,
+                  "width": 17,
+                  "text": "sos",
+                  "x": 396
+                }
+              ]
+            },
+            {
+              "text": "Select",
+              "words": [
+                {
+                  "y": 77,
+                  "height": 15,
+                  "width": 54,
+                  "text": "Select",
+                  "x": 425
+                }
+              ]
+            }
+          ],
+          "height": 1080,
+          "width": 500,
+          "frameSha256": "18a5503f3ad41a4458fec42d579c20eb0aa6cdb89c0fb11a8c6563ac740cafda"
+        },
+        "frameSha256": "18a5503f3ad41a4458fec42d579c20eb0aa6cdb89c0fb11a8c6563ac740cafda",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 473.0319999999745,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "47e3e1c0dd3f42e48876070e71d5b193",
+          "sequence": 1829,
+          "reportedAgeMs": 20.032,
+          "observationElapsedMs": 452.99999999997453,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 489.0319999999372
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 24592,
+        "inputGeneration": 4,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "ae1493c531dd6beeee68bf4564c1ea52c4e4db01252450b1d6c66f415a0cde1e",
+        "completedAt": 1792354441.933891,
+        "ageSeconds": 0.46899999999993724,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected app pattern is missing.",
+            "Expected account is not visible as exact text."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        }
+      }
+    }
+  ],
+  "cleanup": "confirmed",
+  "state": "review_required",
+  "savedDraftVerified": false,
+  "automaticInputAllowed": false,
+  "reviewFrameSha256": "b58db311d4c156140c3919716070590cade2d54eee59d86fe1f4c9242dc5ebcc",
+  "preflightReview": {
+    "meanError": 6.184532696327262e-05,
+    "changedFraction": 0.0
+  },
+  "freshReview": {
+    "meanError": 0.00014617962244119304,
+    "changedFraction": 0.0
+  },
+  "error": "App image did not settle; no further action is permitted.",
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 5,
+    "lease_remaining_ms": 0
+  }
+}

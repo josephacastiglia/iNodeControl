@@ -1,0 +1,9 @@
+test_owned_budget_remains_bounded_and_original_inspection_keeps_90_seconds (__main__.WorkflowTests.test_owned_budget_remains_bounded_and_original_inspection_keeps_90_seconds) ... ok
+test_whole_flow_uses_one_lease_all_slides_caption_and_returns_profile (__main__.WorkflowTests.test_whole_flow_uses_one_lease_all_slides_caption_and_returns_profile) ... ok
+test_cancel_after_save_releases_without_navigation (__main__.WorkflowTests.test_cancel_after_save_releases_without_navigation) ... ok
+test_unknown_save_response_stops_without_another_input (__main__.WorkflowTests.test_unknown_save_response_stops_without_another_input) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 20.011s
+
+OK

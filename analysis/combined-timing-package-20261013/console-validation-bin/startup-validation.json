@@ -1,0 +1,15 @@
+{
+  "valid": true,
+  "dataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\timing-20261013\\console\\data",
+  "address": "http://127.0.0.1:9913",
+  "connected": false,
+  "settingsWritten": false,
+  "build": {
+    "Version": "2.0.0.0",
+    "InformationalVersion": "2.0.0\u002B01e2f6047a26eb45cb7d36b6c7e5961a6a4ac08f",
+    "ModuleId": "cfef41e9-90d8-4e0a-a9ca-4dcedef4ccdd",
+    "Sha256": "ebf52cd77bc55e2a5ee4790ffdcd1c47d78783a9e6bf73a44d4500b6597eccc4",
+    "Label": "Build ebf52cd7",
+    "Detail": "Console version 2.0.0.0\nModule cfef41e9-90d8-4e0a-a9ca-4dcedef4ccdd\nSHA-256: ebf52cd77bc55e2a5ee4790ffdcd1c47d78783a9e6bf73a44d4500b6597eccc4\nRecorded when this console started; this identifies bytes, not release acceptance."
+  }
+}

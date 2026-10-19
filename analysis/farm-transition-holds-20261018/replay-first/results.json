@@ -1,0 +1,301 @@
+{
+  "source": "retained_fixture_replay",
+  "freshPhoneAcceptance": false,
+  "clock": "virtual",
+  "phoneInput": false,
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout",
+  "cases": [
+    {
+      "case": "04-create-sheet",
+      "status": "replay_passed",
+      "decision": {
+        "state": "ready",
+        "mean": 3.742554493061592e-06,
+        "changed": 0.0,
+        "automaticInputAllowed": false,
+        "beforeObservationId": "c4d7b5f5-7683-4df5-ad3c-d30bcbd43288",
+        "afterObservationId": "69c54a93-f5e8-461b-b3bf-6609809f4604"
+      },
+      "captures": 2,
+      "events": [
+        {
+          "stage": "create",
+          "attempt": 1,
+          "observationId": "c4d7b5f5-7683-4df5-ad3c-d30bcbd43288",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "create",
+          "attempt": 2,
+          "observationId": "69c54a93-f5e8-461b-b3bf-6609809f4604",
+          "state": "ready",
+          "mean": 3.742554493061592e-06,
+          "changed": 0.0,
+          "automaticInputAllowed": false,
+          "beforeObservationId": "c4d7b5f5-7683-4df5-ad3c-d30bcbd43288",
+          "afterObservationId": "69c54a93-f5e8-461b-b3bf-6609809f4604"
+        }
+      ],
+      "inputs": [
+        "04-post-picker/fresh.png",
+        "05-open-post-picker/fresh.png"
+      ]
+    },
+    {
+      "case": "05-picker-indicator",
+      "status": "held",
+      "error": "list index out of range",
+      "captures": 3,
+      "events": [
+        {
+          "stage": "picker",
+          "attempt": 1,
+          "observationId": "05f023f6-12ad-4388-8dbf-4c01dd4ac4b8",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "picker",
+          "attempt": 2,
+          "observationId": "c94e68b1-31c5-4f6d-9141-8d67bef37f35",
+          "controlsStable": false,
+          "previewChanged": false,
+          "automaticInputAllowed": false,
+          "beforeSha256": "569a1e8fe35c5a4cb2559cd482b4525a316d23bc90ef5b7c9d8a95dad0f43e12",
+          "afterSha256": "3f68730ed88d4118269dcaaa592c5dd1483c6f21a8291722f3c18729eb2d1dc2",
+          "protectedMeanError": 0.0008847464940668823,
+          "protectedChangedFraction": 0.0038951456310679614,
+          "worstProtectedBlock": 0.07419607843137255,
+          "mostChangedControlPixels": 0,
+          "ignoredRegions": [
+            [
+              0,
+              0,
+              500,
+              65
+            ],
+            [
+              0,
+              112,
+              500,
+              612
+            ]
+          ],
+          "reason": "Home indicator is fading; recapture without input.",
+          "state": "wait",
+          "beforeObservationId": "05f023f6-12ad-4388-8dbf-4c01dd4ac4b8",
+          "afterObservationId": "c94e68b1-31c5-4f6d-9141-8d67bef37f35"
+        },
+        {
+          "stage": "picker",
+          "attempt": 3,
+          "observationId": "3dddc601-7d8b-41eb-8348-44c5d9c9773c",
+          "controlsStable": false,
+          "previewChanged": false,
+          "automaticInputAllowed": false,
+          "beforeSha256": "3f68730ed88d4118269dcaaa592c5dd1483c6f21a8291722f3c18729eb2d1dc2",
+          "afterSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23",
+          "protectedMeanError": 0.0016325959769020878,
+          "protectedChangedFraction": 0.004823300970873787,
+          "worstProtectedBlock": 0.13546318082788672,
+          "mostChangedControlPixels": 0,
+          "ignoredRegions": [
+            [
+              0,
+              0,
+              500,
+              65
+            ],
+            [
+              0,
+              112,
+              500,
+              612
+            ]
+          ],
+          "reason": "Home indicator is fading; recapture without input.",
+          "state": "wait",
+          "beforeObservationId": "c94e68b1-31c5-4f6d-9141-8d67bef37f35",
+          "afterObservationId": "3dddc601-7d8b-41eb-8348-44c5d9c9773c"
+        },
+        {
+          "stage": "picker",
+          "state": "held",
+          "automaticInputAllowed": false
+        }
+      ],
+      "inputs": [
+        "05-open-post-picker/after-first.png",
+        "05-open-post-picker/after.png",
+        "06-open-drafts/before.png"
+      ]
+    },
+    {
+      "case": "06-new-picker-pair",
+      "status": "replay_passed",
+      "decision": {
+        "controlsStable": true,
+        "previewChanged": false,
+        "automaticInputAllowed": false,
+        "beforeSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23",
+        "afterSha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a",
+        "protectedMeanError": 1.8798147090551428e-05,
+        "protectedChangedFraction": 0.0,
+        "worstProtectedBlock": 0.0006369578134284017,
+        "mostChangedControlPixels": 0,
+        "ignoredRegions": [
+          [
+            0,
+            0,
+            500,
+            65
+          ],
+          [
+            0,
+            112,
+            500,
+            612
+          ]
+        ],
+        "reason": "Picker controls/grid agree; preview motion was excluded.",
+        "state": "ready",
+        "beforeObservationId": "0b090a5b-04e3-45db-a9c2-775e1b2f2892",
+        "afterObservationId": "784d6615-fcb4-4911-8844-85670125cef9"
+      },
+      "captures": 2,
+      "events": [
+        {
+          "stage": "picker",
+          "attempt": 1,
+          "observationId": "0b090a5b-04e3-45db-a9c2-775e1b2f2892",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "picker",
+          "attempt": 2,
+          "observationId": "784d6615-fcb4-4911-8844-85670125cef9",
+          "controlsStable": true,
+          "previewChanged": false,
+          "automaticInputAllowed": false,
+          "beforeSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23",
+          "afterSha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a",
+          "protectedMeanError": 1.8798147090551428e-05,
+          "protectedChangedFraction": 0.0,
+          "worstProtectedBlock": 0.0006369578134284017,
+          "mostChangedControlPixels": 0,
+          "ignoredRegions": [
+            [
+              0,
+              0,
+              500,
+              65
+            ],
+            [
+              0,
+              112,
+              500,
+              612
+            ]
+          ],
+          "reason": "Picker controls/grid agree; preview motion was excluded.",
+          "state": "ready",
+          "beforeObservationId": "0b090a5b-04e3-45db-a9c2-775e1b2f2892",
+          "afterObservationId": "784d6615-fcb4-4911-8844-85670125cef9"
+        }
+      ],
+      "inputs": [
+        "06-open-drafts/before.png",
+        "07-drafts-from-settled-picker/fresh.png"
+      ]
+    },
+    {
+      "case": "08-editor-suggestion",
+      "status": "replay_passed",
+      "decision": {
+        "state": "ready",
+        "mean": 0.000841070221191925,
+        "changed": 0.0013123152709359606,
+        "automaticInputAllowed": false,
+        "beforeObservationId": "6020ab7c-2019-4871-964c-d6b59992cc7e",
+        "afterObservationId": "e4c85675-e0cc-4aca-94ff-5c2c413cbf34"
+      },
+      "captures": 3,
+      "events": [
+        {
+          "stage": "editor",
+          "attempt": 1,
+          "observationId": "b0f8927e-51cd-43f8-9381-6554628a20dd",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "editor",
+          "attempt": 2,
+          "observationId": "6020ab7c-2019-4871-964c-d6b59992cc7e",
+          "state": "wait",
+          "mean": 0.007571210921150069,
+          "changed": 0.008886699507389163,
+          "reason": "Editor suggestion header is changing; recapture without input.",
+          "automaticInputAllowed": false,
+          "beforeObservationId": "b0f8927e-51cd-43f8-9381-6554628a20dd",
+          "afterObservationId": "6020ab7c-2019-4871-964c-d6b59992cc7e"
+        },
+        {
+          "stage": "editor",
+          "attempt": 3,
+          "observationId": "e4c85675-e0cc-4aca-94ff-5c2c413cbf34",
+          "state": "ready",
+          "mean": 0.000841070221191925,
+          "changed": 0.0013123152709359606,
+          "automaticInputAllowed": false,
+          "beforeObservationId": "6020ab7c-2019-4871-964c-d6b59992cc7e",
+          "afterObservationId": "e4c85675-e0cc-4aca-94ff-5c2c413cbf34"
+        }
+      ],
+      "inputs": [
+        "08-open-test-draft/after-first.png",
+        "08-open-test-draft/after.png",
+        "09-inspect-second-slide/fresh.png"
+      ]
+    },
+    {
+      "case": "11-exact-next",
+      "status": "replay_passed",
+      "decision": {
+        "state": "ready",
+        "mean": 0.0007521349689301007,
+        "changed": 0.0013083743842364532,
+        "automaticInputAllowed": false,
+        "beforeObservationId": "b9b7b036-fc88-4522-805b-878ff7051da5",
+        "afterObservationId": "05197e4c-b36d-4397-8b15-1617b0d9bb6c"
+      },
+      "captures": 2,
+      "events": [
+        {
+          "stage": "editor",
+          "attempt": 1,
+          "observationId": "b9b7b036-fc88-4522-805b-878ff7051da5",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "editor",
+          "attempt": 2,
+          "observationId": "05197e4c-b36d-4397-8b15-1617b0d9bb6c",
+          "state": "ready",
+          "mean": 0.0007521349689301007,
+          "changed": 0.0013083743842364532,
+          "automaticInputAllowed": false,
+          "beforeObservationId": "b9b7b036-fc88-4522-805b-878ff7051da5",
+          "afterObservationId": "05197e4c-b36d-4397-8b15-1617b0d9bb6c"
+        }
+      ],
+      "inputs": [
+        "11-caption-details/fresh.png",
+        "12-caption-with-label-crop/fresh.png"
+      ]
+    }
+  ]
+}

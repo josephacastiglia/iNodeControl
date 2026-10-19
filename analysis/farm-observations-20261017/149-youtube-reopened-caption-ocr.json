@@ -1,0 +1,576 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:59",
+      "words": [
+        {
+          "y": 19,
+          "height": 13,
+          "width": 39,
+          "text": "6:59",
+          "x": 46
+        }
+      ]
+    },
+    {
+      "text": "< Add details",
+      "words": [
+        {
+          "y": 73,
+          "height": 23,
+          "width": 14,
+          "text": "<",
+          "x": 17
+        },
+        {
+          "y": 76,
+          "height": 19,
+          "width": 44,
+          "text": "Add",
+          "x": 57
+        },
+        {
+          "y": 75,
+          "height": 20,
+          "width": 75,
+          "text": "details",
+          "x": 111
+        }
+      ]
+    },
+    {
+      "text": "Title",
+      "words": [
+        {
+          "y": 139,
+          "height": 11,
+          "width": 28,
+          "text": "Title",
+          "x": 134
+        }
+      ]
+    },
+    {
+      "text": "MOUSE-VIDEO-DRAFT-TEST-20261017",
+      "words": [
+        {
+          "y": 159,
+          "height": 15,
+          "width": 350,
+          "text": "MOUSE-VIDEO-DRAFT-TEST-20261017",
+          "x": 135
+        }
+      ]
+    },
+    {
+      "text": "o: 03",
+      "words": [
+        {
+          "y": 257,
+          "height": 11,
+          "width": 12,
+          "text": "o:",
+          "x": 72
+        },
+        {
+          "y": 257,
+          "height": 11,
+          "width": 17,
+          "text": "03",
+          "x": 86
+        }
+      ]
+    },
+    {
+      "text": "Get feedback before you",
+      "words": [
+        {
+          "y": 326,
+          "height": 15,
+          "width": 30,
+          "text": "Get",
+          "x": 21
+        },
+        {
+          "y": 325,
+          "height": 15,
+          "width": 80,
+          "text": "feedback",
+          "x": 57
+        },
+        {
+          "y": 325,
+          "height": 15,
+          "width": 55,
+          "text": "before",
+          "x": 144
+        },
+        {
+          "y": 329,
+          "height": 15,
+          "width": 30,
+          "text": "you",
+          "x": 205
+        }
+      ]
+    },
+    {
+      "text": "publish",
+      "words": [
+        {
+          "y": 350,
+          "height": 18,
+          "width": 61,
+          "text": "publish",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "Get feedback",
+      "words": [
+        {
+          "y": 340,
+          "height": 13,
+          "width": 27,
+          "text": "Get",
+          "x": 351
+        },
+        {
+          "y": 339,
+          "height": 13,
+          "width": 75,
+          "text": "feedback",
+          "x": 383
+        }
+      ]
+    },
+    {
+      "text": "O)",
+      "words": [
+        {
+          "y": 569,
+          "height": 10,
+          "width": 17,
+          "text": "O)",
+          "x": 26
+        }
+      ]
+    },
+    {
+      "text": "Taylorx",
+      "words": [
+        {
+          "y": 419,
+          "height": 16,
+          "width": 54,
+          "text": "Taylorx",
+          "x": 74
+        }
+      ]
+    },
+    {
+      "text": "@TaylorlnYoga",
+      "words": [
+        {
+          "y": 439,
+          "height": 16,
+          "width": 111,
+          "text": "@TaylorlnYoga",
+          "x": 74
+        }
+      ]
+    },
+    {
+      "text": "Visibility",
+      "words": [
+        {
+          "y": 490,
+          "height": 14,
+          "width": 56,
+          "text": "Visibility",
+          "x": 64
+        }
+      ]
+    },
+    {
+      "text": "Public",
+      "words": [
+        {
+          "y": 513,
+          "height": 15,
+          "width": 55,
+          "text": "Public",
+          "x": 65
+        }
+      ]
+    },
+    {
+      "text": "Select audience",
+      "words": [
+        {
+          "y": 570,
+          "height": 15,
+          "width": 55,
+          "text": "Select",
+          "x": 65
+        },
+        {
+          "y": 570,
+          "height": 15,
+          "width": 82,
+          "text": "audience",
+          "x": 126
+        }
+      ]
+    },
+    {
+      "text": "Show more v",
+      "words": [
+        {
+          "y": 638,
+          "height": 15,
+          "width": 49,
+          "text": "Show",
+          "x": 181
+        },
+        {
+          "y": 641,
+          "height": 12,
+          "width": 46,
+          "text": "more",
+          "x": 235
+        },
+        {
+          "y": 642,
+          "height": 10,
+          "width": 18,
+          "text": "v",
+          "x": 297
+        }
+      ]
+    },
+    {
+      "text": "Regardless of your location, you're legally required to comply with",
+      "words": [
+        {
+          "y": 697,
+          "height": 13,
+          "width": 74,
+          "text": "Regardless",
+          "x": 21
+        },
+        {
+          "y": 697,
+          "height": 11,
+          "width": 13,
+          "text": "of",
+          "x": 100
+        },
+        {
+          "y": 700,
+          "height": 10,
+          "width": 30,
+          "text": "your",
+          "x": 117
+        },
+        {
+          "y": 697,
+          "height": 13,
+          "width": 56,
+          "text": "location,",
+          "x": 152
+        },
+        {
+          "y": 697,
+          "height": 14,
+          "width": 41,
+          "text": "you're",
+          "x": 214
+        },
+        {
+          "y": 697,
+          "height": 13,
+          "width": 42,
+          "text": "legally",
+          "x": 261
+        },
+        {
+          "y": 697,
+          "height": 13,
+          "width": 55,
+          "text": "required",
+          "x": 309
+        },
+        {
+          "y": 698,
+          "height": 10,
+          "width": 13,
+          "text": "to",
+          "x": 369
+        },
+        {
+          "y": 697,
+          "height": 13,
+          "width": 48,
+          "text": "comply",
+          "x": 387
+        },
+        {
+          "y": 697,
+          "height": 11,
+          "width": 28,
+          "text": "with",
+          "x": 440
+        }
+      ]
+    },
+    {
+      "text": "the Children's Online Privacy Protection Act (COPPA) and/or other",
+      "words": [
+        {
+          "y": 716,
+          "height": 11,
+          "width": 21,
+          "text": "the",
+          "x": 20
+        },
+        {
+          "y": 716,
+          "height": 11,
+          "width": 66,
+          "text": "Children's",
+          "x": 47
+        },
+        {
+          "y": 716,
+          "height": 11,
+          "width": 42,
+          "text": "Online",
+          "x": 119
+        },
+        {
+          "y": 716,
+          "height": 14,
+          "width": 48,
+          "text": "Privacy",
+          "x": 167
+        },
+        {
+          "y": 716,
+          "height": 11,
+          "width": 69,
+          "text": "Protection",
+          "x": 220
+        },
+        {
+          "y": 716,
+          "height": 11,
+          "width": 22,
+          "text": "Act",
+          "x": 294
+        },
+        {
+          "y": 716,
+          "height": 14,
+          "width": 57,
+          "text": "(COPPA)",
+          "x": 322
+        },
+        {
+          "y": 716,
+          "height": 14,
+          "width": 43,
+          "text": "and/or",
+          "x": 385
+        },
+        {
+          "y": 716,
+          "height": 11,
+          "width": 35,
+          "text": "other",
+          "x": 433
+        }
+      ]
+    },
+    {
+      "text": "laws. You're required to tell us whether your videos are made for",
+      "words": [
+        {
+          "y": 735,
+          "height": 11,
+          "width": 32,
+          "text": "laws.",
+          "x": 21
+        },
+        {
+          "y": 736,
+          "height": 10,
+          "width": 42,
+          "text": "You're",
+          "x": 59
+        },
+        {
+          "y": 735,
+          "height": 14,
+          "width": 55,
+          "text": "required",
+          "x": 106
+        },
+        {
+          "y": 736,
+          "height": 10,
+          "width": 12,
+          "text": "to",
+          "x": 167
+        },
+        {
+          "y": 735,
+          "height": 11,
+          "width": 20,
+          "text": "tell",
+          "x": 184
+        },
+        {
+          "y": 738,
+          "height": 8,
+          "width": 15,
+          "text": "us",
+          "x": 209
+        },
+        {
+          "y": 735,
+          "height": 11,
+          "width": 55,
+          "text": "whether",
+          "x": 229
+        },
+        {
+          "y": 738,
+          "height": 11,
+          "width": 29,
+          "text": "your",
+          "x": 289
+        },
+        {
+          "y": 735,
+          "height": 11,
+          "width": 43,
+          "text": "videos",
+          "x": 323
+        },
+        {
+          "y": 738,
+          "height": 8,
+          "width": 21,
+          "text": "are",
+          "x": 371
+        },
+        {
+          "y": 735,
+          "height": 11,
+          "width": 36,
+          "text": "made",
+          "x": 397
+        },
+        {
+          "y": 735,
+          "height": 11,
+          "width": 18,
+          "text": "for",
+          "x": 439
+        }
+      ]
+    },
+    {
+      "text": "kids. What's considered \"made for kids\"?",
+      "words": [
+        {
+          "y": 755,
+          "height": 11,
+          "width": 30,
+          "text": "kids.",
+          "x": 21
+        },
+        {
+          "y": 755,
+          "height": 11,
+          "width": 46,
+          "text": "What's",
+          "x": 57
+        },
+        {
+          "y": 755,
+          "height": 11,
+          "width": 74,
+          "text": "considered",
+          "x": 108
+        },
+        {
+          "y": 755,
+          "height": 11,
+          "width": 42,
+          "text": "\"made",
+          "x": 188
+        },
+        {
+          "y": 754,
+          "height": 12,
+          "width": 19,
+          "text": "for",
+          "x": 235
+        },
+        {
+          "y": 755,
+          "height": 11,
+          "width": 40,
+          "text": "kids\"?",
+          "x": 259
+        }
+      ]
+    },
+    {
+      "text": "Save draft",
+      "words": [
+        {
+          "y": 989,
+          "height": 13,
+          "width": 37,
+          "text": "Save",
+          "x": 89
+        },
+        {
+          "y": 989,
+          "height": 13,
+          "width": 38,
+          "text": "draft",
+          "x": 131
+        }
+      ]
+    },
+    {
+      "text": "Upload Short",
+      "words": [
+        {
+          "y": 989,
+          "height": 16,
+          "width": 55,
+          "text": "Upload",
+          "x": 319
+        },
+        {
+          "y": 989,
+          "height": 13,
+          "width": 44,
+          "text": "Short",
+          "x": 380
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "167b5fb5dff32f9743b13de5b94ff8b14909d1a8723ac9924577313f311ec61d"
+}

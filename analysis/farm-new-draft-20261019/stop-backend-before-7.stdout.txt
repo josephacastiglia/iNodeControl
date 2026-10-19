@@ -1,0 +1,3 @@
+00:16:42.680 stopping PID 40800 (python.exe); children: 19432 conhost.exe
+00:16:42.933 processes attached to PID 40800's console: 52796 powershell.exe, 40800 python.exe
+00:16:43.884 PID 40800 exited; children still running: none

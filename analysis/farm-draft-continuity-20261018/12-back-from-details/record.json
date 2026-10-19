@@ -1,0 +1,20 @@
+{
+  "started": "2026-10-18T05:20:44.213770+00:00",
+  "action": "tap",
+  "values": [
+    "29",
+    "82"
+  ],
+  "error": "Phone C24C (86:1D:4A:04:2F:F6) input 'owned'=True; refusing takeover.",
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": true,
+    "active": true,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 241,
+    "lease_remaining_ms": 27782
+  }
+}

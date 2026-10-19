@@ -1,0 +1,3735 @@
+{
+  "source": "retained_fixtures",
+  "freshPhoneAcceptance": false,
+  "rows": [
+    {
+      "path": "analysis\\farm-live-verification-20261018\\20-reopen-saved-carousel\\after.png",
+      "elapsedMs": 1920.229899998958,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c"
+      },
+      "ocr": {
+        "imageSha256": "412cbd31b9fc18e1692b2106790ece49ba2957213e591f9b63e0f15e4c51455c",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "4:19",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 39,
+                "text": "4:19",
+                "x": 44
+              }
+            ]
+          },
+          {
+            "text": "lewDad \u2022 Bl",
+            "words": [
+              {
+                "y": 84,
+                "height": 12,
+                "width": 51,
+                "text": "lewDad",
+                "x": 211
+              },
+              {
+                "y": 90,
+                "height": 2,
+                "width": 3,
+                "text": "\u2022",
+                "x": 267
+              },
+              {
+                "y": 84,
+                "height": 12,
+                "width": 12,
+                "text": "Bl",
+                "x": 276
+              }
+            ]
+          },
+          {
+            "text": "Suggested",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 210
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 34,
+                "text": "2.0",
+                "x": 130
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 1 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 11,
+                "text": "1",
+                "x": 136
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 41,
+                "text": "OF",
+                "x": 162
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 13,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "412cbd31b9fc18e1692b2106790ece49ba2957213e591f9b63e0f15e4c51455c",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "412cbd31b9fc18e1692b2106790ece49ba2957213e591f9b63e0f15e4c51455c",
+            "sourcePixelsSha256": "4cc455653fcd895c06939a1dd7d50ac794806c01257155f0a4d218baa9b1f3a4",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-verification-20261018\\21-reopened-slide-two\\fresh.png",
+      "elapsedMs": 1316.4453999997932,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c"
+      },
+      "ocr": {
+        "imageSha256": "cf9ae3599b57e2f9cfa17eea26b697da7c49e8722901615e1e34e5d10f27ed24",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "4:20",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 42,
+                "text": "4:20",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Blue Newc",
+            "words": [
+              {
+                "y": 84,
+                "height": 12,
+                "width": 30,
+                "text": "Blue",
+                "x": 213
+              },
+              {
+                "y": 85,
+                "height": 11,
+                "width": 39,
+                "text": "Newc",
+                "x": 251
+              }
+            ]
+          },
+          {
+            "text": "Suggested",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 210
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 34,
+                "text": "2.0",
+                "x": 130
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 1 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 11,
+                "text": "1",
+                "x": 136
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 41,
+                "text": "OF",
+                "x": 162
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 13,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "cf9ae3599b57e2f9cfa17eea26b697da7c49e8722901615e1e34e5d10f27ed24",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "cf9ae3599b57e2f9cfa17eea26b697da7c49e8722901615e1e34e5d10f27ed24",
+            "sourcePixelsSha256": "d7053cdab1d926745855c05cf9782c69ca8a3099ac5b171de53685f68f0e856b",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-verification-20261018\\22-reopened-slide-two-reviewed\\fresh.png",
+      "elapsedMs": 1038.7369000000035,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c"
+      },
+      "ocr": {
+        "imageSha256": "1107b0fc336b449a9a6149b61c5fe98d6824af31f67b64da1f3b99fa21b43c51",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "4:20",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 42,
+                "text": "4:20",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Blue Newc",
+            "words": [
+              {
+                "y": 84,
+                "height": 12,
+                "width": 30,
+                "text": "Blue",
+                "x": 211
+              },
+              {
+                "y": 85,
+                "height": 11,
+                "width": 40,
+                "text": "Newc",
+                "x": 248
+              }
+            ]
+          },
+          {
+            "text": "Suggested",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 210
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 34,
+                "text": "2.0",
+                "x": 130
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 1 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 11,
+                "text": "1",
+                "x": 136
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 41,
+                "text": "OF",
+                "x": 162
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 13,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "1107b0fc336b449a9a6149b61c5fe98d6824af31f67b64da1f3b99fa21b43c51",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "1107b0fc336b449a9a6149b61c5fe98d6824af31f67b64da1f3b99fa21b43c51",
+            "sourcePixelsSha256": "f2a963f305e3e382e3fb3aba86f7f249ad74446a142cfb5a2a5533234e93d06c",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-verification-20261018\\23-reopened-slide-two-verified\\after.png",
+      "elapsedMs": 1035.5944000002637,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c"
+      },
+      "ocr": {
+        "imageSha256": "371a4cc226f8cac3ae62f0fde021dd27b97798c2df68c5b806b44d2525004e97",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "4:21",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 37,
+                "text": "4:21",
+                "x": 44
+              }
+            ]
+          },
+          {
+            "text": "\u2022ewDad \u2022 BII",
+            "words": [
+              {
+                "y": 84,
+                "height": 12,
+                "width": 50,
+                "text": "\u2022ewDad",
+                "x": 211
+              },
+              {
+                "y": 90,
+                "height": 2,
+                "width": 2,
+                "text": "\u2022",
+                "x": 267
+              },
+              {
+                "y": 84,
+                "height": 12,
+                "width": 15,
+                "text": "BII",
+                "x": 275
+              }
+            ]
+          },
+          {
+            "text": "Suggested",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 210
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 34,
+                "text": "2.0",
+                "x": 130
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 2 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 17,
+                "text": "2",
+                "x": 134
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 40,
+                "text": "OF",
+                "x": 163
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 12,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "371a4cc226f8cac3ae62f0fde021dd27b97798c2df68c5b806b44d2525004e97",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "371a4cc226f8cac3ae62f0fde021dd27b97798c2df68c5b806b44d2525004e97",
+            "sourcePixelsSha256": "33f2f924bfd2e5c04e341dfd0762f26091f769139bcf677f9546f608e90f5239",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-verification-20261018\\23-reopened-slide-two-verified\\fresh.png",
+      "elapsedMs": 1054.7461999994994,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c"
+      },
+      "ocr": {
+        "imageSha256": "e36f11c8f357f35af815080cc6f216890d4e3f2634bc2060413819934de99326",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "4:21",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 37,
+                "text": "4:21",
+                "x": 44
+              }
+            ]
+          },
+          {
+            "text": "ad \u2022 Blue N,",
+            "words": [
+              {
+                "y": 84,
+                "height": 12,
+                "width": 13,
+                "text": "ad",
+                "x": 211
+              },
+              {
+                "y": 90,
+                "height": 3,
+                "width": 3,
+                "text": "\u2022",
+                "x": 230
+              },
+              {
+                "y": 84,
+                "height": 12,
+                "width": 31,
+                "text": "Blue",
+                "x": 238
+              },
+              {
+                "y": 85,
+                "height": 11,
+                "width": 14,
+                "text": "N,",
+                "x": 276
+              }
+            ]
+          },
+          {
+            "text": "Suggested",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 210
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 34,
+                "text": "2.0",
+                "x": 130
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 1 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 11,
+                "text": "1",
+                "x": 136
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 41,
+                "text": "OF",
+                "x": 162
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 13,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "e36f11c8f357f35af815080cc6f216890d4e3f2634bc2060413819934de99326",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "e36f11c8f357f35af815080cc6f216890d4e3f2634bc2060413819934de99326",
+            "sourcePixelsSha256": "4dc9d1a951c864891e2312af9773b598b0273f6c22064e5855c2dd6dc3f183cb",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-verification-20261018\\24-reopened-slide-three\\after.png",
+      "elapsedMs": 997.0396000007895,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c"
+      },
+      "ocr": {
+        "imageSha256": "dde2e98ff22a5635def210c89abdea7a26c48af08c5a4cc576414e55fcd0a32c",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "4:23",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 42,
+                "text": "4:23",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "\u2022 Blue",
+            "words": [
+              {
+                "y": 90,
+                "height": 2,
+                "width": 3,
+                "text": "\u2022",
+                "x": 238
+              },
+              {
+                "y": 84,
+                "height": 12,
+                "width": 30,
+                "text": "Blue",
+                "x": 247
+              }
+            ]
+          },
+          {
+            "text": "Suggested",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 210
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 35,
+                "text": "2.0",
+                "x": 129
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 3 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 135
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 40,
+                "text": "OF",
+                "x": 163
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 13,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "dde2e98ff22a5635def210c89abdea7a26c48af08c5a4cc576414e55fcd0a32c",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "dde2e98ff22a5635def210c89abdea7a26c48af08c5a4cc576414e55fcd0a32c",
+            "sourcePixelsSha256": "5ecce80146f7665d3ac4c6b941f5db50b21f3ef86d2f45825b48db0269da7d8f",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-verification-20261018\\24-reopened-slide-three\\fresh.png",
+      "elapsedMs": 1002.0808000008401,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c"
+      },
+      "ocr": {
+        "imageSha256": "0970c4a64c17ab752d8fe6a0277e07179fd95f91cb5377a9843b5850e75d1c6e",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "4:23",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 42,
+                "text": "4:23",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 34,
+                "text": "2.0",
+                "x": 130
+              }
+            ]
+          },
+          {
+            "text": "lue NewDa",
+            "words": [
+              {
+                "y": 84,
+                "height": 12,
+                "width": 20,
+                "text": "lue",
+                "x": 213
+              },
+              {
+                "y": 85,
+                "height": 11,
+                "width": 48,
+                "text": "NewDa",
+                "x": 241
+              }
+            ]
+          },
+          {
+            "text": "Suggested",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 210
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 2 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 17,
+                "text": "2",
+                "x": 134
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 40,
+                "text": "OF",
+                "x": 163
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 12,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "0970c4a64c17ab752d8fe6a0277e07179fd95f91cb5377a9843b5850e75d1c6e",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "0970c4a64c17ab752d8fe6a0277e07179fd95f91cb5377a9843b5850e75d1c6e",
+            "sourcePixelsSha256": "c9363595bcaabb87cae0f2782ce0f8992836602a89ccaadd09bb1f9e115dfab0",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-verification-20261018\\25-reopened-caption\\fresh.png",
+      "elapsedMs": 972.7724000003946,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c"
+      },
+      "ocr": {
+        "imageSha256": "3abc3f1952bb7ad7b0c571ea43d487f2622a005183da06e12840f30673d8b37b",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "4:24",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 42,
+                "text": "4:24",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 35,
+                "text": "2.0",
+                "x": 129
+              }
+            ]
+          },
+          {
+            "text": "NewDad \u2022",
+            "words": [
+              {
+                "y": 84,
+                "height": 12,
+                "width": 58,
+                "text": "NewDad",
+                "x": 221
+              },
+              {
+                "y": 90,
+                "height": 2,
+                "width": 3,
+                "text": "\u2022",
+                "x": 284
+              }
+            ]
+          },
+          {
+            "text": "Suggested \u201e",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 71,
+                "text": "Suggested",
+                "x": 210
+              },
+              {
+                "y": 111,
+                "height": 2,
+                "width": 5,
+                "text": "\u201e",
+                "x": 284
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 3 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 135
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 40,
+                "text": "OF",
+                "x": 163
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 13,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "3abc3f1952bb7ad7b0c571ea43d487f2622a005183da06e12840f30673d8b37b",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "609f3c15b5f47121b3f03f79966ef27af2ca7d4ac90cd0f74158c3927881239c",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "3abc3f1952bb7ad7b0c571ea43d487f2622a005183da06e12840f30673d8b37b",
+            "sourcePixelsSha256": "761773c1ed3b5eedc67aa028cd989ac3eb7e6d70fcb400ca6be79f21093df750",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-layout-20261018\\08-open-test-draft\\after.png",
+      "elapsedMs": 974.8365000014019,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "b70e619e348174ade181c8a5883d2e513b6ae47685aeb949f603bd1bae31c931"
+      },
+      "ocr": {
+        "imageSha256": "960271dab42669a0edffd555cdf339ee45609b1d10654c0ad9dfde68b3a39036",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "6:41",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 38,
+                "text": "6:41",
+                "x": 44
+              }
+            ]
+          },
+          {
+            "text": "naria \u2022 Day By",
+            "words": [
+              {
+                "y": 84,
+                "height": 12,
+                "width": 33,
+                "text": "naria",
+                "x": 197
+              },
+              {
+                "y": 90,
+                "height": 2,
+                "width": 3,
+                "text": "\u2022",
+                "x": 236
+              },
+              {
+                "y": 85,
+                "height": 13,
+                "width": 26,
+                "text": "Day",
+                "x": 244
+              },
+              {
+                "y": 85,
+                "height": 13,
+                "width": 17,
+                "text": "By",
+                "x": 275
+              }
+            ]
+          },
+          {
+            "text": "Suggested au...",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 72,
+                "text": "Suggested",
+                "x": 196
+              },
+              {
+                "y": 105,
+                "height": 8,
+                "width": 27,
+                "text": "au...",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 34,
+                "text": "2.0",
+                "x": 130
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 1 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 11,
+                "text": "1",
+                "x": 136
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 41,
+                "text": "OF",
+                "x": 162
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 13,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "960271dab42669a0edffd555cdf339ee45609b1d10654c0ad9dfde68b3a39036",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "b70e619e348174ade181c8a5883d2e513b6ae47685aeb949f603bd1bae31c931",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "960271dab42669a0edffd555cdf339ee45609b1d10654c0ad9dfde68b3a39036",
+            "sourcePixelsSha256": "4b3e9874cb89303dcb4ddca3119a9869b7fc9313e050fb54a292b2f30af38afd",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-layout-20261018\\09-inspect-second-slide\\after.png",
+      "elapsedMs": 1016.4815000007366,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "b70e619e348174ade181c8a5883d2e513b6ae47685aeb949f603bd1bae31c931"
+      },
+      "ocr": {
+        "imageSha256": "4f2085826686ead102c8564e7630358ef024b57de77496deb58fbf3f536cb928",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "6:42",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 42,
+                "text": "6:42",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "By Day Amari",
+            "words": [
+              {
+                "y": 85,
+                "height": 13,
+                "width": 17,
+                "text": "By",
+                "x": 201
+              },
+              {
+                "y": 85,
+                "height": 13,
+                "width": 26,
+                "text": "Day",
+                "x": 223
+              },
+              {
+                "y": 84,
+                "height": 12,
+                "width": 40,
+                "text": "Amari",
+                "x": 256
+              }
+            ]
+          },
+          {
+            "text": "Suggested au...",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 72,
+                "text": "Suggested",
+                "x": 196
+              },
+              {
+                "y": 105,
+                "height": 8,
+                "width": 27,
+                "text": "au...",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 35,
+                "text": "2.0",
+                "x": 129
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 279,
+                "height": 16,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 2 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 17,
+                "text": "2",
+                "x": 134
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 40,
+                "text": "OF",
+                "x": 163
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 12,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "4f2085826686ead102c8564e7630358ef024b57de77496deb58fbf3f536cb928",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "b70e619e348174ade181c8a5883d2e513b6ae47685aeb949f603bd1bae31c931",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "4f2085826686ead102c8564e7630358ef024b57de77496deb58fbf3f536cb928",
+            "sourcePixelsSha256": "26ae828b8ae767b814adcd50a282b5a2340d56b91ffa05cbea2cdd99cd32860c",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-layout-20261018\\10-inspect-third-slide\\after.png",
+      "elapsedMs": 986.0819999994419,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "e241981c33737c108c45fbc24afed0537684d7aadc20ca8a37ef4266f868392a"
+      },
+      "ocr": {
+        "imageSha256": "825024084e06489a185f8230d4a5f1f8d67965f62be68f7ed51ab45942bd14e8",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "6:42",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 42,
+                "text": "6:42",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Amaria \u2022 D",
+            "words": [
+              {
+                "y": 84,
+                "height": 12,
+                "width": 49,
+                "text": "Amaria",
+                "x": 224
+              },
+              {
+                "y": 90,
+                "height": 2,
+                "width": 3,
+                "text": "\u2022",
+                "x": 278
+              },
+              {
+                "y": 85,
+                "height": 11,
+                "width": 9,
+                "text": "D",
+                "x": 287
+              }
+            ]
+          },
+          {
+            "text": "Suggested au...",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 72,
+                "text": "Suggested",
+                "x": 196
+              },
+              {
+                "y": 105,
+                "height": 8,
+                "width": 27,
+                "text": "au...",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 35,
+                "text": "2.0",
+                "x": 129
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 3 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 135
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 40,
+                "text": "OF",
+                "x": 163
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 12,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "825024084e06489a185f8230d4a5f1f8d67965f62be68f7ed51ab45942bd14e8",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "e241981c33737c108c45fbc24afed0537684d7aadc20ca8a37ef4266f868392a",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "825024084e06489a185f8230d4a5f1f8d67965f62be68f7ed51ab45942bd14e8",
+            "sourcePixelsSha256": "c1fc0df4d5c79131d83d2c52503c16d039d054679d95b86bea189e0d474041e6",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    },
+    {
+      "path": "analysis\\farm-live-layout-20261018\\11-caption-details\\fresh.png",
+      "elapsedMs": 1029.0930999999546,
+      "layout": "carousel_editor",
+      "nextLabel": {
+        "method": "same_frame_crop_exact_word",
+        "label": "Next",
+        "imageSha256": "e241981c33737c108c45fbc24afed0537684d7aadc20ca8a37ef4266f868392a"
+      },
+      "ocr": {
+        "imageSha256": "ea0637c2a3596495778c346cabe599635e4d8deb9676f83c58ff854307e84813",
+        "provider": "windows-ocr",
+        "language": "en-US",
+        "lines": [
+          {
+            "text": "6:42",
+            "words": [
+              {
+                "y": 22,
+                "height": 16,
+                "width": 42,
+                "text": "6:42",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "\u2022ay By Day Am",
+            "words": [
+              {
+                "y": 87,
+                "height": 11,
+                "width": 18,
+                "text": "\u2022ay",
+                "x": 197
+              },
+              {
+                "y": 85,
+                "height": 13,
+                "width": 17,
+                "text": "By",
+                "x": 220
+              },
+              {
+                "y": 85,
+                "height": 13,
+                "width": 26,
+                "text": "Day",
+                "x": 242
+              },
+              {
+                "y": 85,
+                "height": 11,
+                "width": 22,
+                "text": "Am",
+                "x": 275
+              }
+            ]
+          },
+          {
+            "text": "Suggested au...",
+            "words": [
+              {
+                "y": 102,
+                "height": 14,
+                "width": 72,
+                "text": "Suggested",
+                "x": 196
+              },
+              {
+                "y": 105,
+                "height": 8,
+                "width": 27,
+                "text": "au...",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "iMouse 2.0",
+            "words": [
+              {
+                "y": 214,
+                "height": 20,
+                "width": 85,
+                "text": "iMouse",
+                "x": 37
+              },
+              {
+                "y": 215,
+                "height": 19,
+                "width": 35,
+                "text": "2.0",
+                "x": 129
+              }
+            ]
+          },
+          {
+            "text": "CAROUSEL TRANSFER TEST",
+            "words": [
+              {
+                "y": 278,
+                "height": 17,
+                "width": 112,
+                "text": "CAROUSEL",
+                "x": 37
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 110,
+                "text": "TRANSFER",
+                "x": 155
+              },
+              {
+                "y": 278,
+                "height": 17,
+                "width": 51,
+                "text": "TEST",
+                "x": 271
+              }
+            ]
+          },
+          {
+            "text": "SLIDE 3 OF 3",
+            "words": [
+              {
+                "y": 592,
+                "height": 25,
+                "width": 87,
+                "text": "SLIDE",
+                "x": 37
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 135
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 40,
+                "text": "OF",
+                "x": 163
+              },
+              {
+                "y": 592,
+                "height": 25,
+                "width": 15,
+                "text": "3",
+                "x": 215
+              }
+            ]
+          },
+          {
+            "text": "DRAFT ONLY",
+            "words": [
+              {
+                "y": 661,
+                "height": 21,
+                "width": 92,
+                "text": "DRAFT",
+                "x": 38
+              },
+              {
+                "y": 660,
+                "height": 23,
+                "width": 78,
+                "text": "ONLY",
+                "x": 140
+              }
+            ]
+          },
+          {
+            "text": "DO NOT PUBLISH",
+            "words": [
+              {
+                "y": 705,
+                "height": 19,
+                "width": 35,
+                "text": "DO",
+                "x": 38
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 52,
+                "text": "NOT",
+                "x": 82
+              },
+              {
+                "y": 705,
+                "height": 19,
+                "width": 100,
+                "text": "PUBLISH",
+                "x": 142
+              }
+            ]
+          },
+          {
+            "text": "Audio",
+            "words": [
+              {
+                "y": 921,
+                "height": 9,
+                "width": 33,
+                "text": "Audio",
+                "x": 42
+              }
+            ]
+          },
+          {
+            "text": "Overlay",
+            "words": [
+              {
+                "y": 921,
+                "height": 12,
+                "width": 44,
+                "text": "Overlay",
+                "x": 190
+              }
+            ]
+          },
+          {
+            "text": "Filter",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 30,
+                "text": "Filter",
+                "x": 273
+              }
+            ]
+          },
+          {
+            "text": "Edit",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 23,
+                "text": "Edit",
+                "x": 353
+              }
+            ]
+          },
+          {
+            "text": "x",
+            "words": [
+              {
+                "y": 187,
+                "height": 12,
+                "width": 12,
+                "text": "x",
+                "x": 464
+              }
+            ]
+          },
+          {
+            "text": "Ratio",
+            "words": [
+              {
+                "y": 920,
+                "height": 10,
+                "width": 29,
+                "text": "Ratio",
+                "x": 427
+              }
+            ]
+          },
+          {
+            "text": "ext",
+            "words": [
+              {
+                "y": 1001,
+                "height": 10,
+                "width": 21,
+                "text": "ext",
+                "x": 422
+              }
+            ]
+          }
+        ],
+        "height": 1080,
+        "width": 500,
+        "frameSha256": "ea0637c2a3596495778c346cabe599635e4d8deb9676f83c58ff854307e84813",
+        "controlOcr": {
+          "next": {
+            "imageSha256": "e241981c33737c108c45fbc24afed0537684d7aadc20ca8a37ef4266f868392a",
+            "provider": "windows-ocr",
+            "language": "en-US",
+            "lines": [
+              {
+                "text": "Next",
+                "words": [
+                  {
+                    "y": 39,
+                    "height": 33,
+                    "width": 94,
+                    "text": "Next",
+                    "x": 23
+                  }
+                ]
+              }
+            ],
+            "height": 117,
+            "width": 129,
+            "sourceFrameSha256": "ea0637c2a3596495778c346cabe599635e4d8deb9676f83c58ff854307e84813",
+            "sourcePixelsSha256": "daa3bc2c925e3aaea365167ff397a03cf01d4f593f4e3356471352543e9fbf33",
+            "bounds": [
+              404,
+              987,
+              447,
+              1026
+            ],
+            "scale": 3
+          }
+        }
+      }
+    }
+  ]
+}

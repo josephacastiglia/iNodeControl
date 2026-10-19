@@ -1,0 +1,40 @@
+{
+  "ms": [
+    290.86,
+    278.56,
+    284.01
+  ],
+  "result": {
+    "status": "visual_match",
+    "matchedIndex": 1,
+    "scores": [
+      {
+        "index": 1,
+        "meanError": 0.021387519065834994,
+        "worstBlock": 0.11244078200156264,
+        "rendering": "library_lower_gradient"
+      },
+      {
+        "index": 2,
+        "meanError": 0.11059444636115122,
+        "worstBlock": 0.27570263602045475,
+        "rendering": "library_lower_gradient"
+      },
+      {
+        "index": 3,
+        "meanError": 0.10491812140039214,
+        "worstBlock": 0.22179286799801942,
+        "rendering": "library_lower_gradient"
+      }
+    ],
+    "margin": 0.08353060233455714,
+    "byteIdentityVerified": false,
+    "fullImageVisible": false,
+    "libraryCell": {
+      "row": 1,
+      "column": 1
+    },
+    "candidateCells": 2,
+    "matchingCovers": 1
+  }
+}

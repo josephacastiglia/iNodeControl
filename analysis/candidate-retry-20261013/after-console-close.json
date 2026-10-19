@@ -1,0 +1,32 @@
+{
+  "status": 200,
+  "message": "ok",
+  "data": {
+    "code": 0,
+    "protocol": 1,
+    "phones": [
+      {
+        "id": "86:1D:4A:04:2F:F6",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "",
+        "generation": 0,
+        "lease_remaining_ms": 0
+      },
+      {
+        "id": "FE:A9:BC:D7:A0:44",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "",
+        "generation": 0,
+        "lease_remaining_ms": 0
+      }
+    ]
+  }
+}

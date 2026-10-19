@@ -1,0 +1,82 @@
+[
+  {
+    "path": "IMOUSE2_MARKETING_FARM_COMPLETION_HANDOFF.md",
+    "sha256": "274acea059583d49e50ea8091f3b89addc2017b7999859b4c16abae518c95a99",
+    "bytes": 5227
+  },
+  {
+    "path": "IMOUSE_MARKETING_FARM_HANDOFF.md",
+    "sha256": "5ae252bd33501390bd1de2ae4788672399092b84aa30fc4ac76b1428dba5f931",
+    "bytes": 17327
+  },
+  {
+    "path": "docs/imouse_social_automation_blueprint.md",
+    "sha256": "7943882571956732196badac87e28ec26bd88bf766b559177bb6b858c4750bc8",
+    "bytes": 8454
+  },
+  {
+    "path": "Open Marketing Farm.ps1",
+    "sha256": "5483681899943189348c374bc1dd547c027fcbb75b3dc1a0e2e5bff5b9682aad",
+    "bytes": 271
+  },
+  {
+    "path": "src/iMouse.Console/MainWindow.xaml",
+    "sha256": "6eebf50f0df3eb1bb58f9468406fa32cc1ed3a80629ae83e166a50b26f73c3ab",
+    "bytes": 43043
+  },
+  {
+    "path": "src/iMouse.Console/MainWindow.xaml.cs",
+    "sha256": "f6652c68d633e18e85386b4632b7ce106689548ed5ececf56e29e9f86dd66d4f",
+    "bytes": 170769
+  },
+  {
+    "path": "src/iMouse.Console/SelfTests.cs",
+    "sha256": "4bbe991577b1e3f667cd44f367fe6c42549d999648a1dacd2f5c4fbf66445c10",
+    "bytes": 92802
+  },
+  {
+    "path": "src/iMouse.Console/MainWindow.FarmTab.cs",
+    "sha256": "fadc6b92a15f0c1d7211504444dd34b6992e24abf49807702b5df6b894dd16bc",
+    "bytes": 21382
+  },
+  {
+    "path": "src/iMouse.Console/FarmAutomationWindow.cs",
+    "sha256": "b1fa004febf0cca6c6817a18b10d0045854f65da4c43961f6b22e0b0bc0430d0",
+    "bytes": 20861
+  },
+  {
+    "path": "src/iMouse.Console/FarmTargetPolicy.cs",
+    "sha256": "e341c55fa99344615d59e8065719f7902e4af1da08455b08b62a121d4ff1428c",
+    "bytes": 402
+  },
+  {
+    "path": "tools/imouse_farm_server.py",
+    "sha256": "e933829473d4be1bdeb2bbf472a8ea712148915f92c847caa07b361179d1de75",
+    "bytes": 83253
+  },
+  {
+    "path": "tools/imouse_social_automation.py",
+    "sha256": "5e8f5d9bfcb14d4ce51930bbbb5fc9293a5ffe2d14a895798dfec3b08b7ef7c5",
+    "bytes": 164327
+  },
+  {
+    "path": "tools/imouse_farm_command_center.html",
+    "sha256": "89564fa662ff3c737634bef9ef55b94be1d7ddac31845d9be27bd52c52a20d0b",
+    "bytes": 52118
+  },
+  {
+    "path": "tools/setup_imouse_farm.py",
+    "sha256": "6b3f71602ecd55d62154156c56e8ecda1ad46e013f34b3188f8edeeb6ec196c0",
+    "bytes": 117192
+  },
+  {
+    "path": "tools/test_farm_execution_safety.py",
+    "sha256": "8fbc7d3366d9b742362ff2c8e35eeae9fefb02c83562817242ffb4038f4d7f90",
+    "bytes": 8642
+  },
+  {
+    "path": "FARM-CONTINUATION.md",
+    "sha256": "edee472e6f1da67d3c2c8ee09ac036f2e06bf97258e22c8dbb531257ea1bb393",
+    "bytes": 7767
+  }
+]

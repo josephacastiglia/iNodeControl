@@ -1,0 +1,29 @@
+{
+  "source": "agent_supervised_phone",
+  "action": "tap",
+  "intent": "open_drafts",
+  "point": [
+    164,
+    644
+  ],
+  "commands": [],
+  "captures": [],
+  "cleanup": "not_needed",
+  "state": "review_required",
+  "savedDraftVerified": false,
+  "helperSha256": "44c349fca459f60f5f67f2019a3ff0f64f3ec457463c815078c6017ee101e9e1",
+  "automaticInputAllowed": false,
+  "reviewFrameSha256": "3f68730ed88d4118269dcaaa592c5dd1483c6f21a8291722f3c18729eb2d1dc2",
+  "error": "Controls or library pixels changed; inspect again.",
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 4,
+    "lease_remaining_ms": 0
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "run": {
+    "id": "12e61e35-6de8-4637-b19d-5fb901e3380f",
+    "storeId": "a957b9f2-9b84-480d-b30e-8ef4677daf75",
+    "request": {
+      "id": "12e61e35-6de8-4637-b19d-5fb901e3380f",
+      "draft_id": "33f1b5ef-53db-4895-9982-3924208f7b2b",
+      "revision": 3,
+      "store_id": "a957b9f2-9b84-480d-b30e-8ef4677daf75"
+    },
+    "packageSha256": "e54d03f5062786e31f571fcd1b3f2ed2535058c1a601ffde51e0c32fa2285ec7",
+    "state": "review_required",
+    "terminal": true,
+    "jobStatus": "failed",
+    "reason": "[WinError 5] Access is denied: \u0027C:\\\\Users\\\\joey_\\\\AppData\\\\Local\\\\Temp\\\\farm-http-jobs-wz8p85zy\\\\runs\\\\12e61e35-6de8-4637-b19d-5fb901e3380f\\\\record.writing\u0027 -\u003E \u0027C:\\\\Users\\\\joey_\\\\AppData\\\\Local\\\\Temp\\\\farm-http-jobs-wz8p85zy\\\\runs\\\\12e61e35-6de8-4637-b19d-5fb901e3380f\\\\record.json\u0027",
+    "savedDraftVerified": false,
+    "draftChangedSinceRun": false,
+    "cleanup": "unconfirmed",
+    "workflow": {
+      "packageSha256": "e54d03f5062786e31f571fcd1b3f2ed2535058c1a601ffde51e0c32fa2285ec7",
+      "state": "running",
+      "source": "candidate_phone_workflow",
+      "cleanup": "unconfirmed",
+      "savedDraftVerified": false,
+      "observations": [],
+      "actions": [
+        {
+          "label": "prepared-save-once",
+          "state": "outcome_unknown"
+        }
+      ]
+    },
+    "publishing": false,
+    "messaging": false,
+    "desktopControl": false,
+    "automaticResume": false,
+    "integratedLiveValidated": false
+  },
+  "protocolVersion": 2,
+  "executionMode": "live",
+  "simulated": false
+}

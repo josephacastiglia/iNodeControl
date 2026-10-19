@@ -1,0 +1,222 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "7:08",
+      "words": [
+        {
+          "y": 23,
+          "height": 14,
+          "width": 40,
+          "text": "7:08",
+          "x": 43
+        }
+      ]
+    },
+    {
+      "text": "TikTok",
+      "words": [
+        {
+          "y": 170,
+          "height": 12,
+          "width": 44,
+          "text": "TikTok",
+          "x": 170
+        }
+      ]
+    },
+    {
+      "text": "Instagram",
+      "words": [
+        {
+          "y": 171,
+          "height": 14,
+          "width": 68,
+          "text": "Instagram",
+          "x": 43
+        }
+      ]
+    },
+    {
+      "text": "Bluesky",
+      "words": [
+        {
+          "y": 297,
+          "height": 14,
+          "width": 52,
+          "text": "Bluesky",
+          "x": 166
+        }
+      ]
+    },
+    {
+      "text": "Zoho Mail",
+      "words": [
+        {
+          "y": 424,
+          "height": 11,
+          "width": 34,
+          "text": "Zoho",
+          "x": 45
+        },
+        {
+          "y": 423,
+          "height": 12,
+          "width": 27,
+          "text": "Mail",
+          "x": 84
+        }
+      ]
+    },
+    {
+      "text": "Gmail",
+      "words": [
+        {
+          "y": 424,
+          "height": 11,
+          "width": 38,
+          "text": "Gmail",
+          "x": 173
+        }
+      ]
+    },
+    {
+      "text": "•o",
+      "words": [
+        {
+          "y": 464,
+          "height": 77,
+          "width": 174,
+          "text": "•o",
+          "x": 57
+        }
+      ]
+    },
+    {
+      "text": "EXPO GO",
+      "words": [
+        {
+          "y": 551,
+          "height": 13,
+          "width": 33,
+          "text": "EXPO",
+          "x": 164
+        },
+        {
+          "y": 551,
+          "height": 10,
+          "width": 18,
+          "text": "GO",
+          "x": 202
+        }
+      ]
+    },
+    {
+      "text": "lapper",
+      "words": [
+        {
+          "y": 297,
+          "height": 14,
+          "width": 43,
+          "text": "lapper",
+          "x": 291
+        }
+      ]
+    },
+    {
+      "text": "N",
+      "words": [
+        {
+          "y": 424,
+          "height": 11,
+          "width": 10,
+          "text": "N",
+          "x": 341
+        }
+      ]
+    },
+    {
+      "text": "Search",
+      "words": [
+        {
+          "y": 893,
+          "height": 12,
+          "width": 48,
+          "text": "Search",
+          "x": 235
+        }
+      ]
+    },
+    {
+      "text": "sos",
+      "words": [
+        {
+          "y": 23,
+          "height": 9,
+          "width": 17,
+          "text": "sos",
+          "x": 396
+        }
+      ]
+    },
+    {
+      "text": "YouTube",
+      "words": [
+        {
+          "y": 171,
+          "height": 11,
+          "width": 58,
+          "text": "YouTube",
+          "x": 393
+        }
+      ]
+    },
+    {
+      "text": "SMS",
+      "words": [
+        {
+          "y": 243,
+          "height": 9,
+          "width": 26,
+          "text": "SMS",
+          "x": 395
+        }
+      ]
+    },
+    {
+      "text": "Proton VPN",
+      "words": [
+        {
+          "y": 424,
+          "height": 11,
+          "width": 44,
+          "text": "Proton",
+          "x": 383
+        },
+        {
+          "y": 424,
+          "height": 11,
+          "width": 28,
+          "text": "VPN",
+          "x": 433
+        }
+      ]
+    },
+    {
+      "text": "po",
+      "words": [
+        {
+          "y": 988,
+          "height": 30,
+          "width": 52,
+          "text": "po",
+          "x": 396
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "8e161fea69679ed5fa320e370523fe5eece515d3d040256c0ada867e612b4cb2"
+}

@@ -1,0 +1,56 @@
+<Window x:Class="IMouse2.CarouselDraftWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Instagram carousel drafts" Width="1040" Height="790" MinWidth="850" MinHeight="650"
+        WindowStartupLocation="CenterOwner" Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource TextBrush}">
+  <Grid Margin="20">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <StackPanel Margin="0,0,0,12">
+      <TextBlock Text="Instagram carousel draft" FontSize="24" FontWeight="SemiBold"/>
+      <TextBlock Text="Prepare on this PC · no phone connection required · nothing posted" Margin="0,6,0,0" TextWrapping="Wrap"/>
+    </StackPanel>
+    <WrapPanel x:Name="LibraryControls" Grid.Row="1" Margin="0,0,0,14">
+      <ComboBox x:Name="DraftList" Width="260" DisplayMemberPath="Title" Margin="0,0,6,0"/>
+      <Button Content="Open" Click="Open_Click" Padding="12,6"/>
+      <Button Content="Reload saved version" Click="Reload_Click" Padding="12,6"/>
+      <Button Content="New empty draft" Click="New_Click" Padding="12,6"/>
+      <Button Content="From generated content" Click="Generated_Click" Padding="12,6"/>
+    </WrapPanel>
+    <Grid x:Name="EditorControls" Grid.Row="2" IsEnabled="False">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="210"/><ColumnDefinition Width="280"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+      <DockPanel Margin="0,0,16,0">
+        <TextBlock DockPanel.Dock="Top" Text="SLIDE ORDER" FontWeight="SemiBold" Margin="0,0,0,8"/>
+        <WrapPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+          <Button Content="Add images" Click="Add_Click" Padding="8,5"/>
+          <Button Content="Earlier" Click="Earlier_Click" Padding="8,5"/>
+          <Button Content="Later" Click="Later_Click" Padding="8,5"/>
+          <Button Content="Remove" Click="Remove_Click" Padding="8,5"/>
+        </WrapPanel>
+        <ListBox x:Name="SlidesList" SelectionChanged="Slide_Changed" DisplayMemberPath="Name"/>
+      </DockPanel>
+      <StackPanel Grid.Column="1" Margin="0,0,16,0">
+        <TextBlock x:Name="SlideNumber" Text="Select a slide" Margin="0,0,0,8"/>
+        <Border Background="White" BorderBrush="#D4D8DF" BorderThickness="1" Height="330">
+          <Image x:Name="SlidePreview" Stretch="Uniform"/>
+        </Border>
+        <TextBlock Text="Full image fitted into 1080 × 1350. White margins are added when needed; no cropping." TextWrapping="Wrap" Margin="0,10,0,0"/>
+      </StackPanel>
+      <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+          <TextBlock Text="Draft title"/>
+          <TextBox x:Name="TitleBox" TextChanged="Edit_Changed" Margin="0,4,0,12"/>
+          <TextBlock Text="Caption"/>
+          <TextBox x:Name="CaptionBox" TextChanged="Edit_Changed" AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" Height="180" Margin="0,4,0,4"/>
+          <TextBlock x:Name="CaptionCount" Text="0 / 2200"/>
+          <TextBlock Text="This candidate supports 2–10 JPEG/PNG slides, up to 8 MiB each. Caption text is kept in full; phone transfer is not yet validated." TextWrapping="Wrap" Margin="0,12,0,0"/>
+          <TextBlock x:Name="ValidationText" TextWrapping="Wrap" Margin="0,12,0,0"/>
+          <WrapPanel Margin="0,16,0,0">
+            <Button Content="Save draft" Click="Save_Click" Padding="12,8"/>
+            <Button Content="Export review package…" Click="Export_Click" Padding="12,8"/>
+          </WrapPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+    <TextBlock x:Name="StatusText" Grid.Row="3" Text="Loading draft library…" TextWrapping="Wrap" Margin="0,16,0,0"/>
+  </Grid>
+</Window>

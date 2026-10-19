@@ -1,0 +1,3 @@
+18:52:33.732 stopping PID 37932 (iMouse2.Kernel.exe); children: 41768 conhost.exe, 34420 uxplay.exe
+18:52:33.930 processes attached to PID 37932's console: 39372 pwsh.exe, 37932 iMouse2.Kernel.exe
+18:52:34.511 PID 37932 exited; children still running: none

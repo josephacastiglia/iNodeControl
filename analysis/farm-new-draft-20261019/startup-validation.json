@@ -1,0 +1,33 @@
+{
+  "valid": true,
+  "scope": "saved configuration only",
+  "hardware_accessed": false,
+  "listener_started": false,
+  "receivers_started": false,
+  "settings_written": false,
+  "build": {
+    "version": "1.0.0.0",
+    "informational_version": "1.0.0+9fa7a859bbeb60495cdbbda326d25010c3ba7961",
+    "module_id": "fd5a0c81-d709-42a3-8f5e-d1546294f928",
+    "sha256": "c72fa4e0b02b82ec4f7a949c9a80375c69da68d7357084401c7bb422c194a873"
+  },
+  "data_directory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\data",
+  "address": "http://127.0.0.1:9916/api/",
+  "allowed": [
+    "C24C"
+  ],
+  "hid_reply_boards": [],
+  "absolute_probe_board": null,
+  "navigation_sequence": "vendor",
+  "precise_delay_ms": 7,
+  "home_sequence": "vendor",
+  "receiver_count": 1,
+  "receiver_executable": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
+  "receiver_runtime": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime",
+  "bindings_complete": true,
+  "limitations": [
+    "Physical bindings, targeting and mirroring are not assessed.",
+    "Available ports, URL permissions and dependency loading are not tested.",
+    "Runtime file presence is not a dependency or build attestation."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "Candidate": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-new-draft-20261019\\iMouse2.exe",
+  "DataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-new-draft-20261019\\candidate-data",
+  "FarmEndpoint": "http://127.0.0.1:9915",
+  "Mode": "simulate",
+  "ConsoleAddress": "http://127.0.0.1:9913",
+  "DraftWorkflowConfig": "",
+  "DraftCreationConfig": "",
+  "SourceHash": "93cb953cd8b9a1fe449525122275067421f890c1570153c89a460d660b84c796",
+  "StartsProcesses": false
+}

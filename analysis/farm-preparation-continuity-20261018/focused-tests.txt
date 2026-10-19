@@ -1,0 +1,223 @@
+test_bad_generation_paths_and_incomplete_identity_are_refused (test_farm_prepared_batches.PreparedBatchTests.test_bad_generation_paths_and_incomplete_identity_are_refused) ... ok
+test_changed_missing_or_foreign_manifest_never_falls_back_to_latest (test_farm_prepared_batches.PreparedBatchTests.test_changed_missing_or_foreign_manifest_never_falls_back_to_latest) ... ok
+test_exact_batch_opens_after_latest_changes_and_survives_source_deletion (test_farm_prepared_batches.PreparedBatchTests.test_exact_batch_opens_after_latest_changes_and_survives_source_deletion) ... FAIL
+test_missing_or_mixed_batch_identity_cannot_claim_preparation_success (test_farm_prepared_batches.PreparedBatchTests.test_missing_or_mixed_batch_identity_cannot_claim_preparation_success) ... ok
+test_partial_or_ambiguous_images_roll_back_all_assets (test_farm_prepared_batches.PreparedBatchTests.test_partial_or_ambiguous_images_roll_back_all_assets) ... ok
+test_placeholder_output_cannot_be_recorded_as_success (test_farm_prepared_batches.PreparedBatchTests.test_placeholder_output_cannot_be_recorded_as_success) ... ok
+test_reply_recovery_does_not_overwrite_later_local_edits (test_farm_prepared_batches.PreparedBatchTests.test_reply_recovery_does_not_overwrite_later_local_edits) ... ok
+test_schedule_retains_two_distinct_drafts_and_reading_does_not_repeat_work (test_farm_prepared_batches.PreparedBatchTests.test_schedule_retains_two_distinct_drafts_and_reading_does_not_repeat_work) ... ok
+test_snapshot_failure_holds_schedule_without_retry_or_discarding_previous_draft (test_farm_prepared_batches.PreparedBatchTests.test_snapshot_failure_holds_schedule_without_retry_or_discarding_previous_draft) ... ok
+test_busy_manual_operation_defers_preparation (test_farm_preparation_schedule.PreparationTests.test_busy_manual_operation_defers_preparation) ... ok
+test_clock_rollback_does_not_create_duplicate (test_farm_preparation_schedule.PreparationTests.test_clock_rollback_does_not_create_duplicate) ... ok
+test_completed_run_keeps_its_content_references_after_the_next_slate (test_farm_preparation_schedule.PreparationTests.test_completed_run_keeps_its_content_references_after_the_next_slate) ... ok
+test_default_no_work_then_runs_at_due_time_and_stops_at_limit (test_farm_preparation_schedule.PreparationTests.test_default_no_work_then_runs_at_due_time_and_stops_at_limit) ... ok
+test_duplicate_configuration_does_not_reenable_paused_work (test_farm_preparation_schedule.PreparationTests.test_duplicate_configuration_does_not_reenable_paused_work) ... ok
+test_failed_or_empty_render_is_held_without_retry (test_farm_preparation_schedule.PreparationTests.test_failed_or_empty_render_is_held_without_retry) ... ok
+test_live_actions_and_other_targets_cannot_be_scheduled (test_farm_preparation_schedule.PreparationTests.test_live_actions_and_other_targets_cannot_be_scheduled) ... ok
+test_missed_runs_skip_instead_of_catchup_burst (test_farm_preparation_schedule.PreparationTests.test_missed_runs_skip_instead_of_catchup_burst) ... ok
+test_pause_cancels_an_inflight_configuration_before_it_arrives (test_farm_preparation_schedule.PreparationTests.test_pause_cancels_an_inflight_configuration_before_it_arrives) ... ok
+test_profile_pause_and_early_phase_hold_without_rendering (test_farm_preparation_schedule.PreparationTests.test_profile_pause_and_early_phase_hold_without_rendering) ... ok
+test_restart_with_running_record_holds_and_never_replays (test_farm_preparation_schedule.PreparationTests.test_restart_with_running_record_holds_and_never_replays) ... ok
+test_second_backend_cannot_recover_or_execute_current_render (test_farm_preparation_schedule.PreparationTests.test_second_backend_cannot_recover_or_execute_current_render) ... ok
+test_worker_executes_without_ui_heartbeat_and_closes (test_farm_preparation_schedule.PreparationTests.test_worker_executes_without_ui_heartbeat_and_closes) ... ok
+test_another_registry_cannot_run_work_or_report_active_work_as_interrupted (test_farm_jobs.FarmJobTests.test_another_registry_cannot_run_work_or_report_active_work_as_interrupted) ... ok
+test_cancel_before_admission_survives_restart_and_delayed_submission (test_farm_jobs.FarmJobTests.test_cancel_before_admission_survives_restart_and_delayed_submission) ... ok
+test_cancel_from_another_registry_reaches_active_worker (test_farm_jobs.FarmJobTests.test_cancel_from_another_registry_reaches_active_worker) ... ok
+test_cancel_interrupts_wait_and_releases_owned_mock_phone (test_farm_jobs.FarmJobTests.test_cancel_interrupts_wait_and_releases_owned_mock_phone) ... ok
+test_cancel_preserves_completed_result_and_rejects_invalid_ids (test_farm_jobs.FarmJobTests.test_cancel_preserves_completed_result_and_rejects_invalid_ids) ... ok
+test_cancellation_at_atomic_admission_boundary_prevents_work (test_farm_jobs.FarmJobTests.test_cancellation_at_atomic_admission_boundary_prevents_work) ... ok
+test_cancelled_context_never_acquires_or_sends_but_allows_cleanup (test_farm_jobs.FarmJobTests.test_cancelled_context_never_acquires_or_sends_but_allows_cleanup) ... ok
+test_cleanup_failure_during_cancellation_is_reported (test_farm_jobs.FarmJobTests.test_cleanup_failure_during_cancellation_is_reported) ... ok
+test_content_job_generates_media_without_kernel_input (test_farm_jobs.FarmJobTests.test_content_job_generates_media_without_kernel_input) ... ok
+test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow (test_farm_jobs.FarmJobTests.test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow) ... ok
+test_duplicate_completed_submission_never_replays (test_farm_jobs.FarmJobTests.test_duplicate_completed_submission_never_replays) ... ok
+test_duplicate_id_with_different_payload_is_refused (test_farm_jobs.FarmJobTests.test_duplicate_id_with_different_payload_is_refused) ... ok
+test_every_upload_format_dispatches_and_releases_in_simulation (test_farm_jobs.FarmJobTests.test_every_upload_format_dispatches_and_releases_in_simulation) ... ok
+test_failure_is_not_success_or_automatically_retried (test_farm_jobs.FarmJobTests.test_failure_is_not_success_or_automatically_retried) ... ok
+test_interrupted_record_is_unknown_not_rerun (test_farm_jobs.FarmJobTests.test_interrupted_record_is_unknown_not_rerun) ... ok
+test_invalid_job_ids_and_actions_are_refused (test_farm_jobs.FarmJobTests.test_invalid_job_ids_and_actions_are_refused) ... ok
+test_live_automation_refuses_before_any_kernel_probe (test_farm_jobs.FarmJobTests.test_live_automation_refuses_before_any_kernel_probe) ... ok
+test_lost_client_heartbeat_cancels_job (test_farm_jobs.FarmJobTests.test_lost_client_heartbeat_cancels_job) ... ok
+test_new_instance_recovers_completed_result_without_replaying (test_farm_jobs.FarmJobTests.test_new_instance_recovers_completed_result_without_replaying) ... ok
+test_second_concurrent_job_is_refused (test_farm_jobs.FarmJobTests.test_second_concurrent_job_is_refused) ... ok
+test_unavailable_counts_do_not_clear_an_existing_pause (test_farm_jobs.FarmJobTests.test_unavailable_counts_do_not_clear_an_existing_pause) ... ok
+test_unknown_observations_do_not_claim_dm_success (test_farm_jobs.FarmJobTests.test_unknown_observations_do_not_claim_dm_success) ... ok
+test_warmup_job_accepts_console_id_and_releases (test_farm_jobs.FarmJobTests.test_warmup_job_accepts_console_id_and_releases) ... ok
+test_worker_start_failure_releases_registry_and_cannot_replay (test_farm_jobs.FarmJobTests.test_worker_start_failure_releases_registry_and_cannot_replay) ... ok
+test_async_submission_poll_and_duplicate_do_not_replay (test_farm_http_jobs.FarmHttpJobsTests.test_async_submission_poll_and_duplicate_do_not_replay) ... ok
+test_bad_json_and_untrusted_origin_are_rejected (test_farm_http_jobs.FarmHttpJobsTests.test_bad_json_and_untrusted_origin_are_rejected) ... ok
+test_cancel_can_arrive_before_http_submission_and_survives_restart (test_farm_http_jobs.FarmHttpJobsTests.test_cancel_can_arrive_before_http_submission_and_survives_restart) ... ok
+test_cancel_stops_active_work_and_cleanup_finishes (test_farm_http_jobs.FarmHttpJobsTests.test_cancel_stops_active_work_and_cleanup_finishes) ... ok
+test_carousel_import_save_export_over_real_http_without_phone_input (test_farm_http_jobs.FarmHttpJobsTests.test_carousel_import_save_export_over_real_http_without_phone_input) ... ok
+test_durable_status_survives_registry_restart (test_farm_http_jobs.FarmHttpJobsTests.test_durable_status_survives_registry_restart) ... ok
+test_generated_media_and_manifest_can_be_downloaded (test_farm_http_jobs.FarmHttpJobsTests.test_generated_media_and_manifest_can_be_downloaded) ... ok
+test_large_payload_is_not_permitted_on_control_routes (test_farm_http_jobs.FarmHttpJobsTests.test_large_payload_is_not_permitted_on_control_routes) ... ok
+test_scheduled_preparation_opens_its_saved_draft_through_http_after_next_render (test_farm_http_jobs.FarmHttpJobsTests.test_scheduled_preparation_opens_its_saved_draft_through_http_after_next_render) ... ok
+test_stop_latches_until_explicit_simulation_resume (test_farm_http_jobs.FarmHttpJobsTests.test_stop_latches_until_explicit_simulation_resume) ... FAIL
+
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/6249bbaf-4f8c-43d3-b0f8-46ce7cba377b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/6249bbaf-4f8c-43d3-b0f8-46ce7cba377b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs/537d6278-29c9-4a48-8bc3-72e308bcd482/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs/cd35032a-b30b-4095-8efc-1972d1d7d034/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/cd35032a-b30b-4095-8efc-1972d1d7d034 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/cee51f27-4970-4937-98e9-c051cdaf8456/import HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/cee51f27-4970-4937-98e9-c051cdaf8456/import HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/cee51f27-4970-4937-98e9-c051cdaf8456/save HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/cee51f27-4970-4937-98e9-c051cdaf8456/export HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/354f4a58-4972-4146-9b35-1ca553719a9e HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/354f4a58-4972-4146-9b35-1ca553719a9e HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/354f4a58-4972-4146-9b35-1ca553719a9e HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+======================================================================
+FAIL: test_exact_batch_opens_after_latest_changes_and_survives_source_deletion (test_farm_prepared_batches.PreparedBatchTests.test_exact_batch_opens_after_latest_changes_and_survives_source_deletion)
+----------------------------------------------------------------------
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+Traceback (most recent call last):
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_prepared_batches.py", line 62, in test_exact_batch_opens_after_latest_changes_and_survives_source_deletion
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+    self.assertEqual(before, restarted.export(draft['id'], draft['revision']))
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+AssertionError: b'PK\[29 chars]00\x01\'R]\x1dd\xa0\xa5\r\x00\x00\x00\x0b\x00\[9206 chars]\x00' != b'PK\[29 chars]00\x02\'R]\x1dd\xa0\xa5\r\x00\x00\x00\x0b\x00\[9206 chars]\x00'
+
+======================================================================
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+FAIL: test_stop_latches_until_explicit_simulation_resume (test_farm_http_jobs.FarmHttpJobsTests.test_stop_latches_until_explicit_simulation_resume)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_http_jobs.py", line 109, in test_stop_latches_until_explicit_simulation_resume
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+    self.assertIn(self.finish(job_id)["status"], ("cancelled", "failed"))
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+AssertionError: 'cancelling' not found in ('cancelled', 'failed')
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+
+----------------------------------------------------------------------
+Ran 56 tests in 110.720s
+
+FAILED (failures=2)
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/8745d38b-6f05-4a87-8a35-3a14222db642 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/manifest.json HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/video_628a846be2d04083b9b80d46c8e75f58_18271e1e.mp4 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_628a846be2d04083b9b80d46c8e75f58_01_7c3c7c6f.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_628a846be2d04083b9b80d46c8e75f58_02_3d1c3e3f.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_628a846be2d04083b9b80d46c8e75f58_03_3c3c5c63.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_628a846be2d04083b9b80d46c8e75f58_04_3b1c1e47.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 413 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/preparation-schedule HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/preparation-schedule HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/drafts/9826823a-553e-5ab5-96a6-e52f4f75d842 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/drafts/9826823a-553e-5ab5-96a6-e52f4f75d842 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/2edbb5f0-f602-4826-a05d-4c1cd62410ba HTTP/1.1" 200 -

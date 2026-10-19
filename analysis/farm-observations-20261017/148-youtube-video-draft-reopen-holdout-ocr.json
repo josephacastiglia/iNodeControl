@@ -1,0 +1,289 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "Add sound",
+      "words": [
+        {
+          "y": 94,
+          "height": 14,
+          "width": 31,
+          "text": "Add",
+          "x": 224
+        },
+        {
+          "y": 94,
+          "height": 14,
+          "width": 48,
+          "text": "sound",
+          "x": 261
+        }
+      ]
+    },
+    {
+      "text": "iMouse VIDEO DRAFT TEST",
+      "words": [
+        {
+          "y": 296,
+          "height": 17,
+          "width": 70,
+          "text": "iMouse",
+          "x": 59
+        },
+        {
+          "y": 297,
+          "height": 16,
+          "width": 62,
+          "text": "VIDEO",
+          "x": 135
+        },
+        {
+          "y": 297,
+          "height": 16,
+          "width": 66,
+          "text": "DRAFT",
+          "x": 204
+        },
+        {
+          "y": 297,
+          "height": 16,
+          "width": 47,
+          "text": "TEST",
+          "x": 276
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY - DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 351,
+          "height": 12,
+          "width": 47,
+          "text": "DRAFT",
+          "x": 59
+        },
+        {
+          "y": 351,
+          "height": 12,
+          "width": 41,
+          "text": "ONLY",
+          "x": 112
+        },
+        {
+          "y": 358,
+          "height": 2,
+          "width": 5,
+          "text": "-",
+          "x": 159
+        },
+        {
+          "y": 351,
+          "height": 12,
+          "width": 23,
+          "text": "DO",
+          "x": 171
+        },
+        {
+          "y": 351,
+          "height": 12,
+          "width": 33,
+          "text": "NOT",
+          "x": 200
+        },
+        {
+          "y": 351,
+          "height": 12,
+          "width": 60,
+          "text": "PUBLISH",
+          "x": 239
+        }
+      ]
+    },
+    {
+      "text": "TEST: 73%",
+      "words": [
+        {
+          "y": 420,
+          "height": 13,
+          "width": 38,
+          "text": "TEST:",
+          "x": 58
+        },
+        {
+          "y": 420,
+          "height": 13,
+          "width": 31,
+          "text": "73%",
+          "x": 102
+        }
+      ]
+    },
+    {
+      "text": "DEVICE C24C I AUTO-RENDER",
+      "words": [
+        {
+          "y": 869,
+          "height": 13,
+          "width": 60,
+          "text": "DEVICE",
+          "x": 57
+        },
+        {
+          "y": 869,
+          "height": 13,
+          "width": 43,
+          "text": "C24C",
+          "x": 122
+        },
+        {
+          "y": 867,
+          "height": 19,
+          "width": 3,
+          "text": "I",
+          "x": 171
+        },
+        {
+          "y": 869,
+          "height": 13,
+          "width": 128,
+          "text": "AUTO-RENDER",
+          "x": 180
+        }
+      ]
+    },
+    {
+      "text": "Swipe up to edit",
+      "words": [
+        {
+          "y": 944,
+          "height": 14,
+          "width": 40,
+          "text": "Swipe",
+          "x": 196
+        },
+        {
+          "y": 947,
+          "height": 11,
+          "width": 17,
+          "text": "up",
+          "x": 240
+        },
+        {
+          "y": 945,
+          "height": 11,
+          "width": 13,
+          "text": "to",
+          "x": 261
+        },
+        {
+          "y": 944,
+          "height": 12,
+          "width": 26,
+          "text": "edit",
+          "x": 279
+        }
+      ]
+    },
+    {
+      "text": "Edit",
+      "words": [
+        {
+          "y": 998,
+          "height": 14,
+          "width": 30,
+          "text": "Edit",
+          "x": 130
+        }
+      ]
+    },
+    {
+      "text": "Text",
+      "words": [
+        {
+          "y": 360,
+          "height": 13,
+          "width": 34,
+          "text": "Text",
+          "x": 369
+        }
+      ]
+    },
+    {
+      "text": "Effects",
+      "words": [
+        {
+          "y": 420,
+          "height": 12,
+          "width": 49,
+          "text": "Effects",
+          "x": 353
+        }
+      ]
+    },
+    {
+      "text": "Filters",
+      "words": [
+        {
+          "y": 480,
+          "height": 14,
+          "width": 49,
+          "text": "Filters",
+          "x": 353
+        }
+      ]
+    },
+    {
+      "text": "Stickers",
+      "words": [
+        {
+          "y": 540,
+          "height": 14,
+          "width": 65,
+          "text": "Stickers",
+          "x": 337
+        }
+      ]
+    },
+    {
+      "text": "Voiceover",
+      "words": [
+        {
+          "y": 661,
+          "height": 13,
+          "width": 80,
+          "text": "Voiceover",
+          "x": 323
+        }
+      ]
+    },
+    {
+      "text": "Next",
+      "words": [
+        {
+          "y": 999,
+          "height": 13,
+          "width": 37,
+          "text": "Next",
+          "x": 351
+        }
+      ]
+    },
+    {
+      "text": "Aa",
+      "words": [
+        {
+          "y": 356,
+          "height": 21,
+          "width": 27,
+          "text": "Aa",
+          "x": 442
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "c504316ad2ba91d0f408fdd9dba95ff0cb22034034136effe3c42f2e548df2d2"
+}

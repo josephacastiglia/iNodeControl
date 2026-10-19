@@ -1,0 +1,102 @@
+{
+  "schedule": {
+    "config": {
+      "id": "d201f68e-df3a-4cbc-9482-1347d64d1ce6",
+      "enabled": false,
+      "state": "complete",
+      "deviceId": "C24C",
+      "intervalMinutes": 60,
+      "maxRuns": 1,
+      "completedRuns": 1,
+      "attemptedRuns": 1,
+      "nextDue": 1792290244.174214,
+      "reason": "Run limit reached. No further work is scheduled."
+    },
+    "runs": [
+      {
+        "id": "04d70031-971f-5ba7-8192-75abf6b4a112",
+        "scheduleId": "d201f68e-df3a-4cbc-9482-1347d64d1ce6",
+        "due": 1792286643.1576338,
+        "startedAt": 1792286644.174214,
+        "state": "succeeded",
+        "itemCount": 5,
+        "contentItems": [
+          {
+            "id": 1,
+            "platform": "instagram",
+            "format": "ig_carousel",
+            "caption": "Review and improve your AI Workflow & SaaS Clipping process. Explore https://nodetheory.io/system #system",
+            "stagedFiles": [
+              "video_95f094afbd7c4b8099a6810adc4aa4b8_182f3e3e.mp4",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_01_3c1c6c76.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_02_7c6c3e3f.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_03_7c5c7c67.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_04_7c3c3c47.jpg"
+            ]
+          },
+          {
+            "id": 2,
+            "platform": "instagram",
+            "format": "ig_reel",
+            "caption": "Review and improve your AI Workflow & SaaS Clipping process. Explore https://nodetheory.io/system #system",
+            "stagedFiles": [
+              "video_95f094afbd7c4b8099a6810adc4aa4b8_182f3e3e.mp4",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_01_3c1c6c76.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_02_7c6c3e3f.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_03_7c5c7c67.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_04_7c3c3c47.jpg"
+            ]
+          },
+          {
+            "id": 3,
+            "platform": "tiktok",
+            "format": "tt_photo_carousel",
+            "caption": "Review and improve your AI Workflow & SaaS Clipping process. Explore https://nodetheory.io/system #system",
+            "stagedFiles": [
+              "video_95f094afbd7c4b8099a6810adc4aa4b8_182f3e3e.mp4",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_01_3c1c6c76.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_02_7c6c3e3f.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_03_7c5c7c67.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_04_7c3c3c47.jpg"
+            ]
+          },
+          {
+            "id": 4,
+            "platform": "x",
+            "format": "x_video",
+            "caption": "Review and improve your AI Workflow & SaaS Clipping process. Explore https://nodetheory.io/system #system",
+            "stagedFiles": [
+              "video_95f094afbd7c4b8099a6810adc4aa4b8_182f3e3e.mp4",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_01_3c1c6c76.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_02_7c6c3e3f.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_03_7c5c7c67.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_04_7c3c3c47.jpg"
+            ]
+          },
+          {
+            "id": 5,
+            "platform": "youtube",
+            "format": "yt_short",
+            "caption": "Review and improve your AI Workflow & SaaS Clipping process. Explore https://nodetheory.io/system #system",
+            "stagedFiles": [
+              "video_95f094afbd7c4b8099a6810adc4aa4b8_182f3e3e.mp4",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_01_3c1c6c76.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_02_7c6c3e3f.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_03_7c5c7c67.jpg",
+              "slide_95f094afbd7c4b8099a6810adc4aa4b8_04_7c3c3c47.jpg"
+            ]
+          }
+        ],
+        "finishedAt": 1792286644.3805223
+      }
+    ],
+    "workerRunning": true,
+    "workerError": null,
+    "phoneInput": false,
+    "publishing": false,
+    "messaging": false
+  },
+  "assetsChecked": 5,
+  "phoneCommands": 0,
+  "externalNetworkAllowed": false
+}

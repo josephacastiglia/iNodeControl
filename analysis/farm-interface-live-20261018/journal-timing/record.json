@@ -1,0 +1,2826 @@
+{
+  "id": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+  "source": "candidate_phone_workflow",
+  "state": "running",
+  "cleanup": "confirmed",
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "data": {},
+      "purpose": "initial_pointer_reset",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 236.7
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 766.5
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 35,
+        "y": 88,
+        "button": 1
+      },
+      "purpose": "open-create",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 924.9
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 715.9
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 50.3
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 50.3
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 88,
+        "y": 682,
+        "button": 1
+      },
+      "purpose": "choose-post-format",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 849.9
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 633.3
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 73.9
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 67.0
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 49.9
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 51.5
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 164,
+        "y": 644,
+        "button": 1
+      },
+      "purpose": "open-prepared-library",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 763.9
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 556.5
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 51.0
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 62,
+        "y": 173,
+        "button": 1
+      },
+      "purpose": "open-prepared-test-draft",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 844.4
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 667.9
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 2.1
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 50.8
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 67.4
+      }
+    },
+    {
+      "fun": "/mouse/swipe",
+      "data": {
+        "x1": 400,
+        "y1": 480,
+        "x2": 100,
+        "y2": 480,
+        "duration": 350
+      },
+      "purpose": "prepared-slide-2",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 1163.1
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 614.2
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 60.4
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 50.7
+      }
+    },
+    {
+      "fun": "/mouse/swipe",
+      "data": {
+        "x1": 400,
+        "y1": 480,
+        "x2": 100,
+        "y2": 480,
+        "duration": 350
+      },
+      "purpose": "prepared-slide-3",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 1179.5
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 604.5
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 50.9
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 50.0
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 438,
+        "y": 1006,
+        "button": 1
+      },
+      "purpose": "prepared-details",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 1343.1
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 1162.7
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 51.8
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 29,
+        "y": 85,
+        "button": 1
+      },
+      "purpose": "prepared-back",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 896.8
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 718.0
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 2.1
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 50.0
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 40,
+        "y": 100,
+        "button": 1
+      },
+      "purpose": "prepared-exit-sheet",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 862.0
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 727.3
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "response": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 13.0
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 250,
+        "y": 929,
+        "button": 1
+      },
+      "purpose": "prepared-save-once",
+      "state": "not_sent"
+    }
+  ],
+  "observations": [
+    {
+      "role": "profile",
+      "index": null,
+      "observationId": "64dbdb75-3796-434a-820e-c0725e41b809",
+      "state": "observed",
+      "frame": "01-profile.png",
+      "observation": {
+        "id": "64dbdb75-3796-434a-820e-c0725e41b809",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376775.9473689,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "Expected account text is visible. This does not certify media, saved state or app authenticity.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "profile",
+          "layout": null,
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "exact_text_match",
+          "observedHandles": [
+            "xs.halle.xo"
+          ],
+          "captionStatus": "needs_review",
+          "reason": "Expected account text is visible. This does not certify media, saved state or app authenticity.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "6da8bca1d49c4629bdcaa781c97ec7d04bacefcadf3091ef8c7363959b419712",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 698.5959999986612,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 730,
+          "reportedAgeMs": 26.596,
+          "observationElapsedMs": 671.9999999986612,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 708.5266106553995
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "c8ea9a64196b2d628ede17f9cdecfacceb278f0ff847aad920555ab71e5b6046",
+        "completedAt": 1792376776.6107051,
+        "ageSeconds": 0.6732668876647949,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "0f05cb106d9d90d256b948aa772f389747a1f4464593b43d51e6e453ee0885d4"
+      },
+      "screenCheck": {
+        "account": "xs.halle.xo"
+      }
+    },
+    {
+      "role": "create",
+      "index": null,
+      "observationId": "c33270ea-5407-4f1a-8da4-048ede7922a8",
+      "state": "observed",
+      "frame": "02-create.png",
+      "observation": {
+        "id": "c33270ea-5407-4f1a-8da4-048ede7922a8",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376779.3945115,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "create_menu",
+          "layout": "post_create_sheet",
+          "layoutEvidence": {
+            "method": "create_sheet_positioned_controls",
+            "postBounds": [
+              70,
+              675,
+              107,
+              689
+            ],
+            "automaticInputAllowed": false
+          },
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "7466db8f1fe57b14daf7bc6045235fe3babaeaaef3589bb575e075160c97445c",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 623.8630000003784,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 832,
+          "reportedAgeMs": 14.863,
+          "observationElapsedMs": 609.0000000003783,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 633.3658877262085
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "778b89461ed9572fe9c5d1fed80a96eea3fe0f29420f0f76f6e15499faf00f29",
+        "completedAt": 1792376780.0064025,
+        "ageSeconds": 0.6213939189910889,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "71ec51a7e451d11786963a12087bc39db585c7afd69419353f147dece02ced4a"
+      }
+    },
+    {
+      "role": "create",
+      "index": null,
+      "observationId": "ebcf0093-e0b4-4bb2-9a38-30c44be4ca0b",
+      "state": "observed",
+      "frame": "03-create.png",
+      "observation": {
+        "id": "ebcf0093-e0b4-4bb2-9a38-30c44be4ca0b",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376780.5775118,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "create_menu",
+          "layout": "post_create_sheet",
+          "layoutEvidence": {
+            "method": "create_sheet_positioned_controls",
+            "postBounds": [
+              70,
+              675,
+              107,
+              689
+            ],
+            "automaticInputAllowed": false
+          },
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "1098a5135f01e2917b8faf9accd6fb68af774d9a885b9323d50d10b244621fee",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 617.9890000009605,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 863,
+          "reportedAgeMs": 23.989,
+          "observationElapsedMs": 594.0000000009604,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 623.8011681222983
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "ded9fa1a09fd87bdc66c4019a4b5204ee5f7070153aae6c4257a0273c0f03817",
+        "completedAt": 1792376781.1740336,
+        "ageSeconds": 0.6023340225219727,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "845bd90c30fe0fc1e110055bf978aa97639a54fc8809a20e0876eac79126a95f"
+      }
+    },
+    {
+      "role": "picker",
+      "index": null,
+      "observationId": "64dbb4f2-72fc-4976-bf27-17ce8b38fa2c",
+      "state": "observed",
+      "frame": "04-picker.png",
+      "observation": {
+        "id": "64dbb4f2-72fc-4976-bf27-17ce8b38fa2c",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376783.9858265,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "media_picker",
+          "layout": "post_media_picker",
+          "layoutEvidence": {
+            "method": "post_picker_controls",
+            "previewBounds": [
+              0,
+              112,
+              500,
+              612
+            ],
+            "automaticInputAllowed": false
+          },
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "f78d1c8d6e4e8f16ee6d8054faf4015a703c757e9fd7ea98dcd99dc2edcf0536",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 728.7010000013388,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 965,
+          "reportedAgeMs": 25.701,
+          "observationElapsedMs": 703.0000000013388,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 743.7010000007567
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "beff737e6209e06e683743e975a1e73d931b52241308736803ecc7aeebc9befc",
+        "completedAt": 1792376784.7000365,
+        "ageSeconds": 0.7235989570617676,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "230b4aa2bb2594995628a5cf7f654346fd28890fdbfeabb59c75f39ea50b10b1"
+      }
+    },
+    {
+      "role": "picker",
+      "index": null,
+      "observationId": "1a228cf1-defa-4a18-8717-739620ae7d86",
+      "state": "observed",
+      "frame": "05-picker.png",
+      "observation": {
+        "id": "1a228cf1-defa-4a18-8717-739620ae7d86",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376785.3455884,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "media_picker",
+          "layout": "post_media_picker",
+          "layoutEvidence": {
+            "method": "post_picker_controls",
+            "previewBounds": [
+              0,
+              112,
+              500,
+              612
+            ],
+            "automaticInputAllowed": false
+          },
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "85b5771dba66ed0bb562d046f3c3b650e07e00aa528284f9198daf7e7ff237db",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 727.2200000013388,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1006,
+          "reportedAgeMs": 24.22,
+          "observationElapsedMs": 703.0000000013388,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 734.8057639326132
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "40398c307799d3d07569e4e5e0f0efb74c69ea2ec1c40190351ff6e3d706e81f",
+        "completedAt": 1792376786.0486743,
+        "ageSeconds": 0.7106716632843018,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "de290a3885193a86afa1ee9a053d0c68c1804d0937398ad5743cfd5db145acde"
+      }
+    },
+    {
+      "role": "picker",
+      "index": null,
+      "observationId": "c60ab835-efe2-4d3e-b418-688af4e04532",
+      "state": "observed",
+      "frame": "06-picker.png",
+      "observation": {
+        "id": "c60ab835-efe2-4d3e-b418-688af4e04532",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376786.9084616,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "media_picker",
+          "layout": "post_media_picker",
+          "layoutEvidence": {
+            "method": "post_picker_controls",
+            "previewBounds": [
+              0,
+              112,
+              500,
+              612
+            ],
+            "automaticInputAllowed": false
+          },
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "46b84bae7c114ad8bf84a1f41d9450bb5b834258ae67f91e2055c94ecf354c69",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 844.0390000015425,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1052,
+          "reportedAgeMs": 15.039,
+          "observationElapsedMs": 829.0000000015425,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 859.0390000009604
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "0087f462144d32a5765247c1aa7b5fc2a09fa240be23bc0bbbc5917b6e0e56f8",
+        "completedAt": 1792376787.7406259,
+        "ageSeconds": 0.8440000000009604,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "4fae22712161219c258eb7d1a9410910a86663d476e7004317e36f4b558ae2de"
+      }
+    },
+    {
+      "role": "picker",
+      "index": null,
+      "observationId": "5cda277a-0099-4ec2-a92a-d73cf9822003",
+      "state": "observed",
+      "frame": "07-picker.png",
+      "observation": {
+        "id": "5cda277a-0099-4ec2-a92a-d73cf9822003",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376788.6656623,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "media_picker",
+          "layout": "post_media_picker",
+          "layoutEvidence": {
+            "method": "post_picker_controls",
+            "previewBounds": [
+              0,
+              112,
+              500,
+              612
+            ],
+            "automaticInputAllowed": false
+          },
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "431413255e2a620876d16bbda0f5bd49062acc1bf043a67eef9a7b9c363cbb0b",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 774.624,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1084,
+          "reportedAgeMs": 24.624,
+          "observationElapsedMs": 750.0,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 806.6240000028813
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "b7523775981694bbe1deee2bf21cb7a0aa4e6e0983e8f58237dc9a2b0879c9bb",
+        "completedAt": 1792376789.4203737,
+        "ageSeconds": 0.782646894454956,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "b286b98338f6eb4167a304223152f20b8ccf3af08a52724f08c39e2dee225483"
+      }
+    },
+    {
+      "role": "library",
+      "index": null,
+      "observationId": "b1feaefe-14a4-4ca7-b651-ce98bf7ed311",
+      "state": "observed",
+      "frame": "08-library.png",
+      "observation": {
+        "id": "b1feaefe-14a4-4ca7-b651-ce98bf7ed311",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376792.1364522,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "The screen is not recognized.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "unknown",
+          "layout": null,
+          "layoutEvidence": null,
+          "appPattern": null,
+          "expectedAppMatches": false,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "The screen is not recognized.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "4d8fbd8de2516dacb0c8b8fbed71358b2b59e28a0d7f9bfecd9d580726338a7b",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 662.2789999996216,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1182,
+          "reportedAgeMs": 21.279,
+          "observationElapsedMs": 640.9999999996217,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 669.8700091396363
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "18103e4ffe223b03287f5d3b549feaed55b7a674b31b9fbb8465076986350f30",
+        "completedAt": 1792376792.7686872,
+        "ageSeconds": 0.6409999999996217,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected app pattern is missing.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "b25bf8d430e15a8306e273fbc2d70648bd7407707a20ebfbdf58521030c8d33a"
+      },
+      "screenCheck": {
+        "status": "visual_match",
+        "matchedIndex": 1,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.021346957688175672,
+            "worstBlock": 0.11029412905635454,
+            "rendering": "library_lower_gradient"
+          },
+          {
+            "index": 2,
+            "meanError": 0.11053942289219182,
+            "worstBlock": 0.2754998177574831,
+            "rendering": "library_lower_gradient"
+          },
+          {
+            "index": 3,
+            "meanError": 0.1049984088763643,
+            "worstBlock": 0.222210890518844,
+            "rendering": "library_lower_gradient"
+          }
+        ],
+        "margin": 0.08365145118818863,
+        "byteIdentityVerified": false,
+        "fullImageVisible": false,
+        "libraryCell": {
+          "row": 1,
+          "column": 1
+        },
+        "candidateCells": 2,
+        "matchingCovers": 1
+      }
+    },
+    {
+      "role": "editor",
+      "index": 1,
+      "observationId": "40ed7037-b84e-444a-bb06-3128b4406405",
+      "state": "observed",
+      "frame": "09-editor.png",
+      "observation": {
+        "id": "40ed7037-b84e-444a-bb06-3128b4406405",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376795.5405686,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": {
+            "method": "toolbar_button_and_page_dots",
+            "position": {
+              "status": "visible_position",
+              "index": 1,
+              "count": 3
+            },
+            "nextLabel": {
+              "method": "same_frame_crop_exact_word",
+              "label": "Next",
+              "imageSha256": "081336ae684651b73a5ac61d9f30a097903a5b208fc4c6e4c571670b63c3bbbc"
+            },
+            "textRepaired": false,
+            "actionTargetVerified": true,
+            "automaticInputAllowed": false
+          },
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "f38d42d6af2c1c2176ab2f4435603b25ba1dc62b45d0b05abaee9611fd2ef62c",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 638.7110000005821,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1283,
+          "reportedAgeMs": 28.711,
+          "observationElapsedMs": 610.0000000005821,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 653.711
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "f570efce022dbf41a99feaf08457adc8560274b789a89c5721015e5cd5676f94",
+        "completedAt": 1792376796.157262,
+        "ageSeconds": 0.625,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "efcc1d70688d6390f4b4b8da5bc2c2eb2ae98cff6dfe6705de7ecd1f6261b97e"
+      }
+    },
+    {
+      "role": "editor",
+      "index": 1,
+      "observationId": "04af91f2-7255-4624-af18-de191c88159d",
+      "state": "observed",
+      "frame": "10-editor.png",
+      "observation": {
+        "id": "04af91f2-7255-4624-af18-de191c88159d",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376796.805288,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "14cf4828ae1b0a38d7680233c3821b85a464845d6b84d58400dbe9099d4631b9",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 624.3629999967404,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1321,
+          "reportedAgeMs": 15.363,
+          "observationElapsedMs": 608.9999999967404,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 640.363
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "a8da94cdbb536c768c39a3b2baede1c08e1f286c62da571da24c55414a2233a3",
+        "completedAt": 1792376797.421,
+        "ageSeconds": 0.625,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "2e5b32328d1c42292a7121da62258e613b8511cc30f519514673cc952001328f"
+      }
+    },
+    {
+      "role": "editor",
+      "index": 1,
+      "observationId": "39309c5c-2722-477a-a96f-9b6d1294080d",
+      "state": "observed",
+      "frame": "11-editor.png",
+      "observation": {
+        "id": "39309c5c-2722-477a-a96f-9b6d1294080d",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376798.3199987,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "ec5e35f4df6333c55220b22dbb36c86e6e6f4d63ef83745287a3944fdd90165c",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 607.5659999971188,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1366,
+          "reportedAgeMs": 14.566,
+          "observationElapsedMs": 592.9999999971187,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 614.2848739747799
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "89bc01fceb66b34a6529b69bd660dbd35448137de77805fcfc58c7a63420102a",
+        "completedAt": 1792376798.9108615,
+        "ageSeconds": 0.5975816249847412,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "f150d98a75e4f5655773c80e99e506a1c668590de78d33294b172d4cea828e6e"
+      }
+    },
+    {
+      "role": "editor",
+      "index": 2,
+      "observationId": "44670bd2-9bc4-40b0-a4e3-f750fdb51290",
+      "state": "observed",
+      "frame": "12-editor.png",
+      "observation": {
+        "id": "44670bd2-9bc4-40b0-a4e3-f750fdb51290",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376802.2325747,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "fc53f3c011c148698a64b22602aee9c4445e2c847c3fc42ab6b2f3a2168762aa",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 719.6710000013388,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1484,
+          "reportedAgeMs": 16.671,
+          "observationElapsedMs": 703.0000000013388,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 726.6850361799277
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "8f1686b1980c521a9250df2d91501920519db5addf1c13126b00f5929ec4295d",
+        "completedAt": 1792376802.929664,
+        "ageSeconds": 0.7041032314300537,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "dc5baec7ae0cb9152b44249326721d0c86b8f1303cec555c0665502bbdcb9ad3"
+      }
+    },
+    {
+      "role": "editor",
+      "index": 2,
+      "observationId": "ce358e29-186e-4a6e-8e2c-3a0fc7d11785",
+      "state": "observed",
+      "frame": "13-editor.png",
+      "observation": {
+        "id": "ce358e29-186e-4a6e-8e2c-3a0fc7d11785",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376803.5981631,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "8bed5787cf1b36c74cc19ef54801a3325c04ba494b070d07537d1716520d06a1",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 587.0379999980792,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1524,
+          "reportedAgeMs": 25.038,
+          "observationElapsedMs": 561.9999999980791,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 603.0380000013388
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "c195a7b1f8a0817fd3b71c81df2576a4669a553f226fd0b739fd5d6bd66bfd39",
+        "completedAt": 1792376804.1676912,
+        "ageSeconds": 0.5780000000013388,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "327ecf84583600d4d2ecffaf38f25bb5affd27c9bfad7d8ac716d3b6ef1dbf9e"
+      }
+    },
+    {
+      "role": "editor",
+      "index": 3,
+      "observationId": "cbd05712-9656-47aa-a19a-76d6f9e7ad88",
+      "state": "observed",
+      "frame": "14-editor.png",
+      "observation": {
+        "id": "cbd05712-9656-47aa-a19a-76d6f9e7ad88",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376807.456579,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "624cdda3bff8ef831ba66ccac07c65c384e53c128e05951e72304311364d6fc5",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 651.9399999996217,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1640,
+          "reportedAgeMs": 10.94,
+          "observationElapsedMs": 640.9999999996217,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 667.9399999992434
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "acde694ca5dd3f269b9977d29cb556b6ee097e78607303c60a17ab5d843037de",
+        "completedAt": 1792376808.1093304,
+        "ageSeconds": 0.6618149280548096,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "58344a07a0debad248628fc2c90904d92eab482809e7635ee4ca23219bce9e24"
+      }
+    },
+    {
+      "role": "editor",
+      "index": 3,
+      "observationId": "46012ff5-ba56-4406-9460-2e6a83d0c24b",
+      "state": "observed",
+      "frame": "15-editor.png",
+      "observation": {
+        "id": "46012ff5-ba56-4406-9460-2e6a83d0c24b",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376808.8448749,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "bb9d4fac622b1fe80d70c02e09a6b08c3dd85a415c1e8c70f5fb22b8adf5f96f",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 656.1959999996217,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1683,
+          "reportedAgeMs": 15.196,
+          "observationElapsedMs": 640.9999999996217,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 664.1777771907838
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "14f73343b569a380b22602cc12ca4b032c03a6636818fdea58c6ade4cda6a8e0",
+        "completedAt": 1792376809.4889739,
+        "ageSeconds": 0.652080774307251,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "ed83333c26453342a569ee72d4973728040c128cc0f857b7b8a3a2ad4764369b"
+      }
+    },
+    {
+      "role": "details",
+      "index": null,
+      "observationId": "d0bb26dd-f9b3-4150-bdf7-53606d49a4ce",
+      "state": "observed",
+      "frame": "16-details.png",
+      "observation": {
+        "id": "d0bb26dd-f9b3-4150-bdf7-53606d49a4ce",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376813.5470629,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_details",
+          "layout": "carousel_details",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "85102335d685dea2e2e599afa223df537be08c2c20949c572052c27e32f74842",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 654.715,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1823,
+          "reportedAgeMs": 29.715,
+          "observationElapsedMs": 625.0,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 670.7149999996217
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "f104d70129cde5b907ad850ad624e45f611e747ac2f83038aac2a69e04756e88",
+        "completedAt": 1792376814.1851711,
+        "ageSeconds": 0.6443493366241455,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "46ed6d1cd659927e6463019068fc8c6ab54b8a432ad915155eb232b4b4f060c1"
+      },
+      "screenCheck": {
+        "status": "exact_visible_lines",
+        "visibleText": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish.",
+        "reason": "Only the supported visible caption area was compared; hidden or truncated text cannot pass."
+      }
+    },
+    {
+      "role": "editor",
+      "index": 3,
+      "observationId": "bce0b6c7-bd3e-438f-a84b-7130582ea478",
+      "state": "observed",
+      "frame": "17-editor.png",
+      "observation": {
+        "id": "bce0b6c7-bd3e-438f-a84b-7130582ea478",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376817.0857952,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "cf7f7634221d5f7b0574d03f37410a343231e21c90e134e3ceb420d0342b022f",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 647.5399999996216,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1929,
+          "reportedAgeMs": 6.54,
+          "observationElapsedMs": 640.9999999996217,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 663.5399999992433
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "7523a686d353c55086886c89391d8143250c448deabc65bd5dca88a28fcae207",
+        "completedAt": 1792376817.7313592,
+        "ageSeconds": 0.6569999999992433,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "562870c6561787f9ac11a65768f97bcd3086254dd4ba47e532be1cca8565dafe"
+      }
+    },
+    {
+      "role": "editor",
+      "index": 3,
+      "observationId": "490469a7-0fb5-4bce-8404-b080db4ebff7",
+      "state": "observed",
+      "frame": "18-editor.png",
+      "observation": {
+        "id": "490469a7-0fb5-4bce-8404-b080db4ebff7",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376818.904724,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "draft_editor",
+          "layout": "carousel_editor",
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "536ecd43532f8e1df1d6136ac8ebd739bc378df66bf7a3eecd481b48779d0b0b",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 660.3429999994179,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 1983,
+          "reportedAgeMs": 20.343,
+          "observationElapsedMs": 639.9999999994179,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 676.3430000026775
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "a42b250d73c905777229f2a838c24d8797c078e9f18983540036400081dca400",
+        "completedAt": 1792376819.5404613,
+        "ageSeconds": 0.6560000000026776,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "df5e94e7ad038c8510ba28d07417a700bcc8ed2532ec24d30524888064c38692"
+      }
+    },
+    {
+      "role": "save_prompt",
+      "index": null,
+      "observationId": "d06afe86-ca24-4dd0-af30-d383aa7e3b42",
+      "state": "observed",
+      "frame": "19-save_prompt.png",
+      "observation": {
+        "id": "d06afe86-ca24-4dd0-af30-d383aa7e3b42",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish."
+        },
+        "requestedAt": 1792376823.5410435,
+        "observerSession": "3de6d61e41f04d019c33523552522850",
+        "state": "observed",
+        "reason": "OCR did not read the expected account exactly; inspect the frame.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "inputSettled": true,
+        "ownershipEvidence": {
+          "runId": "19980d5a-047a-4e5d-af67-4ed82f41e6c1",
+          "generation": 0,
+          "authenticatedBeforeAndAfter": true,
+          "source": "owned_capture_guard",
+          "continuousPhoneActivityKnown": false
+        },
+        "result": {
+          "screen": "save_prompt",
+          "layout": null,
+          "layoutEvidence": null,
+          "appPattern": "instagram",
+          "expectedAppMatches": true,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "needs_review",
+          "reason": "OCR did not read the expected account exactly; inspect the frame.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "frameSha256": "12db82000bbbbd1a6a1ad0cfd89ce973c6a5761959c054e4ec12409255c20c52",
+        "width": 500,
+        "height": 1080,
+        "freshness": "recent",
+        "frameEvidence": {
+          "freshness": "recent",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 673.3050000028812,
+          "deliveryAdvanced": true,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "2292efc7ab8e4e1f824886bd1855d406",
+          "sequence": 2123,
+          "reportedAgeMs": 16.305,
+          "observationElapsedMs": 657.0000000028813,
+          "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+          "currentAgeUpperBoundMs": 680.7584416227543
+        },
+        "stable": true,
+        "inputIdle": false,
+        "receiverPid": 10984,
+        "inputGeneration": 0,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "7faa25141620d4aba30d8bab048a9970b3af4f8801a225ef74a28bdfc4a2925e",
+        "completedAt": 1792376824.1945965,
+        "ageSeconds": 0.6610064506530762,
+        "expired": false,
+        "freshnessAtCapture": "recent",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected account is not visible as exact text.",
+            "Expected caption has not been read exactly in its content area."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        },
+        "evidenceRecordSha256": "4f92d88aee66515199e1a28fcabf1979fb3931b09beb1733395682b59ba75648"
+      },
+      "screenCheck": {
+        "sheet": "exact_save_draft"
+      }
+    }
+  ],
+  "transitionChecks": [
+    {
+      "stage": "create",
+      "attempt": 1,
+      "observationId": "c33270ea-5407-4f1a-8da4-048ede7922a8",
+      "elapsedSeconds": 0.985,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required."
+    },
+    {
+      "stage": "create",
+      "attempt": 2,
+      "observationId": "ebcf0093-e0b4-4bb2-9a38-30c44be4ca0b",
+      "elapsedSeconds": 2.188,
+      "state": "ready",
+      "mean": 0.00010825332431823304,
+      "changed": 0.0,
+      "automaticInputAllowed": false,
+      "beforeObservationId": "c33270ea-5407-4f1a-8da4-048ede7922a8",
+      "afterObservationId": "ebcf0093-e0b4-4bb2-9a38-30c44be4ca0b"
+    },
+    {
+      "stage": "picker",
+      "attempt": 1,
+      "observationId": "64dbb4f2-72fc-4976-bf27-17ce8b38fa2c",
+      "elapsedSeconds": 1.094,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required."
+    },
+    {
+      "stage": "picker",
+      "attempt": 2,
+      "observationId": "1a228cf1-defa-4a18-8717-739620ae7d86",
+      "elapsedSeconds": 2.703,
+      "controlsStable": false,
+      "previewChanged": false,
+      "automaticInputAllowed": false,
+      "beforeSha256": "beff737e6209e06e683743e975a1e73d931b52241308736803ecc7aeebc9befc",
+      "afterSha256": "40398c307799d3d07569e4e5e0f0efb74c69ea2ec1c40190351ff6e3d706e81f",
+      "protectedMeanError": 0.0015062427819024055,
+      "protectedChangedFraction": 0.004780582524271845,
+      "worstProtectedBlock": 0.1257864923747277,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Home indicator is fading; recapture without input.",
+      "state": "wait",
+      "beforeObservationId": "64dbb4f2-72fc-4976-bf27-17ce8b38fa2c",
+      "afterObservationId": "1a228cf1-defa-4a18-8717-739620ae7d86"
+    },
+    {
+      "stage": "picker",
+      "attempt": 3,
+      "observationId": "c60ab835-efe2-4d3e-b418-688af4e04532",
+      "elapsedSeconds": 4.39,
+      "controlsStable": false,
+      "previewChanged": false,
+      "automaticInputAllowed": false,
+      "beforeSha256": "40398c307799d3d07569e4e5e0f0efb74c69ea2ec1c40190351ff6e3d706e81f",
+      "afterSha256": "0087f462144d32a5765247c1aa7b5fc2a09fa240be23bc0bbbc5917b6e0e56f8",
+      "protectedMeanError": 0.0007410114855003491,
+      "protectedChangedFraction": 0.00349126213592233,
+      "worstProtectedBlock": 0.06052113289760349,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Home indicator is fading; recapture without input.",
+      "state": "wait",
+      "beforeObservationId": "1a228cf1-defa-4a18-8717-739620ae7d86",
+      "afterObservationId": "c60ab835-efe2-4d3e-b418-688af4e04532"
+    },
+    {
+      "stage": "picker",
+      "attempt": 4,
+      "observationId": "5cda277a-0099-4ec2-a92a-d73cf9822003",
+      "elapsedSeconds": 5.937,
+      "controlsStable": true,
+      "previewChanged": false,
+      "automaticInputAllowed": false,
+      "beforeSha256": "0087f462144d32a5765247c1aa7b5fc2a09fa240be23bc0bbbc5917b6e0e56f8",
+      "afterSha256": "b7523775981694bbe1deee2bf21cb7a0aa4e6e0983e8f58237dc9a2b0879c9bb",
+      "protectedMeanError": 0.0,
+      "protectedChangedFraction": 0.0,
+      "worstProtectedBlock": 0.0,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Picker controls/grid agree; preview motion was excluded.",
+      "state": "ready",
+      "beforeObservationId": "c60ab835-efe2-4d3e-b418-688af4e04532",
+      "afterObservationId": "5cda277a-0099-4ec2-a92a-d73cf9822003"
+    },
+    {
+      "stage": "editor",
+      "attempt": 1,
+      "observationId": "40ed7037-b84e-444a-bb06-3128b4406405",
+      "elapsedSeconds": 1.0,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required."
+    },
+    {
+      "stage": "editor",
+      "attempt": 2,
+      "observationId": "04af91f2-7255-4624-af18-de191c88159d",
+      "elapsedSeconds": 2.469,
+      "state": "wait",
+      "mean": 0.004079904697511188,
+      "changed": 0.005205911330049261,
+      "reason": "Editor suggestion header is changing; recapture without input.",
+      "automaticInputAllowed": false,
+      "beforeObservationId": "40ed7037-b84e-444a-bb06-3128b4406405",
+      "afterObservationId": "04af91f2-7255-4624-af18-de191c88159d"
+    },
+    {
+      "stage": "editor",
+      "attempt": 3,
+      "observationId": "39309c5c-2722-477a-a96f-9b6d1294080d",
+      "elapsedSeconds": 3.859,
+      "state": "ready",
+      "mean": 0.0010274767378215656,
+      "changed": 0.001702463054187192,
+      "automaticInputAllowed": false,
+      "beforeObservationId": "04af91f2-7255-4624-af18-de191c88159d",
+      "afterObservationId": "39309c5c-2722-477a-a96f-9b6d1294080d"
+    },
+    {
+      "stage": "editor",
+      "attempt": 1,
+      "observationId": "44670bd2-9bc4-40b0-a4e3-f750fdb51290",
+      "elapsedSeconds": 1.25,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required."
+    },
+    {
+      "stage": "editor",
+      "attempt": 2,
+      "observationId": "ce358e29-186e-4a6e-8e2c-3a0fc7d11785",
+      "elapsedSeconds": 2.578,
+      "state": "ready",
+      "mean": 0.001000382497826717,
+      "changed": 0.0016137931034482759,
+      "automaticInputAllowed": false,
+      "beforeObservationId": "44670bd2-9bc4-40b0-a4e3-f750fdb51290",
+      "afterObservationId": "ce358e29-186e-4a6e-8e2c-3a0fc7d11785"
+    },
+    {
+      "stage": "editor",
+      "attempt": 1,
+      "observationId": "cbd05712-9656-47aa-a19a-76d6f9e7ad88",
+      "elapsedSeconds": 1.218,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required."
+    },
+    {
+      "stage": "editor",
+      "attempt": 2,
+      "observationId": "46012ff5-ba56-4406-9460-2e6a83d0c24b",
+      "elapsedSeconds": 2.656,
+      "state": "ready",
+      "mean": 0.001133239318715992,
+      "changed": 0.0018522167487684729,
+      "automaticInputAllowed": false,
+      "beforeObservationId": "cbd05712-9656-47aa-a19a-76d6f9e7ad88",
+      "afterObservationId": "46012ff5-ba56-4406-9460-2e6a83d0c24b"
+    },
+    {
+      "stage": "editor",
+      "attempt": 1,
+      "observationId": "bce0b6c7-bd3e-438f-a84b-7130582ea478",
+      "elapsedSeconds": 1.578,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required."
+    },
+    {
+      "stage": "editor",
+      "attempt": 2,
+      "observationId": "490469a7-0fb5-4bce-8404-b080db4ebff7",
+      "elapsedSeconds": 3.015,
+      "state": "ready",
+      "mean": 0.0019632802086351786,
+      "changed": 0.004287684729064039,
+      "automaticInputAllowed": false,
+      "beforeObservationId": "bce0b6c7-bd3e-438f-a84b-7130582ea478",
+      "afterObservationId": "490469a7-0fb5-4bce-8404-b080db4ebff7"
+    }
+  ],
+  "actions": [
+    {
+      "label": "open-create",
+      "kind": "profile_create",
+      "observationId": "64dbdb75-3796-434a-820e-c0725e41b809",
+      "state": "answered"
+    },
+    {
+      "label": "choose-post-format",
+      "kind": "choose_post_format",
+      "observationId": "ebcf0093-e0b4-4bb2-9a38-30c44be4ca0b",
+      "state": "answered"
+    },
+    {
+      "label": "open-prepared-library",
+      "kind": "open_drafts",
+      "observationId": "5cda277a-0099-4ec2-a92a-d73cf9822003",
+      "state": "answered"
+    },
+    {
+      "label": "open-prepared-test-draft",
+      "kind": "open_test_draft",
+      "observationId": "b1feaefe-14a4-4ca7-b651-ce98bf7ed311",
+      "state": "answered"
+    },
+    {
+      "label": "prepared-slide-2",
+      "kind": "next_slide",
+      "observationId": "39309c5c-2722-477a-a96f-9b6d1294080d",
+      "state": "answered"
+    },
+    {
+      "label": "prepared-slide-3",
+      "kind": "next_slide",
+      "observationId": "ce358e29-186e-4a6e-8e2c-3a0fc7d11785",
+      "state": "answered"
+    },
+    {
+      "label": "prepared-details",
+      "kind": "details",
+      "observationId": "46012ff5-ba56-4406-9460-2e6a83d0c24b",
+      "state": "answered"
+    },
+    {
+      "label": "prepared-back",
+      "kind": "back_to_editor",
+      "observationId": "d0bb26dd-f9b3-4150-bdf7-53606d49a4ce",
+      "state": "answered"
+    },
+    {
+      "label": "prepared-exit-sheet",
+      "kind": "request_save",
+      "observationId": "490469a7-0fb5-4bce-8404-b080db4ebff7",
+      "state": "answered"
+    },
+    {
+      "label": "prepared-save-once",
+      "kind": "save_draft",
+      "observationId": "d06afe86-ca24-4dd0-af30-d383aa7e3b42",
+      "state": "not_sent",
+      "reason": "The decision has no fresh, intact C24C frame under this ownership."
+    }
+  ],
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false,
+  "savedDraftVerified": false,
+  "budgetSeconds": 120,
+  "productionAdapterAccepted": false,
+  "packageSha256": "6d71187d62c908bd7518f87afa21a12bd78f6a4309b4e9a5577d3e57329bf1b7",
+  "account": "xs.halle.xo",
+  "mode": "save_reopen",
+  "lastSequence": 2123,
+  "error": "InspectionStopped: The decision has no fresh, intact C24C frame under this ownership.",
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 1,
+    "lease_remaining_ms": 0
+  },
+  "evidenceExport": "confirmed"
+}

@@ -1,0 +1,22 @@
+{
+  "state": "completed_restored",
+  "preparedCommit": "2369e9ff55e7cf341f785336c33e899dda0fe615",
+  "productSourceCommit": "d173ee1fdfeca06f2cbdd2fbfae3e8bff9894a70",
+  "kernelPid": 27524,
+  "receiverPid": 32816,
+  "api": "http://127.0.0.1:9916/api/",
+  "receiverName": "iMouse2-C24C",
+  "account": "xs.halle.xo",
+  "nextAttempt": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-final-20261018\\attempt-01",
+  "entrypoint": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-final-20261018\\validate_workflow.py",
+  "initialRackStopped": true,
+  "releaseChanged": false,
+  "phoneInput": false,
+  "publication": false,
+  "messaging": false,
+  "desktopControl": false,
+  "operatorQuestionPending": false,
+  "kernelStillRunning": false,
+  "fullLivePasses": 2,
+  "finalReport": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-final-20261018\\README.md"
+}

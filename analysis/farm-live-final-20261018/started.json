@@ -1,0 +1,10 @@
+{
+  "pid": 27524,
+  "startedUtc": "2026-10-19T00:44:58.1779699Z",
+  "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-live-kernel-20261018\\iMouse2.Kernel.exe",
+  "sha256": "c72fa4e0b02b82ec4f7a949c9a80375c69da68d7357084401c7bb422c194a873",
+  "address": "http://127.0.0.1:9916/api/",
+  "initialRackStopped": true,
+  "phoneInput": false,
+  "consoleStarted": false
+}

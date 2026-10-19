@@ -1,0 +1,22 @@
+test_cancel_interrupts_wait_and_releases_owned_mock_phone (test_farm_jobs.FarmJobTests.test_cancel_interrupts_wait_and_releases_owned_mock_phone) ... ok
+test_cancelled_context_never_acquires_or_sends_but_allows_cleanup (test_farm_jobs.FarmJobTests.test_cancelled_context_never_acquires_or_sends_but_allows_cleanup) ... ok
+test_cleanup_failure_during_cancellation_is_reported (test_farm_jobs.FarmJobTests.test_cleanup_failure_during_cancellation_is_reported) ... ok
+test_content_job_generates_media_without_kernel_input (test_farm_jobs.FarmJobTests.test_content_job_generates_media_without_kernel_input) ... ok
+test_duplicate_completed_submission_never_replays (test_farm_jobs.FarmJobTests.test_duplicate_completed_submission_never_replays) ... ok
+test_duplicate_id_with_different_payload_is_refused (test_farm_jobs.FarmJobTests.test_duplicate_id_with_different_payload_is_refused) ... ok
+test_every_upload_format_dispatches_and_releases_in_simulation (test_farm_jobs.FarmJobTests.test_every_upload_format_dispatches_and_releases_in_simulation) ... ok
+test_failure_is_not_success_or_automatically_retried (test_farm_jobs.FarmJobTests.test_failure_is_not_success_or_automatically_retried) ... ok
+test_interrupted_record_is_unknown_not_rerun (test_farm_jobs.FarmJobTests.test_interrupted_record_is_unknown_not_rerun) ... ok
+test_invalid_job_ids_and_actions_are_refused (test_farm_jobs.FarmJobTests.test_invalid_job_ids_and_actions_are_refused) ... ok
+test_live_automation_refuses_before_any_kernel_probe (test_farm_jobs.FarmJobTests.test_live_automation_refuses_before_any_kernel_probe) ... ok
+test_lost_client_heartbeat_cancels_job (test_farm_jobs.FarmJobTests.test_lost_client_heartbeat_cancels_job) ... ok
+test_new_instance_recovers_completed_result_without_replaying (test_farm_jobs.FarmJobTests.test_new_instance_recovers_completed_result_without_replaying) ... ok
+test_second_concurrent_job_is_refused (test_farm_jobs.FarmJobTests.test_second_concurrent_job_is_refused) ... ok
+test_unavailable_counts_do_not_clear_an_existing_pause (test_farm_jobs.FarmJobTests.test_unavailable_counts_do_not_clear_an_existing_pause) ... ok
+test_unknown_observations_do_not_claim_dm_success (test_farm_jobs.FarmJobTests.test_unknown_observations_do_not_claim_dm_success) ... ok
+test_warmup_job_accepts_console_id_and_releases (test_farm_jobs.FarmJobTests.test_warmup_job_accepts_console_id_and_releases) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 2.024s
+
+OK

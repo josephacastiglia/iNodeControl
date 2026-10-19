@@ -1,0 +1,211 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "7:05",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 40,
+          "text": "7:05",
+          "x": 43
+        }
+      ]
+    },
+    {
+      "text": "x",
+      "words": [
+        {
+          "y": 86,
+          "height": 25,
+          "width": 25,
+          "text": "x",
+          "x": 29
+        }
+      ]
+    },
+    {
+      "text": "iMouse VIDEO DRAFT TEST",
+      "words": [
+        {
+          "y": 324,
+          "height": 17,
+          "width": 70,
+          "text": "iMouse",
+          "x": 59
+        },
+        {
+          "y": 326,
+          "height": 15,
+          "width": 63,
+          "text": "VIDEO",
+          "x": 134
+        },
+        {
+          "y": 326,
+          "height": 15,
+          "width": 66,
+          "text": "DRAFT",
+          "x": 204
+        },
+        {
+          "y": 326,
+          "height": 15,
+          "width": 47,
+          "text": "TEST",
+          "x": 276
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY - DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 379,
+          "height": 13,
+          "width": 47,
+          "text": "DRAFT",
+          "x": 59
+        },
+        {
+          "y": 379,
+          "height": 13,
+          "width": 41,
+          "text": "ONLY",
+          "x": 112
+        },
+        {
+          "y": 386,
+          "height": 2,
+          "width": 5,
+          "text": "-",
+          "x": 159
+        },
+        {
+          "y": 379,
+          "height": 13,
+          "width": 23,
+          "text": "DO",
+          "x": 171
+        },
+        {
+          "y": 379,
+          "height": 13,
+          "width": 32,
+          "text": "NOT",
+          "x": 200
+        },
+        {
+          "y": 379,
+          "height": 13,
+          "width": 60,
+          "text": "PUBLISH",
+          "x": 239
+        }
+      ]
+    },
+    {
+      "text": "TEST: 7%",
+      "words": [
+        {
+          "y": 448,
+          "height": 13,
+          "width": 38,
+          "text": "TEST:",
+          "x": 58
+        },
+        {
+          "y": 448,
+          "height": 13,
+          "width": 22,
+          "text": "7%",
+          "x": 102
+        }
+      ]
+    },
+    {
+      "text": "Audio",
+      "words": [
+        {
+          "y": 918,
+          "height": 10,
+          "width": 33,
+          "text": "Audio",
+          "x": 58
+        }
+      ]
+    },
+    {
+      "text": "Edit video",
+      "words": [
+        {
+          "y": 986,
+          "height": 12,
+          "width": 26,
+          "text": "Edit",
+          "x": 36
+        },
+        {
+          "y": 986,
+          "height": 12,
+          "width": 38,
+          "text": "video",
+          "x": 66
+        }
+      ]
+    },
+    {
+      "text": "Voice",
+      "words": [
+        {
+          "y": 918,
+          "height": 10,
+          "width": 32,
+          "text": "Voice",
+          "x": 234
+        }
+      ]
+    },
+    {
+      "text": "Captions",
+      "words": [
+        {
+          "y": 918,
+          "height": 12,
+          "width": 52,
+          "text": "Captions",
+          "x": 312
+        }
+      ]
+    },
+    {
+      "text": "Overlay",
+      "words": [
+        {
+          "y": 918,
+          "height": 12,
+          "width": 45,
+          "text": "Overlay",
+          "x": 403
+        }
+      ]
+    },
+    {
+      "text": "Next",
+      "words": [
+        {
+          "y": 986,
+          "height": 11,
+          "width": 31,
+          "text": "Next",
+          "x": 414
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "cc908efd024bf4a595ad8d8aaa4a516b43718136620193e7f11d79f556a3b0c3"
+}

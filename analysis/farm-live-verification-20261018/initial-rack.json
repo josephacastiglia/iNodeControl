@@ -1,0 +1,8 @@
+{
+  "checkedAt": "2026-10-18T20:03:55.5246133Z",
+  "processes": [],
+  "tcp": [],
+  "udp": [],
+  "phoneInput": false,
+  "releaseApi": "Connection refused at 127.0.0.1:9913"
+}

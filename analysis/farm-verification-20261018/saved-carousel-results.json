@@ -1,0 +1,115 @@
+[
+  {
+    "step": "05-instagram-profile",
+    "frameSha256": "65b4943342bef67c52f54429a4360d25553e5ec2e7a01e9fabf9b6cd9b07e4cf",
+    "screen": "profile",
+    "accountStatus": "exact_text_match",
+    "media": {
+      "status": "unsupported_layout",
+      "matchedIndex": null
+    },
+    "caption": {
+      "status": "not_applicable"
+    }
+  },
+  {
+    "step": "43-caption-ok",
+    "frameSha256": "0efaff22a4754e81f77b784d221bf7effc01c758656bc4782873a3d7191ff5ff",
+    "screen": "draft_details",
+    "accountStatus": "not_visible",
+    "media": {
+      "status": "visual_match",
+      "matchedIndex": 1,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.013415371999144554,
+          "worstBlock": 0.03734015300869942
+        },
+        {
+          "index": 2,
+          "meanError": 0.11604371666908264,
+          "worstBlock": 0.25606831908226013
+        },
+        {
+          "index": 3,
+          "meanError": 0.11447803676128387,
+          "worstBlock": 0.21987967193126678
+        }
+      ],
+      "margin": 0.10106266476213932,
+      "byteIdentityVerified": false
+    },
+    "caption": {
+      "status": "exact_visible_lines",
+      "visibleText": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish.",
+      "reason": "Only the supported visible caption area was compared; hidden or truncated text cannot pass."
+    }
+  },
+  {
+    "step": "47-open-drafts-library",
+    "frameSha256": "d614d9241c8f49ac87004dbd93e14a8b8aefae49598084e8335ab8562a233944",
+    "screen": "unknown",
+    "accountStatus": "not_visible",
+    "media": {
+      "status": "ambiguous_or_different",
+      "matchedIndex": null,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.06705350428819656,
+          "worstBlock": 0.3178150951862335
+        },
+        {
+          "index": 2,
+          "meanError": 0.14333519339561462,
+          "worstBlock": 0.33074119687080383
+        },
+        {
+          "index": 3,
+          "meanError": 0.15785253047943115,
+          "worstBlock": 0.3299306631088257
+        }
+      ],
+      "margin": 0.07628168910741806,
+      "byteIdentityVerified": false
+    },
+    "caption": {
+      "status": "not_applicable"
+    }
+  },
+  {
+    "step": "50-reopened-caption",
+    "frameSha256": "867c452b89dce42c7fdc370970d774442397d43fab2e77e280414ea065ecace2",
+    "screen": "draft_details",
+    "accountStatus": "not_visible",
+    "media": {
+      "status": "visual_match",
+      "matchedIndex": 1,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.013470599427819252,
+          "worstBlock": 0.03781459480524063
+        },
+        {
+          "index": 2,
+          "meanError": 0.11618641763925552,
+          "worstBlock": 0.2557545006275177
+        },
+        {
+          "index": 3,
+          "meanError": 0.11429110169410706,
+          "worstBlock": 0.21985742449760437
+        }
+      ],
+      "margin": 0.1008205022662878,
+      "byteIdentityVerified": false
+    },
+    "caption": {
+      "status": "exact_visible_lines",
+      "visibleText": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish.",
+      "reason": "Only the supported visible caption area was compared; hidden or truncated text cannot pass."
+    }
+  }
+]

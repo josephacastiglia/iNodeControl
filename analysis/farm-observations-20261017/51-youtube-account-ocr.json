@@ -1,0 +1,456 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6.•22",
+      "words": [
+        {
+          "y": 19,
+          "height": 13,
+          "width": 37,
+          "text": "6.•22",
+          "x": 47
+        }
+      ]
+    },
+    {
+      "text": "Accounts v",
+      "words": [
+        {
+          "y": 78,
+          "height": 13,
+          "width": 75,
+          "text": "Accounts",
+          "x": 41
+        },
+        {
+          "y": 80,
+          "height": 9,
+          "width": 16,
+          "text": "v",
+          "x": 131
+        }
+      ]
+    },
+    {
+      "text": "Taylorx",
+      "words": [
+        {
+          "y": 147,
+          "height": 27,
+          "width": 95,
+          "text": "Taylorx",
+          "x": 127
+        }
+      ]
+    },
+    {
+      "text": "@TaylorlnYoga",
+      "words": [
+        {
+          "y": 187,
+          "height": 14,
+          "width": 97,
+          "text": "@TaylorlnYoga",
+          "x": 127
+        }
+      ]
+    },
+    {
+      "text": "• View channel >",
+      "words": [
+        {
+          "y": 192,
+          "height": 3,
+          "width": 3,
+          "text": "•",
+          "x": 237
+        },
+        {
+          "y": 187,
+          "height": 11,
+          "width": 31,
+          "text": "View",
+          "x": 252
+        },
+        {
+          "y": 187,
+          "height": 11,
+          "width": 52,
+          "text": "channel",
+          "x": 288
+        },
+        {
+          "y": 187,
+          "height": 12,
+          "width": 7,
+          "text": ">",
+          "x": 348
+        }
+      ]
+    },
+    {
+      "text": "History",
+      "words": [
+        {
+          "y": 255,
+          "height": 22,
+          "width": 74,
+          "text": "History",
+          "x": 22
+        }
+      ]
+    },
+    {
+      "text": "Shorts",
+      "words": [
+        {
+          "y": 409,
+          "height": 14,
+          "width": 50,
+          "text": "Shorts",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "29 watched",
+      "words": [
+        {
+          "y": 432,
+          "height": 11,
+          "width": 16,
+          "text": "29",
+          "x": 21
+        },
+        {
+          "y": 432,
+          "height": 11,
+          "width": 56,
+          "text": "watched",
+          "x": 43
+        }
+      ]
+    },
+    {
+      "text": "Playlists",
+      "words": [
+        {
+          "y": 515,
+          "height": 21,
+          "width": 85,
+          "text": "Playlists",
+          "x": 22
+        }
+      ]
+    },
+    {
+      "text": "Watch later",
+      "words": [
+        {
+          "y": 671,
+          "height": 13,
+          "width": 50,
+          "text": "Watch",
+          "x": 21
+        },
+        {
+          "y": 671,
+          "height": 13,
+          "width": 36,
+          "text": "later",
+          "x": 77
+        }
+      ]
+    },
+    {
+      "text": "private",
+      "words": [
+        {
+          "y": 692,
+          "height": 11,
+          "width": 46,
+          "text": "private",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "Your videos",
+      "words": [
+        {
+          "y": 770,
+          "height": 14,
+          "width": 39,
+          "text": "Your",
+          "x": 69
+        },
+        {
+          "y": 769,
+          "height": 15,
+          "width": 57,
+          "text": "videos",
+          "x": 113
+        }
+      ]
+    },
+    {
+      "text": "Movies & TV",
+      "words": [
+        {
+          "y": 827,
+          "height": 15,
+          "width": 60,
+          "text": "Movies",
+          "x": 70
+        },
+        {
+          "y": 827,
+          "height": 15,
+          "width": 12,
+          "text": "&",
+          "x": 136
+        },
+        {
+          "y": 827,
+          "height": 15,
+          "width": 24,
+          "text": "TV",
+          "x": 154
+        }
+      ]
+    },
+    {
+      "text": "Hello Mama",
+      "words": [
+        {
+          "y": 412,
+          "height": 13,
+          "width": 40,
+          "text": "Hello",
+          "x": 214
+        },
+        {
+          "y": 412,
+          "height": 13,
+          "width": 47,
+          "text": "Mama",
+          "x": 260
+        }
+      ]
+    },
+    {
+      "text": "Enjoy. #viralsh...",
+      "words": [
+        {
+          "y": 433,
+          "height": 16,
+          "width": 46,
+          "text": "Enjoy.",
+          "x": 214
+        },
+        {
+          "y": 433,
+          "height": 13,
+          "width": 79,
+          "text": "#viralsh...",
+          "x": 265
+        }
+      ]
+    },
+    {
+      "text": "Warrior Goddess",
+      "words": [
+        {
+          "y": 457,
+          "height": 11,
+          "width": 49,
+          "text": "Warrior",
+          "x": 213
+        },
+        {
+          "y": 457,
+          "height": 11,
+          "width": 59,
+          "text": "Goddess",
+          "x": 267
+        }
+      ]
+    },
+    {
+      "text": "Liked videos",
+      "words": [
+        {
+          "y": 670,
+          "height": 14,
+          "width": 41,
+          "text": "Liked",
+          "x": 214
+        },
+        {
+          "y": 670,
+          "height": 14,
+          "width": 52,
+          "text": "videos",
+          "x": 261
+        }
+      ]
+    },
+    {
+      "text": "private",
+      "words": [
+        {
+          "y": 692,
+          "height": 11,
+          "width": 45,
+          "text": "private",
+          "x": 214
+        }
+      ]
+    },
+    {
+      "text": "Husam I",
+      "words": [
+        {
+          "y": 457,
+          "height": 11,
+          "width": 46,
+          "text": "Husam",
+          "x": 406
+        },
+        {
+          "y": 457,
+          "height": 13,
+          "width": 2,
+          "text": "I",
+          "x": 457
+        }
+      ]
+    },
+    {
+      "text": "almasabi",
+      "words": [
+        {
+          "y": 476,
+          "height": 11,
+          "width": 58,
+          "text": "almasabi",
+          "x": 406
+        }
+      ]
+    },
+    {
+      "text": "Try YouTube Premium for $0",
+      "words": [
+        {
+          "y": 897,
+          "height": 18,
+          "width": 27,
+          "text": "Try",
+          "x": 69
+        },
+        {
+          "y": 897,
+          "height": 15,
+          "width": 73,
+          "text": "YouTube",
+          "x": 102
+        },
+        {
+          "y": 897,
+          "height": 15,
+          "width": 75,
+          "text": "Premium",
+          "x": 182
+        },
+        {
+          "y": 897,
+          "height": 15,
+          "width": 24,
+          "text": "for",
+          "x": 263
+        },
+        {
+          "y": 896,
+          "height": 17,
+          "width": 22,
+          "text": "$0",
+          "x": 293
+        }
+      ]
+    },
+    {
+      "text": "Restrictions apply. Cancel anytime.",
+      "words": [
+        {
+          "y": 922,
+          "height": 13,
+          "width": 85,
+          "text": "Restrictions",
+          "x": 69
+        },
+        {
+          "y": 923,
+          "height": 14,
+          "width": 41,
+          "text": "apply.",
+          "x": 160
+        },
+        {
+          "y": 922,
+          "height": 13,
+          "width": 48,
+          "text": "Cancel",
+          "x": 207
+        },
+        {
+          "y": 923,
+          "height": 14,
+          "width": 60,
+          "text": "anytime.",
+          "x": 261
+        }
+      ]
+    },
+    {
+      "text": "Home",
+      "words": [
+        {
+          "y": 1022,
+          "height": 8,
+          "width": 29,
+          "text": "Home",
+          "x": 38
+        }
+      ]
+    },
+    {
+      "text": "Shorts",
+      "words": [
+        {
+          "y": 1022,
+          "height": 9,
+          "width": 34,
+          "text": "Shorts",
+          "x": 134
+        }
+      ]
+    },
+    {
+      "text": "Subscriptions",
+      "words": [
+        {
+          "y": 1022,
+          "height": 10,
+          "width": 72,
+          "text": "Subscriptions",
+          "x": 312
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "9b6b78531857fc21473d217adbbc6166c4d20cabee4b71dce1b4dbb8549ee3ef"
+}

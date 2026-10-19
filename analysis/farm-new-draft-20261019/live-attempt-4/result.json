@@ -1,0 +1,72 @@
+{
+  "run": {
+    "id": "1ca56bdb-b9e3-4c6e-b546-a1608ea8ab6e",
+    "storeId": "72237730-0e60-4738-ab95-c97be14ebaad",
+    "request": {
+      "id": "1ca56bdb-b9e3-4c6e-b546-a1608ea8ab6e",
+      "draft_id": "d9d790cb-d6ba-4ef8-9336-0b8528c67793",
+      "revision": 5,
+      "store_id": "72237730-0e60-4738-ab95-c97be14ebaad"
+    },
+    "packageSha256": "947a973fb279169d8d1b45172421be724fd693a5940faf2cd2f11646a18fd141",
+    "state": "review_required",
+    "terminal": true,
+    "jobStatus": "succeeded",
+    "reason": "InspectionStopped: The app search field is not empty and focused.",
+    "savedDraftVerified": false,
+    "draftChangedSinceRun": false,
+    "cleanup": "not_needed",
+    "workflow": {
+      "id": "1be6207a-5a61-467e-9d0a-051b351a0b5f",
+      "source": "candidate_phone_workflow",
+      "state": "review_required",
+      "cleanup": "not_needed",
+      "commands": [],
+      "observations": [],
+      "transitionChecks": [],
+      "actions": [],
+      "promptRecoveries": [],
+      "publishing": false,
+      "messaging": false,
+      "desktopControl": false,
+      "savedDraftVerified": false,
+      "budgetSeconds": 720,
+      "productionAdapterAccepted": false,
+      "packageSha256": "947a973fb279169d8d1b45172421be724fd693a5940faf2cd2f11646a18fd141",
+      "account": "xs.halle.xo",
+      "mode": "create_new_draft",
+      "phaseBudgetSeconds": 120,
+      "phases": [],
+      "createdDraftVerified": false,
+      "captionMethod": "verified_safari_copy_and_instagram_paste",
+      "error": "InspectionStopped: The app search field is not empty and focused.",
+      "finalInput": {
+        "id": "86:1D:4A:04:2F:F6",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "Controller released.",
+        "generation": 3,
+        "lease_remaining_ms": 0
+      },
+      "evidenceExport": "confirmed",
+      "mediaDelivery": {
+        "stopped": true,
+        "events": [],
+        "imagesDelivered": [],
+        "photosSaveProvenByHttp": false
+      }
+    },
+    "publishing": false,
+    "messaging": false,
+    "desktopControl": false,
+    "automaticResume": false,
+    "integratedLiveValidated": false,
+    "retryBeforeImportAllowed": false
+  },
+  "protocolVersion": 2,
+  "executionMode": "live",
+  "simulated": false
+}

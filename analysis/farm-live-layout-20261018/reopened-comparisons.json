@@ -1,0 +1,120 @@
+{
+  "slides": [
+    {
+      "index": 1,
+      "observationId": "832968bb-3bba-44d9-ac0d-154caec6598e",
+      "freshness": "recent",
+      "comparison": {
+        "status": "visual_match",
+        "matchedIndex": 1,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.008092416396268379,
+            "worstBlock": 0.02556281771968046,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.11187957937501983,
+            "worstBlock": 0.2615823218176159,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.11519858098886425,
+            "worstBlock": 0.2274335511982571,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.10378716297875144,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true,
+        "position": {
+          "status": "visible_position",
+          "index": 1,
+          "count": 3
+        }
+      }
+    },
+    {
+      "index": 2,
+      "observationId": "368625c8-9536-4118-9c1a-d74556895812",
+      "freshness": "recent",
+      "comparison": {
+        "status": "visual_match",
+        "matchedIndex": 2,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.1042919471362197,
+            "worstBlock": 0.2575636476812947,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.008281756233809674,
+            "worstBlock": 0.02420820179923821,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.20687885912676612,
+            "worstBlock": 0.24959850606909434,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.09601019090241003,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true,
+        "position": {
+          "status": "visible_position",
+          "index": 2,
+          "count": 3
+        }
+      }
+    },
+    {
+      "index": 3,
+      "observationId": "45a02680-f76b-4148-8e19-4fb92b77f092",
+      "freshness": "recent",
+      "comparison": {
+        "status": "visual_match",
+        "matchedIndex": 3,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.12341490449996462,
+            "worstBlock": 0.23545845004668536,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.21582678395726368,
+            "worstBlock": 0.2519414877061936,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.009148983961658395,
+            "worstBlock": 0.02226964860018082,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.11426592053830623,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true,
+        "position": {
+          "status": "visible_position",
+          "index": 3,
+          "count": 3
+        }
+      }
+    }
+  ],
+  "caption": {
+    "status": "exact_visible_lines",
+    "visibleText": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish.",
+    "reason": "Only the supported visible caption area was compared; hidden or truncated text cannot pass."
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "offlineOnly": true,
+  "desktopControl": false,
+  "phoneInput": false,
+  "testedAtUtc": "2026-10-17T03:37:15.303+00:00",
+  "testsRun": 29,
+  "passed": 16,
+  "failed": 13,
+  "errors": 0,
+  "skipped": 0,
+  "results": [
+    {
+      "test": "__main__.FarmFeatureValidation.test_100_character_text_preserves_bytes_in_twelve_character_chunks",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_alias_upload_runs_mock_sequence_and_releases",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_alias_warmup_runs_one_mock_session_and_releases",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_blank_image_does_not_fabricate_profile_view_counts",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 232, in test_blank_image_does_not_fabricate_profile_view_counts\n    self.assertEqual([], result, \"A blank image has no readable view counters; report unavailable, not invented numbers\")\nAssertionError: Lists differ: [] != [180, 270, 360]\n\nSecond list contains 3 additional elements.\nFirst extra element 0:\n180\n\n- []\n+ [180, 270, 360] : A blank image has no readable view counters; report unavailable, not invented numbers\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_blank_image_does_not_match_a_comment_keyword",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 228, in test_blank_image_does_not_match_a_comment_keyword\n    self.assertFalse(result.get(\"matched\"), f\"No text in image, yet reported keyword match: {result}\")\nAssertionError: True is not false : No text in image, yet reported keyword match: {'matched': True, 'keyword': 'TESTWORD', 'rowLuma': 255.0}\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_chunk_strategy_refuses_non_ascii_before_input",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_chunk_timeout_is_never_retried",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_console_funnel_payload_runs_advertised_dm_workflow",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 124, in test_console_funnel_payload_runs_advertised_dm_workflow\n    self.assertTrue(dm.called, f\"UI advertises Comment-to-DM, but DM calls={dm.call_count}, pin calls={pin.call_count}\")\nAssertionError: False is not true : UI advertises Comment-to-DM, but DM calls=0, pin calls=1\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_console_hardware_id_runs_requested_warmup",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 104, in test_console_hardware_id_runs_requested_warmup\n    self.assertEqual(1, body[\"sessionsRun\"], f\"Console target silently did no work: {body}\")\nAssertionError: 1 != 0 : Console target silently did no work: {'status': 'ok', 'sessionsRun': 0, 'results': [], 'executionMode': 'simulate', 'simulated': True}\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_console_hardware_id_upload_finds_its_persona",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 108, in test_console_hardware_id_upload_finds_its_persona\n    self.assertEqual(200, status, str(body))\nAssertionError: 200 != 500 : {'status': 'error', 'error': \"'Unknown persona device_id: 86:1D:4A:04:2F:F6'\", 'executionMode': 'simulate', 'simulated': True}\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_cross_origin_post_is_refused_without_input",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_existing_staged_media_serves_exact_bytes",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_explicit_observation_provider_result_is_used",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_malformed_json_returns_client_error_instead_of_aborting_handler",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 256, in test_malformed_json_returns_client_error_instead_of_aborting_handler\n    status, _ = self.reply(handler)\n                ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 55, in reply\n    getattr(handler, \"do_\" + method)()\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\imouse_farm_server.py\", line 359, in do_POST\n    data = json.loads(raw_body.decode(\"utf-8\")) if raw_body else {}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\joey_\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\json\\__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\joey_\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\json\\decoder.py\", line 337, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\joey_\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\json\\decoder.py\", line 353, in raw_decode\n    obj, end = self.scan_once(s, idx)\n               ^^^^^^^^^^^^^^^^^^^^^^\njson.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 258, in test_malformed_json_returns_client_error_instead_of_aborting_handler\n    self.fail(f\"Uncaught {type(exc).__name__} instead of a 4xx response: {exc}\")\nAssertionError: Uncaught JSONDecodeError instead of a 4xx response: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_missing_video_encoder_refuses_instead_of_returning_fake_mp4",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 282, in test_missing_video_encoder_refuses_instead_of_returning_fake_mp4\n    with self.assertRaises((RuntimeError, ValueError), msg=\"Missing encoder returns an unplayable MP4 as success\"):\nAssertionError: (<class 'RuntimeError'>, <class 'ValueError'>) not raised : Missing encoder returns an unplayable MP4 as success\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_mixed_live_wave_refuses_before_any_input",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 188, in test_mixed_live_wave_refuses_before_any_input\n    self.assertEqual([], inputs, \"Mixed wave already acted on C24C before refusing C241\")\nAssertionError: Lists differ: [] != ['/mouse/swipe']\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n'/mouse/swipe'\n\n- []\n+ ['/mouse/swipe'] : Mixed wave already acted on C24C before refusing C241\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_mock_stop_remains_latched_until_explicit_resume",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 152, in test_mock_stop_remains_latched_until_explicit_resume\n    with self.assertRaises(engine.KernelSafetyError, msg=\"Mock permits work immediately after Stop; cannot validate a persistent Stop\"):\nAssertionError: KernelSafetyError not raised : Mock permits work immediately after Stop; cannot validate a persistent Stop\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_oversize_text_is_refused_not_silently_truncated",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 218, in test_oversize_text_is_refused_not_silently_truncated\n    with self.assertRaises((ValueError, engine.KernelSafetyError), msg=\"201 characters were silently shortened\"):\nAssertionError: (<class 'ValueError'>, <class 'imouse_social_automation.KernelSafetyError'>) not raised : 201 characters were silently shortened\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_owned_phone_refuses_upload_without_taking_over",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_scheduler_dry_run_never_acquires_or_sends",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_scheduler_status_does_not_dispatch_input",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_stage_cannot_read_outside_stage_root",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 251, in test_stage_cannot_read_outside_stage_root\n    self.assertNotEqual(200, status, f\"Stage traversal exposed marker: {body!r}\")\nAssertionError: 200 == 200 : Stage traversal exposed marker: b'test-marker-outside-stage'\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_state_reports_simulation_and_nineteen_personas",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_stop_during_warmup_causes_failure_and_releases",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_stop_requires_explicit_success_reply",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 166, in test_stop_requires_explicit_success_reply\n    self.assertNotEqual(200, status, f\"Unconfirmed stop claimed success: {body}\")\nAssertionError: 200 == 200 : Unconfirmed stop claimed success: {'status': 'ok', 'stopped': 'C24C', 'kernel_response': {}, 'executionMode': 'simulate', 'simulated': True}\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_stop_targets_only_requested_mock_phone",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_unsupported_screen_keyboard_character_is_not_silently_dropped",
+      "status": "failed",
+      "detail": "Traceback (most recent call last):\n  File \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\test_farm_feature_validation.py\", line 223, in test_unsupported_screen_keyboard_character_is_not_silently_dropped\n    with self.assertRaises((ValueError, engine.KernelSafetyError), msg=\"Unsupported emoji was silently dropped\"):\nAssertionError: (<class 'ValueError'>, <class 'imouse_social_automation.KernelSafetyError'>) not raised : Unsupported emoji was silently dropped\n"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_upload_failure_releases_lease_and_stops_sequence",
+      "status": "passed"
+    },
+    {
+      "test": "__main__.FarmFeatureValidation.test_video_has_decodable_frames_or_reports_missing_encoder",
+      "status": "passed"
+    }
+  ],
+  "dependencies": {
+    "python": "3.11.6",
+    "pillowAvailable": true,
+    "opencvAvailable": true,
+    "ffprobe": "C:\\ffmpeg\\ffmpeg-7.1.1-essentials_build\\bin\\ffprobe.EXE"
+  },
+  "sourceSha256": {
+    "tools/imouse_farm_server.py": "e933829473d4be1bdeb2bbf472a8ea712148915f92c847caa07b361179d1de75",
+    "tools/imouse_social_automation.py": "5e8f5d9bfcb14d4ce51930bbbb5fc9293a5ffe2d14a895798dfec3b08b7ef7c5",
+    "src/iMouse.Console/MainWindow.FarmTab.cs": "fadc6b92a15f0c1d7211504444dd34b6992e24abf49807702b5df6b894dd16bc",
+    "src/iMouse.Console/MainWindow.xaml": "6eebf50f0df3eb1bb58f9468406fa32cc1ed3a80629ae83e166a50b26f73c3ab",
+    "tools/test_farm_feature_validation.py": "0e312ffac9aba42574bcb873928f413d18ad312219d889ba11a58dceb84f845d"
+  }
+}

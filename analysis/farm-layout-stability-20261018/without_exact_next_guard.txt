@@ -1,0 +1,18 @@
+test_editor_layout_is_not_permission_to_press_an_ambiguous_next_button (test_farm_draft_rehearsal.RehearsalTests.test_editor_layout_is_not_permission_to_press_an_ambiguous_next_button) ... FAIL
+
+======================================================================
+FAIL: test_editor_layout_is_not_permission_to_press_an_ambiguous_next_button (test_farm_draft_rehearsal.RehearsalTests.test_editor_layout_is_not_permission_to_press_an_ambiguous_next_button)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_draft_rehearsal.py", line 130, in test_editor_layout_is_not_permission_to_press_an_ambiguous_next_button
+    self.assertEqual('review_required',result['state']); self.assertIn('Next label',result['reason'])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'review_required' != 'simulation_passed'
+- review_required
++ simulation_passed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 4.384s
+
+FAILED (failures=1)

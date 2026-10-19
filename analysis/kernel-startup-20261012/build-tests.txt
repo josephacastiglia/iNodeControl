@@ -1,0 +1,11 @@
+C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\KernelStartupTests.cs(21,96): error CS1009: Unrecognized escape sequence [C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\iMouse.Kernel.csproj]
+C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\KernelStartupTests.cs(22,85): error CS1009: Unrecognized escape sequence [C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\iMouse.Kernel.csproj]
+
+Build FAILED.
+
+C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\KernelStartupTests.cs(21,96): error CS1009: Unrecognized escape sequence [C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\iMouse.Kernel.csproj]
+C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\KernelStartupTests.cs(22,85): error CS1009: Unrecognized escape sequence [C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\iMouse.Kernel.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:20.78

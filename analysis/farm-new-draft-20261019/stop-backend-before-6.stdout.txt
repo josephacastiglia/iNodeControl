@@ -1,0 +1,3 @@
+00:13:35.920 stopping PID 10928 (python.exe); children: 27524 conhost.exe
+00:13:36.147 processes attached to PID 10928's console: 52652 powershell.exe, 10928 python.exe
+00:13:37.075 PID 10928 exited; children still running: none

@@ -1,0 +1,210 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:48",
+      "words": [
+        {
+          "y": 22,
+          "height": 16,
+          "width": 42,
+          "text": "6:48",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "O Add sound",
+      "words": [
+        {
+          "y": 109,
+          "height": 14,
+          "width": 14,
+          "text": "O",
+          "x": 193
+        },
+        {
+          "y": 108,
+          "height": 14,
+          "width": 34,
+          "text": "Add",
+          "x": 215
+        },
+        {
+          "y": 108,
+          "height": 14,
+          "width": 53,
+          "text": "sound",
+          "x": 255
+        }
+      ]
+    },
+    {
+      "text": "iMouse VIDEO DRAFT TEST",
+      "words": [
+        {
+          "y": 294,
+          "height": 17,
+          "width": 70,
+          "text": "iMouse",
+          "x": 59
+        },
+        {
+          "y": 296,
+          "height": 15,
+          "width": 62,
+          "text": "VIDEO",
+          "x": 135
+        },
+        {
+          "y": 296,
+          "height": 15,
+          "width": 65,
+          "text": "DRAFT",
+          "x": 205
+        },
+        {
+          "y": 296,
+          "height": 15,
+          "width": 48,
+          "text": "TEST",
+          "x": 276
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY - DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 349,
+          "height": 13,
+          "width": 48,
+          "text": "DRAFT",
+          "x": 59
+        },
+        {
+          "y": 349,
+          "height": 13,
+          "width": 42,
+          "text": "ONLY",
+          "x": 112
+        },
+        {
+          "y": 356,
+          "height": 2,
+          "width": 5,
+          "text": "-",
+          "x": 159
+        },
+        {
+          "y": 349,
+          "height": 13,
+          "width": 23,
+          "text": "DO",
+          "x": 171
+        },
+        {
+          "y": 349,
+          "height": 13,
+          "width": 33,
+          "text": "NOT",
+          "x": 200
+        },
+        {
+          "y": 349,
+          "height": 13,
+          "width": 60,
+          "text": "PUBLISH",
+          "x": 239
+        }
+      ]
+    },
+    {
+      "text": "TEST: 78%",
+      "words": [
+        {
+          "y": 418,
+          "height": 13,
+          "width": 38,
+          "text": "TEST:",
+          "x": 58
+        },
+        {
+          "y": 418,
+          "height": 13,
+          "width": 31,
+          "text": "78%",
+          "x": 102
+        }
+      ]
+    },
+    {
+      "text": "DEVICE C24C I AUTO-RENDER",
+      "words": [
+        {
+          "y": 872,
+          "height": 13,
+          "width": 60,
+          "text": "DEVICE",
+          "x": 57
+        },
+        {
+          "y": 872,
+          "height": 13,
+          "width": 42,
+          "text": "C24C",
+          "x": 123
+        },
+        {
+          "y": 871,
+          "height": 18,
+          "width": 3,
+          "text": "I",
+          "x": 171
+        },
+        {
+          "y": 872,
+          "height": 13,
+          "width": 129,
+          "text": "AUTO-RENDER",
+          "x": 180
+        }
+      ]
+    },
+    {
+      "text": "AutoCut",
+      "words": [
+        {
+          "y": 904,
+          "height": 12,
+          "width": 60,
+          "text": "AutoCut",
+          "x": 231
+        }
+      ]
+    },
+    {
+      "text": "Your Story",
+      "words": [
+        {
+          "y": 1000,
+          "height": 15,
+          "width": 40,
+          "text": "Your",
+          "x": 103
+        },
+        {
+          "y": 1000,
+          "height": 19,
+          "width": 48,
+          "text": "Story",
+          "x": 149
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "63b00d9871084a7a5804d9e7f186a9ac7cfdb2ff97b04ec1ffa9df17a5d51f07"
+}

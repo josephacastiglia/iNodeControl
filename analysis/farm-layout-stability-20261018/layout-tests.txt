@@ -1,0 +1,46 @@
+test_autoplay_motion_does_not_require_static_preview_content (test_farm_screen_layout.LayoutTests.test_autoplay_motion_does_not_require_static_preview_content) ... ok
+test_control_and_library_changes_are_never_masked_as_preview_motion (test_farm_screen_layout.LayoutTests.test_control_and_library_changes_are_never_masked_as_preview_motion) ... 
+  test_control_and_library_changes_are_never_masked_as_preview_motion (test_farm_screen_layout.LayoutTests.test_control_and_library_changes_are_never_masked_as_preview_motion) (box=(435, 80, 439, 84)) ... FAIL
+  test_control_and_library_changes_are_never_masked_as_preview_motion (test_farm_screen_layout.LayoutTests.test_control_and_library_changes_are_never_masked_as_preview_motion) (box=(160, 638, 165, 644)) ... FAIL
+test_duplicate_or_displaced_picker_controls_are_unknown (test_farm_screen_layout.LayoutTests.test_duplicate_or_displaced_picker_controls_are_unknown) ... ok
+test_editor_blue_rectangle_alone_or_bad_dots_is_insufficient (test_farm_screen_layout.LayoutTests.test_editor_blue_rectangle_alone_or_bad_dots_is_insufficient) ... ok
+test_editor_requires_every_toolbar_word_at_its_own_location (test_farm_screen_layout.LayoutTests.test_editor_requires_every_toolbar_word_at_its_own_location) ... ok
+test_identical_images_do_not_claim_liveness (test_farm_screen_layout.LayoutTests.test_identical_images_do_not_claim_liveness) ... ok
+test_overlay_dim_and_partly_open_drawer_are_rejected_even_with_old_ocr (test_farm_screen_layout.LayoutTests.test_overlay_dim_and_partly_open_drawer_are_rejected_even_with_old_ocr) ... ok
+test_overlay_takes_precedence_over_editor_or_picker (test_farm_screen_layout.LayoutTests.test_overlay_takes_precedence_over_editor_or_picker) ... ok
+test_partial_next_needs_frame_geometry_without_repairing_text (test_farm_screen_layout.LayoutTests.test_partial_next_needs_frame_geometry_without_repairing_text) ... ok
+test_picker_navigation_handles_a_combined_recents_drafts_ocr_line (test_farm_screen_layout.LayoutTests.test_picker_navigation_handles_a_combined_recents_drafts_ocr_line) ... ok
+test_wrong_size_or_blank_frame_cannot_support_ambiguous_ocr (test_farm_screen_layout.LayoutTests.test_wrong_size_or_blank_frame_cannot_support_ambiguous_ocr) ... ok
+test_caption_comparison_does_not_use_navigation_or_footer_text (test_farm_screen_recognition.ScreenRecognitionTests.test_caption_comparison_does_not_use_navigation_or_footer_text) ... ok
+test_caption_sheet_is_an_editing_interruption_not_background_details (test_farm_screen_recognition.ScreenRecognitionTests.test_caption_sheet_is_an_editing_interruption_not_background_details) ... ok
+test_carousel_details_excludes_slide_text_from_caption (test_farm_screen_recognition.ScreenRecognitionTests.test_carousel_details_excludes_slide_text_from_caption) ... ok
+test_geometry_scales_but_invalid_geometry_is_refused (test_farm_screen_recognition.ScreenRecognitionTests.test_geometry_scales_but_invalid_geometry_is_refused) ... ok
+test_isolated_caption_words_do_not_fake_a_photo_details_screen (test_farm_screen_recognition.ScreenRecognitionTests.test_isolated_caption_words_do_not_fake_a_photo_details_screen) ... ok
+test_known_ui_label_variant_never_changes_caption_or_account_text (test_farm_screen_recognition.ScreenRecognitionTests.test_known_ui_label_variant_never_changes_caption_or_account_text) ... ok
+test_photo_draft_details_without_video_edit_cover (test_farm_screen_recognition.ScreenRecognitionTests.test_photo_draft_details_without_video_edit_cover) ... ok
+test_sparse_drafts_title_does_not_identify_instagram (test_farm_screen_recognition.ScreenRecognitionTests.test_sparse_drafts_title_does_not_identify_instagram) ... ok
+test_system_permission_overrides_caption_sheet (test_farm_screen_recognition.ScreenRecognitionTests.test_system_permission_overrides_caption_sheet) ... ok
+test_truncated_label_outside_audio_region_or_partial_next_stays_unknown (test_farm_screen_recognition.ScreenRecognitionTests.test_truncated_label_outside_audio_region_or_partial_next_stays_unknown) ... ok
+test_truncated_suggested_audio_requires_the_complete_carousel_toolbar (test_farm_screen_recognition.ScreenRecognitionTests.test_truncated_suggested_audio_requires_the_complete_carousel_toolbar) ... ok
+test_video_details_use_independent_anchors_without_repairing_ocr (test_farm_screen_recognition.ScreenRecognitionTests.test_video_details_use_independent_anchors_without_repairing_ocr) ... ok
+
+======================================================================
+FAIL: test_control_and_library_changes_are_never_masked_as_preview_motion (test_farm_screen_layout.LayoutTests.test_control_and_library_changes_are_never_masked_as_preview_motion) (box=(435, 80, 439, 84))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_screen_layout.py", line 103, in test_control_and_library_changes_are_never_masked_as_preview_motion
+    self.assertFalse(result['controlsStable'],result)
+AssertionError: True is not false : {'controlsStable': True, 'previewChanged': False, 'automaticInputAllowed': False, 'beforeSha256': '912a3f461bcbcc3046ae58e011b4be775325796b1255637165d99772874130dd', 'afterSha256': 'bd102e4206eb31c9e5a042cb7c842d5ba3236550b7f1a94c0a12db1a4ad67af1', 'protectedMeanError': 3.495145631067961e-05, 'protectedChangedFraction': 3.495145631067961e-05, 'worstProtectedBlock': 0.0144, 'ignoredRegions': [[0, 0, 500, 65], [0, 112, 500, 612]], 'reason': 'Picker controls/grid agree; preview motion was excluded.'}
+
+======================================================================
+FAIL: test_control_and_library_changes_are_never_masked_as_preview_motion (test_farm_screen_layout.LayoutTests.test_control_and_library_changes_are_never_masked_as_preview_motion) (box=(160, 638, 165, 644))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_screen_layout.py", line 103, in test_control_and_library_changes_are_never_masked_as_preview_motion
+    self.assertFalse(result['controlsStable'],result)
+AssertionError: True is not false : {'controlsStable': True, 'previewChanged': False, 'automaticInputAllowed': False, 'beforeSha256': '912a3f461bcbcc3046ae58e011b4be775325796b1255637165d99772874130dd', 'afterSha256': 'f69a65138c826eb97c5f8d07bd75abbe748f007e801ea9f0fa64d88d570da7f9', 'protectedMeanError': 9.70873786407767e-05, 'protectedChangedFraction': 9.70873786407767e-05, 'worstProtectedBlock': 0.024, 'ignoredRegions': [[0, 0, 500, 65], [0, 112, 500, 612]], 'reason': 'Picker controls/grid agree; preview motion was excluded.'}
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.615s
+
+FAILED (failures=2)

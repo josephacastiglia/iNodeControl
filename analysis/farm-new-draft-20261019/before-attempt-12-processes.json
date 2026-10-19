@@ -1,0 +1,46 @@
+﻿{
+    "utc":  "2026-10-19T03:53:05.3064846Z",
+    "kernel":  {
+                   "arguments":  [
+                                     "http://127.0.0.1:9916/api/",
+                                     "--data-dir",
+                                     "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\data",
+                                     "--input-pid",
+                                     "C24C",
+                                     "--receivers",
+                                     "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\data\\receivers.json",
+                                     "--receiver",
+                                     "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
+                                     "--receiver-runtime",
+                                     "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime"
+                                 ],
+                   "pid":  38344,
+                   "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-live-kernel-20261018\\iMouse2.Kernel.exe"
+               },
+    "backend":  {
+                    "path":  "C:\\Users\\joey_\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+                    "pid":  52428,
+                    "arguments":  [
+                                      "-u",
+                                      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\imouse_farm_server.py",
+                                      "--host",
+                                      "127.0.0.1",
+                                      "--port",
+                                      "9915",
+                                      "--mode",
+                                      "live",
+                                      "--no-browser",
+                                      "--data-dir",
+                                      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\backend",
+                                      "--draft-creation-config",
+                                      "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-new-draft-20261019\\creation-config.json"
+                                  ]
+                },
+    "phoneInput":  false,
+    "desktopControl":  false,
+    "nativeProbe":  {
+                        "path":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\farm-new-draft-native-probe-20261019\\NativeProbe.exe",
+                        "pid":  53760,
+                        "options":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-new-draft-20261019\\live-attempt-11.options.json"
+                    }
+}

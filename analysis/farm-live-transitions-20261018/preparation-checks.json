@@ -1,0 +1,23 @@
+{
+  "passed": 50,
+  "suites": [
+    {
+      "file": "workflow-tests-preserved-failure.txt",
+      "passed": 10
+    },
+    {
+      "file": "transport-helper-tests.txt",
+      "passed": 11
+    },
+    {
+      "file": "shared-guard-tests.txt",
+      "passed": 29
+    }
+  ],
+  "protectedFiles": 25,
+  "allProtectedHashesMatch": true,
+  "sourceFiles": 28,
+  "phoneInput": false,
+  "pcControl": false,
+  "liveValidation": "pending"
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "ProcessId": 19200,
+    "ParentProcessId": 22416,
+    "Name": "iMouse2.Kernel.exe",
+    "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\runtime-guard-20261013\\kernel\\bin\\iMouse2.Kernel.exe",
+    "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\runtime-guard-20261013\\kernel\\bin\\iMouse2.Kernel.exe\" http://127.0.0.1:9913/api/ --data-dir \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\runtime-guard-20261013\\kernel\\data\" --input-pid C24C --receivers \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\runtime-guard-20261013\\kernel\\data\\receivers.json\" --receiver \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-runtime-guard-20261013\\payload\\receiver\\uxplay.exe\" --receiver-runtime \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-runtime-guard-20261013\\dependencies\\receiver-runtime\\runtime\"",
+    "CreationDate": "2026-10-13T00:56:03.111301-04:00"
+  },
+  {
+    "ProcessId": 17164,
+    "ParentProcessId": 19200,
+    "Name": "uxplay.exe",
+    "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-runtime-guard-20261013\\payload\\receiver\\uxplay.exe",
+    "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-runtime-guard-20261013\\payload\\receiver\\uxplay.exe\" -n iMouse2-C24C -nh -s 500x1080 -fps 30 -avdec -vs appsink -as fakesink -p 7110 -restrict -allow 86:1D:4A:04:2F:F6 -m 02:49:4D:32:C2:4C",
+    "CreationDate": "2026-10-13T00:56:03.394228-04:00"
+  }
+]

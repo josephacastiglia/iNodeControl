@@ -1,0 +1,4 @@
+{
+  "error": "System.InvalidOperationException: New media draft saved and independently reopened\r\n   at Program.\u003C\u003Ec__DisplayClass3_0.\u003CMain\u003Eg__Check|2(String name, Boolean pass, \u003C\u003Ec__DisplayClass3_1\u0026) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-new-draft-20261019\\NativeProbe\\Program.cs:line 34\r\n   at Program.\u003C\u003Ec__DisplayClass3_0.\u003C\u003CMain\u003Eb__0\u003Ed.MoveNext() in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-new-draft-20261019\\NativeProbe\\Program.cs:line 65",
+  "utc": "2026-10-19T04:59:05.4390052Z"
+}

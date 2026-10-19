@@ -1,0 +1,490 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "7:06",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 41,
+          "text": "7:06",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "Caption",
+      "words": [
+        {
+          "y": 76,
+          "height": 19,
+          "width": 72,
+          "text": "Caption",
+          "x": 214
+        }
+      ]
+    },
+    {
+      "text": "IMOUSE-VlDEO-DRAFT-TEST-202610171",
+      "words": [
+        {
+          "y": 134,
+          "height": 23,
+          "width": 313,
+          "text": "IMOUSE-VlDEO-DRAFT-TEST-202610171",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "# Hashtags",
+      "words": [
+        {
+          "y": 255,
+          "height": 18,
+          "width": 16,
+          "text": "#",
+          "x": 36
+        },
+        {
+          "y": 258,
+          "height": 14,
+          "width": 66,
+          "text": "Hashtags",
+          "x": 62
+        }
+      ]
+    },
+    {
+      "text": "poll",
+      "words": [
+        {
+          "y": 258,
+          "height": 12,
+          "width": 25,
+          "text": "poll",
+          "x": 194
+        }
+      ]
+    },
+    {
+      "text": "Edit cover",
+      "words": [
+        {
+          "y": 421,
+          "height": 13,
+          "width": 30,
+          "text": "Edit",
+          "x": 193
+        },
+        {
+          "y": 424,
+          "height": 10,
+          "width": 44,
+          "text": "cover",
+          "x": 229
+        }
+      ]
+    },
+    {
+      "text": "Prompt",
+      "words": [
+        {
+          "y": 259,
+          "height": 13,
+          "width": 51,
+          "text": "Prompt",
+          "x": 286
+        }
+      ]
+    },
+    {
+      "text": "IMOUSE-VlDEO-DRAFT-TEST-20261017",
+      "words": [
+        {
+          "y": 496,
+          "height": 13,
+          "width": 311,
+          "text": "IMOUSE-VlDEO-DRAFT-TEST-20261017",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "# Hashtags",
+      "words": [
+        {
+          "y": 618,
+          "height": 19,
+          "width": 16,
+          "text": "#",
+          "x": 36
+        },
+        {
+          "y": 622,
+          "height": 14,
+          "width": 66,
+          "text": "Hashtags",
+          "x": 62
+        }
+      ]
+    },
+    {
+      "text": "@ Tag people",
+      "words": [
+        {
+          "y": 685,
+          "height": 28,
+          "width": 27,
+          "text": "@",
+          "x": 21
+        },
+        {
+          "y": 691,
+          "height": 18,
+          "width": 30,
+          "text": "Tag",
+          "x": 64
+        },
+        {
+          "y": 691,
+          "height": 18,
+          "width": 58,
+          "text": "people",
+          "x": 101
+        }
+      ]
+    },
+    {
+      "text": "C) Add location",
+      "words": [
+        {
+          "y": 746,
+          "height": 27,
+          "width": 23,
+          "text": "C)",
+          "x": 22
+        },
+        {
+          "y": 749,
+          "height": 15,
+          "width": 34,
+          "text": "Add",
+          "x": 65
+        },
+        {
+          "y": 749,
+          "height": 15,
+          "width": 67,
+          "text": "location",
+          "x": 106
+        }
+      ]
+    },
+    {
+      "text": "Rename audio",
+      "words": [
+        {
+          "y": 807,
+          "height": 15,
+          "width": 69,
+          "text": "Rename",
+          "x": 65
+        },
+        {
+          "y": 807,
+          "height": 15,
+          "width": 47,
+          "text": "audio",
+          "x": 140
+        }
+      ]
+    },
+    {
+      "text": "Add Al Label",
+      "words": [
+        {
+          "y": 861,
+          "height": 15,
+          "width": 33,
+          "text": "Add",
+          "x": 64
+        },
+        {
+          "y": 861,
+          "height": 14,
+          "width": 16,
+          "text": "Al",
+          "x": 104
+        },
+        {
+          "y": 861,
+          "height": 15,
+          "width": 45,
+          "text": "Label",
+          "x": 127
+        }
+      ]
+    },
+    {
+      "text": "Poll",
+      "words": [
+        {
+          "y": 622,
+          "height": 11,
+          "width": 25,
+          "text": "Poll",
+          "x": 194
+        }
+      ]
+    },
+    {
+      "text": "Q Prompt",
+      "words": [
+        {
+          "y": 619,
+          "height": 17,
+          "width": 18,
+          "text": "Q",
+          "x": 259
+        },
+        {
+          "y": 622,
+          "height": 14,
+          "width": 50,
+          "text": "Prompt",
+          "x": 286
+        }
+      ]
+    },
+    {
+      "text": "0K",
+      "words": [
+        {
+          "y": 77,
+          "height": 15,
+          "width": 27,
+          "text": "0K",
+          "x": 448
+        }
+      ]
+    },
+    {
+      "text": "Original audio",
+      "words": [
+        {
+          "y": 808,
+          "height": 16,
+          "width": 59,
+          "text": "Original",
+          "x": 344
+        },
+        {
+          "y": 808,
+          "height": 13,
+          "width": 41,
+          "text": "audio",
+          "x": 409
+        }
+      ]
+    },
+    {
+      "text": "This label is required for realistic photos",
+      "words": [
+        {
+          "y": 884,
+          "height": 12,
+          "width": 32,
+          "text": "This",
+          "x": 64
+        },
+        {
+          "y": 884,
+          "height": 13,
+          "width": 35,
+          "text": "label",
+          "x": 102
+        },
+        {
+          "y": 884,
+          "height": 13,
+          "width": 10,
+          "text": "is",
+          "x": 144
+        },
+        {
+          "y": 884,
+          "height": 15,
+          "width": 62,
+          "text": "required",
+          "x": 161
+        },
+        {
+          "y": 884,
+          "height": 13,
+          "width": 21,
+          "text": "for",
+          "x": 229
+        },
+        {
+          "y": 884,
+          "height": 12,
+          "width": 59,
+          "text": "realistic",
+          "x": 256
+        },
+        {
+          "y": 884,
+          "height": 15,
+          "width": 52,
+          "text": "photos",
+          "x": 321
+        }
+      ]
+    },
+    {
+      "text": "3nd videos made with AI. People will see ii",
+      "words": [
+        {
+          "y": 904,
+          "height": 13,
+          "width": 25,
+          "text": "3nd",
+          "x": 66
+        },
+        {
+          "y": 904,
+          "height": 13,
+          "width": 49,
+          "text": "videos",
+          "x": 98
+        },
+        {
+          "y": 904,
+          "height": 13,
+          "width": 42,
+          "text": "made",
+          "x": 153
+        },
+        {
+          "y": 904,
+          "height": 13,
+          "width": 31,
+          "text": "with",
+          "x": 201
+        },
+        {
+          "y": 905,
+          "height": 12,
+          "width": 18,
+          "text": "AI.",
+          "x": 238
+        },
+        {
+          "y": 904,
+          "height": 16,
+          "width": 51,
+          "text": "People",
+          "x": 263
+        },
+        {
+          "y": 904,
+          "height": 13,
+          "width": 24,
+          "text": "will",
+          "x": 320
+        },
+        {
+          "y": 908,
+          "height": 9,
+          "width": 26,
+          "text": "see",
+          "x": 350
+        },
+        {
+          "y": 904,
+          "height": 13,
+          "width": 6,
+          "text": "ii",
+          "x": 382
+        }
+      ]
+    },
+    {
+      "text": "on your content. Learn more",
+      "words": [
+        {
+          "y": 927,
+          "height": 10,
+          "width": 18,
+          "text": "on",
+          "x": 64
+        },
+        {
+          "y": 927,
+          "height": 13,
+          "width": 33,
+          "text": "your",
+          "x": 88
+        },
+        {
+          "y": 925,
+          "height": 12,
+          "width": 62,
+          "text": "content.",
+          "x": 127
+        },
+        {
+          "y": 925,
+          "height": 12,
+          "width": 42,
+          "text": "Learn",
+          "x": 196
+        },
+        {
+          "y": 927,
+          "height": 10,
+          "width": 38,
+          "text": "more",
+          "x": 244
+        }
+      ]
+    },
+    {
+      "text": "Save draft",
+      "words": [
+        {
+          "y": 991,
+          "height": 13,
+          "width": 37,
+          "text": "Save",
+          "x": 90
+        },
+        {
+          "y": 991,
+          "height": 13,
+          "width": 38,
+          "text": "draft",
+          "x": 133
+        }
+      ]
+    },
+    {
+      "text": "Share",
+      "words": [
+        {
+          "y": 991,
+          "height": 13,
+          "width": 45,
+          "text": "Share",
+          "x": 347
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "6514f642388dad440f9ef4ee1cb8e649ed5777edc2a005754f618fc9dc4b571b"
+}

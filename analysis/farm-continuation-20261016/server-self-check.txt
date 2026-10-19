@@ -1,0 +1,11 @@
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/state HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/scheduler-status HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/auto-create-and-deploy HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/manifest.json HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/video_01_18271e1e.mp4 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/iMousePull.shortcut.plist HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/funnel-action HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/scheduler-tick HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/scan-profile-views HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/calibrate-box HTTP/1.1" 200 -
+OK - Full 7-Layer Farm Server verified on http://127.0.0.1:9087 (state, scheduler, auto-create-deploy, MP4/JPEG/Shortcut staging, funnel DM, profile-view OCR scan, box calibration).

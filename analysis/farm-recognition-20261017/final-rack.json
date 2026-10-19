@@ -1,0 +1,117 @@
+{
+  "CheckedAt": "2026-10-17T21:46:06.7168469-04:00",
+  "Status": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "input": "direct-hid",
+      "input_protocol": 1,
+      "input_leases_required": true,
+      "allowed": [
+        "C24C",
+        "C241"
+      ],
+      "receiver": "iMouse2-C24C / iMouse2-C241",
+      "receiver_state": "mirroring",
+      "receiver_message": "",
+      "receiver_pid": 6700,
+      "receiver_restarts": 0,
+      "frames": 184709,
+      "live": true,
+      "receivers": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "iMouse2-C24C",
+          "receiver_pid": 6700,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 184709
+        },
+        {
+          "deviceid": "FE:A9:BC:D7:A0:44",
+          "name": "iMouse2-C241",
+          "receiver_pid": 37088,
+          "receiver_restarts": 0,
+          "receiver_state": "offline",
+          "live": false,
+          "frames": 0
+        }
+      ]
+    }
+  },
+  "Input": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "protocol": 1,
+      "phones": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "owned": false,
+          "active": false,
+          "stopped": false,
+          "releasing": false,
+          "release_failed": false,
+          "message": "Controller released.",
+          "generation": 230,
+          "lease_remaining_ms": 0
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "owned": false,
+          "active": false,
+          "stopped": false,
+          "releasing": false,
+          "release_failed": false,
+          "message": "",
+          "generation": 0,
+          "lease_remaining_ms": 0
+        }
+      ]
+    }
+  },
+  "Processes": [
+    {
+      "ProcessId": 6108,
+      "ParentProcessId": 36352,
+      "Name": "iMouse2.Kernel.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe"
+    },
+    {
+      "ProcessId": 6700,
+      "ParentProcessId": 6108,
+      "Name": "uxplay.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe"
+    },
+    {
+      "ProcessId": 37088,
+      "ParentProcessId": 6108,
+      "Name": "uxplay.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe"
+    },
+    {
+      "ProcessId": 44176,
+      "ParentProcessId": 53600,
+      "Name": "python.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\AppData\\Local\\Programs\\Python\\Python311\\python.exe"
+    },
+    {
+      "ProcessId": 34016,
+      "ParentProcessId": 12712,
+      "Name": "iMouse2.exe",
+      "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\gemini-farm-tab-r4\\iMouse2.exe"
+    }
+  ],
+  "OperatorSettingsSha256": "72F51CC0BEE805F722D73BC024CAD771B19A68E2E7C04D9D47F8E9E4A8A5E5BA",
+  "InitialStatusProbe": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 41,
+      "message": "Not implemented: "
+    }
+  }
+}

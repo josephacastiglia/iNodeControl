@@ -1,0 +1,6 @@
+System.UnauthorizedAccessException: Access to the path is denied.
+   at System.IO.FileSystem.MoveFile(String sourceFullPath, String destFullPath, Boolean overwrite)
+   at IMouse2.ConsoleDiagnostics.SaveAsync(String path, DiagnosticReport report, CancellationToken ct) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\ConsoleDiagnostics.cs:line 79
+   at IMouse2.DiagnosticsTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\DiagnosticsTests.cs:line 106
+   at IMouse2.SelfTests.RunAsync() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\SelfTests.cs:line 617
+   at IMouse2.App.OnStartup(StartupEventArgs e) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\App.xaml.cs:line 164

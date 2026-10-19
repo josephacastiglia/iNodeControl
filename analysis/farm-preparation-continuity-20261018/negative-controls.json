@@ -1,0 +1,17 @@
+[
+  {
+    "check": "cancel before admission",
+    "previousPass": false,
+    "currentPass": true
+  },
+  {
+    "check": "terminal monitor race",
+    "previousPass": false,
+    "currentPass": true
+  },
+  {
+    "check": "same revision package checksum",
+    "previousPass": false,
+    "currentPass": true
+  }
+]

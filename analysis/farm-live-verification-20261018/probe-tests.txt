@@ -1,0 +1,15 @@
+test_final_identity_read_consumes_frame_age_budget (test_farm_live_verification.ProbeTests.test_final_identity_read_consumes_frame_age_budget) ... ok
+test_input_and_other_targets_blocked_before_transport (test_farm_live_verification.ProbeTests.test_input_and_other_targets_blocked_before_transport) ... ok
+test_kernel_replacement_refused (test_farm_live_verification.ProbeTests.test_kernel_replacement_refused) ... ok
+test_missing_metadata_never_passes (test_farm_live_verification.ProbeTests.test_missing_metadata_never_passes) ... ok
+test_owned_phone_refused_without_screenshot (test_farm_live_verification.ProbeTests.test_owned_phone_refused_without_screenshot) ... ok
+test_ownership_change_refused (test_farm_live_verification.ProbeTests.test_ownership_change_refused) ... ok
+test_retained_expiry_does_not_recapture (test_farm_live_verification.ProbeTests.test_retained_expiry_does_not_recapture) ... ok
+test_untrusted_endpoints_refused (test_farm_live_verification.ProbeTests.test_untrusted_endpoints_refused) ... ok
+test_valid_probe_uses_real_observer_without_inferring_draft_success (test_farm_live_verification.ProbeTests.test_valid_probe_uses_real_observer_without_inferring_draft_success) ... ok
+test_wrong_build_and_extra_phone_refused_without_screenshot (test_farm_live_verification.ProbeTests.test_wrong_build_and_extra_phone_refused_without_screenshot) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.193s
+
+OK

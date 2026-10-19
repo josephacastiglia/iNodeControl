@@ -1,0 +1,7 @@
+test_real_process_crash_releases_worker_lock_but_never_replays_accepted_work (test_farm_jobs.FarmJobTests.test_real_process_crash_releases_worker_lock_but_never_replays_accepted_work) ... ok
+test_a_separate_process_respects_ownership_and_durable_cancellation (test_farm_jobs.FarmJobTests.test_a_separate_process_respects_ownership_and_durable_cancellation) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.772s
+
+OK

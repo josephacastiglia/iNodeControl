@@ -1,0 +1,246 @@
+test_calibration_cannot_choose_an_arbitrary_output_path (test_farm_content.FarmContentTests.test_calibration_cannot_choose_an_arbitrary_output_path) ... ok
+test_calibration_rejects_invalid_rectangles (test_farm_content.FarmContentTests.test_calibration_rejects_invalid_rectangles) ... ok
+test_failed_render_preserves_previous_manifest_and_media (test_farm_content.FarmContentTests.test_failed_render_preserves_previous_manifest_and_media) ... ok
+test_invalid_observed_view_counts_remain_unknown (test_farm_content.FarmContentTests.test_invalid_observed_view_counts_remain_unknown) ... ok
+test_legacy_mutations_are_excluded_while_an_operation_holds_the_lock (test_farm_content.FarmContentTests.test_legacy_mutations_are_excluded_while_an_operation_holds_the_lock) ... ok
+test_manifest_assets_have_real_checksums_and_review_is_escaped (test_farm_content.FarmContentTests.test_manifest_assets_have_real_checksums_and_review_is_escaped) ... ok
+test_new_generation_keeps_every_previously_exported_asset (test_farm_content.FarmContentTests.test_new_generation_keeps_every_previously_exported_asset) ... ok
+test_new_personas_have_unknown_not_invented_view_counts (test_farm_content.FarmContentTests.test_new_personas_have_unknown_not_invented_view_counts) ... ok
+test_no_winner_is_invented_when_every_record_is_below_threshold (test_farm_content.FarmContentTests.test_no_winner_is_invented_when_every_record_is_below_threshold) ... ok
+test_profile_validation_leaves_previous_values_unchanged (test_farm_content.FarmContentTests.test_profile_validation_leaves_previous_values_unchanged) ... ok
+test_proxy_cannot_acquire_while_a_job_is_running (test_farm_content.FarmContentTests.test_proxy_cannot_acquire_while_a_job_is_running) ... ok
+test_reading_missing_stage_does_not_generate_or_write_files (test_farm_content.FarmContentTests.test_reading_missing_stage_does_not_generate_or_write_files) ... ok
+test_single_image_carousel_does_not_select_an_extra_image (test_farm_content.FarmContentTests.test_single_image_carousel_does_not_select_an_extra_image) ... ok
+test_upload_rejects_untypable_caption_before_any_input (test_farm_content.FarmContentTests.test_upload_rejects_untypable_caption_before_any_input) ... ok
+test_bad_generated_source_rolls_back_whole_draft (test_farm_drafts.CarouselDraftTests.test_bad_generated_source_rolls_back_whole_draft) ... ok
+test_corrupt_saved_blob_blocks_export (test_farm_drafts.CarouselDraftTests.test_corrupt_saved_blob_blocks_export) ... ok
+test_duplicate_and_foreign_images_are_refused (test_farm_drafts.CarouselDraftTests.test_duplicate_and_foreign_images_are_refused) ... ok
+test_empty_or_one_slide_is_saved_but_export_refused (test_farm_drafts.CarouselDraftTests.test_empty_or_one_slide_is_saved_but_export_refused) ... ok
+test_exif_orientation_is_applied_and_original_is_not_changed (test_farm_drafts.CarouselDraftTests.test_exif_orientation_is_applied_and_original_is_not_changed) ... ok
+test_existing_create_id_recovers_saved_result_without_regeneration (test_farm_drafts.CarouselDraftTests.test_existing_create_id_recovers_saved_result_without_regeneration) ... ok
+test_generated_content_is_snapshotted_and_survives_source_changes (test_farm_drafts.CarouselDraftTests.test_generated_content_is_snapshotted_and_survives_source_changes) ... ok
+test_images_fit_without_crop_and_export_order_is_selected_order (test_farm_drafts.CarouselDraftTests.test_images_fit_without_crop_and_export_order_is_selected_order) ... ok
+test_invalid_image_rejects_without_changing_draft (test_farm_drafts.CarouselDraftTests.test_invalid_image_rejects_without_changing_draft) ... ok
+test_invalid_payload_types_and_caption_are_not_silently_truncated (test_farm_drafts.CarouselDraftTests.test_invalid_payload_types_and_caption_are_not_silently_truncated) ... ok
+test_max_slides_and_oversized_pixels_are_rejected (test_farm_drafts.CarouselDraftTests.test_max_slides_and_oversized_pixels_are_rejected) ... ok
+test_removed_images_remain_in_old_exports (test_farm_drafts.CarouselDraftTests.test_removed_images_remain_in_old_exports) ... ok
+test_reopen_persists_order_caption_and_images_without_originals (test_farm_drafts.CarouselDraftTests.test_reopen_persists_order_caption_and_images_without_originals) ... ok
+test_stale_revision_cannot_overwrite_a_newer_save_or_export (test_farm_drafts.CarouselDraftTests.test_stale_revision_cannot_overwrite_a_newer_save_or_export) ... ok
+test_two_store_instances_cannot_lose_a_simultaneous_edit (test_farm_drafts.CarouselDraftTests.test_two_store_instances_cannot_lose_a_simultaneous_edit) ... ok
+test_conflict_status_and_unknown_id (test_farm_drafts.CarouselRouteTests.test_conflict_status_and_unknown_id) ... ok
+test_draft_routes_are_local_even_in_live_mode (test_farm_drafts.CarouselRouteTests.test_draft_routes_are_local_even_in_live_mode) ... ok
+test_c24c_alias_cannot_resolve_to_another_phone (test_farm_execution_safety.FarmExecutionSafetyTests.test_c24c_alias_cannot_resolve_to_another_phone) ... ok
+test_c24c_post_is_sent_once_and_does_not_rewrite_action (test_farm_execution_safety.FarmExecutionSafetyTests.test_c24c_post_is_sent_once_and_does_not_rewrite_action) ... ok
+test_database_connection_is_closed_after_read (test_farm_execution_safety.FarmExecutionSafetyTests.test_database_connection_is_closed_after_read) ... ok
+test_database_failure_rolls_back_and_closes_connection (test_farm_execution_safety.FarmExecutionSafetyTests.test_database_failure_rolls_back_and_closes_connection) ... ok
+test_default_runtime_never_probes_or_selects_live_kernel (test_farm_execution_safety.FarmExecutionSafetyTests.test_default_runtime_never_probes_or_selects_live_kernel) ... ok
+test_explicit_simulation_preserves_mock_phone_work_without_network (test_farm_execution_safety.FarmExecutionSafetyTests.test_explicit_simulation_preserves_mock_phone_work_without_network) ... ok
+test_live_outage_refuses_instead_of_substituting_simulation (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_outage_refuses_instead_of_substituting_simulation) ... ok
+test_live_ready_returns_live_transport_and_same_mode (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_ready_returns_live_transport_and_same_mode) ... ok
+test_live_requires_ownership_protocol (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_requires_ownership_protocol) ... ok
+test_live_status_remains_read_only_and_available (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_status_remains_read_only_and_available) ... ok
+test_mixed_group_is_rejected_before_any_transport (test_farm_execution_safety.FarmExecutionSafetyTests.test_mixed_group_is_rejected_before_any_transport) ... ok
+test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) ... ok
+test_proxy_live_request_cannot_skip_target_guard (test_farm_execution_safety.FarmExecutionSafetyTests.test_proxy_live_request_cannot_skip_target_guard) ... ok
+test_proxy_post_uses_runtime_mode_and_guarded_client (test_farm_execution_safety.FarmExecutionSafetyTests.test_proxy_post_uses_runtime_mode_and_guarded_client) ... ok
+test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) ... ok
+test_send_payload_cannot_override_target_or_lease (test_farm_execution_safety.FarmExecutionSafetyTests.test_send_payload_cannot_override_target_or_lease) ... ok
+test_unknown_mode_is_rejected_before_creating_database (test_farm_execution_safety.FarmExecutionSafetyTests.test_unknown_mode_is_rejected_before_creating_database) ... ok
+test_100_character_text_preserves_bytes_in_twelve_character_chunks (test_farm_feature_validation.FarmFeatureValidation.test_100_character_text_preserves_bytes_in_twelve_character_chunks) ... ok
+test_alias_upload_runs_mock_sequence_and_releases (test_farm_feature_validation.FarmFeatureValidation.test_alias_upload_runs_mock_sequence_and_releases) ... ok
+test_alias_warmup_runs_one_mock_session_and_releases (test_farm_feature_validation.FarmFeatureValidation.test_alias_warmup_runs_one_mock_session_and_releases) ... ok
+test_blank_image_does_not_fabricate_profile_view_counts (test_farm_feature_validation.FarmFeatureValidation.test_blank_image_does_not_fabricate_profile_view_counts) ... ok
+test_blank_image_does_not_match_a_comment_keyword (test_farm_feature_validation.FarmFeatureValidation.test_blank_image_does_not_match_a_comment_keyword) ... ok
+test_chunk_strategy_refuses_non_ascii_before_input (test_farm_feature_validation.FarmFeatureValidation.test_chunk_strategy_refuses_non_ascii_before_input) ... ok
+test_chunk_timeout_is_never_retried (test_farm_feature_validation.FarmFeatureValidation.test_chunk_timeout_is_never_retried) ... ok
+test_console_funnel_payload_runs_advertised_dm_workflow (test_farm_feature_validation.FarmFeatureValidation.test_console_funnel_payload_runs_advertised_dm_workflow) ... ok
+test_console_hardware_id_runs_requested_warmup (test_farm_feature_validation.FarmFeatureValidation.test_console_hardware_id_runs_requested_warmup) ... ok
+test_console_hardware_id_upload_finds_its_persona (test_farm_feature_validation.FarmFeatureValidation.test_console_hardware_id_upload_finds_its_persona) ... ok
+test_cross_origin_post_is_refused_without_input (test_farm_feature_validation.FarmFeatureValidation.test_cross_origin_post_is_refused_without_input) ... ok
+test_existing_staged_media_serves_exact_bytes (test_farm_feature_validation.FarmFeatureValidation.test_existing_staged_media_serves_exact_bytes) ... ok
+test_explicit_observation_provider_result_is_used (test_farm_feature_validation.FarmFeatureValidation.test_explicit_observation_provider_result_is_used) ... ok
+test_generated_slate_contains_readable_carousel_images_and_video (test_farm_feature_validation.FarmFeatureValidation.test_generated_slate_contains_readable_carousel_images_and_video) ... ok
+test_malformed_json_returns_client_error_instead_of_aborting_handler (test_farm_feature_validation.FarmFeatureValidation.test_malformed_json_returns_client_error_instead_of_aborting_handler) ... ok
+test_manifest_video_checksum_matches_the_staged_file (test_farm_feature_validation.FarmFeatureValidation.test_manifest_video_checksum_matches_the_staged_file) ... ok
+test_missing_video_encoder_is_reported_or_fallback_is_playable (test_farm_feature_validation.FarmFeatureValidation.test_missing_video_encoder_is_reported_or_fallback_is_playable) ... ok
+test_mixed_live_wave_refuses_before_any_input (test_farm_feature_validation.FarmFeatureValidation.test_mixed_live_wave_refuses_before_any_input) ... ok
+test_mock_stop_remains_latched_until_explicit_resume (test_farm_feature_validation.FarmFeatureValidation.test_mock_stop_remains_latched_until_explicit_resume) ... ok
+test_oversize_text_is_refused_not_silently_truncated (test_farm_feature_validation.FarmFeatureValidation.test_oversize_text_is_refused_not_silently_truncated) ... ok
+test_owned_phone_refuses_upload_without_taking_over (test_farm_feature_validation.FarmFeatureValidation.test_owned_phone_refuses_upload_without_taking_over) ... ok
+test_scheduler_dry_run_never_acquires_or_sends (test_farm_feature_validation.FarmFeatureValidation.test_scheduler_dry_run_never_acquires_or_sends) ... ok
+test_scheduler_status_does_not_dispatch_input (test_farm_feature_validation.FarmFeatureValidation.test_scheduler_status_does_not_dispatch_input) ... ok
+test_shortcut_export_is_parseable_and_targets_simulation_manifest (test_farm_feature_validation.FarmFeatureValidation.test_shortcut_export_is_parseable_and_targets_simulation_manifest) ... ok
+test_stage_cannot_read_outside_stage_root (test_farm_feature_validation.FarmFeatureValidation.test_stage_cannot_read_outside_stage_root) ... ok
+test_state_reports_simulation_and_nineteen_personas (test_farm_feature_validation.FarmFeatureValidation.test_state_reports_simulation_and_nineteen_personas) ... ok
+test_stop_during_warmup_causes_failure_and_releases (test_farm_feature_validation.FarmFeatureValidation.test_stop_during_warmup_causes_failure_and_releases) ... ok
+test_stop_requires_explicit_success_reply (test_farm_feature_validation.FarmFeatureValidation.test_stop_requires_explicit_success_reply) ... ok
+test_stop_targets_only_requested_mock_phone (test_farm_feature_validation.FarmFeatureValidation.test_stop_targets_only_requested_mock_phone) ... ok
+test_unsupported_screen_keyboard_character_is_not_silently_dropped (test_farm_feature_validation.FarmFeatureValidation.test_unsupported_screen_keyboard_character_is_not_silently_dropped) ... ok
+test_upload_failure_releases_lease_and_stops_sequence (test_farm_feature_validation.FarmFeatureValidation.test_upload_failure_releases_lease_and_stops_sequence) ... ok
+test_video_has_decodable_frames_or_reports_missing_encoder (test_farm_feature_validation.FarmFeatureValidation.test_video_has_decodable_frames_or_reports_missing_encoder) ... ok
+test_async_submission_poll_and_duplicate_do_not_replay (test_farm_http_jobs.FarmHttpJobsTests.test_async_submission_poll_and_duplicate_do_not_replay) ... ok
+test_bad_json_and_untrusted_origin_are_rejected (test_farm_http_jobs.FarmHttpJobsTests.test_bad_json_and_untrusted_origin_are_rejected) ... ok
+test_cancel_stops_active_work_and_cleanup_finishes (test_farm_http_jobs.FarmHttpJobsTests.test_cancel_stops_active_work_and_cleanup_finishes) ... ok
+test_carousel_import_save_export_over_real_http_without_phone_input (test_farm_http_jobs.FarmHttpJobsTests.test_carousel_import_save_export_over_real_http_without_phone_input) ... ok
+test_durable_status_survives_registry_restart (test_farm_http_jobs.FarmHttpJobsTests.test_durable_status_survives_registry_restart) ... ok
+test_generated_media_and_manifest_can_be_downloaded (test_farm_http_jobs.FarmHttpJobsTests.test_generated_media_and_manifest_can_be_downloaded) ... ok
+test_large_payload_is_not_permitted_on_control_routes (test_farm_http_jobs.FarmHttpJobsTests.test_large_payload_is_not_permitted_on_control_routes) ... ok
+test_stop_latches_until_explicit_simulation_resume (test_farm_http_jobs.FarmHttpJobsTests.test_stop_latches_until_explicit_simulation_resume) ... ok
+test_cancel_interrupts_wait_and_releases_owned_mock_phone (test_farm_jobs.FarmJobTests.test_cancel_interrupts_wait_and_releases_owned_mock_phone) ... ok
+test_cancelled_context_never_acquires_or_sends_but_allows_cleanup (test_farm_jobs.FarmJobTests.test_cancelled_context_never_acquires_or_sends_but_allows_cleanup) ... ok
+test_cleanup_failure_during_cancellation_is_reported (test_farm_jobs.FarmJobTests.test_cleanup_failure_during_cancellation_is_reported) ... ok
+test_content_job_generates_media_without_kernel_input (test_farm_jobs.FarmJobTests.test_content_job_generates_media_without_kernel_input) ... ok
+test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow (test_farm_jobs.FarmJobTests.test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow) ... ok
+test_duplicate_completed_submission_never_replays (test_farm_jobs.FarmJobTests.test_duplicate_completed_submission_never_replays) ... ok
+test_duplicate_id_with_different_payload_is_refused (test_farm_jobs.FarmJobTests.test_duplicate_id_with_different_payload_is_refused) ... ok
+test_every_upload_format_dispatches_and_releases_in_simulation (test_farm_jobs.FarmJobTests.test_every_upload_format_dispatches_and_releases_in_simulation) ... ok
+test_failure_is_not_success_or_automatically_retried (test_farm_jobs.FarmJobTests.test_failure_is_not_success_or_automatically_retried) ... ok
+test_interrupted_record_is_unknown_not_rerun (test_farm_jobs.FarmJobTests.test_interrupted_record_is_unknown_not_rerun) ... ok
+test_invalid_job_ids_and_actions_are_refused (test_farm_jobs.FarmJobTests.test_invalid_job_ids_and_actions_are_refused) ... ok
+test_live_automation_refuses_before_any_kernel_probe (test_farm_jobs.FarmJobTests.test_live_automation_refuses_before_any_kernel_probe) ... ok
+test_lost_client_heartbeat_cancels_job (test_farm_jobs.FarmJobTests.test_lost_client_heartbeat_cancels_job) ... ok
+test_new_instance_recovers_completed_result_without_replaying (test_farm_jobs.FarmJobTests.test_new_instance_recovers_completed_result_without_replaying) ... ok
+test_second_concurrent_job_is_refused (test_farm_jobs.FarmJobTests.test_second_concurrent_job_is_refused) ... ok
+test_unavailable_counts_do_not_clear_an_existing_pause (test_farm_jobs.FarmJobTests.test_unavailable_counts_do_not_clear_an_existing_pause) ... ok
+test_unknown_observations_do_not_claim_dm_success (test_farm_jobs.FarmJobTests.test_unknown_observations_do_not_claim_dm_success) ... ok
+test_warmup_job_accepts_console_id_and_releases (test_farm_jobs.FarmJobTests.test_warmup_job_accepts_console_id_and_releases) ... ok
+test_bind_must_be_explicit_private_address_and_time_bounded (test_farm_media_transfer.MediaTransferTests.test_bind_must_be_explicit_private_address_and_time_bounded) ... ok
+test_bound_port_collision_is_failure (test_farm_media_transfer.MediaTransferTests.test_bound_port_collision_is_failure) ... ok
+test_corrupt_or_substituted_package_is_refused (test_farm_media_transfer.MediaTransferTests.test_corrupt_or_substituted_package_is_refused) ... ok
+test_expiration_prevents_more_downloads (test_farm_media_transfer.MediaTransferTests.test_expiration_prevents_more_downloads) ... ERROR
+test_logs_do_not_contain_secret_url_or_caption (test_farm_media_transfer.MediaTransferTests.test_logs_do_not_contain_secret_url_or_caption) ... ok
+test_mutations_refused_and_head_does_not_count_as_delivery (test_farm_media_transfer.MediaTransferTests.test_mutations_refused_and_head_does_not_count_as_delivery) ... ok
+test_ordered_image_bytes_and_caption_survive_real_http (test_farm_media_transfer.MediaTransferTests.test_ordered_image_bytes_and_caption_survive_real_http) ... ok
+test_other_phone_package_refused (test_farm_media_transfer.MediaTransferTests.test_other_phone_package_refused) ... ok
+test_page_escapes_user_text_and_has_no_control_or_publish_route (test_farm_media_transfer.MediaTransferTests.test_page_escapes_user_text_and_has_no_control_or_publish_route) ... ok
+test_test_guard_still_blocks_real_kernel_and_external_connections (test_farm_media_transfer.MediaTransferTests.test_test_guard_still_blocks_real_kernel_and_external_connections) ... ok
+test_wrong_host_refused_and_no_cross_origin_permission (test_farm_media_transfer.MediaTransferTests.test_wrong_host_refused_and_no_cross_origin_permission) ... ok
+test_wrong_phone_refused (test_farm_media_transfer.MediaTransferTests.test_wrong_phone_refused) ... ok
+test_wrong_token_and_path_traversal_and_query_refused (test_farm_media_transfer.MediaTransferTests.test_wrong_token_and_path_traversal_and_query_refused) ... ok
+test_account_identity_duplicate_counts_and_bad_dates_refuse (test_farm_readiness.FarmReadinessTests.test_account_identity_duplicate_counts_and_bad_dates_refuse) ... ok
+test_age_and_freshness_boundaries (test_farm_readiness.FarmReadinessTests.test_age_and_freshness_boundaries) ... ok
+test_analytics_http_dispatch_does_not_require_a_kernel (test_farm_readiness.FarmReadinessTests.test_analytics_http_dispatch_does_not_require_a_kernel) ... ok
+test_counts_alone_cannot_pause_or_invent_24_hour_views (test_farm_readiness.FarmReadinessTests.test_counts_alone_cannot_pause_or_invent_24_hour_views) ... ok
+test_early_account_review_cannot_clear_existing_pause (test_farm_readiness.FarmReadinessTests.test_early_account_review_cannot_clear_existing_pause) ... ok
+test_every_unvalidated_live_action_refuses_before_a_phone_probe (test_farm_readiness.FarmReadinessTests.test_every_unvalidated_live_action_refuses_before_a_phone_probe) ... ok
+test_feature_readiness_never_promotes_simulation_to_live_acceptance (test_farm_readiness.FarmReadinessTests.test_feature_readiness_never_promotes_simulation_to_live_acceptance) ... ok
+test_good_observations_never_automatically_clear_a_pause (test_farm_readiness.FarmReadinessTests.test_good_observations_never_automatically_clear_a_pause) ... ok
+test_latest_three_by_post_time_not_input_order (test_farm_readiness.FarmReadinessTests.test_latest_three_by_post_time_not_input_order) ... ok
+test_mature_recent_low_views_pause_and_preserve_evidence (test_farm_readiness.FarmReadinessTests.test_mature_recent_low_views_pause_and_preserve_evidence) ... ok
+test_paused_account_never_runs_a_scheduled_action (test_farm_readiness.FarmReadinessTests.test_paused_account_never_runs_a_scheduled_action) ... ok
+test_phase_one_plans_warmup_instead_of_holding_forever (test_farm_readiness.FarmReadinessTests.test_phase_one_plans_warmup_instead_of_holding_forever) ... ok
+test_scheduler_cooldown_exact_boundary_and_clock_rollback (test_farm_readiness.FarmReadinessTests.test_scheduler_cooldown_exact_boundary_and_clock_rollback) ... ok
+test_scheduler_uses_requested_utc_day_for_upload_budget (test_farm_readiness.FarmReadinessTests.test_scheduler_uses_requested_utc_day_for_upload_budget) ... ok
+test_concurrent_start_cannot_open_two_sessions (test_farm_transfer_sessions.TransferSessionTests.test_concurrent_start_cannot_open_two_sessions) ... ok
+test_control_server_refuses_lan_binding (test_farm_transfer_sessions.TransferSessionTests.test_control_server_refuses_lan_binding) ... ok
+test_cross_origin_or_wrong_host_cannot_start_or_read_link (test_farm_transfer_sessions.TransferSessionTests.test_cross_origin_or_wrong_host_cannot_start_or_read_link) ... ok
+test_draft_edits_do_not_mutate_active_media (test_farm_transfer_sessions.TransferSessionTests.test_draft_edits_do_not_mutate_active_media) ... ok
+test_duplicate_request_never_reopens_or_changes_snapshot (test_farm_transfer_sessions.TransferSessionTests.test_duplicate_request_never_reopens_or_changes_snapshot) ... ok
+test_expiry_closes_socket_and_strips_url (test_farm_transfer_sessions.TransferSessionTests.test_expiry_closes_socket_and_strips_url) ... ok
+test_http_start_delivery_recovery_stop_and_no_phone_commands (test_farm_transfer_sessions.TransferSessionTests.test_http_start_delivery_recovery_stop_and_no_phone_commands) ... ok
+test_old_stop_cannot_stop_new_session (test_farm_transfer_sessions.TransferSessionTests.test_old_stop_cannot_stop_new_session) ... ok
+test_port_collision_is_terminal_and_does_not_kill_other_listener (test_farm_transfer_sessions.TransferSessionTests.test_port_collision_is_terminal_and_does_not_kill_other_listener) ... ok
+test_restart_keeps_history_but_never_url_or_listener (test_farm_transfer_sessions.TransferSessionTests.test_restart_keeps_history_but_never_url_or_listener) ... ok
+test_second_backend_cannot_interrupt_or_replace_first_transfer (test_farm_transfer_sessions.TransferSessionTests.test_second_backend_cannot_interrupt_or_replace_first_transfer) ... ok
+test_slow_client_cannot_prevent_stop (test_farm_transfer_sessions.TransferSessionTests.test_slow_client_cannot_prevent_stop) ... ok
+test_stale_revision_and_invalid_package_fail_before_listener (test_farm_transfer_sessions.TransferSessionTests.test_stale_revision_and_invalid_package_fail_before_listener) ... ok
+test_stop_still_works_while_other_operation_lock_is_held (test_farm_transfer_sessions.TransferSessionTests.test_stop_still_works_while_other_operation_lock_is_held) ... ok
+test_taken_control_port_refuses_before_runtime_or_data_changes (test_farm_transfer_sessions.TransferSessionTests.test_taken_control_port_refuses_before_runtime_or_data_changes) ... ok
+test_target_addresses_types_and_control_ports_are_checked (test_farm_transfer_sessions.TransferSessionTests.test_target_addresses_types_and_control_ports_are_checked) ... ok
+test_caption_limits_never_silently_truncate (test_farm_video.VideoDraftTests.test_caption_limits_never_silently_truncate) ... ok
+test_control_api_prepares_recovers_and_stops_video_without_phone_input (test_farm_video.VideoDraftTests.test_control_api_prepares_recovers_and_stops_video_without_phone_input) ... ok
+test_corrupt_staged_bytes_and_traversal_never_encode (test_farm_video.VideoDraftTests.test_corrupt_staged_bytes_and_traversal_never_encode) ... ok
+test_corrupt_video_package_refused (test_farm_video.VideoDraftTests.test_corrupt_video_package_refused) ... ok
+test_failed_encoding_does_not_create_draft_or_replace_source (test_farm_video.VideoDraftTests.test_failed_encoding_does_not_create_draft_or_replace_source) ... ok
+test_immutable_snapshot_duplicate_request_and_restart (test_farm_video.VideoDraftTests.test_immutable_snapshot_duplicate_request_and_restart) ... ok
+test_missing_tools_and_long_video_refuse_instead_of_fake_success (test_farm_video.VideoDraftTests.test_missing_tools_and_long_video_refuse_instead_of_fake_success) ... ok
+test_normalization_is_h264_vertical_preserves_duration_and_full_frame (test_farm_video.VideoDraftTests.test_normalization_is_h264_vertical_preserves_duration_and_full_frame) ... ok
+test_other_phone_and_unsupported_format_refused (test_farm_video.VideoDraftTests.test_other_phone_and_unsupported_format_refused) ... ok
+test_real_http_ranges_head_expiry_and_no_false_save (test_farm_video.VideoDraftTests.test_real_http_ranges_head_expiry_and_no_false_save) ... ok
+test_video_package_has_exact_content_and_no_app_completion_claim (test_farm_video.VideoDraftTests.test_video_package_has_exact_content_and_no_app_completion_claim) ... ok
+
+======================================================================
+ERROR: test_expiration_prevents_more_downloads (test_farm_media_transfer.MediaTransferTests.test_expiration_prevents_more_downloads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 108, in test_expiration_prevents_more_downloads
+    self.assertEqual(404, self.request(self.server.prefix + '01.jpg')[0])
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_media_transfer.py", line 58, in request
+    response = client.getresponse()
+               ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1378, in getresponse
+    response.begin()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 318, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+
+----------------------------------------------------------------------
+Ran 160 tests in 26.608s
+
+FAILED (errors=1)
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/a05d97b2-841f-4977-85bd-16f4094f766c HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/a05d97b2-841f-4977-85bd-16f4094f766c HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs/17706763-c82e-4d94-8a65-29acbc752f01/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/17706763-c82e-4d94-8a65-29acbc752f01 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/8a49f928-4cbe-4ae2-b251-731e303673b1/import HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/8a49f928-4cbe-4ae2-b251-731e303673b1/import HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/8a49f928-4cbe-4ae2-b251-731e303673b1/save HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/8a49f928-4cbe-4ae2-b251-731e303673b1/export HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/4cccacad-f7e6-4335-a051-9d258e586c76 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/4cccacad-f7e6-4335-a051-9d258e586c76 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/4cccacad-f7e6-4335-a051-9d258e586c76 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/50bd4443-40b1-4b01-8dbf-0a2801ea3714 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/manifest.json HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/video_eee5dbf0ed664bf5b942f3cc41ad3b3a_18271e1e.mp4 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_eee5dbf0ed664bf5b942f3cc41ad3b3a_01_7c1c6c76.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_eee5dbf0ed664bf5b942f3cc41ad3b3a_02_7c2c3c3f.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_eee5dbf0ed664bf5b942f3cc41ad3b3a_03_7d1c5c67.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_eee5dbf0ed664bf5b942f3cc41ad3b3a_04_7c5c1c6f.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 413 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/d3dc045d-2ae4-4521-9be4-7f02d6817ea7 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/resume-simulation HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/9806e8d4-e94a-4d59-83f2-91eb9b84f44f/stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/4078bc79-f597-4621-831f-57be1f388d75/stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/video-drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/video-drafts/70bc2ced-11d4-4dd9-971d-ecc6ce3aed8b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/video-drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/017df757-6994-4427-980a-002a068bbedf/stop HTTP/1.1" 200 -

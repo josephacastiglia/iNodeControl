@@ -1,0 +1,112 @@
+[
+  {
+    "path": "tools/farm_drafts.py",
+    "sha256": "ccdc9a2af69d1d5efeeb8cf86ddbc873189266280084c04fd2e02f6a4beb6513",
+    "bytes": 15813
+  },
+  {
+    "path": "tools/imouse_farm_server.py",
+    "sha256": "f79da93ea5f4f1fec1a79f11d62aee8c653fda8d5c0fba1a6012df07579d67ac",
+    "bytes": 94955
+  },
+  {
+    "path": "tools/imouse_social_automation.py",
+    "sha256": "d76d92110f4dfcbec11f02363a0e27e0b06ae87a65b6cc42d5d751c15848a25c",
+    "bytes": 171422
+  },
+  {
+    "path": "tools/farm_jobs.py",
+    "sha256": "16a9384c8e2f0f0318e7e0bfcd195cc281ee2d3d93d1a96f33b3656f062777db",
+    "bytes": 7172
+  },
+  {
+    "path": "tools/test_farm_drafts.py",
+    "sha256": "2691d4fa9a245b145b5919faa0e769c9f4c7efd5a57dcf4987f879734fb23a1e",
+    "bytes": 12727
+  },
+  {
+    "path": "tools/test_farm_http_jobs.py",
+    "sha256": "9f02783da41d1e7ae1df1e052bde6e84048fb8e98431525754f114639683231f",
+    "bytes": 9395
+  },
+  {
+    "path": "tools/requirements-farm.txt",
+    "sha256": "0dc72001b7f95660622d16a83313562a6af43fd8a6f4a418d29e5523be758582",
+    "bytes": 128
+  },
+  {
+    "path": "src/iMouse.Console/CarouselDraft.cs",
+    "sha256": "8f1930547ef28198cf6bc0a6d5a741d6b3d40d32925317d4019d1fafc63b6621",
+    "bytes": 2933
+  },
+  {
+    "path": "src/iMouse.Console/CarouselDraftWindow.xaml",
+    "sha256": "d5004724eca5abab707a8856558c83a4dec2bfc03c4ea3c92130663c039dcdf4",
+    "bytes": 3912
+  },
+  {
+    "path": "src/iMouse.Console/CarouselDraftWindow.xaml.cs",
+    "sha256": "ac704dc3c276558e2520f6dfc81256e9d98d1208ecde37ec014cce7f0d6e61d3",
+    "bytes": 12084
+  },
+  {
+    "path": "src/iMouse.Console/CarouselDraftTests.cs",
+    "sha256": "9ac6010b44c24d5bad4cd05843b8dc4cf69f937f4f7bc691a24f10b995d53d1b",
+    "bytes": 8050
+  },
+  {
+    "path": "src/iMouse.Console/FarmJobRecovery.cs",
+    "sha256": "5f5d005f8594a15472cdc1e0377e847297ce14030d69ad2b0ccf3d6dede37933",
+    "bytes": 949
+  },
+  {
+    "path": "src/iMouse.Console/MainWindow.FarmJobs.cs",
+    "sha256": "90eff8f4f8b002d7d2f1485788ebe7f04b86b9632132d87d9f0f56248d62c257",
+    "bytes": 10852
+  },
+  {
+    "path": "src/iMouse.Console/MainWindow.FarmTab.cs",
+    "sha256": "ecdfab7bb810ba4973ebb13a716e8a8ea655d545172709cb9c76dac8d3775736",
+    "bytes": 19401
+  },
+  {
+    "path": "src/iMouse.Console/FarmTests.cs",
+    "sha256": "623751945aeea97660b108090b2eb636efea1720613d0edf783ded53697f9cc9",
+    "bytes": 8213
+  },
+  {
+    "path": "src/iMouse.Console/FarmApiClient.cs",
+    "sha256": "fb35f69e2fba210cd84b0b7d1b2f22ac34f11f8b635b30ea0a28104c723669ed",
+    "bytes": 1512
+  },
+  {
+    "path": "src/iMouse.Console/InputControls.cs",
+    "sha256": "04872eaab1a94d151d9fdb5008c36863ed3ea7c56cac4d02bc3767e6ce1805eb",
+    "bytes": 6336
+  },
+  {
+    "path": "src/iMouse.Console/MainWindow.xaml",
+    "sha256": "d595cf20d55e30f01cfb48fc0cdbac3a965cf8092f90125aff716f73b245b5dc",
+    "bytes": 44121
+  },
+  {
+    "path": "src/iMouse.Console/MainWindow.xaml.cs",
+    "sha256": "e7341f01213cd06852561fda60ee4a69ebeb9a4459de888d704bb17ec3668a5b",
+    "bytes": 170795
+  },
+  {
+    "path": "src/iMouse.Console/SelfTests.cs",
+    "sha256": "395978184cee2294db54a5ecca5cfcf862bdd92e8b949207dd8a18881c250b21",
+    "bytes": 92963
+  },
+  {
+    "path": "Open Marketing Farm Candidate.ps1",
+    "sha256": "c29238aa428671bd55d6d66a6be4f4ab5903773bad78e2bcb0216fb7e152c76d",
+    "bytes": 3718
+  },
+  {
+    "path": "MARKETING-FARM-STATUS.md",
+    "sha256": "cba26504f55e6100afb7837aaa4cd13a75f5c0bc5334f7a74de8fb9444c0454d",
+    "bytes": 8981
+  }
+]

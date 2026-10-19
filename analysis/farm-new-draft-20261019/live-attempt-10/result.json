@@ -1,0 +1,81 @@
+{
+  "run": {
+    "id": "d081c464-34d9-4c2d-a129-1c6d68bf0f42",
+    "storeId": "72237730-0e60-4738-ab95-c97be14ebaad",
+    "request": {
+      "id": "d081c464-34d9-4c2d-a129-1c6d68bf0f42",
+      "draft_id": "d9d790cb-d6ba-4ef8-9336-0b8528c67793",
+      "revision": 5,
+      "store_id": "72237730-0e60-4738-ab95-c97be14ebaad",
+      "continue_imported_from": "938be7b7-7c17-4749-b1a5-fcbbe9aedaa7"
+    },
+    "packageSha256": "947a973fb279169d8d1b45172421be724fd693a5940faf2cd2f11646a18fd141",
+    "state": "review_required",
+    "terminal": true,
+    "jobStatus": "succeeded",
+    "reason": "InspectionStopped: The imported-media ownership checkpoint changed before acquisition.",
+    "savedDraftVerified": false,
+    "draftChangedSinceRun": false,
+    "cleanup": "confirmed",
+    "workflow": {
+      "id": "9c9fc595-7a62-4d8d-a257-6534f41d9f3a",
+      "source": "candidate_phone_workflow",
+      "state": "review_required",
+      "cleanup": "confirmed",
+      "commands": [],
+      "observations": [],
+      "transitionChecks": [],
+      "actions": [],
+      "promptRecoveries": [],
+      "publishing": false,
+      "messaging": false,
+      "desktopControl": false,
+      "savedDraftVerified": false,
+      "budgetSeconds": 720,
+      "productionAdapterAccepted": false,
+      "packageSha256": "947a973fb279169d8d1b45172421be724fd693a5940faf2cd2f11646a18fd141",
+      "account": "xs.halle.xo",
+      "mode": "create_new_draft",
+      "phaseBudgetSeconds": 120,
+      "phases": [],
+      "createdDraftVerified": false,
+      "captionMethod": "verified_safari_copy_and_instagram_paste",
+      "importedMedia": {
+        "priorRunId": "938be7b7-7c17-4749-b1a5-fcbbe9aedaa7",
+        "priorRecordSha256": "9e318651448a4239fe5c7b723fdbe950c953ba94b1e2c697d8648bb63b5dd27b",
+        "generation": 8,
+        "receiverPid": 43232,
+        "frameSession": "7f205d1223fc4994ac5bcc85bcf8e633"
+      },
+      "error": "InspectionStopped: The imported-media ownership checkpoint changed before acquisition.",
+      "finalInput": {
+        "id": "86:1D:4A:04:2F:F6",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "Controller released.",
+        "generation": 9,
+        "lease_remaining_ms": 0
+      },
+      "evidenceExport": "confirmed",
+      "mediaDelivery": {
+        "stopped": true,
+        "events": [],
+        "imagesDelivered": [],
+        "photosSaveProvenByHttp": false
+      }
+    },
+    "publishing": false,
+    "messaging": false,
+    "desktopControl": false,
+    "automaticResume": false,
+    "integratedLiveValidated": false,
+    "retryBeforeImportAllowed": false,
+    "continueImportedAllowed": false
+  },
+  "protocolVersion": 2,
+  "executionMode": "live",
+  "simulated": false
+}

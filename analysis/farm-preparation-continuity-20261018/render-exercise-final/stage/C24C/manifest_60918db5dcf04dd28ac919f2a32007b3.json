@@ -1,0 +1,47 @@
+{
+  "deviceId": "C24C",
+  "niche": "Offline workflow review",
+  "ctaKeyword": "REVIEW",
+  "offerUrl": "https://example.invalid/review",
+  "caption": "A starting point for your Offline workflow review workflow. Explore https://example.invalid/review #review",
+  "generatedAt": "2026-10-18T09:19:22.647+00:00",
+  "phashHex": "18031e1e80000d0d",
+  "sha256Hex": "c73927f9e4d7e25f12d05597ab9419c74e14c0610e6a1ad05eb2bdd37d977af7",
+  "generation": "60918db5dcf04dd28ac919f2a32007b3",
+  "contentSource": "local_templates",
+  "reviewRequired": true,
+  "files": [
+    "/stage/C24C/video_60918db5dcf04dd28ac919f2a32007b3_18031e1e.mp4",
+    "/stage/C24C/slide_60918db5dcf04dd28ac919f2a32007b3_01_3c3a7e7e.jpg",
+    "/stage/C24C/slide_60918db5dcf04dd28ac919f2a32007b3_02_3c0c3c36.jpg",
+    "/stage/C24C/slide_60918db5dcf04dd28ac919f2a32007b3_03_3d3c7c66.jpg",
+    "/stage/C24C/slide_60918db5dcf04dd28ac919f2a32007b3_04_3d5c1e5e.jpg"
+  ],
+  "assets": [
+    {
+      "url": "/stage/C24C/video_60918db5dcf04dd28ac919f2a32007b3_18031e1e.mp4",
+      "sha256": "c73927f9e4d7e25f12d05597ab9419c74e14c0610e6a1ad05eb2bdd37d977af7",
+      "bytes": 112045
+    },
+    {
+      "url": "/stage/C24C/slide_60918db5dcf04dd28ac919f2a32007b3_01_3c3a7e7e.jpg",
+      "sha256": "0c50d9d09104fd07c2dc3ee41bfd3051bd7e64c4ed902f2a13c8afd042d65339",
+      "bytes": 60802
+    },
+    {
+      "url": "/stage/C24C/slide_60918db5dcf04dd28ac919f2a32007b3_02_3c0c3c36.jpg",
+      "sha256": "8aad2b29f174fd571463b543c8333f3cd89750a3c16ea232750d3ff2ecb70133",
+      "bytes": 49701
+    },
+    {
+      "url": "/stage/C24C/slide_60918db5dcf04dd28ac919f2a32007b3_03_3d3c7c66.jpg",
+      "sha256": "bc30726e33744d55e9a487498128988b79d0089f15b1bfdf1c247ea9cb61ef4e",
+      "bytes": 50132
+    },
+    {
+      "url": "/stage/C24C/slide_60918db5dcf04dd28ac919f2a32007b3_04_3d5c1e5e.jpg",
+      "sha256": "1043583b02fe94c05a223fd4a6476437ae05a9b60f0e4cdf630844cb43017f67",
+      "bytes": 54031
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+[
+  {
+    "name": "recent-paired-delivery",
+    "before": {
+      "deviceid": "fake",
+      "receiver_pid": 1234,
+      "receiver_restarts": 0,
+      "live": true,
+      "frames": 1,
+      "frame_session": "db14f6623d4e470db851971839bf1a4a"
+    },
+    "after": {
+      "deviceid": "fake",
+      "receiver_pid": 1234,
+      "receiver_restarts": 0,
+      "live": true,
+      "frames": 1,
+      "frame_session": "db14f6623d4e470db851971839bf1a4a"
+    },
+    "headers": {
+      "X-iMouse-Frame-Session": "db14f6623d4e470db851971839bf1a4a",
+      "X-iMouse-Frame-Sequence": "1",
+      "X-iMouse-Frame-Age-Ms": "40",
+      "X-iMouse-Frame-Delivery": "flowing"
+    },
+    "elapsedMs": 350,
+    "expected": "recent",
+    "sha256": "FC7D5BB3634DAB8333BC8F4293565E977332C1E44329847AAFCDDF4752EE314C"
+  },
+  {
+    "name": "quiet-delivery",
+    "before": {
+      "deviceid": "fake",
+      "receiver_pid": 1234,
+      "receiver_restarts": 0,
+      "live": true,
+      "frames": 1,
+      "frame_session": "db14f6623d4e470db851971839bf1a4a"
+    },
+    "after": {
+      "deviceid": "fake",
+      "receiver_pid": 1234,
+      "receiver_restarts": 0,
+      "live": true,
+      "frames": 1,
+      "frame_session": "db14f6623d4e470db851971839bf1a4a"
+    },
+    "headers": {
+      "X-iMouse-Frame-Session": "db14f6623d4e470db851971839bf1a4a",
+      "X-iMouse-Frame-Sequence": "1",
+      "X-iMouse-Frame-Age-Ms": "2490",
+      "X-iMouse-Frame-Delivery": "quiet"
+    },
+    "elapsedMs": 0,
+    "expected": "stale",
+    "sha256": "FC7D5BB3634DAB8333BC8F4293565E977332C1E44329847AAFCDDF4752EE314C"
+  },
+  {
+    "name": "processing-delay",
+    "before": {
+      "deviceid": "fake",
+      "receiver_pid": 1234,
+      "receiver_restarts": 0,
+      "live": true,
+      "frames": 2,
+      "frame_session": "db14f6623d4e470db851971839bf1a4a"
+    },
+    "after": {
+      "deviceid": "fake",
+      "receiver_pid": 1234,
+      "receiver_restarts": 0,
+      "live": true,
+      "frames": 2,
+      "frame_session": "db14f6623d4e470db851971839bf1a4a"
+    },
+    "headers": {
+      "X-iMouse-Frame-Session": "db14f6623d4e470db851971839bf1a4a",
+      "X-iMouse-Frame-Sequence": "2",
+      "X-iMouse-Frame-Age-Ms": "0",
+      "X-iMouse-Frame-Delivery": "flowing"
+    },
+    "elapsedMs": 2000,
+    "expected": "stale",
+    "sha256": "FC7D5BB3634DAB8333BC8F4293565E977332C1E44329847AAFCDDF4752EE314C"
+  },
+  {
+    "name": "immutable-frame-while-producer-advances",
+    "before": {
+      "deviceid": "fake",
+      "receiver_pid": 1234,
+      "receiver_restarts": 0,
+      "live": true,
+      "frames": 3,
+      "frame_session": "db14f6623d4e470db851971839bf1a4a"
+    },
+    "after": {
+      "deviceid": "fake",
+      "receiver_pid": 1234,
+      "receiver_restarts": 0,
+      "live": true,
+      "frames": 4,
+      "frame_session": "db14f6623d4e470db851971839bf1a4a"
+    },
+    "headers": {
+      "X-iMouse-Frame-Session": "db14f6623d4e470db851971839bf1a4a",
+      "X-iMouse-Frame-Sequence": "3",
+      "X-iMouse-Frame-Age-Ms": "10",
+      "X-iMouse-Frame-Delivery": "flowing"
+    },
+    "elapsedMs": 50,
+    "expected": "recent",
+    "sha256": "FC7D5BB3634DAB8333BC8F4293565E977332C1E44329847AAFCDDF4752EE314C"
+  }
+]

@@ -1,0 +1,129 @@
+{
+  "started": "2026-10-17T22:56:39.461830+00:00",
+  "action": "settledtap",
+  "values": [
+    "46",
+    "847"
+  ],
+  "preflight": {
+    "receiver": {
+      "deviceid": "86:1D:4A:04:2F:F6",
+      "name": "iMouse2-C24C",
+      "receiver_pid": 6700,
+      "receiver_restarts": 0,
+      "receiver_state": "mirroring",
+      "live": true,
+      "frames": 170458
+    },
+    "input_status": {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 200,
+      "lease_remaining_ms": 0
+    },
+    "resolved_id": "86:1D:4A:04:2F:F6",
+    "simulated": false
+  },
+  "beforeHeaders": {
+    "Cache-Control": "no-store",
+    "Content-Length": "1620054",
+    "Content-Type": "image/bmp",
+    "Server": "Microsoft-HTTPAPI/2.0",
+    "Date": "Sat, 17 Oct 2026 22:56:38 GMT",
+    "Connection": "close"
+  },
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "data": {},
+      "result": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 183.5
+      }
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 46,
+        "y": 847
+      },
+      "result": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 1318.7
+      }
+    },
+    {
+      "fun": "/mouse/click",
+      "data": {
+        "x": 46,
+        "y": 847,
+        "button": 1
+      },
+      "result": {
+        "code": 0,
+        "results": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "code": 0,
+            "message": "ok"
+          }
+        ],
+        "rtt_ms": 222.6
+      }
+    }
+  ],
+  "pointerHeaders": {
+    "Cache-Control": "no-store",
+    "Content-Length": "1620054",
+    "Content-Type": "image/bmp",
+    "Server": "Microsoft-HTTPAPI/2.0",
+    "Date": "Sat, 17 Oct 2026 22:56:41 GMT",
+    "Connection": "close"
+  },
+  "immediateHeaders": {
+    "Cache-Control": "no-store",
+    "Content-Length": "1620054",
+    "Content-Type": "image/bmp",
+    "Server": "Microsoft-HTTPAPI/2.0",
+    "Date": "Sat, 17 Oct 2026 22:56:41 GMT",
+    "Connection": "close"
+  },
+  "afterHeaders": {
+    "Cache-Control": "no-store",
+    "Content-Length": "1620054",
+    "Content-Type": "image/bmp",
+    "Server": "Microsoft-HTTPAPI/2.0",
+    "Date": "Sat, 17 Oct 2026 22:56:43 GMT",
+    "Connection": "close"
+  },
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 201,
+    "lease_remaining_ms": 0
+  }
+}

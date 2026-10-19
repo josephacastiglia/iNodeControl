@@ -1,0 +1,96 @@
+{
+  "input": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "protocol": 1,
+      "phones": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "owned": false,
+          "active": false,
+          "stopped": false,
+          "releasing": false,
+          "release_failed": false,
+          "message": "Controller released.",
+          "generation": 8,
+          "lease_remaining_ms": 0
+        }
+      ]
+    }
+  },
+  "time_utc": "2026-10-13T05:04:58.8585667Z",
+  "status": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "input": "direct-hid",
+      "input_protocol": 1,
+      "input_leases_required": true,
+      "build_identity": {
+        "version": "1.0.0.0",
+        "informational_version": "1.0.0+e3317b2b808b5fa174ab5b46f07c7e8418bca475",
+        "module_id": "7e26fe53-f835-4d24-8b8c-0d05ecc5db88",
+        "sha256": "e0f00fa86c217e2c00913e22adc04c7c9c5477e670078b7a94f19e9d5af92e16"
+      },
+      "process": {
+        "pid": 19200,
+        "started_utc": "2026-10-13T04:56:03.1113019Z",
+        "uptime_seconds": 535.7051232,
+        "working_set_bytes": 66813952,
+        "private_bytes": 26120192,
+        "cpu_seconds": 5.0625
+      },
+      "input_configuration": {
+        "precise_movement_delay_ms": 7,
+        "calibrations": [
+          {
+            "pid": "C24C",
+            "enabled": true,
+            "width": 500,
+            "height": 1080,
+            "origin_x": 14,
+            "origin_y": 14,
+            "pixels_per_unit_x": 5.12,
+            "pixels_per_unit_y": 5.09
+          }
+        ]
+      },
+      "allowed": [
+        "C24C"
+      ],
+      "home_sequence": "vendor",
+      "receiver": "iMouse2-C24C",
+      "receiver_state": "mirroring",
+      "receiver_message": "",
+      "receiver_pid": 17164,
+      "receiver_restarts": 0,
+      "frames": 6715,
+      "live": true,
+      "frame_delivery": "flowing",
+      "frame_age_ms": 28.2727,
+      "frame_session": "130784fba46f440a9041dcdfdf45bc97",
+      "frame_message": "",
+      "frame_pipe_connected": true,
+      "receivers": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "iMouse2-C24C",
+          "receiver_pid": 17164,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "receiver_message": "",
+          "live": true,
+          "frames": 6715,
+          "frame_delivery": "flowing",
+          "frame_age_ms": 35.9957,
+          "frame_session": "130784fba46f440a9041dcdfdf45bc97",
+          "frame_message": "",
+          "frame_pipe_connected": true
+        }
+      ]
+    }
+  }
+}

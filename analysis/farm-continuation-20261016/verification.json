@@ -1,0 +1,40 @@
+{
+  "base_commit": "70f18285d2f845ea154bbc3f46436673d6e19b51",
+  "source_inventory": "source-after.json",
+  "incoming_snapshot": "before-source.json",
+  "compiled_console": [
+    {
+      "path": "iMouse2.exe",
+      "sha256": "c7f3734be7e829aea02686f00a58eb89a3c1965bcfad67a051f95bc664c3c81e",
+      "bytes": 152064
+    },
+    {
+      "path": "iMouse2.dll",
+      "sha256": "da5c3d1307b6cfecc30a8633cdc124acd4f854c678d41c52e45fdae3f4568720",
+      "bytes": 835584
+    },
+    {
+      "path": "iMouse2.pdb",
+      "sha256": "9e0096b5b498542e1fcc49033f81befc4f7414a847b23575c7b1e450d6e2fe43",
+      "bytes": 161776
+    },
+    {
+      "path": "iMouse2.deps.json",
+      "sha256": "037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc",
+      "bytes": 413
+    },
+    {
+      "path": "iMouse2.runtimeconfig.json",
+      "sha256": "c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782",
+      "bytes": 458
+    }
+  ],
+  "console_self_checks": 417,
+  "boundary_unit_tests": 17,
+  "server_self_check": "passed in explicit simulation with real-service/external network guard",
+  "live_tests_run": false,
+  "app_launched": false,
+  "deployed": false,
+  "committed": false,
+  "note": "Incoming Gemini changes and this follow-up remain working-tree changes. Candidate hashes identify this snapshot, not the running r4 build."
+}

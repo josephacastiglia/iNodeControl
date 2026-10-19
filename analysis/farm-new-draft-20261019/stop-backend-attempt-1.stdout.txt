@@ -1,0 +1,3 @@
+00:00:18.361 stopping PID 41820 (python.exe); children: 16864 conhost.exe
+00:00:18.674 processes attached to PID 41820's console: 6784 powershell.exe, 41820 python.exe
+00:00:19.499 PID 41820 exited; children still running: none

@@ -1,0 +1,3 @@
+00:30:05 listening on 192.168.4.26 for 45 s (sends nothing)
+00:30:37 QUERY    from 192.168.4.85:5353  iMouse2-C241._airplay._tcp.local QU  (+0 known answers)
+00:30:50 done

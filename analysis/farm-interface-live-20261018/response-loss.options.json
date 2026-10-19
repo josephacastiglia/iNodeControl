@@ -1,0 +1,11 @@
+{
+  "phase": "live",
+  "scenario": "response-loss",
+  "output": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-interface-live-20261018\\live-response-loss",
+  "backend": "http://127.0.0.1:9915",
+  "backendSourceHash": "5b49c7a756fc75fe89f7613acc1c4acf7e9b7d24e1b5adf1c6a4425749c6ab7c",
+  "assembly": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-interface-20261018\\iMouse2.dll",
+  "draftId": "eeb59816-5805-4169-aa1c-d91fe1e2c14f",
+  "revision": 5,
+  "storeId": "e135f1a8-cce6-4439-b4d1-2e04734752f9"
+}

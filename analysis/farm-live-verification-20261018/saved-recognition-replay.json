@@ -1,0 +1,182 @@
+[
+  {
+    "file": "07-tiktok-profile-ocr.json",
+    "expected": "profile",
+    "actual": "profile"
+  },
+  {
+    "file": "107-tiktok-video-profile-ocr.json",
+    "expected": "profile",
+    "actual": "profile"
+  },
+  {
+    "file": "108-tiktok-video-library-ocr.json",
+    "expected": "draft_library",
+    "actual": "draft_library"
+  },
+  {
+    "file": "111-tiktok-video-caption-verify-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "124-x-video-drafts-list-ocr.json",
+    "expected": "draft_library",
+    "actual": "draft_library"
+  },
+  {
+    "file": "125-x-video-draft-reopen-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "132-youtube-loaded-ocr.json",
+    "expected": "permission_prompt",
+    "actual": "permission_prompt"
+  },
+  {
+    "file": "147-youtube-video-draft-library-ocr.json",
+    "expected": "draft_library",
+    "actual": "draft_library"
+  },
+  {
+    "file": "149-youtube-reopened-caption-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "154-instagram-account-confirm-ocr.json",
+    "expected": "profile",
+    "actual": "profile"
+  },
+  {
+    "file": "164-instagram-reel-drafts-library-ocr.json",
+    "expected": "draft_library",
+    "actual": "draft_library"
+  },
+  {
+    "file": "165-instagram-reel-reopen-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "166-instagram-reel-playback-ocr.json",
+    "expected": "draft_preview",
+    "actual": "draft_preview"
+  },
+  {
+    "file": "168-end-home-ocr.json",
+    "expected": "home",
+    "actual": "home"
+  },
+  {
+    "file": "31-x-account-ocr.json",
+    "expected": "account_menu",
+    "actual": "account_menu"
+  },
+  {
+    "file": "51-youtube-account-ocr.json",
+    "expected": "profile",
+    "actual": "profile"
+  },
+  {
+    "file": "84-save-video-options-ocr.json",
+    "expected": "sharing_dialog",
+    "actual": "sharing_dialog"
+  },
+  {
+    "file": "87-save-options-settled-ocr.json",
+    "expected": "share_sheet",
+    "actual": "share_sheet"
+  },
+  {
+    "file": "102-tiktok-video-editor-holdout-ocr.json",
+    "expected": "unknown",
+    "actual": "unknown"
+  },
+  {
+    "file": "109-tiktok-video-reopen-holdout-ocr.json",
+    "expected": "unknown",
+    "actual": "unknown"
+  },
+  {
+    "file": "110-tiktok-remove-suggested-sound-holdout-ocr.json",
+    "expected": "unknown",
+    "actual": "unknown"
+  },
+  {
+    "file": "127-x-reopened-video-play-holdout-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "140-youtube-mp4-trim-review-holdout-ocr.json",
+    "expected": "unknown",
+    "actual": "unknown"
+  },
+  {
+    "file": "141-youtube-mp4-editor-holdout-ocr.json",
+    "expected": "unknown",
+    "actual": "unknown"
+  },
+  {
+    "file": "148-youtube-video-draft-reopen-holdout-ocr.json",
+    "expected": "unknown",
+    "actual": "unknown"
+  },
+  {
+    "file": "158-instagram-reel-edit-holdout-ocr.json",
+    "expected": "unknown",
+    "actual": "unknown"
+  },
+  {
+    "file": "159-instagram-reel-details-holdout-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "161-instagram-reel-caption-holdout-ocr.json",
+    "expected": "caption_editor",
+    "actual": "caption_editor"
+  },
+  {
+    "file": "162-instagram-reel-caption-ok-holdout-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "23-tiktok-drafts-library-holdout-ocr.json",
+    "expected": "draft_library",
+    "actual": "draft_library"
+  },
+  {
+    "file": "24-tiktok-reopen-holdout-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "43-x-reopen-draft-holdout-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "60-youtube-test-label-holdout-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "64-youtube-reopen-holdout-ocr.json",
+    "expected": "unknown",
+    "actual": "unknown"
+  },
+  {
+    "file": "65-youtube-reopened-details-holdout-ocr.json",
+    "expected": "draft_details",
+    "actual": "draft_details"
+  },
+  {
+    "file": "90-photos-video-check-holdout-ocr.json",
+    "expected": "unknown",
+    "actual": "unknown"
+  }
+]

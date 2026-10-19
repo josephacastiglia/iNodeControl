@@ -1,0 +1,65 @@
+test_counts_alone_cannot_pause_or_invent_24_hour_views (test_farm_readiness.FarmReadinessTests.test_counts_alone_cannot_pause_or_invent_24_hour_views) ... FAIL
+test_scheduler_uses_requested_utc_day_for_upload_budget (test_farm_readiness.FarmReadinessTests.test_scheduler_uses_requested_utc_day_for_upload_budget) ... FAIL
+test_phase_one_plans_warmup_instead_of_holding_forever (test_farm_readiness.FarmReadinessTests.test_phase_one_plans_warmup_instead_of_holding_forever) ... FAIL
+
+======================================================================
+FAIL: test_counts_alone_cannot_pause_or_invent_24_hour_views (test_farm_readiness.FarmReadinessTests.test_counts_alone_cannot_pause_or_invent_24_hour_views)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_readiness.py", line 35, in test_counts_alone_cannot_pause_or_invent_24_hour_views
+    self.assertEqual(before, self.db.get_persona('C24C'))
+AssertionError: {'dev[226 chars]ed_zero_view': 0, 'consecutive_zero_views': 0, 'views_24h': -1} != {'dev[226 chars]ed_zero_view': 1, 'consecutive_zero_views': 3, 'views_24h': 0}
+  {'account_day': 18,
+   'brand_voice': 'Founder Breakdown',
+   'cohort': 1,
+-  'consecutive_zero_views': 0,
+?                            ^
+
++  'consecutive_zero_views': 3,
+?                            ^
+
+   'cta_keyword': 'SYSTEM',
+   'device_id': 'C24C',
+   'last_warmup_epoch': 0.0,
+   'niche': 'AI Workflow & SaaS Clipping',
+   'offer_url': 'https://nodetheory.io/system',
+-  'paused_zero_view': 0,
+?                      ^
+
++  'paused_zero_view': 1,
+?                      ^
+
+-  'views_24h': -1}
+?               ^^
+
++  'views_24h': 0}
+?               ^
+
+
+======================================================================
+FAIL: test_scheduler_uses_requested_utc_day_for_upload_budget (test_farm_readiness.FarmReadinessTests.test_scheduler_uses_requested_utc_day_for_upload_budget)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_readiness.py", line 131, in test_scheduler_uses_requested_utc_day_for_upload_budget
+    self.assertEqual('blocked_daily_cap_reached', sched.evaluate_device_upload_readiness('C24C', self.now)['status'])
+AssertionError: 'blocked_daily_cap_reached' != 'ready_for_upload'
+- blocked_daily_cap_reached
++ ready_for_upload
+
+
+======================================================================
+FAIL: test_phase_one_plans_warmup_instead_of_holding_forever (test_farm_readiness.FarmReadinessTests.test_phase_one_plans_warmup_instead_of_holding_forever)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_readiness.py", line 148, in test_phase_one_plans_warmup_instead_of_holding_forever
+    self.assertEqual('run_warmup', action['plannedAction'])
+AssertionError: 'run_warmup' != 'hold_blocked_phase1_warmup_only'
+Negative control: 3 assertion failures, 0 errors, 3 tests against f770b34; working files were not changed.
+- run_warmup
++ hold_blocked_phase1_warmup_only
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.108s
+
+FAILED (failures=3)

@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "phase": "offline",
+  "scenario": "cancel-on-admission",
+  "candidateHash": "effa8083c8c71a7f1522cfaf9765de315e6bca9c18891c2a1bd42822bf49570a",
+  "requestId": "a2118801-e14b-4a90-a6a4-e75c8b2969e1",
+  "storeId": "14d005fc-02aa-440e-935f-18b08b60790a",
+  "startRequests": 1,
+  "cancellationRequests": 1,
+  "desktopControl": false,
+  "windowHandles": 0,
+  "publishing": false,
+  "messaging": false,
+  "checks": 17,
+  "statusText": "STOPPED \u00B7 REVIEW REQUIRED\n\nSave reply was lost; no replay.\n\nLease cleanup: confirmed\n\nNothing was published or messaged. A saved draft check does not prove app-restart persistence.\n\nThe pending request stays saved for review. Checking status or reopening this window never repeats Save or resumes input."
+}

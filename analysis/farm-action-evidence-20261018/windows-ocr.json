@@ -1,0 +1,34 @@
+{
+  "elapsedMs": 541.2902999996732,
+  "ocr": {
+    "imageSha256": "600385ce10d0b6dafad7b7ae174f3589b8618c7524e251eadd8155e0095b11e7",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "DRAFT ONLY",
+        "words": [
+          {
+            "y": 126,
+            "height": 23,
+            "width": 104,
+            "text": "DRAFT",
+            "x": 42
+          },
+          {
+            "y": 126,
+            "height": 23,
+            "width": 86,
+            "text": "ONLY",
+            "x": 157
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "684ca917c04834944aaf47f30f4f2eb318b8285fb1944aedb624899b6c1f9564"
+  },
+  "phoneInput": false,
+  "desktopControl": false
+}

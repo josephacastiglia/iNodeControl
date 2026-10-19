@@ -1,0 +1,301 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "Add sound",
+      "words": [
+        {
+          "y": 94,
+          "height": 14,
+          "width": 31,
+          "text": "Add",
+          "x": 224
+        },
+        {
+          "y": 94,
+          "height": 14,
+          "width": 48,
+          "text": "sound",
+          "x": 261
+        }
+      ]
+    },
+    {
+      "text": "iMouse VIDEO DRAFT TEST",
+      "words": [
+        {
+          "y": 322,
+          "height": 17,
+          "width": 70,
+          "text": "iMouse",
+          "x": 59
+        },
+        {
+          "y": 324,
+          "height": 15,
+          "width": 63,
+          "text": "VIDEO",
+          "x": 134
+        },
+        {
+          "y": 324,
+          "height": 15,
+          "width": 66,
+          "text": "DRAFT",
+          "x": 204
+        },
+        {
+          "y": 324,
+          "height": 15,
+          "width": 47,
+          "text": "TEST",
+          "x": 276
+        }
+      ]
+    },
+    {
+      "text": "Text",
+      "words": [
+        {
+          "y": 360,
+          "height": 13,
+          "width": 34,
+          "text": "Text",
+          "x": 369
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY - DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 377,
+          "height": 13,
+          "width": 47,
+          "text": "DRAFT",
+          "x": 59
+        },
+        {
+          "y": 377,
+          "height": 13,
+          "width": 41,
+          "text": "ONLY",
+          "x": 112
+        },
+        {
+          "y": 384,
+          "height": 2,
+          "width": 5,
+          "text": "-",
+          "x": 159
+        },
+        {
+          "y": 377,
+          "height": 13,
+          "width": 23,
+          "text": "DO",
+          "x": 171
+        },
+        {
+          "y": 377,
+          "height": 13,
+          "width": 32,
+          "text": "NOT",
+          "x": 200
+        },
+        {
+          "y": 377,
+          "height": 13,
+          "width": 60,
+          "text": "PUBLISH",
+          "x": 239
+        }
+      ]
+    },
+    {
+      "text": "Effects",
+      "words": [
+        {
+          "y": 421,
+          "height": 11,
+          "width": 49,
+          "text": "Effects",
+          "x": 361
+        }
+      ]
+    },
+    {
+      "text": "TEST: 31%",
+      "words": [
+        {
+          "y": 446,
+          "height": 13,
+          "width": 38,
+          "text": "TEST:",
+          "x": 58
+        },
+        {
+          "y": 446,
+          "height": 13,
+          "width": 31,
+          "text": "31%",
+          "x": 102
+        }
+      ]
+    },
+    {
+      "text": "Filters",
+      "words": [
+        {
+          "y": 480,
+          "height": 13,
+          "width": 49,
+          "text": "Filters",
+          "x": 361
+        }
+      ]
+    },
+    {
+      "text": "Stickers",
+      "words": [
+        {
+          "y": 540,
+          "height": 14,
+          "width": 65,
+          "text": "Stickers",
+          "x": 345
+        }
+      ]
+    },
+    {
+      "text": "Captions",
+      "words": [
+        {
+          "y": 601,
+          "height": 16,
+          "width": 71,
+          "text": "Captions",
+          "x": 339
+        }
+      ]
+    },
+    {
+      "text": "Voiceover",
+      "words": [
+        {
+          "y": 661,
+          "height": 13,
+          "width": 80,
+          "text": "Voiceover",
+          "x": 323
+        }
+      ]
+    },
+    {
+      "text": "DEVICE C24C I AUTO-RENDER",
+      "words": [
+        {
+          "y": 852,
+          "height": 13,
+          "width": 60,
+          "text": "DEVICE",
+          "x": 57
+        },
+        {
+          "y": 852,
+          "height": 13,
+          "width": 43,
+          "text": "C24C",
+          "x": 122
+        },
+        {
+          "y": 851,
+          "height": 18,
+          "width": 3,
+          "text": "I",
+          "x": 171
+        },
+        {
+          "y": 852,
+          "height": 13,
+          "width": 128,
+          "text": "AUTO-RENDER",
+          "x": 180
+        }
+      ]
+    },
+    {
+      "text": "Aa",
+      "words": [
+        {
+          "y": 357,
+          "height": 20,
+          "width": 27,
+          "text": "Aa",
+          "x": 442
+        }
+      ]
+    },
+    {
+      "text": "Swipe up to edit",
+      "words": [
+        {
+          "y": 944,
+          "height": 14,
+          "width": 40,
+          "text": "Swipe",
+          "x": 196
+        },
+        {
+          "y": 947,
+          "height": 11,
+          "width": 16,
+          "text": "up",
+          "x": 240
+        },
+        {
+          "y": 945,
+          "height": 11,
+          "width": 13,
+          "text": "to",
+          "x": 261
+        },
+        {
+          "y": 944,
+          "height": 12,
+          "width": 26,
+          "text": "edit",
+          "x": 279
+        }
+      ]
+    },
+    {
+      "text": "Edit",
+      "words": [
+        {
+          "y": 998,
+          "height": 14,
+          "width": 30,
+          "text": "Edit",
+          "x": 130
+        }
+      ]
+    },
+    {
+      "text": "Next",
+      "words": [
+        {
+          "y": 999,
+          "height": 13,
+          "width": 37,
+          "text": "Next",
+          "x": 351
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "41061f7a4e1e205c804f5c17d610a1daa6bb6fd1243f1a30831fef30157983a5"
+}

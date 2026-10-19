@@ -1,0 +1,15 @@
+{
+  "valid": true,
+  "dataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-functional-20261017\\candidate-data",
+  "address": "http://127.0.0.1:9913",
+  "connected": false,
+  "settingsWritten": false,
+  "build": {
+    "Version": "2.0.0.0",
+    "InformationalVersion": "2.0.0\u002B70f18285d2f845ea154bbc3f46436673d6e19b51",
+    "ModuleId": "34bbc81f-c7fe-40e3-81a9-4d60bbe06515",
+    "Sha256": "f6ed99e3b90efcc41bfbfbe7f680eb5b34f7c0ee394bebd667f51c0195f0714b",
+    "Label": "Build f6ed99e3",
+    "Detail": "Console version 2.0.0.0\nModule 34bbc81f-c7fe-40e3-81a9-4d60bbe06515\nSHA-256: f6ed99e3b90efcc41bfbfbe7f680eb5b34f7c0ee394bebd667f51c0195f0714b\nRecorded when this console started; this identifies bytes, not release acceptance."
+  }
+}

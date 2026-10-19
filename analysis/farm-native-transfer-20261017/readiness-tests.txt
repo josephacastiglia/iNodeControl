@@ -1,0 +1,17 @@
+test_account_identity_duplicate_counts_and_bad_dates_refuse (test_farm_readiness.FarmReadinessTests.test_account_identity_duplicate_counts_and_bad_dates_refuse) ... ok
+test_age_and_freshness_boundaries (test_farm_readiness.FarmReadinessTests.test_age_and_freshness_boundaries) ... ok
+test_analytics_http_dispatch_does_not_require_a_kernel (test_farm_readiness.FarmReadinessTests.test_analytics_http_dispatch_does_not_require_a_kernel) ... ok
+test_counts_alone_cannot_pause_or_invent_24_hour_views (test_farm_readiness.FarmReadinessTests.test_counts_alone_cannot_pause_or_invent_24_hour_views) ... ok
+test_early_account_review_cannot_clear_existing_pause (test_farm_readiness.FarmReadinessTests.test_early_account_review_cannot_clear_existing_pause) ... ok
+test_good_observations_never_automatically_clear_a_pause (test_farm_readiness.FarmReadinessTests.test_good_observations_never_automatically_clear_a_pause) ... ok
+test_latest_three_by_post_time_not_input_order (test_farm_readiness.FarmReadinessTests.test_latest_three_by_post_time_not_input_order) ... ok
+test_mature_recent_low_views_pause_and_preserve_evidence (test_farm_readiness.FarmReadinessTests.test_mature_recent_low_views_pause_and_preserve_evidence) ... ok
+test_paused_account_never_runs_a_scheduled_action (test_farm_readiness.FarmReadinessTests.test_paused_account_never_runs_a_scheduled_action) ... ok
+test_phase_one_plans_warmup_instead_of_holding_forever (test_farm_readiness.FarmReadinessTests.test_phase_one_plans_warmup_instead_of_holding_forever) ... ok
+test_scheduler_cooldown_exact_boundary_and_clock_rollback (test_farm_readiness.FarmReadinessTests.test_scheduler_cooldown_exact_boundary_and_clock_rollback) ... ok
+test_scheduler_uses_requested_utc_day_for_upload_budget (test_farm_readiness.FarmReadinessTests.test_scheduler_uses_requested_utc_day_for_upload_budget) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.388s
+
+OK

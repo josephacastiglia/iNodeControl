@@ -1,0 +1,324 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:18",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 38,
+          "text": "6:18",
+          "x": 44
+        }
+      ]
+    },
+    {
+      "text": "Taylor",
+      "words": [
+        {
+          "y": 137,
+          "height": 21,
+          "width": 62,
+          "text": "Taylor",
+          "x": 40
+        }
+      ]
+    },
+    {
+      "text": "@tinnytaylor",
+      "words": [
+        {
+          "y": 167,
+          "height": 19,
+          "width": 108,
+          "text": "@tinnytaylor",
+          "x": 40
+        }
+      ]
+    },
+    {
+      "text": "O Following O Followers",
+      "words": [
+        {
+          "y": 206,
+          "height": 14,
+          "width": 11,
+          "text": "O",
+          "x": 40
+        },
+        {
+          "y": 206,
+          "height": 17,
+          "width": 75,
+          "text": "Following",
+          "x": 57
+        },
+        {
+          "y": 206,
+          "height": 14,
+          "width": 11,
+          "text": "O",
+          "x": 146
+        },
+        {
+          "y": 206,
+          "height": 14,
+          "width": 75,
+          "text": "Followers",
+          "x": 163
+        }
+      ]
+    },
+    {
+      "text": "Profile",
+      "words": [
+        {
+          "y": 271,
+          "height": 20,
+          "width": 76,
+          "text": "Profile",
+          "x": 99
+        }
+      ]
+    },
+    {
+      "text": "Subscription",
+      "words": [
+        {
+          "y": 336,
+          "height": 24,
+          "width": 151,
+          "text": "Subscription",
+          "x": 98
+        }
+      ]
+    },
+    {
+      "text": "History",
+      "words": [
+        {
+          "y": 400,
+          "height": 25,
+          "width": 85,
+          "text": "History",
+          "x": 99
+        }
+      ]
+    },
+    {
+      "text": "Communities",
+      "words": [
+        {
+          "y": 465,
+          "height": 20,
+          "width": 158,
+          "text": "Communities",
+          "x": 98
+        }
+      ]
+    },
+    {
+      "text": "Lists",
+      "words": [
+        {
+          "y": 529,
+          "height": 20,
+          "width": 53,
+          "text": "Lists",
+          "x": 99
+        }
+      ]
+    },
+    {
+      "text": "Spaces",
+      "words": [
+        {
+          "y": 594,
+          "height": 24,
+          "width": 85,
+          "text": "Spaces",
+          "x": 98
+        }
+      ]
+    },
+    {
+      "text": "Creator Studio",
+      "words": [
+        {
+          "y": 659,
+          "height": 19,
+          "width": 90,
+          "text": "Creator",
+          "x": 98
+        },
+        {
+          "y": 658,
+          "height": 20,
+          "width": 77,
+          "text": "Studio",
+          "x": 194
+        }
+      ]
+    },
+    {
+      "text": "Download Grok",
+      "words": [
+        {
+          "y": 785,
+          "height": 15,
+          "width": 87,
+          "text": "Download",
+          "x": 94
+        },
+        {
+          "y": 785,
+          "height": 15,
+          "width": 42,
+          "text": "Grok",
+          "x": 187
+        }
+      ]
+    },
+    {
+      "text": "Settings and privacy",
+      "words": [
+        {
+          "y": 838,
+          "height": 19,
+          "width": 72,
+          "text": "Settings",
+          "x": 93
+        },
+        {
+          "y": 838,
+          "height": 15,
+          "width": 31,
+          "text": "and",
+          "x": 171
+        },
+        {
+          "y": 838,
+          "height": 19,
+          "width": 63,
+          "text": "privacy",
+          "x": 209
+        }
+      ]
+    },
+    {
+      "text": "Help Center",
+      "words": [
+        {
+          "y": 891,
+          "height": 19,
+          "width": 39,
+          "text": "Help",
+          "x": 94
+        },
+        {
+          "y": 892,
+          "height": 15,
+          "width": 60,
+          "text": "Center",
+          "x": 138
+        }
+      ]
+    },
+    {
+      "text": "For you",
+      "words": [
+        {
+          "y": 130,
+          "height": 14,
+          "width": 28,
+          "text": "For",
+          "x": 432
+        },
+        {
+          "y": 134,
+          "height": 14,
+          "width": 32,
+          "text": "you",
+          "x": 464
+        }
+      ]
+    },
+    {
+      "text": "Elo",
+      "words": [
+        {
+          "y": 180,
+          "height": 14,
+          "width": 26,
+          "text": "Elo",
+          "x": 465
+        }
+      ]
+    },
+    {
+      "text": "No",
+      "words": [
+        {
+          "y": 233,
+          "height": 14,
+          "width": 22,
+          "text": "No",
+          "x": 466
+        }
+      ]
+    },
+    {
+      "text": "Wh",
+      "words": [
+        {
+          "y": 282,
+          "height": 15,
+          "width": 28,
+          "text": "Wh",
+          "x": 464
+        }
+      ]
+    },
+    {
+      "text": "LEV",
+      "words": [
+        {
+          "y": 332,
+          "height": 14,
+          "width": 31,
+          "text": "LEV",
+          "x": 466
+        }
+      ]
+    },
+    {
+      "text": "WI",
+      "words": [
+        {
+          "y": 381,
+          "height": 15,
+          "width": 20,
+          "text": "WI",
+          "x": 465
+        }
+      ]
+    },
+    {
+      "text": "end",
+      "words": [
+        {
+          "y": 406,
+          "height": 15,
+          "width": 31,
+          "text": "end",
+          "x": 465
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "89becbbd8fb376d9f90abf34c2b3472906a4c02e8e4c6f07ed3989a6d0bd2867"
+}

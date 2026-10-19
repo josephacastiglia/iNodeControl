@@ -1,0 +1,361 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:50",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 42,
+          "text": "6:50",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "< Back",
+      "words": [
+        {
+          "y": 74,
+          "height": 21,
+          "width": 13,
+          "text": "<",
+          "x": 21
+        },
+        {
+          "y": 77,
+          "height": 14,
+          "width": 39,
+          "text": "Back",
+          "x": 50
+        }
+      ]
+    },
+    {
+      "text": "IMOUSE-VIDEO-DRAFT-",
+      "words": [
+        {
+          "y": 132,
+          "height": 15,
+          "width": 196,
+          "text": "IMOUSE-VIDEO-DRAFT-",
+          "x": 27
+        }
+      ]
+    },
+    {
+      "text": "TEST-20261017",
+      "words": [
+        {
+          "y": 154,
+          "height": 14,
+          "width": 125,
+          "text": "TEST-20261017",
+          "x": 27
+        }
+      ]
+    },
+    {
+      "text": "ost",
+      "words": [
+        {
+          "y": 998,
+          "height": 14,
+          "width": 28,
+          "text": "ost",
+          "x": 376
+        }
+      ]
+    },
+    {
+      "text": "# Hashtags",
+      "words": [
+        {
+          "y": 349,
+          "height": 15,
+          "width": 14,
+          "text": "#",
+          "x": 29
+        },
+        {
+          "y": 350,
+          "height": 17,
+          "width": 76,
+          "text": "Hashtags",
+          "x": 50
+        }
+      ]
+    },
+    {
+      "text": "g Location",
+      "words": [
+        {
+          "y": 430,
+          "height": 22,
+          "width": 18,
+          "text": "g",
+          "x": 22
+        },
+        {
+          "y": 433,
+          "height": 15,
+          "width": 71,
+          "text": "Location",
+          "x": 55
+        }
+      ]
+    },
+    {
+      "text": "o",
+      "words": [
+        {
+          "y": 434,
+          "height": 14,
+          "width": 14,
+          "text": "o",
+          "x": 133
+        }
+      ]
+    },
+    {
+      "text": "MetLife Stadium",
+      "words": [
+        {
+          "y": 483,
+          "height": 12,
+          "width": 54,
+          "text": "MetLife",
+          "x": 31
+        },
+        {
+          "y": 483,
+          "height": 13,
+          "width": 60,
+          "text": "Stadium",
+          "x": 90
+        }
+      ]
+    },
+    {
+      "text": "E) Add link",
+      "words": [
+        {
+          "y": 542,
+          "height": 18,
+          "width": 18,
+          "text": "E)",
+          "x": 22
+        },
+        {
+          "y": 543,
+          "height": 14,
+          "width": 34,
+          "text": "Add",
+          "x": 54
+        },
+        {
+          "y": 543,
+          "height": 14,
+          "width": 29,
+          "text": "link",
+          "x": 94
+        }
+      ]
+    },
+    {
+      "text": "@ Mention",
+      "words": [
+        {
+          "y": 349,
+          "height": 15,
+          "width": 15,
+          "text": "@",
+          "x": 152
+        },
+        {
+          "y": 350,
+          "height": 14,
+          "width": 66,
+          "text": "Mention",
+          "x": 174
+        }
+      ]
+    },
+    {
+      "text": "Freedom Mortgag...",
+      "words": [
+        {
+          "y": 483,
+          "height": 12,
+          "width": 63,
+          "text": "Freedom",
+          "x": 181
+        },
+        {
+          "y": 483,
+          "height": 16,
+          "width": 74,
+          "text": "Mortgag...",
+          "x": 249
+        }
+      ]
+    },
+    {
+      "text": "Cancel",
+      "words": [
+        {
+          "y": 77,
+          "height": 14,
+          "width": 55,
+          "text": "Cancel",
+          "x": 424
+        }
+      ]
+    },
+    {
+      "text": "Preview",
+      "words": [
+        {
+          "y": 134,
+          "height": 13,
+          "width": 57,
+          "text": "Preview",
+          "x": 358
+        }
+      ]
+    },
+    {
+      "text": "Edit cover",
+      "words": [
+        {
+          "y": 289,
+          "height": 12,
+          "width": 27,
+          "text": "Edit",
+          "x": 377
+        },
+        {
+          "y": 292,
+          "height": 9,
+          "width": 41,
+          "text": "cover",
+          "x": 408
+        }
+      ]
+    },
+    {
+      "text": "MADISON SQUAR..",
+      "words": [
+        {
+          "y": 483,
+          "height": 12,
+          "width": 72,
+          "text": "MADISON",
+          "x": 359
+        },
+        {
+          "y": 483,
+          "height": 14,
+          "width": 61,
+          "text": "SQUAR..",
+          "x": 437
+        }
+      ]
+    },
+    {
+      "text": "Everyone can view this post",
+      "words": [
+        {
+          "y": 605,
+          "height": 17,
+          "width": 77,
+          "text": "Everyone",
+          "x": 55
+        },
+        {
+          "y": 608,
+          "height": 11,
+          "width": 29,
+          "text": "can",
+          "x": 137
+        },
+        {
+          "y": 605,
+          "height": 14,
+          "width": 39,
+          "text": "view",
+          "x": 172
+        },
+        {
+          "y": 605,
+          "height": 14,
+          "width": 31,
+          "text": "this",
+          "x": 216
+        },
+        {
+          "y": 606,
+          "height": 16,
+          "width": 37,
+          "text": "post",
+          "x": 252
+        }
+      ]
+    },
+    {
+      "text": "More options",
+      "words": [
+        {
+          "y": 668,
+          "height": 14,
+          "width": 42,
+          "text": "More",
+          "x": 55
+        },
+        {
+          "y": 667,
+          "height": 18,
+          "width": 63,
+          "text": "options",
+          "x": 103
+        }
+      ]
+    },
+    {
+      "text": "Share to",
+      "words": [
+        {
+          "y": 730,
+          "height": 14,
+          "width": 47,
+          "text": "Share",
+          "x": 55
+        },
+        {
+          "y": 731,
+          "height": 13,
+          "width": 17,
+          "text": "to",
+          "x": 108
+        }
+      ]
+    },
+    {
+      "text": "Drafts",
+      "words": [
+        {
+          "y": 997,
+          "height": 16,
+          "width": 55,
+          "text": "Drafts",
+          "x": 118
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "8110d3cc1eb0ea961543dd64c6a6fbeb2e1dbb55d5073a2213c51a29d0d601ea"
+}

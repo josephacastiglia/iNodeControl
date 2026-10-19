@@ -1,0 +1,5 @@
+System.Exception: Failed: Video instructions identify the platform and forbid upload
+   at IMouse2.SelfTests.<>c__DisplayClass0_0.<RunAsync>g__Check|0(String name, Boolean ok) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\SelfTests.cs:line 354
+   at IMouse2.CarouselTransferWindow.CheckHeadlessAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\CarouselTransferTests.cs:line 104
+   at IMouse2.SelfTests.RunAsync() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\SelfTests.cs:line 636
+   at IMouse2.App.OnStartup(StartupEventArgs e) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\App.xaml.cs:line 188

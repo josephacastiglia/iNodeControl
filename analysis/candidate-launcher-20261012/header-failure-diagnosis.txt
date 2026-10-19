@@ -1,0 +1,22 @@
+HTTP reader captures the proxy response header separately from service JSON
+HTTP reader refuses malformed proxy identity headers
+HTTP redirect responses are refused rather than treated as status
+at Read-CandidateService, C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\candidate-launcher\CandidateLaunch.ps1: line 145
+at <ScriptBlock>, C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\candidate-launcher\Test-CandidateLauncher.ps1: line 99
+at <ScriptBlock>, <No file>: line 1
+Invalid proxy process header.
+
+At C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\candidate-launcher\CandidateLaunch.ps1:145 
+
+char:120
+
++ ... ntity) -or $identity -lt 1) { throw 'Invalid proxy process header.' }
+
++                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    + CategoryInfo          : OperationStopped: (Invalid proxy process header.:String) [], RuntimeException
+
+    + FullyQualifiedErrorId : Invalid proxy process header.
+
+ 
+

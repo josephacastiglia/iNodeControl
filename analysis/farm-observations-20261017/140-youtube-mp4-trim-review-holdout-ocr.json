@@ -1,0 +1,198 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "iMouse VIDEO DRAFT TEST",
+      "words": [
+        {
+          "y": 356,
+          "height": 14,
+          "width": 57,
+          "text": "iMouse",
+          "x": 96
+        },
+        {
+          "y": 357,
+          "height": 13,
+          "width": 50,
+          "text": "VIDEO",
+          "x": 157
+        },
+        {
+          "y": 357,
+          "height": 13,
+          "width": 53,
+          "text": "DRAFT",
+          "x": 213
+        },
+        {
+          "y": 357,
+          "height": 13,
+          "width": 39,
+          "text": "TEST",
+          "x": 270
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY - DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 400,
+          "height": 11,
+          "width": 39,
+          "text": "DRAFT",
+          "x": 96
+        },
+        {
+          "y": 400,
+          "height": 11,
+          "width": 33,
+          "text": "ONLY",
+          "x": 139
+        },
+        {
+          "y": 406,
+          "height": 2,
+          "width": 4,
+          "text": "-",
+          "x": 177
+        },
+        {
+          "y": 400,
+          "height": 11,
+          "width": 19,
+          "text": "DO",
+          "x": 186
+        },
+        {
+          "y": 400,
+          "height": 11,
+          "width": 26,
+          "text": "NOT",
+          "x": 210
+        },
+        {
+          "y": 400,
+          "height": 11,
+          "width": 48,
+          "text": "PUBLISH",
+          "x": 241
+        }
+      ]
+    },
+    {
+      "text": "TEST: 31%",
+      "words": [
+        {
+          "y": 456,
+          "height": 10,
+          "width": 31,
+          "text": "TEST:",
+          "x": 95
+        },
+        {
+          "y": 456,
+          "height": 10,
+          "width": 25,
+          "text": "31%",
+          "x": 131
+        }
+      ]
+    },
+    {
+      "text": "DEVICE C24C I AUTO-RENDER",
+      "words": [
+        {
+          "y": 782,
+          "height": 11,
+          "width": 48,
+          "text": "DEVICE",
+          "x": 95
+        },
+        {
+          "y": 782,
+          "height": 11,
+          "width": 35,
+          "text": "C24C",
+          "x": 147
+        },
+        {
+          "y": 781,
+          "height": 15,
+          "width": 2,
+          "text": "I",
+          "x": 187
+        },
+        {
+          "y": 782,
+          "height": 11,
+          "width": 103,
+          "text": "AUTO-RENDER",
+          "x": 194
+        }
+      ]
+    },
+    {
+      "text": "Drag to adjust video",
+      "words": [
+        {
+          "y": 999,
+          "height": 14,
+          "width": 31,
+          "text": "Drag",
+          "x": 16
+        },
+        {
+          "y": 1000,
+          "height": 11,
+          "width": 14,
+          "text": "to",
+          "x": 52
+        },
+        {
+          "y": 999,
+          "height": 14,
+          "width": 41,
+          "text": "adjust",
+          "x": 70
+        },
+        {
+          "y": 999,
+          "height": 12,
+          "width": 36,
+          "text": "video",
+          "x": 116
+        }
+      ]
+    },
+    {
+      "text": "15S",
+      "words": [
+        {
+          "y": 117,
+          "height": 13,
+          "width": 27,
+          "text": "15S",
+          "x": 447
+        }
+      ]
+    },
+    {
+      "text": "Done",
+      "words": [
+        {
+          "y": 999,
+          "height": 12,
+          "width": 40,
+          "text": "Done",
+          "x": 428
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "5e621093c5ef9bbf980d3676333ac5045f6f1b941f09300fa2466ca5ebfe68a6"
+}

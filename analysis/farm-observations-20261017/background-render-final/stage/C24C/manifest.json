@@ -1,0 +1,47 @@
+{
+  "deviceId": "C24C",
+  "niche": "AI Workflow & SaaS Clipping",
+  "ctaKeyword": "SYSTEM",
+  "offerUrl": "https://nodetheory.io/system",
+  "caption": "Review and improve your AI Workflow & SaaS Clipping process. Explore https://nodetheory.io/system #system",
+  "generatedAt": "2026-10-18T01:24:04.341+00:00",
+  "phashHex": "182f3e3e8000050d",
+  "sha256Hex": "ed11d7043c80dd429896a09cc8e2946fb6af2a1b8d58deeeeaf4559d130be925",
+  "generation": "95f094afbd7c4b8099a6810adc4aa4b8",
+  "contentSource": "local_templates",
+  "reviewRequired": true,
+  "files": [
+    "/stage/C24C/video_95f094afbd7c4b8099a6810adc4aa4b8_182f3e3e.mp4",
+    "/stage/C24C/slide_95f094afbd7c4b8099a6810adc4aa4b8_01_3c1c6c76.jpg",
+    "/stage/C24C/slide_95f094afbd7c4b8099a6810adc4aa4b8_02_7c6c3e3f.jpg",
+    "/stage/C24C/slide_95f094afbd7c4b8099a6810adc4aa4b8_03_7c5c7c67.jpg",
+    "/stage/C24C/slide_95f094afbd7c4b8099a6810adc4aa4b8_04_7c3c3c47.jpg"
+  ],
+  "assets": [
+    {
+      "url": "/stage/C24C/video_95f094afbd7c4b8099a6810adc4aa4b8_182f3e3e.mp4",
+      "sha256": "ed11d7043c80dd429896a09cc8e2946fb6af2a1b8d58deeeeaf4559d130be925",
+      "bytes": 121856
+    },
+    {
+      "url": "/stage/C24C/slide_95f094afbd7c4b8099a6810adc4aa4b8_01_3c1c6c76.jpg",
+      "sha256": "5501f4d583a5d83780592632732f2b307d7055f6a0766d3c62747f655a592f15",
+      "bytes": 46687
+    },
+    {
+      "url": "/stage/C24C/slide_95f094afbd7c4b8099a6810adc4aa4b8_02_7c6c3e3f.jpg",
+      "sha256": "260ce24f255b8aad8f511653f69517ad190ab19f123ff425977dfb5b7a64f1f2",
+      "bytes": 55901
+    },
+    {
+      "url": "/stage/C24C/slide_95f094afbd7c4b8099a6810adc4aa4b8_03_7c5c7c67.jpg",
+      "sha256": "494383775bd34acc06a696948465132f90690794a55ccc25802fe15ae2810304",
+      "bytes": 56550
+    },
+    {
+      "url": "/stage/C24C/slide_95f094afbd7c4b8099a6810adc4aa4b8_04_7c3c3c47.jpg",
+      "sha256": "17868cb79667803b7ed1f745d1d5df570a717c72f617856711bbe6623e76f959",
+      "bytes": 39924
+    }
+  ]
+}

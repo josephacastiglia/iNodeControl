@@ -1,0 +1,21 @@
+test_four_fresh_captures_allow_verification_between_six_and_eight_seconds (test_farm_transitions.TransitionTests.test_four_fresh_captures_allow_verification_between_six_and_eight_seconds) ... ERROR
+
+======================================================================
+ERROR: test_four_fresh_captures_allow_verification_between_six_and_eight_seconds (test_farm_transitions.TransitionTests.test_four_fresh_captures_allow_verification_between_six_and_eight_seconds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_transitions.py", line 119, in test_four_fresh_captures_allow_verification_between_six_and_eight_seconds
+    _,_,result=self.run_wait([(raw,text),(bright,text),(dim,text),(dim,text)],capture_delay=1.55)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_transitions.py", line 76, in run_wait
+    return wait_for_transition(stage,capture,check,latest,assets=self.assets,index=1,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_transitions.py", line 143, in wait_for_transition
+    if monotonic() >= deadline: raise InspectionStopped('Transition capture exceeded its settling budget.')
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+farm_carousel_inspection.InspectionStopped: Transition capture exceeded its settling budget.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.338s
+
+FAILED (errors=1)

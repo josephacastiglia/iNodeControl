@@ -1,0 +1,60 @@
+{
+  "baseCommit": "70f18285d2f845ea154bbc3f46436673d6e19b51",
+  "productSourceUnchangedSincePriorCheckpoint": [
+    "IMOUSE2_MARKETING_FARM_COMPLETION_HANDOFF.md",
+    "IMOUSE_MARKETING_FARM_HANDOFF.md",
+    "docs/imouse_social_automation_blueprint.md",
+    "Open Marketing Farm.ps1",
+    "src/iMouse.Console/MainWindow.xaml",
+    "src/iMouse.Console/MainWindow.xaml.cs",
+    "src/iMouse.Console/SelfTests.cs",
+    "src/iMouse.Console/MainWindow.FarmTab.cs",
+    "src/iMouse.Console/FarmAutomationWindow.cs",
+    "src/iMouse.Console/FarmTargetPolicy.cs",
+    "tools/imouse_farm_server.py",
+    "tools/imouse_social_automation.py",
+    "tools/imouse_farm_command_center.html",
+    "tools/setup_imouse_farm.py",
+    "tools/test_farm_execution_safety.py",
+    "FARM-CONTINUATION.md"
+  ],
+  "featureTests": {
+    "passed": 18,
+    "failed": 14,
+    "errors": 0,
+    "skipped": 0
+  },
+  "consoleSelfTests": 417,
+  "executionBoundaryTests": 17,
+  "binaryInventory": [
+    {
+      "path": "output\\codex-farm-validation-20261016\\iMouse2.dll",
+      "sha256": "da5c3d1307b6cfecc30a8633cdc124acd4f854c678d41c52e45fdae3f4568720",
+      "bytes": 835584
+    },
+    {
+      "path": "output\\codex-farm-validation-20261016\\iMouse2.exe",
+      "sha256": "c7f3734be7e829aea02686f00a58eb89a3c1965bcfad67a051f95bc664c3c81e",
+      "bytes": 152064
+    },
+    {
+      "path": "output\\codex-farm-validation-20261016\\iMouse2.pdb",
+      "sha256": "9e0096b5b498542e1fcc49033f81befc4f7414a847b23575c7b1e450d6e2fe43",
+      "bytes": 161776
+    },
+    {
+      "path": "output\\codex-farm-validation-20261016\\iMouse2.deps.json",
+      "sha256": "037d83af0f32f0e974694a29f07ba3250ae6d84c6fac681d30cbea9906dfd0bc",
+      "bytes": 413
+    },
+    {
+      "path": "output\\codex-farm-validation-20261016\\iMouse2.runtimeconfig.json",
+      "sha256": "c71152bf25e40d647b2440c5b39be157a3d356106be9d5b678ab97bb87b4e782",
+      "bytes": 458
+    }
+  ],
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261016-farm-feature-validation",
+  "desktopControlUsed": false,
+  "phoneInputSent": false,
+  "productFixesMade": false
+}

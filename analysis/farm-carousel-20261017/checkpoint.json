@@ -1,0 +1,9 @@
+{
+  "commit": "d3e1299f41c8e27a546ff9e04b4a9e8a9f98062b",
+  "base": "c60cb56f4a1a3db82fe127f66a0b3f70683caa05",
+  "nativeChecks": 447,
+  "pythonTests": 106,
+  "phoneInput": false,
+  "desktopControl": false,
+  "dllSha256": "4c1a49490c6f20e65c1f331aefcfb53ba6734caad5b4a6c3f86459ecd0933926"
+}

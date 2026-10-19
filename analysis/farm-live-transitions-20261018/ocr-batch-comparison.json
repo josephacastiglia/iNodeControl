@@ -1,0 +1,37 @@
+[
+  {
+    "frame": "01-profile.png",
+    "oldMs": 517.7,
+    "batchMs": 499.6,
+    "fullTextIdentical": true,
+    "nextEvidenceIdentical": true
+  },
+  {
+    "frame": "05-picker.png",
+    "oldMs": 456.3,
+    "batchMs": 463.5,
+    "fullTextIdentical": true,
+    "nextEvidenceIdentical": true
+  },
+  {
+    "frame": "14-editor.png",
+    "oldMs": 876.3,
+    "batchMs": 543.4,
+    "fullTextIdentical": true,
+    "nextEvidenceIdentical": true
+  },
+  {
+    "frame": "17-editor.png",
+    "oldMs": 956.7,
+    "batchMs": 562.2,
+    "fullTextIdentical": true,
+    "nextEvidenceIdentical": true
+  },
+  {
+    "frame": "18-editor.png",
+    "oldMs": 944.2,
+    "batchMs": 522.7,
+    "fullTextIdentical": true,
+    "nextEvidenceIdentical": true
+  }
+]

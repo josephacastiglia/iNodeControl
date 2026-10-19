@@ -1,0 +1,1 @@
+{"state": "profile_restored", "cleanup": "confirmed", "error": null, "folder": "analysis\\farm-live-transitions-20261018\\recovery-01"}

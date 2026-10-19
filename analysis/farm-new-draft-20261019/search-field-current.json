@@ -1,0 +1,236 @@
+{
+  "imageSha256": "1d1bbc1c9355473ff9b9e926a56c0d23a8e4136287a30c2160deac3b71d2955e",
+  "provider": "windows-ocr",
+  "language": "en-US",
+  "lines": [
+    {
+      "text": "12:08",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 50,
+          "text": "12:08",
+          "x": 38
+        }
+      ]
+    },
+    {
+      "text": "Siri Suggestions",
+      "words": [
+        {
+          "y": 76,
+          "height": 14,
+          "width": 26,
+          "text": "Siri",
+          "x": 26
+        },
+        {
+          "y": 76,
+          "height": 17,
+          "width": 105,
+          "text": "Suggestions",
+          "x": 59
+        }
+      ]
+    },
+    {
+      "text": "Instagram",
+      "words": [
+        {
+          "y": 212,
+          "height": 13,
+          "width": 68,
+          "text": "Instagram",
+          "x": 53
+        }
+      ]
+    },
+    {
+      "text": "Reels",
+      "words": [
+        {
+          "y": 279,
+          "height": 16,
+          "width": 50,
+          "text": "Reels",
+          "x": 75
+        }
+      ]
+    },
+    {
+      "text": "Notes",
+      "words": [
+        {
+          "y": 212,
+          "height": 11,
+          "width": 39,
+          "text": "Notes",
+          "x": 176
+        }
+      ]
+    },
+    {
+      "text": "Show More",
+      "words": [
+        {
+          "y": 76,
+          "height": 14,
+          "width": 46,
+          "text": "Show",
+          "x": 380
+        },
+        {
+          "y": 77,
+          "height": 13,
+          "width": 42,
+          "text": "More",
+          "x": 432
+        }
+      ]
+    },
+    {
+      "text": "Freeform",
+      "words": [
+        {
+          "y": 212,
+          "height": 11,
+          "width": 64,
+          "text": "Freeform",
+          "x": 381
+        }
+      ]
+    },
+    {
+      "text": "Clear",
+      "words": [
+        {
+          "y": 408,
+          "height": 14,
+          "width": 45,
+          "text": "Clear",
+          "x": 430
+        }
+      ]
+    },
+    {
+      "text": "New Note",
+      "words": [
+        {
+          "y": 348,
+          "height": 15,
+          "width": 41,
+          "text": "New",
+          "x": 75
+        },
+        {
+          "y": 348,
+          "height": 15,
+          "width": 44,
+          "text": "Note",
+          "x": 123
+        }
+      ]
+    },
+    {
+      "text": "Recent Searches",
+      "words": [
+        {
+          "y": 408,
+          "height": 14,
+          "width": 59,
+          "text": "Recent",
+          "x": 26
+        },
+        {
+          "y": 408,
+          "height": 14,
+          "width": 80,
+          "text": "Searches",
+          "x": 90
+        }
+      ]
+    },
+    {
+      "text": "Hithere",
+      "words": [
+        {
+          "y": 448,
+          "height": 17,
+          "width": 69,
+          "text": "Hithere",
+          "x": 75
+        }
+      ]
+    },
+    {
+      "text": "Fri, Oct 16 \u2022 12:51 AM",
+      "words": [
+        {
+          "y": 475,
+          "height": 17,
+          "width": 23,
+          "text": "Fri,",
+          "x": 75
+        },
+        {
+          "y": 475,
+          "height": 14,
+          "width": 29,
+          "text": "Oct",
+          "x": 105
+        },
+        {
+          "y": 475,
+          "height": 14,
+          "width": 18,
+          "text": "16",
+          "x": 140
+        },
+        {
+          "y": 482,
+          "height": 3,
+          "width": 3,
+          "text": "\u2022",
+          "x": 163
+        },
+        {
+          "y": 475,
+          "height": 14,
+          "width": 41,
+          "text": "12:51",
+          "x": 172
+        },
+        {
+          "y": 476,
+          "height": 13,
+          "width": 26,
+          "text": "AM",
+          "x": 219
+        }
+      ]
+    },
+    {
+      "text": "Q bearch",
+      "words": [
+        {
+          "y": 994,
+          "height": 24,
+          "width": 23,
+          "text": "Q",
+          "x": 43
+        },
+        {
+          "y": 991,
+          "height": 32,
+          "width": 73,
+          "text": "bearch",
+          "x": 75
+        }
+      ]
+    }
+  ],
+  "height": 1080,
+  "width": 500,
+  "frameSha256": "2a26a655527279fe4b6c9b192b6ccd96f23f5aa74d888fa46f405e3a69fdc91c"
+}

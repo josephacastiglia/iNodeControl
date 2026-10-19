@@ -1,0 +1,891 @@
+{
+  "source": "retained_phone_evidence",
+  "baselineCommit": "cb6178395053e5dc1322cc5d23abf95431635de8",
+  "phoneCalls": 0,
+  "captures": [
+    {
+      "folder": "02-pointer-challenge",
+      "phase": "fresh",
+      "before": "profile",
+      "beforeLayout": null,
+      "after": "profile",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "02-pointer-challenge",
+      "phase": "after",
+      "before": "profile",
+      "beforeLayout": null,
+      "after": "profile",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "03-open-create",
+      "phase": "fresh",
+      "before": "profile",
+      "beforeLayout": null,
+      "after": "profile",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "03-open-create",
+      "phase": "after",
+      "before": "profile",
+      "beforeLayout": null,
+      "after": "profile",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "05-select-post-format",
+      "phase": "fresh",
+      "before": "profile",
+      "beforeLayout": null,
+      "after": "profile",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "05-select-post-format",
+      "phase": "after",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "unknown",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "07-open-draft-library",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "media_picker",
+      "afterLayout": "post_media_picker",
+      "layoutEvidence": {
+        "method": "post_picker_controls",
+        "previewBounds": [
+          0,
+          112,
+          500,
+          612
+        ],
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "07-open-draft-library",
+      "phase": "after",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "unknown",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "08-open-test-carousel",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "unknown",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "10-inspect-slide-two",
+      "phase": "fresh",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "11-slide-two",
+      "phase": "fresh",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "11-slide-two",
+      "phase": "after",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "12-slide-three",
+      "phase": "fresh",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "13-slide-three-reviewed",
+      "phase": "fresh",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "13-slide-three-reviewed",
+      "phase": "after",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "14-open-details",
+      "phase": "fresh",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "14-open-details",
+      "phase": "after",
+      "before": "draft_details",
+      "beforeLayout": "carousel_details",
+      "after": "draft_details",
+      "afterLayout": "carousel_details",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "15-back-to-editor",
+      "phase": "fresh",
+      "before": "draft_details",
+      "beforeLayout": "carousel_details",
+      "after": "draft_details",
+      "afterLayout": "carousel_details",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "15-back-to-editor",
+      "phase": "after",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "16-request-save-sheet",
+      "phase": "fresh",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "16-request-save-sheet",
+      "phase": "after",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "save_prompt",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "17-save-existing-test-draft",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "save_prompt",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "18-library-after-save",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "media_picker",
+      "afterLayout": "post_media_picker",
+      "layoutEvidence": {
+        "method": "post_picker_controls",
+        "previewBounds": [
+          0,
+          112,
+          500,
+          612
+        ],
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "19-confirm-saved-library",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "media_picker",
+      "afterLayout": "post_media_picker",
+      "layoutEvidence": {
+        "method": "post_picker_controls",
+        "previewBounds": [
+          0,
+          112,
+          500,
+          612
+        ],
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "19-confirm-saved-library",
+      "phase": "after",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "unknown",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "20-reopen-saved-carousel",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "unknown",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "20-reopen-saved-carousel",
+      "phase": "after",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": {
+        "method": "toolbar_button_and_page_dots",
+        "position": {
+          "status": "visible_position",
+          "index": 1,
+          "count": 3
+        },
+        "nextLabel": null,
+        "textRepaired": false,
+        "actionTargetVerified": false,
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "21-reopened-slide-two",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": {
+        "method": "toolbar_button_and_page_dots",
+        "position": {
+          "status": "visible_position",
+          "index": 1,
+          "count": 3
+        },
+        "nextLabel": null,
+        "textRepaired": false,
+        "actionTargetVerified": false,
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "22-reopened-slide-two-reviewed",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": {
+        "method": "toolbar_button_and_page_dots",
+        "position": {
+          "status": "visible_position",
+          "index": 1,
+          "count": 3
+        },
+        "nextLabel": null,
+        "textRepaired": false,
+        "actionTargetVerified": false,
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "23-reopened-slide-two-verified",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": {
+        "method": "toolbar_button_and_page_dots",
+        "position": {
+          "status": "visible_position",
+          "index": 1,
+          "count": 3
+        },
+        "nextLabel": null,
+        "textRepaired": false,
+        "actionTargetVerified": false,
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "23-reopened-slide-two-verified",
+      "phase": "after",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": {
+        "method": "toolbar_button_and_page_dots",
+        "position": {
+          "status": "visible_position",
+          "index": 2,
+          "count": 3
+        },
+        "nextLabel": null,
+        "textRepaired": false,
+        "actionTargetVerified": false,
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "24-reopened-slide-three",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": {
+        "method": "toolbar_button_and_page_dots",
+        "position": {
+          "status": "visible_position",
+          "index": 2,
+          "count": 3
+        },
+        "nextLabel": null,
+        "textRepaired": false,
+        "actionTargetVerified": false,
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "24-reopened-slide-three",
+      "phase": "after",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": {
+        "method": "toolbar_button_and_page_dots",
+        "position": {
+          "status": "visible_position",
+          "index": 3,
+          "count": 3
+        },
+        "nextLabel": null,
+        "textRepaired": false,
+        "actionTargetVerified": false,
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "25-reopened-caption",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": {
+        "method": "toolbar_button_and_page_dots",
+        "position": {
+          "status": "visible_position",
+          "index": 3,
+          "count": 3
+        },
+        "nextLabel": null,
+        "textRepaired": false,
+        "actionTargetVerified": false,
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "25-reopened-caption",
+      "phase": "after",
+      "before": "draft_details",
+      "beforeLayout": "carousel_details",
+      "after": "draft_details",
+      "afterLayout": "carousel_details",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "26-close-details",
+      "phase": "fresh",
+      "before": "draft_details",
+      "beforeLayout": "carousel_details",
+      "after": "draft_details",
+      "afterLayout": "carousel_details",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "26-close-details",
+      "phase": "after",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "27-close-reopened-editor",
+      "phase": "fresh",
+      "before": "draft_editor",
+      "beforeLayout": "carousel_editor",
+      "after": "draft_editor",
+      "afterLayout": "carousel_editor",
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "27-close-reopened-editor",
+      "phase": "after",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "save_prompt",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "28-preserve-on-exit",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "save_prompt",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "29-final-library",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "media_picker",
+      "afterLayout": "post_media_picker",
+      "layoutEvidence": {
+        "method": "post_picker_controls",
+        "previewBounds": [
+          0,
+          112,
+          500,
+          612
+        ],
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "29-final-library",
+      "phase": "after",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "unknown",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "30-leave-draft-library",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "unknown",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "31-exit-picker",
+      "phase": "fresh",
+      "before": "unknown",
+      "beforeLayout": null,
+      "after": "media_picker",
+      "afterLayout": "post_media_picker",
+      "layoutEvidence": {
+        "method": "post_picker_controls",
+        "previewBounds": [
+          0,
+          112,
+          500,
+          612
+        ],
+        "automaticInputAllowed": false
+      },
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "31-exit-picker",
+      "phase": "after",
+      "before": "profile",
+      "beforeLayout": null,
+      "after": "profile",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "32-final-freshness",
+      "phase": "fresh",
+      "before": "profile",
+      "beforeLayout": null,
+      "after": "profile",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    },
+    {
+      "folder": "32-final-freshness",
+      "phase": "after",
+      "before": "profile",
+      "beforeLayout": null,
+      "after": "profile",
+      "afterLayout": null,
+      "layoutEvidence": null,
+      "automaticInputAllowed": false
+    }
+  ],
+  "pickerPairs": [
+    {
+      "first": "18-library-after-save",
+      "second": "19-confirm-saved-library",
+      "result": {
+        "controlsStable": true,
+        "previewChanged": true,
+        "automaticInputAllowed": false,
+        "beforeSha256": "27d4a355f8139a5222d381173e6d834bb2369f3ac73aa730dcd17791d6c7d669",
+        "afterSha256": "0bbd294719e481be3001035df6691a9c19e8d0c0cf19542249f3273d9653a0af",
+        "protectedMeanError": 8.711212640395963e-06,
+        "protectedChangedFraction": 0.0,
+        "worstProtectedBlock": 0.006100217864923747,
+        "mostChangedControlPixels": 0,
+        "ignoredRegions": [
+          [
+            0,
+            0,
+            500,
+            65
+          ],
+          [
+            0,
+            112,
+            500,
+            612
+          ]
+        ],
+        "reason": "Picker controls/grid agree; preview motion was excluded."
+      }
+    },
+    {
+      "first": "29-final-library",
+      "second": "31-exit-picker",
+      "result": {
+        "controlsStable": false,
+        "previewChanged": true,
+        "automaticInputAllowed": false,
+        "beforeSha256": "73a17d589b824a88768c41d7ef54ae918543695e16d5a02522e0b43971f941d0",
+        "afterSha256": "fe7afba532b77aee579ecfe5d727e5a90ab0aa52267f22a437677c596440e23d",
+        "protectedMeanError": 0.005159342597880576,
+        "protectedChangedFraction": 3.883495145631068e-06,
+        "worstProtectedBlock": 0.012974291938997821,
+        "mostChangedControlPixels": 0,
+        "ignoredRegions": [
+          [
+            0,
+            0,
+            500,
+            65
+          ],
+          [
+            0,
+            112,
+            500,
+            612
+          ]
+        ],
+        "reason": "Controls or library pixels changed; inspect again."
+      }
+    }
+  ],
+  "historicalOcrRegressions": [
+    {
+      "file": "07-tiktok-profile-ocr.json",
+      "expected": "profile",
+      "before": "profile",
+      "after": "profile"
+    },
+    {
+      "file": "107-tiktok-video-profile-ocr.json",
+      "expected": "profile",
+      "before": "profile",
+      "after": "profile"
+    },
+    {
+      "file": "108-tiktok-video-library-ocr.json",
+      "expected": "draft_library",
+      "before": "draft_library",
+      "after": "draft_library"
+    },
+    {
+      "file": "111-tiktok-video-caption-verify-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "124-x-video-drafts-list-ocr.json",
+      "expected": "draft_library",
+      "before": "draft_library",
+      "after": "draft_library"
+    },
+    {
+      "file": "125-x-video-draft-reopen-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "132-youtube-loaded-ocr.json",
+      "expected": "permission_prompt",
+      "before": "permission_prompt",
+      "after": "permission_prompt"
+    },
+    {
+      "file": "147-youtube-video-draft-library-ocr.json",
+      "expected": "draft_library",
+      "before": "draft_library",
+      "after": "draft_library"
+    },
+    {
+      "file": "149-youtube-reopened-caption-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "154-instagram-account-confirm-ocr.json",
+      "expected": "profile",
+      "before": "profile",
+      "after": "profile"
+    },
+    {
+      "file": "164-instagram-reel-drafts-library-ocr.json",
+      "expected": "draft_library",
+      "before": "draft_library",
+      "after": "draft_library"
+    },
+    {
+      "file": "165-instagram-reel-reopen-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "166-instagram-reel-playback-ocr.json",
+      "expected": "draft_preview",
+      "before": "draft_preview",
+      "after": "draft_preview"
+    },
+    {
+      "file": "168-end-home-ocr.json",
+      "expected": "home",
+      "before": "home",
+      "after": "home"
+    },
+    {
+      "file": "31-x-account-ocr.json",
+      "expected": "account_menu",
+      "before": "account_menu",
+      "after": "account_menu"
+    },
+    {
+      "file": "51-youtube-account-ocr.json",
+      "expected": "profile",
+      "before": "profile",
+      "after": "profile"
+    },
+    {
+      "file": "84-save-video-options-ocr.json",
+      "expected": "sharing_dialog",
+      "before": "sharing_dialog",
+      "after": "sharing_dialog"
+    },
+    {
+      "file": "87-save-options-settled-ocr.json",
+      "expected": "share_sheet",
+      "before": "share_sheet",
+      "after": "share_sheet"
+    },
+    {
+      "file": "102-tiktok-video-editor-holdout-ocr.json",
+      "expected": "unknown",
+      "before": "unknown",
+      "after": "unknown"
+    },
+    {
+      "file": "109-tiktok-video-reopen-holdout-ocr.json",
+      "expected": "unknown",
+      "before": "unknown",
+      "after": "unknown"
+    },
+    {
+      "file": "110-tiktok-remove-suggested-sound-holdout-ocr.json",
+      "expected": "unknown",
+      "before": "unknown",
+      "after": "unknown"
+    },
+    {
+      "file": "127-x-reopened-video-play-holdout-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "140-youtube-mp4-trim-review-holdout-ocr.json",
+      "expected": "unknown",
+      "before": "unknown",
+      "after": "unknown"
+    },
+    {
+      "file": "141-youtube-mp4-editor-holdout-ocr.json",
+      "expected": "unknown",
+      "before": "unknown",
+      "after": "unknown"
+    },
+    {
+      "file": "148-youtube-video-draft-reopen-holdout-ocr.json",
+      "expected": "unknown",
+      "before": "unknown",
+      "after": "unknown"
+    },
+    {
+      "file": "158-instagram-reel-edit-holdout-ocr.json",
+      "expected": "unknown",
+      "before": "unknown",
+      "after": "unknown"
+    },
+    {
+      "file": "159-instagram-reel-details-holdout-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "161-instagram-reel-caption-holdout-ocr.json",
+      "expected": "caption_editor",
+      "before": "caption_editor",
+      "after": "caption_editor"
+    },
+    {
+      "file": "162-instagram-reel-caption-ok-holdout-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "23-tiktok-drafts-library-holdout-ocr.json",
+      "expected": "draft_library",
+      "before": "draft_library",
+      "after": "draft_library"
+    },
+    {
+      "file": "24-tiktok-reopen-holdout-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "43-x-reopen-draft-holdout-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "60-youtube-test-label-holdout-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "64-youtube-reopen-holdout-ocr.json",
+      "expected": "unknown",
+      "before": "unknown",
+      "after": "unknown"
+    },
+    {
+      "file": "65-youtube-reopened-details-holdout-ocr.json",
+      "expected": "draft_details",
+      "before": "draft_details",
+      "after": "draft_details"
+    },
+    {
+      "file": "90-photos-video-check-holdout-ocr.json",
+      "expected": "unknown",
+      "before": "unknown",
+      "after": "unknown"
+    }
+  ],
+  "independentAccuracySet": false
+}

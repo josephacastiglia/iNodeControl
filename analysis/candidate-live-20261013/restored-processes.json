@@ -1,0 +1,26 @@
+[
+  {
+    "ProcessId": 20432,
+    "ParentProcessId": 32072,
+    "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe",
+    "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.exe\" http://127.0.0.1:9913/api/ --data-dir \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\" --input-pid C24C,C241 --receivers \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\receivers.json\" --receiver \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" --receiver-runtime \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\msys64\\ucrt64\""
+  },
+  {
+    "ProcessId": 35256,
+    "ParentProcessId": 20432,
+    "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+    "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" -n iMouse2-C24C -nh -s 500x1080 -fps 30 -avdec -vs appsink -as fakesink -p 7110 -restrict -allow 86:1D:4A:04:2F:F6 -m 02:49:4D:32:C2:4C"
+  },
+  {
+    "ProcessId": 18808,
+    "ParentProcessId": 20432,
+    "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+    "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe\" -n iMouse2-C241 -nh -s 500x1080 -fps 30 -avdec -vs appsink -as fakesink -p 7120 -restrict -allow FE:A9:BC:D7:A0:44 -m 02:49:4D:32:C2:41"
+  },
+  {
+    "ProcessId": 36940,
+    "ParentProcessId": 32072,
+    "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe",
+    "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.exe\" "
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "commit": "c3c5ce366de4f2536c80ba819682a9efcc4d0ee6",
+  "branch": "local/combined-candidate-20261012",
+  "candidate": "output/codex-farm-video-20261017",
+  "dllSha256": "61764A45CF1AD1ADCED31CCA087FF36412842AF12F8D638104D800B0F48FEE1E",
+  "productVersion": "2.0.0+3d1cdd433849ee79a1c4ab17b9db63277efa4ec0",
+  "buildNote": "Built before the checkpoint commit. Exact archive source and DLL hash identify the tested build.",
+  "pythonTests": 161,
+  "nativeChecks": 478,
+  "phoneStepCount": 168,
+  "preservedUtc": "2026-10-17T23:17:00.9793803Z",
+  "installedReleaseChanged": false,
+  "published": false
+}

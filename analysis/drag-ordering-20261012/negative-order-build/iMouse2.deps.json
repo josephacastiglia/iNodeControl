@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "iMouse2/2.0.0": {
+        "runtime": {
+          "iMouse2.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "iMouse2/2.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

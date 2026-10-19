@@ -1,0 +1,257 @@
+{
+  "id": "c71f6dbb-a6d5-4ead-90cc-342e84a974e5",
+  "expected": {
+    "device_id": "C24C",
+    "platform": "instagram",
+    "account": "unrelated.test.account",
+    "caption": ""
+  },
+  "requestedAt": 1792286180.9507663,
+  "state": "observed",
+  "reason": "The expected app pattern is not visible.",
+  "source": "phone",
+  "automaticInputAllowed": false,
+  "result": {
+    "screen": "home",
+    "appPattern": null,
+    "expectedAppMatches": false,
+    "accountStatus": "not_visible",
+    "observedHandles": [],
+    "captionStatus": "not_requested",
+    "reason": "The expected app pattern is not visible.",
+    "automaticInputAllowed": false,
+    "savedDraftVerified": false,
+    "metrics": null,
+    "metricsReason": "A screen count has no verified post identity or observation interval."
+  },
+  "text": {
+    "provider": "windows-ocr",
+    "lines": [
+      {
+        "text": "9:16",
+        "words": [
+          {
+            "y": 23,
+            "height": 15,
+            "width": 39,
+            "text": "9:16",
+            "x": 44
+          }
+        ]
+      },
+      {
+        "text": "Instagram",
+        "words": [
+          {
+            "y": 171,
+            "height": 14,
+            "width": 68,
+            "text": "Instagram",
+            "x": 43
+          }
+        ]
+      },
+      {
+        "text": "Zoho Mail",
+        "words": [
+          {
+            "y": 424,
+            "height": 11,
+            "width": 34,
+            "text": "Zoho",
+            "x": 45
+          },
+          {
+            "y": 423,
+            "height": 12,
+            "width": 27,
+            "text": "Mail",
+            "x": 84
+          }
+        ]
+      },
+      {
+        "text": "•o",
+        "words": [
+          {
+            "y": 464,
+            "height": 77,
+            "width": 174,
+            "text": "•o",
+            "x": 57
+          }
+        ]
+      },
+      {
+        "text": "po",
+        "words": [
+          {
+            "y": 988,
+            "height": 30,
+            "width": 52,
+            "text": "po",
+            "x": 396
+          }
+        ]
+      },
+      {
+        "text": "TikTok",
+        "words": [
+          {
+            "y": 170,
+            "height": 12,
+            "width": 44,
+            "text": "TikTok",
+            "x": 170
+          }
+        ]
+      },
+      {
+        "text": "Bluesky",
+        "words": [
+          {
+            "y": 297,
+            "height": 14,
+            "width": 52,
+            "text": "Bluesky",
+            "x": 166
+          }
+        ]
+      },
+      {
+        "text": "Gmail",
+        "words": [
+          {
+            "y": 424,
+            "height": 11,
+            "width": 38,
+            "text": "Gmail",
+            "x": 173
+          }
+        ]
+      },
+      {
+        "text": "EXPO GO",
+        "words": [
+          {
+            "y": 551,
+            "height": 13,
+            "width": 33,
+            "text": "EXPO",
+            "x": 164
+          },
+          {
+            "y": 551,
+            "height": 10,
+            "width": 18,
+            "text": "GO",
+            "x": 202
+          }
+        ]
+      },
+      {
+        "text": "lapper",
+        "words": [
+          {
+            "y": 297,
+            "height": 14,
+            "width": 43,
+            "text": "lapper",
+            "x": 291
+          }
+        ]
+      },
+      {
+        "text": "N",
+        "words": [
+          {
+            "y": 424,
+            "height": 11,
+            "width": 10,
+            "text": "N",
+            "x": 341
+          }
+        ]
+      },
+      {
+        "text": "sos",
+        "words": [
+          {
+            "y": 23,
+            "height": 9,
+            "width": 17,
+            "text": "sos",
+            "x": 396
+          }
+        ]
+      },
+      {
+        "text": "YouTube",
+        "words": [
+          {
+            "y": 171,
+            "height": 11,
+            "width": 58,
+            "text": "YouTube",
+            "x": 393
+          }
+        ]
+      },
+      {
+        "text": "SMS",
+        "words": [
+          {
+            "y": 243,
+            "height": 9,
+            "width": 26,
+            "text": "SMS",
+            "x": 395
+          }
+        ]
+      },
+      {
+        "text": "Proton VPN",
+        "words": [
+          {
+            "y": 424,
+            "height": 11,
+            "width": 44,
+            "text": "Proton",
+            "x": 383
+          },
+          {
+            "y": 424,
+            "height": 11,
+            "width": 28,
+            "text": "VPN",
+            "x": 433
+          }
+        ]
+      },
+      {
+        "text": "Search",
+        "words": [
+          {
+            "y": 893,
+            "height": 12,
+            "width": 48,
+            "text": "Search",
+            "x": 235
+          }
+        ]
+      }
+    ],
+    "width": 500,
+    "language": "en-US",
+    "height": 1080,
+    "frameSha256": "cf7a483fd75b63e8f174f23d22ed6e3d41e88193487762dabd03e3f4a3a4df1e"
+  },
+  "frameSha256": "cf7a483fd75b63e8f174f23d22ed6e3d41e88193487762dabd03e3f4a3a4df1e",
+  "width": 500,
+  "height": 1080,
+  "freshness": "unavailable",
+  "stable": true,
+  "receiverPid": 6700,
+  "ageSeconds": 0.6066184043884277,
+  "expired": false
+}

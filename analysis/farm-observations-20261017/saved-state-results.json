@@ -1,0 +1,164 @@
+[
+  {
+    "frame": "07-tiktok-profile-ocr.json",
+    "expectedState": "profile",
+    "actualState": "profile",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "107-tiktok-video-profile-ocr.json",
+    "expectedState": "profile",
+    "actualState": "profile",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "108-tiktok-video-library-ocr.json",
+    "expectedState": "draft_library",
+    "actualState": "draft_library",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "111-tiktok-video-caption-verify-ocr.json",
+    "expectedState": "draft_details",
+    "actualState": "draft_details",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "124-x-video-drafts-list-ocr.json",
+    "expectedState": "draft_library",
+    "actualState": "draft_library",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "125-x-video-draft-reopen-ocr.json",
+    "expectedState": "draft_details",
+    "actualState": "draft_details",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "132-youtube-loaded-ocr.json",
+    "expectedState": "permission_prompt",
+    "actualState": "permission_prompt",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "147-youtube-video-draft-library-ocr.json",
+    "expectedState": "draft_library",
+    "actualState": "draft_library",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "149-youtube-reopened-caption-ocr.json",
+    "expectedState": "draft_details",
+    "actualState": "draft_details",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "154-instagram-account-confirm-ocr.json",
+    "expectedState": "profile",
+    "actualState": "profile",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "164-instagram-reel-drafts-library-ocr.json",
+    "expectedState": "draft_library",
+    "actualState": "draft_library",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "165-instagram-reel-reopen-ocr.json",
+    "expectedState": "draft_details",
+    "actualState": "draft_details",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "166-instagram-reel-playback-ocr.json",
+    "expectedState": "draft_preview",
+    "actualState": "draft_preview",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "168-end-home-ocr.json",
+    "expectedState": "home",
+    "actualState": "home",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "31-x-account-ocr.json",
+    "expectedState": "account_menu",
+    "actualState": "account_menu",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "51-youtube-account-ocr.json",
+    "expectedState": "profile",
+    "actualState": "profile",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "84-save-video-options-ocr.json",
+    "expectedState": "sharing_dialog",
+    "actualState": "sharing_dialog",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  },
+  {
+    "frame": "87-save-options-settled-ocr.json",
+    "expectedState": "share_sheet",
+    "actualState": "share_sheet",
+    "matched": true,
+    "accountAccepted": false,
+    "captionStatus": "needs_review",
+    "inputAllowed": false
+  }
+]

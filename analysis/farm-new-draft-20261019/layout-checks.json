@@ -1,0 +1,42 @@
+{
+  "08-safari": {
+    "error": "Safari home indicator differs."
+  },
+  "09-address": {
+    "error": "Address field geometry changed."
+  },
+  "11-load-transfer": {
+    "error": "Exact visible label missing: iMouse transfer test \u00b7 17 Oct 2026"
+  },
+  "12-slide-one": {
+    "mean": 0.009477313630766319,
+    "worst": 0.02484640522875817,
+    "matched": true
+  },
+  "15-save-one-menu-settled": {
+    "mean": 0.011389220422468508,
+    "worst": 0.024176470588235296,
+    "matched": true
+  },
+  "24-caption-page": {
+    "packageSha256": "fixture"
+  },
+  "25-copy-caption": {
+    "packageSha256": "fixture"
+  },
+  "34-multiple-slides": {
+    "error": "Selection mode changed."
+  },
+  "36-select-third-slide": {
+    "error": "Slide 1 is absent or duplicated in Recents."
+  },
+  "40-focus-caption": {
+    "error": "Exact visible label missing: OK"
+  },
+  "41-caption-paste-menu": {
+    "error": "Exact visible label missing: OK"
+  },
+  "42-paste-caption": {
+    "error": "Exact visible label missing: Caption"
+  }
+}

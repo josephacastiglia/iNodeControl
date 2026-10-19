@@ -1,0 +1,4 @@
+System.Exception: Failed: A drive root is not an isolated candidate data folder
+   at IMouse2.SelfTests.<>c__DisplayClass0_0.<RunAsync>g__Check|0(String name, Boolean ok) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\SelfTests.cs:line 350
+   at IMouse2.SelfTests.RunAsync() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\SelfTests.cs:line 548
+   at IMouse2.App.OnStartup(StartupEventArgs e) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\App.xaml.cs:line 98

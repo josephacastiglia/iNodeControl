@@ -1,0 +1,329 @@
+{
+  "imageSha256": "f5326c45881c35f9c2f06e141ccfef77fc7443bd370b3c3fbf91fd88391cd248",
+  "provider": "windows-ocr",
+  "language": "en-US",
+  "lines": [
+    {
+      "text": "5:02",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 40,
+          "text": "5:02",
+          "x": 43
+        }
+      ]
+    },
+    {
+      "text": "x",
+      "words": [
+        {
+          "y": 71,
+          "height": 25,
+          "width": 25,
+          "text": "x",
+          "x": 27
+        }
+      ]
+    },
+    {
+      "text": "New post",
+      "words": [
+        {
+          "y": 78,
+          "height": 14,
+          "width": 39,
+          "text": "New",
+          "x": 208
+        },
+        {
+          "y": 78,
+          "height": 18,
+          "width": 41,
+          "text": "post",
+          "x": 253
+        }
+      ]
+    },
+    {
+      "text": "iMouse 2.0",
+      "words": [
+        {
+          "y": 151,
+          "height": 16,
+          "width": 68,
+          "text": "iMouse",
+          "x": 80
+        },
+        {
+          "y": 151,
+          "height": 16,
+          "width": 27,
+          "text": "2.0",
+          "x": 154
+        }
+      ]
+    },
+    {
+      "text": "CAROUSEL TRANSFER TEST",
+      "words": [
+        {
+          "y": 202,
+          "height": 14,
+          "width": 90,
+          "text": "CAROUSEL",
+          "x": 79
+        },
+        {
+          "y": 202,
+          "height": 14,
+          "width": 89,
+          "text": "TRANSFER",
+          "x": 174
+        },
+        {
+          "y": 202,
+          "height": 14,
+          "width": 40,
+          "text": "TEST",
+          "x": 267
+        }
+      ]
+    },
+    {
+      "text": "SLIDE 1 OF 3",
+      "words": [
+        {
+          "y": 453,
+          "height": 20,
+          "width": 69,
+          "text": "SLIDE",
+          "x": 80
+        },
+        {
+          "y": 453,
+          "height": 20,
+          "width": 9,
+          "text": "1",
+          "x": 159
+        },
+        {
+          "y": 453,
+          "height": 20,
+          "width": 33,
+          "text": "OF",
+          "x": 180
+        },
+        {
+          "y": 453,
+          "height": 20,
+          "width": 12,
+          "text": "3",
+          "x": 222
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY",
+      "words": [
+        {
+          "y": 508,
+          "height": 17,
+          "width": 73,
+          "text": "DRAFT",
+          "x": 81
+        },
+        {
+          "y": 508,
+          "height": 18,
+          "width": 63,
+          "text": "ONLY",
+          "x": 162
+        }
+      ]
+    },
+    {
+      "text": "DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 543,
+          "height": 16,
+          "width": 28,
+          "text": "DO",
+          "x": 80
+        },
+        {
+          "y": 543,
+          "height": 16,
+          "width": 41,
+          "text": "NOT",
+          "x": 116
+        },
+        {
+          "y": 543,
+          "height": 16,
+          "width": 80,
+          "text": "PUBLISH",
+          "x": 164
+        }
+      ]
+    },
+    {
+      "text": "Recents >",
+      "words": [
+        {
+          "y": 637,
+          "height": 15,
+          "width": 73,
+          "text": "Recents",
+          "x": 22
+        },
+        {
+          "y": 639,
+          "height": 12,
+          "width": 7,
+          "text": ">",
+          "x": 105
+        }
+      ]
+    },
+    {
+      "text": "2",
+      "words": [
+        {
+          "y": 721,
+          "height": 30,
+          "width": 20,
+          "text": "2",
+          "x": 261
+        }
+      ]
+    },
+    {
+      "text": "sos",
+      "words": [
+        {
+          "y": 23,
+          "height": 9,
+          "width": 17,
+          "text": "sos",
+          "x": 396
+        }
+      ]
+    },
+    {
+      "text": "Next",
+      "words": [
+        {
+          "y": 77,
+          "height": 15,
+          "width": 42,
+          "text": "Next",
+          "x": 437
+        }
+      ]
+    },
+    {
+      "text": "Select",
+      "words": [
+        {
+          "y": 639,
+          "height": 11,
+          "width": 44,
+          "text": "Select",
+          "x": 416
+        }
+      ]
+    },
+    {
+      "text": "eo:05",
+      "words": [
+        {
+          "y": 902,
+          "height": 17,
+          "width": 49,
+          "text": "eo:05",
+          "x": 440
+        }
+      ]
+    },
+    {
+      "text": "POST",
+      "words": [
+        {
+          "y": 998,
+          "height": 13,
+          "width": 48,
+          "text": "POST",
+          "x": 226
+        }
+      ]
+    },
+    {
+      "text": "STORY INSTANTS REE",
+      "words": [
+        {
+          "y": 998,
+          "height": 13,
+          "width": 57,
+          "text": "STORY",
+          "x": 291
+        },
+        {
+          "y": 998,
+          "height": 13,
+          "width": 88,
+          "text": "INSTANTS",
+          "x": 366
+        },
+        {
+          "y": 999,
+          "height": 12,
+          "width": 28,
+          "text": "REE",
+          "x": 471
+        }
+      ]
+    },
+    {
+      "text": "0:05",
+      "words": [
+        {
+          "y": 1027,
+          "height": 18,
+          "width": 46,
+          "text": "0:05",
+          "x": 67
+        }
+      ]
+    },
+    {
+      "text": "o:uo",
+      "words": [
+        {
+          "y": 1027,
+          "height": 18,
+          "width": 46,
+          "text": "o:uo",
+          "x": 193
+        }
+      ]
+    },
+    {
+      "text": "v;uo",
+      "words": [
+        {
+          "y": 1031,
+          "height": 14,
+          "width": 47,
+          "text": "v;uo",
+          "x": 442
+        }
+      ]
+    }
+  ],
+  "height": 1080,
+  "width": 500,
+  "frameSha256": "f5326c45881c35f9c2f06e141ccfef77fc7443bd370b3c3fbf91fd88391cd248"
+}

@@ -1,0 +1,11 @@
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/state HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/scheduler-status HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/auto-create-and-deploy HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/manifest.json HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/video_ae9ff098c0c14c3eb1460a43b810701d_182b1a3e.mp4 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/iMousePull.shortcut.plist HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/funnel-action HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/scheduler-tick HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/scan-profile-views HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/calibrate-box HTTP/1.1" 200 -
+OK - Simulated routes and media checks passed on http://127.0.0.1:45688; unavailable observations refused. No live app, OCR or messaging acceptance.

@@ -1,0 +1,10 @@
+{
+  "id": "60ac72c8-828a-496a-bbbe-20a4fd4c36ec",
+  "priorRunId": "d2823820-3a4a-4cba-b6d0-4c3ad9b04f6f",
+  "priorRecordSha256": "136ce9b17e94f20487303e5c0a178e891466f619d64fb7bab7cdc4b825d87789",
+  "expectedGeneration": 14,
+  "packageSha256": "b807764f993e76ba73287ff7e23d4c80445e739a63805c4c8620dbd15d043f35",
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false
+}

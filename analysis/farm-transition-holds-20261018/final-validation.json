@@ -1,0 +1,38 @@
+{
+  "createdUtc": "2026-10-18T23:25:51.080829+00:00",
+  "scope": "offline_only",
+  "tests": {
+    "passed": 370,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 310.722
+  },
+  "archivedHoldReplay": {
+    "passed": 5,
+    "total": 5,
+    "captureCounts": [
+      2,
+      4,
+      2,
+      3,
+      2
+    ],
+    "freshPhoneAcceptance": false,
+    "clock": "virtual"
+  },
+  "backendSourceHash": "dd5c58b3745f173a59b0d18af9445bd570d3978d79026a3932ca52712abd4ca3",
+  "nativeCandidateSha256": "49cab77c792b532b17b51283654ac9a2621ce1ae0d7058d8f45c8c05951ffd1b",
+  "protectedFiles": 25,
+  "allProtectedHashesMatch": true,
+  "sourceFiles": 52,
+  "phoneInput": false,
+  "rackApi": false,
+  "pcControl": false,
+  "publishing": false,
+  "messaging": false,
+  "installedReleaseChanged": false,
+  "liveAutomaticAdapterAccepted": false,
+  "commit": "c9d67f84fd5386ca6c679464c2808e5501eddf6f",
+  "branch": "local/combined-candidate-20261012",
+  "priorArchiveFilesVerified": 255
+}

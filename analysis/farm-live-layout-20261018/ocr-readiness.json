@@ -1,0 +1,14 @@
+{
+  "source": "retained_development_fixture",
+  "image": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-verification-20261018\\20-reopen-saved-carousel\\after.png",
+  "imageSha256": "412cbd31b9fc18e1692b2106790ece49ba2957213e591f9b63e0f15e4c51455c",
+  "processingMs": 1158.260500000324,
+  "layout": "carousel_editor",
+  "nextLabel": {
+    "method": "same_frame_crop_exact_word",
+    "label": "Next",
+    "imageSha256": "600f9f51b84cd4d1b61ae603060354b0d9aab710ac96ccc097d2142116ee7e97"
+  },
+  "phoneInput": false,
+  "freshPhoneAcceptance": false
+}

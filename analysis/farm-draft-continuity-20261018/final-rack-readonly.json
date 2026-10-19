@@ -1,0 +1,103 @@
+{
+  "phoneInput": false,
+  "status": {
+    "code": 0,
+    "input": "direct-hid",
+    "input_protocol": 1,
+    "input_leases_required": true,
+    "allowed": [
+      "C24C",
+      "C241"
+    ],
+    "receiver": "iMouse2-C24C / iMouse2-C241",
+    "receiver_state": "mirroring",
+    "receiver_message": "",
+    "receiver_pid": 6700,
+    "receiver_restarts": 0,
+    "frames": 195456,
+    "live": true,
+    "receivers": [
+      {
+        "deviceid": "86:1D:4A:04:2F:F6",
+        "name": "iMouse2-C24C",
+        "receiver_pid": 6700,
+        "receiver_restarts": 0,
+        "receiver_state": "mirroring",
+        "live": true,
+        "frames": 195456
+      },
+      {
+        "deviceid": "FE:A9:BC:D7:A0:44",
+        "name": "iMouse2-C241",
+        "receiver_pid": 37088,
+        "receiver_restarts": 0,
+        "receiver_state": "offline",
+        "live": false,
+        "frames": 0
+      }
+    ]
+  },
+  "input": {
+    "86:1D:4A:04:2F:F6": {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": true,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 241,
+      "lease_remaining_ms": 23703
+    },
+    "FE:A9:BC:D7:A0:44": {
+      "id": "FE:A9:BC:D7:A0:44",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "",
+      "generation": 0,
+      "lease_remaining_ms": 0
+    }
+  },
+  "receiverProcessesUnchanged": true,
+  "otherPhoneGenerationsUnchanged": true,
+  "c24cOwnedAtEnd": true,
+  "audit": [
+    {
+      "at": "2026-10-18T05:26:12.082+00:00",
+      "fun": "/input/status",
+      "data": {},
+      "reply": {
+        "code": 0,
+        "protocol": 1,
+        "phones": [
+          {
+            "id": "86:1D:4A:04:2F:F6",
+            "owned": true,
+            "active": false,
+            "stopped": false,
+            "releasing": false,
+            "release_failed": false,
+            "message": "Controller released.",
+            "generation": 241,
+            "lease_remaining_ms": 23703
+          },
+          {
+            "id": "FE:A9:BC:D7:A0:44",
+            "owned": false,
+            "active": false,
+            "stopped": false,
+            "releasing": false,
+            "release_failed": false,
+            "message": "",
+            "generation": 0,
+            "lease_remaining_ms": 0
+          }
+        ]
+      },
+      "simulated": false
+    }
+  ]
+}

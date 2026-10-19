@@ -1,0 +1,1 @@
+PASS loopback screenshot transport: initial bytes/metadata, 2 blocked readers, busy response, advancing producer, 2 aborts after 5.04s, exact recovery. Completed sends=2.

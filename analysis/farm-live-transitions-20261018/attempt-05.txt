@@ -1,0 +1,1 @@
+{"state": "review_required", "cleanup": "confirmed", "error": "InspectionStopped: The decision has no fresh, intact C24C frame under this ownership.", "folder": "analysis\\farm-live-transitions-20261018\\attempt-05"}

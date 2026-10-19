@@ -1,0 +1,18 @@
+========================================================================
+  iMouse 2.0 7-Layer Marketing Farm Live at : http://localhost:9915
+  Execution mode                         : LIVE
+  Bridged to iMouse Kernel API              : http://127.0.0.1:9913/api
+  iPhone Shortcut Media Pull Endpoint       : http://192.168.4.26:9915/stage/C24C/manifest.json
+========================================================================
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/38ed8bad-8a90-4c65-bdd0-cb516b8b1c62 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/eligibility?draft_id=d9d790cb-d6ba-4ef8-9336-0b8528c67793&revision=5 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-creations HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations?draft_id=d9d790cb-d6ba-4ef8-9336-0b8528c67793 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/b7a62831-2c36-45fe-aabc-29f3ffe42047 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/b7a62831-2c36-45fe-aabc-29f3ffe42047 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/b7a62831-2c36-45fe-aabc-29f3ffe42047 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/b7a62831-2c36-45fe-aabc-29f3ffe42047 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/b7a62831-2c36-45fe-aabc-29f3ffe42047 HTTP/1.1" 200 -

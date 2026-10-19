@@ -1,0 +1,138 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:53",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 42,
+          "text": "6:53",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "Cancel",
+      "words": [
+        {
+          "y": 76,
+          "height": 16,
+          "width": 61,
+          "text": "Cancel",
+          "x": 26
+        }
+      ]
+    },
+    {
+      "text": "Post",
+      "words": [
+        {
+          "y": 78,
+          "height": 12,
+          "width": 33,
+          "text": "Post",
+          "x": 422
+        }
+      ]
+    },
+    {
+      "text": "MOUSE-VIDEO-DRAFT-TEST-20261017",
+      "words": [
+        {
+          "y": 129,
+          "height": 18,
+          "width": 409,
+          "text": "MOUSE-VIDEO-DRAFT-TEST-20261017",
+          "x": 67
+        }
+      ]
+    },
+    {
+      "text": "O",
+      "words": [
+        {
+          "y": 182,
+          "height": 29,
+          "width": 30,
+          "text": "O",
+          "x": 320
+        }
+      ]
+    },
+    {
+      "text": "0",
+      "words": [
+        {
+          "y": 709,
+          "height": 8,
+          "width": 9,
+          "text": "0",
+          "x": 74
+        }
+      ]
+    },
+    {
+      "text": "Tag people",
+      "words": [
+        {
+          "y": 709,
+          "height": 15,
+          "width": 25,
+          "text": "Tag",
+          "x": 104
+        },
+        {
+          "y": 709,
+          "height": 15,
+          "width": 48,
+          "text": "people",
+          "x": 133
+        }
+      ]
+    },
+    {
+      "text": "Everyone can reply",
+      "words": [
+        {
+          "y": 941,
+          "height": 16,
+          "width": 69,
+          "text": "Everyone",
+          "x": 50
+        },
+        {
+          "y": 944,
+          "height": 10,
+          "width": 27,
+          "text": "can",
+          "x": 124
+        },
+        {
+          "y": 941,
+          "height": 16,
+          "width": 37,
+          "text": "reply",
+          "x": 157
+        }
+      ]
+    },
+    {
+      "text": "o",
+      "words": [
+        {
+          "y": 999,
+          "height": 22,
+          "width": 23,
+          "text": "o",
+          "x": 463
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "5209c9cfd2ccd1c5964ebd09e24b9378a533090957bb1dcd16d6b6e3490bb07c"
+}

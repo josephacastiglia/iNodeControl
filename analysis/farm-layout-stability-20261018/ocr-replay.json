@@ -1,0 +1,130 @@
+[
+  {
+    "folder": "20-reopen-saved-carousel",
+    "phase": "after",
+    "frameSha256": "412cbd31b9fc18e1692b2106790ece49ba2957213e591f9b63e0f15e4c51455c",
+    "screen": "draft_editor",
+    "layout": "carousel_editor",
+    "nextLabel": {
+      "method": "same_frame_crop_exact_word",
+      "label": "Next",
+      "imageSha256": "600f9f51b84cd4d1b61ae603060354b0d9aab710ac96ccc097d2142116ee7e97"
+    },
+    "cropped": true,
+    "elapsedMs": 1070.24,
+    "within1500msProcessingOnly": true,
+    "phoneCalls": 0
+  },
+  {
+    "folder": "21-reopened-slide-two",
+    "phase": "fresh",
+    "frameSha256": "cf9ae3599b57e2f9cfa17eea26b697da7c49e8722901615e1e34e5d10f27ed24",
+    "screen": "draft_editor",
+    "layout": "carousel_editor",
+    "nextLabel": {
+      "method": "same_frame_crop_exact_word",
+      "label": "Next",
+      "imageSha256": "600f9f51b84cd4d1b61ae603060354b0d9aab710ac96ccc097d2142116ee7e97"
+    },
+    "cropped": true,
+    "elapsedMs": 943.38,
+    "within1500msProcessingOnly": true,
+    "phoneCalls": 0
+  },
+  {
+    "folder": "22-reopened-slide-two-reviewed",
+    "phase": "fresh",
+    "frameSha256": "1107b0fc336b449a9a6149b61c5fe98d6824af31f67b64da1f3b99fa21b43c51",
+    "screen": "draft_editor",
+    "layout": "carousel_editor",
+    "nextLabel": {
+      "method": "same_frame_crop_exact_word",
+      "label": "Next",
+      "imageSha256": "600f9f51b84cd4d1b61ae603060354b0d9aab710ac96ccc097d2142116ee7e97"
+    },
+    "cropped": true,
+    "elapsedMs": 961.69,
+    "within1500msProcessingOnly": true,
+    "phoneCalls": 0
+  },
+  {
+    "folder": "23-reopened-slide-two-verified",
+    "phase": "fresh",
+    "frameSha256": "e36f11c8f357f35af815080cc6f216890d4e3f2634bc2060413819934de99326",
+    "screen": "draft_editor",
+    "layout": "carousel_editor",
+    "nextLabel": {
+      "method": "same_frame_crop_exact_word",
+      "label": "Next",
+      "imageSha256": "600f9f51b84cd4d1b61ae603060354b0d9aab710ac96ccc097d2142116ee7e97"
+    },
+    "cropped": true,
+    "elapsedMs": 951.72,
+    "within1500msProcessingOnly": true,
+    "phoneCalls": 0
+  },
+  {
+    "folder": "23-reopened-slide-two-verified",
+    "phase": "after",
+    "frameSha256": "371a4cc226f8cac3ae62f0fde021dd27b97798c2df68c5b806b44d2525004e97",
+    "screen": "draft_editor",
+    "layout": "carousel_editor",
+    "nextLabel": {
+      "method": "same_frame_crop_exact_word",
+      "label": "Next",
+      "imageSha256": "118a98d5308fee08c260c012db691738d5ee28b433105db6a78fd1113623b6ce"
+    },
+    "cropped": true,
+    "elapsedMs": 986.68,
+    "within1500msProcessingOnly": true,
+    "phoneCalls": 0
+  },
+  {
+    "folder": "24-reopened-slide-three",
+    "phase": "fresh",
+    "frameSha256": "0970c4a64c17ab752d8fe6a0277e07179fd95f91cb5377a9843b5850e75d1c6e",
+    "screen": "draft_editor",
+    "layout": "carousel_editor",
+    "nextLabel": {
+      "method": "same_frame_crop_exact_word",
+      "label": "Next",
+      "imageSha256": "118a98d5308fee08c260c012db691738d5ee28b433105db6a78fd1113623b6ce"
+    },
+    "cropped": true,
+    "elapsedMs": 994.11,
+    "within1500msProcessingOnly": true,
+    "phoneCalls": 0
+  },
+  {
+    "folder": "24-reopened-slide-three",
+    "phase": "after",
+    "frameSha256": "dde2e98ff22a5635def210c89abdea7a26c48af08c5a4cc576414e55fcd0a32c",
+    "screen": "draft_editor",
+    "layout": "carousel_editor",
+    "nextLabel": {
+      "method": "same_frame_crop_exact_word",
+      "label": "Next",
+      "imageSha256": "118a98d5308fee08c260c012db691738d5ee28b433105db6a78fd1113623b6ce"
+    },
+    "cropped": true,
+    "elapsedMs": 967.39,
+    "within1500msProcessingOnly": true,
+    "phoneCalls": 0
+  },
+  {
+    "folder": "25-reopened-caption",
+    "phase": "fresh",
+    "frameSha256": "3abc3f1952bb7ad7b0c571ea43d487f2622a005183da06e12840f30673d8b37b",
+    "screen": "draft_editor",
+    "layout": "carousel_editor",
+    "nextLabel": {
+      "method": "same_frame_crop_exact_word",
+      "label": "Next",
+      "imageSha256": "118a98d5308fee08c260c012db691738d5ee28b433105db6a78fd1113623b6ce"
+    },
+    "cropped": true,
+    "elapsedMs": 953.51,
+    "within1500msProcessingOnly": true,
+    "phoneCalls": 0
+  }
+]

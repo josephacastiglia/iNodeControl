@@ -1,0 +1,26 @@
+{
+  "source": "retained_frames_not_live_phone",
+  "results": [
+    {
+      "reference": "profile",
+      "sha256": "dd7ddbc83e72f23bf96956355ea0b38e4ca24bec984df51c6769f02e0a0f848f",
+      "processingMs": 469.0,
+      "recognized": true,
+      "screen": "profile"
+    },
+    {
+      "reference": "create",
+      "sha256": "10d93704c398b7cc229c082b1748da5b100e7246e4bfd28fdce393d309bb8d5c",
+      "processingMs": 437.0,
+      "recognized": true,
+      "screen": "create_menu"
+    },
+    {
+      "reference": "editor3",
+      "sha256": "8fc2e4a1714e31f28ab653c3817bccd176bee0fe9a0973a8a60fdf4839fd7e4b",
+      "processingMs": 531.0,
+      "recognized": true,
+      "screen": "draft_editor"
+    }
+  ]
+}

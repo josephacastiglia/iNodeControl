@@ -1,0 +1,273 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "Add sound",
+      "words": [
+        {
+          "y": 94,
+          "height": 14,
+          "width": 30,
+          "text": "Add",
+          "x": 225
+        },
+        {
+          "y": 94,
+          "height": 14,
+          "width": 48,
+          "text": "sound",
+          "x": 261
+        }
+      ]
+    },
+    {
+      "text": "»use 2.0",
+      "words": [
+        {
+          "y": 150,
+          "height": 20,
+          "width": 66,
+          "text": "»use",
+          "x": 1
+        },
+        {
+          "y": 143,
+          "height": 27,
+          "width": 48,
+          "text": "2.0",
+          "x": 79
+        }
+      ]
+    },
+    {
+      "text": "ZOUSEL TRANSFER TEST",
+      "words": [
+        {
+          "y": 233,
+          "height": 24,
+          "width": 105,
+          "text": "ZOUSEL",
+          "x": 1
+        },
+        {
+          "y": 233,
+          "height": 24,
+          "width": 157,
+          "text": "TRANSFER",
+          "x": 115
+        },
+        {
+          "y": 233,
+          "height": 24,
+          "width": 72,
+          "text": "TEST",
+          "x": 280
+        }
+      ]
+    },
+    {
+      "text": "Text",
+      "words": [
+        {
+          "y": 360,
+          "height": 13,
+          "width": 33,
+          "text": "Text",
+          "x": 369
+        }
+      ]
+    },
+    {
+      "text": "Effects",
+      "words": [
+        {
+          "y": 421,
+          "height": 11,
+          "width": 49,
+          "text": "Effects",
+          "x": 353
+        }
+      ]
+    },
+    {
+      "text": "Filters",
+      "words": [
+        {
+          "y": 480,
+          "height": 14,
+          "width": 49,
+          "text": "Filters",
+          "x": 353
+        }
+      ]
+    },
+    {
+      "text": "Stickers",
+      "words": [
+        {
+          "y": 540,
+          "height": 14,
+          "width": 65,
+          "text": "Stickers",
+          "x": 337
+        }
+      ]
+    },
+    {
+      "text": "Captions",
+      "words": [
+        {
+          "y": 600,
+          "height": 17,
+          "width": 71,
+          "text": "Captions",
+          "x": 331
+        }
+      ]
+    },
+    {
+      "text": "Voiceover",
+      "words": [
+        {
+          "y": 661,
+          "height": 13,
+          "width": 80,
+          "text": "Voiceover",
+          "x": 323
+        }
+      ]
+    },
+    {
+      "text": "IDE 1 OF 3",
+      "words": [
+        {
+          "y": 680,
+          "height": 33,
+          "width": 69,
+          "text": "IDE",
+          "x": 1
+        },
+        {
+          "y": 679,
+          "height": 34,
+          "width": 15,
+          "text": "1",
+          "x": 89
+        },
+        {
+          "y": 679,
+          "height": 35,
+          "width": 58,
+          "text": "OF",
+          "x": 126
+        },
+        {
+          "y": 679,
+          "height": 35,
+          "width": 22,
+          "text": "3",
+          "x": 200
+        }
+      ]
+    },
+    {
+      "text": "AFT ONLY",
+      "words": [
+        {
+          "y": 776,
+          "height": 30,
+          "width": 79,
+          "text": "AFT",
+          "x": 1
+        },
+        {
+          "y": 776,
+          "height": 31,
+          "width": 112,
+          "text": "ONLY",
+          "x": 93
+        }
+      ]
+    },
+    {
+      "text": "NOT PUBLISH",
+      "words": [
+        {
+          "y": 839,
+          "height": 26,
+          "width": 74,
+          "text": "NOT",
+          "x": 11
+        },
+        {
+          "y": 839,
+          "height": 26,
+          "width": 142,
+          "text": "PUBLISH",
+          "x": 97
+        }
+      ]
+    },
+    {
+      "text": "Swipe up to edit",
+      "words": [
+        {
+          "y": 944,
+          "height": 14,
+          "width": 47,
+          "text": "Swipe",
+          "x": 190
+        },
+        {
+          "y": 947,
+          "height": 11,
+          "width": 17,
+          "text": "up",
+          "x": 240
+        },
+        {
+          "y": 945,
+          "height": 11,
+          "width": 15,
+          "text": "to",
+          "x": 261
+        },
+        {
+          "y": 944,
+          "height": 12,
+          "width": 27,
+          "text": "edit",
+          "x": 279
+        }
+      ]
+    },
+    {
+      "text": "Edit",
+      "words": [
+        {
+          "y": 998,
+          "height": 14,
+          "width": 30,
+          "text": "Edit",
+          "x": 130
+        }
+      ]
+    },
+    {
+      "text": "Next",
+      "words": [
+        {
+          "y": 999,
+          "height": 13,
+          "width": 37,
+          "text": "Next",
+          "x": 351
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "ccf6ca3c6bbe69b6a43d18062433a248712419e57deb4b67ef1bc013b1b9c480"
+}

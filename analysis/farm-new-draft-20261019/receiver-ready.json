@@ -1,0 +1,30 @@
+{
+  "kernelPid": 38344,
+  "receiver": {
+    "deviceid": "86:1D:4A:04:2F:F6",
+    "name": "iMouse2-C24C",
+    "receiver_pid": 43232,
+    "receiver_restarts": 0,
+    "receiver_state": "offline",
+    "receiver_message": "",
+    "live": false,
+    "frames": 0,
+    "frame_delivery": "waiting",
+    "frame_age_ms": null,
+    "frame_session": "7f205d1223fc4994ac5bcc85bcf8e633",
+    "frame_message": "Waiting for the receiver frame pipe.",
+    "frame_pipe_connected": false
+  },
+  "input": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "",
+    "generation": 0,
+    "lease_remaining_ms": 0
+  },
+  "phoneInput": false
+}

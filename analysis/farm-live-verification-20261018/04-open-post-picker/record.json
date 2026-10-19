@@ -1,0 +1,28 @@
+{
+  "source": "agent_supervised_phone",
+  "action": "tap",
+  "intent": "choose_post_format",
+  "point": [
+    87,
+    946
+  ],
+  "commands": [],
+  "captures": [],
+  "cleanup": "not_needed",
+  "state": "review_required",
+  "savedDraftVerified": false,
+  "automaticInputAllowed": false,
+  "reviewFrameSha256": "f6b412110d4d66c517109692ea1f761cdad085b3ea3c61e5922c984ef9a77a7f",
+  "error": "Page changed since visual review; inspect the retained fresh frame before another explicit step.",
+  "finalInput": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 2,
+    "lease_remaining_ms": 0
+  }
+}

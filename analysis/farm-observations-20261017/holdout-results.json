@@ -1,0 +1,146 @@
+[
+  {
+    "step": "102-tiktok-video-editor",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "109-tiktok-video-reopen",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "110-tiktok-remove-suggested-sound",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "127-x-reopened-video-play",
+    "expected": "draft_details",
+    "actual": "draft_details",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "140-youtube-mp4-trim-review",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "141-youtube-mp4-editor",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "148-youtube-video-draft-reopen",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "158-instagram-reel-edit",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "159-instagram-reel-details",
+    "expected": "draft_details",
+    "actual": "draft_details",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "161-instagram-reel-caption",
+    "expected": "draft_details",
+    "actual": "unknown",
+    "matched": false,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "162-instagram-reel-caption-ok",
+    "expected": "draft_details",
+    "actual": "draft_details",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "23-tiktok-drafts-library",
+    "expected": "profile",
+    "actual": "draft_library",
+    "matched": false,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "24-tiktok-reopen",
+    "expected": "draft_details",
+    "actual": "unknown",
+    "matched": false,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "43-x-reopen-draft",
+    "expected": "draft_details",
+    "actual": "draft_details",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "60-youtube-test-label",
+    "expected": "draft_details",
+    "actual": "draft_details",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "64-youtube-reopen",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "65-youtube-reopened-details",
+    "expected": "draft_details",
+    "actual": "draft_details",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  },
+  {
+    "step": "90-photos-video-check",
+    "expected": "unknown",
+    "actual": "unknown",
+    "matched": true,
+    "inputAllowed": false,
+    "accountAccepted": false
+  }
+]

@@ -1,0 +1,14 @@
+test_partial_next_needs_frame_geometry_without_repairing_text (test_farm_screen_layout.LayoutTests.test_partial_next_needs_frame_geometry_without_repairing_text) ... FAIL
+
+======================================================================
+FAIL: test_partial_next_needs_frame_geometry_without_repairing_text (test_farm_screen_layout.LayoutTests.test_partial_next_needs_frame_geometry_without_repairing_text)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_screen_layout.py", line 60, in test_partial_next_needs_frame_geometry_without_repairing_text
+    self.assertEqual('carousel_editor',result['layout'])
+AssertionError: 'carousel_editor' != None
+
+----------------------------------------------------------------------
+Ran 1 test in 0.026s
+
+FAILED (failures=1)

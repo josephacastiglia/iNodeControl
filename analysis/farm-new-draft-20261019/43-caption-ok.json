@@ -1,0 +1,806 @@
+{
+  "imageSha256": "0efaff22a4754e81f77b784d221bf7effc01c758656bc4782873a3d7191ff5ff",
+  "provider": "windows-ocr",
+  "language": "en-US",
+  "lines": [
+    {
+      "text": "5:04",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 42,
+          "text": "5:04",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "iMouse 2.0",
+      "words": [
+        {
+          "y": 149,
+          "height": 10,
+          "width": 41,
+          "text": "iMouse",
+          "x": 38
+        },
+        {
+          "y": 150,
+          "height": 9,
+          "width": 17,
+          "text": "2.0",
+          "x": 82
+        }
+      ]
+    },
+    {
+      "text": "CAROUSEL TRANSFER TEST",
+      "words": [
+        {
+          "y": 180,
+          "height": 9,
+          "width": 55,
+          "text": "CAROUSEL",
+          "x": 37
+        },
+        {
+          "y": 180,
+          "height": 9,
+          "width": 54,
+          "text": "TRANSFER",
+          "x": 94
+        },
+        {
+          "y": 180,
+          "height": 9,
+          "width": 24,
+          "text": "TEST",
+          "x": 151
+        }
+      ]
+    },
+    {
+      "text": "SLIDE 1 OF 3",
+      "words": [
+        {
+          "y": 332,
+          "height": 12,
+          "width": 42,
+          "text": "SLIDE",
+          "x": 38
+        },
+        {
+          "y": 332,
+          "height": 12,
+          "width": 5,
+          "text": "1",
+          "x": 86
+        },
+        {
+          "y": 332,
+          "height": 12,
+          "width": 20,
+          "text": "OF",
+          "x": 98
+        },
+        {
+          "y": 332,
+          "height": 12,
+          "width": 8,
+          "text": "3",
+          "x": 123
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY",
+      "words": [
+        {
+          "y": 365,
+          "height": 11,
+          "width": 45,
+          "text": "DRAFT",
+          "x": 38
+        },
+        {
+          "y": 365,
+          "height": 11,
+          "width": 38,
+          "text": "ONLY",
+          "x": 87
+        }
+      ]
+    },
+    {
+      "text": "DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 386,
+          "height": 10,
+          "width": 17,
+          "text": "DO",
+          "x": 38
+        },
+        {
+          "y": 386,
+          "height": 10,
+          "width": 25,
+          "text": "NOT",
+          "x": 59
+        },
+        {
+          "y": 386,
+          "height": 10,
+          "width": 49,
+          "text": "PUBLISH",
+          "x": 88
+        }
+      ]
+    },
+    {
+      "text": "soy",
+      "words": [
+        {
+          "y": 23,
+          "height": 14,
+          "width": 16,
+          "text": "soy",
+          "x": 397
+        }
+      ]
+    },
+    {
+      "text": "New post",
+      "words": [
+        {
+          "y": 78,
+          "height": 14,
+          "width": 40,
+          "text": "New",
+          "x": 207
+        },
+        {
+          "y": 78,
+          "height": 17,
+          "width": 41,
+          "text": "post",
+          "x": 253
+        }
+      ]
+    },
+    {
+      "text": "iMouse 2.0",
+      "words": [
+        {
+          "y": 149,
+          "height": 10,
+          "width": 42,
+          "text": "iMouse",
+          "x": 284
+        },
+        {
+          "y": 150,
+          "height": 9,
+          "width": 17,
+          "text": "2.0",
+          "x": 329
+        }
+      ]
+    },
+    {
+      "text": "CAROUSEL TRANSFER TEST",
+      "words": [
+        {
+          "y": 180,
+          "height": 9,
+          "width": 54,
+          "text": "CAROUSEL",
+          "x": 284
+        },
+        {
+          "y": 180,
+          "height": 9,
+          "width": 54,
+          "text": "TRANSFER",
+          "x": 341
+        },
+        {
+          "y": 180,
+          "height": 9,
+          "width": 25,
+          "text": "TEST",
+          "x": 397
+        }
+      ]
+    },
+    {
+      "text": "SLIDE 2 OF 3",
+      "words": [
+        {
+          "y": 332,
+          "height": 12,
+          "width": 42,
+          "text": "SLIDE",
+          "x": 284
+        },
+        {
+          "y": 332,
+          "height": 12,
+          "width": 8,
+          "text": "2",
+          "x": 331
+        },
+        {
+          "y": 332,
+          "height": 12,
+          "width": 20,
+          "text": "OF",
+          "x": 345
+        },
+        {
+          "y": 332,
+          "height": 12,
+          "width": 8,
+          "text": "3",
+          "x": 370
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY",
+      "words": [
+        {
+          "y": 365,
+          "height": 11,
+          "width": 45,
+          "text": "DRAFT",
+          "x": 285
+        },
+        {
+          "y": 365,
+          "height": 11,
+          "width": 38,
+          "text": "ONLY",
+          "x": 334
+        }
+      ]
+    },
+    {
+      "text": "DO NOT PUBLISH",
+      "words": [
+        {
+          "y": 386,
+          "height": 10,
+          "width": 18,
+          "text": "DO",
+          "x": 284
+        },
+        {
+          "y": 386,
+          "height": 10,
+          "width": 25,
+          "text": "NOT",
+          "x": 306
+        },
+        {
+          "y": 386,
+          "height": 10,
+          "width": 48,
+          "text": "PUBLISH",
+          "x": 335
+        }
+      ]
+    },
+    {
+      "text": "iMouse carousel draft test.",
+      "words": [
+        {
+          "y": 454,
+          "height": 14,
+          "width": 55,
+          "text": "iMouse",
+          "x": 21
+        },
+        {
+          "y": 454,
+          "height": 13,
+          "width": 65,
+          "text": "carousel",
+          "x": 81
+        },
+        {
+          "y": 454,
+          "height": 13,
+          "width": 36,
+          "text": "draft",
+          "x": 152
+        },
+        {
+          "y": 456,
+          "height": 11,
+          "width": 33,
+          "text": "test.",
+          "x": 193
+        }
+      ]
+    },
+    {
+      "text": "Three numbered slides in order: 1, 2, 3.",
+      "words": [
+        {
+          "y": 474,
+          "height": 13,
+          "width": 44,
+          "text": "Three",
+          "x": 21
+        },
+        {
+          "y": 474,
+          "height": 13,
+          "width": 77,
+          "text": "numbered",
+          "x": 71
+        },
+        {
+          "y": 474,
+          "height": 13,
+          "width": 44,
+          "text": "slides",
+          "x": 154
+        },
+        {
+          "y": 474,
+          "height": 13,
+          "width": 12,
+          "text": "in",
+          "x": 204
+        },
+        {
+          "y": 474,
+          "height": 13,
+          "width": 45,
+          "text": "order:",
+          "x": 221
+        },
+        {
+          "y": 475,
+          "height": 15,
+          "width": 10,
+          "text": "1,",
+          "x": 273
+        },
+        {
+          "y": 475,
+          "height": 15,
+          "width": 13,
+          "text": "2,",
+          "x": 289
+        },
+        {
+          "y": 475,
+          "height": 13,
+          "width": 12,
+          "text": "3.",
+          "x": 309
+        }
+      ]
+    },
+    {
+      "text": "DRAFT ONLY - do not publish.",
+      "words": [
+        {
+          "y": 495,
+          "height": 12,
+          "width": 53,
+          "text": "DRAFT",
+          "x": 21
+        },
+        {
+          "y": 495,
+          "height": 13,
+          "width": 43,
+          "text": "ONLY",
+          "x": 79
+        },
+        {
+          "y": 501,
+          "height": 2,
+          "width": 6,
+          "text": "-",
+          "x": 128
+        },
+        {
+          "y": 494,
+          "height": 13,
+          "width": 19,
+          "text": "do",
+          "x": 140
+        },
+        {
+          "y": 495,
+          "height": 12,
+          "width": 24,
+          "text": "not",
+          "x": 165
+        },
+        {
+          "y": 494,
+          "height": 16,
+          "width": 59,
+          "text": "publish.",
+          "x": 195
+        }
+      ]
+    },
+    {
+      "text": "2- poll",
+      "words": [
+        {
+          "y": 580,
+          "height": 14,
+          "width": 15,
+          "text": "2-",
+          "x": 37
+        },
+        {
+          "y": 581,
+          "height": 12,
+          "width": 25,
+          "text": "poll",
+          "x": 62
+        }
+      ]
+    },
+    {
+      "text": "Prompt",
+      "words": [
+        {
+          "y": 582,
+          "height": 13,
+          "width": 50,
+          "text": "Prompt",
+          "x": 154
+        }
+      ]
+    },
+    {
+      "text": "Add audio",
+      "words": [
+        {
+          "y": 641,
+          "height": 15,
+          "width": 34,
+          "text": "Add",
+          "x": 64
+        },
+        {
+          "y": 641,
+          "height": 15,
+          "width": 47,
+          "text": "audio",
+          "x": 104
+        }
+      ]
+    },
+    {
+      "text": "Mrs Magic",
+      "words": [
+        {
+          "y": 690,
+          "height": 13,
+          "width": 28,
+          "text": "Mrs",
+          "x": 91
+        },
+        {
+          "y": 690,
+          "height": 16,
+          "width": 45,
+          "text": "Magic",
+          "x": 125
+        }
+      ]
+    },
+    {
+      "text": "Tag people",
+      "words": [
+        {
+          "y": 754,
+          "height": 18,
+          "width": 30,
+          "text": "Tag",
+          "x": 64
+        },
+        {
+          "y": 754,
+          "height": 18,
+          "width": 58,
+          "text": "people",
+          "x": 101
+        }
+      ]
+    },
+    {
+      "text": "Add location",
+      "words": [
+        {
+          "y": 812,
+          "height": 15,
+          "width": 34,
+          "text": "Add",
+          "x": 65
+        },
+        {
+          "y": 812,
+          "height": 15,
+          "width": 67,
+          "text": "location",
+          "x": 106
+        }
+      ]
+    },
+    {
+      "text": "Add Al Label",
+      "words": [
+        {
+          "y": 865,
+          "height": 15,
+          "width": 34,
+          "text": "Add",
+          "x": 64
+        },
+        {
+          "y": 866,
+          "height": 14,
+          "width": 16,
+          "text": "Al",
+          "x": 104
+        },
+        {
+          "y": 865,
+          "height": 15,
+          "width": 45,
+          "text": "Label",
+          "x": 127
+        }
+      ]
+    },
+    {
+      "text": "\u2022 Straw...",
+      "words": [
+        {
+          "y": 697,
+          "height": 2,
+          "width": 3,
+          "text": "\u2022",
+          "x": 176
+        },
+        {
+          "y": 690,
+          "height": 13,
+          "width": 56,
+          "text": "Straw...",
+          "x": 185
+        }
+      ]
+    },
+    {
+      "text": "existing \u2022 your war. _",
+      "words": [
+        {
+          "y": 690,
+          "height": 16,
+          "width": 58,
+          "text": "existing",
+          "x": 317
+        },
+        {
+          "y": 697,
+          "height": 2,
+          "width": 2,
+          "text": "\u2022",
+          "x": 382
+        },
+        {
+          "y": 693,
+          "height": 13,
+          "width": 34,
+          "text": "your",
+          "x": 390
+        },
+        {
+          "y": 694,
+          "height": 9,
+          "width": 32,
+          "text": "war.",
+          "x": 429
+        },
+        {
+          "y": 701,
+          "height": 2,
+          "width": 5,
+          "text": "_",
+          "x": 463
+        }
+      ]
+    },
+    {
+      "text": "This label is required for realistic photos",
+      "words": [
+        {
+          "y": 888,
+          "height": 13,
+          "width": 32,
+          "text": "This",
+          "x": 64
+        },
+        {
+          "y": 888,
+          "height": 13,
+          "width": 35,
+          "text": "label",
+          "x": 102
+        },
+        {
+          "y": 888,
+          "height": 13,
+          "width": 11,
+          "text": "is",
+          "x": 143
+        },
+        {
+          "y": 888,
+          "height": 16,
+          "width": 62,
+          "text": "required",
+          "x": 161
+        },
+        {
+          "y": 888,
+          "height": 13,
+          "width": 21,
+          "text": "for",
+          "x": 229
+        },
+        {
+          "y": 888,
+          "height": 13,
+          "width": 59,
+          "text": "realistic",
+          "x": 256
+        },
+        {
+          "y": 888,
+          "height": 16,
+          "width": 52,
+          "text": "photos",
+          "x": 321
+        }
+      ]
+    },
+    {
+      "text": "and videos made with Al. People will see it",
+      "words": [
+        {
+          "y": 909,
+          "height": 13,
+          "width": 27,
+          "text": "and",
+          "x": 64
+        },
+        {
+          "y": 909,
+          "height": 13,
+          "width": 49,
+          "text": "videos",
+          "x": 98
+        },
+        {
+          "y": 909,
+          "height": 13,
+          "width": 42,
+          "text": "made",
+          "x": 153
+        },
+        {
+          "y": 909,
+          "height": 13,
+          "width": 31,
+          "text": "with",
+          "x": 201
+        },
+        {
+          "y": 909,
+          "height": 13,
+          "width": 18,
+          "text": "Al.",
+          "x": 238
+        },
+        {
+          "y": 909,
+          "height": 16,
+          "width": 52,
+          "text": "People",
+          "x": 263
+        },
+        {
+          "y": 909,
+          "height": 13,
+          "width": 24,
+          "text": "will",
+          "x": 320
+        },
+        {
+          "y": 912,
+          "height": 10,
+          "width": 26,
+          "text": "see",
+          "x": 350
+        },
+        {
+          "y": 909,
+          "height": 13,
+          "width": 9,
+          "text": "it",
+          "x": 382
+        }
+      ]
+    },
+    {
+      "text": "on your content. Learn more",
+      "words": [
+        {
+          "y": 932,
+          "height": 10,
+          "width": 18,
+          "text": "on",
+          "x": 64
+        },
+        {
+          "y": 932,
+          "height": 13,
+          "width": 33,
+          "text": "your",
+          "x": 88
+        },
+        {
+          "y": 930,
+          "height": 12,
+          "width": 62,
+          "text": "content.",
+          "x": 127
+        },
+        {
+          "y": 929,
+          "height": 13,
+          "width": 42,
+          "text": "Learn",
+          "x": 196
+        },
+        {
+          "y": 932,
+          "height": 10,
+          "width": 39,
+          "text": "more",
+          "x": 244
+        }
+      ]
+    },
+    {
+      "text": "Share",
+      "words": [
+        {
+          "y": 991,
+          "height": 13,
+          "width": 46,
+          "text": "Share",
+          "x": 227
+        }
+      ]
+    }
+  ],
+  "height": 1080,
+  "width": 500,
+  "frameSha256": "0efaff22a4754e81f77b784d221bf7effc01c758656bc4782873a3d7191ff5ff"
+}

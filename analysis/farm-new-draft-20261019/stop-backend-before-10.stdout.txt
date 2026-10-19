@@ -1,0 +1,3 @@
+00:42:14.712 stopping PID 52796 (python.exe); children: 52000 conhost.exe
+00:42:14.957 processes attached to PID 52796's console: 45096 powershell.exe, 52796 python.exe
+00:42:15.578 PID 52796 exited; children still running: none

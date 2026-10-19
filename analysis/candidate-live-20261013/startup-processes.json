@@ -1,0 +1,8 @@
+{
+  "ProcessId": 41732,
+  "ParentProcessId": 10764,
+  "Name": "iMouse2.Kernel.exe",
+  "ExecutablePath": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\scope-release-20261012\\kernel\\bin\\iMouse2.Kernel.exe",
+  "CommandLine": "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\scope-release-20261012\\kernel\\bin\\iMouse2.Kernel.exe\" http://127.0.0.1:9913/api/ --data-dir \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\scope-release-20261012\\kernel\\data\" --input-pid C24C --receivers \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\scope-release-20261012\\kernel\\data\\receivers.json\" --receiver \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-scope-release-20261012\\payload\\receiver\\uxplay.exe\" --receiver-runtime \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-scope-release-20261012\\dependencies\\receiver-runtime\\runtime\"",
+  "CreationDate": "2026-10-13T00:18:11.949941-04:00"
+}

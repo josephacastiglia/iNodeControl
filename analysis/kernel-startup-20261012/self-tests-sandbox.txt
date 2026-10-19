@@ -1,0 +1,65 @@
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 0
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 1
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 2
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 3
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 4
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 5
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 6
+PASS Down matches captured packet
+PASS Corner reset matches captured packet
+PASS ASCII space and shifted digit usages
+PASS Letter modifiers match captured packets
+PASS Unapproved batch target rejects whole request before output
+PASS Out of bounds click sends nothing
+click pid=C24C known=False reset=59ms steps=0 send=0ms delay=0ms settle=123ms button=93ms total=277ms
+PASS First absolute action releases inputs and establishes corner origin
+PASS Click holds then releases
+PASS Click settles with a zero-motion report before button down
+PASS Drag settles, then preserves held button during relative steps
+PASS Space is emitted as USB usage 44 between letters
+PASS Home reproduces observed Tab and GUI+H sequence
+click pid=C24C known=False reset=60ms steps=2 send=0ms delay=30ms settle=124ms button=94ms total=309ms
+PASS Home invalidates the pointer estimate; next click re-establishes origin
+PASS Transport failure is reported
+PASS Failure releases inputs and discards handle
+PASS Movement failure is surfaced (precise=False)
+PASS Movement failure forces a new connection and corner reset (precise=False)
+PASS Movement failure is surfaced (precise=True)
+PASS Movement failure forces a new connection and corner reset (precise=True)
+click pid=C24C known=False reset=61ms steps=37 send=0ms delay=552ms settle=125ms button=93ms total=846ms
+click pid=C24C known=False reset=62ms steps=37 send=0ms delay=557ms settle=123ms button=92ms total=848ms
+click pid=C24C known=False reset=71ms steps=37 send=0ms delay=259ms settle=127ms button=93ms total=567ms
+click pid=C24C known=False reset=61ms steps=37 send=0ms delay=259ms settle=134ms button=92ms total=558ms
+PASS Precise pacing preserves all reset, movement, keyboard, click and swipe packets
+PASS Precise clicks retain both cold-start and post-Home corner resets
+click pid=C24C known=True reset=0ms steps=194 send=0ms delay=2916ms settle=124ms button=94ms total=3223ms
+click pid=C24C known=True reset=0ms steps=178 send=0ms delay=2686ms settle=124ms button=92ms total=2974ms
+click pid=C24C known=True reset=0ms steps=196 send=0ms delay=2958ms settle=123ms button=93ms total=3258ms
+click pid=C24C known=True reset=0ms steps=209 send=0ms delay=3154ms settle=123ms button=93ms total=3460ms
+click pid=C24C known=True reset=0ms steps=151 send=0ms delay=2279ms settle=124ms button=95ms total=2570ms
+PASS Clicks down to the bottom row emit the full calibrated movement after a reset
+click pid=C24C known=True reset=0ms steps=194 send=0ms delay=2909ms settle=125ms button=94ms total=3219ms
+click pid=C24C known=True reset=0ms steps=29 send=0ms delay=435ms settle=124ms button=94ms total=667ms
+click pid=C24C known=True reset=0ms steps=58 send=0ms delay=867ms settle=125ms button=90ms total=1108ms
+click pid=C24C known=True reset=0ms steps=41 send=0ms delay=607ms settle=121ms button=93ms total=841ms
+click pid=C24C known=True reset=0ms steps=58 send=0ms delay=878ms settle=123ms button=95ms total=1115ms
+PASS Chained lower-screen clicks from a known position end at the last target's units
+PASS Padded bottom-up BMP accepted
+PASS Video is offline before a receiver sends a frame
+PASS Kernel diagnostics expose active calibration and pacing without sending input
+PASS Kernel diagnostics identify the actual assembly bytes
+PASS Kernel diagnostics identify this process and its resource use without hardware calls
+PASS Receiver logging failures remain visible in per-phone diagnostics
+PASS Merged status retains the configured Home sequence alongside frame metadata
+PASS Status distinguishes no frame from a fresh frame without starting a listener
+Unhandled exception. System.UnauthorizedAccessException: Access to the path is denied.
+   at System.IO.Pipes.NamedPipeClientStream.TryConnect(Int32 timeout)
+   at System.IO.Pipes.NamedPipeClientStream.ConnectInternal(Int32 timeout, CancellationToken cancellationToken, Int32 startTime)
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at IMouse2.Kernel.SelfTests.RunAsync() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\SelfTests.cs:line 191
+   at Program.<Main>$(String[] args) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Kernel\Program.cs:line 6
+   at Program.<Main>(String[] args)

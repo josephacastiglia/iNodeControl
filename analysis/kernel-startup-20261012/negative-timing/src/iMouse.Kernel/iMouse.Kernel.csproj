@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>iMouse2.Kernel</AssemblyName>
+    <RootNamespace>IMouse2.Kernel</RootNamespace>
+    <Description>iMouse 2.0 kernel - HID + HTTP, no vendor license</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Update="data\devices.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

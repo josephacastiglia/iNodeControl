@@ -1,0 +1,250 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:13",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 38,
+          "text": "6:13",
+          "x": 44
+        }
+      ]
+    },
+    {
+      "text": "Halle",
+      "words": [
+        {
+          "y": 134,
+          "height": 28,
+          "width": 85,
+          "text": "Halle",
+          "x": 22
+        }
+      ]
+    },
+    {
+      "text": "@xs.halle.xo",
+      "words": [
+        {
+          "y": 178,
+          "height": 13,
+          "width": 85,
+          "text": "@xs.halle.xo",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "7",
+      "words": [
+        {
+          "y": 214,
+          "height": 15,
+          "width": 10,
+          "text": "7",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "1",
+      "words": [
+        {
+          "y": 214,
+          "height": 15,
+          "width": 8,
+          "text": "1",
+          "x": 117
+        }
+      ]
+    },
+    {
+      "text": "3",
+      "words": [
+        {
+          "y": 214,
+          "height": 16,
+          "width": 11,
+          "text": "3",
+          "x": 207
+        }
+      ]
+    },
+    {
+      "text": "Following",
+      "words": [
+        {
+          "y": 237,
+          "height": 15,
+          "width": 66,
+          "text": "Following",
+          "x": 21
+        }
+      ]
+    },
+    {
+      "text": "Follower",
+      "words": [
+        {
+          "y": 237,
+          "height": 12,
+          "width": 59,
+          "text": "Follower",
+          "x": 118
+        }
+      ]
+    },
+    {
+      "text": "Likes",
+      "words": [
+        {
+          "y": 237,
+          "height": 12,
+          "width": 35,
+          "text": "Likes",
+          "x": 207
+        }
+      ]
+    },
+    {
+      "text": "+ Add bio + Add college",
+      "words": [
+        {
+          "y": 284,
+          "height": 11,
+          "width": 11,
+          "text": "+",
+          "x": 34
+        },
+        {
+          "y": 283,
+          "height": 12,
+          "width": 29,
+          "text": "Add",
+          "x": 52
+        },
+        {
+          "y": 283,
+          "height": 12,
+          "width": 22,
+          "text": "bio",
+          "x": 87
+        },
+        {
+          "y": 284,
+          "height": 11,
+          "width": 11,
+          "text": "+",
+          "x": 144
+        },
+        {
+          "y": 283,
+          "height": 12,
+          "width": 29,
+          "text": "Add",
+          "x": 162
+        },
+        {
+          "y": 283,
+          "height": 15,
+          "width": 53,
+          "text": "college",
+          "x": 196
+        }
+      ]
+    },
+    {
+      "text": "Home",
+      "words": [
+        {
+          "y": 1021,
+          "height": 9,
+          "width": 32,
+          "text": "Home",
+          "x": 35
+        }
+      ]
+    },
+    {
+      "text": "00",
+      "words": [
+        {
+          "y": 990,
+          "height": 12,
+          "width": 22,
+          "text": "00",
+          "x": 141
+        }
+      ]
+    },
+    {
+      "text": "Friends",
+      "words": [
+        {
+          "y": 1021,
+          "height": 9,
+          "width": 41,
+          "text": "Friends",
+          "x": 130
+        }
+      ]
+    },
+    {
+      "text": "09",
+      "words": [
+        {
+          "y": 72,
+          "height": 25,
+          "width": 22,
+          "text": "09",
+          "x": 356
+        }
+      ]
+    },
+    {
+      "text": "On your mind__.",
+      "words": [
+        {
+          "y": 132,
+          "height": 9,
+          "width": 15,
+          "text": "On",
+          "x": 380
+        },
+        {
+          "y": 134,
+          "height": 9,
+          "width": 25,
+          "text": "your",
+          "x": 399
+        },
+        {
+          "y": 131,
+          "height": 10,
+          "width": 36,
+          "text": "mind__.",
+          "x": 428
+        }
+      ]
+    },
+    {
+      "text": "Profile",
+      "words": [
+        {
+          "y": 1021,
+          "height": 9,
+          "width": 37,
+          "text": "Profile",
+          "x": 431
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "59f67fc53e47be9f06f42bb496229e3874f44feab7b59d9d1fa51988d82fff96"
+}

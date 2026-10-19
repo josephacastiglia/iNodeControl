@@ -1,0 +1,6 @@
+{
+  "phoneInput": false,
+  "desktopControl": false,
+  "operatorSettingsSha256": "72f51cc0bee805f722d73bc024cad771b19a68e2e7c04d9d47f8e9e4a8a5e5ba",
+  "error": "Kernel request GET http://127.0.0.1:9913/api/kernel/status failed/timed out: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+}

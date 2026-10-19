@@ -1,0 +1,15 @@
+test_caption_limits_never_silently_truncate (test_farm_video.VideoDraftTests.test_caption_limits_never_silently_truncate) ... ok
+test_corrupt_staged_bytes_and_traversal_never_encode (test_farm_video.VideoDraftTests.test_corrupt_staged_bytes_and_traversal_never_encode) ... ok
+test_corrupt_video_package_refused (test_farm_video.VideoDraftTests.test_corrupt_video_package_refused) ... ok
+test_failed_encoding_does_not_create_draft_or_replace_source (test_farm_video.VideoDraftTests.test_failed_encoding_does_not_create_draft_or_replace_source) ... ok
+test_immutable_snapshot_duplicate_request_and_restart (test_farm_video.VideoDraftTests.test_immutable_snapshot_duplicate_request_and_restart) ... ok
+test_missing_tools_and_long_video_refuse_instead_of_fake_success (test_farm_video.VideoDraftTests.test_missing_tools_and_long_video_refuse_instead_of_fake_success) ... ok
+test_normalization_is_h264_vertical_preserves_duration_and_full_frame (test_farm_video.VideoDraftTests.test_normalization_is_h264_vertical_preserves_duration_and_full_frame) ... ok
+test_other_phone_and_unsupported_format_refused (test_farm_video.VideoDraftTests.test_other_phone_and_unsupported_format_refused) ... ok
+test_real_http_ranges_head_expiry_and_no_false_save (test_farm_video.VideoDraftTests.test_real_http_ranges_head_expiry_and_no_false_save) ... ok
+test_video_package_has_exact_content_and_no_app_completion_claim (test_farm_video.VideoDraftTests.test_video_package_has_exact_content_and_no_app_completion_claim) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.586s
+
+OK

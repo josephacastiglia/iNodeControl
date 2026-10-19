@@ -1,0 +1,122 @@
+test_cancel_bypasses_operation_lock_even_during_lost_save_reply (test_farm_rehearsal_http.RehearsalHttpTests.test_cancel_bypasses_operation_lock_even_during_lost_save_reply) ... FAIL
+test_live_backend_cannot_run_rehearsal_or_route_to_phone (test_farm_rehearsal_http.RehearsalHttpTests.test_live_backend_cannot_run_rehearsal_or_route_to_phone) ... ERROR
+test_real_http_run_recover_history_frame_and_origin_without_kernel_access (test_farm_rehearsal_http.RehearsalHttpTests.test_real_http_run_recover_history_frame_and_origin_without_kernel_access) ... ERROR
+
+======================================================================
+ERROR: test_live_backend_cannot_run_rehearsal_or_route_to_phone (test_farm_rehearsal_http.RehearsalHttpTests.test_live_backend_cannot_run_rehearsal_or_route_to_phone)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1286, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1332, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1281, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1041, in _send_output
+    self.send(msg)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 979, in send
+    self.connect()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 945, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 851, in create_connection
+    raise exceptions[0]
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 836, in create_connection
+    sock.connect(sa)
+PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_rehearsal_http.py", line 50, in test_live_backend_cannot_run_rehearsal_or_route_to_phone
+    self.assertEqual(400,self.request('/api/farm/draft-rehearsals',spec)[0])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_rehearsal_http.py", line 21, in request
+    return self._request(path,*args,timeout=timeout,**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_http_jobs.py", line 52, in request
+    response = self.opener.open(request, timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 519, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 496, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1377, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions>
+
+======================================================================
+ERROR: test_real_http_run_recover_history_frame_and_origin_without_kernel_access (test_farm_rehearsal_http.RehearsalHttpTests.test_real_http_run_recover_history_frame_and_origin_without_kernel_access)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1286, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1332, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1281, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1041, in _send_output
+    self.send(msg)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 979, in send
+    self.connect()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 945, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 851, in create_connection
+    raise exceptions[0]
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 836, in create_connection
+    sock.connect(sa)
+PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_rehearsal_http.py", line 32, in test_real_http_run_recover_history_frame_and_origin_without_kernel_access
+    status,response=self.request(route,spec)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_rehearsal_http.py", line 21, in request
+    return self._request(path,*args,timeout=timeout,**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_http_jobs.py", line 52, in request
+    response = self.opener.open(request, timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 519, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 496, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1377, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions>
+
+======================================================================
+FAIL: test_cancel_bypasses_operation_lock_even_during_lost_save_reply (test_farm_rehearsal_http.RehearsalHttpTests.test_cancel_bypasses_operation_lock_even_during_lost_save_reply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_rehearsal_http.py", line 64, in test_cancel_bypasses_operation_lock_even_during_lost_save_reply
+    self.assertTrue(entered.wait(20), 'The prepared workflow must reach the controlled Save boundary.')
+AssertionError: False is not true : The prepared workflow must reach the controlled Save boundary.
+
+----------------------------------------------------------------------
+Ran 3 tests in 21.467s
+
+FAILED (failures=1, errors=2)

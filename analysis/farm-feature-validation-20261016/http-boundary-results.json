@@ -1,0 +1,40 @@
+{
+  "offlineOnly": true,
+  "desktopControl": false,
+  "phoneInput": false,
+  "testServerClosed": true,
+  "handlerErrors": [
+    "JSONDecodeError"
+  ],
+  "results": [
+    {
+      "check": "state",
+      "status": 200,
+      "modeHeader": "simulate",
+      "simulated": true,
+      "personaCount": 19
+    },
+    {
+      "check": "console_hardware_id_warmup",
+      "status": 200,
+      "modeHeader": "simulate",
+      "body": "{\n  \"status\": \"ok\",\n  \"sessionsRun\": 0,\n  \"results\": [],\n  \"executionMode\": \"simulate\",\n  \"simulated\": true\n}"
+    },
+    {
+      "check": "stage_parent_traversal",
+      "status": 200,
+      "modeHeader": "simulate",
+      "body": "test-marker-outside-stage"
+    },
+    {
+      "check": "invalid_json",
+      "status": "connection_closed_without_response"
+    },
+    {
+      "check": "external_origin_refused",
+      "status": 403,
+      "modeHeader": "simulate",
+      "body": "{\n  \"error\": \"Cross-origin request forbidden. Only localhost allowed.\",\n  \"executionMode\": \"simulate\",\n  \"simulated\": true\n}"
+    }
+  ]
+}

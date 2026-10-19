@@ -1,0 +1,3 @@
+00:27:06.124 stopping PID 51880 (python.exe); children: 51552 conhost.exe
+00:27:06.468 processes attached to PID 51880's console: 44732 powershell.exe, 51880 python.exe
+00:27:07.199 PID 51880 exited; children still running: none

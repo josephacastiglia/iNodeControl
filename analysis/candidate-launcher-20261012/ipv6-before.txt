@@ -1,0 +1,8 @@
+Failed: Explicit standard ports and IPv6 are preserved
+At C:\Users\joey_\Desktop\Claude 
+Code\iMouseXP-2.0-combined-candidate\tools\candidate-launcher\Test-CandidateLauncher.ps1:5 char:55
++ ... ([string]$Name,[bool]$OK) { if (!$OK) { throw "Failed: $Name" }; $pas ...
++                                             ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Failed: Explici...6 are preserved:String) [], RuntimeException
+    + FullyQualifiedErrorId : Failed: Explicit standard ports and IPv6 are preserved
+ 

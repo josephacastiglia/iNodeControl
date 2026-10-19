@@ -1,0 +1,1 @@
+OK - Offline engine checks passed using simulated input, generated media and explicit test fixtures. No live publishing, OCR, messaging or iOS shortcut acceptance.

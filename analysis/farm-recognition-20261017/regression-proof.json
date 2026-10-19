@@ -1,0 +1,12 @@
+{
+  "prior": {
+    "afterTwoSecondRecognition": "recent",
+    "restartFreshness": "recent",
+    "restartExpired": false
+  },
+  "candidate": {
+    "afterTwoSecondRecognition": "stale",
+    "restartFreshness": "unavailable",
+    "restartExpired": true
+  }
+}

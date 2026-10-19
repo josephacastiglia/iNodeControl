@@ -1,0 +1,348 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:58",
+      "words": [
+        {
+          "y": 19,
+          "height": 13,
+          "width": 38,
+          "text": "6:58",
+          "x": 47
+        }
+      ]
+    },
+    {
+      "text": "Dra Fts",
+      "words": [
+        {
+          "y": 68,
+          "height": 19,
+          "width": 37,
+          "text": "Dra",
+          "x": 70
+        },
+        {
+          "y": 67,
+          "height": 20,
+          "width": 28,
+          "text": "Fts",
+          "x": 110
+        }
+      ]
+    },
+    {
+      "text": "x",
+      "words": [
+        {
+          "y": 70,
+          "height": 15,
+          "width": 15,
+          "text": "x",
+          "x": 37
+        }
+      ]
+    },
+    {
+      "text": "Removing the YouTube app will delete all draft videos created on",
+      "words": [
+        {
+          "y": 134,
+          "height": 14,
+          "width": 65,
+          "text": "Removing",
+          "x": 17
+        },
+        {
+          "y": 134,
+          "height": 11,
+          "width": 22,
+          "text": "the",
+          "x": 86
+        },
+        {
+          "y": 134,
+          "height": 11,
+          "width": 56,
+          "text": "YouTube",
+          "x": 113
+        },
+        {
+          "y": 137,
+          "height": 10,
+          "width": 25,
+          "text": "app",
+          "x": 174
+        },
+        {
+          "y": 134,
+          "height": 11,
+          "width": 21,
+          "text": "will",
+          "x": 204
+        },
+        {
+          "y": 134,
+          "height": 11,
+          "width": 42,
+          "text": "delete",
+          "x": 230
+        },
+        {
+          "y": 134,
+          "height": 11,
+          "width": 14,
+          "text": "all",
+          "x": 277
+        },
+        {
+          "y": 134,
+          "height": 11,
+          "width": 32,
+          "text": "draft",
+          "x": 296
+        },
+        {
+          "y": 134,
+          "height": 11,
+          "width": 43,
+          "text": "videos",
+          "x": 333
+        },
+        {
+          "y": 134,
+          "height": 11,
+          "width": 50,
+          "text": "created",
+          "x": 382
+        },
+        {
+          "y": 137,
+          "height": 8,
+          "width": 15,
+          "text": "on",
+          "x": 438
+        }
+      ]
+    },
+    {
+      "text": "this device.",
+      "words": [
+        {
+          "y": 151,
+          "height": 11,
+          "width": 24,
+          "text": "this",
+          "x": 16
+        },
+        {
+          "y": 151,
+          "height": 11,
+          "width": 47,
+          "text": "device.",
+          "x": 45
+        }
+      ]
+    },
+    {
+      "text": "IMOUSE-VIDEO-DRAFT-",
+      "words": [
+        {
+          "y": 194,
+          "height": 13,
+          "width": 188,
+          "text": "IMOUSE-VIDEO-DRAFT-",
+          "x": 168
+        }
+      ]
+    },
+    {
+      "text": "TEST-20261017",
+      "words": [
+        {
+          "y": 214,
+          "height": 13,
+          "width": 123,
+          "text": "TEST-20261017",
+          "x": 167
+        }
+      ]
+    },
+    {
+      "text": "31 seconds ago",
+      "words": [
+        {
+          "y": 239,
+          "height": 11,
+          "width": 13,
+          "text": "31",
+          "x": 168
+        },
+        {
+          "y": 239,
+          "height": 11,
+          "width": 57,
+          "text": "seconds",
+          "x": 187
+        },
+        {
+          "y": 241,
+          "height": 12,
+          "width": 25,
+          "text": "ago",
+          "x": 248
+        }
+      ]
+    },
+    {
+      "text": "0:03",
+      "words": [
+        {
+          "y": 373,
+          "height": 11,
+          "width": 30,
+          "text": "0:03",
+          "x": 114
+        }
+      ]
+    },
+    {
+      "text": "IMOUSE-DRAFT-TEST-20261017",
+      "words": [
+        {
+          "y": 418,
+          "height": 14,
+          "width": 254,
+          "text": "IMOUSE-DRAFT-TEST-20261017",
+          "x": 168
+        }
+      ]
+    },
+    {
+      "text": "TRANSFER TEST",
+      "words": [
+        {
+          "y": 439,
+          "height": 7,
+          "width": 44,
+          "text": "TRANSFER",
+          "x": 46
+        },
+        {
+          "y": 439,
+          "height": 7,
+          "width": 20,
+          "text": "TEST",
+          "x": 92
+        }
+      ]
+    },
+    {
+      "text": "33 minutes ago",
+      "words": [
+        {
+          "y": 443,
+          "height": 11,
+          "width": 16,
+          "text": "33",
+          "x": 168
+        },
+        {
+          "y": 443,
+          "height": 11,
+          "width": 52,
+          "text": "minutes",
+          "x": 190
+        },
+        {
+          "y": 446,
+          "height": 11,
+          "width": 24,
+          "text": "ago",
+          "x": 248
+        }
+      ]
+    },
+    {
+      "text": "DE 1 OF 3",
+      "words": [
+        {
+          "y": 562,
+          "height": 10,
+          "width": 16,
+          "text": "DE",
+          "x": 19
+        },
+        {
+          "y": 562,
+          "height": 10,
+          "width": 5,
+          "text": "1",
+          "x": 39
+        },
+        {
+          "y": 562,
+          "height": 10,
+          "width": 16,
+          "text": "OF",
+          "x": 50
+        },
+        {
+          "y": 562,
+          "height": 10,
+          "width": 7,
+          "text": "3",
+          "x": 70
+        }
+      ]
+    },
+    {
+      "text": "AFT ONLY",
+      "words": [
+        {
+          "y": 589,
+          "height": 9,
+          "width": 20,
+          "text": "AFT",
+          "x": 17
+        },
+        {
+          "y": 589,
+          "height": 9,
+          "width": 31,
+          "text": "ONLY",
+          "x": 41
+        }
+      ]
+    },
+    {
+      "text": "0:01",
+      "words": [
+        {
+          "y": 597,
+          "height": 12,
+          "width": 27,
+          "text": "0:01",
+          "x": 116
+        }
+      ]
+    },
+    {
+      "text": "NOT",
+      "words": [
+        {
+          "y": 606,
+          "height": 8,
+          "width": 19,
+          "text": "NOT",
+          "x": 19
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "bc204517db6ffd34ddc18352af899c8e4caaec90b0562ffef3e47cffbcb065a2"
+}

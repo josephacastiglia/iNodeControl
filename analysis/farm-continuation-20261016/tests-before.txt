@@ -1,0 +1,461 @@
+test_c24c_alias_cannot_resolve_to_another_phone (test_farm_execution_safety.FarmExecutionSafetyTests.test_c24c_alias_cannot_resolve_to_another_phone) ... FAIL
+test_c24c_post_is_sent_once_and_does_not_rewrite_action (test_farm_execution_safety.FarmExecutionSafetyTests.test_c24c_post_is_sent_once_and_does_not_rewrite_action) ... ok
+test_default_runtime_never_probes_or_selects_live_kernel (test_farm_execution_safety.FarmExecutionSafetyTests.test_default_runtime_never_probes_or_selects_live_kernel) ... FAIL
+test_default_runtime_never_probes_or_selects_live_kernel (test_farm_execution_safety.FarmExecutionSafetyTests.test_default_runtime_never_probes_or_selects_live_kernel) ... ERROR
+test_explicit_simulation_preserves_mock_phone_work_without_network (test_farm_execution_safety.FarmExecutionSafetyTests.test_explicit_simulation_preserves_mock_phone_work_without_network) ... ERROR
+test_live_outage_refuses_instead_of_substituting_simulation (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_outage_refuses_instead_of_substituting_simulation) ... ERROR
+test_live_ready_returns_live_transport_and_same_mode (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_ready_returns_live_transport_and_same_mode) ... ERROR
+test_live_requires_ownership_protocol (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_requires_ownership_protocol) ... ERROR
+test_live_status_remains_read_only_and_available (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_status_remains_read_only_and_available) ... ok
+test_mixed_group_is_rejected_before_any_transport (test_farm_execution_safety.FarmExecutionSafetyTests.test_mixed_group_is_rejected_before_any_transport) ... FAIL
+test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) ... 
+  test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) (target='C241') ... FAIL
+  test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) (target='RACK-03') ... FAIL
+  test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) (target='unknown') ... FAIL
+  test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) (target='') ... FAIL
+test_proxy_live_request_cannot_skip_target_guard (test_farm_execution_safety.FarmExecutionSafetyTests.test_proxy_live_request_cannot_skip_target_guard) ... ERROR
+test_proxy_post_uses_runtime_mode_and_guarded_client (test_farm_execution_safety.FarmExecutionSafetyTests.test_proxy_post_uses_runtime_mode_and_guarded_client) ... ERROR
+test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) ... 
+  test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) (data={'id': 'FE:A9:BC:D7:A0:44'}) ... FAIL
+  test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) (data={'id': '86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44'}) ... FAIL
+  test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) (data={'id': ''}) ... FAIL
+  test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) (data={}) ... FAIL
+test_send_payload_cannot_override_target_or_lease (test_farm_execution_safety.FarmExecutionSafetyTests.test_send_payload_cannot_override_target_or_lease) ... 
+  test_send_payload_cannot_override_target_or_lease (test_farm_execution_safety.FarmExecutionSafetyTests.test_send_payload_cannot_override_target_or_lease) (data={'id': 'FE:A9:BC:D7:A0:44'}) ... FAIL
+  test_send_payload_cannot_override_target_or_lease (test_farm_execution_safety.FarmExecutionSafetyTests.test_send_payload_cannot_override_target_or_lease) (data={'tokens': {'86:1D:4A:04:2F:F6': 'another-lease'}}) ... FAIL
+test_send_payload_cannot_override_target_or_lease (test_farm_execution_safety.FarmExecutionSafetyTests.test_send_payload_cannot_override_target_or_lease) ... FAIL
+test_unknown_mode_is_rejected_before_creating_database (test_farm_execution_safety.FarmExecutionSafetyTests.test_unknown_mode_is_rejected_before_creating_database) ... ERROR
+
+======================================================================
+ERROR: test_default_runtime_never_probes_or_selects_live_kernel (test_farm_execution_safety.FarmExecutionSafetyTests.test_default_runtime_never_probes_or_selects_live_kernel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\shutil.py", line 620, in _rmtree_unsafe
+    os.unlink(fullname)
+PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\joey_\\AppData\\Local\\Packages\\sandbox.{5dfbd617-429a-45c1-b334-4a2560080fcc}\\AC\\Temp\\tmpzx1s0vdt\\farm.db'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\tempfile.py", line 878, in onerror
+    _os.unlink(path)
+PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\joey_\\AppData\\Local\\Packages\\sandbox.{5dfbd617-429a-45c1-b334-4a2560080fcc}\\AC\\Temp\\tmpzx1s0vdt\\farm.db'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\tempfile.py", line 908, in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\tempfile.py", line 890, in _rmtree
+    _shutil.rmtree(name, onerror=onerror)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\shutil.py", line 759, in rmtree
+    return _rmtree_unsafe(path, onerror)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\shutil.py", line 622, in _rmtree_unsafe
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\tempfile.py", line 881, in onerror
+    cls._rmtree(path, ignore_errors=ignore_errors)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\tempfile.py", line 890, in _rmtree
+    _shutil.rmtree(name, onerror=onerror)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\shutil.py", line 759, in rmtree
+    return _rmtree_unsafe(path, onerror)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\shutil.py", line 603, in _rmtree_unsafe
+    onerror(os.scandir, path, sys.exc_info())
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\shutil.py", line 600, in _rmtree_unsafe
+    with os.scandir(path) as scandir_it:
+         ^^^^^^^^^^^^^^^^
+NotADirectoryError: [WinError 267] The directory name is invalid: 'C:\\Users\\joey_\\AppData\\Local\\Packages\\sandbox.{5dfbd617-429a-45c1-b334-4a2560080fcc}\\AC\\Temp\\tmpzx1s0vdt\\farm.db'
+
+======================================================================
+ERROR: test_explicit_simulation_preserves_mock_phone_work_without_network (test_farm_execution_safety.FarmExecutionSafetyTests.test_explicit_simulation_preserves_mock_phone_work_without_network)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 42, in test_explicit_simulation_preserves_mock_phone_work_without_network
+    runtime = self.runtime(execution_mode="simulate")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 27, in runtime
+    return server.FarmBackendRuntime(db_path=self.root / "farm.db", stage_root=self.root / "stage", **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FarmBackendRuntime.__init__() got an unexpected keyword argument 'execution_mode'
+
+======================================================================
+ERROR: test_live_outage_refuses_instead_of_substituting_simulation (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_outage_refuses_instead_of_substituting_simulation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 53, in test_live_outage_refuses_instead_of_substituting_simulation
+    runtime = self.runtime(execution_mode="live")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 27, in runtime
+    return server.FarmBackendRuntime(db_path=self.root / "farm.db", stage_root=self.root / "stage", **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FarmBackendRuntime.__init__() got an unexpected keyword argument 'execution_mode'
+
+======================================================================
+ERROR: test_live_ready_returns_live_transport_and_same_mode (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_ready_returns_live_transport_and_same_mode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 69, in test_live_ready_returns_live_transport_and_same_mode
+    runtime = self.runtime(execution_mode="live")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 27, in runtime
+    return server.FarmBackendRuntime(db_path=self.root / "farm.db", stage_root=self.root / "stage", **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FarmBackendRuntime.__init__() got an unexpected keyword argument 'execution_mode'
+
+======================================================================
+ERROR: test_live_requires_ownership_protocol (test_farm_execution_safety.FarmExecutionSafetyTests.test_live_requires_ownership_protocol)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 62, in test_live_requires_ownership_protocol
+    runtime = self.runtime(execution_mode="live")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 27, in runtime
+    return server.FarmBackendRuntime(db_path=self.root / "farm.db", stage_root=self.root / "stage", **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FarmBackendRuntime.__init__() got an unexpected keyword argument 'execution_mode'
+
+======================================================================
+ERROR: test_proxy_live_request_cannot_skip_target_guard (test_farm_execution_safety.FarmExecutionSafetyTests.test_proxy_live_request_cannot_skip_target_guard)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 147, in test_proxy_live_request_cannot_skip_target_guard
+    runtime = self.runtime(execution_mode="live")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 27, in runtime
+    return server.FarmBackendRuntime(db_path=self.root / "farm.db", stage_root=self.root / "stage", **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FarmBackendRuntime.__init__() got an unexpected keyword argument 'execution_mode'
+
+======================================================================
+ERROR: test_proxy_post_uses_runtime_mode_and_guarded_client (test_farm_execution_safety.FarmExecutionSafetyTests.test_proxy_post_uses_runtime_mode_and_guarded_client)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 135, in test_proxy_post_uses_runtime_mode_and_guarded_client
+    runtime = self.runtime(execution_mode="simulate")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 27, in runtime
+    return server.FarmBackendRuntime(db_path=self.root / "farm.db", stage_root=self.root / "stage", **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FarmBackendRuntime.__init__() got an unexpected keyword argument 'execution_mode'
+
+======================================================================
+ERROR: test_unknown_mode_is_rejected_before_creating_database (test_farm_execution_safety.FarmExecutionSafetyTests.test_unknown_mode_is_rejected_before_creating_database)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 76, in test_unknown_mode_is_rejected_before_creating_database
+    self.runtime(execution_mode="automatic")
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 27, in runtime
+    return server.FarmBackendRuntime(db_path=self.root / "farm.db", stage_root=self.root / "stage", **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FarmBackendRuntime.__init__() got an unexpected keyword argument 'execution_mode'
+
+======================================================================
+FAIL: test_c24c_alias_cannot_resolve_to_another_phone (test_farm_execution_safety.FarmExecutionSafetyTests.test_c24c_alias_cannot_resolve_to_another_phone)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 119, in test_c24c_alias_cannot_resolve_to_another_phone
+    with self.assertRaises(engine.KernelSafetyError):
+AssertionError: KernelSafetyError not raised
+
+======================================================================
+FAIL: test_default_runtime_never_probes_or_selects_live_kernel (test_farm_execution_safety.FarmExecutionSafetyTests.test_default_runtime_never_probes_or_selects_live_kernel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 39, in test_default_runtime_never_probes_or_selects_live_kernel
+    self.url_open.assert_not_called()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 900, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'urlopen' to not have been called. Called 1 times.
+Calls: [call(<urllib.request.Request object at 0x000001C4DF120650>, timeout=0.6)].
+
+======================================================================
+FAIL: test_mixed_group_is_rejected_before_any_transport (test_farm_execution_safety.FarmExecutionSafetyTests.test_mixed_group_is_rejected_before_any_transport)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 90, in test_mixed_group_is_rejected_before_any_transport
+    client.acquire([C24C, C241])
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1922, in acquire
+    got = self.post("/input/acquire", {"id": ",".join(resolved_ids), "lease_ms": lease_ms}, use_mock=use_mock)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1872, in post
+    raw, _ = transport_fn("POST", self.url + "/", {"fun": fun, "data": data}, timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1824, in resolve_device_id
+    ks = self.kernel_status()
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1882, in kernel_status
+    raw, _ = transport_fn("GET", self.url + "/kernel/status", None, 5.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: Unexpected transport call
+
+======================================================================
+FAIL: test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) (target='C241')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 83, in test_protected_and_unbound_targets_never_become_simulated_live_success
+    with self.assertRaises(engine.KernelSafetyError):
+AssertionError: KernelSafetyError not raised
+
+======================================================================
+FAIL: test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) (target='RACK-03')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 83, in test_protected_and_unbound_targets_never_become_simulated_live_success
+    with self.assertRaises(engine.KernelSafetyError):
+AssertionError: KernelSafetyError not raised
+
+======================================================================
+FAIL: test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) (target='unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 84, in test_protected_and_unbound_targets_never_become_simulated_live_success
+    client.preflight_phone(target)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1902, in preflight_phone
+    ks = self.kernel_status(use_mock=use_mock)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1882, in kernel_status
+    raw, _ = transport_fn("GET", self.url + "/kernel/status", None, 5.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1824, in resolve_device_id
+    ks = self.kernel_status()
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1882, in kernel_status
+    raw, _ = transport_fn("GET", self.url + "/kernel/status", None, 5.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: Unexpected transport call
+
+======================================================================
+FAIL: test_protected_and_unbound_targets_never_become_simulated_live_success (test_farm_execution_safety.FarmExecutionSafetyTests.test_protected_and_unbound_targets_never_become_simulated_live_success) (target='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 84, in test_protected_and_unbound_targets_never_become_simulated_live_success
+    client.preflight_phone(target)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1902, in preflight_phone
+    ks = self.kernel_status(use_mock=use_mock)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1882, in kernel_status
+    raw, _ = transport_fn("GET", self.url + "/kernel/status", None, 5.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1824, in resolve_device_id
+    ks = self.kernel_status()
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1882, in kernel_status
+    raw, _ = transport_fn("GET", self.url + "/kernel/status", None, 5.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: Unexpected transport call
+
+======================================================================
+FAIL: test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) (data={'id': 'FE:A9:BC:D7:A0:44'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 98, in test_raw_live_post_cannot_bypass_c24c_scope
+    client.post("/input/stop", data)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1872, in post
+    raw, _ = transport_fn("POST", self.url + "/", {"fun": fun, "data": data}, timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: Unexpected transport call
+
+======================================================================
+FAIL: test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) (data={'id': '86:1D:4A:04:2F:F6,FE:A9:BC:D7:A0:44'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 98, in test_raw_live_post_cannot_bypass_c24c_scope
+    client.post("/input/stop", data)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1872, in post
+    raw, _ = transport_fn("POST", self.url + "/", {"fun": fun, "data": data}, timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: Unexpected transport call
+
+======================================================================
+FAIL: test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) (data={'id': ''})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 98, in test_raw_live_post_cannot_bypass_c24c_scope
+    client.post("/input/stop", data)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1872, in post
+    raw, _ = transport_fn("POST", self.url + "/", {"fun": fun, "data": data}, timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: Unexpected transport call
+
+======================================================================
+FAIL: test_raw_live_post_cannot_bypass_c24c_scope (test_farm_execution_safety.FarmExecutionSafetyTests.test_raw_live_post_cannot_bypass_c24c_scope) (data={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 98, in test_raw_live_post_cannot_bypass_c24c_scope
+    client.post("/input/stop", data)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1872, in post
+    raw, _ = transport_fn("POST", self.url + "/", {"fun": fun, "data": data}, timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: Unexpected transport call
+
+======================================================================
+FAIL: test_send_payload_cannot_override_target_or_lease (test_farm_execution_safety.FarmExecutionSafetyTests.test_send_payload_cannot_override_target_or_lease) (data={'id': 'FE:A9:BC:D7:A0:44'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 128, in test_send_payload_cannot_override_target_or_lease
+    client.send(C24C, "owned-token", "/mouse/click", **data)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1969, in send
+    got = self.post(
+          ^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1872, in post
+    raw, _ = transport_fn("POST", self.url + "/", {"fun": fun, "data": data}, timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1824, in resolve_device_id
+    ks = self.kernel_status()
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1882, in kernel_status
+    raw, _ = transport_fn("GET", self.url + "/kernel/status", None, 5.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: Unexpected transport call
+
+======================================================================
+FAIL: test_send_payload_cannot_override_target_or_lease (test_farm_execution_safety.FarmExecutionSafetyTests.test_send_payload_cannot_override_target_or_lease) (data={'tokens': {'86:1D:4A:04:2F:F6': 'another-lease'}})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 128, in test_send_payload_cannot_override_target_or_lease
+    client.send(C24C, "owned-token", "/mouse/click", **data)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1969, in send
+    got = self.post(
+          ^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1872, in post
+    raw, _ = transport_fn("POST", self.url + "/", {"fun": fun, "data": data}, timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1824, in resolve_device_id
+    ks = self.kernel_status()
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1882, in kernel_status
+    raw, _ = transport_fn("GET", self.url + "/kernel/status", None, 5.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: Unexpected transport call
+
+======================================================================
+FAIL: test_send_payload_cannot_override_target_or_lease (test_farm_execution_safety.FarmExecutionSafetyTests.test_send_payload_cannot_override_target_or_lease)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_execution_safety.py", line 129, in test_send_payload_cannot_override_target_or_lease
+    transport.assert_not_called()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\unittest\mock.py", line 900, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'mock' to not have been called. Called 4 times.
+Calls: [call('GET', 'http://127.0.0.1:9913/api/kernel/status', None, 5.0),
+ call('POST', 'http://127.0.0.1:9913/api/', {'fun': '/mouse/click', 'data': {'id': 'FE:A9:BC:D7:A0:44', 'token': 'owned-token'}}, 10.0),
+ call('GET', 'http://127.0.0.1:9913/api/kernel/status', None, 5.0),
+ call('POST', 'http://127.0.0.1:9913/api/', {'fun': '/mouse/click', 'data': {'id': '86:1D:4A:04:2F:F6', 'token': 'owned-token', 'tokens': {'86:1D:4A:04:2F:F6': 'another-lease'}}}, 10.0)].
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.058s
+
+FAILED (failures=14, errors=8)

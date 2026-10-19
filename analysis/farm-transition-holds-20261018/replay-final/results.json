@@ -1,0 +1,357 @@
+{
+  "source": "retained_fixture_replay",
+  "freshPhoneAcceptance": false,
+  "clock": "virtual",
+  "phoneInput": false,
+  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261018-farm-live-layout",
+  "cases": [
+    {
+      "case": "04-create-sheet",
+      "status": "replay_passed",
+      "decision": {
+        "state": "ready",
+        "mean": 3.742554493061592e-06,
+        "changed": 0.0,
+        "automaticInputAllowed": false,
+        "beforeObservationId": "ba8d069e-2084-4657-8a3b-5ddfe0daad63",
+        "afterObservationId": "67ca1ae0-2823-47fd-8c60-be95f7a6c409"
+      },
+      "captures": 2,
+      "events": [
+        {
+          "stage": "create",
+          "attempt": 1,
+          "observationId": "ba8d069e-2084-4657-8a3b-5ddfe0daad63",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "create",
+          "attempt": 2,
+          "observationId": "67ca1ae0-2823-47fd-8c60-be95f7a6c409",
+          "state": "ready",
+          "mean": 3.742554493061592e-06,
+          "changed": 0.0,
+          "automaticInputAllowed": false,
+          "beforeObservationId": "ba8d069e-2084-4657-8a3b-5ddfe0daad63",
+          "afterObservationId": "67ca1ae0-2823-47fd-8c60-be95f7a6c409"
+        }
+      ],
+      "inputs": [
+        "04-post-picker/fresh.png",
+        "05-open-post-picker/fresh.png"
+      ]
+    },
+    {
+      "case": "05-picker-indicator",
+      "status": "replay_passed",
+      "decision": {
+        "controlsStable": true,
+        "previewChanged": false,
+        "automaticInputAllowed": false,
+        "beforeSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23",
+        "afterSha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a",
+        "protectedMeanError": 1.8798147090551428e-05,
+        "protectedChangedFraction": 0.0,
+        "worstProtectedBlock": 0.0006369578134284017,
+        "mostChangedControlPixels": 0,
+        "ignoredRegions": [
+          [
+            0,
+            0,
+            500,
+            65
+          ],
+          [
+            0,
+            112,
+            500,
+            612
+          ]
+        ],
+        "reason": "Picker controls/grid agree; preview motion was excluded.",
+        "state": "ready",
+        "beforeObservationId": "32dbc5b2-66c7-45c9-80cf-c76e043d01bd",
+        "afterObservationId": "dfcaae51-e9a2-4d54-82eb-ee3d7f2b42bf"
+      },
+      "captures": 4,
+      "events": [
+        {
+          "stage": "picker",
+          "attempt": 1,
+          "observationId": "6a5cac90-d829-44bc-9130-dc1e4d84e054",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "picker",
+          "attempt": 2,
+          "observationId": "5aa2e1f5-f34f-4bd1-a5ef-993051e2d9df",
+          "controlsStable": false,
+          "previewChanged": false,
+          "automaticInputAllowed": false,
+          "beforeSha256": "569a1e8fe35c5a4cb2559cd482b4525a316d23bc90ef5b7c9d8a95dad0f43e12",
+          "afterSha256": "3f68730ed88d4118269dcaaa592c5dd1483c6f21a8291722f3c18729eb2d1dc2",
+          "protectedMeanError": 0.0008847464940668823,
+          "protectedChangedFraction": 0.0038951456310679614,
+          "worstProtectedBlock": 0.07419607843137255,
+          "mostChangedControlPixels": 0,
+          "ignoredRegions": [
+            [
+              0,
+              0,
+              500,
+              65
+            ],
+            [
+              0,
+              112,
+              500,
+              612
+            ]
+          ],
+          "reason": "Home indicator is fading; recapture without input.",
+          "state": "wait",
+          "beforeObservationId": "6a5cac90-d829-44bc-9130-dc1e4d84e054",
+          "afterObservationId": "5aa2e1f5-f34f-4bd1-a5ef-993051e2d9df"
+        },
+        {
+          "stage": "picker",
+          "attempt": 3,
+          "observationId": "32dbc5b2-66c7-45c9-80cf-c76e043d01bd",
+          "controlsStable": false,
+          "previewChanged": false,
+          "automaticInputAllowed": false,
+          "beforeSha256": "3f68730ed88d4118269dcaaa592c5dd1483c6f21a8291722f3c18729eb2d1dc2",
+          "afterSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23",
+          "protectedMeanError": 0.0016325959769020878,
+          "protectedChangedFraction": 0.004823300970873787,
+          "worstProtectedBlock": 0.13546318082788672,
+          "mostChangedControlPixels": 0,
+          "ignoredRegions": [
+            [
+              0,
+              0,
+              500,
+              65
+            ],
+            [
+              0,
+              112,
+              500,
+              612
+            ]
+          ],
+          "reason": "Home indicator is fading; recapture without input.",
+          "state": "wait",
+          "beforeObservationId": "5aa2e1f5-f34f-4bd1-a5ef-993051e2d9df",
+          "afterObservationId": "32dbc5b2-66c7-45c9-80cf-c76e043d01bd"
+        },
+        {
+          "stage": "picker",
+          "attempt": 4,
+          "observationId": "dfcaae51-e9a2-4d54-82eb-ee3d7f2b42bf",
+          "controlsStable": true,
+          "previewChanged": false,
+          "automaticInputAllowed": false,
+          "beforeSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23",
+          "afterSha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a",
+          "protectedMeanError": 1.8798147090551428e-05,
+          "protectedChangedFraction": 0.0,
+          "worstProtectedBlock": 0.0006369578134284017,
+          "mostChangedControlPixels": 0,
+          "ignoredRegions": [
+            [
+              0,
+              0,
+              500,
+              65
+            ],
+            [
+              0,
+              112,
+              500,
+              612
+            ]
+          ],
+          "reason": "Picker controls/grid agree; preview motion was excluded.",
+          "state": "ready",
+          "beforeObservationId": "32dbc5b2-66c7-45c9-80cf-c76e043d01bd",
+          "afterObservationId": "dfcaae51-e9a2-4d54-82eb-ee3d7f2b42bf"
+        }
+      ],
+      "inputs": [
+        "05-open-post-picker/after-first.png",
+        "05-open-post-picker/after.png",
+        "06-open-drafts/before.png",
+        "07-drafts-from-settled-picker/fresh.png"
+      ]
+    },
+    {
+      "case": "06-new-picker-pair",
+      "status": "replay_passed",
+      "decision": {
+        "controlsStable": true,
+        "previewChanged": false,
+        "automaticInputAllowed": false,
+        "beforeSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23",
+        "afterSha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a",
+        "protectedMeanError": 1.8798147090551428e-05,
+        "protectedChangedFraction": 0.0,
+        "worstProtectedBlock": 0.0006369578134284017,
+        "mostChangedControlPixels": 0,
+        "ignoredRegions": [
+          [
+            0,
+            0,
+            500,
+            65
+          ],
+          [
+            0,
+            112,
+            500,
+            612
+          ]
+        ],
+        "reason": "Picker controls/grid agree; preview motion was excluded.",
+        "state": "ready",
+        "beforeObservationId": "c48cd1b3-428c-499f-8dbb-97347a7395c1",
+        "afterObservationId": "d2f9e6f9-bf03-4c6e-917d-71b1fe94eb1b"
+      },
+      "captures": 2,
+      "events": [
+        {
+          "stage": "picker",
+          "attempt": 1,
+          "observationId": "c48cd1b3-428c-499f-8dbb-97347a7395c1",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "picker",
+          "attempt": 2,
+          "observationId": "d2f9e6f9-bf03-4c6e-917d-71b1fe94eb1b",
+          "controlsStable": true,
+          "previewChanged": false,
+          "automaticInputAllowed": false,
+          "beforeSha256": "2b5d3c29bdcf27ad05a20addbcc11286d7ad2bfd3715d5864be28d1325322c23",
+          "afterSha256": "f794ae4966645199d2dec111b1e5ab866cae0af6cdfcba1e687db8f957dac26a",
+          "protectedMeanError": 1.8798147090551428e-05,
+          "protectedChangedFraction": 0.0,
+          "worstProtectedBlock": 0.0006369578134284017,
+          "mostChangedControlPixels": 0,
+          "ignoredRegions": [
+            [
+              0,
+              0,
+              500,
+              65
+            ],
+            [
+              0,
+              112,
+              500,
+              612
+            ]
+          ],
+          "reason": "Picker controls/grid agree; preview motion was excluded.",
+          "state": "ready",
+          "beforeObservationId": "c48cd1b3-428c-499f-8dbb-97347a7395c1",
+          "afterObservationId": "d2f9e6f9-bf03-4c6e-917d-71b1fe94eb1b"
+        }
+      ],
+      "inputs": [
+        "06-open-drafts/before.png",
+        "07-drafts-from-settled-picker/fresh.png"
+      ]
+    },
+    {
+      "case": "08-editor-suggestion",
+      "status": "replay_passed",
+      "decision": {
+        "state": "ready",
+        "mean": 0.000841070221191925,
+        "changed": 0.0013123152709359606,
+        "automaticInputAllowed": false,
+        "beforeObservationId": "97b283f8-b4d2-453c-8750-fab1a65e0d62",
+        "afterObservationId": "f299fd85-6595-41e1-afac-ec9f137072ec"
+      },
+      "captures": 3,
+      "events": [
+        {
+          "stage": "editor",
+          "attempt": 1,
+          "observationId": "c9c9c3da-53f1-4ed5-9690-4ab207fb64c3",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "editor",
+          "attempt": 2,
+          "observationId": "97b283f8-b4d2-453c-8750-fab1a65e0d62",
+          "state": "wait",
+          "mean": 0.007571210921150069,
+          "changed": 0.008886699507389163,
+          "reason": "Editor suggestion header is changing; recapture without input.",
+          "automaticInputAllowed": false,
+          "beforeObservationId": "c9c9c3da-53f1-4ed5-9690-4ab207fb64c3",
+          "afterObservationId": "97b283f8-b4d2-453c-8750-fab1a65e0d62"
+        },
+        {
+          "stage": "editor",
+          "attempt": 3,
+          "observationId": "f299fd85-6595-41e1-afac-ec9f137072ec",
+          "state": "ready",
+          "mean": 0.000841070221191925,
+          "changed": 0.0013123152709359606,
+          "automaticInputAllowed": false,
+          "beforeObservationId": "97b283f8-b4d2-453c-8750-fab1a65e0d62",
+          "afterObservationId": "f299fd85-6595-41e1-afac-ec9f137072ec"
+        }
+      ],
+      "inputs": [
+        "08-open-test-draft/after-first.png",
+        "08-open-test-draft/after.png",
+        "09-inspect-second-slide/fresh.png"
+      ]
+    },
+    {
+      "case": "11-exact-next",
+      "status": "replay_passed",
+      "decision": {
+        "state": "ready",
+        "mean": 0.0007521349689301007,
+        "changed": 0.0013083743842364532,
+        "automaticInputAllowed": false,
+        "beforeObservationId": "49af201e-3c77-47a6-be7e-95b6b67dbbbf",
+        "afterObservationId": "748ee06f-882f-4ed5-9848-b9a011a4fe66"
+      },
+      "captures": 2,
+      "events": [
+        {
+          "stage": "editor",
+          "attempt": 1,
+          "observationId": "49af201e-3c77-47a6-be7e-95b6b67dbbbf",
+          "state": "wait",
+          "reason": "A second independently fresh observation is required."
+        },
+        {
+          "stage": "editor",
+          "attempt": 2,
+          "observationId": "748ee06f-882f-4ed5-9848-b9a011a4fe66",
+          "state": "ready",
+          "mean": 0.0007521349689301007,
+          "changed": 0.0013083743842364532,
+          "automaticInputAllowed": false,
+          "beforeObservationId": "49af201e-3c77-47a6-be7e-95b6b67dbbbf",
+          "afterObservationId": "748ee06f-882f-4ed5-9848-b9a011a4fe66"
+        }
+      ],
+      "inputs": [
+        "11-caption-details/fresh.png",
+        "12-caption-with-label-crop/fresh.png"
+      ]
+    }
+  ]
+}

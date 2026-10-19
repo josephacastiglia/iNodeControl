@@ -1,0 +1,1 @@
+{"allReopenedSlidesMatched": true, "fullCaptionMatched": true, "accountAfterCaptured": false, "pairedFrameMetadata": false, "savedDraftVerified": false, "automaticInputAllowed": false, "reason": "Another controller acquired C24C before account-after. No input sent after the ownership preflight refused step 12."}

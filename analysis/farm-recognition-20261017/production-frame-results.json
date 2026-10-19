@@ -1,0 +1,74 @@
+[
+  {
+    "name": "recent-paired-delivery",
+    "expected": "recent",
+    "actual": "recent",
+    "evidence": {
+      "freshness": "recent",
+      "pairedMetadata": true,
+      "ageUpperBoundMs": 390.0,
+      "deliveryAdvanced": false,
+      "phoneCaptureTimeKnown": false,
+      "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+      "session": "db14f6623d4e470db851971839bf1a4a",
+      "sequence": 1,
+      "reportedAgeMs": 40.0,
+      "observationElapsedMs": 350,
+      "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture."
+    }
+  },
+  {
+    "name": "quiet-delivery",
+    "expected": "stale",
+    "actual": "stale",
+    "evidence": {
+      "freshness": "stale",
+      "pairedMetadata": true,
+      "ageUpperBoundMs": 2490.0,
+      "deliveryAdvanced": false,
+      "phoneCaptureTimeKnown": false,
+      "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+      "session": "db14f6623d4e470db851971839bf1a4a",
+      "sequence": 1,
+      "reportedAgeMs": 2490.0,
+      "observationElapsedMs": 0,
+      "reason": "Receiver-delivered frame is too old after download and recognition, or delivery is not flowing."
+    }
+  },
+  {
+    "name": "processing-delay",
+    "expected": "stale",
+    "actual": "stale",
+    "evidence": {
+      "freshness": "stale",
+      "pairedMetadata": true,
+      "ageUpperBoundMs": 2000.0,
+      "deliveryAdvanced": false,
+      "phoneCaptureTimeKnown": false,
+      "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+      "session": "db14f6623d4e470db851971839bf1a4a",
+      "sequence": 2,
+      "reportedAgeMs": 0.0,
+      "observationElapsedMs": 2000,
+      "reason": "Receiver-delivered frame is too old after download and recognition, or delivery is not flowing."
+    }
+  },
+  {
+    "name": "immutable-frame-while-producer-advances",
+    "expected": "recent",
+    "actual": "recent",
+    "evidence": {
+      "freshness": "recent",
+      "pairedMetadata": true,
+      "ageUpperBoundMs": 60.0,
+      "deliveryAdvanced": true,
+      "phoneCaptureTimeKnown": false,
+      "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+      "session": "db14f6623d4e470db851971839bf1a4a",
+      "sequence": 3,
+      "reportedAgeMs": 10.0,
+      "observationElapsedMs": 50,
+      "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture."
+    }
+  }
+]

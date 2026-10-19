@@ -1,0 +1,26 @@
+{
+  "controlsStable": false,
+  "previewChanged": false,
+  "automaticInputAllowed": false,
+  "beforeSha256": "569a1e8fe35c5a4cb2559cd482b4525a316d23bc90ef5b7c9d8a95dad0f43e12",
+  "afterSha256": "3f68730ed88d4118269dcaaa592c5dd1483c6f21a8291722f3c18729eb2d1dc2",
+  "protectedMeanError": 0.0008847464940668823,
+  "protectedChangedFraction": 0.0038951456310679614,
+  "worstProtectedBlock": 0.07419607843137255,
+  "mostChangedControlPixels": 0,
+  "ignoredRegions": [
+    [
+      0,
+      0,
+      500,
+      65
+    ],
+    [
+      0,
+      112,
+      500,
+      612
+    ]
+  ],
+  "reason": "Controls or library pixels changed; inspect again."
+}

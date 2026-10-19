@@ -1,0 +1,81 @@
+{
+  "time_utc": "2026-10-13T05:05:59.6019197Z",
+  "both_mirroring": false,
+  "both_free": true,
+  "protected_hashes_unchanged": true,
+  "candidate_pid_stopped": true,
+  "candidate_receiver_stopped": true,
+  "status": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "input": "direct-hid",
+      "input_protocol": 1,
+      "input_leases_required": true,
+      "allowed": [
+        "C24C",
+        "C241"
+      ],
+      "receiver": "iMouse2-C24C / iMouse2-C241",
+      "receiver_state": "mirroring",
+      "receiver_message": "",
+      "receiver_pid": 4260,
+      "receiver_restarts": 0,
+      "frames": 548,
+      "live": true,
+      "receivers": [
+        {
+          "deviceid": "86:1D:4A:04:2F:F6",
+          "name": "iMouse2-C24C",
+          "receiver_pid": 4260,
+          "receiver_restarts": 0,
+          "receiver_state": "mirroring",
+          "live": true,
+          "frames": 548
+        },
+        {
+          "deviceid": "FE:A9:BC:D7:A0:44",
+          "name": "iMouse2-C241",
+          "receiver_pid": 42612,
+          "receiver_restarts": 0,
+          "receiver_state": "offline",
+          "live": false,
+          "frames": 0
+        }
+      ]
+    }
+  },
+  "input": {
+    "status": 200,
+    "message": "ok",
+    "data": {
+      "code": 0,
+      "protocol": 1,
+      "phones": [
+        {
+          "id": "86:1D:4A:04:2F:F6",
+          "owned": false,
+          "active": false,
+          "stopped": false,
+          "releasing": false,
+          "release_failed": false,
+          "message": "",
+          "generation": 0,
+          "lease_remaining_ms": 0
+        },
+        {
+          "id": "FE:A9:BC:D7:A0:44",
+          "owned": false,
+          "active": false,
+          "stopped": false,
+          "releasing": false,
+          "release_failed": false,
+          "message": "",
+          "generation": 0,
+          "lease_remaining_ms": 0
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Prepared candidate assembly",
+    "pass": true
+  },
+  {
+    "name": "Exact isolated source and C24C account",
+    "pass": true
+  },
+  {
+    "name": "No desktop window handle",
+    "pass": true
+  },
+  {
+    "name": "Native create button is eligible",
+    "pass": true
+  },
+  {
+    "name": "One durable pending creation",
+    "pass": true
+  },
+  {
+    "name": "Bounded terminal result",
+    "pass": true
+  },
+  {
+    "name": "New media draft saved and independently reopened",
+    "pass": true
+  },
+  {
+    "name": "Native completion and bookmark agree",
+    "pass": true
+  },
+  {
+    "name": "No publication messaging or desktop control",
+    "pass": true
+  }
+]

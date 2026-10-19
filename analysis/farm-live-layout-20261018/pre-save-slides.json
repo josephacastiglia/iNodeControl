@@ -1,0 +1,116 @@
+[
+  {
+    "index": 1,
+    "observationId": "cf50df87-be98-4842-8c78-c234c2f3c59a",
+    "frame": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-layout-20261018\\09-inspect-second-slide\\fresh.png",
+    "freshness": "recent",
+    "comparison": {
+      "status": "visual_match",
+      "matchedIndex": 1,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.008005009998022365,
+          "worstBlock": 0.025236761371215152,
+          "rendering": "plain"
+        },
+        {
+          "index": 2,
+          "meanError": 0.11188348580622634,
+          "worstBlock": 0.2616520385932151,
+          "rendering": "plain"
+        },
+        {
+          "index": 3,
+          "meanError": 0.11509896699309785,
+          "worstBlock": 0.22738873327108622,
+          "rendering": "plain"
+        }
+      ],
+      "margin": 0.10387847580820397,
+      "byteIdentityVerified": false,
+      "fullImageVisible": true,
+      "position": {
+        "status": "visible_position",
+        "index": 1,
+        "count": 3
+      }
+    }
+  },
+  {
+    "index": 2,
+    "observationId": "b369f967-6bf1-482c-a9b3-f5480f3e8b07",
+    "frame": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-layout-20261018\\09-inspect-second-slide\\after.png",
+    "freshness": "recent",
+    "comparison": {
+      "status": "visual_match",
+      "matchedIndex": 2,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.10420563942175051,
+          "worstBlock": 0.2574341736694678,
+          "rendering": "plain"
+        },
+        {
+          "index": 2,
+          "meanError": 0.008387351952361073,
+          "worstBlock": 0.02448386762112252,
+          "rendering": "plain"
+        },
+        {
+          "index": 3,
+          "meanError": 0.20677253095236348,
+          "worstBlock": 0.24949393090569563,
+          "rendering": "plain"
+        }
+      ],
+      "margin": 0.09581828746938945,
+      "byteIdentityVerified": false,
+      "fullImageVisible": true,
+      "position": {
+        "status": "visible_position",
+        "index": 2,
+        "count": 3
+      }
+    }
+  },
+  {
+    "index": 3,
+    "observationId": "520a4949-19a4-4e6f-ba14-893dbd5d00a0",
+    "frame": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-layout-20261018\\10-inspect-third-slide\\after.png",
+    "freshness": "recent",
+    "comparison": {
+      "status": "visual_match",
+      "matchedIndex": 3,
+      "scores": [
+        {
+          "index": 1,
+          "meanError": 0.12396949565531606,
+          "worstBlock": 0.23579209461562403,
+          "rendering": "plain"
+        },
+        {
+          "index": 2,
+          "meanError": 0.21636916751509472,
+          "worstBlock": 0.2521805166511049,
+          "rendering": "plain"
+        },
+        {
+          "index": 3,
+          "meanError": 0.00961250643950771,
+          "worstBlock": 0.022367465504720414,
+          "rendering": "plain"
+        }
+      ],
+      "margin": 0.11435698921580835,
+      "byteIdentityVerified": false,
+      "fullImageVisible": true,
+      "position": {
+        "status": "visible_position",
+        "index": 3,
+        "count": 3
+      }
+    }
+  }
+]

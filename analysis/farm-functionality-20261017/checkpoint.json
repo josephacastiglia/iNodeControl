@@ -1,0 +1,11 @@
+{
+  "commit": "c60cb56f4a1a3db82fe127f66a0b3f70683caa05",
+  "branch": "local/combined-candidate-20261012",
+  "candidateBuild": "f6ed99e3",
+  "consoleChecks": 428,
+  "pythonTests": 87,
+  "phoneInputSent": false,
+  "desktopControlUsed": false,
+  "promoted": false,
+  "pushed": false
+}

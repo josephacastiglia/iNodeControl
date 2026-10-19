@@ -1,0 +1,43 @@
+{
+  "run": {
+    "id": "866b0a4f-9569-46f3-af9d-22948ff372e1",
+    "storeId": "40825bba-2f1c-4179-9942-25a5b3d3a116",
+    "request": {
+      "id": "866b0a4f-9569-46f3-af9d-22948ff372e1",
+      "draft_id": "e16c305a-c9ae-4a1e-b04f-6a33109ca01c",
+      "revision": 3,
+      "store_id": "40825bba-2f1c-4179-9942-25a5b3d3a116"
+    },
+    "packageSha256": "a77f6ed435fc3de8dcfda4622a5e039f79785f268df48f6a157cea30db71be5e",
+    "state": "verified",
+    "terminal": true,
+    "jobStatus": "succeeded",
+    "reason": "The matching draft was saved, reopened and checked.",
+    "savedDraftVerified": true,
+    "draftChangedSinceRun": false,
+    "cleanup": "confirmed",
+    "workflow": {
+      "packageSha256": "a77f6ed435fc3de8dcfda4622a5e039f79785f268df48f6a157cea30db71be5e",
+      "state": "validation_passed",
+      "source": "candidate_phone_workflow",
+      "cleanup": "confirmed",
+      "savedDraftVerified": true,
+      "observations": [],
+      "actions": [
+        {
+          "label": "prepared-save-once",
+          "state": "answered"
+        }
+      ],
+      "evidenceExport": "confirmed"
+    },
+    "publishing": false,
+    "messaging": false,
+    "desktopControl": false,
+    "automaticResume": false,
+    "integratedLiveValidated": false
+  },
+  "protocolVersion": 2,
+  "executionMode": "live",
+  "simulated": false
+}

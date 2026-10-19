@@ -1,0 +1,246 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:16",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 38,
+          "text": "6:16",
+          "x": 44
+        }
+      ]
+    },
+    {
+      "text": "I draft •",
+      "words": [
+        {
+          "y": 137,
+          "height": 18,
+          "width": 9,
+          "text": "I",
+          "x": 21
+        },
+        {
+          "y": 136,
+          "height": 19,
+          "width": 55,
+          "text": "draft",
+          "x": 38
+        },
+        {
+          "y": 145,
+          "height": 5,
+          "width": 4,
+          "text": "•",
+          "x": 101
+        }
+      ]
+    },
+    {
+      "text": "17",
+      "words": [
+        {
+          "y": 210,
+          "height": 13,
+          "width": 16,
+          "text": "17",
+          "x": 27
+        }
+      ]
+    },
+    {
+      "text": "soy",
+      "words": [
+        {
+          "y": 23,
+          "height": 14,
+          "width": 16,
+          "text": "soy",
+          "x": 397
+        }
+      ]
+    },
+    {
+      "text": "Select",
+      "words": [
+        {
+          "y": 76,
+          "height": 16,
+          "width": 57,
+          "text": "Select",
+          "x": 423
+        }
+      ]
+    },
+    {
+      "text": "2.4MB",
+      "words": [
+        {
+          "y": 137,
+          "height": 18,
+          "width": 73,
+          "text": "2.4MB",
+          "x": 114
+        }
+      ]
+    },
+    {
+      "text": "TEST",
+      "words": [
+        {
+          "y": 228,
+          "height": 6,
+          "width": 17,
+          "text": "TEST",
+          "x": 89
+        }
+      ]
+    },
+    {
+      "text": "SLIDE 1 OF 3",
+      "words": [
+        {
+          "y": 336,
+          "height": 9,
+          "width": 30,
+          "text": "SLIDE",
+          "x": 8
+        },
+        {
+          "y": 336,
+          "height": 8,
+          "width": 5,
+          "text": "1",
+          "x": 42
+        },
+        {
+          "y": 336,
+          "height": 9,
+          "width": 15,
+          "text": "OF",
+          "x": 51
+        },
+        {
+          "y": 336,
+          "height": 9,
+          "width": 6,
+          "text": "3",
+          "x": 69
+        }
+      ]
+    },
+    {
+      "text": "'Gotit",
+      "words": [
+        {
+          "y": 363,
+          "height": 12,
+          "width": 49,
+          "text": "'Gotit",
+          "x": 69
+        }
+      ]
+    },
+    {
+      "text": "Only you can see your drafts. Uninstalling TikTok will",
+      "words": [
+        {
+          "y": 976,
+          "height": 15,
+          "width": 32,
+          "text": "Only",
+          "x": 60
+        },
+        {
+          "y": 979,
+          "height": 12,
+          "width": 25,
+          "text": "you",
+          "x": 97
+        },
+        {
+          "y": 979,
+          "height": 9,
+          "width": 25,
+          "text": "can",
+          "x": 128
+        },
+        {
+          "y": 979,
+          "height": 9,
+          "width": 24,
+          "text": "see",
+          "x": 159
+        },
+        {
+          "y": 979,
+          "height": 12,
+          "width": 31,
+          "text": "your",
+          "x": 189
+        },
+        {
+          "y": 976,
+          "height": 12,
+          "width": 46,
+          "text": "drafts.",
+          "x": 225
+        },
+        {
+          "y": 976,
+          "height": 15,
+          "width": 84,
+          "text": "Uninstalling",
+          "x": 277
+        },
+        {
+          "y": 976,
+          "height": 12,
+          "width": 46,
+          "text": "TikTok",
+          "x": 366
+        },
+        {
+          "y": 976,
+          "height": 12,
+          "width": 22,
+          "text": "will",
+          "x": 418
+        }
+      ]
+    },
+    {
+      "text": "discard all drafts.",
+      "words": [
+        {
+          "y": 995,
+          "height": 12,
+          "width": 53,
+          "text": "discard",
+          "x": 187
+        },
+        {
+          "y": 995,
+          "height": 12,
+          "width": 14,
+          "text": "all",
+          "x": 246
+        },
+        {
+          "y": 995,
+          "height": 12,
+          "width": 46,
+          "text": "drafts.",
+          "x": 266
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "524a24cce6d2a77237cff6234cecd4e63b9d04f1c465cf525ac77c1a53754a32"
+}

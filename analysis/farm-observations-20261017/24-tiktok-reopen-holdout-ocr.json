@@ -1,0 +1,422 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:17",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 37,
+          "text": "6:17",
+          "x": 45
+        }
+      ]
+    },
+    {
+      "text": "su0E 1 OF 3",
+      "words": [
+        {
+          "y": 215,
+          "height": 7,
+          "width": 22,
+          "text": "su0E",
+          "x": 30
+        },
+        {
+          "y": 215,
+          "height": 7,
+          "width": 4,
+          "text": "1",
+          "x": 55
+        },
+        {
+          "y": 215,
+          "height": 7,
+          "width": 11,
+          "text": "OF",
+          "x": 62
+        },
+        {
+          "y": 215,
+          "height": 7,
+          "width": 5,
+          "text": "3",
+          "x": 75
+        }
+      ]
+    },
+    {
+      "text": "soy",
+      "words": [
+        {
+          "y": 23,
+          "height": 14,
+          "width": 16,
+          "text": "soy",
+          "x": 397
+        }
+      ]
+    },
+    {
+      "text": "Preview",
+      "words": [
+        {
+          "y": 77,
+          "height": 14,
+          "width": 66,
+          "text": "Preview",
+          "x": 416
+        }
+      ]
+    },
+    {
+      "text": "su0E 3 OF 3",
+      "words": [
+        {
+          "y": 215,
+          "height": 7,
+          "width": 22,
+          "text": "su0E",
+          "x": 306
+        },
+        {
+          "y": 215,
+          "height": 7,
+          "width": 4,
+          "text": "3",
+          "x": 331
+        },
+        {
+          "y": 215,
+          "height": 7,
+          "width": 11,
+          "text": "OF",
+          "x": 338
+        },
+        {
+          "y": 215,
+          "height": 7,
+          "width": 5,
+          "text": "3",
+          "x": 351
+        }
+      ]
+    },
+    {
+      "text": "suDE20F3",
+      "words": [
+        {
+          "y": 215,
+          "height": 7,
+          "width": 50,
+          "text": "suDE20F3",
+          "x": 168
+        }
+      ]
+    },
+    {
+      "text": "EditONLY",
+      "words": [
+        {
+          "y": 227,
+          "height": 12,
+          "width": 48,
+          "text": "EditONLY",
+          "x": 167
+        }
+      ]
+    },
+    {
+      "text": "Add •chy title",
+      "words": [
+        {
+          "y": 275,
+          "height": 13,
+          "width": 34,
+          "text": "Add",
+          "x": 27
+        },
+        {
+          "y": 268,
+          "height": 24,
+          "width": 72,
+          "text": "•chy",
+          "x": 67
+        },
+        {
+          "y": 274,
+          "height": 14,
+          "width": 34,
+          "text": "title",
+          "x": 144
+        }
+      ]
+    },
+    {
+      "text": "IMOUSE-DRAFT-TEST-20261017",
+      "words": [
+        {
+          "y": 324,
+          "height": 14,
+          "width": 261,
+          "text": "IMOUSE-DRAFT-TEST-20261017",
+          "x": 27
+        }
+      ]
+    },
+    {
+      "text": "g Location",
+      "words": [
+        {
+          "y": 615,
+          "height": 22,
+          "width": 18,
+          "text": "g",
+          "x": 22
+        },
+        {
+          "y": 618,
+          "height": 15,
+          "width": 71,
+          "text": "Location",
+          "x": 55
+        }
+      ]
+    },
+    {
+      "text": "o",
+      "words": [
+        {
+          "y": 619,
+          "height": 14,
+          "width": 14,
+          "text": "o",
+          "x": 133
+        }
+      ]
+    },
+    {
+      "text": "MetLife Stadium",
+      "words": [
+        {
+          "y": 668,
+          "height": 12,
+          "width": 54,
+          "text": "MetLife",
+          "x": 31
+        },
+        {
+          "y": 668,
+          "height": 12,
+          "width": 60,
+          "text": "Stadium",
+          "x": 90
+        }
+      ]
+    },
+    {
+      "text": "Add link",
+      "words": [
+        {
+          "y": 728,
+          "height": 14,
+          "width": 34,
+          "text": "Add",
+          "x": 54
+        },
+        {
+          "y": 728,
+          "height": 14,
+          "width": 29,
+          "text": "link",
+          "x": 94
+        }
+      ]
+    },
+    {
+      "text": "7 Al rewrite",
+      "words": [
+        {
+          "y": 547,
+          "height": 16,
+          "width": 16,
+          "text": "7",
+          "x": 174
+        },
+        {
+          "y": 548,
+          "height": 12,
+          "width": 14,
+          "text": "Al",
+          "x": 196
+        },
+        {
+          "y": 547,
+          "height": 13,
+          "width": 52,
+          "text": "rewrite",
+          "x": 217
+        }
+      ]
+    },
+    {
+      "text": "Freedom Mortgag...",
+      "words": [
+        {
+          "y": 668,
+          "height": 12,
+          "width": 63,
+          "text": "Freedom",
+          "x": 181
+        },
+        {
+          "y": 668,
+          "height": 16,
+          "width": 74,
+          "text": "Mortgag...",
+          "x": 249
+        }
+      ]
+    },
+    {
+      "text": "Everyone can view this post",
+      "words": [
+        {
+          "y": 790,
+          "height": 17,
+          "width": 77,
+          "text": "Everyone",
+          "x": 55
+        },
+        {
+          "y": 793,
+          "height": 11,
+          "width": 29,
+          "text": "can",
+          "x": 137
+        },
+        {
+          "y": 789,
+          "height": 15,
+          "width": 39,
+          "text": "view",
+          "x": 172
+        },
+        {
+          "y": 789,
+          "height": 15,
+          "width": 31,
+          "text": "this",
+          "x": 216
+        },
+        {
+          "y": 790,
+          "height": 17,
+          "width": 37,
+          "text": "post",
+          "x": 252
+        }
+      ]
+    },
+    {
+      "text": "O More options",
+      "words": [
+        {
+          "y": 849,
+          "height": 22,
+          "width": 21,
+          "text": "O",
+          "x": 20
+        },
+        {
+          "y": 853,
+          "height": 14,
+          "width": 42,
+          "text": "More",
+          "x": 55
+        },
+        {
+          "y": 852,
+          "height": 18,
+          "width": 63,
+          "text": "options",
+          "x": 103
+        }
+      ]
+    },
+    {
+      "text": "Share to",
+      "words": [
+        {
+          "y": 915,
+          "height": 14,
+          "width": 47,
+          "text": "Share",
+          "x": 55
+        },
+        {
+          "y": 916,
+          "height": 13,
+          "width": 17,
+          "text": "to",
+          "x": 108
+        }
+      ]
+    },
+    {
+      "text": "Drafts",
+      "words": [
+        {
+          "y": 997,
+          "height": 16,
+          "width": 55,
+          "text": "Drafts",
+          "x": 118
+        }
+      ]
+    },
+    {
+      "text": "MADISON SQUAR..",
+      "words": [
+        {
+          "y": 668,
+          "height": 12,
+          "width": 72,
+          "text": "MADISON",
+          "x": 359
+        },
+        {
+          "y": 668,
+          "height": 14,
+          "width": 61,
+          "text": "SQUAR..",
+          "x": 437
+        }
+      ]
+    },
+    {
+      "text": "O Post",
+      "words": [
+        {
+          "y": 994,
+          "height": 22,
+          "width": 22,
+          "text": "O",
+          "x": 335
+        },
+        {
+          "y": 998,
+          "height": 14,
+          "width": 39,
+          "text": "Post",
+          "x": 365
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "7a4c9da5826869929031f30d0361780fbc26ccb4c4686e8bf85e5a46635bf6b6"
+}

@@ -1,0 +1,4 @@
+{
+  "error": "System.InvalidOperationException: Native view recognizes verified saved draft\r\n   at Program.Check(String name, Boolean pass) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-interface-live-20261018\\NativeProbe\\Program.cs:line 33\r\n   at Program.Run(JsonElement options) in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-interface-live-20261018\\NativeProbe\\Program.cs:line 155\r\n   at Program.\u003C\u003Ec__DisplayClass12_0.\u003C\u003CMain\u003Eb__0\u003Ed.MoveNext() in C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-interface-live-20261018\\NativeProbe\\Program.cs:line 50",
+  "utc": "2026-10-19T02:27:06.1785238Z"
+}

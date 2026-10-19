@@ -1,0 +1,269 @@
+{
+  "preserved_prior_metadata_files": [
+    "metadata/provenance/package-provenance.json",
+    "metadata/provenance/selected-public-keyring.gpg",
+    "metadata/provenance/source-provenance.json",
+    "metadata/source-notice-index.json",
+    "metadata/source-notices/mingw-w64-ffmpeg-9.0.1-3/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-ffmpeg-9.0.1-3/SRCINFO",
+    "metadata/source-notices/mingw-w64-ffmpeg-9.0.1-3/notices/ffmpeg-9.0.1/COPYING.GPLv2",
+    "metadata/source-notices/mingw-w64-ffmpeg-9.0.1-3/notices/ffmpeg-9.0.1/COPYING.GPLv3",
+    "metadata/source-notices/mingw-w64-ffmpeg-9.0.1-3/notices/ffmpeg-9.0.1/COPYING.LGPLv2.1",
+    "metadata/source-notices/mingw-w64-ffmpeg-9.0.1-3/notices/ffmpeg-9.0.1/COPYING.LGPLv3",
+    "metadata/source-notices/mingw-w64-ffmpeg-9.0.1-3/notices/ffmpeg-9.0.1/LICENSE.md",
+    "metadata/source-notices/mingw-w64-ffmpeg-9.0.1-3/notices/ffmpeg-9.0.1/tests/checkasm/ext/LICENSE",
+    "metadata/source-notices/mingw-w64-ffmpeg-9.0.1-3/notices/ffmpeg-9.0.1/tests/checkasm/ext/src/html_data/LICENSE",
+    "metadata/source-notices/mingw-w64-gmp-6.3.0-2/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-gmp-6.3.0-2/SRCINFO",
+    "metadata/source-notices/mingw-w64-gmp-6.3.0-2/notices/gmp-6.3.0/COPYING",
+    "metadata/source-notices/mingw-w64-gmp-6.3.0-2/notices/gmp-6.3.0/COPYING.LESSERv3",
+    "metadata/source-notices/mingw-w64-gnutls-3.8.13-3/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-gnutls-3.8.13-3/SRCINFO",
+    "metadata/source-notices/mingw-w64-gnutls-3.8.13-3/notices/gnutls-3.8.13/COPYING",
+    "metadata/source-notices/mingw-w64-gnutls-3.8.13-3/notices/gnutls-3.8.13/COPYING.LESSERv2",
+    "metadata/source-notices/mingw-w64-gnutls-3.8.13-3/notices/gnutls-3.8.13/doc/examples/tlsproxy/LICENSE",
+    "metadata/source-notices/mingw-w64-gnutls-3.8.13-3/notices/gnutls-3.8.13/lib/accelerated/x86/license.txt",
+    "metadata/source-notices/mingw-w64-gnutls-3.8.13-3/notices/gnutls-3.8.13/lib/crau/LICENSE",
+    "metadata/source-notices/mingw-w64-gnutls-3.8.13-3/notices/gnutls-3.8.13/lib/inih/LICENSE.txt",
+    "metadata/source-notices/mingw-w64-gst-libav-1.28.7-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-gst-libav-1.28.7-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-gst-libav-1.28.7-1/notices/gst-libav-1.28.7/COPYING",
+    "metadata/source-notices/mingw-w64-gst-plugins-bad-1.28.7-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-gst-plugins-bad-1.28.7-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-gst-plugins-bad-1.28.7-1/notices/gst-plugins-bad-1.28.7/COPYING",
+    "metadata/source-notices/mingw-w64-gst-plugins-bad-1.28.7-1/notices/gst-plugins-bad-1.28.7/ext/sctp/usrsctp/LICENSE.md",
+    "metadata/source-notices/mingw-w64-gst-plugins-bad-1.28.7-1/notices/gst-plugins-bad-1.28.7/gst/dvbsubenc/libimagequant/COPYRIGHT",
+    "metadata/source-notices/mingw-w64-gst-plugins-bad-1.28.7-1/notices/gst-plugins-bad-1.28.7/sys/directshow/strmbase/LICENSE",
+    "metadata/source-notices/mingw-w64-gst-plugins-bad-1.28.7-1/notices/gst-plugins-bad-1.28.7/sys/dwrite/libcaption/LICENSE.txt",
+    "metadata/source-notices/mingw-w64-gst-plugins-base-1.28.7-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-gst-plugins-base-1.28.7-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-gst-plugins-base-1.28.7-1/notices/gst-plugins-base-1.28.7/COPYING",
+    "metadata/source-notices/mingw-w64-gstreamer-1.28.7-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-gstreamer-1.28.7-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-gstreamer-1.28.7-1/notices/gstreamer-1.28.7/COPYING",
+    "metadata/source-notices/mingw-w64-lame-3.100-3/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-lame-3.100-3/SRCINFO",
+    "metadata/source-notices/mingw-w64-lame-3.100-3/notices/lame-3.100/COPYING",
+    "metadata/source-notices/mingw-w64-lame-3.100-3/notices/lame-3.100/LICENSE",
+    "metadata/source-notices/mingw-w64-lame-3.100-3/notices/lame-3.100/debian/copyright",
+    "metadata/source-notices/mingw-w64-libass-0.17.5-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-libass-0.17.5-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-libass-0.17.5-1/notices/libass-0.17.5/COPYING",
+    "metadata/source-notices/mingw-w64-libidn2-2.3.8-4/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-libidn2-2.3.8-4/SRCINFO",
+    "metadata/source-notices/mingw-w64-libidn2-2.3.8-4/notices/libidn2-2.3.8/COPYING",
+    "metadata/source-notices/mingw-w64-libidn2-2.3.8-4/notices/libidn2-2.3.8/COPYING.LESSERv3",
+    "metadata/source-notices/mingw-w64-libidn2-2.3.8-4/notices/libidn2-2.3.8/COPYING.unicode",
+    "metadata/source-notices/mingw-w64-libplist-2.7.0-4/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-libplist-2.7.0-4/SRCINFO",
+    "metadata/source-notices/mingw-w64-libplist-2.7.0-4/notices/libplist-2.7.0/COPYING",
+    "metadata/source-notices/mingw-w64-libplist-2.7.0-4/notices/libplist-2.7.0/COPYING.LESSER",
+    "metadata/source-notices/mingw-w64-libplist-2.7.0-4/notices/libplist-2.7.0/libcnary/COPYING",
+    "metadata/source-notices/mingw-w64-libssh-0.12.2-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-libssh-0.12.2-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-libssh-0.12.2-1/notices/libssh-0.12.2/COPYING",
+    "metadata/source-notices/mingw-w64-libtheora-1.2.0-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-libtheora-1.2.0-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-libtheora-1.2.0-1/notices/libtheora-1.2.0/COPYING",
+    "metadata/source-notices/mingw-w64-libtheora-1.2.0-1/notices/libtheora-1.2.0/LICENSE",
+    "metadata/source-notices/mingw-w64-libvorbis-1.3.7-3/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-libvorbis-1.3.7-3/SRCINFO",
+    "metadata/source-notices/mingw-w64-libvorbis-1.3.7-3/notices/libvorbis-1.3.7/COPYING",
+    "metadata/source-notices/mingw-w64-libvpx-1.17.0-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-libvpx-1.17.0-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-libvpx-1.17.0-1/notices/libvpx-1.17.0/LICENSE",
+    "metadata/source-notices/mingw-w64-libvpx-1.17.0-1/notices/libvpx-1.17.0/third_party/googletest/src/LICENSE",
+    "metadata/source-notices/mingw-w64-libvpx-1.17.0-1/notices/libvpx-1.17.0/third_party/libwebm/LICENSE.TXT",
+    "metadata/source-notices/mingw-w64-libvpx-1.17.0-1/notices/libvpx-1.17.0/third_party/libyuv/LICENSE",
+    "metadata/source-notices/mingw-w64-libvpx-1.17.0-1/notices/libvpx-1.17.0/third_party/nalloc/LICENSE",
+    "metadata/source-notices/mingw-w64-libvpx-1.17.0-1/notices/libvpx-1.17.0/third_party/x86inc/LICENSE",
+    "metadata/source-notices/mingw-w64-nettle-4.0-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-nettle-4.0-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-nettle-4.0-1/notices/nettle-4.0/COPYING.LESSERv3",
+    "metadata/source-notices/mingw-w64-opencore-amr-0.1.6-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-opencore-amr-0.1.6-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-opencore-amr-0.1.6-1/notices/opencore-amr-0.1.6/LICENSE",
+    "metadata/source-notices/mingw-w64-opencore-amr-0.1.6-1/notices/opencore-amr-0.1.6/opencore/NOTICE",
+    "metadata/source-notices/mingw-w64-p11-kit-0.26.5-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-p11-kit-0.26.5-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-p11-kit-0.26.5-1/notices/p11-kit-0.26.5/COPYING",
+    "metadata/source-notices/mingw-w64-rtmpdump-2.6-2/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-rtmpdump-2.6-2/SRCINFO",
+    "metadata/source-notices/mingw-w64-rtmpdump-2.6-2/notices/rtmpdump/COPYING",
+    "metadata/source-notices/mingw-w64-rtmpdump-2.6-2/notices/rtmpdump/librtmp/COPYING",
+    "metadata/source-notices/mingw-w64-x264-0.165.r3222.b35605a-3/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-x264-0.165.r3222.b35605a-3/SRCINFO",
+    "metadata/source-notices/mingw-w64-x264-0.165.r3222.b35605a-3/notices/x264/COPYING",
+    "metadata/source-notices/mingw-w64-x265-4.3-1/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-x265-4.3-1/SRCINFO",
+    "metadata/source-notices/mingw-w64-x265-4.3-1/notices/x265_4.3/COPYING",
+    "metadata/source-notices/mingw-w64-x265-4.3-1/notices/x265_4.3/source/dynamicHDR10/LICENSE.txt",
+    "metadata/source-notices/mingw-w64-x265-4.3-1/notices/x265_4.3/source/dynamicHDR10/json11/LICENSE.txt",
+    "metadata/source-notices/mingw-w64-xvidcore-1.3.7-5/PKGBUILD.txt",
+    "metadata/source-notices/mingw-w64-xvidcore-1.3.7-5/SRCINFO",
+    "metadata/source-notices/mingw-w64-xvidcore-1.3.7-5/notices/xvidcore/LICENSE",
+    "metadata/source-notices/mingw-w64-xvidcore-1.3.7-5/notices/xvidcore/vfw/LICENSE",
+    "metadata/source-notices/source-notices.json"
+  ],
+  "prior_runtime_manifest": {
+    "sha256": "d74f60725bd82e8c9996abffab2861634c2979905cf9ca24fded7e15d9308774",
+    "bytes": 100159
+  },
+  "unchanged_prior_runtime_files": 126,
+  "added_runtime_files": {
+    "runtime/lib/gstreamer-1.0/libgstaudioconvert.dll": {
+      "sha256": "2ecfaa3906401e4034da987726b53dd216067bd4dff9739f63d1696ebe33d1cd",
+      "bytes": 44065
+    },
+    "runtime/lib/gstreamer-1.0/libgstaudioresample.dll": {
+      "sha256": "44725c793cefa03bcd724507254f410a58c97928b61205a4dd0eaf59d5b225e4",
+      "bytes": 39746
+    },
+    "runtime/lib/gstreamer-1.0/libgstautodetect.dll": {
+      "sha256": "30dd9c1049664abfefc71e4f936637978c3845d16a2be55a3ef11b65063aba93",
+      "bytes": 62331
+    },
+    "runtime/lib/gstreamer-1.0/libgstlevel.dll": {
+      "sha256": "b3f929221e378512c8cb13b99343741d87584e682b777fe52b2d25473fa3ef51",
+      "bytes": 33111
+    },
+    "runtime/lib/gstreamer-1.0/libgstplayback.dll": {
+      "sha256": "4a7be5e5815a5a0edc83865f99dd8fc8b54d422d31c61f062aed3458b7a85483",
+      "bytes": 679887
+    },
+    "runtime/lib/gstreamer-1.0/libgstvolume.dll": {
+      "sha256": "785fd43257b3f7a66c993752a4ab284fbeaa266ab5744621dc7b90c0813f0c03",
+      "bytes": 42165
+    }
+  },
+  "verified_added_file_packages": [
+    {
+      "name": "mingw-w64-ucrt-x86_64-gst-plugins-base",
+      "version": "1.28.7-1",
+      "architecture": "any",
+      "state": "verified",
+      "archive": "mingw-w64-ucrt-x86_64-gst-plugins-base-1.28.7-1-any.pkg.tar.zst",
+      "archive_sha256": "b4de8693a9b51517a3153217d5ec633778a237b73ca2756bb636b8d02ddfbaea",
+      "signature_sha256": "db9b8799728a9f0c0d8c0471b0b942dc3a756df75ce889cf7978ed2729827762",
+      "signing_fingerprint": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+      "pkgbuild_sha256": "d09d1791db17277134cbd05382bddf2eec4c127ae5df4797297e65ff7eaab998",
+      "pkgbase": [
+        "mingw-w64-gst-plugins-base"
+      ],
+      "upstream_urls": [
+        "https://gstreamer.freedesktop.org/"
+      ],
+      "declared_licenses": [
+        "spdx:LGPL-2.1-or-later"
+      ],
+      "files": [
+        {
+          "file": "runtime/bin/libgstapp-1.0-0.dll",
+          "archive_member": "ucrt64/bin/libgstapp-1.0-0.dll",
+          "bytes": 98514,
+          "sha256": "d2b4cb10ea62112fa69ba9057973d5974c91da51beb828e6e36d4bdddfb7159b"
+        },
+        {
+          "file": "runtime/bin/libgstaudio-1.0-0.dll",
+          "archive_member": "ucrt64/bin/libgstaudio-1.0-0.dll",
+          "bytes": 599450,
+          "sha256": "e5d2e7087846dc5a4fc56f04485a48f14564dd8656f602a4ef1db115cb950547"
+        },
+        {
+          "file": "runtime/bin/libgstpbutils-1.0-0.dll",
+          "archive_member": "ucrt64/bin/libgstpbutils-1.0-0.dll",
+          "bytes": 320089,
+          "sha256": "4068ee62898c066a8761d216e9b5bfccd6e300ede5af9c99ed452245a30e507e"
+        },
+        {
+          "file": "runtime/bin/libgsttag-1.0-0.dll",
+          "archive_member": "ucrt64/bin/libgsttag-1.0-0.dll",
+          "bytes": 311459,
+          "sha256": "d56b4428ead3f73858ada6754f19bdb3c3eae91d70e4e24f99ec866cc8b9beb2"
+        },
+        {
+          "file": "runtime/bin/libgstvideo-1.0-0.dll",
+          "archive_member": "ucrt64/bin/libgstvideo-1.0-0.dll",
+          "bytes": 922234,
+          "sha256": "b1136531cf1dc894a0ede15b003cdc34680df6ad92f09de5b67b230886c81e9f"
+        },
+        {
+          "file": "runtime/lib/gstreamer-1.0/libgstapp.dll",
+          "archive_member": "ucrt64/lib/gstreamer-1.0/libgstapp.dll",
+          "bytes": 12688,
+          "sha256": "f77db9aab613daf4eef5d3ac55f89d50f0832da5c4bb573002aa395c6903f45f"
+        },
+        {
+          "file": "runtime/lib/gstreamer-1.0/libgstaudioconvert.dll",
+          "archive_member": "ucrt64/lib/gstreamer-1.0/libgstaudioconvert.dll",
+          "bytes": 44065,
+          "sha256": "2ecfaa3906401e4034da987726b53dd216067bd4dff9739f63d1696ebe33d1cd"
+        },
+        {
+          "file": "runtime/lib/gstreamer-1.0/libgstaudioresample.dll",
+          "archive_member": "ucrt64/lib/gstreamer-1.0/libgstaudioresample.dll",
+          "bytes": 39746,
+          "sha256": "44725c793cefa03bcd724507254f410a58c97928b61205a4dd0eaf59d5b225e4"
+        },
+        {
+          "file": "runtime/lib/gstreamer-1.0/libgstplayback.dll",
+          "archive_member": "ucrt64/lib/gstreamer-1.0/libgstplayback.dll",
+          "bytes": 679887,
+          "sha256": "4a7be5e5815a5a0edc83865f99dd8fc8b54d422d31c61f062aed3458b7a85483"
+        },
+        {
+          "file": "runtime/lib/gstreamer-1.0/libgstvideoconvertscale.dll",
+          "archive_member": "ucrt64/lib/gstreamer-1.0/libgstvideoconvertscale.dll",
+          "bytes": 62082,
+          "sha256": "adad6e09c5eff4cd512d23e61584caa3145f8507430f062e0110adfd0559d6c1"
+        },
+        {
+          "file": "runtime/lib/gstreamer-1.0/libgstvolume.dll",
+          "archive_member": "ucrt64/lib/gstreamer-1.0/libgstvolume.dll",
+          "bytes": 42165,
+          "sha256": "785fd43257b3f7a66c993752a4ab284fbeaa266ab5744621dc7b90c0813f0c03"
+        }
+      ]
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-gst-plugins-good",
+      "version": "1.28.7-1",
+      "architecture": "any",
+      "state": "verified",
+      "archive": "mingw-w64-ucrt-x86_64-gst-plugins-good-1.28.7-1-any.pkg.tar.zst",
+      "archive_sha256": "9ee8a1b1041b94aab13514086c29f868e1030ab45f22eef56e9608a08573f841",
+      "signature_sha256": "1314a6ff2cc0b2e4fb2fda103b82e104cab1ee6f83639b9a2c3e6ab877271d86",
+      "signing_fingerprint": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+      "pkgbuild_sha256": "7585e597a9fcd5227d901b58207274457a1793f508da9e69fb70be5da04b772a",
+      "pkgbase": [
+        "mingw-w64-gst-plugins-good"
+      ],
+      "upstream_urls": [
+        "https://gstreamer.freedesktop.org/"
+      ],
+      "declared_licenses": [
+        "spdx:LGPL-2.1-or-later"
+      ],
+      "files": [
+        {
+          "file": "runtime/lib/gstreamer-1.0/libgstautodetect.dll",
+          "archive_member": "ucrt64/lib/gstreamer-1.0/libgstautodetect.dll",
+          "bytes": 62331,
+          "sha256": "30dd9c1049664abfefc71e4f936637978c3845d16a2be55a3ef11b65063aba93"
+        },
+        {
+          "file": "runtime/lib/gstreamer-1.0/libgstlevel.dll",
+          "archive_member": "ucrt64/lib/gstreamer-1.0/libgstlevel.dll",
+          "bytes": 33111,
+          "sha256": "b3f929221e378512c8cb13b99343741d87584e682b777fe52b2d25473fa3ef51"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Prior package/source records retain their original scope; they are not new acceptance.",
+    "The added binaries match signed local cached packages; no trust-chain refresh.",
+    "gst-plugins-good adds a local/source notice gap. Distribution remains uncleared.",
+    "No installed binary, service or phone was changed by this assembly."
+  ]
+}

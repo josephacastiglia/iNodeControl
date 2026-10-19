@@ -1,0 +1,103 @@
+[
+  {
+    "frame": "04-picker.png",
+    "indicatorMean": 114.23226616446955,
+    "protectedBottomMean": 77.72556666666667
+  },
+  {
+    "frame": "05-picker.png",
+    "indicatorMean": 195.12680477087258,
+    "protectedBottomMean": 82.28995,
+    "comparison": {
+      "controlsStable": false,
+      "previewChanged": false,
+      "automaticInputAllowed": false,
+      "beforeSha256": "26269c20ab8e25b97a91dd7723e0c74a0074eaa620cdcdac54ab7ba452dc6ae7",
+      "afterSha256": "5b921be300292a28fae2c23ac67b72a9808e59f665809bf7e8e429b8ac071555",
+      "protectedMeanError": 0.0015451538803223557,
+      "protectedChangedFraction": 0.004784466019417476,
+      "worstProtectedBlock": 0.12911546840958604,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Home indicator is fading; recapture without input.",
+      "state": "wait"
+    }
+  },
+  {
+    "frame": "06-picker.png",
+    "indicatorMean": 237.33521657250472,
+    "protectedBottomMean": 84.73825,
+    "comparison": {
+      "controlsStable": false,
+      "previewChanged": false,
+      "automaticInputAllowed": false,
+      "beforeSha256": "5b921be300292a28fae2c23ac67b72a9808e59f665809bf7e8e429b8ac071555",
+      "afterSha256": "4c8980553c015d0d5c78abc0bdf7f5c26e7c849c504b3e3ee8ae5ce7c487e5ba",
+      "protectedMeanError": 0.0008178793070626309,
+      "protectedChangedFraction": 0.0037398058252427185,
+      "worstProtectedBlock": 0.06828758169934641,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Home indicator is fading; recapture without input.",
+      "state": "wait"
+    }
+  },
+  {
+    "frame": "07-picker.png",
+    "indicatorMean": 237.33521657250472,
+    "protectedBottomMean": 84.73825,
+    "comparison": {
+      "controlsStable": true,
+      "previewChanged": false,
+      "automaticInputAllowed": false,
+      "beforeSha256": "4c8980553c015d0d5c78abc0bdf7f5c26e7c849c504b3e3ee8ae5ce7c487e5ba",
+      "afterSha256": "612fe154b6eba3aeaae7f4ba1d878536a868faa759cf4c4a7f931555f29bd9ef",
+      "protectedMeanError": 3.5738308268291133e-06,
+      "protectedChangedFraction": 0.0,
+      "worstProtectedBlock": 0.0005395127748068924,
+      "mostChangedControlPixels": 0,
+      "ignoredRegions": [
+        [
+          0,
+          0,
+          500,
+          65
+        ],
+        [
+          0,
+          112,
+          500,
+          612
+        ]
+      ],
+      "reason": "Picker controls/grid agree; preview motion was excluded.",
+      "state": "ready"
+    }
+  }
+]

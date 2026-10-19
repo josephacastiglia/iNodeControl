@@ -1,0 +1,3 @@
+00:50:38.336 stopping PID 50248 (python.exe); children: 40800 conhost.exe
+00:50:38.585 processes attached to PID 50248's console: 54016 powershell.exe, 50248 python.exe
+00:50:39.164 PID 50248 exited; children still running: none

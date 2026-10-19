@@ -1,0 +1,14 @@
+test_library_scan_decodes_each_source_once_and_keeps_no_cross_frame_cache (test_farm_carousel_continuity.CarouselContinuityTests.test_library_scan_decodes_each_source_once_and_keeps_no_cross_frame_cache) ... FAIL
+
+======================================================================
+FAIL: test_library_scan_decodes_each_source_once_and_keeps_no_cross_frame_cache (test_farm_carousel_continuity.CarouselContinuityTests.test_library_scan_decodes_each_source_once_and_keeps_no_cross_frame_cache)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_carousel_continuity.py", line 61, in test_library_scan_decodes_each_source_once_and_keeps_no_cross_frame_cache
+    self.assertLessEqual(opened.call_count,2+len(self.f.assets))
+AssertionError: 60 not less than or equal to 4
+
+----------------------------------------------------------------------
+Ran 1 test in 0.806s
+
+FAILED (failures=1)

@@ -1,0 +1,223 @@
+{
+  "results": [
+    {
+      "step": "04-account-before",
+      "phase": "after",
+      "frameSha256": "002b4e13bd9ce9f7611a1ce7dae3871a2337fa2e6b2caff7749b15fd3f2a07bb",
+      "screen": "profile",
+      "account": "exact_text_match",
+      "media": {
+        "status": "unsupported_layout",
+        "matchedIndex": null
+      },
+      "caption": null
+    },
+    {
+      "step": "07-draft-library",
+      "phase": "after",
+      "frameSha256": "a55bd451f82848898f4055df5a0671dbec25ae4bb39becad0bf2d50524bcc745",
+      "screen": "unknown",
+      "account": "not_visible",
+      "media": {
+        "status": "visual_match",
+        "matchedIndex": 1,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.02263121859627931,
+            "worstBlock": 0.1184029162685946,
+            "rendering": "library_lower_gradient"
+          },
+          {
+            "index": 2,
+            "meanError": 0.11139477938241088,
+            "worstBlock": 0.2712206037943525,
+            "rendering": "library_lower_gradient"
+          },
+          {
+            "index": 3,
+            "meanError": 0.10499590190849781,
+            "worstBlock": 0.21697261545391772,
+            "rendering": "library_lower_gradient"
+          }
+        ],
+        "margin": 0.0823646833122185,
+        "byteIdentityVerified": false,
+        "fullImageVisible": false,
+        "libraryCell": {
+          "row": 1,
+          "column": 2
+        },
+        "candidateCells": 2,
+        "matchingCovers": 1
+      },
+      "caption": null
+    },
+    {
+      "step": "09-slide-two",
+      "phase": "before",
+      "frameSha256": "b323d03d83a18d58298b9d4326cc326e026ed25a267dae4a41bbdb69ebbf03e1",
+      "screen": "draft_editor",
+      "account": "not_visible",
+      "media": {
+        "status": "visual_match",
+        "matchedIndex": 1,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.00778356417900244,
+            "worstBlock": 0.024860314496168833,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.11186444195409455,
+            "worstBlock": 0.26135574229691877,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.11484138668541756,
+            "worstBlock": 0.2268036103330221,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.1040808777750921,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true,
+        "position": {
+          "status": "visible_position",
+          "index": 1,
+          "count": 3
+        }
+      },
+      "caption": null
+    },
+    {
+      "step": "09-slide-two",
+      "phase": "after",
+      "frameSha256": "cc7308f4c461e455fa2fd70e46b205bcf16f67041080db50ade10ed1dffb3f91",
+      "screen": "draft_editor",
+      "account": "not_visible",
+      "media": {
+        "status": "visual_match",
+        "matchedIndex": 2,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.10448153112571139,
+            "worstBlock": 0.2575138499844382,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.007934694236304905,
+            "worstBlock": 0.024062958516740025,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.20701155571181276,
+            "worstBlock": 0.24937441643324,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.09654683688940649,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true,
+        "position": {
+          "status": "visible_position",
+          "index": 2,
+          "count": 3
+        }
+      },
+      "caption": null
+    },
+    {
+      "step": "10-slide-three",
+      "phase": "after",
+      "frameSha256": "76ee812b80f1993a583ee20912b297332d71820f656aa6bfe8e27730948e07f8",
+      "screen": "draft_editor",
+      "account": "not_visible",
+      "media": {
+        "status": "visual_match",
+        "matchedIndex": 3,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.1238151916226583,
+            "worstBlock": 0.2355331465919701,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.216253195338651,
+            "worstBlock": 0.25186181139122316,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.0092641016062757,
+            "worstBlock": 0.02223111466808947,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.11455109001638261,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true,
+        "position": {
+          "status": "visible_position",
+          "index": 3,
+          "count": 3
+        }
+      },
+      "caption": null
+    },
+    {
+      "step": "11-caption-details",
+      "phase": "after",
+      "frameSha256": "2ed66931673747e6d379bfc66358a3bf164101893a484bf3749abe9e8b582b54",
+      "screen": "draft_details",
+      "account": "not_visible",
+      "media": {
+        "status": "visual_match",
+        "matchedIndex": 1,
+        "scores": [
+          {
+            "index": 1,
+            "meanError": 0.013452126793985279,
+            "worstBlock": 0.037203859321506376,
+            "rendering": "plain"
+          },
+          {
+            "index": 2,
+            "meanError": 0.11617009494247349,
+            "worstBlock": 0.26166946778711486,
+            "rendering": "plain"
+          },
+          {
+            "index": 3,
+            "meanError": 0.1140706251533191,
+            "worstBlock": 0.22399004046062868,
+            "rendering": "plain"
+          }
+        ],
+        "margin": 0.10061849835933383,
+        "byteIdentityVerified": false,
+        "fullImageVisible": true
+      },
+      "caption": {
+        "status": "exact_visible_lines",
+        "visibleText": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish.",
+        "reason": "Only the supported visible caption area was compared; hidden or truncated text cannot pass."
+      }
+    }
+  ],
+  "allReopenedSlidesMatched": true,
+  "fullCaptionMatched": true,
+  "accountAfterCaptured": false,
+  "pairedFrameMetadata": false,
+  "savedDraftVerified": false,
+  "automaticInputAllowed": false,
+  "reason": "Another controller acquired C24C before account-after. No input sent after the ownership preflight refused step 12."
+}

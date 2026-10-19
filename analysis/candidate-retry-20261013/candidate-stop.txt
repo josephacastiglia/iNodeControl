@@ -1,0 +1,3 @@
+01:05:00.238 stopping PID 19200 (iMouse2.Kernel.exe); children: 35348 conhost.exe, 17164 uxplay.exe
+01:05:00.572 processes attached to PID 19200's console: 13796 pwsh.exe, 19200 iMouse2.Kernel.exe
+01:05:01.164 PID 19200 exited; children still running: none

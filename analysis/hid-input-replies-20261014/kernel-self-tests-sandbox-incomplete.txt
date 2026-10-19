@@ -1,0 +1,81 @@
+PASS Input parser rejects incorrect Windows report length 0
+PASS Input parser rejects incorrect Windows report length 1
+PASS Input parser rejects incorrect Windows report length 8
+PASS Input parser rejects incorrect Windows report length 9
+PASS Input parser rejects incorrect Windows report length 16
+PASS Input parser rejects incorrect Windows report length 18
+PASS Input parser rejects incorrect Windows report length 34
+PASS Input parser refuses an unobserved report ID
+PASS Movement reply is classified only as a vendor signal 160
+PASS Movement reply is classified only as a vendor signal 161
+PASS Vendor identifier is six bytes and the unclassified tail is preserved
+PASS Parsed input owns its data independently of the receive buffer
+PASS Status and unknown replies retain raw bytes without claiming command success 166
+PASS Status and unknown replies retain raw bytes without claiming command success 175
+PASS Status and unknown replies retain raw bytes without claiming command success 162
+PASS Status and unknown replies retain raw bytes without claiming command success 254
+PASS Reply diagnostics do not report an unopened reader as receiving
+PASS Silent HID input remains unknown rather than confirming a command
+PASS Reply counters distinguish malformed, movement, status, identifier and unknown packets
+PASS Public reply diagnostics omit raw device identifiers and cannot claim iOS success
+PASS Concurrent/repeated reader shutdown shares one joined cleanup
+PASS Closed reader preserves bounded observations for diagnostics
+PASS Input EOF is retained as a read failure without inventing a successful reply
+PASS Closing the owned stream drains a read that ignores cancellation
+PASS An unjoined reader reports incomplete cleanup instead of hanging or claiming success
+PASS A new reader lifetime cannot inherit an earlier reply as fresh evidence
+PASS High report counts retain only a fixed-size summary
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 27
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 28
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 29
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 30
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 31
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 32
+PASS Invalid or unrepresentable calibration rejected before opening hardware: 33
+PASS Down matches captured packet
+PASS Corner reset matches captured packet
+PASS ASCII space and shifted digit usages
+PASS Letter modifiers match captured packets
+PASS Unapproved batch target rejects whole request before output
+PASS Out of bounds click sends nothing
+click pid=C24C known=False reset=62ms steps=0 send=0ms delay=0ms settle=128ms button=94ms total=285ms
+PASS First absolute action releases inputs and establishes corner origin
+PASS Click holds then releases
+PASS Click settles with a zero-motion report before button down
+PASS Drag settles, then preserves held button during relative steps
+PASS Space is emitted as USB usage 44 between letters
+PASS Home reproduces observed Tab and GUI+H sequence
+click pid=C24C known=False reset=61ms steps=2 send=0ms delay=31ms settle=125ms button=94ms total=312ms
+PASS Home invalidates the pointer estimate; next click re-establishes origin
+PASS Transport failure is reported
+PASS Failure releases inputs and discards handle
+PASS Movement failure is surfaced (precise=False)
+PASS Movement failure forces a new connection and corner reset (precise=False)
+PASS Movement failure is surfaced (precise=True)
+PASS Movement failure forces a new connection and corner reset (precise=True)
+click pid=C24C known=False reset=64ms steps=37 send=0ms delay=562ms settle=125ms button=80ms total=849ms
+click pid=C24C known=False reset=60ms steps=37 send=0ms delay=562ms settle=127ms button=95ms total=862ms
+click pid=C24C known=False reset=63ms steps=37 send=0ms delay=259ms settle=120ms button=95ms total=550ms
+click pid=C24C known=False reset=62ms steps=37 send=0ms delay=259ms settle=134ms button=96ms total=565ms
+PASS Precise pacing preserves all reset, movement, keyboard, click and swipe packets
+PASS Precise clicks retain both cold-start and post-Home corner resets
+click pid=C24C known=True reset=0ms steps=194 send=0ms delay=2958ms settle=127ms button=94ms total=3268ms
+click pid=C24C known=True reset=0ms steps=178 send=0ms delay=2715ms settle=125ms button=94ms total=3009ms
+click pid=C24C known=True reset=0ms steps=196 send=0ms delay=2984ms settle=127ms button=96ms total=3298ms
+click pid=C24C known=True reset=0ms steps=209 send=0ms delay=3176ms settle=127ms button=94ms total=3500ms
+click pid=C24C known=True reset=0ms steps=151 send=0ms delay=2291ms settle=127ms button=93ms total=2590ms
+PASS Clicks down to the bottom row emit the full calibrated movement after a reset
+click pid=C24C known=True reset=0ms steps=194 send=0ms delay=2957ms settle=125ms button=95ms total=3266ms
+click pid=C24C known=True reset=0ms steps=29 send=0ms delay=438ms settle=126ms button=94ms total=672ms
+click pid=C24C known=True reset=0ms steps=58 send=0ms delay=882ms settle=126ms button=95ms total=1129ms
+click pid=C24C known=True reset=0ms steps=41 send=0ms delay=626ms settle=126ms button=94ms total=865ms
+click pid=C24C known=True reset=0ms steps=58 send=0ms delay=883ms settle=126ms button=95ms total=1129ms
+PASS Chained lower-screen clicks from a known position end at the last target's units
+PASS Padded bottom-up BMP accepted
+PASS Video is offline before a receiver sends a frame
+PASS Kernel diagnostics expose active calibration and pacing without sending input
+PASS Kernel diagnostics identify the actual assembly bytes
+PASS Kernel diagnostics identify this process and its resource use without hardware calls
+PASS Receiver logging failures remain visible in per-phone diagnostics
+PASS Merged status retains the configured Home sequence alongside frame metadata
+PASS Status distinguishes no frame from a fresh frame without starting a listener

@@ -1,0 +1,29 @@
+test_concurrent_start_cannot_open_two_sessions (test_farm_transfer_sessions.TransferSessionTests.test_concurrent_start_cannot_open_two_sessions) ... ok
+test_cross_origin_or_wrong_host_cannot_start_or_read_link (test_farm_transfer_sessions.TransferSessionTests.test_cross_origin_or_wrong_host_cannot_start_or_read_link) ... ok
+test_draft_edits_do_not_mutate_active_media (test_farm_transfer_sessions.TransferSessionTests.test_draft_edits_do_not_mutate_active_media) ... ok
+test_duplicate_request_never_reopens_or_changes_snapshot (test_farm_transfer_sessions.TransferSessionTests.test_duplicate_request_never_reopens_or_changes_snapshot) ... ok
+test_expiry_closes_socket_and_strips_url (test_farm_transfer_sessions.TransferSessionTests.test_expiry_closes_socket_and_strips_url) ... ok
+test_http_start_delivery_recovery_stop_and_no_phone_commands (test_farm_transfer_sessions.TransferSessionTests.test_http_start_delivery_recovery_stop_and_no_phone_commands) ... ok
+test_old_stop_cannot_stop_new_session (test_farm_transfer_sessions.TransferSessionTests.test_old_stop_cannot_stop_new_session) ... ok
+test_port_collision_is_terminal_and_does_not_kill_other_listener (test_farm_transfer_sessions.TransferSessionTests.test_port_collision_is_terminal_and_does_not_kill_other_listener) ... ok
+test_restart_keeps_history_but_never_url_or_listener (test_farm_transfer_sessions.TransferSessionTests.test_restart_keeps_history_but_never_url_or_listener) ... ok
+test_stale_revision_and_invalid_package_fail_before_listener (test_farm_transfer_sessions.TransferSessionTests.test_stale_revision_and_invalid_package_fail_before_listener) ... ok
+test_stop_still_works_while_other_operation_lock_is_held (test_farm_transfer_sessions.TransferSessionTests.test_stop_still_works_while_other_operation_lock_is_held) ... ok
+test_target_addresses_types_and_control_ports_are_checked (test_farm_transfer_sessions.TransferSessionTests.test_target_addresses_types_and_control_ports_are_checked) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 11.098s
+
+OK
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - code 400, message Bad request version ('1}')
+[iMouse-Farm-9914] 127.0.0.1 - "{"id": "70021585-be46-49b1-bc9f-f55f5e2e61c6", "draft_id": "ea072e0d-e4a5-4c99-b1dc-1cc45b7a1631", "revision": 3, "device_id": "C24C", "account": "test.account", "bind": "127.0.0.1", "client": "127.0.0.1", "port": 36034, "minutes": 1}" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - code 400, message Bad request version ('1}')
+[iMouse-Farm-9914] 127.0.0.1 - "{"id": "70021585-be46-49b1-bc9f-f55f5e2e61c6", "draft_id": "ea072e0d-e4a5-4c99-b1dc-1cc45b7a1631", "revision": 3, "device_id": "C24C", "account": "test.account", "bind": "127.0.0.1", "client": "127.0.0.1", "port": 36034, "minutes": 1}" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/d3e4d77c-46b5-4fe7-8bfb-bece70900ca9/stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/2a0409e6-92c4-4efc-9bed-99122c8cf03e/stop HTTP/1.1" 200 -

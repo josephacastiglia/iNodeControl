@@ -1,0 +1,61 @@
+test_100_character_text_preserves_bytes_in_twelve_character_chunks (__main__.FarmFeatureValidation.test_100_character_text_preserves_bytes_in_twelve_character_chunks) ... ok
+test_alias_upload_runs_mock_sequence_and_releases (__main__.FarmFeatureValidation.test_alias_upload_runs_mock_sequence_and_releases) ... ok
+test_alias_warmup_runs_one_mock_session_and_releases (__main__.FarmFeatureValidation.test_alias_warmup_runs_one_mock_session_and_releases) ... ok
+test_blank_image_does_not_fabricate_profile_view_counts (__main__.FarmFeatureValidation.test_blank_image_does_not_fabricate_profile_view_counts) ... ok
+test_blank_image_does_not_match_a_comment_keyword (__main__.FarmFeatureValidation.test_blank_image_does_not_match_a_comment_keyword) ... ok
+test_chunk_strategy_refuses_non_ascii_before_input (__main__.FarmFeatureValidation.test_chunk_strategy_refuses_non_ascii_before_input) ... ok
+test_chunk_timeout_is_never_retried (__main__.FarmFeatureValidation.test_chunk_timeout_is_never_retried) ... ok
+test_console_funnel_payload_runs_advertised_dm_workflow (__main__.FarmFeatureValidation.test_console_funnel_payload_runs_advertised_dm_workflow) ... ok
+test_console_hardware_id_runs_requested_warmup (__main__.FarmFeatureValidation.test_console_hardware_id_runs_requested_warmup) ... ok
+test_console_hardware_id_upload_finds_its_persona (__main__.FarmFeatureValidation.test_console_hardware_id_upload_finds_its_persona) ... ok
+test_cross_origin_post_is_refused_without_input (__main__.FarmFeatureValidation.test_cross_origin_post_is_refused_without_input) ... ok
+test_existing_staged_media_serves_exact_bytes (__main__.FarmFeatureValidation.test_existing_staged_media_serves_exact_bytes) ... ok
+test_explicit_observation_provider_result_is_used (__main__.FarmFeatureValidation.test_explicit_observation_provider_result_is_used) ... ok
+test_generated_slate_contains_readable_carousel_images_and_video (__main__.FarmFeatureValidation.test_generated_slate_contains_readable_carousel_images_and_video) ... ERROR
+test_malformed_json_returns_client_error_instead_of_aborting_handler (__main__.FarmFeatureValidation.test_malformed_json_returns_client_error_instead_of_aborting_handler) ... ok
+test_manifest_video_checksum_matches_the_staged_file (__main__.FarmFeatureValidation.test_manifest_video_checksum_matches_the_staged_file) ... ERROR
+test_missing_video_encoder_is_reported_or_fallback_is_playable (__main__.FarmFeatureValidation.test_missing_video_encoder_is_reported_or_fallback_is_playable) ... ok
+test_mixed_live_wave_refuses_before_any_input (__main__.FarmFeatureValidation.test_mixed_live_wave_refuses_before_any_input) ... ok
+test_mock_stop_remains_latched_until_explicit_resume (__main__.FarmFeatureValidation.test_mock_stop_remains_latched_until_explicit_resume) ... ok
+test_oversize_text_is_refused_not_silently_truncated (__main__.FarmFeatureValidation.test_oversize_text_is_refused_not_silently_truncated) ... ok
+test_owned_phone_refuses_upload_without_taking_over (__main__.FarmFeatureValidation.test_owned_phone_refuses_upload_without_taking_over) ... ok
+test_scheduler_dry_run_never_acquires_or_sends (__main__.FarmFeatureValidation.test_scheduler_dry_run_never_acquires_or_sends) ... ok
+test_scheduler_status_does_not_dispatch_input (__main__.FarmFeatureValidation.test_scheduler_status_does_not_dispatch_input) ... ok
+test_shortcut_export_is_parseable_and_targets_simulation_manifest (__main__.FarmFeatureValidation.test_shortcut_export_is_parseable_and_targets_simulation_manifest) ... ok
+test_stage_cannot_read_outside_stage_root (__main__.FarmFeatureValidation.test_stage_cannot_read_outside_stage_root) ... ok
+test_state_reports_simulation_and_nineteen_personas (__main__.FarmFeatureValidation.test_state_reports_simulation_and_nineteen_personas) ... ok
+test_stop_during_warmup_causes_failure_and_releases (__main__.FarmFeatureValidation.test_stop_during_warmup_causes_failure_and_releases) ... ok
+test_stop_requires_explicit_success_reply (__main__.FarmFeatureValidation.test_stop_requires_explicit_success_reply) ... ok
+test_stop_targets_only_requested_mock_phone (__main__.FarmFeatureValidation.test_stop_targets_only_requested_mock_phone) ... ok
+test_unsupported_screen_keyboard_character_is_not_silently_dropped (__main__.FarmFeatureValidation.test_unsupported_screen_keyboard_character_is_not_silently_dropped) ... ok
+test_upload_failure_releases_lease_and_stops_sequence (__main__.FarmFeatureValidation.test_upload_failure_releases_lease_and_stops_sequence) ... ok
+test_video_has_decodable_frames_or_reports_missing_encoder (__main__.FarmFeatureValidation.test_video_has_decodable_frames_or_reports_missing_encoder) ... ok
+
+======================================================================
+ERROR: test_generated_slate_contains_readable_carousel_images_and_video (__main__.FarmFeatureValidation.test_generated_slate_contains_readable_carousel_images_and_video)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_feature_validation.py", line 251, in test_generated_slate_contains_readable_carousel_images_and_video
+    self.runtime.factory.generate_daily_slate_for_device("C24C")
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1584, in generate_daily_slate_for_device
+    manifest_tmp.replace(dev_stage_dir / "manifest.json")
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 1188, in replace
+    os.replace(self, target)
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\AppData\\Local\\Packages\\sandbox.{81536799-29c4-42ed-9954-e084bc8d8b7a}\\AC\\Temp\\farm-feature-validation-14eexb3q\\stage\\C24C\\manifest_4fc788108bd54cbdb8c00413892f5661.tmp' -> 'C:\\Users\\joey_\\AppData\\Local\\Packages\\sandbox.{81536799-29c4-42ed-9954-e084bc8d8b7a}\\AC\\Temp\\farm-feature-validation-14eexb3q\\stage\\C24C\\manifest.json'
+
+======================================================================
+ERROR: test_manifest_video_checksum_matches_the_staged_file (__main__.FarmFeatureValidation.test_manifest_video_checksum_matches_the_staged_file)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_feature_validation.py", line 276, in test_manifest_video_checksum_matches_the_staged_file
+    self.runtime.factory.generate_daily_slate_for_device("C24C")
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_social_automation.py", line 1584, in generate_daily_slate_for_device
+    manifest_tmp.replace(dev_stage_dir / "manifest.json")
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 1188, in replace
+    os.replace(self, target)
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\joey_\\AppData\\Local\\Packages\\sandbox.{81536799-29c4-42ed-9954-e084bc8d8b7a}\\AC\\Temp\\farm-feature-validation-96vt4qyx\\stage\\C24C\\manifest_f0290e11834c4871a5f7aeda4a73a355.tmp' -> 'C:\\Users\\joey_\\AppData\\Local\\Packages\\sandbox.{81536799-29c4-42ed-9954-e084bc8d8b7a}\\AC\\Temp\\farm-feature-validation-96vt4qyx\\stage\\C24C\\manifest.json'
+
+----------------------------------------------------------------------
+Ran 32 tests in 1.818s
+
+FAILED (errors=2)

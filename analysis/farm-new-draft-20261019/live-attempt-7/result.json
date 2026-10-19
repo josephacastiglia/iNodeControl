@@ -1,0 +1,5438 @@
+{
+  "run": {
+    "id": "4ddebd7a-5920-4f43-9628-b5e86637b7ff",
+    "storeId": "72237730-0e60-4738-ab95-c97be14ebaad",
+    "request": {
+      "id": "4ddebd7a-5920-4f43-9628-b5e86637b7ff",
+      "draft_id": "d9d790cb-d6ba-4ef8-9336-0b8528c67793",
+      "revision": 5,
+      "store_id": "72237730-0e60-4738-ab95-c97be14ebaad"
+    },
+    "packageSha256": "947a973fb279169d8d1b45172421be724fd693a5940faf2cd2f11646a18fd141",
+    "state": "review_required",
+    "terminal": true,
+    "jobStatus": "succeeded",
+    "reason": "InspectionStopped: The iOS Home screen is not recognized.",
+    "savedDraftVerified": false,
+    "draftChangedSinceRun": false,
+    "cleanup": "confirmed",
+    "workflow": {
+      "id": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+      "source": "candidate_phone_workflow",
+      "state": "review_required",
+      "cleanup": "confirmed",
+      "commands": [
+        {
+          "fun": "/mouse/reset",
+          "data": {},
+          "purpose": "initial_pointer_reset",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 235.9
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 737.2
+          }
+        },
+        {
+          "fun": "/key/sendkey",
+          "data": {
+            "fn_key": "Escape"
+          },
+          "purpose": "dismiss-restored-app-search",
+          "state": "answered",
+          "decisionChecks": [
+            {
+              "stage": "before_dispatch_journal",
+              "observationId": "26e880eb-77bd-455f-9a4a-6d9452cccff5",
+              "evidenceRecordSha256": "ab8e1d23098890530064915178ce39f0b8dae51156b2996cb1d7960329b7de63",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 791.9930000032597
+            },
+            {
+              "stage": "before_transport",
+              "observationId": "26e880eb-77bd-455f-9a4a-6d9452cccff5",
+              "evidenceRecordSha256": "ab8e1d23098890530064915178ce39f0b8dae51156b2996cb1d7960329b7de63",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 807.9930000028813
+            }
+          ],
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 165.2
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "park_after_answered_action",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 15.5
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 450,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 59.8
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 51.5
+          }
+        },
+        {
+          "fun": "/key/sendkey",
+          "data": {
+            "fn_key": "Escape"
+          },
+          "purpose": "dismiss-empty-ios-search",
+          "state": "answered",
+          "decisionChecks": [
+            {
+              "stage": "before_dispatch_journal",
+              "observationId": "2b2c68ef-5b83-4753-aec1-443b772eab16",
+              "evidenceRecordSha256": "5c137b9bdff71cd9599e5da871453766a63ec6ccdd1ec0452c74847281bcf981",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 761.4860000003783
+            },
+            {
+              "stage": "before_transport",
+              "observationId": "2b2c68ef-5b83-4753-aec1-443b772eab16",
+              "evidenceRecordSha256": "5c137b9bdff71cd9599e5da871453766a63ec6ccdd1ec0452c74847281bcf981",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 761.4860000003783
+            }
+          ],
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 156.6
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "park_after_answered_action",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 1.4
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 450,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 50.5
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 50.4
+          }
+        },
+        {
+          "fun": "/mouse/click",
+          "data": {
+            "x": 77,
+            "y": 129,
+            "button": 1
+          },
+          "purpose": "initial-open-Instagram",
+          "state": "answered",
+          "decisionChecks": [
+            {
+              "stage": "before_dispatch_journal",
+              "observationId": "3cbf745b-9bd7-4f3d-9e3d-52bbfe80d1dd",
+              "evidenceRecordSha256": "288c29166482f1c424a0b1b728106673a3a1779b01d487777c2d325a9e4acfea",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 1129.113623473539
+            },
+            {
+              "stage": "before_transport",
+              "observationId": "3cbf745b-9bd7-4f3d-9e3d-52bbfe80d1dd",
+              "evidenceRecordSha256": "288c29166482f1c424a0b1b728106673a3a1779b01d487777c2d325a9e4acfea",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 1135.248
+            }
+          ],
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 880.8
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "park_after_answered_action",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 650.6
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 450,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 67.8
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 49.5
+          }
+        },
+        {
+          "fun": "/mouse/click",
+          "data": {
+            "x": 447,
+            "y": 1008,
+            "button": 1
+          },
+          "purpose": "verify-launch-account",
+          "state": "answered",
+          "decisionChecks": [
+            {
+              "stage": "before_dispatch_journal",
+              "observationId": "87bb4216-a16a-44d6-8198-f3b670735e64",
+              "evidenceRecordSha256": "b3b7dcd3f73ba166f1b98527660c4a01c03f99e39069ff1b14eb9452a34b1c8e",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 722.6335801404989
+            },
+            {
+              "stage": "before_transport",
+              "observationId": "87bb4216-a16a-44d6-8198-f3b670735e64",
+              "evidenceRecordSha256": "b3b7dcd3f73ba166f1b98527660c4a01c03f99e39069ff1b14eb9452a34b1c8e",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 737.703000000582
+            }
+          ],
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 1387.8
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "park_after_answered_action",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 1124.0
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 450,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 50.2
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 49.2
+          }
+        },
+        {
+          "fun": "/key/sendkey",
+          "data": {
+            "fn_key": "Home"
+          },
+          "purpose": "home-from-profile",
+          "state": "answered",
+          "decisionChecks": [
+            {
+              "stage": "before_dispatch_journal",
+              "observationId": "dcdc5c6b-025f-45e4-915e-245e746f6bc7",
+              "evidenceRecordSha256": "21f633f41cee81a0e6bc27e84233e4bb30ea484ff1c143e62dc2111a61ee6c84",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 739.2430000009605
+            },
+            {
+              "stage": "before_transport",
+              "observationId": "dcdc5c6b-025f-45e4-915e-245e746f6bc7",
+              "evidenceRecordSha256": "21f633f41cee81a0e6bc27e84233e4bb30ea484ff1c143e62dc2111a61ee6c84",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 745.2531242098026
+            }
+          ],
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 332.2
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "park_after_answered_action",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 810.3
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 450,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 50.5
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 50.7
+          }
+        },
+        {
+          "fun": "/mouse/swipe",
+          "data": {
+            "x1": 100,
+            "y1": 825,
+            "x2": 420,
+            "y2": 825,
+            "duration": 400
+          },
+          "purpose": "transfer-change-home-page",
+          "state": "answered",
+          "decisionChecks": [
+            {
+              "stage": "before_dispatch_journal",
+              "observationId": "649ad560-29ca-4016-9349-9d54026bda56",
+              "evidenceRecordSha256": "66a947232a4135b4714b29fc6bca685d88edc1ee2fff256a9a0e0d3382135efb",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 828.64128892325
+            },
+            {
+              "stage": "before_transport",
+              "observationId": "649ad560-29ca-4016-9349-9d54026bda56",
+              "evidenceRecordSha256": "66a947232a4135b4714b29fc6bca685d88edc1ee2fff256a9a0e0d3382135efb",
+              "freshness": "recent",
+              "expired": false,
+              "frameAgeMs": 843.7260000013388
+            }
+          ],
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 2025.4
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 480,
+            "y": 300
+          },
+          "purpose": "park_after_answered_action",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 835.2
+          }
+        },
+        {
+          "fun": "/mouse/move",
+          "data": {
+            "x": 450,
+            "y": 300
+          },
+          "purpose": "fresh_frame_challenge",
+          "state": "answered",
+          "response": {
+            "code": 0,
+            "results": [
+              {
+                "id": "86:1D:4A:04:2F:F6",
+                "code": 0,
+                "message": "ok"
+              }
+            ],
+            "rtt_ms": 50.4
+          }
+        }
+      ],
+      "observations": [
+        {
+          "role": "restored_search",
+          "index": null,
+          "observationId": "26e880eb-77bd-455f-9a4a-6d9452cccff5",
+          "state": "observed",
+          "frame": "01-restored_search.png",
+          "observation": {
+            "id": "26e880eb-77bd-455f-9a4a-6d9452cccff5",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383407.2921288,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The screen is not recognized.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "unknown",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The screen is not recognized.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "047013291087edf4f0504e7c3f32226ceb121af7b7c2eef4048d6740871f8bdf",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:16",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 15,
+                      "width": 47,
+                      "text": "12:16",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Top Hit",
+                  "words": [
+                    {
+                      "y": 77,
+                      "height": 16,
+                      "width": 30,
+                      "text": "Top",
+                      "x": 26
+                    },
+                    {
+                      "y": 76,
+                      "height": 14,
+                      "width": 23,
+                      "text": "Hit",
+                      "x": 63
+                    }
+                  ]
+                },
+                {
+                  "text": "Safari",
+                  "words": [
+                    {
+                      "y": 211,
+                      "height": 12,
+                      "width": 39,
+                      "text": "Safari",
+                      "x": 68
+                    }
+                  ]
+                },
+                {
+                  "text": "Suggestions",
+                  "words": [
+                    {
+                      "y": 275,
+                      "height": 17,
+                      "width": 106,
+                      "text": "Suggestions",
+                      "x": 26
+                    }
+                  ]
+                },
+                {
+                  "text": "Safari",
+                  "words": [
+                    {
+                      "y": 328,
+                      "height": 16,
+                      "width": 54,
+                      "text": "Safari",
+                      "x": 75
+                    }
+                  ]
+                },
+                {
+                  "text": "Settings",
+                  "words": [
+                    {
+                      "y": 395,
+                      "height": 17,
+                      "width": 70,
+                      "text": "Settings",
+                      "x": 26
+                    }
+                  ]
+                },
+                {
+                  "text": "Safari",
+                  "words": [
+                    {
+                      "y": 469,
+                      "height": 17,
+                      "width": 54,
+                      "text": "Safari",
+                      "x": 115
+                    }
+                  ]
+                },
+                {
+                  "text": "Safari Suggestions",
+                  "words": [
+                    {
+                      "y": 567,
+                      "height": 17,
+                      "width": 54,
+                      "text": "Safari",
+                      "x": 115
+                    },
+                    {
+                      "y": 567,
+                      "height": 21,
+                      "width": 119,
+                      "text": "Suggestions",
+                      "x": 175
+                    }
+                  ]
+                },
+                {
+                  "text": "Apps Safari",
+                  "words": [
+                    {
+                      "y": 595,
+                      "height": 17,
+                      "width": 41,
+                      "text": "Apps",
+                      "x": 115
+                    },
+                    {
+                      "y": 595,
+                      "height": 14,
+                      "width": 46,
+                      "text": "Safari",
+                      "x": 183
+                    }
+                  ]
+                },
+                {
+                  "text": "7",
+                  "words": [
+                    {
+                      "y": 328,
+                      "height": 16,
+                      "width": 16,
+                      "text": "7",
+                      "x": 457
+                    }
+                  ]
+                },
+                {
+                  "text": "Search in App O",
+                  "words": [
+                    {
+                      "y": 394,
+                      "height": 15,
+                      "width": 59,
+                      "text": "Search",
+                      "x": 334
+                    },
+                    {
+                      "y": 394,
+                      "height": 14,
+                      "width": 13,
+                      "text": "in",
+                      "x": 399
+                    },
+                    {
+                      "y": 395,
+                      "height": 17,
+                      "width": 34,
+                      "text": "App",
+                      "x": 418
+                    },
+                    {
+                      "y": 395,
+                      "height": 14,
+                      "width": 14,
+                      "text": "O",
+                      "x": 459
+                    }
+                  ]
+                },
+                {
+                  "text": "Tips",
+                  "words": [
+                    {
+                      "y": 779,
+                      "height": 17,
+                      "width": 36,
+                      "text": "Tips",
+                      "x": 25
+                    }
+                  ]
+                },
+                {
+                  "text": "Suggest Strong Passwords",
+                  "words": [
+                    {
+                      "y": 679,
+                      "height": 19,
+                      "width": 78,
+                      "text": "Suggest",
+                      "x": 115
+                    },
+                    {
+                      "y": 679,
+                      "height": 19,
+                      "width": 63,
+                      "text": "Strong",
+                      "x": 199
+                    },
+                    {
+                      "y": 679,
+                      "height": 16,
+                      "width": 102,
+                      "text": "Passwords",
+                      "x": 269
+                    }
+                  ]
+                },
+                {
+                  "text": "Apps * Passwords",
+                  "words": [
+                    {
+                      "y": 706,
+                      "height": 17,
+                      "width": 41,
+                      "text": "Apps",
+                      "x": 115
+                    },
+                    {
+                      "y": 707,
+                      "height": 11,
+                      "width": 13,
+                      "text": "*",
+                      "x": 163
+                    },
+                    {
+                      "y": 705,
+                      "height": 15,
+                      "width": 87,
+                      "text": "Passwords",
+                      "x": 183
+                    }
+                  ]
+                },
+                {
+                  "text": "Search in App",
+                  "words": [
+                    {
+                      "y": 778,
+                      "height": 15,
+                      "width": 59,
+                      "text": "Search",
+                      "x": 334
+                    },
+                    {
+                      "y": 778,
+                      "height": 14,
+                      "width": 13,
+                      "text": "in",
+                      "x": 399
+                    },
+                    {
+                      "y": 779,
+                      "height": 17,
+                      "width": 34,
+                      "text": "App",
+                      "x": 418
+                    }
+                  ]
+                },
+                {
+                  "text": "Organize your tabs with Tab Groups...",
+                  "words": [
+                    {
+                      "y": 828,
+                      "height": 21,
+                      "width": 85,
+                      "text": "Organize",
+                      "x": 115
+                    },
+                    {
+                      "y": 833,
+                      "height": 16,
+                      "width": 43,
+                      "text": "your",
+                      "x": 205
+                    },
+                    {
+                      "y": 829,
+                      "height": 16,
+                      "width": 41,
+                      "text": "tabs",
+                      "x": 253
+                    },
+                    {
+                      "y": 828,
+                      "height": 17,
+                      "width": 40,
+                      "text": "with",
+                      "x": 300
+                    },
+                    {
+                      "y": 829,
+                      "height": 16,
+                      "width": 34,
+                      "text": "Tab",
+                      "x": 346
+                    },
+                    {
+                      "y": 829,
+                      "height": 19,
+                      "width": 85,
+                      "text": "Groups...",
+                      "x": 386
+                    }
+                  ]
+                },
+                {
+                  "text": "In Safari on iPhone, create Tab Groups to",
+                  "words": [
+                    {
+                      "y": 856,
+                      "height": 13,
+                      "width": 13,
+                      "text": "In",
+                      "x": 115
+                    },
+                    {
+                      "y": 856,
+                      "height": 14,
+                      "width": 45,
+                      "text": "Safari",
+                      "x": 135
+                    },
+                    {
+                      "y": 859,
+                      "height": 11,
+                      "width": 20,
+                      "text": "on",
+                      "x": 186
+                    },
+                    {
+                      "y": 856,
+                      "height": 17,
+                      "width": 59,
+                      "text": "iPhone,",
+                      "x": 212
+                    },
+                    {
+                      "y": 857,
+                      "height": 13,
+                      "width": 51,
+                      "text": "create",
+                      "x": 278
+                    },
+                    {
+                      "y": 856,
+                      "height": 14,
+                      "width": 29,
+                      "text": "Tab",
+                      "x": 335
+                    },
+                    {
+                      "y": 856,
+                      "height": 17,
+                      "width": 59,
+                      "text": "Groups",
+                      "x": 369
+                    },
+                    {
+                      "y": 857,
+                      "height": 13,
+                      "width": 16,
+                      "text": "to",
+                      "x": 434
+                    }
+                  ]
+                },
+                {
+                  "text": "keep tabs organized and make them easie...",
+                  "words": [
+                    {
+                      "y": 880,
+                      "height": 17,
+                      "width": 38,
+                      "text": "keep",
+                      "x": 115
+                    },
+                    {
+                      "y": 880,
+                      "height": 14,
+                      "width": 35,
+                      "text": "tabs",
+                      "x": 159
+                    },
+                    {
+                      "y": 880,
+                      "height": 17,
+                      "width": 80,
+                      "text": "organized",
+                      "x": 200
+                    },
+                    {
+                      "y": 880,
+                      "height": 14,
+                      "width": 30,
+                      "text": "and",
+                      "x": 286
+                    },
+                    {
+                      "y": 880,
+                      "height": 14,
+                      "width": 43,
+                      "text": "make",
+                      "x": 322
+                    },
+                    {
+                      "y": 880,
+                      "height": 14,
+                      "width": 42,
+                      "text": "them",
+                      "x": 370
+                    },
+                    {
+                      "y": 880,
+                      "height": 14,
+                      "width": 55,
+                      "text": "easie...",
+                      "x": 418
+                    }
+                  ]
+                },
+                {
+                  "text": "Hide recent searches in Safari on iP...",
+                  "words": [
+                    {
+                      "y": 939,
+                      "height": 17,
+                      "width": 43,
+                      "text": "Hide",
+                      "x": 115
+                    },
+                    {
+                      "y": 941,
+                      "height": 15,
+                      "width": 60,
+                      "text": "recent",
+                      "x": 164
+                    },
+                    {
+                      "y": 940,
+                      "height": 16,
+                      "width": 87,
+                      "text": "searches",
+                      "x": 230
+                    },
+                    {
+                      "y": 939,
+                      "height": 17,
+                      "width": 15,
+                      "text": "in",
+                      "x": 323
+                    },
+                    {
+                      "y": 939,
+                      "height": 17,
+                      "width": 54,
+                      "text": "Safari",
+                      "x": 344
+                    },
+                    {
+                      "y": 944,
+                      "height": 12,
+                      "width": 23,
+                      "text": "on",
+                      "x": 405
+                    },
+                    {
+                      "y": 939,
+                      "height": 17,
+                      "width": 34,
+                      "text": "iP...",
+                      "x": 434
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "de3530f9c1f9e11930e4610c09b1f2d9e1bb71bdb516cdca672529a730a69e50"
+            },
+            "frameSha256": "de3530f9c1f9e11930e4610c09b1f2d9e1bb71bdb516cdca672529a730a69e50",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 713.9930000019209,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19357,
+              "reportedAgeMs": 25.993,
+              "observationElapsedMs": 688.0000000019209,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 729.9930000015426
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "047013291087edf4f0504e7c3f32226ceb121af7b7c2eef4048d6740871f8bdf",
+            "completedAt": 1792383407.984739,
+            "ageSeconds": 0.7040000000015425,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "ab8e1d23098890530064915178ce39f0b8dae51156b2996cb1d7960329b7de63"
+          },
+          "screenCheck": {
+            "app": "Safari",
+            "target": [
+              88,
+              169
+            ]
+          }
+        },
+        {
+          "role": "search_after_escape",
+          "index": null,
+          "observationId": "0baa8ed7-0959-4788-b16e-12905af57ead",
+          "state": "observed",
+          "frame": "02-search_after_escape.png",
+          "observation": {
+            "id": "0baa8ed7-0959-4788-b16e-12905af57ead",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383409.3129594,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The screen is not recognized.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "unknown",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The screen is not recognized.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "8add9657eed504c865bff1262554c32848742ea854c6bc6412a62eb8392cb10a",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:16",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 15,
+                      "width": 47,
+                      "text": "12:16",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Siri Suggestions",
+                  "words": [
+                    {
+                      "y": 76,
+                      "height": 14,
+                      "width": 26,
+                      "text": "Siri",
+                      "x": 26
+                    },
+                    {
+                      "y": 76,
+                      "height": 17,
+                      "width": 105,
+                      "text": "Suggestions",
+                      "x": 59
+                    }
+                  ]
+                },
+                {
+                  "text": "Instagram",
+                  "words": [
+                    {
+                      "y": 212,
+                      "height": 13,
+                      "width": 68,
+                      "text": "Instagram",
+                      "x": 53
+                    }
+                  ]
+                },
+                {
+                  "text": "aoo",
+                  "words": [
+                    {
+                      "y": 125,
+                      "height": 78,
+                      "width": 294,
+                      "text": "aoo",
+                      "x": 157
+                    }
+                  ]
+                },
+                {
+                  "text": "Settings",
+                  "words": [
+                    {
+                      "y": 211,
+                      "height": 14,
+                      "width": 57,
+                      "text": "Settings",
+                      "x": 275
+                    }
+                  ]
+                },
+                {
+                  "text": "Notes",
+                  "words": [
+                    {
+                      "y": 212,
+                      "height": 11,
+                      "width": 39,
+                      "text": "Notes",
+                      "x": 176
+                    }
+                  ]
+                },
+                {
+                  "text": "Show More",
+                  "words": [
+                    {
+                      "y": 76,
+                      "height": 14,
+                      "width": 46,
+                      "text": "Show",
+                      "x": 380
+                    },
+                    {
+                      "y": 77,
+                      "height": 13,
+                      "width": 42,
+                      "text": "More",
+                      "x": 432
+                    }
+                  ]
+                },
+                {
+                  "text": "Calculator",
+                  "words": [
+                    {
+                      "y": 212,
+                      "height": 11,
+                      "width": 70,
+                      "text": "Calculator",
+                      "x": 377
+                    }
+                  ]
+                },
+                {
+                  "text": "Clear",
+                  "words": [
+                    {
+                      "y": 408,
+                      "height": 14,
+                      "width": 45,
+                      "text": "Clear",
+                      "x": 430
+                    }
+                  ]
+                },
+                {
+                  "text": "New Note",
+                  "words": [
+                    {
+                      "y": 348,
+                      "height": 15,
+                      "width": 41,
+                      "text": "New",
+                      "x": 75
+                    },
+                    {
+                      "y": 348,
+                      "height": 15,
+                      "width": 44,
+                      "text": "Note",
+                      "x": 123
+                    }
+                  ]
+                },
+                {
+                  "text": "Recent Searches",
+                  "words": [
+                    {
+                      "y": 408,
+                      "height": 14,
+                      "width": 59,
+                      "text": "Recent",
+                      "x": 26
+                    },
+                    {
+                      "y": 408,
+                      "height": 14,
+                      "width": 80,
+                      "text": "Searches",
+                      "x": 90
+                    }
+                  ]
+                },
+                {
+                  "text": "Hithere",
+                  "words": [
+                    {
+                      "y": 448,
+                      "height": 17,
+                      "width": 69,
+                      "text": "Hithere",
+                      "x": 75
+                    }
+                  ]
+                },
+                {
+                  "text": "Fri, Oct 16 \u2022 12:51 AM",
+                  "words": [
+                    {
+                      "y": 475,
+                      "height": 17,
+                      "width": 23,
+                      "text": "Fri,",
+                      "x": 75
+                    },
+                    {
+                      "y": 475,
+                      "height": 14,
+                      "width": 29,
+                      "text": "Oct",
+                      "x": 105
+                    },
+                    {
+                      "y": 475,
+                      "height": 14,
+                      "width": 18,
+                      "text": "16",
+                      "x": 140
+                    },
+                    {
+                      "y": 482,
+                      "height": 3,
+                      "width": 2,
+                      "text": "\u2022",
+                      "x": 164
+                    },
+                    {
+                      "y": 475,
+                      "height": 14,
+                      "width": 41,
+                      "text": "12:51",
+                      "x": 172
+                    },
+                    {
+                      "y": 476,
+                      "height": 13,
+                      "width": 26,
+                      "text": "AM",
+                      "x": 219
+                    }
+                  ]
+                },
+                {
+                  "text": "Q Search",
+                  "words": [
+                    {
+                      "y": 994,
+                      "height": 24,
+                      "width": 23,
+                      "text": "Q",
+                      "x": 43
+                    },
+                    {
+                      "y": 991,
+                      "height": 31,
+                      "width": 72,
+                      "text": "Search",
+                      "x": 76
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "082ac53ea1e808a0ad0b1977857a8a5ec3f190313b32d07a03054b3c16a5618c"
+            },
+            "frameSha256": "082ac53ea1e808a0ad0b1977857a8a5ec3f190313b32d07a03054b3c16a5618c",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 719.5769999977008,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19418,
+              "reportedAgeMs": 16.577,
+              "observationElapsedMs": 702.9999999977008,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 726.716205930318
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "8add9657eed504c865bff1262554c32848742ea854c6bc6412a62eb8392cb10a",
+            "completedAt": 1792383410.0178263,
+            "ageSeconds": 0.7120060920715332,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "a8e9498857129b7458f2baf76c677633194df38e4556494ac29895f6ac297b3b"
+          },
+          "screenCheck": {
+            "emptySearch": true
+          }
+        },
+        {
+          "role": "search",
+          "index": null,
+          "observationId": "2b2c68ef-5b83-4753-aec1-443b772eab16",
+          "state": "observed",
+          "frame": "03-search.png",
+          "observation": {
+            "id": "2b2c68ef-5b83-4753-aec1-443b772eab16",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383410.3884833,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The screen is not recognized.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "unknown",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The screen is not recognized.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "5ef9fa777ace1bd43609eb3c249b8aeec4d73da3f3f16f434fbd19093308bb99",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:16",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 15,
+                      "width": 47,
+                      "text": "12:16",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Siri Suggestions",
+                  "words": [
+                    {
+                      "y": 76,
+                      "height": 14,
+                      "width": 26,
+                      "text": "Siri",
+                      "x": 26
+                    },
+                    {
+                      "y": 76,
+                      "height": 17,
+                      "width": 105,
+                      "text": "Suggestions",
+                      "x": 59
+                    }
+                  ]
+                },
+                {
+                  "text": "Instagram",
+                  "words": [
+                    {
+                      "y": 212,
+                      "height": 13,
+                      "width": 68,
+                      "text": "Instagram",
+                      "x": 53
+                    }
+                  ]
+                },
+                {
+                  "text": "aoo",
+                  "words": [
+                    {
+                      "y": 125,
+                      "height": 78,
+                      "width": 294,
+                      "text": "aoo",
+                      "x": 157
+                    }
+                  ]
+                },
+                {
+                  "text": "Settings",
+                  "words": [
+                    {
+                      "y": 211,
+                      "height": 14,
+                      "width": 57,
+                      "text": "Settings",
+                      "x": 275
+                    }
+                  ]
+                },
+                {
+                  "text": "Notes",
+                  "words": [
+                    {
+                      "y": 212,
+                      "height": 11,
+                      "width": 39,
+                      "text": "Notes",
+                      "x": 176
+                    }
+                  ]
+                },
+                {
+                  "text": "Show More",
+                  "words": [
+                    {
+                      "y": 76,
+                      "height": 14,
+                      "width": 46,
+                      "text": "Show",
+                      "x": 380
+                    },
+                    {
+                      "y": 77,
+                      "height": 13,
+                      "width": 42,
+                      "text": "More",
+                      "x": 432
+                    }
+                  ]
+                },
+                {
+                  "text": "Calculator",
+                  "words": [
+                    {
+                      "y": 212,
+                      "height": 11,
+                      "width": 70,
+                      "text": "Calculator",
+                      "x": 377
+                    }
+                  ]
+                },
+                {
+                  "text": "Clear",
+                  "words": [
+                    {
+                      "y": 408,
+                      "height": 14,
+                      "width": 45,
+                      "text": "Clear",
+                      "x": 430
+                    }
+                  ]
+                },
+                {
+                  "text": "New Note",
+                  "words": [
+                    {
+                      "y": 348,
+                      "height": 15,
+                      "width": 41,
+                      "text": "New",
+                      "x": 75
+                    },
+                    {
+                      "y": 348,
+                      "height": 15,
+                      "width": 44,
+                      "text": "Note",
+                      "x": 123
+                    }
+                  ]
+                },
+                {
+                  "text": "Recent Searches",
+                  "words": [
+                    {
+                      "y": 408,
+                      "height": 14,
+                      "width": 59,
+                      "text": "Recent",
+                      "x": 26
+                    },
+                    {
+                      "y": 408,
+                      "height": 14,
+                      "width": 80,
+                      "text": "Searches",
+                      "x": 90
+                    }
+                  ]
+                },
+                {
+                  "text": "Hithere",
+                  "words": [
+                    {
+                      "y": 448,
+                      "height": 17,
+                      "width": 69,
+                      "text": "Hithere",
+                      "x": 75
+                    }
+                  ]
+                },
+                {
+                  "text": "Fri, Oct 16 \u2022 12:51 AM",
+                  "words": [
+                    {
+                      "y": 475,
+                      "height": 17,
+                      "width": 23,
+                      "text": "Fri,",
+                      "x": 75
+                    },
+                    {
+                      "y": 475,
+                      "height": 14,
+                      "width": 29,
+                      "text": "Oct",
+                      "x": 105
+                    },
+                    {
+                      "y": 475,
+                      "height": 14,
+                      "width": 18,
+                      "text": "16",
+                      "x": 140
+                    },
+                    {
+                      "y": 482,
+                      "height": 3,
+                      "width": 2,
+                      "text": "\u2022",
+                      "x": 164
+                    },
+                    {
+                      "y": 475,
+                      "height": 14,
+                      "width": 41,
+                      "text": "12:51",
+                      "x": 172
+                    },
+                    {
+                      "y": 476,
+                      "height": 13,
+                      "width": 26,
+                      "text": "AM",
+                      "x": 219
+                    }
+                  ]
+                },
+                {
+                  "text": "Q Search",
+                  "words": [
+                    {
+                      "y": 994,
+                      "height": 24,
+                      "width": 23,
+                      "text": "Q",
+                      "x": 43
+                    },
+                    {
+                      "y": 991,
+                      "height": 31,
+                      "width": 73,
+                      "text": "Search",
+                      "x": 75
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "edc27d22dd1b364bf19167c3c48d3bff507eb5ff14ae061fdddd2642e925dc68"
+            },
+            "frameSha256": "edc27d22dd1b364bf19167c3c48d3bff507eb5ff14ae061fdddd2642e925dc68",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 652.486,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19447,
+              "reportedAgeMs": 27.486,
+              "observationElapsedMs": 625.0,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 667.4859999994179
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "5ef9fa777ace1bd43609eb3c249b8aeec4d73da3f3f16f434fbd19093308bb99",
+            "completedAt": 1792383411.0322409,
+            "ageSeconds": 0.6528642177581787,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "5c137b9bdff71cd9599e5da871453766a63ec6ccdd1ec0452c74847281bcf981"
+          },
+          "screenCheck": {
+            "field": "empty_app_search",
+            "proof": "same_frame_placeholder_glyphs_with_fixed_caret_exclusion"
+          }
+        },
+        {
+          "role": "home",
+          "index": null,
+          "observationId": "5dc5d2f6-ac40-47a7-bde8-0e4b13d21918",
+          "state": "observed",
+          "frame": "04-home.png",
+          "observation": {
+            "id": "5dc5d2f6-ac40-47a7-bde8-0e4b13d21918",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383412.5037472,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The expected app pattern is not visible.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "home",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The expected app pattern is not visible.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "f87f994efecf2f164f2dd4ee4a70035458082040315f50e64efbf1a4a660b219",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:16",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 15,
+                      "width": 47,
+                      "text": "12:16",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Instagram",
+                  "words": [
+                    {
+                      "y": 171,
+                      "height": 14,
+                      "width": 68,
+                      "text": "Instagram",
+                      "x": 43
+                    }
+                  ]
+                },
+                {
+                  "text": "Zoho Mail",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 34,
+                      "text": "Zoho",
+                      "x": 45
+                    },
+                    {
+                      "y": 423,
+                      "height": 12,
+                      "width": 27,
+                      "text": "Mail",
+                      "x": 84
+                    }
+                  ]
+                },
+                {
+                  "text": "TikTok",
+                  "words": [
+                    {
+                      "y": 170,
+                      "height": 12,
+                      "width": 44,
+                      "text": "TikTok",
+                      "x": 170
+                    }
+                  ]
+                },
+                {
+                  "text": "Bluesky",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 14,
+                      "width": 52,
+                      "text": "Bluesky",
+                      "x": 166
+                    }
+                  ]
+                },
+                {
+                  "text": "Gmail",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 38,
+                      "text": "Gmail",
+                      "x": 173
+                    }
+                  ]
+                },
+                {
+                  "text": "EXPO GO",
+                  "words": [
+                    {
+                      "y": 551,
+                      "height": 13,
+                      "width": 33,
+                      "text": "EXPO",
+                      "x": 164
+                    },
+                    {
+                      "y": 551,
+                      "height": 10,
+                      "width": 18,
+                      "text": "GO",
+                      "x": 202
+                    }
+                  ]
+                },
+                {
+                  "text": "lapper",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 14,
+                      "width": 43,
+                      "text": "lapper",
+                      "x": 291
+                    }
+                  ]
+                },
+                {
+                  "text": "Search",
+                  "words": [
+                    {
+                      "y": 893,
+                      "height": 12,
+                      "width": 48,
+                      "text": "Search",
+                      "x": 235
+                    }
+                  ]
+                },
+                {
+                  "text": "N",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 10,
+                      "text": "N",
+                      "x": 341
+                    }
+                  ]
+                },
+                {
+                  "text": "sos",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 9,
+                      "width": 17,
+                      "text": "sos",
+                      "x": 396
+                    }
+                  ]
+                },
+                {
+                  "text": "YouTube",
+                  "words": [
+                    {
+                      "y": 171,
+                      "height": 11,
+                      "width": 58,
+                      "text": "YouTube",
+                      "x": 393
+                    }
+                  ]
+                },
+                {
+                  "text": "SMS",
+                  "words": [
+                    {
+                      "y": 243,
+                      "height": 9,
+                      "width": 26,
+                      "text": "SMS",
+                      "x": 395
+                    }
+                  ]
+                },
+                {
+                  "text": "Proton VPN",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 44,
+                      "text": "Proton",
+                      "x": 383
+                    },
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 28,
+                      "text": "VPN",
+                      "x": 433
+                    }
+                  ]
+                },
+                {
+                  "text": "po",
+                  "words": [
+                    {
+                      "y": 988,
+                      "height": 30,
+                      "width": 52,
+                      "text": "po",
+                      "x": 396
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "352ce57f16da84b81051f13a6ab40018b40d6222acbbb2915918295a5636b3a1"
+            },
+            "frameSha256": "352ce57f16da84b81051f13a6ab40018b40d6222acbbb2915918295a5636b3a1",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 704.9760000019209,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19508,
+              "reportedAgeMs": 16.976,
+              "observationElapsedMs": 688.0000000019209,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 717.5945417194501
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "f87f994efecf2f164f2dd4ee4a70035458082040315f50e64efbf1a4a660b219",
+            "completedAt": 1792383413.1903102,
+            "ageSeconds": 0.6991815567016602,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "2ff218a4492c8e6c640d652125fdcf022250c2940e2ad6bca5e6b495dc36e875"
+          },
+          "screenCheck": true
+        },
+        {
+          "role": "home",
+          "index": null,
+          "observationId": "3cbf745b-9bd7-4f3d-9e3d-52bbfe80d1dd",
+          "state": "observed",
+          "frame": "05-home.png",
+          "observation": {
+            "id": "3cbf745b-9bd7-4f3d-9e3d-52bbfe80d1dd",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383413.498166,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The expected app pattern is not visible.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "home",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The expected app pattern is not visible.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "528eba688cc99c82f7623ca992292966749220c96bc3612fbfc81db88ed47700",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:16",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 15,
+                      "width": 47,
+                      "text": "12:16",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Instagram",
+                  "words": [
+                    {
+                      "y": 171,
+                      "height": 14,
+                      "width": 68,
+                      "text": "Instagram",
+                      "x": 43
+                    }
+                  ]
+                },
+                {
+                  "text": "Zoho Mail",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 34,
+                      "text": "Zoho",
+                      "x": 45
+                    },
+                    {
+                      "y": 423,
+                      "height": 12,
+                      "width": 27,
+                      "text": "Mail",
+                      "x": 84
+                    }
+                  ]
+                },
+                {
+                  "text": "TikTok",
+                  "words": [
+                    {
+                      "y": 170,
+                      "height": 12,
+                      "width": 44,
+                      "text": "TikTok",
+                      "x": 170
+                    }
+                  ]
+                },
+                {
+                  "text": "Bluesky",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 14,
+                      "width": 52,
+                      "text": "Bluesky",
+                      "x": 166
+                    }
+                  ]
+                },
+                {
+                  "text": "Gmail",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 38,
+                      "text": "Gmail",
+                      "x": 173
+                    }
+                  ]
+                },
+                {
+                  "text": "EXPO GO",
+                  "words": [
+                    {
+                      "y": 551,
+                      "height": 13,
+                      "width": 33,
+                      "text": "EXPO",
+                      "x": 164
+                    },
+                    {
+                      "y": 551,
+                      "height": 10,
+                      "width": 18,
+                      "text": "GO",
+                      "x": 202
+                    }
+                  ]
+                },
+                {
+                  "text": "lapper",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 14,
+                      "width": 43,
+                      "text": "lapper",
+                      "x": 291
+                    }
+                  ]
+                },
+                {
+                  "text": "Search",
+                  "words": [
+                    {
+                      "y": 893,
+                      "height": 12,
+                      "width": 48,
+                      "text": "Search",
+                      "x": 235
+                    }
+                  ]
+                },
+                {
+                  "text": "N",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 10,
+                      "text": "N",
+                      "x": 341
+                    }
+                  ]
+                },
+                {
+                  "text": "sos",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 9,
+                      "width": 17,
+                      "text": "sos",
+                      "x": 396
+                    }
+                  ]
+                },
+                {
+                  "text": "YouTube",
+                  "words": [
+                    {
+                      "y": 171,
+                      "height": 11,
+                      "width": 58,
+                      "text": "YouTube",
+                      "x": 393
+                    }
+                  ]
+                },
+                {
+                  "text": "SMS",
+                  "words": [
+                    {
+                      "y": 243,
+                      "height": 9,
+                      "width": 26,
+                      "text": "SMS",
+                      "x": 395
+                    }
+                  ]
+                },
+                {
+                  "text": "Proton VPN",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 44,
+                      "text": "Proton",
+                      "x": 383
+                    },
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 28,
+                      "text": "VPN",
+                      "x": 433
+                    }
+                  ]
+                },
+                {
+                  "text": "po",
+                  "words": [
+                    {
+                      "y": 988,
+                      "height": 30,
+                      "width": 52,
+                      "text": "po",
+                      "x": 396
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "b0382b96830fd00c1ddc1ee12de41bd1220f77cffb88dc1b17ec288ef114b1c3"
+            },
+            "frameSha256": "b0382b96830fd00c1ddc1ee12de41bd1220f77cffb88dc1b17ec288ef114b1c3",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 775.247999999418,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19538,
+              "reportedAgeMs": 10.248,
+              "observationElapsedMs": 764.9999999994179,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 999.8309105371377
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "528eba688cc99c82f7623ca992292966749220c96bc3612fbfc81db88ed47700",
+            "completedAt": 1792383414.2543335,
+            "ageSeconds": 0.9840000000003783,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "288c29166482f1c424a0b1b728106673a3a1779b01d487777c2d325a9e4acfea"
+          },
+          "screenCheck": true
+        },
+        {
+          "role": "account_entry",
+          "index": null,
+          "observationId": "fb834583-cd78-4da1-92df-2dee9e62faa8",
+          "state": "observed",
+          "frame": "06-account_entry.png",
+          "observation": {
+            "id": "fb834583-cd78-4da1-92df-2dee9e62faa8",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383417.3012667,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The screen is not recognized.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "unknown",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The screen is not recognized.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "159068085288b9643addbec4491bcd754ea2b1ec0ee182d82a0f01184b6f6e07",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:16",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 15,
+                      "width": 47,
+                      "text": "12:16",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Your story",
+                  "words": [
+                    {
+                      "y": 243,
+                      "height": 11,
+                      "width": 30,
+                      "text": "Your",
+                      "x": 30
+                    },
+                    {
+                      "y": 243,
+                      "height": 13,
+                      "width": 33,
+                      "text": "story",
+                      "x": 65
+                    }
+                  ]
+                },
+                {
+                  "text": "Imtagzam",
+                  "words": [
+                    {
+                      "y": 76,
+                      "height": 32,
+                      "width": 140,
+                      "text": "Imtagzam",
+                      "x": 169
+                    }
+                  ]
+                },
+                {
+                  "text": "New!",
+                  "words": [
+                    {
+                      "y": 243,
+                      "height": 11,
+                      "width": 33,
+                      "text": "New!",
+                      "x": 173
+                    }
+                  ]
+                },
+                {
+                  "text": "Your notifications are off",
+                  "words": [
+                    {
+                      "y": 303,
+                      "height": 14,
+                      "width": 42,
+                      "text": "Your",
+                      "x": 40
+                    },
+                    {
+                      "y": 302,
+                      "height": 15,
+                      "width": 115,
+                      "text": "notifications",
+                      "x": 88
+                    },
+                    {
+                      "y": 306,
+                      "height": 11,
+                      "width": 29,
+                      "text": "are",
+                      "x": 209
+                    },
+                    {
+                      "y": 302,
+                      "height": 15,
+                      "width": 26,
+                      "text": "off",
+                      "x": 243
+                    }
+                  ]
+                },
+                {
+                  "text": "You can turn on all notifications, or choose",
+                  "words": [
+                    {
+                      "y": 331,
+                      "height": 12,
+                      "width": 27,
+                      "text": "You",
+                      "x": 40
+                    },
+                    {
+                      "y": 334,
+                      "height": 9,
+                      "width": 26,
+                      "text": "can",
+                      "x": 74
+                    },
+                    {
+                      "y": 332,
+                      "height": 11,
+                      "width": 30,
+                      "text": "turn",
+                      "x": 106
+                    },
+                    {
+                      "y": 334,
+                      "height": 9,
+                      "width": 18,
+                      "text": "on",
+                      "x": 142
+                    },
+                    {
+                      "y": 330,
+                      "height": 13,
+                      "width": 16,
+                      "text": "all",
+                      "x": 166
+                    },
+                    {
+                      "y": 330,
+                      "height": 16,
+                      "width": 98,
+                      "text": "notifications,",
+                      "x": 188
+                    },
+                    {
+                      "y": 334,
+                      "height": 9,
+                      "width": 15,
+                      "text": "or",
+                      "x": 293
+                    },
+                    {
+                      "y": 330,
+                      "height": 13,
+                      "width": 55,
+                      "text": "choose",
+                      "x": 314
+                    }
+                  ]
+                },
+                {
+                  "text": "to only get notifications about messages.",
+                  "words": [
+                    {
+                      "y": 352,
+                      "height": 12,
+                      "width": 15,
+                      "text": "to",
+                      "x": 40
+                    },
+                    {
+                      "y": 351,
+                      "height": 16,
+                      "width": 32,
+                      "text": "only",
+                      "x": 60
+                    },
+                    {
+                      "y": 352,
+                      "height": 15,
+                      "width": 25,
+                      "text": "get",
+                      "x": 97
+                    },
+                    {
+                      "y": 351,
+                      "height": 13,
+                      "width": 95,
+                      "text": "notifications",
+                      "x": 127
+                    },
+                    {
+                      "y": 351,
+                      "height": 13,
+                      "width": 44,
+                      "text": "about",
+                      "x": 227
+                    },
+                    {
+                      "y": 354,
+                      "height": 13,
+                      "width": 81,
+                      "text": "messages.",
+                      "x": 277
+                    }
+                  ]
+                },
+                {
+                  "text": "Turn on",
+                  "words": [
+                    {
+                      "y": 401,
+                      "height": 12,
+                      "width": 36,
+                      "text": "Turn",
+                      "x": 220
+                    },
+                    {
+                      "y": 403,
+                      "height": 10,
+                      "width": 19,
+                      "text": "on",
+                      "x": 261
+                    }
+                  ]
+                },
+                {
+                  "text": "Messages only",
+                  "words": [
+                    {
+                      "y": 454,
+                      "height": 15,
+                      "width": 80,
+                      "text": "Messages",
+                      "x": 191
+                    },
+                    {
+                      "y": 453,
+                      "height": 16,
+                      "width": 34,
+                      "text": "only",
+                      "x": 276
+                    }
+                  ]
+                },
+                {
+                  "text": "facebook",
+                  "words": [
+                    {
+                      "y": 527,
+                      "height": 13,
+                      "width": 74,
+                      "text": "facebook",
+                      "x": 64
+                    }
+                  ]
+                },
+                {
+                  "text": "Suggested for you",
+                  "words": [
+                    {
+                      "y": 548,
+                      "height": 14,
+                      "width": 72,
+                      "text": "Suggested",
+                      "x": 64
+                    },
+                    {
+                      "y": 548,
+                      "height": 12,
+                      "width": 18,
+                      "text": "for",
+                      "x": 141
+                    },
+                    {
+                      "y": 551,
+                      "height": 11,
+                      "width": 23,
+                      "text": "you",
+                      "x": 164
+                    }
+                  ]
+                },
+                {
+                  "text": "Q",
+                  "words": [
+                    {
+                      "y": 996,
+                      "height": 27,
+                      "width": 27,
+                      "text": "Q",
+                      "x": 335
+                    }
+                  ]
+                },
+                {
+                  "text": "soy cfj,",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 14,
+                      "width": 16,
+                      "text": "soy",
+                      "x": 397
+                    },
+                    {
+                      "y": 22,
+                      "height": 16,
+                      "width": 30,
+                      "text": "cfj,",
+                      "x": 449
+                    }
+                  ]
+                },
+                {
+                  "text": "Follow",
+                  "words": [
+                    {
+                      "y": 535,
+                      "height": 13,
+                      "width": 51,
+                      "text": "Follow",
+                      "x": 379
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "1c2d2a6951d396f3722776074f9c993c80309559123e9e8244092e58e73220e9"
+            },
+            "frameSha256": "1c2d2a6951d396f3722776074f9c993c80309559123e9e8244092e58e73220e9",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 1030.213,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19644,
+              "reportedAgeMs": 30.213,
+              "observationElapsedMs": 1000.0,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 1046.2129999996216
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "159068085288b9643addbec4491bcd754ea2b1ec0ee182d82a0f01184b6f6e07",
+            "completedAt": 1792383418.3071263,
+            "ageSeconds": 1.0201144218444824,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "d10437e708e5e09b94a66920c55c0d0dbfc1817bc165d22ca1d5799d0458ca5c"
+          },
+          "screenCheck": {
+            "navigation": "instagram_feed",
+            "accountVerified": false
+          }
+        },
+        {
+          "role": "instagram_navigation",
+          "index": null,
+          "observationId": "87bb4216-a16a-44d6-8198-f3b670735e64",
+          "state": "observed",
+          "frame": "07-instagram_navigation.png",
+          "observation": {
+            "id": "87bb4216-a16a-44d6-8198-f3b670735e64",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383418.7539947,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The screen is not recognized.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "unknown",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The screen is not recognized.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "d02bea73d606d021fdca3ca7ab54f76e1ffdbeb3c396b50659c71bd5023eeb2e",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:16",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 15,
+                      "width": 47,
+                      "text": "12:16",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Your story",
+                  "words": [
+                    {
+                      "y": 243,
+                      "height": 11,
+                      "width": 30,
+                      "text": "Your",
+                      "x": 30
+                    },
+                    {
+                      "y": 243,
+                      "height": 13,
+                      "width": 33,
+                      "text": "story",
+                      "x": 65
+                    }
+                  ]
+                },
+                {
+                  "text": "Imtagzam",
+                  "words": [
+                    {
+                      "y": 76,
+                      "height": 32,
+                      "width": 140,
+                      "text": "Imtagzam",
+                      "x": 169
+                    }
+                  ]
+                },
+                {
+                  "text": "New!",
+                  "words": [
+                    {
+                      "y": 243,
+                      "height": 11,
+                      "width": 33,
+                      "text": "New!",
+                      "x": 173
+                    }
+                  ]
+                },
+                {
+                  "text": "Your notifications are off",
+                  "words": [
+                    {
+                      "y": 303,
+                      "height": 14,
+                      "width": 42,
+                      "text": "Your",
+                      "x": 40
+                    },
+                    {
+                      "y": 302,
+                      "height": 15,
+                      "width": 115,
+                      "text": "notifications",
+                      "x": 88
+                    },
+                    {
+                      "y": 306,
+                      "height": 11,
+                      "width": 29,
+                      "text": "are",
+                      "x": 209
+                    },
+                    {
+                      "y": 302,
+                      "height": 15,
+                      "width": 26,
+                      "text": "off",
+                      "x": 243
+                    }
+                  ]
+                },
+                {
+                  "text": "You can turn on all notifications, or choose",
+                  "words": [
+                    {
+                      "y": 331,
+                      "height": 12,
+                      "width": 27,
+                      "text": "You",
+                      "x": 40
+                    },
+                    {
+                      "y": 334,
+                      "height": 9,
+                      "width": 26,
+                      "text": "can",
+                      "x": 74
+                    },
+                    {
+                      "y": 332,
+                      "height": 11,
+                      "width": 30,
+                      "text": "turn",
+                      "x": 106
+                    },
+                    {
+                      "y": 334,
+                      "height": 9,
+                      "width": 18,
+                      "text": "on",
+                      "x": 142
+                    },
+                    {
+                      "y": 330,
+                      "height": 13,
+                      "width": 16,
+                      "text": "all",
+                      "x": 166
+                    },
+                    {
+                      "y": 330,
+                      "height": 16,
+                      "width": 98,
+                      "text": "notifications,",
+                      "x": 188
+                    },
+                    {
+                      "y": 334,
+                      "height": 9,
+                      "width": 15,
+                      "text": "or",
+                      "x": 293
+                    },
+                    {
+                      "y": 330,
+                      "height": 13,
+                      "width": 55,
+                      "text": "choose",
+                      "x": 314
+                    }
+                  ]
+                },
+                {
+                  "text": "to only get notifications about messages.",
+                  "words": [
+                    {
+                      "y": 352,
+                      "height": 12,
+                      "width": 15,
+                      "text": "to",
+                      "x": 40
+                    },
+                    {
+                      "y": 351,
+                      "height": 16,
+                      "width": 32,
+                      "text": "only",
+                      "x": 60
+                    },
+                    {
+                      "y": 352,
+                      "height": 15,
+                      "width": 25,
+                      "text": "get",
+                      "x": 97
+                    },
+                    {
+                      "y": 351,
+                      "height": 13,
+                      "width": 95,
+                      "text": "notifications",
+                      "x": 127
+                    },
+                    {
+                      "y": 351,
+                      "height": 13,
+                      "width": 44,
+                      "text": "about",
+                      "x": 227
+                    },
+                    {
+                      "y": 354,
+                      "height": 13,
+                      "width": 81,
+                      "text": "messages.",
+                      "x": 277
+                    }
+                  ]
+                },
+                {
+                  "text": "Turn on",
+                  "words": [
+                    {
+                      "y": 401,
+                      "height": 12,
+                      "width": 36,
+                      "text": "Turn",
+                      "x": 220
+                    },
+                    {
+                      "y": 403,
+                      "height": 10,
+                      "width": 19,
+                      "text": "on",
+                      "x": 261
+                    }
+                  ]
+                },
+                {
+                  "text": "Messages only",
+                  "words": [
+                    {
+                      "y": 454,
+                      "height": 15,
+                      "width": 80,
+                      "text": "Messages",
+                      "x": 191
+                    },
+                    {
+                      "y": 453,
+                      "height": 16,
+                      "width": 34,
+                      "text": "only",
+                      "x": 276
+                    }
+                  ]
+                },
+                {
+                  "text": "facebook",
+                  "words": [
+                    {
+                      "y": 527,
+                      "height": 13,
+                      "width": 74,
+                      "text": "facebook",
+                      "x": 64
+                    }
+                  ]
+                },
+                {
+                  "text": "Suggested for you",
+                  "words": [
+                    {
+                      "y": 548,
+                      "height": 14,
+                      "width": 72,
+                      "text": "Suggested",
+                      "x": 64
+                    },
+                    {
+                      "y": 548,
+                      "height": 12,
+                      "width": 18,
+                      "text": "for",
+                      "x": 141
+                    },
+                    {
+                      "y": 551,
+                      "height": 11,
+                      "width": 23,
+                      "text": "you",
+                      "x": 164
+                    }
+                  ]
+                },
+                {
+                  "text": "Q",
+                  "words": [
+                    {
+                      "y": 996,
+                      "height": 27,
+                      "width": 27,
+                      "text": "Q",
+                      "x": 335
+                    }
+                  ]
+                },
+                {
+                  "text": "soy cfj,",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 14,
+                      "width": 16,
+                      "text": "soy",
+                      "x": 397
+                    },
+                    {
+                      "y": 22,
+                      "height": 16,
+                      "width": 30,
+                      "text": "cfj,",
+                      "x": 449
+                    }
+                  ]
+                },
+                {
+                  "text": "Follow",
+                  "words": [
+                    {
+                      "y": 535,
+                      "height": 13,
+                      "width": 51,
+                      "text": "Follow",
+                      "x": 379
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "3f66a10ef8d4728c37ed14c779b40b63399cf180f3b7ca8efdf685d1d6c61d42"
+            },
+            "frameSha256": "3f66a10ef8d4728c37ed14c779b40b63399cf180f3b7ca8efdf685d1d6c61d42",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 580.7030000013388,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19688,
+              "reportedAgeMs": 2.703,
+              "observationElapsedMs": 578.0000000013388,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 612.703000000582
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "d02bea73d606d021fdca3ca7ab54f76e1ffdbeb3c396b50659c71bd5023eeb2e",
+            "completedAt": 1792383419.3402038,
+            "ageSeconds": 0.6168005466461182,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "b3b7dcd3f73ba166f1b98527660c4a01c03f99e39069ff1b14eb9452a34b1c8e"
+          },
+          "screenCheck": {
+            "navigation": "instagram_feed",
+            "accountVerified": false
+          }
+        },
+        {
+          "role": "profile",
+          "index": null,
+          "observationId": "b688a91f-9d7b-4c92-bdb6-0693597e0751",
+          "state": "observed",
+          "frame": "08-profile.png",
+          "observation": {
+            "id": "b688a91f-9d7b-4c92-bdb6-0693597e0751",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383423.1869833,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "Expected account text is visible. This does not certify media, saved state or app authenticity.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "profile",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": "instagram",
+              "expectedAppMatches": true,
+              "accountStatus": "exact_text_match",
+              "observedHandles": [
+                "xs.halle.xo"
+              ],
+              "captionStatus": "needs_review",
+              "reason": "Expected account text is visible. This does not certify media, saved state or app authenticity.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "b17621ec16546098102cf37b6b587026947e4ed87fffe17637141e27ab9d52a1",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:17",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 14,
+                      "width": 46,
+                      "text": "12:17",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Make this",
+                  "words": [
+                    {
+                      "y": 128,
+                      "height": 10,
+                      "width": 32,
+                      "text": "Make",
+                      "x": 42
+                    },
+                    {
+                      "y": 128,
+                      "height": 10,
+                      "width": 23,
+                      "text": "this",
+                      "x": 78
+                    }
+                  ]
+                },
+                {
+                  "text": "space you..",
+                  "words": [
+                    {
+                      "y": 146,
+                      "height": 10,
+                      "width": 37,
+                      "text": "space",
+                      "x": 34
+                    },
+                    {
+                      "y": 146,
+                      "height": 10,
+                      "width": 28,
+                      "text": "you..",
+                      "x": 76
+                    }
+                  ]
+                },
+                {
+                  "text": "xs.halle.xo",
+                  "words": [
+                    {
+                      "y": 77,
+                      "height": 22,
+                      "width": 141,
+                      "text": "xs.halle.xo",
+                      "x": 162
+                    }
+                  ]
+                },
+                {
+                  "text": "Halle",
+                  "words": [
+                    {
+                      "y": 146,
+                      "height": 14,
+                      "width": 40,
+                      "text": "Halle",
+                      "x": 150
+                    }
+                  ]
+                },
+                {
+                  "text": "5",
+                  "words": [
+                    {
+                      "y": 179,
+                      "height": 15,
+                      "width": 10,
+                      "text": "5",
+                      "x": 151
+                    }
+                  ]
+                },
+                {
+                  "text": "posts",
+                  "words": [
+                    {
+                      "y": 203,
+                      "height": 15,
+                      "width": 42,
+                      "text": "posts",
+                      "x": 150
+                    }
+                  ]
+                },
+                {
+                  "text": "follower",
+                  "words": [
+                    {
+                      "y": 202,
+                      "height": 13,
+                      "width": 61,
+                      "text": "follower",
+                      "x": 249
+                    }
+                  ]
+                },
+                {
+                  "text": "soy cfj,",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 14,
+                      "width": 16,
+                      "text": "soy",
+                      "x": 397
+                    },
+                    {
+                      "y": 22,
+                      "height": 16,
+                      "width": 30,
+                      "text": "cfj,",
+                      "x": 449
+                    }
+                  ]
+                },
+                {
+                  "text": "following",
+                  "words": [
+                    {
+                      "y": 202,
+                      "height": 16,
+                      "width": 69,
+                      "text": "following",
+                      "x": 367
+                    }
+                  ]
+                },
+                {
+                  "text": "-F Add banners",
+                  "words": [
+                    {
+                      "y": 283,
+                      "height": 13,
+                      "width": 12,
+                      "text": "-F",
+                      "x": 31
+                    },
+                    {
+                      "y": 284,
+                      "height": 11,
+                      "width": 26,
+                      "text": "Add",
+                      "x": 50
+                    },
+                    {
+                      "y": 284,
+                      "height": 11,
+                      "width": 56,
+                      "text": "banners",
+                      "x": 82
+                    }
+                  ]
+                },
+                {
+                  "text": "Your dashboard",
+                  "words": [
+                    {
+                      "y": 337,
+                      "height": 13,
+                      "width": 36,
+                      "text": "Your",
+                      "x": 38
+                    },
+                    {
+                      "y": 337,
+                      "height": 13,
+                      "width": 85,
+                      "text": "dashboard",
+                      "x": 79
+                    }
+                  ]
+                },
+                {
+                  "text": "Audience insights, inspiration and tools.",
+                  "words": [
+                    {
+                      "y": 357,
+                      "height": 11,
+                      "width": 62,
+                      "text": "Audience",
+                      "x": 38
+                    },
+                    {
+                      "y": 357,
+                      "height": 14,
+                      "width": 55,
+                      "text": "insights,",
+                      "x": 105
+                    },
+                    {
+                      "y": 357,
+                      "height": 13,
+                      "width": 70,
+                      "text": "inspiration",
+                      "x": 166
+                    },
+                    {
+                      "y": 357,
+                      "height": 11,
+                      "width": 24,
+                      "text": "and",
+                      "x": 241
+                    },
+                    {
+                      "y": 357,
+                      "height": 11,
+                      "width": 37,
+                      "text": "tools.",
+                      "x": 270
+                    }
+                  ]
+                },
+                {
+                  "text": "Edit profile",
+                  "words": [
+                    {
+                      "y": 409,
+                      "height": 13,
+                      "width": 30,
+                      "text": "Edit",
+                      "x": 80
+                    },
+                    {
+                      "y": 409,
+                      "height": 16,
+                      "width": 52,
+                      "text": "profile",
+                      "x": 115
+                    }
+                  ]
+                },
+                {
+                  "text": "Discover people",
+                  "words": [
+                    {
+                      "y": 468,
+                      "height": 14,
+                      "width": 70,
+                      "text": "Discover",
+                      "x": 21
+                    },
+                    {
+                      "y": 469,
+                      "height": 16,
+                      "width": 54,
+                      "text": "people",
+                      "x": 96
+                    }
+                  ]
+                },
+                {
+                  "text": "x",
+                  "words": [
+                    {
+                      "y": 520,
+                      "height": 10,
+                      "width": 11,
+                      "text": "x",
+                      "x": 173
+                    }
+                  ]
+                },
+                {
+                  "text": "Prettylilweirdo\u2022\u2022\u2022",
+                  "words": [
+                    {
+                      "y": 636,
+                      "height": 17,
+                      "width": 149,
+                      "text": "Prettylilweirdo\u2022\u2022\u2022",
+                      "x": 33
+                    }
+                  ]
+                },
+                {
+                  "text": "Suggested for you",
+                  "words": [
+                    {
+                      "y": 659,
+                      "height": 14,
+                      "width": 71,
+                      "text": "Suggested",
+                      "x": 48
+                    },
+                    {
+                      "y": 659,
+                      "height": 11,
+                      "width": 19,
+                      "text": "for",
+                      "x": 124
+                    },
+                    {
+                      "y": 662,
+                      "height": 11,
+                      "width": 24,
+                      "text": "you",
+                      "x": 147
+                    }
+                  ]
+                },
+                {
+                  "text": "Follow",
+                  "words": [
+                    {
+                      "y": 698,
+                      "height": 13,
+                      "width": 51,
+                      "text": "Follow",
+                      "x": 84
+                    }
+                  ]
+                },
+                {
+                  "text": "Share profile",
+                  "words": [
+                    {
+                      "y": 409,
+                      "height": 14,
+                      "width": 46,
+                      "text": "Share",
+                      "x": 282
+                    },
+                    {
+                      "y": 409,
+                      "height": 16,
+                      "width": 51,
+                      "text": "profile",
+                      "x": 334
+                    }
+                  ]
+                },
+                {
+                  "text": "x",
+                  "words": [
+                    {
+                      "y": 520,
+                      "height": 10,
+                      "width": 11,
+                      "text": "x",
+                      "x": 375
+                    }
+                  ]
+                },
+                {
+                  "text": "Wigger",
+                  "words": [
+                    {
+                      "y": 636,
+                      "height": 17,
+                      "width": 58,
+                      "text": "Wigger",
+                      "x": 282
+                    }
+                  ]
+                },
+                {
+                  "text": "Suggested for you",
+                  "words": [
+                    {
+                      "y": 659,
+                      "height": 14,
+                      "width": 71,
+                      "text": "Suggested",
+                      "x": 250
+                    },
+                    {
+                      "y": 659,
+                      "height": 11,
+                      "width": 19,
+                      "text": "for",
+                      "x": 326
+                    },
+                    {
+                      "y": 662,
+                      "height": 11,
+                      "width": 24,
+                      "text": "you",
+                      "x": 349
+                    }
+                  ]
+                },
+                {
+                  "text": "Follow",
+                  "words": [
+                    {
+                      "y": 698,
+                      "height": 13,
+                      "width": 50,
+                      "text": "Follow",
+                      "x": 287
+                    }
+                  ]
+                },
+                {
+                  "text": "imda",
+                  "words": [
+                    {
+                      "y": 636,
+                      "height": 14,
+                      "width": 38,
+                      "text": "imda",
+                      "x": 456
+                    }
+                  ]
+                },
+                {
+                  "text": "Sugge",
+                  "words": [
+                    {
+                      "y": 659,
+                      "height": 14,
+                      "width": 42,
+                      "text": "Sugge",
+                      "x": 452
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "ec6b4a4867da1a6e6f7b80468a2c84e79cbc0aeff562f465f51797fc846dcb3a"
+            },
+            "frameSha256": "ec6b4a4867da1a6e6f7b80468a2c84e79cbc0aeff562f465f51797fc846dcb3a",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 613.8550000003784,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19820,
+              "reportedAgeMs": 4.855,
+              "observationElapsedMs": 609.0000000003783,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 629.855
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "b17621ec16546098102cf37b6b587026947e4ed87fffe17637141e27ab9d52a1",
+            "completedAt": 1792383423.8105547,
+            "ageSeconds": 0.6296436786651611,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "39894d8312f5d41373abece8340e22cad0958e1330cbc8c673f6618b5744c6bd"
+          },
+          "screenCheck": {
+            "account": "xs.halle.xo"
+          }
+        },
+        {
+          "role": "profile",
+          "index": null,
+          "observationId": "dcdc5c6b-025f-45e4-915e-245e746f6bc7",
+          "state": "observed",
+          "frame": "09-profile.png",
+          "observation": {
+            "id": "dcdc5c6b-025f-45e4-915e-245e746f6bc7",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383424.1601746,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "Expected account text is visible. This does not certify media, saved state or app authenticity.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "profile",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": "instagram",
+              "expectedAppMatches": true,
+              "accountStatus": "exact_text_match",
+              "observedHandles": [
+                "xs.halle.xo"
+              ],
+              "captionStatus": "needs_review",
+              "reason": "Expected account text is visible. This does not certify media, saved state or app authenticity.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "18dc63985ede04f4458ee530bc3c762da283c6fb0d7f76e7afb0f8920399921b",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:17",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 14,
+                      "width": 46,
+                      "text": "12:17",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Make this",
+                  "words": [
+                    {
+                      "y": 128,
+                      "height": 10,
+                      "width": 32,
+                      "text": "Make",
+                      "x": 42
+                    },
+                    {
+                      "y": 128,
+                      "height": 10,
+                      "width": 23,
+                      "text": "this",
+                      "x": 78
+                    }
+                  ]
+                },
+                {
+                  "text": "space you..",
+                  "words": [
+                    {
+                      "y": 146,
+                      "height": 10,
+                      "width": 37,
+                      "text": "space",
+                      "x": 34
+                    },
+                    {
+                      "y": 146,
+                      "height": 10,
+                      "width": 28,
+                      "text": "you..",
+                      "x": 76
+                    }
+                  ]
+                },
+                {
+                  "text": "xs.halle.xo",
+                  "words": [
+                    {
+                      "y": 77,
+                      "height": 22,
+                      "width": 141,
+                      "text": "xs.halle.xo",
+                      "x": 162
+                    }
+                  ]
+                },
+                {
+                  "text": "Halle",
+                  "words": [
+                    {
+                      "y": 146,
+                      "height": 14,
+                      "width": 40,
+                      "text": "Halle",
+                      "x": 150
+                    }
+                  ]
+                },
+                {
+                  "text": "5",
+                  "words": [
+                    {
+                      "y": 179,
+                      "height": 15,
+                      "width": 10,
+                      "text": "5",
+                      "x": 151
+                    }
+                  ]
+                },
+                {
+                  "text": "posts",
+                  "words": [
+                    {
+                      "y": 203,
+                      "height": 15,
+                      "width": 42,
+                      "text": "posts",
+                      "x": 150
+                    }
+                  ]
+                },
+                {
+                  "text": "follower",
+                  "words": [
+                    {
+                      "y": 202,
+                      "height": 13,
+                      "width": 61,
+                      "text": "follower",
+                      "x": 249
+                    }
+                  ]
+                },
+                {
+                  "text": "soy cfj,",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 14,
+                      "width": 16,
+                      "text": "soy",
+                      "x": 397
+                    },
+                    {
+                      "y": 22,
+                      "height": 16,
+                      "width": 30,
+                      "text": "cfj,",
+                      "x": 449
+                    }
+                  ]
+                },
+                {
+                  "text": "following",
+                  "words": [
+                    {
+                      "y": 202,
+                      "height": 16,
+                      "width": 69,
+                      "text": "following",
+                      "x": 367
+                    }
+                  ]
+                },
+                {
+                  "text": "-F Add banners",
+                  "words": [
+                    {
+                      "y": 283,
+                      "height": 13,
+                      "width": 12,
+                      "text": "-F",
+                      "x": 31
+                    },
+                    {
+                      "y": 284,
+                      "height": 11,
+                      "width": 26,
+                      "text": "Add",
+                      "x": 50
+                    },
+                    {
+                      "y": 284,
+                      "height": 11,
+                      "width": 56,
+                      "text": "banners",
+                      "x": 82
+                    }
+                  ]
+                },
+                {
+                  "text": "Your dashboard",
+                  "words": [
+                    {
+                      "y": 337,
+                      "height": 13,
+                      "width": 36,
+                      "text": "Your",
+                      "x": 38
+                    },
+                    {
+                      "y": 337,
+                      "height": 13,
+                      "width": 85,
+                      "text": "dashboard",
+                      "x": 79
+                    }
+                  ]
+                },
+                {
+                  "text": "Audience insights, inspiration and tools.",
+                  "words": [
+                    {
+                      "y": 357,
+                      "height": 11,
+                      "width": 62,
+                      "text": "Audience",
+                      "x": 38
+                    },
+                    {
+                      "y": 357,
+                      "height": 14,
+                      "width": 55,
+                      "text": "insights,",
+                      "x": 105
+                    },
+                    {
+                      "y": 357,
+                      "height": 13,
+                      "width": 70,
+                      "text": "inspiration",
+                      "x": 166
+                    },
+                    {
+                      "y": 357,
+                      "height": 11,
+                      "width": 24,
+                      "text": "and",
+                      "x": 241
+                    },
+                    {
+                      "y": 357,
+                      "height": 11,
+                      "width": 37,
+                      "text": "tools.",
+                      "x": 270
+                    }
+                  ]
+                },
+                {
+                  "text": "Edit profile",
+                  "words": [
+                    {
+                      "y": 409,
+                      "height": 13,
+                      "width": 30,
+                      "text": "Edit",
+                      "x": 80
+                    },
+                    {
+                      "y": 409,
+                      "height": 16,
+                      "width": 52,
+                      "text": "profile",
+                      "x": 115
+                    }
+                  ]
+                },
+                {
+                  "text": "Discover people",
+                  "words": [
+                    {
+                      "y": 468,
+                      "height": 14,
+                      "width": 70,
+                      "text": "Discover",
+                      "x": 21
+                    },
+                    {
+                      "y": 469,
+                      "height": 16,
+                      "width": 54,
+                      "text": "people",
+                      "x": 96
+                    }
+                  ]
+                },
+                {
+                  "text": "x",
+                  "words": [
+                    {
+                      "y": 520,
+                      "height": 10,
+                      "width": 11,
+                      "text": "x",
+                      "x": 173
+                    }
+                  ]
+                },
+                {
+                  "text": "Prettylilweirdo\u2022\u2022\u2022",
+                  "words": [
+                    {
+                      "y": 636,
+                      "height": 17,
+                      "width": 149,
+                      "text": "Prettylilweirdo\u2022\u2022\u2022",
+                      "x": 33
+                    }
+                  ]
+                },
+                {
+                  "text": "Suggested for you",
+                  "words": [
+                    {
+                      "y": 659,
+                      "height": 14,
+                      "width": 71,
+                      "text": "Suggested",
+                      "x": 48
+                    },
+                    {
+                      "y": 659,
+                      "height": 11,
+                      "width": 19,
+                      "text": "for",
+                      "x": 124
+                    },
+                    {
+                      "y": 662,
+                      "height": 11,
+                      "width": 24,
+                      "text": "you",
+                      "x": 147
+                    }
+                  ]
+                },
+                {
+                  "text": "Follow",
+                  "words": [
+                    {
+                      "y": 698,
+                      "height": 13,
+                      "width": 51,
+                      "text": "Follow",
+                      "x": 84
+                    }
+                  ]
+                },
+                {
+                  "text": "Share profile",
+                  "words": [
+                    {
+                      "y": 409,
+                      "height": 14,
+                      "width": 46,
+                      "text": "Share",
+                      "x": 282
+                    },
+                    {
+                      "y": 409,
+                      "height": 16,
+                      "width": 51,
+                      "text": "profile",
+                      "x": 334
+                    }
+                  ]
+                },
+                {
+                  "text": "x",
+                  "words": [
+                    {
+                      "y": 520,
+                      "height": 10,
+                      "width": 11,
+                      "text": "x",
+                      "x": 375
+                    }
+                  ]
+                },
+                {
+                  "text": "Wigger",
+                  "words": [
+                    {
+                      "y": 636,
+                      "height": 17,
+                      "width": 58,
+                      "text": "Wigger",
+                      "x": 282
+                    }
+                  ]
+                },
+                {
+                  "text": "Suggested for you",
+                  "words": [
+                    {
+                      "y": 659,
+                      "height": 14,
+                      "width": 71,
+                      "text": "Suggested",
+                      "x": 250
+                    },
+                    {
+                      "y": 659,
+                      "height": 11,
+                      "width": 19,
+                      "text": "for",
+                      "x": 326
+                    },
+                    {
+                      "y": 662,
+                      "height": 11,
+                      "width": 24,
+                      "text": "you",
+                      "x": 349
+                    }
+                  ]
+                },
+                {
+                  "text": "Follow",
+                  "words": [
+                    {
+                      "y": 698,
+                      "height": 13,
+                      "width": 50,
+                      "text": "Follow",
+                      "x": 287
+                    }
+                  ]
+                },
+                {
+                  "text": "imda",
+                  "words": [
+                    {
+                      "y": 636,
+                      "height": 14,
+                      "width": 38,
+                      "text": "imda",
+                      "x": 456
+                    }
+                  ]
+                },
+                {
+                  "text": "Sugge",
+                  "words": [
+                    {
+                      "y": 659,
+                      "height": 14,
+                      "width": 42,
+                      "text": "Sugge",
+                      "x": 452
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "a841f1d07f0b3a9b3f6a4bc0012bac18b7b930afb4f0196be618ac66c8a44012"
+            },
+            "frameSha256": "a841f1d07f0b3a9b3f6a4bc0012bac18b7b930afb4f0196be618ac66c8a44012",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 661.2430000032597,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19849,
+              "reportedAgeMs": 20.243,
+              "observationElapsedMs": 641.0000000032596,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 677.2430000028813
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "18dc63985ede04f4458ee530bc3c762da283c6fb0d7f76e7afb0f8920399921b",
+            "completedAt": 1792383424.8071187,
+            "ageSeconds": 0.6570000000028813,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "21f633f41cee81a0e6bc27e84233e4bb30ea484ff1c143e62dc2111a61ee6c84"
+          },
+          "screenCheck": {
+            "account": "xs.halle.xo"
+          }
+        },
+        {
+          "role": "home",
+          "index": null,
+          "observationId": "0e979d8f-81c7-4bd9-824c-872b84fbba5c",
+          "state": "observed",
+          "frame": "10-home.png",
+          "observation": {
+            "id": "0e979d8f-81c7-4bd9-824c-872b84fbba5c",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383427.158221,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The expected app pattern is not visible.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "home",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The expected app pattern is not visible.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "4ef77514420527e9ade7d60f2ce638ffdb5d62601db316dbae312b381f792f79",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:17",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 14,
+                      "width": 46,
+                      "text": "12:17",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Instagram",
+                  "words": [
+                    {
+                      "y": 171,
+                      "height": 14,
+                      "width": 68,
+                      "text": "Instagram",
+                      "x": 43
+                    }
+                  ]
+                },
+                {
+                  "text": "Zoho Mail",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 34,
+                      "text": "Zoho",
+                      "x": 45
+                    },
+                    {
+                      "y": 423,
+                      "height": 12,
+                      "width": 27,
+                      "text": "Mail",
+                      "x": 84
+                    }
+                  ]
+                },
+                {
+                  "text": "TikTok",
+                  "words": [
+                    {
+                      "y": 170,
+                      "height": 12,
+                      "width": 44,
+                      "text": "TikTok",
+                      "x": 170
+                    }
+                  ]
+                },
+                {
+                  "text": "Bluesky",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 14,
+                      "width": 52,
+                      "text": "Bluesky",
+                      "x": 166
+                    }
+                  ]
+                },
+                {
+                  "text": "Gmail",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 38,
+                      "text": "Gmail",
+                      "x": 173
+                    }
+                  ]
+                },
+                {
+                  "text": "EXPO GO",
+                  "words": [
+                    {
+                      "y": 551,
+                      "height": 13,
+                      "width": 33,
+                      "text": "EXPO",
+                      "x": 164
+                    },
+                    {
+                      "y": 551,
+                      "height": 10,
+                      "width": 18,
+                      "text": "GO",
+                      "x": 202
+                    }
+                  ]
+                },
+                {
+                  "text": "lapper",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 14,
+                      "width": 43,
+                      "text": "lapper",
+                      "x": 291
+                    }
+                  ]
+                },
+                {
+                  "text": "N",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 10,
+                      "text": "N",
+                      "x": 341
+                    }
+                  ]
+                },
+                {
+                  "text": "Search",
+                  "words": [
+                    {
+                      "y": 893,
+                      "height": 12,
+                      "width": 48,
+                      "text": "Search",
+                      "x": 235
+                    }
+                  ]
+                },
+                {
+                  "text": "sos",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 9,
+                      "width": 17,
+                      "text": "sos",
+                      "x": 396
+                    }
+                  ]
+                },
+                {
+                  "text": "YouTube",
+                  "words": [
+                    {
+                      "y": 171,
+                      "height": 11,
+                      "width": 58,
+                      "text": "YouTube",
+                      "x": 393
+                    }
+                  ]
+                },
+                {
+                  "text": "SMS",
+                  "words": [
+                    {
+                      "y": 243,
+                      "height": 9,
+                      "width": 26,
+                      "text": "SMS",
+                      "x": 395
+                    }
+                  ]
+                },
+                {
+                  "text": "Proton VPN",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 44,
+                      "text": "Proton",
+                      "x": 383
+                    },
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 28,
+                      "text": "VPN",
+                      "x": 433
+                    }
+                  ]
+                },
+                {
+                  "text": "po",
+                  "words": [
+                    {
+                      "y": 988,
+                      "height": 30,
+                      "width": 52,
+                      "text": "po",
+                      "x": 396
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "eabd29471e3c111ac1690a35b4398a0d054a0a236d179b58a9914b6686d628b1"
+            },
+            "frameSha256": "eabd29471e3c111ac1690a35b4398a0d054a0a236d179b58a9914b6686d628b1",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 687.7360000022992,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19934,
+              "reportedAgeMs": 15.736,
+              "observationElapsedMs": 672.0000000022992,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 703.7360000019208
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "4ef77514420527e9ade7d60f2ce638ffdb5d62601db316dbae312b381f792f79",
+            "completedAt": 1792383427.843333,
+            "ageSeconds": 0.6921858787536621,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "10eb6a32a4065dbbfc8c6b54822d090f201a5a7e4c15d8954d8151e08e2c9f31"
+          },
+          "screenCheck": true
+        },
+        {
+          "role": "home",
+          "index": null,
+          "observationId": "649ad560-29ca-4016-9349-9d54026bda56",
+          "state": "observed",
+          "frame": "11-home.png",
+          "observation": {
+            "id": "649ad560-29ca-4016-9349-9d54026bda56",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383428.233384,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The expected app pattern is not visible.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "home",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The expected app pattern is not visible.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "1e5fb73641aab6e893f55204642f327ffdeb6b07a864f10dcf415ec742b694d3",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:17",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 14,
+                      "width": 46,
+                      "text": "12:17",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "Instagram",
+                  "words": [
+                    {
+                      "y": 171,
+                      "height": 14,
+                      "width": 68,
+                      "text": "Instagram",
+                      "x": 43
+                    }
+                  ]
+                },
+                {
+                  "text": "Zoho Mail",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 34,
+                      "text": "Zoho",
+                      "x": 45
+                    },
+                    {
+                      "y": 423,
+                      "height": 12,
+                      "width": 27,
+                      "text": "Mail",
+                      "x": 84
+                    }
+                  ]
+                },
+                {
+                  "text": "TikTok",
+                  "words": [
+                    {
+                      "y": 170,
+                      "height": 12,
+                      "width": 44,
+                      "text": "TikTok",
+                      "x": 170
+                    }
+                  ]
+                },
+                {
+                  "text": "Bluesky",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 14,
+                      "width": 52,
+                      "text": "Bluesky",
+                      "x": 166
+                    }
+                  ]
+                },
+                {
+                  "text": "Gmail",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 38,
+                      "text": "Gmail",
+                      "x": 173
+                    }
+                  ]
+                },
+                {
+                  "text": "EXPO GO",
+                  "words": [
+                    {
+                      "y": 551,
+                      "height": 13,
+                      "width": 33,
+                      "text": "EXPO",
+                      "x": 164
+                    },
+                    {
+                      "y": 551,
+                      "height": 10,
+                      "width": 18,
+                      "text": "GO",
+                      "x": 202
+                    }
+                  ]
+                },
+                {
+                  "text": "lapper",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 14,
+                      "width": 43,
+                      "text": "lapper",
+                      "x": 291
+                    }
+                  ]
+                },
+                {
+                  "text": "N",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 10,
+                      "text": "N",
+                      "x": 341
+                    }
+                  ]
+                },
+                {
+                  "text": "Search",
+                  "words": [
+                    {
+                      "y": 893,
+                      "height": 12,
+                      "width": 48,
+                      "text": "Search",
+                      "x": 235
+                    }
+                  ]
+                },
+                {
+                  "text": "sos",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 9,
+                      "width": 17,
+                      "text": "sos",
+                      "x": 396
+                    }
+                  ]
+                },
+                {
+                  "text": "YouTube",
+                  "words": [
+                    {
+                      "y": 171,
+                      "height": 11,
+                      "width": 58,
+                      "text": "YouTube",
+                      "x": 393
+                    }
+                  ]
+                },
+                {
+                  "text": "SMS",
+                  "words": [
+                    {
+                      "y": 243,
+                      "height": 9,
+                      "width": 26,
+                      "text": "SMS",
+                      "x": 395
+                    }
+                  ]
+                },
+                {
+                  "text": "Proton VPN",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 44,
+                      "text": "Proton",
+                      "x": 383
+                    },
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 28,
+                      "text": "VPN",
+                      "x": 433
+                    }
+                  ]
+                },
+                {
+                  "text": "po",
+                  "words": [
+                    {
+                      "y": 988,
+                      "height": 30,
+                      "width": 52,
+                      "text": "po",
+                      "x": 396
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "b851dfd85fcc7581e243e85e926855204ad962d9685d7cb8475e9241fc9dc71e"
+            },
+            "frameSha256": "b851dfd85fcc7581e243e85e926855204ad962d9685d7cb8475e9241fc9dc71e",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 702.7259999980791,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 19965,
+              "reportedAgeMs": 15.726,
+              "observationElapsedMs": 686.9999999980791,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 709.4410592784747
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "1e5fb73641aab6e893f55204642f327ffdeb6b07a864f10dcf415ec742b694d3",
+            "completedAt": 1792383428.9128115,
+            "ageSeconds": 0.6869999999980791,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "66a947232a4135b4714b29fc6bca685d88edc1ee2fff256a9a0e0d3382135efb"
+          },
+          "screenCheck": true
+        },
+        {
+          "role": "home",
+          "index": null,
+          "observationId": "e373ac72-bea6-42c5-b2a7-2aba20f1f8a2",
+          "state": "observed",
+          "frame": "12-home.png",
+          "observation": {
+            "id": "e373ac72-bea6-42c5-b2a7-2aba20f1f8a2",
+            "expected": {
+              "device_id": "C24C",
+              "platform": "instagram",
+              "account": "xs.halle.xo",
+              "caption": "The new carousel is ready\nFresh slides in numbered order\nDraft only"
+            },
+            "requestedAt": 1792383433.0318809,
+            "observerSession": "4536ba7b738e45e9be102aba76703819",
+            "state": "observed",
+            "reason": "The screen is not recognized.",
+            "source": "phone",
+            "automaticInputAllowed": false,
+            "inputSettled": true,
+            "ownershipEvidence": {
+              "runId": "f4bf4b92-bd9a-497a-9fdc-381e4a74aabf",
+              "generation": 5,
+              "authenticatedBeforeAndAfter": true,
+              "source": "owned_capture_guard",
+              "continuousPhoneActivityKnown": false
+            },
+            "result": {
+              "screen": "unknown",
+              "layout": null,
+              "layoutEvidence": null,
+              "appPattern": null,
+              "expectedAppMatches": false,
+              "accountStatus": "not_visible",
+              "observedHandles": [],
+              "captionStatus": "needs_review",
+              "reason": "The screen is not recognized.",
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "metrics": null,
+              "metricsReason": "A screen count has no verified post identity or observation interval."
+            },
+            "text": {
+              "imageSha256": "3b4025ce828a33b4ae25f750dad389ef8e0d7edcf47efaa20078c27eb75d3d60",
+              "provider": "windows-ocr",
+              "language": "en-US",
+              "lines": [
+                {
+                  "text": "12:17",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 14,
+                      "width": 46,
+                      "text": "12:17",
+                      "x": 40
+                    }
+                  ]
+                },
+                {
+                  "text": "sos",
+                  "words": [
+                    {
+                      "y": 23,
+                      "height": 9,
+                      "width": 17,
+                      "text": "sos",
+                      "x": 396
+                    }
+                  ]
+                },
+                {
+                  "text": "Plenty of Fish",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 14,
+                      "width": 42,
+                      "text": "Plenty",
+                      "x": 32
+                    },
+                    {
+                      "y": 297,
+                      "height": 11,
+                      "width": 13,
+                      "text": "of",
+                      "x": 79
+                    },
+                    {
+                      "y": 297,
+                      "height": 11,
+                      "width": 26,
+                      "text": "Fish",
+                      "x": 98
+                    }
+                  ]
+                },
+                {
+                  "text": "FEELD",
+                  "words": [
+                    {
+                      "y": 369,
+                      "height": 14,
+                      "width": 66,
+                      "text": "FEELD",
+                      "x": 45
+                    }
+                  ]
+                },
+                {
+                  "text": "Feeld",
+                  "words": [
+                    {
+                      "y": 424,
+                      "height": 11,
+                      "width": 36,
+                      "text": "Feeld",
+                      "x": 60
+                    }
+                  ]
+                },
+                {
+                  "text": "Wild",
+                  "words": [
+                    {
+                      "y": 550,
+                      "height": 11,
+                      "width": 29,
+                      "text": "Wild",
+                      "x": 63
+                    }
+                  ]
+                },
+                {
+                  "text": "Journal",
+                  "words": [
+                    {
+                      "y": 677,
+                      "height": 11,
+                      "width": 50,
+                      "text": "Journal",
+                      "x": 52
+                    }
+                  ]
+                },
+                {
+                  "text": "I am",
+                  "words": [
+                    {
+                      "y": 750,
+                      "height": 11,
+                      "width": 3,
+                      "text": "I",
+                      "x": 65
+                    },
+                    {
+                      "y": 753,
+                      "height": 8,
+                      "width": 19,
+                      "text": "am",
+                      "x": 73
+                    }
+                  ]
+                },
+                {
+                  "text": "po",
+                  "words": [
+                    {
+                      "y": 988,
+                      "height": 30,
+                      "width": 52,
+                      "text": "po",
+                      "x": 396
+                    }
+                  ]
+                },
+                {
+                  "text": "Passwords",
+                  "words": [
+                    {
+                      "y": 677,
+                      "height": 11,
+                      "width": 74,
+                      "text": "Passwords",
+                      "x": 155
+                    }
+                  ]
+                },
+                {
+                  "text": "Vocabulary",
+                  "words": [
+                    {
+                      "y": 804,
+                      "height": 13,
+                      "width": 77,
+                      "text": "Vocabulary",
+                      "x": 154
+                    }
+                  ]
+                },
+                {
+                  "text": "Kasua",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 11,
+                      "width": 41,
+                      "text": "Kasua",
+                      "x": 285
+                    }
+                  ]
+                },
+                {
+                  "text": "pn",
+                  "words": [
+                    {
+                      "y": 426,
+                      "height": 11,
+                      "width": 16,
+                      "text": "pn",
+                      "x": 312
+                    }
+                  ]
+                },
+                {
+                  "text": "Mint Mobile",
+                  "words": [
+                    {
+                      "y": 677,
+                      "height": 11,
+                      "width": 29,
+                      "text": "Mint",
+                      "x": 268
+                    },
+                    {
+                      "y": 677,
+                      "height": 11,
+                      "width": 45,
+                      "text": "Mobile",
+                      "x": 303
+                    }
+                  ]
+                },
+                {
+                  "text": "Facts",
+                  "words": [
+                    {
+                      "y": 804,
+                      "height": 11,
+                      "width": 35,
+                      "text": "Facts",
+                      "x": 290
+                    }
+                  ]
+                },
+                {
+                  "text": "Search",
+                  "words": [
+                    {
+                      "y": 893,
+                      "height": 12,
+                      "width": 48,
+                      "text": "Search",
+                      "x": 235
+                    }
+                  ]
+                },
+                {
+                  "text": "o",
+                  "words": [
+                    {
+                      "y": 297,
+                      "height": 11,
+                      "width": 10,
+                      "text": "o",
+                      "x": 392
+                    }
+                  ]
+                },
+                {
+                  "text": "Taimi",
+                  "words": [
+                    {
+                      "y": 366,
+                      "height": 20,
+                      "width": 56,
+                      "text": "Taimi",
+                      "x": 394
+                    }
+                  ]
+                },
+                {
+                  "text": "Motivation",
+                  "words": [
+                    {
+                      "y": 677,
+                      "height": 11,
+                      "width": 72,
+                      "text": "Motivation",
+                      "x": 386
+                    }
+                  ]
+                },
+                {
+                  "text": "Lov-",
+                  "words": [
+                    {
+                      "y": 803,
+                      "height": 12,
+                      "width": 25,
+                      "text": "Lov-",
+                      "x": 369
+                    }
+                  ]
+                },
+                {
+                  "text": "Kindness",
+                  "words": [
+                    {
+                      "y": 803,
+                      "height": 12,
+                      "width": 60,
+                      "text": "Kindness",
+                      "x": 415
+                    }
+                  ]
+                }
+              ],
+              "height": 1080,
+              "width": 500,
+              "frameSha256": "6f30401356b5854878b57bfc0f3cd8f71ea541332afc3093574887934f0058c6"
+            },
+            "frameSha256": "6f30401356b5854878b57bfc0f3cd8f71ea541332afc3093574887934f0058c6",
+            "width": 500,
+            "height": 1080,
+            "freshness": "recent",
+            "frameEvidence": {
+              "freshness": "recent",
+              "pairedMetadata": true,
+              "ageUpperBoundMs": 673.1640000022992,
+              "deliveryAdvanced": true,
+              "phoneCaptureTimeKnown": false,
+              "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+              "session": "7f205d1223fc4994ac5bcc85bcf8e633",
+              "sequence": 20108,
+              "reportedAgeMs": 1.164,
+              "observationElapsedMs": 672.0000000022992,
+              "reason": "Paired receiver-delivery metadata is recent. This does not prove a current iOS source capture.",
+              "currentAgeUpperBoundMs": 689.1640000019208
+            },
+            "stable": true,
+            "inputIdle": false,
+            "receiverPid": 43232,
+            "inputGeneration": 5,
+            "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+            "reviewFrameSha256": "3b4025ce828a33b4ae25f750dad389ef8e0d7edcf47efaa20078c27eb75d3d60",
+            "completedAt": 1792383433.715007,
+            "ageSeconds": 0.6908695697784424,
+            "expired": false,
+            "freshnessAtCapture": "recent",
+            "workflowReview": {
+              "status": "blocked",
+              "blockers": [
+                "Screen is interrupted, unknown or still being edited.",
+                "Expected app pattern is missing.",
+                "Expected account is not visible as exact text.",
+                "Expected caption has not been read exactly in its content area."
+              ],
+              "automaticInputAllowed": false,
+              "savedDraftVerified": false,
+              "reason": "Review evidence only; media identity and persisted draft state still need verification."
+            },
+            "evidenceRecordSha256": "c10ce252af674045ce8b41d690ef8f23cc6a12de842b831760a2a64a858c53b4"
+          }
+        }
+      ],
+      "transitionChecks": [],
+      "actions": [
+        {
+          "label": "dismiss-restored-app-search",
+          "kind": "restored_search",
+          "observationId": "26e880eb-77bd-455f-9a4a-6d9452cccff5",
+          "state": "answered"
+        },
+        {
+          "label": "dismiss-empty-ios-search",
+          "kind": "search",
+          "observationId": "2b2c68ef-5b83-4753-aec1-443b772eab16",
+          "state": "answered"
+        },
+        {
+          "label": "initial-open-Instagram",
+          "kind": "home",
+          "observationId": "3cbf745b-9bd7-4f3d-9e3d-52bbfe80d1dd",
+          "state": "answered"
+        },
+        {
+          "label": "verify-launch-account",
+          "kind": "instagram_navigation",
+          "observationId": "87bb4216-a16a-44d6-8198-f3b670735e64",
+          "state": "answered"
+        },
+        {
+          "label": "home-from-profile",
+          "kind": "profile",
+          "observationId": "dcdc5c6b-025f-45e4-915e-245e746f6bc7",
+          "state": "answered"
+        },
+        {
+          "label": "transfer-change-home-page",
+          "kind": "home",
+          "observationId": "649ad560-29ca-4016-9349-9d54026bda56",
+          "state": "answered"
+        }
+      ],
+      "promptRecoveries": [],
+      "publishing": false,
+      "messaging": false,
+      "desktopControl": false,
+      "savedDraftVerified": false,
+      "budgetSeconds": 720,
+      "productionAdapterAccepted": false,
+      "packageSha256": "947a973fb279169d8d1b45172421be724fd693a5940faf2cd2f11646a18fd141",
+      "account": "xs.halle.xo",
+      "mode": "create_new_draft",
+      "phaseBudgetSeconds": 120,
+      "phases": [
+        {
+          "name": "open-transfer",
+          "started": 29837.937
+        }
+      ],
+      "createdDraftVerified": false,
+      "captionMethod": "verified_safari_copy_and_instagram_paste",
+      "lastSequence": 20108,
+      "error": "InspectionStopped: The iOS Home screen is not recognized.",
+      "finalInput": {
+        "id": "86:1D:4A:04:2F:F6",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "Controller released.",
+        "generation": 6,
+        "lease_remaining_ms": 0
+      },
+      "evidenceExport": "confirmed",
+      "mediaDelivery": {
+        "stopped": true,
+        "events": [],
+        "imagesDelivered": [],
+        "photosSaveProvenByHttp": false
+      }
+    },
+    "publishing": false,
+    "messaging": false,
+    "desktopControl": false,
+    "automaticResume": false,
+    "integratedLiveValidated": false,
+    "retryBeforeImportAllowed": true
+  },
+  "protocolVersion": 2,
+  "executionMode": "live",
+  "simulated": false
+}

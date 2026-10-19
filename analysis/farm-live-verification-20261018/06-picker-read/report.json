@@ -1,0 +1,425 @@
+{
+  "source": "phone",
+  "samples": [
+    {
+      "observation": {
+        "id": "df66b835-4d6f-4fa9-847b-a0572ab1c092",
+        "expected": {
+          "device_id": "C24C",
+          "platform": "instagram",
+          "account": "xs.halle.xo",
+          "caption": ""
+        },
+        "requestedAt": 1792354393.9887562,
+        "observerSession": "d3f04277d34449118137b939e2a0539b",
+        "state": "observed",
+        "reason": "The screen is not recognized.",
+        "source": "phone",
+        "automaticInputAllowed": false,
+        "result": {
+          "screen": "unknown",
+          "layout": null,
+          "appPattern": null,
+          "expectedAppMatches": false,
+          "accountStatus": "not_visible",
+          "observedHandles": [],
+          "captionStatus": "not_requested",
+          "reason": "The screen is not recognized.",
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "metrics": null,
+          "metricsReason": "A screen count has no verified post identity or observation interval."
+        },
+        "text": {
+          "imageSha256": "125ea6961a3b10001d42cdc01605818752ff5c8b8d9f3e3a7ebf676643a2ff73",
+          "provider": "windows-ocr",
+          "language": "en-US",
+          "lines": [
+            {
+              "text": "4:13",
+              "words": [
+                {
+                  "y": 23,
+                  "height": 15,
+                  "width": 38,
+                  "text": "4:13",
+                  "x": 44
+                }
+              ]
+            },
+            {
+              "text": "x",
+              "words": [
+                {
+                  "y": 71,
+                  "height": 25,
+                  "width": 25,
+                  "text": "x",
+                  "x": 27
+                }
+              ]
+            },
+            {
+              "text": "New post",
+              "words": [
+                {
+                  "y": 78,
+                  "height": 14,
+                  "width": 39,
+                  "text": "New",
+                  "x": 208
+                },
+                {
+                  "y": 78,
+                  "height": 18,
+                  "width": 41,
+                  "text": "post",
+                  "x": 253
+                }
+              ]
+            },
+            {
+              "text": "iMouse VIDEO DRAFT TEST",
+              "words": [
+                {
+                  "y": 231,
+                  "height": 13,
+                  "width": 53,
+                  "text": "iMouse",
+                  "x": 106
+                },
+                {
+                  "y": 232,
+                  "height": 12,
+                  "width": 47,
+                  "text": "VIDEO",
+                  "x": 163
+                },
+                {
+                  "y": 232,
+                  "height": 12,
+                  "width": 50,
+                  "text": "DRAFT",
+                  "x": 215
+                },
+                {
+                  "y": 232,
+                  "height": 12,
+                  "width": 36,
+                  "text": "TEST",
+                  "x": 269
+                }
+              ]
+            },
+            {
+              "text": "DRAFT ONLY - DO NOT PUBLISH",
+              "words": [
+                {
+                  "y": 272,
+                  "height": 10,
+                  "width": 36,
+                  "text": "DRAFT",
+                  "x": 106
+                },
+                {
+                  "y": 272,
+                  "height": 10,
+                  "width": 31,
+                  "text": "ONLY",
+                  "x": 146
+                },
+                {
+                  "y": 278,
+                  "height": 1,
+                  "width": 4,
+                  "text": "-",
+                  "x": 181
+                },
+                {
+                  "y": 272,
+                  "height": 10,
+                  "width": 18,
+                  "text": "DO",
+                  "x": 190
+                },
+                {
+                  "y": 272,
+                  "height": 10,
+                  "width": 25,
+                  "text": "NOT",
+                  "x": 212
+                },
+                {
+                  "y": 272,
+                  "height": 10,
+                  "width": 46,
+                  "text": "PUBLISH",
+                  "x": 241
+                }
+              ]
+            },
+            {
+              "text": "TEST:",
+              "words": [
+                {
+                  "y": 324,
+                  "height": 10,
+                  "width": 29,
+                  "text": "TEST:",
+                  "x": 105
+                }
+              ]
+            },
+            {
+              "text": "Recents > Drafts",
+              "words": [
+                {
+                  "y": 637,
+                  "height": 15,
+                  "width": 73,
+                  "text": "Recents",
+                  "x": 22
+                },
+                {
+                  "y": 639,
+                  "height": 12,
+                  "width": 7,
+                  "text": ">",
+                  "x": 105
+                },
+                {
+                  "y": 636,
+                  "height": 16,
+                  "width": 57,
+                  "text": "Drafts",
+                  "x": 136
+                }
+              ]
+            },
+            {
+              "text": "3",
+              "words": [
+                {
+                  "y": 721,
+                  "height": 30,
+                  "width": 18,
+                  "text": "3",
+                  "x": 262
+                }
+              ]
+            },
+            {
+              "text": "sos",
+              "words": [
+                {
+                  "y": 23,
+                  "height": 9,
+                  "width": 17,
+                  "text": "sos",
+                  "x": 396
+                }
+              ]
+            },
+            {
+              "text": "Next",
+              "words": [
+                {
+                  "y": 77,
+                  "height": 15,
+                  "width": 42,
+                  "text": "Next",
+                  "x": 437
+                }
+              ]
+            },
+            {
+              "text": "Select",
+              "words": [
+                {
+                  "y": 639,
+                  "height": 11,
+                  "width": 44,
+                  "text": "Select",
+                  "x": 416
+                }
+              ]
+            },
+            {
+              "text": "2",
+              "words": [
+                {
+                  "y": 721,
+                  "height": 30,
+                  "width": 20,
+                  "text": "2",
+                  "x": 386
+                }
+              ]
+            },
+            {
+              "text": "1",
+              "words": [
+                {
+                  "y": 846,
+                  "height": 30,
+                  "width": 14,
+                  "text": "1",
+                  "x": 13
+                }
+              ]
+            },
+            {
+              "text": "005",
+              "words": [
+                {
+                  "y": 1027,
+                  "height": 17,
+                  "width": 49,
+                  "text": "005",
+                  "x": 64
+                }
+              ]
+            },
+            {
+              "text": "005",
+              "words": [
+                {
+                  "y": 1027,
+                  "height": 18,
+                  "width": 47,
+                  "text": "005",
+                  "x": 192
+                }
+              ]
+            },
+            {
+              "text": "0:05",
+              "words": [
+                {
+                  "y": 1027,
+                  "height": 18,
+                  "width": 46,
+                  "text": "0:05",
+                  "x": 318
+                }
+              ]
+            },
+            {
+              "text": "005",
+              "words": [
+                {
+                  "y": 1027,
+                  "height": 17,
+                  "width": 48,
+                  "text": "005",
+                  "x": 441
+                }
+              ]
+            }
+          ],
+          "height": 1080,
+          "width": 500,
+          "frameSha256": "b2e6f5ab2012e1ca3fda5cfb0caf37eeb4d6883281c0eeb43119f38ac99bfd83"
+        },
+        "frameSha256": "b2e6f5ab2012e1ca3fda5cfb0caf37eeb4d6883281c0eeb43119f38ac99bfd83",
+        "width": 500,
+        "height": 1080,
+        "freshness": "stale",
+        "frameEvidence": {
+          "freshness": "stale",
+          "pairedMetadata": true,
+          "ageUpperBoundMs": 13978.325999999986,
+          "deliveryAdvanced": false,
+          "phoneCaptureTimeKnown": false,
+          "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+          "session": "47e3e1c0dd3f42e48876070e71d5b193",
+          "sequence": 1573,
+          "reportedAgeMs": 13463.326,
+          "observationElapsedMs": 514.9999999999864,
+          "reason": "Saved frame aged beyond the receiver-delivery budget; capture again.",
+          "currentAgeUpperBoundMs": 13994.32599999995
+        },
+        "stable": true,
+        "inputIdle": true,
+        "receiverPid": 24592,
+        "inputGeneration": 3,
+        "resolvedDeviceId": "86:1D:4A:04:2F:F6",
+        "reviewFrameSha256": "125ea6961a3b10001d42cdc01605818752ff5c8b8d9f3e3a7ebf676643a2ff73",
+        "completedAt": 1792354394.516222,
+        "ageSeconds": 0.5414092540740967,
+        "expired": false,
+        "freshnessAtCapture": "stale",
+        "workflowReview": {
+          "status": "blocked",
+          "blockers": [
+            "Recent paired frame evidence is missing.",
+            "Screen is interrupted, unknown or still being edited.",
+            "Expected app pattern is missing.",
+            "Expected account is not visible as exact text."
+          ],
+          "automaticInputAllowed": false,
+          "savedDraftVerified": false,
+          "reason": "Review evidence only; media identity and persisted draft state still need verification."
+        }
+      },
+      "metadataUsableAtCheck": false,
+      "kernelProcess": [
+        10864,
+        "2026-10-18T20:07:47.5899301Z"
+      ],
+      "inputBefore": {
+        "id": "86:1D:4A:04:2F:F6",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "Controller released.",
+        "generation": 3,
+        "lease_remaining_ms": 0
+      },
+      "inputAfter": {
+        "id": "86:1D:4A:04:2F:F6",
+        "owned": false,
+        "active": false,
+        "stopped": false,
+        "releasing": false,
+        "release_failed": false,
+        "message": "Controller released.",
+        "generation": 3,
+        "lease_remaining_ms": 0
+      },
+      "automaticInputAllowed": false,
+      "savedDraftVerified": false
+    }
+  ],
+  "automaticInputAllowed": false,
+  "savedDraftVerified": false,
+  "phoneInput": false,
+  "publishing": false,
+  "messaging": false,
+  "kernelSha256": "c72fa4e0b02b82ec4f7a949c9a80375c69da68d7357084401c7bb422c194a873",
+  "reason": "Saved frame aged beyond the receiver-delivery budget; capture again.",
+  "retainedExpiry": {
+    "observationId": "df66b835-4d6f-4fa9-847b-a0572ab1c092",
+    "expired": true,
+    "freshness": "stale",
+    "frameEvidence": {
+      "freshness": "stale",
+      "pairedMetadata": true,
+      "ageUpperBoundMs": 13978.325999999986,
+      "deliveryAdvanced": false,
+      "phoneCaptureTimeKnown": false,
+      "meaning": "Age since kernel received this BMP, including this observation; not iOS capture time.",
+      "session": "47e3e1c0dd3f42e48876070e71d5b193",
+      "sequence": 1573,
+      "reportedAgeMs": 13463.326,
+      "observationElapsedMs": 514.9999999999864,
+      "reason": "Saved frame aged beyond the receiver-delivery budget; capture again.",
+      "currentAgeUpperBoundMs": 15697.326000000037
+    },
+    "recaptured": false
+  },
+  "metadataCheckPassed": false,
+  "meaning": "Receiver-delivery evidence only, not iOS source time, app identity or a saved draft."
+}

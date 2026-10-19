@@ -1,0 +1,56 @@
+Traceback (most recent call last):
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1286, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1332, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1281, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1041, in _send_output
+    self.send(msg)
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 979, in send
+    self.connect()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 945, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 851, in create_connection
+    raise exceptions[0]
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 836, in create_connection
+    sock.connect(sa)
+PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\farm-continuation-20261016\run-offline-server-check.py", line 19, in <module>
+    runpy.run_path(str(script), run_name="__main__")
+  File "<frozen runpy>", line 291, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_farm_server.py", line 708, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_farm_server.py", line 686, in main
+    self_check()
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\imouse_farm_server.py", line 587, in self_check
+    with urllib.request.urlopen(f"{base}/api/farm/state", timeout=5.0) as r:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 519, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 496, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1377, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions>

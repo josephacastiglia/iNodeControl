@@ -1,0 +1,226 @@
+{
+  "imageSha256": "332f47c48094938b67478a2363af63e7975724f29e41844f89edf02369a68558",
+  "provider": "windows-ocr",
+  "language": "en-US",
+  "lines": [
+    {
+      "text": "4:56",
+      "words": [
+        {
+          "y": 23,
+          "height": 15,
+          "width": 42,
+          "text": "4:56",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "Favorites",
+      "words": [
+        {
+          "y": 121,
+          "height": 21,
+          "width": 112,
+          "text": "Favorites",
+          "x": 60
+        }
+      ]
+    },
+    {
+      "text": "Apple",
+      "words": [
+        {
+          "y": 259,
+          "height": 14,
+          "width": 41,
+          "text": "Apple",
+          "x": 48
+        }
+      ]
+    },
+    {
+      "text": "Bing",
+      "words": [
+        {
+          "y": 259,
+          "height": 14,
+          "width": 30,
+          "text": "Bing",
+          "x": 174
+        }
+      ]
+    },
+    {
+      "text": "Google",
+      "words": [
+        {
+          "y": 259,
+          "height": 14,
+          "width": 50,
+          "text": "Google",
+          "x": 285
+        }
+      ]
+    },
+    {
+      "text": "yahoo!",
+      "words": [
+        {
+          "y": 193,
+          "height": 20,
+          "width": 70,
+          "text": "yahoo!",
+          "x": 396
+        }
+      ]
+    },
+    {
+      "text": "Yahoo",
+      "words": [
+        {
+          "y": 259,
+          "height": 12,
+          "width": 42,
+          "text": "Yahoo",
+          "x": 410
+        }
+      ]
+    },
+    {
+      "text": "Privacy Report",
+      "words": [
+        {
+          "y": 315,
+          "height": 25,
+          "width": 89,
+          "text": "Privacy",
+          "x": 27
+        },
+        {
+          "y": 316,
+          "height": 24,
+          "width": 81,
+          "text": "Report",
+          "x": 124
+        }
+      ]
+    },
+    {
+      "text": "In the last seven days, Safari has",
+      "words": [
+        {
+          "y": 392,
+          "height": 13,
+          "width": 13,
+          "text": "In",
+          "x": 100
+        },
+        {
+          "y": 391,
+          "height": 14,
+          "width": 26,
+          "text": "the",
+          "x": 119
+        },
+        {
+          "y": 391,
+          "height": 14,
+          "width": 28,
+          "text": "last",
+          "x": 151
+        },
+        {
+          "y": 395,
+          "height": 10,
+          "width": 47,
+          "text": "seven",
+          "x": 185
+        },
+        {
+          "y": 391,
+          "height": 18,
+          "width": 42,
+          "text": "days,",
+          "x": 238
+        },
+        {
+          "y": 391,
+          "height": 15,
+          "width": 46,
+          "text": "Safari",
+          "x": 286
+        },
+        {
+          "y": 391,
+          "height": 14,
+          "width": 27,
+          "text": "has",
+          "x": 339
+        }
+      ]
+    },
+    {
+      "text": "prevented O trackers from profiling you.",
+      "words": [
+        {
+          "y": 416,
+          "height": 17,
+          "width": 82,
+          "text": "prevented",
+          "x": 100
+        },
+        {
+          "y": 416,
+          "height": 14,
+          "width": 9,
+          "text": "O",
+          "x": 188
+        },
+        {
+          "y": 416,
+          "height": 14,
+          "width": 67,
+          "text": "trackers",
+          "x": 203
+        },
+        {
+          "y": 416,
+          "height": 14,
+          "width": 37,
+          "text": "from",
+          "x": 275
+        },
+        {
+          "y": 416,
+          "height": 17,
+          "width": 65,
+          "text": "profiling",
+          "x": 319
+        },
+        {
+          "y": 419,
+          "height": 14,
+          "width": 34,
+          "text": "you.",
+          "x": 390
+        }
+      ]
+    },
+    {
+      "text": "192.168.4.26:5908/onboarding",
+      "words": [
+        {
+          "y": 947,
+          "height": 20,
+          "width": 281,
+          "text": "192.168.4.26:5908/onboarding",
+          "x": 36
+        }
+      ]
+    }
+  ],
+  "height": 1080,
+  "width": 500,
+  "frameSha256": "332f47c48094938b67478a2363af63e7975724f29e41844f89edf02369a68558"
+}

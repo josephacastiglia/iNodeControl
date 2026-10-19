@@ -1,0 +1,17 @@
+test_busy_manual_operation_defers_preparation (test_farm_preparation_schedule.PreparationTests.test_busy_manual_operation_defers_preparation) ... ok
+test_clock_rollback_does_not_create_duplicate (test_farm_preparation_schedule.PreparationTests.test_clock_rollback_does_not_create_duplicate) ... ok
+test_default_no_work_then_runs_at_due_time_and_stops_at_limit (test_farm_preparation_schedule.PreparationTests.test_default_no_work_then_runs_at_due_time_and_stops_at_limit) ... ok
+test_duplicate_configuration_does_not_reenable_paused_work (test_farm_preparation_schedule.PreparationTests.test_duplicate_configuration_does_not_reenable_paused_work) ... ok
+test_failed_or_empty_render_is_held_without_retry (test_farm_preparation_schedule.PreparationTests.test_failed_or_empty_render_is_held_without_retry) ... ok
+test_live_actions_and_other_targets_cannot_be_scheduled (test_farm_preparation_schedule.PreparationTests.test_live_actions_and_other_targets_cannot_be_scheduled) ... ok
+test_missed_runs_skip_instead_of_catchup_burst (test_farm_preparation_schedule.PreparationTests.test_missed_runs_skip_instead_of_catchup_burst) ... ok
+test_pause_cancels_an_inflight_configuration_before_it_arrives (test_farm_preparation_schedule.PreparationTests.test_pause_cancels_an_inflight_configuration_before_it_arrives) ... ok
+test_profile_pause_and_early_phase_hold_without_rendering (test_farm_preparation_schedule.PreparationTests.test_profile_pause_and_early_phase_hold_without_rendering) ... ok
+test_restart_with_running_record_holds_and_never_replays (test_farm_preparation_schedule.PreparationTests.test_restart_with_running_record_holds_and_never_replays) ... ok
+test_second_backend_cannot_recover_or_execute_current_render (test_farm_preparation_schedule.PreparationTests.test_second_backend_cannot_recover_or_execute_current_render) ... ok
+test_worker_executes_without_ui_heartbeat_and_closes (test_farm_preparation_schedule.PreparationTests.test_worker_executes_without_ui_heartbeat_and_closes) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 1.250s
+
+OK

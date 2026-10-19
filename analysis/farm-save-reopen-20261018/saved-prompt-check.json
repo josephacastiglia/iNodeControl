@@ -1,0 +1,281 @@
+{
+  "source": "archived_phone_frame_not_current_live_validation",
+  "frameSha256": "191fe104a10225dd4d85095f4dec59b695f2a229c9954db5cd1a35708eab79c3",
+  "promptRecognized": true,
+  "classification": "unknown",
+  "text": {
+    "imageSha256": "191fe104a10225dd4d85095f4dec59b695f2a229c9954db5cd1a35708eab79c3",
+    "provider": "windows-ocr",
+    "language": "en-US",
+    "lines": [
+      {
+        "text": "5:05",
+        "words": [
+          {
+            "y": 23,
+            "height": 15,
+            "width": 41,
+            "text": "5:05",
+            "x": 43
+          }
+        ]
+      },
+      {
+        "text": "iMouse 2.0",
+        "words": [
+          {
+            "y": 215,
+            "height": 18,
+            "width": 83,
+            "text": "iMouse",
+            "x": 38
+          },
+          {
+            "y": 215,
+            "height": 18,
+            "width": 33,
+            "text": "2.0",
+            "x": 130
+          }
+        ]
+      },
+      {
+        "text": "CAROUSEL TRANSFER TEST",
+        "words": [
+          {
+            "y": 279,
+            "height": 16,
+            "width": 111,
+            "text": "CAROUSEL",
+            "x": 37
+          },
+          {
+            "y": 279,
+            "height": 16,
+            "width": 110,
+            "text": "TRANSFER",
+            "x": 155
+          },
+          {
+            "y": 279,
+            "height": 16,
+            "width": 49,
+            "text": "TEST",
+            "x": 272
+          }
+        ]
+      },
+      {
+        "text": "SLIDE 1 OF 3",
+        "words": [
+          {
+            "y": 593,
+            "height": 24,
+            "width": 85,
+            "text": "SLIDE",
+            "x": 38
+          },
+          {
+            "y": 593,
+            "height": 23,
+            "width": 10,
+            "text": "1",
+            "x": 137
+          },
+          {
+            "y": 593,
+            "height": 24,
+            "width": 40,
+            "text": "OF",
+            "x": 163
+          },
+          {
+            "y": 593,
+            "height": 24,
+            "width": 15,
+            "text": "3",
+            "x": 215
+          }
+        ]
+      },
+      {
+        "text": "DRAFT ONLY",
+        "words": [
+          {
+            "y": 661,
+            "height": 21,
+            "width": 91,
+            "text": "DRAFT",
+            "x": 39
+          },
+          {
+            "y": 661,
+            "height": 21,
+            "width": 78,
+            "text": "ONLY",
+            "x": 140
+          }
+        ]
+      },
+      {
+        "text": "DO NOT PUBLISH",
+        "words": [
+          {
+            "y": 705,
+            "height": 18,
+            "width": 34,
+            "text": "DO",
+            "x": 38
+          },
+          {
+            "y": 705,
+            "height": 18,
+            "width": 51,
+            "text": "NOT",
+            "x": 82
+          },
+          {
+            "y": 705,
+            "height": 18,
+            "width": 99,
+            "text": "PUBLISH",
+            "x": 143
+          }
+        ]
+      },
+      {
+        "text": "If you go back now, your edits will be discarded.",
+        "words": [
+          {
+            "y": 793,
+            "height": 13,
+            "width": 10,
+            "text": "If",
+            "x": 58
+          },
+          {
+            "y": 796,
+            "height": 13,
+            "width": 28,
+            "text": "you",
+            "x": 73
+          },
+          {
+            "y": 796,
+            "height": 13,
+            "width": 20,
+            "text": "go",
+            "x": 106
+          },
+          {
+            "y": 793,
+            "height": 13,
+            "width": 39,
+            "text": "back",
+            "x": 131
+          },
+          {
+            "y": 796,
+            "height": 13,
+            "width": 35,
+            "text": "now,",
+            "x": 175
+          },
+          {
+            "y": 796,
+            "height": 13,
+            "width": 36,
+            "text": "your",
+            "x": 217
+          },
+          {
+            "y": 793,
+            "height": 13,
+            "width": 39,
+            "text": "edits",
+            "x": 257
+          },
+          {
+            "y": 793,
+            "height": 13,
+            "width": 27,
+            "text": "will",
+            "x": 301
+          },
+          {
+            "y": 793,
+            "height": 13,
+            "width": 20,
+            "text": "be",
+            "x": 333
+          },
+          {
+            "y": 793,
+            "height": 13,
+            "width": 84,
+            "text": "discarded.",
+            "x": 358
+          }
+        ]
+      },
+      {
+        "text": "Discard",
+        "words": [
+          {
+            "y": 856,
+            "height": 15,
+            "width": 65,
+            "text": "Discard",
+            "x": 218
+          }
+        ]
+      },
+      {
+        "text": "Save draft",
+        "words": [
+          {
+            "y": 922,
+            "height": 15,
+            "width": 41,
+            "text": "Save",
+            "x": 206
+          },
+          {
+            "y": 921,
+            "height": 15,
+            "width": 41,
+            "text": "draft",
+            "x": 253
+          }
+        ]
+      },
+      {
+        "text": "Cancel",
+        "words": [
+          {
+            "y": 999,
+            "height": 15,
+            "width": 58,
+            "text": "Cancel",
+            "x": 221
+          }
+        ]
+      },
+      {
+        "text": "x",
+        "words": [
+          {
+            "y": 187,
+            "height": 12,
+            "width": 12,
+            "text": "x",
+            "x": 464
+          }
+        ]
+      }
+    ],
+    "height": 1080,
+    "width": 500,
+    "frameSha256": "191fe104a10225dd4d85095f4dec59b695f2a229c9954db5cd1a35708eab79c3"
+  }
+}

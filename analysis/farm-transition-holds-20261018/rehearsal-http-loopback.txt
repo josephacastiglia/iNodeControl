@@ -1,0 +1,50 @@
+test_cancel_bypasses_operation_lock_even_during_lost_save_reply (test_farm_rehearsal_http.RehearsalHttpTests.test_cancel_bypasses_operation_lock_even_during_lost_save_reply) ... ok
+test_live_backend_cannot_run_rehearsal_or_route_to_phone (test_farm_rehearsal_http.RehearsalHttpTests.test_live_backend_cannot_run_rehearsal_or_route_to_phone) ... ok
+test_real_http_run_recover_history_frame_and_origin_without_kernel_access (test_farm_rehearsal_http.RehearsalHttpTests.test_real_http_run_recover_history_frame_and_origin_without_kernel_access) ... ERROR
+
+======================================================================
+ERROR: test_real_http_run_recover_history_frame_and_origin_without_kernel_access (test_farm_rehearsal_http.RehearsalHttpTests.test_real_http_run_recover_history_frame_and_origin_without_kernel_access)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_rehearsal_http.py", line 25, in test_real_http_run_recover_history_frame_and_origin_without_kernel_access
+    status,response=self.request(route,spec)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_http_jobs.py", line 52, in request
+    response = self.opener.open(request, timeout=5)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 519, in open
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals/6c20c1ab-becc-4a33-bf94-8b58376e5f8a/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/6c20c1ab-becc-4a33-bf94-8b58376e5f8a HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 400 -
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 496, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1377, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\urllib\request.py", line 1352, in do_open
+    r = h.getresponse()
+        ^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 1378, in getresponse
+    response.begin()
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 318, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: timed out
+
+----------------------------------------------------------------------
+Ran 3 tests in 9.630s
+
+FAILED (errors=1)

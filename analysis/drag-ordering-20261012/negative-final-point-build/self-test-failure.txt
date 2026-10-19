@@ -1,0 +1,6 @@
+System.Exception: Failed: Release and its final coordinate arrive atomically
+   at IMouse2.SelfTests.<>c__DisplayClass0_0.<RunAsync>g__Check|0(String name, Boolean ok) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\drag-ordering-20261012\negative-final-point\SelfTests.cs:line 350
+   at IMouse2.DragInputTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\drag-ordering-20261012\negative-final-point\DragInputTests.cs:line 64
+   at IMouse2.DragInputTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\drag-ordering-20261012\negative-final-point\DragInputTests.cs:line 202
+   at IMouse2.SelfTests.RunAsync() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\drag-ordering-20261012\negative-final-point\SelfTests.cs:line 621
+   at IMouse2.App.OnStartup(StartupEventArgs e) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\drag-ordering-20261012\negative-final-point\App.xaml.cs:line 164

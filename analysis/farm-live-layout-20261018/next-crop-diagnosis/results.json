@@ -1,0 +1,68 @@
+[
+  {
+    "name": "label-only",
+    "box": [
+      404,
+      987,
+      447,
+      1026
+    ],
+    "scale": 3,
+    "elapsedMs": 843.2496000004903,
+    "result": {
+      "imageSha256": "e241981c33737c108c45fbc24afed0537684d7aadc20ca8a37ef4266f868392a",
+      "provider": "windows-ocr",
+      "language": "en-US",
+      "lines": [
+        {
+          "text": "Next",
+          "words": [
+            {
+              "y": 39,
+              "height": 33,
+              "width": 94,
+              "text": "Next",
+              "x": 23
+            }
+          ]
+        }
+      ],
+      "height": 117,
+      "width": 129,
+      "frameSha256": "e241981c33737c108c45fbc24afed0537684d7aadc20ca8a37ef4266f868392a"
+    }
+  },
+  {
+    "name": "label-padding",
+    "box": [
+      400,
+      987,
+      447,
+      1026
+    ],
+    "scale": 4,
+    "elapsedMs": 556.0211000010895,
+    "result": {
+      "imageSha256": "173d616b944d7c4a567de8c2ca5478b2d200f855a6e200ca58b69e326ac5214a",
+      "provider": "windows-ocr",
+      "language": "en-US",
+      "lines": [
+        {
+          "text": "Next",
+          "words": [
+            {
+              "y": 52,
+              "height": 44,
+              "width": 125,
+              "text": "Next",
+              "x": 47
+            }
+          ]
+        }
+      ],
+      "height": 156,
+      "width": 188,
+      "frameSha256": "173d616b944d7c4a567de8c2ca5478b2d200f855a6e200ca58b69e326ac5214a"
+    }
+  }
+]

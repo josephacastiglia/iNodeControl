@@ -1,0 +1,211 @@
+{
+  "recordedUtc": "2026-10-18T22:58:50.992999+00:00",
+  "pythonTests": 355,
+  "pythonSeconds": 233.398,
+  "helperTests": 11,
+  "focusedTests": 43,
+  "protectedFiles": [
+    {
+      "path": "C:\\Users\\joey_\\AppData\\Roaming\\iMouse2\\settings.json",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-kernel-two-phone\\iMouse2.Kernel.dll",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\release\\iMouse2-two-phone-candidate\\iMouse2.dll",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\tools\\airplay\\uxplay\\build-imouse\\uxplay.exe",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\Open iMouse 2.0.ps1",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C241-before.bmp",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C241-binding-evidence.json",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C241-diagonal-second.bmp",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C241-diagonal-second.json",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C241-diagonal.bmp",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C241-diagonal.json",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C241-live.bmp",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C241-reset.bmp",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C241-reset.json",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C24C-after-calibration.bmp",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C24C-before-calibration.bmp",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\C24C-isolation-before.bmp",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\devices.json",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\kernel-stderr.log",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\kernel-stdout.log",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\pointer-calibration.json",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\receiver-C214.log",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\receivers.json",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\status.json",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\two-phone-config\\vendor-binding-evidence.json",
+      "matches": true
+    }
+  ],
+  "validatedSources": [
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-layout-20261018\\phone_step.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-layout-20261018\\prepare.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-layout-20261018\\Record-Preflight.ps1",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-layout-20261018\\Start-TestKernel.ps1",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-layout-20261018\\Stop-TestKernel.ps1",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-live-layout-20261018\\test_phone_step.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_capabilities.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_carousel_inspection.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_draft_media.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_draft_rehearsal.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_draft_verification.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_drafts.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_frame_evidence.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_jobs.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_live_verification.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_media_transfer.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_observations.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_preparation_schedule.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_screen_layout.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_test_network.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_transfers.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\farm_video.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\imouse_social_automation.py",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\Read-FarmImageText.ps1",
+      "matches": true
+    }
+  ],
+  "semanticActions": 19,
+  "reviewHolds": 5,
+  "fullAutomationAccepted": false,
+  "installedReleaseChanged": false
+}

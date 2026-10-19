@@ -1,0 +1,642 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:24",
+      "words": [
+        {
+          "y": 19,
+          "height": 13,
+          "width": 38,
+          "text": "6:24",
+          "x": 46
+        }
+      ]
+    },
+    {
+      "text": "< Add details",
+      "words": [
+        {
+          "y": 73,
+          "height": 23,
+          "width": 14,
+          "text": "<",
+          "x": 17
+        },
+        {
+          "y": 76,
+          "height": 19,
+          "width": 44,
+          "text": "Add",
+          "x": 57
+        },
+        {
+          "y": 75,
+          "height": 20,
+          "width": 75,
+          "text": "details",
+          "x": 111
+        }
+      ]
+    },
+    {
+      "text": "Title",
+      "words": [
+        {
+          "y": 137,
+          "height": 12,
+          "width": 28,
+          "text": "Title",
+          "x": 134
+        }
+      ]
+    },
+    {
+      "text": "IMOUSE-DRAFT-TEST-202610171",
+      "words": [
+        {
+          "y": 157,
+          "height": 24,
+          "width": 287,
+          "text": "IMOUSE-DRAFT-TEST-202610171",
+          "x": 135
+        }
+      ]
+    },
+    {
+      "text": "FT ONLY 0:02",
+      "words": [
+        {
+          "y": 258,
+          "height": 6,
+          "width": 9,
+          "text": "FT",
+          "x": 23
+        },
+        {
+          "y": 258,
+          "height": 7,
+          "width": 23,
+          "text": "ONLY",
+          "x": 35
+        },
+        {
+          "y": 257,
+          "height": 11,
+          "width": 31,
+          "text": "0:02",
+          "x": 72
+        }
+      ]
+    },
+    {
+      "text": "0)",
+      "words": [
+        {
+          "y": 543,
+          "height": 10,
+          "width": 17,
+          "text": "0)",
+          "x": 26
+        }
+      ]
+    },
+    {
+      "text": "Taylorx",
+      "words": [
+        {
+          "y": 336,
+          "height": 16,
+          "width": 54,
+          "text": "Taylorx",
+          "x": 74
+        }
+      ]
+    },
+    {
+      "text": "@TaylorlnYoga",
+      "words": [
+        {
+          "y": 356,
+          "height": 16,
+          "width": 111,
+          "text": "@TaylorlnYoga",
+          "x": 74
+        }
+      ]
+    },
+    {
+      "text": "Visibility",
+      "words": [
+        {
+          "y": 407,
+          "height": 14,
+          "width": 56,
+          "text": "Visibility",
+          "x": 64
+        }
+      ]
+    },
+    {
+      "text": "Public",
+      "words": [
+        {
+          "y": 429,
+          "height": 15,
+          "width": 55,
+          "text": "Public",
+          "x": 65
+        }
+      ]
+    },
+    {
+      "text": "Location",
+      "words": [
+        {
+          "y": 482,
+          "height": 15,
+          "width": 76,
+          "text": "Location",
+          "x": 65
+        }
+      ]
+    },
+    {
+      "text": "Select audience",
+      "words": [
+        {
+          "y": 545,
+          "height": 15,
+          "width": 56,
+          "text": "Select",
+          "x": 65
+        },
+        {
+          "y": 545,
+          "height": 15,
+          "width": 82,
+          "text": "audience",
+          "x": 126
+        }
+      ]
+    },
+    {
+      "text": "Regardless Of your location, you're legally required to comply with",
+      "words": [
+        {
+          "y": 601,
+          "height": 14,
+          "width": 74,
+          "text": "Regardless",
+          "x": 21
+        },
+        {
+          "y": 601,
+          "height": 12,
+          "width": 13,
+          "text": "Of",
+          "x": 100
+        },
+        {
+          "y": 604,
+          "height": 11,
+          "width": 29,
+          "text": "your",
+          "x": 118
+        },
+        {
+          "y": 601,
+          "height": 14,
+          "width": 56,
+          "text": "location,",
+          "x": 152
+        },
+        {
+          "y": 602,
+          "height": 13,
+          "width": 41,
+          "text": "you're",
+          "x": 214
+        },
+        {
+          "y": 601,
+          "height": 14,
+          "width": 42,
+          "text": "legally",
+          "x": 261
+        },
+        {
+          "y": 601,
+          "height": 14,
+          "width": 55,
+          "text": "required",
+          "x": 309
+        },
+        {
+          "y": 603,
+          "height": 10,
+          "width": 13,
+          "text": "to",
+          "x": 369
+        },
+        {
+          "y": 601,
+          "height": 14,
+          "width": 48,
+          "text": "comply",
+          "x": 387
+        },
+        {
+          "y": 602,
+          "height": 10,
+          "width": 28,
+          "text": "with",
+          "x": 440
+        }
+      ]
+    },
+    {
+      "text": "the Children's Online Privacy Protection Act (COPPA) and/or other",
+      "words": [
+        {
+          "y": 621,
+          "height": 11,
+          "width": 20,
+          "text": "the",
+          "x": 21
+        },
+        {
+          "y": 621,
+          "height": 11,
+          "width": 66,
+          "text": "Children's",
+          "x": 47
+        },
+        {
+          "y": 621,
+          "height": 11,
+          "width": 42,
+          "text": "Online",
+          "x": 119
+        },
+        {
+          "y": 621,
+          "height": 14,
+          "width": 48,
+          "text": "Privacy",
+          "x": 167
+        },
+        {
+          "y": 621,
+          "height": 11,
+          "width": 69,
+          "text": "Protection",
+          "x": 220
+        },
+        {
+          "y": 621,
+          "height": 11,
+          "width": 22,
+          "text": "Act",
+          "x": 294
+        },
+        {
+          "y": 621,
+          "height": 13,
+          "width": 57,
+          "text": "(COPPA)",
+          "x": 322
+        },
+        {
+          "y": 621,
+          "height": 13,
+          "width": 43,
+          "text": "and/or",
+          "x": 385
+        },
+        {
+          "y": 621,
+          "height": 11,
+          "width": 35,
+          "text": "other",
+          "x": 433
+        }
+      ]
+    },
+    {
+      "text": "laws. You're required to tell us whether your videos are made for",
+      "words": [
+        {
+          "y": 640,
+          "height": 11,
+          "width": 32,
+          "text": "laws.",
+          "x": 21
+        },
+        {
+          "y": 640,
+          "height": 11,
+          "width": 42,
+          "text": "You're",
+          "x": 59
+        },
+        {
+          "y": 640,
+          "height": 13,
+          "width": 55,
+          "text": "required",
+          "x": 106
+        },
+        {
+          "y": 641,
+          "height": 10,
+          "width": 13,
+          "text": "to",
+          "x": 166
+        },
+        {
+          "y": 640,
+          "height": 11,
+          "width": 20,
+          "text": "tell",
+          "x": 184
+        },
+        {
+          "y": 643,
+          "height": 8,
+          "width": 15,
+          "text": "us",
+          "x": 209
+        },
+        {
+          "y": 640,
+          "height": 11,
+          "width": 55,
+          "text": "whether",
+          "x": 229
+        },
+        {
+          "y": 643,
+          "height": 11,
+          "width": 29,
+          "text": "your",
+          "x": 289
+        },
+        {
+          "y": 640,
+          "height": 11,
+          "width": 43,
+          "text": "videos",
+          "x": 323
+        },
+        {
+          "y": 643,
+          "height": 8,
+          "width": 21,
+          "text": "are",
+          "x": 371
+        },
+        {
+          "y": 640,
+          "height": 11,
+          "width": 36,
+          "text": "made",
+          "x": 397
+        },
+        {
+          "y": 640,
+          "height": 11,
+          "width": 19,
+          "text": "for",
+          "x": 438
+        }
+      ]
+    },
+    {
+      "text": "kids. What's considered \"made for kids\"?",
+      "words": [
+        {
+          "y": 659,
+          "height": 12,
+          "width": 30,
+          "text": "kids.",
+          "x": 21
+        },
+        {
+          "y": 659,
+          "height": 12,
+          "width": 46,
+          "text": "What's",
+          "x": 57
+        },
+        {
+          "y": 659,
+          "height": 12,
+          "width": 74,
+          "text": "considered",
+          "x": 108
+        },
+        {
+          "y": 659,
+          "height": 12,
+          "width": 42,
+          "text": "\"made",
+          "x": 188
+        },
+        {
+          "y": 659,
+          "height": 12,
+          "width": 19,
+          "text": "for",
+          "x": 235
+        },
+        {
+          "y": 659,
+          "height": 12,
+          "width": 40,
+          "text": "kids\"?",
+          "x": 259
+        }
+      ]
+    },
+    {
+      "text": "Related video",
+      "words": [
+        {
+          "y": 697,
+          "height": 15,
+          "width": 67,
+          "text": "Related",
+          "x": 65
+        },
+        {
+          "y": 696,
+          "height": 16,
+          "width": 48,
+          "text": "video",
+          "x": 138
+        }
+      ]
+    },
+    {
+      "text": "Shorts remixing",
+      "words": [
+        {
+          "y": 750,
+          "height": 11,
+          "width": 43,
+          "text": "Shorts",
+          "x": 64
+        },
+        {
+          "y": 750,
+          "height": 14,
+          "width": 56,
+          "text": "remixing",
+          "x": 113
+        }
+      ]
+    },
+    {
+      "text": "Allow video and audio remixing",
+      "words": [
+        {
+          "y": 771,
+          "height": 15,
+          "width": 49,
+          "text": "Allow",
+          "x": 64
+        },
+        {
+          "y": 771,
+          "height": 15,
+          "width": 49,
+          "text": "video",
+          "x": 118
+        },
+        {
+          "y": 771,
+          "height": 15,
+          "width": 33,
+          "text": "and",
+          "x": 173
+        },
+        {
+          "y": 771,
+          "height": 15,
+          "width": 49,
+          "text": "audio",
+          "x": 212
+        },
+        {
+          "y": 771,
+          "height": 19,
+          "width": 77,
+          "text": "remixing",
+          "x": 267
+        }
+      ]
+    },
+    {
+      "text": "Paid promotion & brands",
+      "words": [
+        {
+          "y": 824,
+          "height": 15,
+          "width": 37,
+          "text": "Paid",
+          "x": 65
+        },
+        {
+          "y": 824,
+          "height": 19,
+          "width": 93,
+          "text": "promotion",
+          "x": 108
+        },
+        {
+          "y": 825,
+          "height": 14,
+          "width": 13,
+          "text": "&",
+          "x": 207
+        },
+        {
+          "y": 824,
+          "height": 15,
+          "width": 62,
+          "text": "brands",
+          "x": 226
+        }
+      ]
+    },
+    {
+      "text": "Invite a collaborator",
+      "words": [
+        {
+          "y": 887,
+          "height": 15,
+          "width": 48,
+          "text": "Invite",
+          "x": 65
+        },
+        {
+          "y": 891,
+          "height": 11,
+          "width": 9,
+          "text": "a",
+          "x": 119
+        },
+        {
+          "y": 887,
+          "height": 15,
+          "width": 110,
+          "text": "collaborator",
+          "x": 134
+        }
+      ]
+    },
+    {
+      "text": "Save draft",
+      "words": [
+        {
+          "y": 988,
+          "height": 15,
+          "width": 42,
+          "text": "Save",
+          "x": 84
+        },
+        {
+          "y": 988,
+          "height": 15,
+          "width": 43,
+          "text": "draft",
+          "x": 132
+        }
+      ]
+    },
+    {
+      "text": "Upload Short",
+      "words": [
+        {
+          "y": 989,
+          "height": 16,
+          "width": 56,
+          "text": "Upload",
+          "x": 318
+        },
+        {
+          "y": 989,
+          "height": 13,
+          "width": 44,
+          "text": "Short",
+          "x": 380
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "6f5f0f8df640d99a188baae7261f4c3e81fabb7bd0bf2ea38bcc618caf7e6e08"
+}

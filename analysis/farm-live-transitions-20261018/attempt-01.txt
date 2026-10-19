@@ -1,0 +1,1 @@
+{"state": "review_required", "cleanup": "confirmed", "error": "InspectionStopped: Transition capture exceeded its settling budget.", "folder": "analysis\\farm-live-transitions-20261018\\attempt-01"}

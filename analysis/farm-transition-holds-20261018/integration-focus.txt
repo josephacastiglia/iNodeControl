@@ -1,0 +1,16 @@
+test_known_loading_changes_settle_without_manual_review_or_repeating_actions (test_farm_draft_rehearsal.RehearsalTests.test_known_loading_changes_settle_without_manual_review_or_repeating_actions) ... ok
+test_cancel_while_waiting_for_indicator_does_not_repeat_save_or_navigate (test_farm_draft_rehearsal.RehearsalTests.test_cancel_while_waiting_for_indicator_does_not_repeat_save_or_navigate) ... ok
+test_cancel_bypasses_operation_lock_even_during_lost_save_reply (test_farm_rehearsal_http.RehearsalHttpTests.test_cancel_bypasses_operation_lock_even_during_lost_save_reply) ... FAIL
+
+======================================================================
+FAIL: test_cancel_bypasses_operation_lock_even_during_lost_save_reply (test_farm_rehearsal_http.RehearsalHttpTests.test_cancel_bypasses_operation_lock_even_during_lost_save_reply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_rehearsal_http.py", line 57, in test_cancel_bypasses_operation_lock_even_during_lost_save_reply
+    self.assertTrue(entered.wait(4))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 3 tests in 15.497s
+
+FAILED (failures=1)

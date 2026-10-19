@@ -1,0 +1,20 @@
+{
+  "arguments": [
+    "http://127.0.0.1:9913/api/",
+    "--data-dir",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\runtime-guard-20261013\\kernel\\data",
+    "--input-pid",
+    "C24C",
+    "--receivers",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\runtime-guard-20261013\\kernel\\data\\receivers.json",
+    "--receiver",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-runtime-guard-20261013\\payload\\receiver\\uxplay.exe",
+    "--receiver-runtime",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\staging\\combined-runtime-guard-20261013\\dependencies\\receiver-runtime\\runtime"
+  ],
+  "time_utc": "2026-10-13T04:56:03.1224556Z",
+  "console_started": false,
+  "pid": 19200,
+  "executable": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\runtime-guard-20261013\\kernel\\bin\\iMouse2.Kernel.exe",
+  "human_authorized": true
+}

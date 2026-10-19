@@ -1,0 +1,19 @@
+test_audio_header_loading_waits_for_strict_whole_editor_stability (test_farm_transitions.TransitionTests.test_audio_header_loading_waits_for_strict_whole_editor_stability) ... ok
+test_cancellation_and_capture_deadline_stop_without_retry (test_farm_transitions.TransitionTests.test_cancellation_and_capture_deadline_stop_without_retry) ... ok
+test_continuing_indicator_changes_hit_capture_bound (test_farm_transitions.TransitionTests.test_continuing_indicator_changes_hit_capture_bound) ... ok
+test_control_or_library_change_cannot_be_waited_away (test_farm_transitions.TransitionTests.test_control_or_library_change_cannot_be_waited_away) ... ok
+test_create_needs_every_exact_positioned_anchor_and_light_sheet (test_farm_transitions.TransitionTests.test_create_needs_every_exact_positioned_anchor_and_light_sheet) ... ok
+test_create_sheet_takes_precedence_over_background_profile_and_account (test_farm_transitions.TransitionTests.test_create_sheet_takes_precedence_over_background_profile_and_account) ... ok
+test_dialog_or_missing_controls_stop_even_if_next_frame_would_match (test_farm_transitions.TransitionTests.test_dialog_or_missing_controls_stop_even_if_next_frame_would_match) ... ok
+test_final_evidence_is_reaged_and_tampering_or_expiry_never_returns_ready (test_farm_transitions.TransitionTests.test_final_evidence_is_reaged_and_tampering_or_expiry_never_returns_ready) ... ok
+test_four_fresh_captures_allow_verification_between_six_and_eight_seconds (test_farm_transitions.TransitionTests.test_four_fresh_captures_allow_verification_between_six_and_eight_seconds) ... ok
+test_freshness_ownership_account_stream_or_duplicate_sequence_interrupts (test_farm_transitions.TransitionTests.test_freshness_ownership_account_stream_or_duplicate_sequence_interrupts) ... ok
+test_indicator_fade_waits_then_uses_new_stable_pair_without_ignoring_indicator (test_farm_transitions.TransitionTests.test_indicator_fade_waits_then_uses_new_stable_pair_without_ignoring_indicator) ... ok
+test_missing_or_old_next_proof_is_not_repaired_or_retried (test_farm_transitions.TransitionTests.test_missing_or_old_next_proof_is_not_repaired_or_retried) ... ok
+test_tiny_editor_action_change_is_not_diluted_by_full_screen_average (test_farm_transitions.TransitionTests.test_tiny_editor_action_change_is_not_diluted_by_full_screen_average) ... ok
+test_wrong_slide_or_page_count_stops_before_later_matching_frame (test_farm_transitions.TransitionTests.test_wrong_slide_or_page_count_stops_before_later_matching_frame) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 2.679s
+
+OK

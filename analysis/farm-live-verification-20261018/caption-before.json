@@ -1,0 +1,5 @@
+{
+  "status": "exact_visible_lines",
+  "visibleText": "iMouse carousel draft test.\nThree numbered slides in order: 1, 2, 3.\nDRAFT ONLY - do not publish.",
+  "reason": "Only the supported visible caption area was compared; hidden or truncated text cannot pass."
+}

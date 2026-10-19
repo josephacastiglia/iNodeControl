@@ -1,0 +1,4 @@
+# Versions used by the offline candidate checks on this Windows PC.
+Pillow==9.5.0
+numpy==2.3.1
+opencv-python-headless==5.0.0.93

@@ -1,0 +1,1 @@
+{"state": "review_required", "cleanup": "confirmed", "error": "InspectionStopped: Settling requires a fresh authenticated frame at every capture.", "folder": "analysis\\farm-live-transitions-20261018\\attempt-02"}

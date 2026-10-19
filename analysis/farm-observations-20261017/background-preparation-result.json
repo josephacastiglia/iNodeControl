@@ -1,0 +1,35 @@
+{
+  "schedule": {
+    "config": {
+      "id": "6c59a9a8-eb24-4e74-9d63-2b5ef55ad97f",
+      "enabled": false,
+      "state": "complete",
+      "deviceId": "C24C",
+      "intervalMinutes": 60,
+      "maxRuns": 1,
+      "completedRuns": 1,
+      "attemptedRuns": 1,
+      "nextDue": 1792289894.9041162,
+      "reason": "Run limit reached. No further work is scheduled."
+    },
+    "runs": [
+      {
+        "id": "10b2db35-8dc2-51e8-8e18-074b04f0606b",
+        "scheduleId": "6c59a9a8-eb24-4e74-9d63-2b5ef55ad97f",
+        "due": 1792286293.8972385,
+        "startedAt": 1792286294.9041162,
+        "state": "succeeded",
+        "itemCount": 5,
+        "finishedAt": 1792286295.1322694
+      }
+    ],
+    "workerRunning": true,
+    "workerError": null,
+    "phoneInput": false,
+    "publishing": false,
+    "messaging": false
+  },
+  "assetsChecked": 5,
+  "phoneCommands": 0,
+  "externalNetworkAllowed": false
+}

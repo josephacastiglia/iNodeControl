@@ -1,0 +1,26 @@
+[
+  {
+    "name": "without_layout_corroboration",
+    "failures": 1,
+    "errors": 0,
+    "regressionCaught": true
+  },
+  {
+    "name": "without_autoplay_exclusion",
+    "failures": 1,
+    "errors": 0,
+    "regressionCaught": true
+  },
+  {
+    "name": "without_control_stability_guard",
+    "failures": 1,
+    "errors": 0,
+    "regressionCaught": true
+  },
+  {
+    "name": "without_exact_next_guard",
+    "failures": 1,
+    "errors": 0,
+    "regressionCaught": true
+  }
+]

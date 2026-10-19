@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\farm-draft-continuity-20261018\replay_live.py", line 21, in <module>
+    if layout in ('carousel_editor','carousel_details'): assert result['layout']==layout,result
+                                                                ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'screen': 'unknown', 'layout': None, 'appPattern': None, 'expectedAppMatches': False, 'accountStatus': 'not_visible', 'observedHandles': [], 'captionStatus': 'needs_review', 'reason': 'The screen is not recognized.', 'automaticInputAllowed': False, 'savedDraftVerified': False, 'metrics': None, 'metricsReason': 'A screen count has no verified post identity or observation interval.'}

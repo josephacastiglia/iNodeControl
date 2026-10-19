@@ -1,0 +1,93 @@
+{
+  "provider": "windows-ocr",
+  "lines": [
+    {
+      "text": "6:52",
+      "words": [
+        {
+          "y": 22,
+          "height": 16,
+          "width": 42,
+          "text": "6:52",
+          "x": 42
+        }
+      ]
+    },
+    {
+      "text": "Cancel",
+      "words": [
+        {
+          "y": 91,
+          "height": 16,
+          "width": 61,
+          "text": "Cancel",
+          "x": 26
+        }
+      ]
+    },
+    {
+      "text": "Drafts",
+      "words": [
+        {
+          "y": 148,
+          "height": 12,
+          "width": 45,
+          "text": "Drafts",
+          "x": 113
+        }
+      ]
+    },
+    {
+      "text": "Drafts",
+      "words": [
+        {
+          "y": 91,
+          "height": 16,
+          "width": 57,
+          "text": "Drafts",
+          "x": 222
+        }
+      ]
+    },
+    {
+      "text": "Scheduled",
+      "words": [
+        {
+          "y": 148,
+          "height": 12,
+          "width": 76,
+          "text": "Scheduled",
+          "x": 327
+        }
+      ]
+    },
+    {
+      "text": "IMOUSE-VlDEO-DRAFT-TEST-20261017",
+      "words": [
+        {
+          "y": 215,
+          "height": 15,
+          "width": 344,
+          "text": "IMOUSE-VlDEO-DRAFT-TEST-20261017",
+          "x": 22
+        }
+      ]
+    },
+    {
+      "text": "IMOUSE-DRAFT-TEST-20261017",
+      "words": [
+        {
+          "y": 350,
+          "height": 15,
+          "width": 279,
+          "text": "IMOUSE-DRAFT-TEST-20261017",
+          "x": 22
+        }
+      ]
+    }
+  ],
+  "width": 500,
+  "language": "en-US",
+  "height": 1080,
+  "frameSha256": "3b437494c23664c3b95b0620d9371fcc0feeed31d28d8c330d14316efbd56a0a"
+}
