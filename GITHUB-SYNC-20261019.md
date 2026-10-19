@@ -60,7 +60,7 @@ These additional lines retain their own history:
 `analysis/github-sync-20261019/audit.json` records exact tips and snapshot results.
 Each snapshot also contains a SHA-256 manifest of every selected source file.
 No history is force-pushed, no branch is merged, and `main` is unchanged.
-The post-push verification record is added after reading GitHub's actual refs.
+`analysis/github-sync-20261019/remote-verification.json` records direct GitHub verification: all 15 publishable local tips matched, all 16 remote branches remained, and five critical remote files matched their stored bytes. The documentation-only commit recording that proof is pushed and its tip checked separately.
 
 ## Privacy and local artifacts
 

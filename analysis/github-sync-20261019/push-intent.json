@@ -1,0 +1,28 @@
+{
+  "utc": "2026-10-19T06:48:12.757917+00:00",
+  "repository": "josephacastiglia/iNodeControl",
+  "updates": {
+    "refs/heads/claude/input-timeout-integration": "d0c4ccf2bf7bd7dcc1df99183d305700638e40c4",
+    "refs/heads/claude/vigorous-nightingale-2cc961": "ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a",
+    "refs/heads/handoff/fka-probe-working-tree-20261019": "ff5fde280634372979b163fffd93127de427ae48",
+    "refs/heads/handoff/gemini-and-local-records-20261019": "3d95ec846a82b0ed05edcb36a0e2ceeae4847ef3",
+    "refs/heads/handoff/orca-coordinator-reflog-20261002": "b946b942c82d909d0594ebdd22bb012d9b211753",
+    "refs/heads/handoff/orca-working-tree-20261019": "4eef760f66df53964252c4be9c0148ffcd2e1fdd",
+    "refs/heads/local/combined-candidate-20261012": "85b7342bf39c4b121cb07a2058e1781a4dc1d16d",
+    "refs/heads/local/coordinator-work": "01fb669a79e95700a086440b3e2905b0b511cdcb",
+    "refs/heads/local/fka-passthrough-probe": "d0c4ccf2bf7bd7dcc1df99183d305700638e40c4"
+  },
+  "before": {
+    "refs/heads/claude/focused-noether-s600e0": "6b24a961ef9eda626c5f72d08f4bb46bd5327453",
+    "refs/heads/claude/funny-margulis-86e51b": "43b43f7079424b84f8e5f433b0070c25ced48660",
+    "refs/heads/claude/gate4-harness-v2": "2c98f44823afa018b3d62897f438629e0755135d",
+    "refs/heads/claude/input-timeout-integration": "472bb04c74160a9dfbe81728d2c41cee3b16e9dd",
+    "refs/heads/claude/jovial-yonath-f044e9": "a6e4a9ba6bbe3e5c232af21f95c97c43caf150fe",
+    "refs/heads/claude/track-gate-evidence": "900f5b409bbe47e519914a17c53a3d645fe4cee0",
+    "refs/heads/handoff/main-uncommitted-20260925": "ba733c2bc5bb0c1d9cb69c02fb44e3a450f3bd87",
+    "refs/heads/main": "ee445d70e5f7e3cd9497a9162fc89ba9f6061e4a"
+  },
+  "excludedBackup": true,
+  "atomic": true,
+  "force": false
+}
