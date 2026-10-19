@@ -1,0 +1,170 @@
+{
+  "recordCommit": "c45af3eecafeef32f0692107acd8968f7e68c075",
+  "productSourceCommit": "4c9f5d6f6eb61c50b0edbe859c026fba7a154d6a",
+  "backendSourceHash": "d85eb8b5624feb272bbedd18d13db9e7719d908af32c22c044edc4254a639fb3",
+  "nativeSha256": "effa8083c8c71a7f1522cfaf9765de315e6bca9c18891c2a1bd42822bf49570a",
+  "nativeProbeSha256": "6800e1ea561b8f4c4af3c26b2b0a7d768822400d5c25bab92f5ee467b67a126e",
+  "requestId": "51ab5a8c-c655-4358-b0e2-7b4038b6d86a",
+  "acceptance": {
+    "passed": true,
+    "checks": {
+      "verifiedSaveReopen": true,
+      "nativePassed": true,
+      "exactlyOneSubmission": true,
+      "noCancellationOrAutomaticResume": true,
+      "completeSemanticSequence": true,
+      "delayRanOnce": true,
+      "originalSaveDefinitelyUnsent": true,
+      "refreshedSaveAnswered": true,
+      "twoTransportSavesOnly": true,
+      "onePreparedPromptRefresh": true,
+      "independentFreshObservation": true,
+      "captionAndAccountHistory": true,
+      "cleanupConfirmed": true,
+      "evidenceExportVerified": true
+    },
+    "requestId": "51ab5a8c-c655-4358-b0e2-7b4038b6d86a",
+    "runId": "ee67af1a-17ee-4b15-be3b-e012fcd639d8",
+    "preparedSaveStates": [
+      "not_sent",
+      "answered"
+    ],
+    "reopenedSaveStates": [
+      "answered"
+    ],
+    "rejectedDecisionChecks": [
+      {
+        "stage": "before_dispatch_journal",
+        "observationId": "5f1057a7-e197-48ee-8e5f-1676e22e963b",
+        "evidenceRecordSha256": "6ec74573ad6b9c9adf276dcac0bc48df15e853ac7cd6bf84e697ac66db70c992",
+        "freshness": "recent",
+        "expired": false,
+        "frameAgeMs": 800.4329999990396
+      },
+      {
+        "stage": "before_transport",
+        "observationId": "5f1057a7-e197-48ee-8e5f-1676e22e963b",
+        "evidenceRecordSha256": "6ec74573ad6b9c9adf276dcac0bc48df15e853ac7cd6bf84e697ac66db70c992",
+        "freshness": "stale",
+        "expired": false,
+        "frameAgeMs": 2461.1739896850586
+      }
+    ],
+    "refreshedDecisionChecks": [
+      {
+        "stage": "before_dispatch_journal",
+        "observationId": "365d9086-2603-405c-b503-56e17eeaee21",
+        "evidenceRecordSha256": "8991c4b51378dfa1d3795d26f1d8042639571d3dc9b439854e22a56fab313366",
+        "freshness": "recent",
+        "expired": false,
+        "frameAgeMs": 847.9290000009604
+      },
+      {
+        "stage": "before_transport",
+        "observationId": "365d9086-2603-405c-b503-56e17eeaee21",
+        "evidenceRecordSha256": "8991c4b51378dfa1d3795d26f1d8042639571d3dc9b439854e22a56fab313366",
+        "freshness": "recent",
+        "expired": false,
+        "frameAgeMs": 862.9290000003783
+      }
+    ],
+    "promptRecoveries": [
+      {
+        "label": "prepared-save-once",
+        "kind": "save_prompt_fresh_decision",
+        "state": "fresh_decision",
+        "fromObservationId": "5f1057a7-e197-48ee-8e5f-1676e22e963b",
+        "rejectedCommandIndex": 37,
+        "priorActionState": "not_sent",
+        "maximumCaptures": 1,
+        "budgetSeconds": 4,
+        "phoneActionRetried": false,
+        "observationId": "365d9086-2603-405c-b503-56e17eeaee21",
+        "evidenceRecordSha256": "8991c4b51378dfa1d3795d26f1d8042639571d3dc9b439854e22a56fab313366"
+      }
+    ],
+    "fault": {
+      "kind": "local_pre_dispatch_age_delay",
+      "source": "test_only_backend_wrapper",
+      "state": "delay_completed",
+      "delaySeconds": 1.65,
+      "runId": "ee67af1a-17ee-4b15-be3b-e012fcd639d8",
+      "packageSha256": "6d71187d62c908bd7518f87afa21a12bd78f6a4309b4e9a5577d3e57329bf1b7",
+      "account": "xs.halle.xo",
+      "device": "C24C",
+      "commandIndex": 37,
+      "purpose": "prepared-save-once",
+      "evidenceRecordSha256": "6ec74573ad6b9c9adf276dcac0bc48df15e853ac7cd6bf84e697ac66db70c992",
+      "observationId": "5f1057a7-e197-48ee-8e5f-1676e22e963b",
+      "startedUtcEpoch": 1792379640.9845257,
+      "transportCalledByWrapper": false,
+      "publishing": false,
+      "messaging": false,
+      "desktopControl": false,
+      "elapsedSeconds": 1.6559999999990396,
+      "completedUtcEpoch": 1792379642.6369476
+    },
+    "phoneInputDevice": "C24C",
+    "desktopControl": false,
+    "publishing": false,
+    "messaging": false,
+    "appRestartPersistenceTested": false
+  },
+  "preparationChecks": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": true,
+    "phoneInput": false,
+    "desktopControl": false,
+    "network": "all sockets denied"
+  },
+  "protectedFilesUnchanged": 25,
+  "promptRecoveryLiveValidated": true,
+  "existingTestDraftSaveReopenValidated": true,
+  "generalUnattendedProductAccepted": false,
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false,
+  "inputDevices": [
+    "C24C"
+  ],
+  "installedReleaseChanged": false,
+  "restoration": {
+    "capturedUtc": "2026-10-19T03:16:04.1638787Z",
+    "initialState": "stopped",
+    "finalState": "stopped",
+    "processes": [],
+    "tcpListeners": [],
+    "udpEndpoints": [],
+    "installedReleaseStarted": false,
+    "desktopControl": false
+  },
+  "wrapperSha256": "4172f485abda38e05891b31081030d73ff9dad7e0c3f6a576d838c1715681cc0",
+  "sourceHashes": {
+    "tools/imouse_farm_server.py": "8ae3d46d27ee9745a5b1a1a6c21221c0436dc5937bf9437fe1a3a407e565118f",
+    "tools/imouse_social_automation.py": "4ff2de0e78cf36e08fbf8057ee1e73521fe935fd17bf41d3fa1cc2953cfbf9e4",
+    "tools/farm_jobs.py": "df39dfb188c42d6035c20d70da11ec8edbe697e559054ad94851ee4eb178bde4",
+    "tools/farm_drafts.py": "aa4122f823055ac8070e55995d322223fc0050c21ed35ecd348db1f0cf44d71e",
+    "tools/farm_media_transfer.py": "117067930a12f5dc17cf2a9f55499a7ebb1aec477aadd0458e038dd946bafae3",
+    "tools/farm_transfers.py": "9ca8004fea938d346117b3a216602338980a54b43391985fc313b8c1c9d1aca8",
+    "tools/farm_capabilities.py": "4cedef5ed89fba585450516607173b4afc95751ceffc8b42b6798573fac9e18d",
+    "tools/farm_video.py": "080a8aa82bdcadbcd917d22ea08ec8a73c94c6305abe66613d56a6fcab3ad204",
+    "tools/farm_observations.py": "fac0754d5ca160d04340b60933f6cbb923e414161de6e26ddf97deaf8bf8f47a",
+    "tools/Read-FarmImageText.ps1": "1065871b757273ebcc41ba716942f87c9273bb940df58bc0176af1fe02189d08",
+    "tools/farm_preparation_schedule.py": "8bc713684cc15c6ed2c0c28413af1060284a793205f74c9c300c71970c8a3d4c",
+    "tools/farm_frame_evidence.py": "59a6baf5dcaa75b0a9bb7b70c4ab5e0bdb341a3a9508edc3571b7add0c36b4a4",
+    "tools/farm_draft_verification.py": "2cc13942941d2ff1d3746b466bed1146e30f562862cdd83d6a40d00f677cb951",
+    "tools/farm_draft_media.py": "3db8bc762a89b52e965644355b20cb106852d2bd570b28f53b25a85d3fb216a5",
+    "tools/farm_carousel_inspection.py": "03a6386d39bfde9551b7a06bac7a10b7479c6d95593acf96fe18bee03944e79e",
+    "tools/farm_draft_rehearsal.py": "863bad817c5eb39df2caa9b2f86a6a436b361f2875c54d520ba724d7dd0ee16c",
+    "tools/farm_screen_layout.py": "c6b5cfd9dfcde35a9fed50082d8c7a1a20fa18fcc532203e7fb824b8ce7095a3",
+    "tools/farm_transitions.py": "39eea6cd50afdaac97e4dd25f590a46ec058390e60f1f15fa712e6f04275407a",
+    "tools/farm_live_verification.py": "d03d1fa8d61eb7c3f041836b31ee29dbdb9821e4f13d858bf30bb06d4191133a",
+    "tools/farm_draft_transport.py": "58143fe3ebf0fb2ddb1f2f8cad6552ed636ebe5768f0a3dcd23873105c1b5c15",
+    "tools/farm_draft_workflow.py": "76c98792051210aba31f0e3918c591b14dcbecf69a52282544db6f8e990d21be",
+    "tools/farm_draft_runs.py": "0d327940a6471a73222cc3ef8852371b99bb1bd90612132d69c3881a6416d1cf",
+    "tools/farm_draft_anchors.json": "4ff12a9044ac08b05beeaaf65d901e09547446db210eace8269870babfbb955b"
+  }
+}
