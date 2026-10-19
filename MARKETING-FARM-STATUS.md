@@ -33,6 +33,23 @@ byte-identical Reel page show this. A fresh TikTok window is prepared, and the
 Reel window was re-prepared on the same backend. Each waits for an agreed time.
 [Design, evidence limits and live plan](analysis/farm-tiktok-draft-20261019/README.md).
 
+## Waiting on the operator (19 Oct)
+
+- **Two live windows are prepared** and share one backend fingerprint:
+  - Reel: start on the Instagram profile.
+  - TikTok: start on the TikTok profile.
+
+  Each needs an agreed time and C24C mirroring connected. Nothing else physical is
+  expected unless a first-time permission prompt appears. Steps are in each
+  record's section 5.
+- **X adapter:** which X account is authorized on C24C? On 17 Oct the X app was
+  signed in to a different handle than @xs.halle.xo. The route is mapped and the
+  adapter is not built ([groundwork](analysis/farm-x-draft-20261019/README.md)).
+- **YouTube Short:** its optional permission prompt needed a physical tap on 17
+  Oct. Setup must resolve it before any unattended claim.
+- **TikTok photo carousel:** on 17 Oct a suggested sound stayed attached. Should
+  a photo draft also have to be silent?
+
 ## Previous: Priority 3 — Instagram Reel draft candidate prepared offline
 
 **Implemented and tested offline; not live-accepted and disabled by default.**
