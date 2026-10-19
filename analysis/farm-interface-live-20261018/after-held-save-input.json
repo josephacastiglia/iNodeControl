@@ -1,0 +1,20 @@
+{
+  "capturedUtcEpoch": 1792377042.3259196,
+  "input": {
+    "id": "86:1D:4A:04:2F:F6",
+    "owned": false,
+    "active": false,
+    "stopped": false,
+    "releasing": false,
+    "release_failed": false,
+    "message": "Controller released.",
+    "generation": 1,
+    "lease_remaining_ms": 0
+  },
+  "receiver": {
+    "pid": 10984,
+    "live": true,
+    "restarts": 0
+  },
+  "phoneInput": false
+}

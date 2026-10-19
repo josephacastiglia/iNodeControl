@@ -1,8 +1,42 @@
 # Integrated draft workflow — fresh C24C acceptance
 
-**Preparation passed; awaiting the operator's C24C connection.** No live result
-is implied by an offline pass. The private kernel/receiver and backend are ready;
-no phone input has been sent.
+**First fresh attempt blocked before Save; acceptance remains open.** The operator
+connected C24C and the integrated workflow ran. The separate cooperative Stop
+check is pending a return to the authorized profile. No publishing, messaging,
+PC control, C241 input or installed-release changes occurred.
+
+## Fresh attempt 1 — 18 October, 22:26–22:27 local
+
+The native marketing view submitted one request, retained its bookmark after the
+test driver discarded the submission response, and a recreated view retrieved
+that same request without replay. Nine semantic actions completed: opening the
+test draft, inspecting all three slides and the full caption, and opening the
+Save draft sheet. The tenth action, `prepared-save-once`, remained **not_sent**;
+its transport command is also **not_sent**. No Save was sent by this attempt.
+
+The fresh/intact-frame check rejected that decision before transport. The saved
+capture was initially 673.3 ms old; the journal does not retain its exact age at
+the later rejection, so the precise time-consuming stage is not established.
+Do not call this a successful save/reopen or weaken the 1,500 ms limit.
+
+Cleanup is confirmed: C24C is free, generation 1, with no held input. The same
+receiver remains live with zero restarts. Nineteen exported frames match their
+recorded hashes. The native result correctly remained review-only; its test
+driver consequently failed the expected successful-save assertion. `jobStatus`
+is `succeeded` because execution returned its recorded review result, **not**
+because the draft was verified. The explicit `savedDraftVerified` is false.
+
+The phone was left on the Save draft confirmation. The operator was asked to
+physically save this existing test draft and close the picker to the profile;
+that intervention is pending and must not be counted as automated acceptance.
+No new workflow has started. The initial read-only profile capture was stale
+on a quiet screen; the product's existing move-only challenge then obtained
+fresh observations before any tap, without changing the freshness policy.
+
+`live-results.json` summarizes the run; `live-response-loss/backend-evidence/`
+preserves its journal, a read-only SQLite backup and verified frame copies.
+The short offline journal timing probe had a reader sharing error and does not
+establish the live timing cause. No optimization was applied on that basis.
 
 ## Preparation findings
 

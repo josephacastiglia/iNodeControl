@@ -1,0 +1,93 @@
+{
+  "live-response-loss": {
+    "requestId": "1b4c155c-0697-4466-bd17-4c0e4aea956a",
+    "storeId": "e135f1a8-cce6-4439-b4d1-2e04734752f9",
+    "state": "review_required",
+    "reason": "InspectionStopped: The decision has no fresh, intact C24C frame under this ownership.",
+    "savedDraftVerified": false,
+    "jobStatus": "succeeded",
+    "cleanup": "confirmed",
+    "nativeDriverPassed": false,
+    "nativeChecksPassed": 13,
+    "nativeChecksFailed": [
+      "Native view recognizes verified saved draft"
+    ],
+    "submissionCount": 1,
+    "cancellationCount": 0,
+    "actionCount": 10,
+    "actionStates": [
+      {
+        "label": "open-create",
+        "state": "answered"
+      },
+      {
+        "label": "choose-post-format",
+        "state": "answered"
+      },
+      {
+        "label": "open-prepared-library",
+        "state": "answered"
+      },
+      {
+        "label": "open-prepared-test-draft",
+        "state": "answered"
+      },
+      {
+        "label": "prepared-slide-2",
+        "state": "answered"
+      },
+      {
+        "label": "prepared-slide-3",
+        "state": "answered"
+      },
+      {
+        "label": "prepared-details",
+        "state": "answered"
+      },
+      {
+        "label": "prepared-back",
+        "state": "answered"
+      },
+      {
+        "label": "prepared-exit-sheet",
+        "state": "answered"
+      },
+      {
+        "label": "prepared-save-once",
+        "state": "not_sent"
+      }
+    ],
+    "saveCommands": [
+      {
+        "fun": "/mouse/click",
+        "data": {
+          "x": 250,
+          "y": 929,
+          "button": 1
+        },
+        "purpose": "prepared-save-once",
+        "state": "not_sent"
+      }
+    ],
+    "observedFrames": 19,
+    "exportedImagesVerified": 19,
+    "maxAgeAtCaptureMs": 844.0390000015425,
+    "accountHistory": null,
+    "finalInput": {
+      "id": "86:1D:4A:04:2F:F6",
+      "owned": false,
+      "active": false,
+      "stopped": false,
+      "releasing": false,
+      "release_failed": false,
+      "message": "Controller released.",
+      "generation": 1,
+      "lease_remaining_ms": 0
+    },
+    "publishing": false,
+    "messaging": false,
+    "desktopControl": false,
+    "source": "candidate_phone_workflow",
+    "nativeWindowHandles": null
+  }
+}
