@@ -1,6 +1,40 @@
 # Fresh C24C validation of bounded draft transitions
 
-18 October 2026. Validation of the five holds addressed in `c9d67f8`. **Attempt 1 held before opening the draft; a refined diagnostic is prepared for a separate attempt.** The installed release is unchanged. This is an explicitly invoked, bounded diagnostic; it does not enable a live marketing endpoint or claim unattended product acceptance.
+18 October 2026. Validation of the five holds addressed in `c9d67f8`. **Partial: individual transition and draft checks worked, but no complete automatic run passed.** Five attempts and five separate recovery operations are preserved. Freshness or timing guards stopped each acceptance attempt; no uncertain input was replayed. The installed release is unchanged. This explicitly invoked diagnostic does not enable a live marketing endpoint or claim unattended product acceptance.
+
+## Outcome
+
+| Check | Fresh-phone result |
+|---|---|
+| Create sheet recognition | Passed before the Post-format selection in all five attempts. |
+| Fading picker indicator | New stable pairs allowed progress, including four captures in attempt 2. Attempts 1 and 4 held on the six-second deadline; those failures remain failures. |
+| Fresh picker decision instead of approval of an old frame | Passed on the successful picker transitions. Every action used current owned evidence; no old screenshot approval was used. |
+| Changing editor suggestion header | Bounded recapture handled it, including three captures in attempt 2. Other freshness failures still stopped progress. |
+| Exact Next label | Fresh same-image crop evidence permitted the details transitions; full caption/account text was not repaired. |
+| Existing draft save/reopen, slides and caption | Attempt 3 saved and reopened the existing draft, verified all three slides in order and the full caption on both passes, saved on exit and returned to profile. |
+| One complete owned run with final account boundary | **Not passed.** Attempt 3's final account capture hit its 90-second deadline. Attempt 5 held before the reopen click because its evidence expired. |
+| Cleanup and installed-file preservation | All ten owned operations released C24C. The exact private kernel/receiver stopped normally; no rack processes/listeners remain. All 25 protected files match their original hashes. |
+
+There was no PC control, C241 input, publishing, messaging, media import, typing or FKA change. The initial rack state was stopped and has been restored. C24C is left in Instagram's Drafts library, with the labelled test carousel visible. Four Save commands were confirmed across the window (two in attempt 3, one in attempt 5, one in preservation recovery 3); they preserved the existing test draft. These counts do not establish a new post, new draft or server persistence.
+
+## Final offline follow-up
+
+The last live hold exposed repeated decoding in the library matcher: it opened the same screenshot for all 28 grid cells, then the diagnostic repeated that comparison before dispatch. The product matcher now decodes the screenshot once per comparison and renders each source image once. Cached pixels exist only inside that function call; a new frame or source package cannot reuse them. Every cell, gradient model, ambiguity rule and threshold is unchanged.
+
+On five retained live library frames, the complete result dictionaries were identical to the previous implementation. Comparison time fell from **299–351 ms to 59–71 ms**, approximately 4.6–5.2 times faster (`library-timing-comparison.json`). Twenty-nine focused media/account/draft checks passed, including duplicate covers and changed packages. **This final optimization has not run on C24C.** It is a measured offline improvement, not a fresh-phone pass.
+
+The diagnostic also now reports a guard-refused action as `not_sent` when no transport call occurred. Attempt 5's original immutable record has a conservative action-level `outcome_unknown`, but its command journal proves the reopen click was `not_sent`. Two regression cases distinguish this from a genuinely lost Save response, which remains unknown and never retries. No historical record was edited.
+
+## Final verification and preservation
+
+- **373/373 product Python tests passed**, no skips, in 334.268 seconds (`python-tests-final.txt`). These use synthetic/retained frames and allowlisted ephemeral mock services, not the rack.
+- **18/18 diagnostic workflow tests passed** in 85.498 seconds (`workflow-tests-final.txt`). The final suites include the last library and command-outcome changes. Earlier focused suites are supporting checks, not additional unique test totals.
+- Negative controls caught the old six-second timing policy and the old repeated-decoding implementation. The interrupted pre-library full-suite log is preserved and not counted as a pass.
+- Candidate launcher `-ValidateOnly` reports simulation mode and starts no processes; source fingerprint is `6bd2586b0e0f1ac2dc090e66e9b5502072e489e439994c52a9cf36e72171e745`. No native binary was rebuilt.
+- `final-validation.json` records the partial verdict, 105 verified exported phone images, all ten lease cleanups and the unchanged 25 protected files. The final source inventory is `validation-sources-v7.json`; versions 1–6 remain available for the exact earlier attempts.
+- Evidence, failed attempts, test logs, source snapshots and the test-media package are preserved outside the repository at `C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-evidence-archive\20261018-farm-live-transitions`, with SHA-256 checksums. The earlier preparation archive remains unchanged. Nothing was pushed, promoted or installed.
+
+One recovery capture took 2.1 seconds and was rejected before any click. The new library optimization does not establish that all processing spikes are eliminated. Repeated fresh-phone acceptance and measured capture-to-dispatch timing are still required before enabling unattended operation.
 
 ## Scope
 
@@ -43,9 +77,9 @@ Phone evidence shows that Back from details retains slide 3, whereas the earlier
 - All three lifecycle scripts parsed. No native binary was rebuilt. The prior 370 product tests are historical validation, not counted as a new run here.
 - Earlier failed checks remain retained: the sandbox blocked atomic replacement of temporary evidence files; normal file permissions resolved that environment limitation. A fixture run also exposed a missing caption argument in the final account-history audit; it was corrected before phone use.
 
-## Acceptance record to complete
+## Acceptance interpretation
 
-For each of the five former holds, record the fresh screen, captures, exact waiter outcome and whether the transient actually occurred. Passing its archived replay does not prove it was reproduced during this phone run. Report Save/reopen, all-slide/caption checks, sampled account continuity, cleanup and file preservation separately. Preserve failures and timing holds without relabelling them as successes.
+`live-results.json` indexes every retained operation and verifies all exported image hashes. Passing a screen or archived replay does not establish a successful complete workflow. No live interruption recovery, crash recovery, application restart, native-button-to-phone completion or unattended reliability acceptance is claimed. The next fresh test must use the final offline library optimization and complete both account boundaries under one ownership interval; stale evidence must still stop it.
 
 ## Attempt 1 and diagnostic refinement
 

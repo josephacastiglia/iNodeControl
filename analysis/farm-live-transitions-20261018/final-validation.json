@@ -1,0 +1,36 @@
+{
+  "status": "partial_live_validation",
+  "fullLivePasses": 0,
+  "liveAttempts": 5,
+  "separateRecoveries": 5,
+  "allOwnLeasesReleased": true,
+  "verifiedPhoneImages": 105,
+  "suites": [
+    {
+      "file": "python-tests-final.txt",
+      "passed": 373,
+      "seconds": 334.268
+    },
+    {
+      "file": "workflow-tests-final.txt",
+      "passed": 18,
+      "seconds": 85.498
+    }
+  ],
+  "finalSourceManifest": "validation-sources-v7.json",
+  "finalSourceManifestSha256": "1c11763be1e131ee0ee8aebbb6694216855fcbf9ed6a58caccd05a9e679d198a",
+  "finalOfflineOptimizationLiveValidated": false,
+  "protectedFiles": 25,
+  "installedUnchanged": true,
+  "initialStoppedStateRestored": true,
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false,
+  "C241Input": false,
+  "productionLiveAdapterEnabled": false,
+  "remaining": [
+    "Fresh C24C acceptance using final library optimization",
+    "Complete both account boundaries in one owned run",
+    "Real interruption/crash recovery and native-button integration"
+  ]
+}

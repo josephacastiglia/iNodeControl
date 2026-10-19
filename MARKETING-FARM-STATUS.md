@@ -1,8 +1,12 @@
 # Marketing Farm candidate — 18 October 2026
 
-## Prepared: fresh C24C transition validation
+## Latest: fresh C24C validation remains partial
 
-A bounded diagnostic now uses the shared transition guard across the full existing-draft save/reopen path under one lease. **50 preparation checks pass**, including full-flow retained-screen fixtures, cancellation and lost Save replies. Actual Windows OCR recognizes the required profile/Create/Next controls. The private C24C runtime passed startup validation; installed files and native binaries are unchanged. Fresh-phone execution remains pending, and no production live endpoint is enabled. [Prepared method and evidence](analysis/farm-live-transitions-20261018/README.md).
+Fresh C24C checks recognized Create, waited through picker/editor loading changes, and used exact Next-label evidence. One attempt saved/reopened the existing carousel and verified all three slides/caption, but exceeded its operation deadline before the final account capture. Later attempts still held on freshness/timing. **No complete automatic run passed, and unattended operation stays disabled.** All failed attempts and scoped recovery operations are retained.
+
+The OCR bridge now reads the screen and fixed Next crop in one process; measured editor processing fell from about 0.9 seconds to 0.5–0.6 seconds. The final offline library optimization preserves identical comparison results while reducing measured matching from 299–351 ms to 59–71 ms; it still needs fresh-phone validation. The diagnostic distinguishes a guard-refused `not_sent` click from a lost response and exports duplicate images after cleanup. Read-only settling now allows eight seconds/four captures, with the unchanged 1,500 ms per-frame age limit. The full diagnostic has a fixed 120-second budget; the existing shorter inspector retains 90 seconds.
+
+**373 product regressions and 18 diagnostic workflow tests pass.** The private kernel/receiver stopped normally, the initially stopped rack state is restored, and all 25 protected installed-release/settings files are unchanged. C24C is free in Instagram's Drafts library; C241 received no input. No PC control, publishing, messaging or FKA change occurred. The installed release and native binaries remain unchanged. [Complete evidence, failures and next acceptance check](analysis/farm-live-transitions-20261018/README.md).
 
 ## Latest offline work: bounded handling of the five review holds
 

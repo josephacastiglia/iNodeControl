@@ -12,14 +12,22 @@ def media_comparison(frame, assets, layout):
         # A fixed four-column library: scan its seven fully visible rows, not arbitrary crops.
         # Multiple identical covers remain ambiguous even if their captions might differ.
         candidates=[]; matches=[]
-        for row in range(7):
-            for column in range(4):
-                box=(column*125,111+row*125,column*125+124,235+row*125)
-                result=_compare(frame,assets,layout,box)
-                if result['status']=='insufficient_detail': continue
-                result['libraryCell']=dict(row=row+1,column=column+1)
-                candidates.append(result)
-                if result['matchedIndex']==1: matches.append(result)
+        width,height=image_size(frame)
+        if abs(width/height - 500/1080) > .01:
+            return dict(status='unsupported_geometry',matchedIndex=None)
+        # Decode once per comparison, not once per grid cell. Source renderings
+        # are also local to this call; no pixels or results survive into another
+        # frame, source package or ownership interval.
+        with Image.open(io.BytesIO(frame)) as source, source.convert('RGB') as decoded:
+            prepared=dict(image=decoded,size=(width,height),targets={})
+            for row in range(7):
+                for column in range(4):
+                    box=(column*125,111+row*125,column*125+124,235+row*125)
+                    result=_compare(frame,assets,layout,box,prepared=prepared)
+                    if result['status']=='insufficient_detail': continue
+                    result['libraryCell']=dict(row=row+1,column=column+1)
+                    candidates.append(result)
+                    if result['matchedIndex']==1: matches.append(result)
         if len(matches)==1:
             return {**matches[0],'candidateCells':len(candidates),'matchingCovers':1}
         return dict(status='ambiguous_library' if matches else 'no_matching_cover',matchedIndex=None,
@@ -27,17 +35,20 @@ def media_comparison(frame, assets, layout):
     return _compare(frame,assets,layout)
 
 
-def _compare(frame, assets, layout, library_bounds=None):
+def _compare(frame, assets, layout, library_bounds=None, *, prepared=None):
     bounds = {'carousel_details': (20,126,260,426), 'carousel_editor': (0,164,500,789),
               'draft_library_candidate': library_bounds or (0,111,124,235)}
     if layout not in bounds: return dict(status='unsupported_layout', matchedIndex=None)
-    width, height = image_size(frame)
+    width, height = prepared['size'] if prepared is not None else image_size(frame)
     if abs(width/height - 500/1080) > .01: return dict(status='unsupported_geometry', matchedIndex=None)
     library = layout == 'draft_library_candidate'
     size = (100,100) if library else (100,125)
-    with Image.open(io.BytesIO(frame)) as image:
-        box = tuple(round(v*(width/500 if i%2 == 0 else height/1080)) for i,v in enumerate(bounds[layout]))
-        observed = np.asarray(image.convert('RGB').crop(box).resize(size, Image.Resampling.LANCZOS), dtype=float)/255
+    box = tuple(round(v*(width/500 if i%2 == 0 else height/1080)) for i,v in enumerate(bounds[layout]))
+    if prepared is not None:
+        observed = np.asarray(prepared['image'].crop(box).resize(size,Image.Resampling.LANCZOS),dtype=float)/255
+    else:
+        with Image.open(io.BytesIO(frame)) as image:
+            observed = np.asarray(image.convert('RGB').crop(box).resize(size, Image.Resampling.LANCZOS), dtype=float)/255
     mask = np.ones(observed.shape[:2], dtype=bool)
     mask[:4] = mask[-4:] = False; mask[:, :4] = mask[:, -4:] = False
     if library:
@@ -52,12 +63,15 @@ def _compare(frame, assets, layout, library_bounds=None):
     if library: models.append(('library_lower_gradient', shade))
     scores = []
     for index, raw in enumerate(assets, 1):
-        with Image.open(io.BytesIO(raw)) as source:
-            source = source.convert('RGB')
-            if library:
-                side = min(source.size); x=(source.width-side)//2; y=(source.height-side)//2
-                source=source.crop((x,y,x+side,y+side))
-            target=np.asarray(source.resize(size, Image.Resampling.LANCZOS), dtype=float)/255
+        target = prepared['targets'].get(index) if prepared is not None else None
+        if target is None:
+            with Image.open(io.BytesIO(raw)) as source:
+                source = source.convert('RGB')
+                if library:
+                    side = min(source.size); x=(source.width-side)//2; y=(source.height-side)//2
+                    source=source.crop((x,y,x+side,y+side))
+                target=np.asarray(source.resize(size, Image.Resampling.LANCZOS), dtype=float)/255
+            if prepared is not None: prepared['targets'][index]=target
         candidates=[]
         for name, alpha in models:
             difference=np.abs(observed-target*alpha[:,None,None]).mean(axis=2)

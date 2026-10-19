@@ -3,6 +3,7 @@ import io
 import json
 import unittest
 import uuid
+from unittest.mock import patch
 
 import numpy as np
 from PIL import Image, ImageDraw
@@ -50,6 +51,19 @@ class CarouselContinuityTests(unittest.TestCase):
         image.paste(tile,(125,111))
         result=media_comparison(self.png(image),self.f.assets,'draft_library_candidate')
         self.assertEqual('ambiguous_library',result['status']); self.assertIsNone(result['matchedIndex'])
+
+    def test_library_scan_decodes_each_source_once_and_keeps_no_cross_frame_cache(self):
+        image=self.library(); tile=image.crop((0,111,124,235)); image.paste(tile,(250,361))
+        raw=self.png(image)
+        with patch('farm_draft_media.Image.open',wraps=Image.open) as opened:
+            result=media_comparison(raw,self.f.assets,'draft_library_candidate')
+        self.assertEqual('ambiguous_library',result['status'])
+        self.assertLessEqual(opened.call_count,2+len(self.f.assets))
+        image.paste('black',(0,111,124,235))
+        changed=media_comparison(self.png(image),self.f.assets,'draft_library_candidate')
+        self.assertEqual(1,changed['matchingCovers']); self.assertEqual(dict(row=3,column=3),changed['libraryCell'])
+        wrong=media_comparison(self.png(image),[self.f.assets[1],self.f.assets[1]],'draft_library_candidate')
+        self.assertIsNone(wrong['matchedIndex'])
 
     def test_library_occlusion_wrong_content_and_lookalikes_do_not_pass(self):
         image=self.library(); ImageDraw.Draw(image).rectangle((35,135,100,193),fill='red')

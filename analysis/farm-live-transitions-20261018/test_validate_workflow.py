@@ -221,6 +221,19 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual('outcome_unknown',result['commands'][-1]['state'])
         self.assertFalse(result['savedDraftVerified'])
 
+    def test_reopen_expiring_before_transport_is_reported_not_sent(self):
+        from unittest.mock import patch
+        command=live.Workflow.command
+        def expire(workflow,fun,**data):
+            if data['purpose']=='reopen-saved-test-draft': workflow.kernel.now+=2
+            return command(workflow,fun,**data)
+        with patch.object(live.Workflow,'command',expire): result,kernel,_=self.run_fixture()
+        self.assertEqual('review_required',result['state']); self.assertEqual('library',kernel.screen)
+        self.assertEqual(1,kernel.saves); self.assertEqual('confirmed',result['cleanup'])
+        self.assertEqual('not_sent',result['actions'][-1]['state'])
+        self.assertEqual('not_sent',result['commands'][-1]['state'])
+        self.assertFalse(result['savedDraftVerified'])
+
     def test_cancel_after_save_releases_without_navigation(self):
         result,kernel,_=self.run_fixture('cancel_after_save')
         self.assertEqual('review_required',result['state']); self.assertEqual(1,kernel.saves)

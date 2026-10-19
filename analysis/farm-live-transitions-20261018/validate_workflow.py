@@ -234,10 +234,17 @@ class Workflow:
         action=dict(label=label,kind=kind,observationId=value['id'],state='not_sent')
         self.record['actions'].append(action); self.save()
         action['state']='outcome_unknown'; self.save()
-        if point is not None:
-            self.command('/mouse/click',basis=value,purpose=label,x=point[0],y=point[1],button=1)
-        else:
-            self.command('/mouse/swipe',basis=value,purpose=label,x1=400,y1=480,x2=100,y2=480,duration=350)
+        command_count=len(self.record['commands'])
+        try:
+            if point is not None:
+                self.command('/mouse/click',basis=value,purpose=label,x=point[0],y=point[1],button=1)
+            else:
+                self.command('/mouse/swipe',basis=value,purpose=label,x1=400,y1=480,x2=100,y2=480,duration=350)
+        except BaseException as error:
+            sent=self.record['commands'][command_count:]
+            action['state']=sent[-1]['state'] if sent else 'not_sent'
+            action['reason']=str(error); self.save()
+            raise
         action['state']='answered'; self.save()
         # Complete pointer parking before starting the next settling interval.
         # The overall operation budget still includes this movement. Uncertain
