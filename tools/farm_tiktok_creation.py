@@ -38,6 +38,10 @@ SETTLED = set(PRE_SETTLE) - {'tiktok_paste_menu'}
 # feed and editor play video, the caret blinks, the Drafts toast fades.
 MOVING = {
     'tiktok_feed': ((0, 65, 500, 1000),),
+    # The entry check accepts the feed, whose video plays; the profile decision that
+    # follows is settled with everything but the fading toast protected.
+    'tiktok_entry': ((0, 65, 500, 1000),),
+    'tiktok_profile': ((190, 135, 310, 170),),
     'tiktok_camera': ((0, 65, 500, 975),),
     'tiktok_editor': ((0, 65, 500, 965),),
     'tiktok_reopened_editor': ((0, 65, 500, 965),),
@@ -210,11 +214,12 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
         self.record['sound']['final'] = 'none'; self.save()
 
     def return_to_profile(self, label):
+        """The exact profile, directly or from the feed. Returns (profile, entry screen check)."""
         entry, _, _ = self.screen('tiktok_entry')
         if entry['screen'] == 'feed':
             self.tap(label, 'tiktok_entry', lambda v, f: tt.tiktok_feed(f, v['text'])['profileTarget'])
         profile, _, _ = self.screen('tiktok_profile')
-        return profile
+        return profile, entry
 
     # -- workflow ----------------------------------------------------------------
     def admit(self):
@@ -233,7 +238,7 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
             self.import_video()
             self.phase('open-tiktok')
             self.open_app('TikTok', 'return')
-            profile = self.return_to_profile('open-profile-tab')
+            profile, _ = self.return_to_profile('open-profile-tab')
             self.record['draftsCount']['before'] = profile['draftsCount']; self.save()
             self.phase('select-tiktok-media')
             self.tap('open-tiktok-create', 'tiktok_profile', lambda v, f: tt.tiktok_profile(f, v['text'], self.account)['createTarget'])
@@ -254,10 +259,10 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
             self.pause(2)  # Let the OS paste banner leave the header; nothing is repeated.
             # The single Drafts press is decided on a caret-free frame with the exact description.
             self.tap('save-tiktok-draft-once', 'tiktok_details', lambda v, f: self.details(v, f, self.caption)['draftsTarget'])
-            feed, _, _ = self.screen('tiktok_feed')
-            self.record['draftSavedToast'] = feed['toastSeen']; self.save()
-            self.tap('open-profile-after-save', 'tiktok_feed', lambda v, f: tt.tiktok_feed(f, v['text'])['profileTarget'])
-            after, _, _ = self.screen('tiktok_profile')
+            # On 17 Oct TikTok landed on the feed after a video draft and on the
+            # profile after a photo draft; either is accepted, nothing else.
+            after, landed = self.return_to_profile('open-profile-after-save')
+            self.record.update(draftSavedToast=bool(landed.get('toastSeen')), landedAfterSave=landed['screen']); self.save()
             before = self.record['draftsCount']['before']
             self.record['draftsCount']['after'] = after['draftsCount']; self.save()
             if before is not None and after['draftsCount'] is not None:

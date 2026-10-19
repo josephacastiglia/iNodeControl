@@ -130,6 +130,10 @@ class Screens:
             image = base.convert('RGB'); ImageDraw.Draw(image).rectangle((25, 128, 26, 150), fill=(246, 90, 130))
             self.frames['tt_focused_caret'] = png(image)
         self.texts['tt_focused_caret'] = copy.deepcopy(self.texts['tt_details_focused'])
+        # Profile reached directly after Drafts (17 Oct photo route), with the toast read in OCR.
+        self.frames['profile_saved'] = self.frames['profile_after']
+        self.texts['profile_saved'] = copy.deepcopy(self.texts['profile_after'])
+        self.texts['profile_saved']['lines'].append(line('Draft saved', 205, 147, 90, 13))
         # Paste callout above the press point (shape observed on the Instagram caption sheet).
         with Image.open(io.BytesIO(self.frames['tt_details_focused'])) as base:
             image = base.convert('RGB'); draw = ImageDraw.Draw(image)
@@ -288,7 +292,8 @@ class FixtureKernel:
                 if target == (339, 115): self.removed += 1
                 if s == 'home' and self.leg != ('back' if after == 'tt_feed' else 'out'): continue
                 if s in ('tt_details_pasted', 'tt_reopened_details'):
-                    self.saves += 1; self.screen = after
+                    self.saves += 1
+                    self.screen = 'profile_saved' if self.scenario == 'lands_on_profile' and s == 'tt_details_pasted' else after
                     if self.scenario == 'lost_save' and s == 'tt_details_pasted': raise TimeoutError('Fixture Save happened; answer lost.')
                     return
                 if s == 'quicklook' and kind == 'key:Home': self.leg = 'back'
@@ -348,6 +353,7 @@ class TikTokProtocolTests(unittest.TestCase):
         self.assertEqual(dict(before=1, after=2), result['draftsCount'])
         self.assertEqual(dict(initial='attached', suggested='Whispers in.„', removed=True, final='none'), result['sound'])
         self.assertEqual([334, 804, 500, 967], result['pickerTile']); self.assertTrue(result['draftSavedToast'])
+        self.assertEqual('feed', result['landedAfterSave'])
         self.assertTrue(all(a['state'] == 'answered' for a in result['actions']))
         self.assertTrue(any(isinstance(c.get('screenCheck'), dict) and c['screenCheck'].get('caretVisible')
                             for c in result['observations']))
@@ -411,6 +417,13 @@ class TikTokProtocolTests(unittest.TestCase):
                 with patch.object(kernel, 'send', send): result = flow.run()
                 self.assertEqual('review_required', result['state'])
                 self.assertEqual(boundary, len(self.semantic(kernel))); self.assertEqual('release', kernel.calls[-1])
+
+    def test_tiktok_may_land_on_the_profile_after_drafts(self):
+        flow, kernel = self.fixture('lands_on_profile'); result = flow.run()
+        self.assertEqual('created_unverified', result['state'], result.get('error')); self.assertEqual([], kernel.unexpected)
+        self.assertEqual(('profile', True), (result['landedAfterSave'], result['draftSavedToast']))
+        self.assertEqual(dict(before=1, after=2), result['draftsCount']); self.assertEqual(1, kernel.saves)
+        self.assertNotIn('open-profile-after-save', [a['label'] for a in result['actions']])
 
     def test_lost_drafts_answer_is_never_repeated(self):
         flow, kernel = self.fixture('lost_save'); result = flow.run()

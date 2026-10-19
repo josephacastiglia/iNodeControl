@@ -53,8 +53,10 @@ the exact TikTok profile:
    - The exact one-line description must then be read on a frame **without the
      blinking caret**: up to four settled observations, all recorded.
    - **Drafts** is pressed once.
-6. TikTok lands on the feed (the *Draft saved* toast is recorded if visible) →
-   **Profile**. When both counts are readable, the Drafts count must have risen by
+6. TikTok lands either on the feed or directly on the profile. On 17 Oct the
+   video draft landed on the feed and the photo draft on the profile, both with a
+   *Draft saved* toast, which is recorded. From the feed, only **Profile** is
+   tapped. When both counts are readable, the Drafts count must have risen by
    exactly one.
 
 **Independent verification** is a new lease with a 120 s budget:
@@ -107,11 +109,22 @@ the second (`python-full-first-run.txt`).
 
 ## 3. Evidence base and its limits
 
-- **Screens.** Recognizers come from the retained 17 Oct supervised TikTok steps
-  94–113. Their 70 frames were re-read locally with the production Windows OCR into
-  the private archive `iMouseXP-2.0-evidence-archive/20261019-farm-tiktok-offline`
-  (outside Git; it contains personal content; manifest SHA-256
-  `5b2b580feb591e6427aec2c006af8ed40d510f320eeaab57eb02188dfb3c0e2a`).
+- **Screens.** Recognizers come from the retained 17 Oct supervised TikTok steps:
+  video 94–113 and photo 10–25. Their 102 frames were re-read locally with the
+  production Windows OCR into the private archive
+  `iMouseXP-2.0-evidence-archive/20261019-farm-tiktok-offline` (outside Git; it
+  contains personal content; manifest SHA-256
+  `96d56b7941951be04d5be312a7e6dd1c2f3f2f0d8cda2e254d3ff1e2a3eebed9`).
+- **Review fixes from the photo steps.** They were read after the first commit
+  and showed two things:
+  - **The landing screen after Drafts.** The photo draft landed on the profile,
+    not the feed. The first version required the feed and would have stopped
+    after a successful save.
+  - **A playing feed never settles.** The first version also protected every
+    pixel of the entry check, so if TikTok reopened on the feed, the playing video
+    would never settle.
+
+  Both are fixed and tested.
 - **Templates.** Eleven control templates (`tools/farm_tiktok_controls.json`,
   built by `build_tiktok_controls.py`, results in `tiktok-controls-check.json`) are
   UI glyph crops only. Each matches independent frames and is refused on frames
@@ -131,7 +144,9 @@ the second (`python-full-first-run.txt`).
   - Whether TikTok can attach a suggestion *after* Next is unknown. The verifier
     would detect it.
 - **Not yet observed on a phone:**
-  - the TikTok description's Paste callout;
+  - Paste in TikTok's callout. On 17 Oct the photo description's long press
+    showed the callout **with only AutoFill** (the clipboard was empty), above the
+    press point. The candidate refuses that frame, as a test checks;
   - caret blink timing under the live receiver;
   - suggestion timing;
   - whether *Select multiple* is always enabled;
@@ -145,9 +160,9 @@ the second (`python-full-first-run.txt`).
 
 | Check | Result |
 |---|---|
-| Complete Python farm suite | **520 passed**, none skipped, 1,452 s (was 491; see `python-full.txt` and `validation.json`). The first complete run had one failure, fixed as described in section 2 (`python-full-first-run.txt`) |
-| TikTok protocol fixture (`test_farm_tiktok_creation.py`) | 9 tests: full creation + independent verification; lost answer at every one of 27 creation actions; Stop at every dispatch journal; receiver change; lost Drafts answer never repeated; ambiguous tile, unknown prompt (picker, details), stale frame, failed OCR, a sound that returns after removal, a caret that never clears and a wrong description all stop before the draft; no-suggestion path; wrong media never reaches Photos; the verifier removes a kept suggestion and refuses a wrong account, a wrong description and a sound that stays; Post, Your Story and LIVE refused even when OCR misreads them |
-| TikTok recognizers (`test_farm_tiktok_layout.py`) | 9 tests: every retained route screen, caret and wrap refusals, ten real-frame negative controls, new media refused on old renderings, synthetic crop/caret/feed boundaries |
+| Complete Python farm suite | **522 passed**, none skipped, 1,440 s (was 491; see `python-full.txt` and `validation.json`). Earlier complete runs are kept: the first had one test failure, fixed as described in section 2 (`python-full-first-run.txt`); another hit a transient Windows read-sharing error in the pre-existing carousel creation test, which passed 6/6 alone and in the final run (`python-full-transient-error.txt`). That reader-side race predates this work and is not changed here |
+| TikTok protocol fixture (`test_farm_tiktok_creation.py`) | 10 tests: full creation + independent verification; landing on the profile after Drafts; lost answer at every one of 27 creation actions; Stop at every dispatch journal; receiver change; lost Drafts answer never repeated; ambiguous tile, unknown prompt (picker, details), stale frame, failed OCR, a sound that returns after removal, a caret that never clears and a wrong description all stop before the draft; no-suggestion path; wrong media never reaches Photos; the verifier removes a kept suggestion and refuses a wrong account, a wrong description and a sound that stays; Post, Your Story and LIVE refused even when OCR misreads them |
+| TikTok recognizers (`test_farm_tiktok_layout.py`) | 10 tests: every retained route screen including the photo route's post-save profile, the real AutoFill-only callout refused, caret and wrap refusals, ten real-frame negative controls, new media refused on old renderings, synthetic crop/caret/feed boundaries |
 | TikTok service/HTTP (`test_farm_tiktok_runs.py`) | 11 tests: disabled by default; one-line ASCII descriptions ≤24 only; Reel/TikTok formats never cross; duplicate holds; pre-import retry; TikTok committing actions; no overrides; package page and header; local-only, store-bound routes |
 | Native Release build | 0 warnings/errors, `output/claude-farm-tiktok-20261019` |
 | Native headless checks | **588 passed** (was 578): TikTok button rules, TikTok window route/bookmark/lost reply/Stop/verified-only-with-confirmed-creation, one window never drives both routes |
@@ -162,13 +177,13 @@ Prepared offline by `prepare_tiktok_live.py`; recheck with `live/verify_preparat
 | Item | Value |
 |---|---|
 | Run folder | `output/candidate-runs/farm-tiktok-20261019` (fresh; C24C-only mapping/calibration copied byte-identically) |
-| Test media | Labelled `TIKTOK DRAFT TEST`, 4 s, 720×1280, silent; token `52e125fcef62`, colour code `[3,2,7,2,1,3]` |
-| Video SHA-256 | `f6275ea882912b995b72d39b6fc72707c622f97c4b2e1c1e1b332b09331ca3e2` |
+| Test media | Labelled `TIKTOK DRAFT TEST`, 4 s, 720×1280, silent; token `e4c33174fe15`, colour code `[3,6,1,2,1,7]` |
+| Video SHA-256 | `a9bb5e16f7cf5dd34b2d9cec827f2aa53522efecc0761e0f11f04e1ef4ca5a9a` |
 | Description | `Fresh tiktok acceptance` (23 characters, one line) |
-| Download name | `imouse-tt-veexyr` |
+| Download name | `imouse-tt-tktykw` |
 | Native DLL | `3d058ca4a2c85cc5db921ef62203920c8cc355992687125b87c756cedf3001d7` (`output/claude-farm-tiktok-20261019`) |
 | Headless driver | `output/farm-tiktok-native-probe-20261019/TikTokProbe.exe`; dry run 3/3 (assembly, TikTok route/capability/bookmark, zero window handles; no HTTP) |
-| Backend source fingerprint | `6f6e84c4ac3fd925eae8e095cc9e6a4426c804ccdcc81124781fd3c715121ef0` (same backend as the re-prepared Reel window) |
+| Backend source fingerprint | `f3e083ae0230da93293df1ace6cef935d083b605c765c0b0527ef32475570819` (same backend as the re-prepared Reel window) |
 | Private kernel | unchanged `c72fa4e0…a873` on 9916; media 9917 bind 192.168.4.26 → C24C 192.168.4.57 (recheck the phone's address) |
 
 Window steps (C24C only; no C241 input, desktop control, publishing or FKA
@@ -197,9 +212,10 @@ clipboard holding the description, Safari left on the Files preview (the next ru
 closes it with Done) and TikTok left on its drafts list. Nothing is deleted.
 Repeating the window needs a fresh preparation (new token and run folder).
 
-What this window will settle for the first time: the TikTok Paste callout,
-suggestion timing with this media, settled selection, the Drafts count rising by
-one, and the caret-free description read under the live receiver.
+What this window will settle for the first time: Paste in TikTok's callout,
+suggestion timing with this media, settled selection, which screen TikTok lands on
+after Drafts, the Drafts count rising by one, and the caret-free description read
+under the live receiver.
 
 ## 6. Remaining Priority 3 work
 

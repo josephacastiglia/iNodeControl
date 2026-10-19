@@ -1,0 +1,244 @@
+...................................................................................E............................................................................................................................................................................................................................................................................................................................................[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/state HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /kernel-proxy/ HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/96a90545-1cfb-444b-a3f7-a5598bca753b HTTP/1.1" 404 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-creations HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-creations/98c237ff-f339-44f8-9b4f-b537cb2448ef/cancel HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-creations/98c237ff-f339-44f8-9b4f-b537cb2448ef/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/state HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /kernel-proxy/ HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-creations HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/0c5fde77-e722-43b0-b552-a387097ae5c6 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-creations HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-creations HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations?draft_id=33652596-1e17-4432-8964-30d0708dc0df HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/0c5fde77-e722-43b0-b552-a387097ae5c6 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-creations/eligibility?draft_id=33652596-1e17-4432-8964-30d0708dc0df&revision=3 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-creations HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-creations HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/3b12b064-6b6e-4530-82ca-132255bfad03 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=c81f8194-2d23-455e-b925-9ad234a664f1 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/eligibility?draft_id=c81f8194-2d23-455e-b925-9ad234a664f1&revision=3 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs?draft_id=c81f8194-2d23-455e-b925-9ad234a664f1 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/3b12b064-6b6e-4530-82ca-132255bfad03 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/eligibility?draft_id=c81f8194-2d23-455e-b925-9ad234a664f1&revision=3 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/3b12b064-6b6e-4530-82ca-132255bfad03/frames/a1210d88-8894-4e47-9829-f6c12396e625 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs/24bfe187-9ea7-4b0f-b814-a8d0364cc87e/cancel HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-runs/24bfe187-9ea7-4b0f-b814-a8d0364cc87e/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-runs/24bfe187-9ea7-4b0f-b814-a8d0364cc87e HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/48164949-6d66-4dce-a6b6-587ec4714b19 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/48164949-6d66-4dce-a6b6-587ec4714b19 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs/d02b73b5-7faf-4cc5-a3e9-6a0d532cf353/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs/d2d28c31-9776-4788-83dd-0873caff9185/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/d2d28c31-9776-4788-83dd-0873caff9185 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/39eddbe6-aeed-4b2b-95b1-db418bb44529/import HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/39eddbe6-aeed-4b2b-95b1-db418bb44529/import HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/39eddbe6-aeed-4b2b-95b1-db418bb44529/save HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts/39eddbe6-aeed-4b2b-95b1-db418bb44529/export HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/c6ad3ceb-9bc0-4499-94fa-152af41b6350 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/c6ad3ceb-9bc0-4499-94fa-152af41b6350 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/c6ad3ceb-9bc0-4499-94fa-152af41b6350 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/7b0f8ae5-6894-4159-89ee-ef69531f4076 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/manifest.json HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/video_6756abd7b3d14fb2b6c1e1aa2d6ff991_182b1e1f.mp4 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_6756abd7b3d14fb2b6c1e1aa2d6ff991_01_5c1c4c3f.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_6756abd7b3d14fb2b6c1e1aa2d6ff991_02_3c2c3c39.jpg HTTP/1.1" 200 -
+..........................................................................................................
+======================================================================
+ERROR: test_unknown_import_is_retained_and_same_id_or_restart_never_replays (test_farm_creation.CreationTests.test_unknown_import_is_retained_and_same_id_or_restart_never_replays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_creation.py", line 89, in test_unknown_import_is_retained_and_same_id_or_restart_never_replays
+    self.service.start(self.spec);result=self.wait()
+                                         ^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\test_farm_creation.py", line 69, in wait
+    result=self.service.get(self.spec['id'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_creation_runs.py", line 158, in get
+    result=super().get(run_id)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\farm_draft_runs.py", line 159, in get
+    raw = path.read_bytes(); result = json.loads(raw)
+          ^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 1050, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\joey_\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 1044, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\joey_\\AppData\\Local\\Temp\\farm-creation-test-0u0ovjsl\\runs\\76c894e9-b37f-469b-b9f8-aa7868cbfca8\\record.json'
+
+----------------------------------------------------------------------
+Ran 522 tests in 1448.729s
+
+FAILED (errors=1)
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_6756abd7b3d14fb2b6c1e1aa2d6ff991_03_3c3c7c67.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /stage/C24C/slide_6756abd7b3d14fb2b6c1e1aa2d6ff991_04_3c1c1c07.jpg HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 413 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/preparation-schedule HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/preparation-schedule HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/drafts/72ece1d4-9c64-56fa-865a-404db36101cc HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/drafts/72ece1d4-9c64-56fa-865a-404db36101cc HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/video-sources?generation=7d44a13068a943eca3d5057a52388058&manifest_sha256=870d64fec8c1c6f51604755ac3fca4fa6b01323c8048a73d9b394d659a810a98 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/video-drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/jobs HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/jobs/5db1edec-02bb-49af-ba7d-4edab00b71d6 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/resume-simulation HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/carousel-inspections/8483eb0f-82cd-4ee9-a7ae-4b74d7e52f32/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/carousel-inspections HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/carousel-inspections HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/carousel-inspections HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/carousel-inspections/6bb7a75e-1532-48e3-91e3-c289ee1e4704 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/carousel-inspections/6bb7a75e-1532-48e3-91e3-c289ee1e4704/frames/f7b9128c-23a6-4642-9ea5-ccfa8e1323a6 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/carousel-inspections/6bb7a75e-1532-48e3-91e3-c289ee1e4704 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/carousel-inspections/6bb7a75e-1532-48e3-91e3-c289ee1e4704/frames/f7b9128c-23a6-4642-9ea5-ccfa8e1323a6 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/carousel-inspections HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/carousel-inspections HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/carousel-inspections HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/emergency-stop HTTP/1.1" 500 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/preparation-schedule HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/preparation-schedule HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/preparation-schedule/pause HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/preparation-schedule HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/observations HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/observations HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/observations/203bb8fd-b3a5-45cb-8e3c-ea3826e0ad78 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/observations/203bb8fd-b3a5-45cb-8e3c-ea3826e0ad78/frame HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/observations HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/observations/203bb8fd-b3a5-45cb-8e3c-ea3826e0ad78 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/observations/203bb8fd-b3a5-45cb-8e3c-ea3826e0ad78/frame HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/observations HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/observations HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/observations/c52e8918-11f4-45a9-a00b-ca4a4e58daf5 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-recoveries/eligibility?creation_id=dea47d0e-ce92-40f1-8342-951e56dd142b HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-recoveries HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-recoveries HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-recoveries/80836f8f-7f7f-4879-a3ed-3fb9e9bff021 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-recoveries?draft_id=4c3e4d11-1288-4ad7-b663-77f7659ac907 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-recoveries/80836f8f-7f7f-4879-a3ed-3fb9e9bff021 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-recoveries?draft_id=4c3e4d11-1288-4ad7-b663-77f7659ac907 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-recoveries/eligibility?creation_id=dea47d0e-ce92-40f1-8342-951e56dd142b HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-recoveries/80836f8f-7f7f-4879-a3ed-3fb9e9bff021/frames/88520570-705f-4334-a10c-0d49f9daec96 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-recoveries HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-recoveries HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-recoveries HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-recoveries HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-recoveries/92d2768f-e468-43da-94f4-43590be21979/cancel HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-recoveries/92d2768f-e468-43da-94f4-43590be21979/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-recoveries HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/reel-creations HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/reel-creations/eligibility?draft_id=e00acb6a-db55-48a3-af19-2ac83b39f372&revision=1 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/reel-creations/eligibility?draft_id=e00acb6a-db55-48a3-af19-2ac83b39f372&revision=1 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/reel-creations HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/reel-creations/a543d112-d47a-4acd-8ab6-2c63a93d3c84 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/reel-creations HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/reel-creations HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/reel-creations/a543d112-d47a-4acd-8ab6-2c63a93d3c84/cancel HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/reel-creations HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/reel-creations HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/reel-creations/be6b7627-3260-49e1-8f8a-54af9ccfe036 HTTP/1.1" 404 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/capabilities HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals/bddf96bc-62d0-49c4-8034-af86658643fc/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/bddf96bc-62d0-49c4-8034-af86658643fc HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/c1082ae0-def4-4650-9feb-a304ef832702 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals?draft_id=82811428-87e9-49b9-bcaf-11aa0e2f0c00 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/c1082ae0-def4-4650-9feb-a304ef832702/frames/ad4ee65a-ee50-43c3-9902-4d3fc98b5be4 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals?draft_id=82811428-87e9-49b9-bcaf-11aa0e2f0c00 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/c1082ae0-def4-4650-9feb-a304ef832702 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/c1082ae0-def4-4650-9feb-a304ef832702/frames/ad4ee65a-ee50-43c3-9902-4d3fc98b5be4 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/tiktok-creations HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/tiktok-creations/eligibility?draft_id=ab117ef6-affb-4fc7-909a-26fea91c7cb2&revision=1 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/tiktok-creations/eligibility?draft_id=ab117ef6-affb-4fc7-909a-26fea91c7cb2&revision=1 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/tiktok-creations HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/tiktok-creations/4ce46d49-fcb8-4f62-8874-2843e0f241db HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/tiktok-creations HTTP/1.1" 202 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/tiktok-creations HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/tiktok-creations/4ce46d49-fcb8-4f62-8874-2843e0f241db/cancel HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/tiktok-creations HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/tiktok-creations/4ce46d49-fcb8-4f62-8874-2843e0f241db/cancel HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/tiktok-creations HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/tiktok-creations/c75ba131-5e83-41c8-b3b7-c8bebcf2b68f HTTP/1.1" 404 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/capabilities HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/3f55ce75-b442-4489-9d5c-661fe5e89d41/stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/c1e5da2b-d5dc-4d5f-926e-1abe99927174/stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-verifications HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-verifications HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-verifications/f1371eca-9006-40e2-a839-41e156c0486d HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-verifications/f1371eca-9006-40e2-a839-41e156c0486d/frames/9ed96655-26c3-48c7-bf04-c7ff3a2cb497 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-verifications/f1371eca-9006-40e2-a839-41e156c0486d/frames/9ed96655-26c3-48c7-bf04-c7ff3a2cb497 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-verifications/f1371eca-9006-40e2-a839-41e156c0486d/frames/7cdfb214-2b04-41e7-a35d-6d495b497e89 HTTP/1.1" 404 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-verifications?draft_id=e9a9c833-8a74-4362-9629-e41008cc1fc4 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-verifications?draft_id=e9a9c833-8a74-4362-9629-e41008cc1fc4 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-verifications/f1371eca-9006-40e2-a839-41e156c0486d HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-verifications HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-verifications HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-verifications HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-verifications/2dc49aa2-023a-407b-a52c-9a1e8db263c1 HTTP/1.1" 404 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/video-drafts HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/video-drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/video-drafts/57ee6e62-11ee-406d-939f-1345bd81c86c HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/video-drafts HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/cbfdbe7a-1d95-474d-b2a8-e95c5e1842bf/stop HTTP/1.1" 200 -
+exit 1

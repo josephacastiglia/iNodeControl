@@ -161,8 +161,9 @@ def tiktok_profile(frame, text, account):
             and 365 <= min(w['y'] for w in r['words']) <= 400]
     found = [re.fullmatch(r'drafts:\s*(\d+)', ' '.join(r.casefold().split())) for r in rows]
     count = int(found[0].group(1)) if len(found) == 1 and found[0] else None
+    # TikTok sometimes lands here after Drafts with the same toast as on the feed (17 Oct photo route).
     return dict(account=account, draftsCount=count, draftsTarget=(79, 478) if count is not None else None,
-                createTarget=(250, 1009))
+                createTarget=(250, 1009), toastSeen=bool(line_at(text, 'draft saved', (190, 135, 310, 170))))
 
 
 def tiktok_camera(frame, text):

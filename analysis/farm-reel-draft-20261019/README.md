@@ -50,7 +50,7 @@ the package checksum, and runs two bounded owned workflows
 2. **Copy caption** must confirm *Caption copied*. Long-press **Download video** →
    **Download Linked File** → the Safari download badge → **Downloads** → the
    **unique package file** (a package-bound, OCR-safe name such as
-   `imouse-reel-awmekh`, so older `imouse-draft` files can never be confused) at
+   `imouse-reel-wvkhwf`, so older `imouse-draft` files can never be confused) at
    its exact complete size → the Files preview must play the package video →
    Share → settled sheet → **Save Video** → Home.
 3. Instagram → exact profile → `+` → **Reel** (icon template; OCR often omits the
@@ -124,18 +124,18 @@ GitHub-only clone; synthetic and service tests always run.
 
 Prepared offline by `prepare_reel_live.py`; recheck with `live/verify_preparation.py`. Re-prepared later on
 19 Oct, after the TikTok work changed shared sources; the earlier preparation
-(token `c0bb4ce25dae`) and an intermediate one (`1fbf9bfdcb71`) were never used and were
-replaced.
+(token `c0bb4ce25dae`) and intermediate ones (`1fbf9bfdcb71`, `397aae4ea4ca`) were never
+used and were replaced.
 
 | Item | Value |
 |---|---|
 | Run folder | `output/candidate-runs/farm-reel-20261019` (fresh; C24C-only mapping/calibration copied byte-identically) |
-| Test media | Labelled `REEL DRAFT TEST`, 4 s, 720×1280, silent; token `397aae4ea4ca`, colour code `[2,1,6,3,7,5]` |
-| Video SHA-256 | `ca5df0982d1f9a4fcc6ec0bdda213e94a4e3a0fdce49f5cc6e5318e58bddf0f2` |
+| Test media | Labelled `REEL DRAFT TEST`, 4 s, 720×1280, silent; token `47c20b0ff4aa`, colour code `[5,4,5,0,5,2]` |
+| Video SHA-256 | `d3784ff40c45dedf38fed23497a8082938a51d507ac1f5377b3c2ba82b1a3c4c` |
 | Caption | `Fresh reel acceptance` |
-| Download name | `imouse-reel-awmekh` |
+| Download name | `imouse-reel-wvkhwf` |
 | Native DLL | `58b4057833d360d2077617c4f0f49b14f7ae749ab780c9207a3b8fd619c83aa1` |
-| Backend source fingerprint | `6f6e84c4ac3fd925eae8e095cc9e6a4426c804ccdcc81124781fd3c715121ef0` (same backend as the TikTok window) |
+| Backend source fingerprint | `f3e083ae0230da93293df1ace6cef935d083b605c765c0b0527ef32475570819` (same backend as the TikTok window) |
 | Private kernel | unchanged `c72fa4e0…a873` on 9916; media 9917 bind 192.168.4.26 → C24C 192.168.4.57 (recheck the phone's address) |
 
 Window steps (C24C only; no C241 input, desktop control, publishing or FKA change):

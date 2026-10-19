@@ -133,6 +133,18 @@ class RetainedTikTokLayoutTests(unittest.TestCase):
         self.assertEqual((2, 'Whispers', (81, 345)), (drafts['count'], drafts['tile']['soundLabel'], drafts['target']))
         f, t = self.load('112-tiktok-resave-silent-video'); drafts = tt.tiktok_drafts(f, t, self.ref)
         self.assertEqual((2, None, True), (drafts['count'], drafts['tile']['soundLabel'], drafts['toastSeen']))
+        # The photo route landed on the profile after Drafts, with the same toast.
+        f, t = self.load('22-tiktok-save-draft'); landed = tt.tiktok_profile(f, t, 'xs.halle.xo')
+        self.assertEqual((1, True), (landed['draftsCount'], landed['toastSeen']))
+        with self.assertRaises(InspectionStopped): tt.tiktok_feed(f, t)
+        f, t = self.load('107-tiktok-video-profile'); self.assertFalse(tt.tiktok_profile(f, t, 'xs.halle.xo')['toastSeen'])
+
+    def test_the_real_tiktok_callout_without_paste_is_refused(self):
+        # 17 Oct photo route: a long press on the description showed only AutoFill
+        # (nothing to paste then). Paste must be read uniquely beside AutoFill.
+        f, t = self.load('20-tiktok-paste-menu')
+        self.assertTrue(any(w['text'] == 'AutoFill' for line in t['lines'] for w in line['words']))
+        with self.assertRaises(InspectionStopped): tt.tiktok_paste_menu(f, t)
 
     def test_description_checks_on_real_renderings(self):
         f, t = self.load('105-tiktok-video-caption')            # Caret drawn after the text.

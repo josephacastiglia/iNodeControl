@@ -25,7 +25,7 @@ Instagram acceptance; broader platform coverage is next.
 - The native video window offers **Create TikTok draft on C24C…** for saved
   TikTok copies.
 
-Offline: 520 Python farm tests passed, none skipped (was 491); 588 native headless
+Offline: 522 Python farm tests passed, none skipped (was 491); 588 native headless
 checks (was 578). The run used no phone input, rack service, desktop control,
 publishing, messaging, FKA change or installed-release change. The shared code
 changes keep Instagram behaviour unchanged; the Reel suites and the
