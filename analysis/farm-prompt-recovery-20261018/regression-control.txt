@@ -1,0 +1,26 @@
+FF
+======================================================================
+FAIL: test_expired_at_last_commit_recaptures_same_prompt_and_sends_save_once (test_prompt_recovery.PromptRecoveryTests.test_expired_at_last_commit_recaptures_same_prompt_and_sends_save_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\farm-prompt-recovery-20261018\test_prompt_recovery.py", line 58, in test_expired_at_last_commit_recaptures_same_prompt_and_sends_save_once
+    self.assertEqual('validation_passed', result['state'], result.get('error'))
+AssertionError: 'validation_passed' != 'review_required'
+- validation_passed
++ review_required
+ : InspectionStopped: The decision has no fresh, intact C24C frame under this ownership.
+
+======================================================================
+FAIL: test_unexpected_permission_dialog_is_blocked_even_without_age_failure (test_prompt_recovery.PromptRecoveryTests.test_unexpected_permission_dialog_is_blocked_even_without_age_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\farm-prompt-recovery-20261018\test_prompt_recovery.py", line 130, in test_unexpected_permission_dialog_is_blocked_even_without_age_failure
+    self.assert_held_without_save(result,kernel)
+  File "C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\farm-prompt-recovery-20261018\test_prompt_recovery.py", line 50, in assert_held_without_save
+    self.assertEqual(0, kernel.saves)
+AssertionError: 0 != 2
+
+----------------------------------------------------------------------
+Ran 2 tests in 10.929s
+
+FAILED (failures=2)

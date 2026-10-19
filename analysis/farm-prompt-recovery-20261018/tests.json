@@ -1,0 +1,13 @@
+{
+  "tests": 106,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": true,
+  "baselineCommit": "759474b",
+  "expectedControlFailures": 2,
+  "network": "owned ephemeral loopback fixtures only; all other sockets denied",
+  "phoneInput": false,
+  "desktopControl": false,
+  "liveRecoveryValidated": false
+}

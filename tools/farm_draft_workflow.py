@@ -7,6 +7,7 @@ import base64
 import hashlib
 import io
 import json
+import math
 import os
 from pathlib import Path
 import threading
@@ -21,7 +22,7 @@ from farm_carousel_inspection import OwnedCaptureRun, InspectionStopped
 from farm_draft_media import media_comparison
 from farm_draft_rehearsal import save_prompt
 from farm_draft_verification import caption_comparison, library_candidate, account_history
-from farm_frame_evidence import capture_settled
+from farm_frame_evidence import MAX_AGE_MS, capture_settled
 from farm_live_verification import validate_runtime, idle
 from farm_observations import classify
 from farm_screen_layout import pixels, words_at, line_at, create_menu_controls, picker_controls, next_label
@@ -31,6 +32,34 @@ from imouse_social_automation import LIVE_TEST_DEVICE_ID
 # Full save/reopen has two complete slide/caption passes and final restoration.
 # Fixed candidate policy, never a request-controlled timeout.
 WORKFLOW_BUDGET_SECONDS = 120
+PROMPT_REFRESH_SECONDS = 4
+
+
+class DecisionExpired(InspectionStopped):
+    """A once-valid decision aged locally, before transport, in the same run."""
+
+
+def prompt_context(value):
+    return (value.get('observerSession'), value.get('resolvedDeviceId'), value.get('receiverPid'),
+            value.get('inputGeneration'), value.get('frameEvidence', {}).get('session'),
+            value.get('ownershipEvidence', {}).get('runId'), value.get('source'),
+            value.get('expected', {}).get('account'), value.get('expected', {}).get('caption'))
+
+
+def unchanged_save_prompt(before, first, after, second):
+    """Require a new delivery of the same exact prompt and protected content."""
+    context = prompt_context(before)
+    if (any(part is None for part in context) or context != prompt_context(after)
+            or before['id'] == after['id']
+            or after['frameEvidence']['sequence'] <= before['frameEvidence']['sequence']
+            or not save_prompt(before['text']) or not save_prompt(after['text'])):
+        raise InspectionStopped('Save prompt refresh changed context or did not produce independent evidence.')
+    # The status bar clock may change. Keep the entire modal, background media,
+    # caption area and controls protected; a permission/account dialog is not
+    # a reason to move the target or to click through it.
+    delta = np.abs(pixels(first, exact=True)[65:].astype(float) - pixels(second, exact=True)[65:].astype(float)) / 255
+    if delta.mean() > .002 or (delta.max(axis=2) > 35/255).mean() > .005:
+        raise InspectionStopped('Protected prompt content changed; manual review is required.')
 
 
 def atomic_json(path, value):
@@ -95,6 +124,7 @@ class Workflow:
         self.identity = None
         self.record = dict(id=self.owned.run_id, source='candidate_phone_workflow' if kernel._is_live_http else 'offline_protocol_fixture',
             state='not_started', cleanup='not_needed', commands=[], observations=[], transitionChecks=[], actions=[],
+            promptRecoveries=[],
             publishing=False, messaging=False, desktopControl=False, savedDraftVerified=False,
             budgetSeconds=WORKFLOW_BUDGET_SECONDS,
             productionAdapterAccepted=False, packageSha256=self.package_hash, account=self.account)
@@ -114,36 +144,56 @@ class Workflow:
         self.check()
         item = dict(fun=fun, data=data, purpose=purpose, state='not_sent')
         self.record['commands'].append(item); self.save()
-        if basis is not None:
+        def check_basis(stage):
+            if basis is None: return
             value, frame = self.store.current_evidence(basis['id'])
-            self.validate(value, frame)
-            if value['evidenceRecordSha256'] != basis['evidenceRecordSha256']:
+            item.setdefault('decisionChecks', []).append(dict(stage=stage, observationId=value['id'],
+                evidenceRecordSha256=value.get('evidenceRecordSha256'), freshness=value.get('freshness'),
+                expired=value.get('expired'), frameAgeMs=value.get('frameEvidence', {}).get('currentAgeUpperBoundMs')))
+            if value.get('evidenceRecordSha256') != basis.get('evidenceRecordSha256'):
                 raise InspectionStopped('The exact action evidence changed.')
-        item['state'] = 'outcome_unknown'; self.save()
-        # The write above consumes the same age budget; do not reset it.
+            self.validate(value, frame)
         try:
-            if basis is not None:
-                value, frame = self.store.current_evidence(basis['id']); self.validate(value, frame)
-                if value['evidenceRecordSha256'] != basis['evidenceRecordSha256']:
-                    raise InspectionStopped('Action evidence changed before dispatch.')
+            check_basis('before_dispatch_journal')
+            item['state'] = 'outcome_unknown'; self.save()
+            # The journal write consumes the same age budget; never reset it.
+            check_basis('before_transport')
             self.owned.check_budget()
-        except Exception:
+        except Exception as error:
             # A locally refused dispatch is known not to have reached transport.
             # Once send() begins, a missing reply must instead stay uncertain.
-            item['state'] = 'not_sent'; self.save(); raise
+            item.update(state='not_sent', refusal=type(error).__name__ + ': ' + str(error))
+            self.save(); raise
         item['response'] = self.kernel.send('C24C', self.owned.tokens['C24C'], fun, **data)
         item['state'] = 'answered'; self.save()
 
     def validate(self, value, frame):
-        if (value.get('state') != 'observed' or value.get('freshness') != 'recent' or value.get('expired')
+        if (value.get('state') != 'observed' or value.get('expired')
                 or value.get('stable') is not True or value.get('inputSettled') is not True or not capture_settled(value)
                 or value.get('frameEvidence', {}).get('pairedMetadata') is not True
                 or value.get('ownershipEvidence', {}).get('runId') != self.owned.run_id
                 or value.get('inputGeneration') != self.owned.generation
                 or value.get('resolvedDeviceId') != LIVE_TEST_DEVICE_ID
+                or value.get('observerSession') != self.store.session
+                or value.get('receiverPid') != self.owned.stream[1]
+                or value.get('frameEvidence', {}).get('session') != self.owned.stream[3]
+                or value.get('expected', {}).get('device_id') != 'C24C'
+                or value.get('expected', {}).get('platform') != 'instagram'
                 or value.get('expected', {}).get('account') != self.account
+                or value.get('expected', {}).get('caption') != self.caption
+                or value.get('result', {}).get('accountStatus') == 'different_text'
+                or not value.get('frameSha256')
+                or value.get('text', {}).get('frameSha256') != value.get('frameSha256')
                 or value.get('reviewFrameSha256') != hashlib.sha256(frame).hexdigest()):
             raise InspectionStopped('The decision has no fresh, intact C24C frame under this ownership.')
+        evidence = value['frameEvidence']
+        original, current = evidence.get('ageUpperBoundMs'), evidence.get('currentAgeUpperBoundMs')
+        if value.get('freshness') != 'recent':
+            if (value.get('freshness') == 'stale' and value.get('freshnessAtCapture') == 'recent'
+                    and all(type(age) in (int, float) and math.isfinite(age) for age in (original, current))
+                    and 0 <= original <= MAX_AGE_MS < current):
+                raise DecisionExpired('Frame aged to %.1f ms before dispatch (limit %d ms).' % (current, MAX_AGE_MS))
+            raise InspectionStopped('The decision has no recent frame; automatic refresh is unavailable.')
 
     def verify_screen(self, role, value, frame, index=None, require_next=False):
         result, text = value['result'], value['text']
@@ -164,7 +214,8 @@ class Workflow:
                     or media_comparison(frame, self.assets, 'carousel_details').get('matchedIndex') != 1):
                 raise InspectionStopped('The full caption or details media does not match.')
             return comparison
-        if role == 'save_prompt' and save_prompt(text): return dict(sheet='exact_save_draft')
+        if role == 'save_prompt' and result.get('screen') == 'save_prompt' and save_prompt(text):
+            return dict(sheet='exact_save_draft')
         raise InspectionStopped('Unsupported or interrupted workflow screen: ' + role)
 
     def capture(self, role, index=None, require_next=False):
@@ -211,10 +262,7 @@ class Workflow:
             return value, frame
         return self.capture(role, index, require_next)
 
-    def action(self, label, kind, role, index=None):
-        if any(a['label'] == label for a in self.record['actions']):
-            raise InspectionStopped('A semantic action cannot be replayed.')
-        value, frame = self.observe(role, index, require_next=kind=='details')
+    def target(self, kind, value, frame):
         text = value['text']
         point = None
         if kind == 'profile_create':
@@ -243,21 +291,94 @@ class Workflow:
             icon_matches(frame,self.templates['picker_saved'],(19,66,58,105)); point=(39,84)
         elif kind != 'next_slide': raise InspectionStopped('No implementation for that action.')
         if point is not None: allowed_tap(text,*point,kind,frame=frame)
-        action=dict(label=label,kind=kind,observationId=value['id'],state='not_sent')
-        self.record['actions'].append(action); self.save()
-        action['state']='outcome_unknown'; self.save()
-        command_count=len(self.record['commands'])
+        return point
+
+    def refresh_save_prompt(self, action, value, frame):
+        """One new decision while this run still owns the same verified draft.
+
+        This is not recovery of a stopped job or retry of an uncertain Save.
+        Only a recorded local age refusal is eligible. Unknown dialogs, changes
+        in content/context, cancellation and a second expiry remain review-only.
+        """
+        label = action['label']
+        phase = label.removesuffix('-save-once')
+        prior = self.record['actions'][:-1]
+        expected = [phase + suffix for suffix in ('-details', '-back', '-exit-sheet')]
+        command = self.record['commands'][-1]
+        profile = next((entry['observation'] for entry in self.record['observations']
+                        if entry.get('state') == 'observed' and entry['role'] == 'profile'), None)
+        slides = {phase+'-slide-'+str(i+1) for i in range(1, len(self.assets))}
+        if (phase not in ('prepared', 'reopened') or label != phase + '-save-once'
+                or action['kind'] != 'save_draft' or action['state'] != 'not_sent'
+                or command['purpose'] != label or command['state'] != 'not_sent'
+                or not command.get('refusal', '').startswith('DecisionExpired:')
+                or len(prior) < 3 or [a['label'] for a in prior[-3:]] != expected
+                or not all(a['state'] == 'answered' for a in prior)
+                or not slides <= {a['label'] for a in prior}
+                or not profile or profile['result'].get('accountStatus') != 'exact_text_match'
+                or prompt_context(profile) != prompt_context(value)
+                or any(r['label'] == label for r in self.record['promptRecoveries'])):
+            raise InspectionStopped('This prompt has no eligible unsent Save decision to refresh.')
+        recovery = dict(label=label, kind='save_prompt_fresh_decision', state='checking',
+            fromObservationId=value['id'], rejectedCommandIndex=len(self.record['commands'])-1,
+            priorActionState='not_sent', maximumCaptures=1, budgetSeconds=PROMPT_REFRESH_SECONDS,
+            phoneActionRetried=False)
+        self.record['promptRecoveries'].append(recovery); self.save()
+        deadline = self.monotonic() + PROMPT_REFRESH_SECONDS
         try:
-            if point is not None:
-                self.command('/mouse/click',basis=value,purpose=label,x=point[0],y=point[1],button=1)
-            else:
-                self.command('/mouse/swipe',basis=value,purpose=label,x1=400,y1=480,x2=100,y2=480,duration=350)
-        except BaseException as error:
-            sent=self.record['commands'][command_count:]
-            action['state']=sent[-1]['state'] if sent else 'not_sent'
-            action['reason']=str(error); self.save()
+            self.check()
+            # Retained evidence must still be byte-identical. Re-aging it does
+            # not make it actionable, but ensures tampering cannot be laundered
+            # through a newly captured, superficially matching prompt.
+            retained, retained_frame = self.store.current_evidence(value['id'])
+            origin, _ = self.store.current_evidence(profile['id'])
+            if (retained.get('evidenceRecordSha256') != value['evidenceRecordSha256']
+                    or retained_frame != frame
+                    or origin.get('evidenceRecordSha256') != profile['evidenceRecordSha256']):
+                raise InspectionStopped('The refused decision evidence changed.')
+            fresh, fresh_frame = self.observe('save_prompt')
+            self.check()
+            unchanged_save_prompt(value, frame, fresh, fresh_frame)
+            if self.monotonic() >= deadline:
+                raise InspectionStopped('Save prompt refresh exceeded its bounded time.')
+            recovery.update(state='fresh_decision', observationId=fresh['id'],
+                evidenceRecordSha256=fresh['evidenceRecordSha256'])
+            self.save()
+            return fresh, fresh_frame
+        except Exception as error:
+            recovery.update(state='held', reason=str(error)); self.save()
             raise
-        action['state']='answered'; self.save()
+
+    def action(self, label, kind, role, index=None):
+        if any(a['label'] == label for a in self.record['actions']):
+            raise InspectionStopped('A semantic action cannot be replayed.')
+        value, frame = self.observe(role, index, require_next=kind=='details')
+        action=dict(label=label,kind=kind,observationId=value['id'],state='not_sent',attempts=[])
+        self.record['actions'].append(action)
+        for attempt in range(2):
+            point = self.target(kind, value, frame)
+            decision = dict(observationId=value['id'], state='not_sent')
+            action['attempts'].append(decision)
+            action.update(observationId=value['id'], state='not_sent'); self.save()
+            action['state']='outcome_unknown'; self.save()
+            command_count=len(self.record['commands'])
+            try:
+                if point is not None:
+                    self.command('/mouse/click',basis=value,purpose=label,x=point[0],y=point[1],button=1)
+                else:
+                    self.command('/mouse/swipe',basis=value,purpose=label,x1=400,y1=480,x2=100,y2=480,duration=350)
+            except BaseException as error:
+                sent=self.record['commands'][command_count:]
+                state=sent[-1]['state'] if sent else 'not_sent'
+                decision.update(state=state,reason=str(error))
+                action.update(state=state,reason=str(error)); self.save()
+                if (attempt == 0 and kind == 'save_draft' and role == 'save_prompt'
+                        and state == 'not_sent' and isinstance(error, DecisionExpired)):
+                    value, frame = self.refresh_save_prompt(action, value, frame)
+                    continue
+                raise
+            decision['state']='answered'; action['state']='answered'; action.pop('reason',None); self.save()
+            break
         # Complete pointer parking before starting the next settling interval.
         # The overall operation budget still includes this movement. Uncertain
         # replies/cancellation never get here; no semantic action is repeated.
