@@ -1,0 +1,207 @@
+{
+  "window": "reel",
+  "attempt": "prep4-attempts-1-4",
+  "archive": "iMouseXP-2.0-evidence-archive\\20261020-farm-live-windows\\reel-prep4-attempts-1-4",
+  "files": 175,
+  "manifestSha256": "2393c96c892c85a485d85c9f0a4229b134f246f2548cb7423a894d09cbbd9e15",
+  "testToken": "65b4ad84ef48",
+  "backendSourceHash": "0781cafdfd114bc0ad375dbe23715621b69103a6b0468d5c2acf40126b7a70aa",
+  "phoneInput": true,
+  "publishing": false,
+  "messaging": false,
+  "restored": true,
+  "protectedFilesUnchanged": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "runId": "a22afe89-d88a-4aed-bfda-c11a37a87d89",
+      "state": "review_required",
+      "error": "InspectionStopped: The decision has no recent frame; automatic refresh is unavailable.",
+      "cleanup": "confirmed",
+      "retryBeforeImportAllowed": true,
+      "actions": [],
+      "observations": [
+        {
+          "role": "profile",
+          "ageMs": 2460.5660000013386
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "runId": "a2bf3220-e330-4c3e-80f4-68040200c380",
+      "state": "review_required",
+      "error": "DecisionExpired: Frame aged to 1550.4 ms before dispatch (limit 1500 ms).",
+      "cleanup": "confirmed",
+      "retryBeforeImportAllowed": true,
+      "actions": [
+        {
+          "label": "home-from-profile",
+          "state": "answered"
+        },
+        {
+          "label": "transfer-open-Safari",
+          "state": "not_sent"
+        }
+      ],
+      "observations": [
+        {
+          "role": "profile",
+          "ageMs": 993.3870000003783
+        },
+        {
+          "role": "profile",
+          "ageMs": 1031.7519999994179
+        },
+        {
+          "role": "home",
+          "ageMs": 1378.2910000009604
+        },
+        {
+          "role": "home",
+          "ageMs": 1432.191
+        }
+      ]
+    },
+    {
+      "attempt": 3,
+      "runId": "748b6865-ca72-4584-9289-0da595a513b0",
+      "state": "review_required",
+      "error": "InspectionStopped: The decision has no recent frame; automatic refresh is unavailable.",
+      "cleanup": "confirmed",
+      "retryBeforeImportAllowed": true,
+      "actions": [
+        {
+          "label": "home-from-profile",
+          "state": "answered"
+        },
+        {
+          "label": "transfer-open-Safari",
+          "state": "answered"
+        },
+        {
+          "label": "focus-safari-address",
+          "state": "answered"
+        },
+        {
+          "label": "enter-transfer-url",
+          "state": "answered"
+        }
+      ],
+      "observations": [
+        {
+          "role": "profile",
+          "ageMs": 996.6920000003784
+        },
+        {
+          "role": "profile",
+          "ageMs": 833.4939999980792
+        },
+        {
+          "role": "home",
+          "ageMs": 1360.3330000005822
+        },
+        {
+          "role": "home",
+          "ageMs": 970.2400000009604
+        },
+        {
+          "role": "reel_safari_entry",
+          "ageMs": 782.4869999994179
+        },
+        {
+          "role": "reel_safari_entry",
+          "ageMs": 1056.2149999990395
+        },
+        {
+          "role": "safari",
+          "ageMs": 826.6989999980791
+        },
+        {
+          "role": "address_selected",
+          "ageMs": 1099.3580000015425
+        },
+        {
+          "role": "reel_page",
+          "ageMs": 1181.9729999986612
+        },
+        {
+          "role": "reel_page",
+          "ageMs": 1924.9890000032597
+        }
+      ]
+    },
+    {
+      "attempt": 4,
+      "runId": "2ef57270-54a7-4396-82c4-503efeb8af05",
+      "state": "review_required",
+      "error": "DecisionExpired: Frame aged to 1503.6 ms before dispatch (limit 1500 ms).",
+      "cleanup": "confirmed",
+      "retryBeforeImportAllowed": true,
+      "actions": [
+        {
+          "label": "home-from-profile",
+          "state": "answered"
+        },
+        {
+          "label": "transfer-open-Safari",
+          "state": "answered"
+        },
+        {
+          "label": "focus-safari-address",
+          "state": "answered"
+        },
+        {
+          "label": "enter-transfer-url",
+          "state": "answered"
+        },
+        {
+          "label": "copy-caption",
+          "state": "not_sent"
+        }
+      ],
+      "observations": [
+        {
+          "role": "profile",
+          "ageMs": 1283.4260000032596
+        },
+        {
+          "role": "profile",
+          "ageMs": 1150.996
+        },
+        {
+          "role": "home",
+          "ageMs": 1111.8520000005822
+        },
+        {
+          "role": "home",
+          "ageMs": 1316.8829999980792
+        },
+        {
+          "role": "reel_safari_entry",
+          "ageMs": 1003.3800000003783
+        },
+        {
+          "role": "reel_safari_entry",
+          "ageMs": 1143.78
+        },
+        {
+          "role": "safari",
+          "ageMs": 1015.1699999994179
+        },
+        {
+          "role": "address_selected",
+          "ageMs": 1106.7069999973226
+        },
+        {
+          "role": "reel_page",
+          "ageMs": 947.2059999986612
+        },
+        {
+          "role": "reel_page",
+          "ageMs": 1027.635
+        }
+      ]
+    }
+  ]
+}

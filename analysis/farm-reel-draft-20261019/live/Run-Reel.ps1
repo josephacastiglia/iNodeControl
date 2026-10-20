@@ -1,12 +1,20 @@
 # One Reel creation through the headless native handler. Never replays an
 # existing attempt or native data folder; C24C must be free and live.
-param([ValidateRange(1,1)][int]$Attempt=1)
+param([ValidateRange(1,5)][int]$Attempt=1)
 $ErrorActionPreference='Stop'
 $taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 $taskPrep=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'preparation.json') -Raw | ConvertFrom-Json
 $taskProcesses=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'processes.json') -Raw | ConvertFrom-Json
 $taskOutput=Join-Path $PSScriptRoot ('native-reel-'+$Attempt)
 if(Test-Path -LiteralPath $taskOutput){throw 'This attempt exists. Retrieve it; do not replay.'}
+# A later attempt is a new request, never a replay. It is allowed only while every earlier
+# attempt in this window is a confirmed, cleaned-up stop before any media import.
+foreach($taskEarlier in @(1..$Attempt | Where-Object {$_ -lt $Attempt})){
+    $taskEarlierResult=Join-Path ([regex]::Replace($taskOutput,'\d+$',[string]$taskEarlier)) 'result.json'
+    if(!(Test-Path -LiteralPath $taskEarlierResult)){throw ('Attempt '+$taskEarlier+' has no retained result. No new attempt.')}
+    $taskEarlierRun=(Get-Content -LiteralPath $taskEarlierResult -Raw | ConvertFrom-Json).run
+    if(!$taskEarlierRun.terminal -or $taskEarlierRun.state -cne 'review_required' -or !$taskEarlierRun.retryBeforeImportAllowed -or $taskEarlierRun.cleanup -cne 'confirmed'){throw ('Attempt '+$taskEarlier+' is not a confirmed stop before import. No new attempt.')}
+}
 $taskActual=Get-CimInstance Win32_Process -Filter ('ProcessId='+$taskProcesses.kernel.pid)
 if(!$taskActual -or $taskActual.ExecutablePath -cne $taskPrep.kernel){throw 'Kernel process changed.'}
 $taskStatus=(Invoke-RestMethod 'http://127.0.0.1:9916/api/kernel/status' -TimeoutSec 4).data

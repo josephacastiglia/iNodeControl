@@ -150,3 +150,104 @@ advanced the frame counter.
   | Reel | `65b4ad84ef48` | `[3,7,2,0,7,3]` | `imouse-reel-pwwxuy` | `1742576125348d707bb1a0a3d6e6ae9d2b7e5c5f13142647acfb2f9b7db586e5` |
   | TikTok | `85724c91afc3` | `[3,1,4,0,2,4]` | `imouse-tt-ndnhvn` | `52047d47f61ad9dc1750c7bcef1aa7381b4c9a0ad891af13e25b1fd15530038c` |
   | X | `4408ea3ca4a3` | `[7,1,6,2,3,0]` | `imouse-x-hcxhkf` | `939d68b24b355d5bb723a5d9a0add991ee74646da1c1b7a9e39c65cecf399ada` |
+
+## 4. Reel window on `54262d8`: four attempts, all stopped on frame freshness
+
+- The operator asked that the farm do the phone-side steps itself. Two additions
+  came out of that (sections 5 and 7).
+- **Calibration for auto-connect.** The operator screenshotted C24C's Screen
+  Mirroring sheet before mirroring, opened it in Photos, and connected. One
+  read-only frame then gave the not-yet-mirroring geometry: card x 42–458 from
+  y 341, separators at y 458 / 520 / 583 / 645 / 709, so row centres at
+  (250, 489) / 551 / 614 / 677. The mirroring-state sheet sits higher (row 1 at
+  472), so the old fixed point would have been 17 px off.
+- Four attempts ran in the same window, with no restart or reconnect:
+  - The Run scripts now allow attempts 2–5, each only if every earlier attempt is
+    a confirmed, cleaned-up stop before import.
+  - Every attempt stopped safely:
+    1. A stale first frame (2.5 s).
+    2. A decision aged to 1,550 ms (after Home).
+    3. A stale frame (1.9 s) on the transfer page.
+    4. A decision aged to 1,503.6 ms at *Copy caption*.
+  - Nothing was imported in any attempt.
+- **Cause.** The PC was at 70–100 % CPU from other work: Defender scanning, a
+  headless Chrome automation, a Node process and other sessions. Frames arrived
+  0.8–1.9 s old (0.5–0.9 s earlier in the night), and each OCR call took about
+  0.7 s (a new PowerShell process per call). The operator chose to keep the 1.5 s
+  limit and fix the decision method.
+- The window was then stopped (stopped state restored, 25 protected files unchanged).
+  [Summary of all four attempts](reel-prep4-attempts-1-4-summary.json); 175 archived files, manifest
+  `2393c96c892c85a485d85c9f0a4229b134f246f2548cb7423a894d09cbbd9e15`.
+
+## 5. Guarded start-screen helper (`tools/farm_start_screen.py`)
+
+Brings C24C to a window's verified start screen so the operator does not have to.
+- It holds the lease and decides every tap on a fresh frame.
+- Text recognition is slow on a loaded PC, so a tap is decided on a newer frame
+  that matches the recognized one in pixels, and that frame's age counts.
+- It refuses any screen it does not recognize and never repeats an uncertain tap.
+- Instagram profile route: already at the top → nothing; own profile scrolled →
+  tap the profile tab; anything else → Home, then the workflow's own app route
+  (app icon, or Spotlight *Search* and its result), then the feed's profile tab.
+- Live on 20 Oct:
+  - From a scrolled profile: one tap reached the top.
+  - From Safari: Home → *Search* → *Instagram* → feed → profile tab → exact
+    @xs.halle.xo profile.
+  - The lease was released each time.
+
+## 6. Decisions reconfirmed by a newer frame (keeps the 1.5 s limit)
+
+- **`farm_draft_workflow.Workflow`.**
+  - When a recognized decision's frame ages past 1.5 s before anything is sent
+    (`DecisionExpired`, or the new `FrameNotRecent`), `bound_command` calls
+    `reconfirm`.
+  - `reconfirm` captures up to three newer frames, moving the pointer only. A
+    newer frame counts only if it is from the same receiver stream, lease and
+    input generation, is itself ≤ 1.5 s old, and matches the recognized frame
+    under that screen's own settling rule (the same masks used for two-frame
+    settling).
+  - The command is then sent once, bound to the recognized observation, with the
+    newer frame's age checked at dispatch. Confirming frames are journaled
+    (`decisionConfirmations`) and exported with the evidence.
+- **Settling (`farm_transitions.wait_for_transition`).** It takes
+  `require_recent`. Screens with a confirmation rule may settle on frames that
+  are no longer recent. All other checks stay: expiry, pairing, identity,
+  context, sequence and the two-frame comparison.
+- **Scope.** Only the settled Reel, TikTok and X screens have a confirmation
+  rule. The carousel path, transient callouts and prompt answers keep the plain
+  rule unchanged.
+- **Tests (X protocol fixture).**
+  - Recognition that outlasts the budget is reconfirmed twice and the draft is
+    created.
+  - A screen that changes after its decision frame settled is never tapped: every
+    confirmation is rejected and the run stops.
+- **Complete suite** (`python-shard-confirm-*.txt`): 559 tests in five parallel shards,
+  557 passed. X 10, TikTok 11, Reel 9 and carousel 58 all pass. The two failures were load
+  flakes in untouched code: the rehearsal timing test again, and a loopback
+  connection abort (`WinError 10053`) in a transfer-session test. Both pass alone,
+  together with the 6 new auto-connect tests (`python-rerun-confirm.txt`: 25 passed).
+- All three windows re-prepared on this code: backend fingerprint
+  `37ac9686d30e4934f24744c3d73d36f4cca1fc078f2c3de579e3d4dae226f9f3`, dry probes 3/3, ready.
+  Tokens: Reel `ff9863545bbb`, TikTok `a32329d208b0`, X `cb3872ad0bff` (each
+  `live/preparation.json` is authoritative).
+
+## 7. PC-initiated screen mirroring (`tools/farm_mirroring.py`)
+
+The operator asked for the original app's one-click auto-connect. The vendor's version
+replays calibrated taps blind. Ours keeps the handoff's rule that the receiver must be
+positively identified:
+
+- **Preconditions:** the private receiver is up but not live, and C24C is free under a
+  held lease. Bonjour (`dns-sd`) must show `iMouse2-C24C`, at most four AirPlay
+  receivers, and every other receiver sorting after ours under plain, case-insensitive
+  and number-aware order. Then ours is provably row 1. A *Bedroom TV*, an uppercase
+  name or `iMouse2-C241` can sort first, so the run refuses rather than guessing.
+- **Bounded blind sequence:** ControlBar (Fn+C), the Screen Mirroring tile (199, 432),
+  then row 1 (250, 489) from the calibration. The receiver must go live within 8 s;
+  otherwise it stops with no retry or further input.
+- **After connecting:** Control Center is closed by two taps below the sheet and grid
+  (250, 960), each decided on fresh frames.
+- **Own transport:** C24C only, ControlBar as the only key, clicks only at those points.
+- **Tests:** 6 offline tests (`tools/test_farm_mirroring.py`) cover the browse parser,
+  the first-row proof, refusals that send nothing, the exact three blind inputs plus
+  the verified close, no retry after a failed connection, and the transport limits.

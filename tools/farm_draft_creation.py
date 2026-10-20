@@ -203,7 +203,7 @@ class CreationWorkflow(Workflow):
                 x,y=point
                 require(10<=x<=490 and 65<=y<=1035, 'Creation target leaves the reviewed phone area.')
                 if hold:
-                    self.command('/mouse/move',basis=value,purpose=label+'-position',x=x,y=y)
+                    self.bound_command('/mouse/move',basis=value,frame=frame,role=role,purpose=label+'-position',x=x,y=y)
                     # A press follows the same recognized image/empty caption,
                     # with no unrelated phone command in between.
                     self.pause(.6)
@@ -214,22 +214,25 @@ class CreationWorkflow(Workflow):
                     # Some app controls ignored an immediate click on 17 Oct but
                     # answered after the pointer rested on them: the same single
                     # click follows the bound move, with nothing in between.
-                    self.command('/mouse/move',basis=value,purpose=label+'-position',x=x,y=y)
+                    self.bound_command('/mouse/move',basis=value,frame=frame,role=role,purpose=label+'-position',x=x,y=y)
                     self.pause(.6)
                     self.command('/mouse/click',purpose=label,x=x,y=y,button=1)
-                else: self.command('/mouse/click',basis=value,purpose=label,x=x,y=y,button=1)
+                else: self.bound_command('/mouse/click',basis=value,frame=frame,role=role,purpose=label,x=x,y=y,button=1)
             elif key:
-                self.command('/key/sendkey',basis=value,purpose=label,fn_key=key)
+                self.bound_command('/key/sendkey',basis=value,frame=frame,role=role,purpose=label,fn_key=key)
             elif text is not None:
                 require(text and all(33<=ord(c)<=126 for c in text) and len(text)<=120,
                         'Only bounded URL/app search text without spaces is permitted. Captions use Paste.')
                 # One bounded, contiguous input sequence, never retried. The
                 # first dispatch is bound to the recognized selected/empty field.
                 for offset in range(0,len(text),12):
-                    self.command('/key/sendkey',basis=value if offset==0 else None,
-                        purpose=label+'-'+str(offset),key=text[offset:offset+12])
+                    if offset==0:
+                        self.bound_command('/key/sendkey',basis=value,frame=frame,role=role,
+                            purpose=label+'-'+str(offset),key=text[offset:offset+12])
+                    else:
+                        self.command('/key/sendkey',purpose=label+'-'+str(offset),key=text[offset:offset+12])
             elif swipe:
-                self.command('/mouse/swipe',basis=value,purpose=label,**swipe)
+                self.bound_command('/mouse/swipe',basis=value,frame=frame,role=role,purpose=label,**swipe)
             else: raise InspectionStopped('Creation action has no reviewed implementation.')
             row['state']='answered';self.save()
             self.command('/mouse/move',purpose='park_after_answered_action',x=480,y=300)

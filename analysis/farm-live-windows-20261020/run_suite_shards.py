@@ -1,6 +1,6 @@
 """The complete Python farm suite (every tools/test_farm*.py module) in parallel shards. No socket or phone.
 
-Each shard is `python -m unittest <modules>` in tools/, logged to python-shard-<name>.txt
+Each shard is `python -m unittest <modules>` in tools/, logged to python-shard-[<label>-]<name>.txt
 with its exit code. The slow retained-frame protocol suites get their own shards.
 """
 from pathlib import Path
@@ -18,7 +18,10 @@ shards = dict(SLOW, rest=[m for m in modules if m not in assigned])
 assert sorted(m for group in shards.values() for m in group) == modules
 processes = {}
 for name, group in shards.items():
-    log = open(HERE / f'python-shard-{name}.txt', 'w', encoding='utf-8')
+    label = (sys.argv[1] + '-') if len(sys.argv) > 1 else ''
+    path = HERE / f'python-shard-{label}{name}.txt'
+    if path.exists(): raise SystemExit('Shard log exists; never overwrite a recorded run: ' + path.name)
+    log = open(path, 'w', encoding='utf-8')
     processes[name] = (subprocess.Popen([sys.executable, '-m', 'unittest', *group], cwd=TOOLS, stdout=log, stderr=subprocess.STDOUT), log)
 codes = {}
 for name, (process, log) in processes.items():

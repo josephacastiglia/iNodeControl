@@ -146,6 +146,10 @@ class ReelCreationWorkflow(CreationWorkflow):
         if role == 'reel_preview': return reel.reel_preview(frame, text, self.video, self.account, self.caption)
         return super().verify_screen(role, value, frame, index, require_next)
 
+    def confirmation_compare(self, role):
+        """Settled screens may be reconfirmed by a newer frame under their own settling rule."""
+        return reel.reel_compare(role) if role in SETTLED else None
+
     def observe_screen(self, role, index=None, require_next=False):
         if role not in PRE_SETTLE: return super().observe(role, index, require_next)
         self.pause(PRE_SETTLE[role])
@@ -154,7 +158,8 @@ class ReelCreationWorkflow(CreationWorkflow):
             self.record['transitionChecks'].append(event); self.save()
         value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
             journal=journal, monotonic=self.monotonic, pause=self.pause,
-            ready=lambda frame, text: None, compare=reel.reel_compare(role))
+            ready=lambda frame, text: None, compare=reel.reel_compare(role),
+            require_recent=self.confirmation_compare(role) is None)
         return value, frame
 
     def check_target(self, role, point):

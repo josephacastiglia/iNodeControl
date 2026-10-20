@@ -104,12 +104,12 @@ class XCreationWorkflow(ReelCreationWorkflow):
         for key in ('draftsCount', 'pickerCell'): self.record.pop(key, None)
 
     # -- account binding --------------------------------------------------------------
-    def validate(self, value, frame):
+    def validate(self, value, frame, require_recent=True):
         if value.get('result', {}).get('accountStatus') == 'different_text':
             # Before binding, the menu necessarily shows a handle other than the placeholder.
             require(self.account == PENDING, 'A different X account (or more than one handle) is shown; no further input is sent.')
             value = {**value, 'result': {**value['result'], 'accountStatus': 'binding'}}
-        super().validate(value, frame)
+        super().validate(value, frame, require_recent)
 
     def account_menu(self, label, *, bind):
         self.tap('open-account-menu' + label, 'x_feed', lambda v, f: xl.x_feed(f, v['text'])['menuTarget'])
@@ -156,6 +156,10 @@ class XCreationWorkflow(ReelCreationWorkflow):
             return result
         return super().verify_screen(role, value, frame, index, require_next)
 
+    def confirmation_compare(self, role):
+        """Settled screens may be reconfirmed by a newer frame under their own settling rule."""
+        return compare(role) if role in SETTLED else None
+
     def observe_screen(self, role, index=None, require_next=False):
         if role != 'x_picker': return self.observe_settled(role, index, require_next)
         for attempt in range(LOADING_ATTEMPTS):
@@ -172,7 +176,8 @@ class XCreationWorkflow(ReelCreationWorkflow):
             self.record['transitionChecks'].append(event); self.save()
         value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
             journal=journal, monotonic=self.monotonic, pause=self.pause,
-            ready=lambda frame, text: None, compare=compare(role), platform=self.PLATFORM)
+            ready=lambda frame, text: None, compare=compare(role), platform=self.PLATFORM,
+            require_recent=self.confirmation_compare(role) is None)
         return value, frame
 
     def check_target(self, role, point):

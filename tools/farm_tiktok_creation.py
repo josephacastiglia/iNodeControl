@@ -151,6 +151,10 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
         if role == 'tiktok_drafts': return tt.tiktok_drafts(frame, text, self.video)
         return super().verify_screen(role, value, frame, index, require_next)
 
+    def confirmation_compare(self, role):
+        """Settled screens may be reconfirmed by a newer frame under their own settling rule."""
+        return compare(role) if role in SETTLED else None
+
     def observe_screen(self, role, index=None, require_next=False):
         if role not in PRE_SETTLE: return Workflow.observe(self, role, index, require_next)
         def journal(event):
@@ -160,7 +164,8 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
             if role in SETTLED:
                 value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
                     journal=journal, monotonic=self.monotonic, pause=self.pause,
-                    ready=lambda frame, text: None, compare=compare(role), platform=self.PLATFORM)
+                    ready=lambda frame, text: None, compare=compare(role), platform=self.PLATFORM,
+                    require_recent=self.confirmation_compare(role) is None)
             else:
                 value, frame = self.capture(role, index)
             entry = next(e for e in reversed(self.record['observations']) if e.get('observationId') == value['id'])

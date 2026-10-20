@@ -1,0 +1,30 @@
+.........................
+----------------------------------------------------------------------
+Ran 25 tests in 28.994s
+
+OK
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/transfers/current HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/14a4052d-8e6b-42b6-b1e1-eae527490fa1/stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/transfers/21d58c28-c6d2-40f1-baab-789238cb48b3/stop HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals/2448c8b7-d284-425c-b708-c5a49363a428/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/2448c8b7-d284-425c-b708-c5a49363a428 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/632e7e56-6522-4c26-8a17-63c8612b2945 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals?draft_id=61e00997-5c3d-4294-8a84-ec6faec03742 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/632e7e56-6522-4c26-8a17-63c8612b2945/frames/c1989287-763b-40ab-8a72-7a2c70b7f59f HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals?draft_id=61e00997-5c3d-4294-8a84-ec6faec03742 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/632e7e56-6522-4c26-8a17-63c8612b2945 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/632e7e56-6522-4c26-8a17-63c8612b2945/frames/c1989287-763b-40ab-8a72-7a2c70b7f59f HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+exit 0

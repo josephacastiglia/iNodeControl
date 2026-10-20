@@ -51,7 +51,11 @@ runs = sorted((run / 'backend' / f'{name}-creations').glob('*/record.json'))
 summary = dict(window=name, attempt=label, archive=str(dest.relative_to(ROOT.parent)), files=len(copies),
                manifestSha256=manifest_sha, testToken=prep['testToken'], backendSourceHash=prep['backendSourceHash'],
                phoneInput=True, publishing=False, messaging=False)
-if runs:
+if len(runs) > 1:
+    summary['attempts'] = [dict(runId=path.parent.name, state=r.get('state'), error=r.get('error'), cleanup=r.get('cleanup'),
+                                actions=[dict(label=a.get('label'), state=a.get('state')) for a in r.get('actions', [])])
+                           for path, r in ((path, json.loads(path.read_text(encoding='utf-8'))) for path in runs)]
+elif runs:
     r = json.loads(runs[0].read_text(encoding='utf-8'))
     summary.update(runId=runs[0].parent.name, state=r.get('state'), error=r.get('error'), cleanup=r.get('cleanup'),
                    evidenceExport=r.get('evidenceExport'), savedDraftVerified=r.get('savedDraftVerified'),

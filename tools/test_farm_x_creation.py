@@ -122,6 +122,8 @@ class FixtureOcr:
         if k.scenario == 'wrong_text' and k.screen == 'x_drafts':
             for row in text['lines']:
                 if row['text'] == CAPTION: row['text'] = 'A different draft text'
+        if k.scenario in ('slow_recognition', 'changed_after_recognition') and k.screen == k.fault_screen:
+            k.now += 1.6; k.recognitions += 1   # Recognition outlasts the 1.5 s frame-age budget (loaded PC).
         if k.scenario == 'prompt' and k.screen == k.fault_screen:
             text['lines'] += [line('Allow', 120, 600, 60), line("Don't Allow", 260, 600, 110)]
         return text
@@ -137,7 +139,7 @@ class FixtureKernel:
         self.generation, self.sequence, self.now = 4, 100, 1000.
         self.session = uuid.uuid4().hex; self.calls = []; self.typed = ''; self.searched = ''
         self.unexpected = []; self.cancelled = None; self.photos = 0; self.captures = {}; self.frame_key = None
-        self.menu_opens = 0; self.played = 0
+        self.menu_opens = 0; self.played = 0; self.recognitions = 0
         self.pointer = None   # Last pointer position the phone received.
 
     def clock(self): self.now += .001; return self.now
@@ -180,6 +182,9 @@ class FixtureKernel:
         if self.screen == 'x_picker' and self.frame_key == 'x_picker' and self.scenario == 'ambiguous_tile':
             with Image.open(io.BytesIO(raw)) as base:
                 image = base.convert('RGB'); image.paste(image.crop((0, 201, 166, 367)), (167, 368)); raw = png(image)
+        if self.scenario == 'changed_after_recognition' and self.screen == self.fault_screen and self.recognitions >= 2:
+            with Image.open(io.BytesIO(raw)) as base:   # Changed after the decision frame settled (two recognitions).
+                image = base.convert('RGB'); ImageDraw.Draw(image).rectangle((100, 600, 400, 700), fill='black'); raw = png(image)
         age = '2000' if self.scenario == 'stale_frame' and self.owned and self.screen == self.fault_screen else '0'
         return raw, {'X-iMouse-Frame-Session': self.session, 'X-iMouse-Frame-Sequence': str(self.sequence),
                      'X-iMouse-Frame-Age-Ms': age, 'X-iMouse-Frame-Delivery': 'flowing'}
@@ -386,6 +391,27 @@ class XProtocolTests(unittest.TestCase):
                 flow, kernel = self.fixture(scenario, saved=True, verifier=True, account=account); result = flow.run()
                 self.assertEqual('review_required', result['state']); self.assertFalse(result['savedDraftVerified'])
                 self.assertEqual(1, kernel.saves); self.assertEqual('confirmed', result['cleanup'])
+
+    def test_a_slow_recognition_is_reconfirmed_by_a_newer_matching_frame(self):
+        flow, kernel = self.fixture('slow_recognition', 'x_composer_empty'); result = flow.run()
+        self.assertEqual('created_unverified', result['state'], result.get('error')); self.assertEqual(1, kernel.saves)
+        confirmed = [c for c in result['decisionConfirmations'] if c['state'] == 'confirmed']
+        self.assertEqual(2, len(confirmed))   # Focus tap and Paste long press, both on the slow screen.
+        refused = [c for c in result['commands'] if c['state'] == 'not_sent']
+        self.assertTrue(refused and all(c['refusal'].startswith(('FrameNotRecent', 'DecisionExpired')) for c in refused))
+        bound = [c for c in result['commands'] if c.get('confirmation')]
+        self.assertEqual(['focus-empty-text-position', 'open-paste-menu-position'], [c['purpose'] for c in bound])
+        self.assertTrue(all(c['state'] == 'answered' and c['decisionChecks'][-1]['confirmationAgeMs'] <= 1500 for c in bound))
+        self.assertTrue(all((flow.folder / c['frame']).is_file() for c in result['decisionConfirmations']))
+        self.assertEqual([], kernel.unexpected)
+
+    def test_a_screen_that_changed_after_recognition_is_never_tapped(self):
+        flow, kernel = self.fixture('changed_after_recognition', 'x_composer_empty'); result = flow.run()
+        self.assertEqual('review_required', result['state']); self.assertEqual(0, kernel.saves)
+        self.assertIn('No newer frame matched', result['error']); self.assertEqual('confirmed', result['cleanup'])
+        self.assertTrue(all(c['state'] == 'rejected' for c in result['decisionConfirmations']))
+        self.assertFalse(any(c[0] == '/mouse/click' and c[1] == {'x': 160, 'y': 140, 'button': 1} for c in kernel.calls if isinstance(c, tuple)))
+        self.assertEqual([], kernel.unexpected)
 
     def test_committing_purposes_name_real_creation_actions(self):
         flow, kernel = self.fixture(); flow.run()

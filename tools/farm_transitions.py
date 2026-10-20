@@ -97,8 +97,8 @@ def compare_frames(stage, first, first_text, second, second_text):
     raise InspectionStopped('Protected screen content changed during settling; no action sent.')
 
 
-def _validate(value, frame, platform='instagram'):
-    if (value.get('freshness') != 'recent' or value.get('expired') or value.get('state') != 'observed'
+def _validate(value, frame, platform='instagram', require_recent=True):
+    if ((require_recent and value.get('freshness') != 'recent') or value.get('expired') or value.get('state') != 'observed'
             or value.get('stable') is not True or value.get('inputSettled') is not True
             or not capture_settled(value) or value.get('frameEvidence', {}).get('pairedMetadata') is not True):
         raise InspectionStopped('Settling requires a fresh authenticated frame at every capture.')
@@ -122,7 +122,8 @@ def _validate(value, frame, platform='instagram'):
 
 def wait_for_transition(stage, capture, check, current, *, assets=(), index=None,
                         require_next=False, journal=lambda event: None,
-                        monotonic=time.monotonic, pause=time.sleep, ready=None, compare=None, platform='instagram'):
+                        monotonic=time.monotonic, pause=time.sleep, ready=None, compare=None, platform='instagram',
+                        require_recent=True):
     """Return the latest of two fresh stable observations, or stop within bounds.
 
     capture retains evidence through the owning workflow. check authenticates its
@@ -131,6 +132,8 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
     matching frame cannot erase a dialog, wrong slide or ownership discontinuity.
     Another screen family supplies both its own ready and compare checks; the
     capture, context and final-revalidation rules here stay the same.
+    require_recent=False is only for screens whose caller proves freshness at
+    dispatch with a newer matching frame (Workflow.reconfirm); every other check stays.
     """
     if (ready is None) != (compare is None): raise ValueError('Supply both screen checks or neither.')
     if ready is None and stage not in ('create', 'picker', 'editor'): raise ValueError('Unsupported transition stage.')
@@ -147,7 +150,7 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
             value, frame = capture()
             check()
             if monotonic() >= deadline: raise InspectionStopped('Transition capture exceeded its settling budget.')
-            context, sequence = _validate(value, frame, platform)
+            context, sequence = _validate(value, frame, platform, require_recent)
             ready(frame, value['text'])
             if previous is None:
                 decision = dict(state='wait', reason='A second independently fresh observation is required.')
@@ -162,7 +165,7 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
             if decision['state'] == 'ready':
                 check()
                 final, retained = current(value['id'])
-                final_context = _validate(final, retained, platform)
+                final_context = _validate(final, retained, platform, require_recent)
                 if monotonic() >= deadline:
                     raise InspectionStopped('Transition verification exceeded its settling budget.')
                 if (final_context != (context, sequence)

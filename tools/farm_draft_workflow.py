@@ -39,6 +39,13 @@ class DecisionExpired(InspectionStopped):
     """A once-valid decision aged locally, before transport, in the same run."""
 
 
+class FrameNotRecent(InspectionStopped):
+    """The decision frame was not recent at capture; nothing was sent."""
+
+
+CONFIRMATION_TRIES = 3   # Newer frames tried after a recognized frame aged out; moves only, never a tap.
+
+
 def prompt_context(value):
     return (value.get('observerSession'), value.get('resolvedDeviceId'), value.get('receiverPid'),
             value.get('inputGeneration'), value.get('frameEvidence', {}).get('session'),
@@ -124,6 +131,7 @@ class Workflow:
         self.owned = OwnedCaptureRun(kernel, str(uuid.uuid4()), self.cancelled, monotonic,
                                      budget_seconds=WORKFLOW_BUDGET_SECONDS)
         self.identity = None
+        self.confirmation_frames = []   # (file name, raw) of confirming frames, exported with the evidence.
         self.record = dict(id=self.owned.run_id, source='candidate_phone_workflow' if kernel._is_live_http else 'offline_protocol_fixture',
             state='not_started', cleanup='not_needed', commands=[], observations=[], transitionChecks=[], actions=[],
             promptRecoveries=[],
@@ -142,9 +150,11 @@ class Workflow:
         self.owned.check(self.kernel)
         if self.runtime() != self.identity: raise InspectionStopped('Candidate process changed during the run.')
 
-    def command(self, fun, *, basis=None, purpose, **data):
+    def command(self, fun, *, basis=None, purpose, confirmation=None, **data):
         self.check()
         item = dict(fun=fun, data=data, purpose=purpose, state='not_sent')
+        if confirmation is not None:
+            item['confirmation'] = {k: confirmation[k] for k in ('observationId', 'sequence', 'ageAtCaptureMs', 'frameSha256', 'compare')}
         self.record['commands'].append(item); self.save()
         def check_basis(stage):
             if basis is None: return
@@ -154,7 +164,15 @@ class Workflow:
                 expired=value.get('expired'), frameAgeMs=value.get('frameEvidence', {}).get('currentAgeUpperBoundMs')))
             if value.get('evidenceRecordSha256') != basis.get('evidenceRecordSha256'):
                 raise InspectionStopped('The exact action evidence changed.')
-            self.validate(value, frame)
+            self.validate(value, frame, require_recent=confirmation is None)
+            if confirmation is not None:
+                # The recognized frame proved what the screen is; the newer frame proves it is current.
+                if confirmation['observationId'] != value['id']:
+                    raise InspectionStopped('The confirming frame belongs to another decision.')
+                age = confirmation['ageAtCaptureMs'] + (self.monotonic() - confirmation['capturedMonotonic']) * 1000
+                item['decisionChecks'][-1]['confirmationAgeMs'] = age
+                if not math.isfinite(age) or age > MAX_AGE_MS:
+                    raise DecisionExpired('Confirming frame aged to %.1f ms before dispatch (limit %d ms).' % (age, MAX_AGE_MS))
         try:
             check_basis('before_dispatch_journal')
             item['state'] = 'outcome_unknown'; self.save()
@@ -169,7 +187,7 @@ class Workflow:
         item['response'] = self.kernel.send('C24C', self.owned.tokens['C24C'], fun, **data)
         item['state'] = 'answered'; self.save()
 
-    def validate(self, value, frame):
+    def validate(self, value, frame, require_recent=True):
         if (value.get('state') != 'observed' or value.get('expired')
                 or value.get('stable') is not True or value.get('inputSettled') is not True or not capture_settled(value)
                 or value.get('frameEvidence', {}).get('pairedMetadata') is not True
@@ -188,6 +206,8 @@ class Workflow:
                 or value.get('text', {}).get('frameSha256') != value.get('frameSha256')
                 or value.get('reviewFrameSha256') != hashlib.sha256(frame).hexdigest()):
             raise InspectionStopped('The decision has no fresh, intact C24C frame under this ownership.')
+        if not require_recent:
+            return   # Freshness is then proven by a newer confirming frame (reconfirm), never skipped.
         evidence = value['frameEvidence']
         original, current = evidence.get('ageUpperBoundMs'), evidence.get('currentAgeUpperBoundMs')
         if value.get('freshness') != 'recent':
@@ -195,7 +215,7 @@ class Workflow:
                     and all(type(age) in (int, float) and math.isfinite(age) for age in (original, current))
                     and 0 <= original <= MAX_AGE_MS < current):
                 raise DecisionExpired('Frame aged to %.1f ms before dispatch (limit %d ms).' % (current, MAX_AGE_MS))
-            raise InspectionStopped('The decision has no recent frame; automatic refresh is unavailable.')
+            raise FrameNotRecent('The decision has no recent frame; automatic refresh is unavailable.')
 
     def verify_screen(self, role, value, frame, index=None, require_next=False):
         result, text = value['result'], value['text']
@@ -229,6 +249,66 @@ class Workflow:
             if item['fun'] in ('/mouse/reset', '/mouse/swipe'): return None
         return None
 
+    def confirmation_compare(self, role):
+        """A pixel rule proving that a newer frame shows the recognized screen; None keeps the plain freshness rule."""
+        return None
+
+    def reconfirm(self, role, value, frame):
+        """After a recognized frame aged out before anything was sent, prove a newer frame shows the same screen.
+
+        On a loaded PC, recognition (OCR) and receiver delivery can use most of the 1.5 s budget.
+        The decision stays bound to the recognized observation. A newer frame from the same
+        receiver stream, under the same lease and input generation, must match it under the
+        screen's own settling rule; then only that newer frame's age counts. Moves only.
+        """
+        compare = self.confirmation_compare(role)
+        if compare is None:
+            raise FrameNotRecent('This screen has no confirmation rule; nothing was sent.')
+        base = value['frameEvidence'].get('sequence', -1)
+        for attempt in range(CONFIRMATION_TRIES):
+            self.check()
+            before = self.kernel.kernel_status()['receivers'][0]['frames']
+            x = 450 if self.pointer_position() == (480, 300) else 480
+            self.command('/mouse/move', purpose='fresh_frame_confirmation', x=x, y=300)
+            self.pause(.12)
+            raw, headers = self.kernel.shot('C24C')
+            taken = self.monotonic()
+            try:
+                sequence = int(headers.get('X-iMouse-Frame-Sequence', -1)); age = float(headers.get('X-iMouse-Frame-Age-Ms', 'nan'))
+            except (TypeError, ValueError):
+                sequence, age = -1, float('nan')
+            receiver = self.kernel.kernel_status()['receivers'][0]
+            state = self.kernel.input_status().get(LIVE_TEST_DEVICE_ID) or {}
+            entry = dict(role=role, observationId=value['id'], attempt=attempt, sequence=sequence, ageAtCaptureMs=age,
+                         capturedMonotonic=taken, frameSha256=hashlib.sha256(raw).hexdigest(), compare=None, state='rejected',
+                         frame='confirm-%02d-%s.bmp' % (len(self.record.setdefault('decisionConfirmations', [])) + 1, role))
+            intact = (headers.get('X-iMouse-Frame-Session') == self.owned.stream[3]
+                      and headers.get('X-iMouse-Frame-Delivery', 'flowing') == 'flowing'
+                      and math.isfinite(age) and 0 <= age <= MAX_AGE_MS
+                      and sequence > max(before, base, self.record.get('lastSequence', -1))
+                      and receiver.get('receiver_pid') == self.owned.stream[1]
+                      and state.get('generation') == self.owned.generation and state.get('owned') is True)
+            if intact:
+                result = compare(frame, value['text'], raw, None)
+                entry['compare'] = {k: result.get(k) for k in ('state', 'mean', 'changed')}
+                if result.get('state') == 'ready':
+                    entry['state'] = 'confirmed'; self.record['lastSequence'] = sequence
+            self.record['decisionConfirmations'].append(entry); self.save()
+            self.confirmation_frames.append((entry['frame'], raw))
+            if entry['state'] == 'confirmed': return entry
+        raise InspectionStopped('No newer frame matched the recognized screen within its age limit; nothing was sent.')
+
+    def bound_command(self, fun, *, basis, frame, role, purpose, **data):
+        """A recognized decision's first command. If its frame aged out before sending, reconfirm once."""
+        try:
+            return self.command(fun, basis=basis, purpose=purpose, **data)
+        except (DecisionExpired, FrameNotRecent):
+            item = self.record['commands'][-1]
+            if item.get('purpose') != purpose or item.get('state') != 'not_sent' or self.confirmation_compare(role) is None:
+                raise
+        confirmation = self.reconfirm(role, basis, frame)
+        return self.command(fun, basis=basis, purpose=purpose, confirmation=confirmation, **data)
+
     def capture(self, role, index=None, require_next=False):
         self.check()
         # Move only, never a tap: quiet video needs a new delivery. Its metadata,
@@ -253,7 +333,9 @@ class Workflow:
         # Export the second copy after releasing the phone, outside the decision
         # age budget. Dispatch still re-reads and hashes the committed image.
         entry.update(state='observed',frame=path.name,observation=value); self.save()
-        self.validate(value, frame)
+        # Screens with a confirmation rule may be recognized on a frame that is no longer recent:
+        # their dispatch then needs a newer frame proven to show the same screen (reconfirm).
+        self.validate(value, frame, require_recent=self.confirmation_compare(role) is None)
         sequence = value['frameEvidence']['sequence']
         if sequence <= max(before, self.record.get('lastSequence', -1)):
             raise InspectionStopped('The pointer challenge did not produce a new frame.')
@@ -462,6 +544,8 @@ class Workflow:
                 if value['reviewFrameSha256'] != entry['observation']['reviewFrameSha256']:
                     raise InspectionStopped('Retained image changed before evidence export.')
                 (self.folder/entry['frame']).write_bytes(frame)
+            for name, raw in self.confirmation_frames:
+                (self.folder/name).write_bytes(raw)
             self.record['evidenceExport']='confirmed'
         except Exception as error:
             self.record.update(state='review_required',evidenceExport='failed',exportError=str(error))
