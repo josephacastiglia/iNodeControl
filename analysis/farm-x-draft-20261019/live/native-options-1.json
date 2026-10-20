@@ -1,9 +1,9 @@
 {
   "assembly": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\claude-farm-x-20261019\\iMouse2.dll",
   "nativeSha256": "9652c2316b900c1264c449f8bc15acbd078ab3f0d16f8193b5464585d80262ef",
-  "draftId": "5ea13cba-6f93-4711-8064-652bc0ea2ed8",
+  "draftId": "8dc51c9e-8a86-4337-9cd2-44d9a1459f9d",
   "revision": 1,
-  "backendSourceHash": "9c9c6fc8fb0af695f737945861a96853c17fc7e1d5162fbe55ad89b7b23a2902",
+  "backendSourceHash": "0781cafdfd114bc0ad375dbe23715621b69103a6b0468d5c2acf40126b7a70aa",
   "output": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-x-20261019\\native-x-1",
   "dataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-x-20261019\\native-x-1-data"
 }

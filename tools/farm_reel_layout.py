@@ -413,14 +413,18 @@ def caption_copied(text):
     return dict(copied=True)
 
 
-LINK_MENU = (('Open', (55, 765, 140, 800)), ('Open in New Tab', (55, 818, 245, 853)),
-             ('Download Linked File', (55, 925, 275, 956)), ('Add to Reading List', (55, 978, 255, 1012)))
+# The rows were identical on 17 and 20 Oct, but iOS placed the menu column about 85 px further
+# right on 20 Oct (labels at x 139 instead of about 60). Only the rows are fixed; the labels
+# must share one left edge, and the target is the exact label's own centre.
+LINK_MENU = (('Open', (40, 765, 360, 800)), ('Open in New Tab', (40, 818, 360, 853)),
+             ('Download Linked File', (40, 925, 360, 956)), ('Add to Reading List', (40, 978, 360, 1012)))
 
 
 def link_menu(text):
-    for label, box in LINK_MENU: exact(text, label, box)
+    lefts = [exact(text, label, box)[0] for label, box in LINK_MENU]
+    require(max(lefts) - min(lefts) <= 12, 'The Safari link menu items are not one column.')
     require(line_at(text, 'hide preview', (355, 90, 480, 122)), 'The Safari link preview is not recognized.')
-    bounds = exact(text, 'Download Linked File', (55, 925, 275, 956))
+    bounds = exact(text, 'Download Linked File', LINK_MENU[2][1])
     return dict(target=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)))
 
 

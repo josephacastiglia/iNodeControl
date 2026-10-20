@@ -110,3 +110,43 @@ advanced the frame counter.
   | Reel | `41fcf02910fe` | `[1,0,5,2,5,0]` | `imouse-reel-uaercv` | `c21e145d9b45a78a81028c8218779e83a9bd0c2da35b8def0466fc32ad330963` |
   | TikTok | `ec8f0dab0e24` | `[6,1,6,7,0,5]` | `imouse-tt-mwdvff` | `6b118768564f78a542bd183f5f5a1eb59caaa94e37ce1b9cb8e5c453596fc86b` |
   | X | `c6d980f9a79c` | `[0,4,5,1,0,2]` | `imouse-x-vtyxck` | `fc41754b57c6ccafd02ee2d907ee61741e4cd4a5f8c90b69554e1e4e05162a14` |
+
+## 3. Reel attempt 3: the copy fix worked; stopped at Safari's link menu
+
+- Started on `805bcd6`; the read-only check recognized the exact profile.
+- Six actions were answered. The wrapped *Caption copied* confirmation now passed
+  on the phone, and the long press on *Download video* opened Safari's link menu
+  with the video preview playing. The preview fetched the video 3 times, but no
+  download was chosen.
+- It stopped before tapping anything in the menu: *Exact visible label missing:
+  Open.* The menu rows were exactly the 17 Oct rows (y 773–1005), but iOS drew
+  the column about 85 px further right (labels at x 139 instead of about 60), and
+  it also listed *Open in Tab Group* and *Copy Link*. The check used the 17 Oct x
+  boxes.
+- State `review_required`, cleanup confirmed, stopped state restored, 25
+  protected files unchanged. [Summary](reel-attempt-3-summary.json); 78 archived
+  files, manifest `f6d25941a0670eb8727a74bf9998bc64809ec36ea5394402870f72584af9bb46`.
+  The run left Safari's link menu open on the phone.
+
+### Fix
+
+- `farm_reel_layout.link_menu` (shared by Reel, TikTok and X): the rows stay
+  fixed, the labels may sit anywhere from x 40 to 360 but must share one left
+  edge (within 12 px). The tap target is the exact *Download Linked File*
+  label's own centre.
+- A layout test uses the phone's 20 Oct rows. Negatives: a misaligned label, a
+  missing preview header, a missing *Download Linked File*, and a column pushed
+  past x 360. The retained 17 Oct menu still gives its original target.
+- Before the next window: Reel layout 13/13, TikTok and X layout 15/15, and the
+  three protocol happy paths pass.
+- The share-sheet and download screens use full-width system sheets anchored to
+  the screen edges. They matched this phone exactly on 17 Oct, so they are
+  unchanged rather than loosened without evidence.
+- All three windows re-prepared on this fix (dry probes 3/3, ready), backend
+  fingerprint `0781cafdfd114bc0ad375dbe23715621b69103a6b0468d5c2acf40126b7a70aa`:
+
+  | Window | Token | Colour code | Download name | Video SHA-256 |
+  |---|---|---|---|---|
+  | Reel | `65b4ad84ef48` | `[3,7,2,0,7,3]` | `imouse-reel-pwwxuy` | `1742576125348d707bb1a0a3d6e6ae9d2b7e5c5f13142647acfb2f9b7db586e5` |
+  | TikTok | `85724c91afc3` | `[3,1,4,0,2,4]` | `imouse-tt-ndnhvn` | `52047d47f61ad9dc1750c7bcef1aa7381b4c9a0ad891af13e25b1fd15530038c` |
+  | X | `4408ea3ca4a3` | `[7,1,6,2,3,0]` | `imouse-x-hcxhkf` | `939d68b24b355d5bb723a5d9a0add991ee74646da1c1b7a9e39c65cecf399ada` |

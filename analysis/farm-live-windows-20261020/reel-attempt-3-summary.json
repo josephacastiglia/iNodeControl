@@ -1,0 +1,384 @@
+{
+  "window": "reel",
+  "attempt": "attempt-3",
+  "archive": "iMouseXP-2.0-evidence-archive\\20261020-farm-live-windows\\reel-attempt-3",
+  "files": 78,
+  "manifestSha256": "f6d25941a0670eb8727a74bf9998bc64809ec36ea5394402870f72584af9bb46",
+  "testToken": "41fcf02910fe",
+  "backendSourceHash": "9c9c6fc8fb0af695f737945861a96853c17fc7e1d5162fbe55ad89b7b23a2902",
+  "phoneInput": true,
+  "publishing": false,
+  "messaging": false,
+  "runId": "86dd3654-9206-42aa-b678-b048e12b5b7d",
+  "state": "review_required",
+  "error": "InspectionStopped: Exact visible label missing: Open",
+  "cleanup": "confirmed",
+  "evidenceExport": "confirmed",
+  "savedDraftVerified": false,
+  "actions": [
+    {
+      "label": "home-from-profile",
+      "state": "answered"
+    },
+    {
+      "label": "transfer-open-Safari",
+      "state": "answered"
+    },
+    {
+      "label": "focus-safari-address",
+      "state": "answered"
+    },
+    {
+      "label": "enter-transfer-url",
+      "state": "answered"
+    },
+    {
+      "label": "copy-caption",
+      "state": "answered"
+    },
+    {
+      "label": "hold-download-link",
+      "state": "answered"
+    }
+  ],
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "purpose": "initial_pointer_reset",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/key/sendkey",
+      "purpose": "home-from-profile",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/click",
+      "purpose": "transfer-open-Safari",
+      "state": "answered",
+      "x": 308,
+      "y": 635
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/click",
+      "purpose": "focus-safari-address",
+      "state": "answered",
+      "x": 245,
+      "y": 953
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/key/sendkey",
+      "purpose": "load-transfer-url",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/click",
+      "purpose": "copy-caption",
+      "state": "answered",
+      "x": 250,
+      "y": 450
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "hold-download-link-position",
+      "state": "answered",
+      "x": 250,
+      "y": 258
+    },
+    {
+      "fun": "/mouse/down",
+      "purpose": "hold-download-link-press",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/up",
+      "purpose": "hold-download-link-release",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    }
+  ],
+  "typedKeyCommands": 5,
+  "observations": [
+    {
+      "role": "profile",
+      "state": "observed",
+      "sequence": 756,
+      "ageMs": 694.6950000022993
+    },
+    {
+      "role": "profile",
+      "state": "observed",
+      "sequence": 784,
+      "ageMs": 604.0840000009604
+    },
+    {
+      "role": "home",
+      "state": "observed",
+      "sequence": 863,
+      "ageMs": 772.2290000009605
+    },
+    {
+      "role": "home",
+      "state": "observed",
+      "sequence": 887,
+      "ageMs": 699.0590000019208
+    },
+    {
+      "role": "reel_safari_entry",
+      "state": "observed",
+      "sequence": 991,
+      "ageMs": 593.4450000019209
+    },
+    {
+      "role": "reel_safari_entry",
+      "state": "observed",
+      "sequence": 1025,
+      "ageMs": 590.1789999980791
+    },
+    {
+      "role": "safari",
+      "state": "observed",
+      "sequence": 1054,
+      "ageMs": 579.8910000015425
+    },
+    {
+      "role": "address_selected",
+      "state": "observed",
+      "sequence": 1177,
+      "ageMs": 646.851
+    },
+    {
+      "role": "reel_page",
+      "state": "observed",
+      "sequence": 1497,
+      "ageMs": 587.7949999982828
+    },
+    {
+      "role": "reel_page",
+      "state": "observed",
+      "sequence": 1531,
+      "ageMs": 616.2050000003784
+    },
+    {
+      "role": "reel_caption_copied",
+      "state": "observed",
+      "sequence": 1623,
+      "ageMs": 632.252
+    },
+    {
+      "role": "reel_caption_copied",
+      "state": "observed",
+      "sequence": 1655,
+      "ageMs": 680.2190000022993
+    },
+    {
+      "role": "link_menu",
+      "state": "observed",
+      "sequence": 1812,
+      "ageMs": 562.8340000022991
+    }
+  ],
+  "transitionChecks": [
+    {
+      "stage": "reel_safari_entry",
+      "attempt": 1,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required.",
+      "mean": null,
+      "changed": null
+    },
+    {
+      "stage": "reel_safari_entry",
+      "attempt": 2,
+      "state": "ready",
+      "reason": null,
+      "mean": 0.00041409590823929856,
+      "changed": 0.0014163517008155958
+    },
+    {
+      "stage": "reel_page",
+      "attempt": 1,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required.",
+      "mean": null,
+      "changed": null
+    },
+    {
+      "stage": "reel_page",
+      "attempt": 2,
+      "state": "ready",
+      "reason": null,
+      "mean": 0.0,
+      "changed": 0.0
+    },
+    {
+      "stage": "reel_caption_copied",
+      "attempt": 1,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required.",
+      "mean": null,
+      "changed": null
+    },
+    {
+      "stage": "reel_caption_copied",
+      "attempt": 2,
+      "state": "ready",
+      "reason": null,
+      "mean": 0.0,
+      "changed": 0.0
+    },
+    {
+      "stage": "link_menu",
+      "attempt": null,
+      "state": "held",
+      "reason": "Exact visible label missing: Open",
+      "mean": null,
+      "changed": null
+    }
+  ],
+  "mediaVideoRequests": 3,
+  "restored": true,
+  "protectedFilesUnchanged": true
+}

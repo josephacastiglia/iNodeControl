@@ -121,6 +121,19 @@ class SyntheticReelLayoutTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): reel.caption_copied(ocr(*rows, wrapped[0]))
         with self.assertRaises(InspectionStopped): reel.caption_copied(ocr(*rows, wrapped[0], ('Instagram', 27, 536)))
 
+    def test_link_menu_rows_are_fixed_but_its_column_may_shift(self):
+        # C24C on 20 Oct: the 17 Oct rows, about 85 px further right, with two more items.
+        rows = [('Open', 139, 773), ('Open in New Tab', 139, 826), ('> Open in Tab Group', 119, 879),
+                ('Download Linked File', 140, 932), ('Add to Reading List', 139, 985), ('Copy Link', 139, 1038),
+                ('Hide preview', 372, 100)]
+        self.assertEqual((227, 941), reel.link_menu(ocr(*rows))['target'])
+        misaligned = [('Download Linked File', 170, 932) if r[0] == 'Download Linked File' else r for r in rows]
+        with self.assertRaises(InspectionStopped): reel.link_menu(ocr(*misaligned))
+        with self.assertRaises(InspectionStopped): reel.link_menu(ocr(*(r for r in rows if r[0] != 'Hide preview')))
+        with self.assertRaises(InspectionStopped): reel.link_menu(ocr(*(r for r in rows if r[0] != 'Download Linked File')))
+        far = [(t, x+120, y) if t != 'Hide preview' else (t, x, y) for t, x, y in rows]
+        with self.assertRaises(InspectionStopped): reel.link_menu(ocr(*far))
+
     def test_page_menu_tolerates_only_the_known_promo(self):
         base = [('Downloads', 51, 920)]
         self.assertEqual((92, 929), reel.page_menu(ocr(*base, ('Not Now', 109, 759), ('Turn On', 321, 759)))['target'])
