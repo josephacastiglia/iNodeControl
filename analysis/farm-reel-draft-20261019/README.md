@@ -127,6 +127,12 @@ Prepared offline by `prepare_reel_live.py`; recheck with `live/verify_preparatio
 (token `c0bb4ce25dae`) and intermediate ones (`1fbf9bfdcb71`, `397aae4ea4ca`) were never
 used and were replaced.
 
+**Stale since the run-journal read retry**
+([analysis/farm-journal-read-race-20261019](../farm-journal-read-race-20261019/README.md)). That
+change altered the backend source fingerprint below, so `live/Start-ReelWindow.ps1` now
+refuses offline. `verify_preparation.py` does not check that fingerprint. Re-prepare before any
+window: new token, new run folder, new dry run.
+
 | Item | Value |
 |---|---|
 | Run folder | `output/candidate-runs/farm-reel-20261019` (fresh; C24C-only mapping/calibration copied byte-identically) |

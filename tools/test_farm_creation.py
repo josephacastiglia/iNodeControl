@@ -1,6 +1,7 @@
 """Offline new-draft admission, visual checks and no-replay regressions."""
 import base64
 import copy
+import errno
 import hashlib
 import io
 import json
@@ -364,6 +365,21 @@ class CreationTests(unittest.TestCase):
             current=self.service.get(self.spec['id'])
         self.assertFalse(current['terminal']);self.assertEqual('unconfirmed',current['cleanup'])
         self.assertEqual('unconfirmed',current['workflow']['cleanup']);self.assertFalse(current['savedDraftVerified'])
+
+    def test_running_verifier_progress_survives_a_transient_windows_read_refusal(self):
+        self.service.start(self.spec);value=self.wait()
+        folder=self.service.folder/self.spec['id']/'verification';folder.mkdir();child=folder/'record.json'
+        atomic_json(child,dict(packageSha256=value['packageSha256'],cleanup='unconfirmed',actions=[dict(label='open-drafts',state='answered')]))
+        read=Path.read_bytes;attempts=[]
+        def refused(target):
+            if target==child:
+                attempts.append(target)
+                if len(attempts)<=3:raise PermissionError(errno.EACCES,'Permission denied')
+            return read(target)
+        with patch.object(self.jobs,'get',return_value=dict(status='running',terminal=False,result=None,error=None)),patch.object(Path,'read_bytes',refused):
+            current=self.service.get(self.spec['id'])
+        self.assertEqual(4,len(attempts));self.assertEqual('unconfirmed',current['cleanup'])
+        self.assertEqual(dict(label='verification-open-drafts',state='answered'),current['workflow']['actions'][-1])
 
     def test_closing_caption_editor_makes_no_text_claim_and_details_still_refuse_mismatch(self):
         row=json.loads(Path(__file__).with_name('farm_creation_controls.json').read_text(encoding='utf-8'))['ok']

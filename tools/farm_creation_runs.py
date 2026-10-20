@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import threading
 
-from farm_draft_runs import DraftRuns, source_content, load_config, ACCOUNT
+from farm_draft_runs import DraftRuns, source_content, load_config, read_journal, ACCOUNT
 from farm_drafts import DraftConflict, identifier
 from farm_draft_creation import CreationWorkflow
 from farm_draft_workflow import Workflow, references, atomic_json
@@ -170,7 +170,7 @@ class CreationRuns(DraftRuns):
             result['reason']='Creating a new C24C draft from the saved slides and exact caption. No publishing or messaging.'
         child=self.folder/run_id/'verification/record.json'
         if not result['terminal'] and child.exists():
-            progress=json.loads(child.read_bytes())
+            progress=json.loads(read_journal(child))
             if progress.get('packageSha256')!=result['packageSha256']:
                 raise ValueError('Verification progress belongs to different content.')
             workflow=dict(result['workflow'] or {})

@@ -1,0 +1,5 @@
+read while another handle denies sharing: {'type': 'PermissionError', 'errno': 13, 'winerror': None}
+read while delete is pending (marked=True): {'type': 'PermissionError', 'errno': 13, 'winerror': None}
+replace-versus-read for 4.0s: {"reads": 17397, "exists_false": 0, "exists_raised": 0, "refusals": {"PermissionError errno=13 winerror=None": 471}}
+3.11.6
+exit 0

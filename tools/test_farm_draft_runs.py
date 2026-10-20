@@ -1,4 +1,5 @@
 """Offline admission/restart tests. No real transport or phone is constructed."""
+import errno
 import io
 import json
 import os
@@ -148,6 +149,56 @@ class DraftRunTests(unittest.TestCase):
         path.write_bytes(original)
         with self.service.connect() as db: db.execute('UPDATE runs SET package=?',(b'corrupt',))
         with self.assertRaisesRegex(ValueError,'package'): self.service.get(self.spec['id'])
+
+    def refuse_journal_reads(self, error, failures):
+        """Patch Path.read_bytes so this run's journal read raises `error` `failures` times first."""
+        path=self.root/'runs'/self.spec['id']/'record.json'; read=Path.read_bytes; attempts=[]
+        def refused(target):
+            if target==path:
+                attempts.append(target)
+                if len(attempts)<=failures: raise error
+            return read(target)
+        return patch.object(Path,'read_bytes',refused), attempts
+
+    def test_transient_windows_read_refusal_still_returns_the_complete_record(self):
+        # 19 Oct suite failure: opening the journal during its atomic replacement
+        # raised errno 13 with no winerror. The writer-side shape is retried too.
+        self.service.source='candidate_phone_workflow'; self.service.start(self.spec); expected=self.finish()
+        record=json.loads((self.root/'runs'/self.spec['id']/'record.json').read_bytes())
+        sharing=PermissionError('sharing denied'); sharing.winerror=32
+        for error in (PermissionError(errno.EACCES,'Permission denied'), sharing):
+            refused,attempts=self.refuse_journal_reads(error,3)
+            with self.subTest(error=error):
+                with refused: result=self.service.get(self.spec['id'])
+                self.assertEqual(4,len(attempts)); self.assertEqual(expected,result)
+                self.assertEqual(record,result['workflow']); self.assertEqual('verified',result['state'])
+
+    def test_lasting_or_unrelated_read_errors_still_raise(self):
+        self.service.start(self.spec); self.finish()
+        refused,attempts=self.refuse_journal_reads(PermissionError(errno.EACCES,'Permission denied'),10**6)
+        started=time.monotonic()
+        with refused, self.assertRaises(PermissionError): self.service.get(self.spec['id'])
+        self.assertLess(time.monotonic()-started,2); self.assertGreater(len(attempts),1); self.assertLess(len(attempts),80)
+        failed,attempts=self.refuse_journal_reads(OSError(errno.EIO,'disk failure'),10**6)
+        with failed, self.assertRaises(OSError): self.service.get(self.spec['id'])
+        self.assertEqual(1,len(attempts))
+
+    @unittest.skipUnless(os.name=='nt','Actual Windows sharing semantics')
+    def test_status_polls_during_real_journal_replacement_never_fail(self):
+        # The same race without mocks: keep replacing a running journal while polling it.
+        self.service.wait=True; self.service.start(self.spec); self.assertTrue(self.service.entered.wait(1))
+        path=self.root/'runs'/self.spec['id']/'record.json'; deadline=time.monotonic()+2
+        while not path.exists() and time.monotonic()<deadline: time.sleep(.005)  # Fixture's first write.
+        record=json.loads(path.read_bytes()); stop=time.monotonic()+.5; errors=[]; states=[]
+        def rewrite():
+            try:
+                while time.monotonic()<stop: atomic_json(path,record)
+            except BaseException as error: errors.append(error)
+        writer=threading.Thread(target=rewrite); writer.start()
+        try:
+            while time.monotonic()<stop: states.append(self.service.get(self.spec['id'])['state'])
+        finally: writer.join(5)
+        self.assertEqual([],errors); self.assertGreater(len(states),20); self.assertEqual({'running'},set(states))
 
     def test_heartbeat_loss_stops_worker_without_an_extra_save(self):
         self.jobs.heartbeat_seconds=.05; self.service.wait=True

@@ -174,6 +174,12 @@ GitHub-only clone; synthetic, guard and service tests always run.
 
 Prepared offline by `prepare_tiktok_live.py`; recheck with `live/verify_preparation.py`. Not run.
 
+**Stale since the run-journal read retry**
+([analysis/farm-journal-read-race-20261019](../farm-journal-read-race-20261019/README.md)). That
+change altered the backend source fingerprint below, so `live/Start-TikTokWindow.ps1` now
+refuses offline. `verify_preparation.py` does not check that fingerprint. Re-prepare before any
+window: new token, new run folder, new dry run.
+
 | Item | Value |
 |---|---|
 | Run folder | `output/candidate-runs/farm-tiktok-20261019` (fresh; C24C-only mapping/calibration copied byte-identically) |

@@ -4,6 +4,7 @@ GET never connects to the phone. Reusing an ID only retrieves its journal, even
 after a process dies between admission and execution. No startup resumes work.
 """
 from contextlib import contextmanager
+import errno
 import hashlib
 import io
 import json
@@ -11,6 +12,7 @@ from pathlib import Path
 import re
 import sqlite3
 import threading
+import time
 import uuid
 import zipfile
 
@@ -28,6 +30,23 @@ API = 'http://127.0.0.1:9916/api'
 
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
+
+
+def read_journal(path):
+    # Reader side of the race atomic_json retries: a status read that opens the
+    # journal during its replacement is refused for a moment. open() reports
+    # winerror 5, 32 or 33 only as errno EACCES. Retry just this local read for
+    # the writer's budget, never a phone command; a lasting refusal still raises.
+    deadline = time.monotonic() + .5
+    while True:
+        try:
+            return path.read_bytes()
+        except OSError as error:
+            code = getattr(error, 'winerror', None)
+            transient = code in (5, 32, 33) if code is not None else error.errno == errno.EACCES
+            if not transient or time.monotonic() >= deadline:
+                raise
+            time.sleep(.01)
 
 
 def source_content(package):
@@ -156,7 +175,7 @@ class DraftRuns:
                 error='Admission was interrupted before a durable job result. No action will be replayed.')
         result = None; folder = self.folder / run_id; path = folder / 'record.json'
         if path.exists():
-            raw = path.read_bytes(); result = json.loads(raw)
+            raw = read_journal(path); result = json.loads(raw)
             if result.get('packageSha256') != package_hash: raise ValueError('Run source no longer matches its saved package.')
             if job.get('result') and sha(raw) != job['result']['recordSha256']:
                 raise ValueError('Completed draft run journal is damaged.')
