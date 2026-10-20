@@ -138,6 +138,7 @@ class FixtureKernel:
         self.session = uuid.uuid4().hex; self.calls = []; self.typed = ''; self.searched = ''
         self.unexpected = []; self.cancelled = None; self.photos = 0; self.captures = {}; self.frame_key = None
         self.menu_opens = 0; self.played = 0
+        self.pointer = None   # Last pointer position the phone received.
 
     def clock(self): self.now += .001; return self.now
     def pause(self, seconds): self.now += seconds
@@ -171,7 +172,7 @@ class FixtureKernel:
         return s
 
     def shot(self, phone):
-        self.resolve_device_id(phone); self.sequence += 1
+        self.resolve_device_id(phone)   # The latest delivered frame; only a change on the phone delivers another.
         self.frame_key = self.key(); self.captures[self.screen] = self.captures.get(self.screen, 0) + 1
         raw = self.screens.frames[self.frame_key]
         if self.screen == 'x_playing' and self.captures['x_playing'] % 2 == 0 and self.scenario != 'frozen_video':
@@ -190,11 +191,16 @@ class FixtureKernel:
     def send(self, phone, token, fun, **data):
         assert phone == 'C24C' and token == 'fixture-token' and self.owned
         self.calls.append((fun, dict(data)))
-        if fun in ('/mouse/reset', '/mouse/move'):
-            self.sequence += 1; return dict(code=0)
+        if fun == '/mouse/reset':
+            self.pointer = None; self.sequence += 1; return dict(code=0)
+        if fun == '/mouse/move':
+            # A new frame arrives only when something changes on the phone. A move onto the
+            # pointer's current spot changes nothing (the 20 Oct C24C Reel window stopped on that).
+            if self.pointer != (data['x'], data['y']): self.pointer = (data['x'], data['y']); self.sequence += 1
+            return dict(code=0)
         if fun == '/mouse/down': return dict(code=0)
         if fun == '/mouse/up': self.transition('hold', *self.position); return dict(code=0)
-        if fun == '/mouse/click': self.transition('click', data['x'], data['y']); return dict(code=0)
+        if fun == '/mouse/click': self.pointer = (data['x'], data['y']); self.transition('click', data['x'], data['y']); return dict(code=0)
         if fun == '/key/sendkey':
             if 'key' in data:
                 if self.screen == 'address': self.typed += data['key']; return dict(code=0)

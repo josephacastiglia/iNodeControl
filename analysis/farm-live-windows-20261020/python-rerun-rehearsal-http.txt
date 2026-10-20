@@ -1,0 +1,22 @@
+...
+----------------------------------------------------------------------
+Ran 3 tests in 9.789s
+
+OK
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals/3fa159ff-4396-433c-b3ac-cecc6d088a50/cancel HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/3fa159ff-4396-433c-b3ac-cecc6d088a50 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/71bb2e40-8457-4245-bd21-d165ee58203a HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals?draft_id=090559ad-d533-46bd-a51f-310f240295e4 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/71bb2e40-8457-4245-bd21-d165ee58203a/frames/2b40eb03-1592-4ef6-bbad-a90c0a55f548 HTTP/1.1" 200 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals?draft_id=090559ad-d533-46bd-a51f-310f240295e4 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/71bb2e40-8457-4245-bd21-d165ee58203a HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /api/farm/draft-rehearsals/71bb2e40-8457-4245-bd21-d165ee58203a/frames/2b40eb03-1592-4ef6-bbad-a90c0a55f548 HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 403 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 409 -
+[iMouse-Farm-9914] 127.0.0.1 - "POST /api/farm/draft-rehearsals HTTP/1.1" 400 -
+[iMouse-Farm-9914] 127.0.0.1 - "GET /health HTTP/1.1" 200 -
+exit 0

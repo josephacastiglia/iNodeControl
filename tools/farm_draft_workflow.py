@@ -220,12 +220,23 @@ class Workflow:
             return dict(sheet='exact_save_draft')
         raise InspectionStopped('Unsupported or interrupted workflow screen: ' + role)
 
+    def pointer_position(self):
+        """The last pointer position the phone answered for, from the journal; None when unknown."""
+        for item in reversed(self.record['commands']):
+            if item['fun'] in ('/mouse/move', '/mouse/click') and 'x' in item['data']:
+                if item['state'] == 'not_sent': continue   # Refused locally: the pointer did not move.
+                return (item['data']['x'], item['data']['y']) if item['state'] == 'answered' else None
+            if item['fun'] in ('/mouse/reset', '/mouse/swipe'): return None
+        return None
+
     def capture(self, role, index=None, require_next=False):
         self.check()
         # Move only, never a tap: quiet video needs a new delivery. Its metadata,
-        # recognition, and unchanged final comparison still have to pass.
+        # recognition, and unchanged final comparison still have to pass. The move
+        # must change something: onto the pointer's current spot (for example the
+        # park point) a static screen sends no new frame (C24C Reel window, 20 Oct).
         before = self.kernel.kernel_status()['receivers'][0]['frames']
-        x = 480 if len(self.record['observations']) % 2 == 0 else 450
+        x = 450 if self.pointer_position() == (480, 300) else 480
         self.command('/mouse/move', purpose='fresh_frame_challenge', x=x, y=300)
         self.pause(.12)
         key = str(uuid.uuid4())

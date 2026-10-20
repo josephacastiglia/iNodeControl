@@ -1,0 +1,310 @@
+{
+  "window": "reel",
+  "attempt": "attempt-1",
+  "archive": "iMouseXP-2.0-evidence-archive\\20261020-farm-live-windows\\reel-attempt-1",
+  "files": 76,
+  "manifestSha256": "44adec8b0b5458bb43710c4507c4bc9bb8ea7360f692aca62f030e2f129bd678",
+  "testToken": "e41ac269fd84",
+  "backendSourceHash": "c5784346da3d24e9f334212fb16dbe50356f45660adbc10160e7fa0c83b18e48",
+  "phoneInput": true,
+  "publishing": false,
+  "messaging": false,
+  "runId": "c77daba3-e34e-4a71-ad81-0dcf136de1d7",
+  "state": "review_required",
+  "error": "InspectionStopped: The pointer challenge did not produce a new frame.",
+  "cleanup": "confirmed",
+  "evidenceExport": "confirmed",
+  "savedDraftVerified": false,
+  "actions": [
+    {
+      "label": "home-from-profile",
+      "state": "answered"
+    },
+    {
+      "label": "transfer-open-Safari",
+      "state": "answered"
+    },
+    {
+      "label": "focus-safari-address",
+      "state": "answered"
+    },
+    {
+      "label": "enter-transfer-url",
+      "state": "answered"
+    },
+    {
+      "label": "copy-caption",
+      "state": "answered"
+    }
+  ],
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "purpose": "initial_pointer_reset",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/key/sendkey",
+      "purpose": "home-from-profile",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/click",
+      "purpose": "transfer-open-Safari",
+      "state": "answered",
+      "x": 308,
+      "y": 635
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/click",
+      "purpose": "focus-safari-address",
+      "state": "answered",
+      "x": 245,
+      "y": 953
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/key/sendkey",
+      "purpose": "load-transfer-url",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/click",
+      "purpose": "copy-caption",
+      "state": "answered",
+      "x": 250,
+      "y": 450
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    }
+  ],
+  "typedKeyCommands": 5,
+  "observations": [
+    {
+      "role": "profile",
+      "state": "observed",
+      "sequence": 774,
+      "ageMs": 674.9499999990396
+    },
+    {
+      "role": "profile",
+      "state": "observed",
+      "sequence": 807,
+      "ageMs": 687.9279999998981
+    },
+    {
+      "role": "home",
+      "state": "observed",
+      "sequence": 889,
+      "ageMs": 816.674
+    },
+    {
+      "role": "home",
+      "state": "observed",
+      "sequence": 912,
+      "ageMs": 788.4999999996217
+    },
+    {
+      "role": "reel_safari_entry",
+      "state": "observed",
+      "sequence": 1020,
+      "ageMs": 593.2289999995198
+    },
+    {
+      "role": "reel_safari_entry",
+      "state": "observed",
+      "sequence": 1062,
+      "ageMs": 600.8759999991414
+    },
+    {
+      "role": "safari",
+      "state": "observed",
+      "sequence": 1093,
+      "ageMs": 561.8389999986613
+    },
+    {
+      "role": "address_selected",
+      "state": "observed",
+      "sequence": 1219,
+      "ageMs": 667.695999999418
+    },
+    {
+      "role": "reel_page",
+      "state": "observed",
+      "sequence": 1539,
+      "ageMs": 694.0850000013388
+    },
+    {
+      "role": "reel_page",
+      "state": "observed",
+      "sequence": 1545,
+      "ageMs": 660.1490000008586
+    },
+    {
+      "role": "reel_caption_copied",
+      "state": "observed",
+      "sequence": 1631,
+      "ageMs": 950.3710000001018
+    }
+  ],
+  "transitionChecks": [
+    {
+      "stage": "reel_safari_entry",
+      "attempt": 1,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required.",
+      "mean": null,
+      "changed": null
+    },
+    {
+      "stage": "reel_safari_entry",
+      "attempt": 2,
+      "state": "ready",
+      "reason": null,
+      "mean": 0.0017643782398577097,
+      "changed": 0.0038492142430873286
+    },
+    {
+      "stage": "reel_page",
+      "attempt": 1,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required.",
+      "mean": null,
+      "changed": null
+    },
+    {
+      "stage": "reel_page",
+      "attempt": 2,
+      "state": "ready",
+      "reason": null,
+      "mean": 7.332951083755564e-07,
+      "changed": 0.0
+    },
+    {
+      "stage": "reel_caption_copied",
+      "attempt": null,
+      "state": "held",
+      "reason": "The pointer challenge did not produce a new frame.",
+      "mean": null,
+      "changed": null
+    }
+  ],
+  "mediaVideoRequests": 0,
+  "restored": true,
+  "protectedFilesUnchanged": true
+}

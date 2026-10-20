@@ -1,9 +1,9 @@
 {
   "assembly": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\claude-farm-reel-20261019\\iMouse2.dll",
   "nativeSha256": "58b4057833d360d2077617c4f0f49b14f7ae749ab780c9207a3b8fd619c83aa1",
-  "draftId": "c927a651-1c27-4a44-ae69-05ee05b6fa71",
+  "draftId": "151523ac-95a5-48cc-89ed-9fa2b744a7e1",
   "revision": 1,
-  "backendSourceHash": "c5784346da3d24e9f334212fb16dbe50356f45660adbc10160e7fa0c83b18e48",
+  "backendSourceHash": "16e7c437c0bc80ac71ce7fa9ae325f7e1728c2ff89b6250995052e0862ac20c9",
   "output": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-reel-draft-20261019\\live\\native-dry-run",
   "dataDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-reel-draft-20261019\\live\\native-dry-run-data",
   "dryRun": true
