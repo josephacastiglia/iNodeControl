@@ -1,0 +1,14 @@
+{
+  "window": "reel",
+  "attempt": "prep5-interrupted",
+  "archive": "iMouseXP-2.0-evidence-archive\\20261020-farm-live-windows\\reel-prep5-interrupted",
+  "files": 45,
+  "manifestSha256": "7fcca62704ca3e0066e817bdec2482df9adf12f7db3f3bca152d4472b499f0f7",
+  "testToken": "ff9863545bbb",
+  "backendSourceHash": "37ac9686d30e4934f24744c3d73d36f4cca1fc078f2c3de579e3d4dae226f9f3",
+  "phoneInput": true,
+  "publishing": false,
+  "messaging": false,
+  "restored": true,
+  "protectedFilesUnchanged": true
+}

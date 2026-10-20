@@ -26,6 +26,7 @@ API = 'http://127.0.0.1:9916/api'
 MAX_AGE_MS = 1500
 PROFILE_TAB = (447, 1010)       # Instagram's tab bar, own-profile avatar (C24C, 20 Oct frames).
 FRESH_TRIES = 5
+CONTROL_CENTER_EMPTY = (250, 960)   # Below C24C's Control Center grid (16 Sep and 20 Oct frames).
 
 
 class StartScreen:
@@ -108,6 +109,13 @@ class StartScreen:
         result = classify(text, dict(platform='instagram', account='xs.halle.xo', caption=''), raw)
         return result['screen'] == 'profile' and result['accountStatus'] == 'exact_text_match', result
 
+    def control_center(self, text):
+        """C24C's Control Center: its Focus tile and the battery percentage in the status row."""
+        rows = [(line['text'].strip().casefold(), min(w['y'] for w in line['words'])) for line in text.get('lines', []) if line.get('words')]
+        # OCR reads the tile as 'Focus' plus its chevron and the status row with stray icon glyphs.
+        return (any(t.split()[:1] == ['focus'] and 480 < y < 580 for t, y in rows)
+                and any('%' in t and y < 170 for t, y in rows))
+
     def instagram_feed(self, text):
         """Instagram's Home feed: its own story tray label near the top."""
         return any(line['text'].strip().casefold() == 'your story' and min(w['y'] for w in line['words']) < 300
@@ -128,7 +136,7 @@ class StartScreen:
 
     def open_from_home(self, name):
         """The workflow's own route: Home, then the app icon, or Spotlight's Search pill and its Top Hit."""
-        from farm_creation_layout import app_target, control, empty_search
+        from farm_creation_layout import app_target, control, empty_search, home_search
         from farm_draft_workflow import centre
         # Home only leaves the current app for the home screen; it is never an app action.
         self.command('/key/sendkey', 'home-before-start-screen', fn_key='Home')
@@ -137,7 +145,7 @@ class StartScreen:
         try: point = app_target(text, name, raw)
         except InspectionStopped: point = None
         if point is None:
-            self.tap(raw, text, centre(control(raw, 'home_search')), 'home', 'open-app-search')
+            self.tap(raw, text, centre(home_search(raw, text)), 'home', 'open-app-search')
             self.pause(1.2)
             raw, text, _, _ = self.fresh('app_search_entry')
             try: point = app_target(text, name, raw)
@@ -166,6 +174,12 @@ class StartScreen:
         try:
             self.command('/mouse/reset', 'initial_pointer_reset')
             raw, text, taken, age = self.fresh('before')
+            if self.control_center(text):
+                # Left open (for example by a manual or automatic mirroring connection); Home does not close it.
+                self.tap(raw, text, CONTROL_CENTER_EMPTY, 'control_center', 'close-control-center')
+                self.pause(1.0)
+                raw, text, taken, age = self.fresh('after-control-center')
+                if self.control_center(text): raise InspectionStopped('Control Center did not close; no further input.')
             ready, result = self.instagram_profile(raw, text)
             self.record['before'] = dict(screen=result['screen'], accountStatus=result['accountStatus'])
             if ready:

@@ -251,3 +251,34 @@ positively identified:
 - **Tests:** 6 offline tests (`tools/test_farm_mirroring.py`) cover the browse parser,
   the first-row proof, refusals that send nothing, the exact three blind inputs plus
   the verified close, no retry after a failed connection, and the transport limits.
+
+## 8. After the PC restart (20 Oct, 17:29)
+
+- **Board unplugged.** The operator unplugged C24C's iMouse board overnight.
+  Auto-connect's first key then failed in the kernel (`Board C24C` not
+  enumerated, code 33), which held C24C's input as designed. The PC then
+  rebooted, so that window's services ended without their Stop script. Afterwards
+  there were no rack processes or listeners, and the 25 protected files were
+  unchanged (`restoration.json` written by hand, archive `reel-prep5-interrupted`,
+  45 files).
+- **Locked phone.** On the next window, auto-connect sent its three inputs, but
+  the phone was **locked**: nothing connected within 8 s, so it stopped as
+  designed. The operator unlocked the phone and mirroring was connected.
+  Precondition for auto-connect: farm phones must have Auto-Lock set to Never. No
+  passcode is ever entered.
+- **Start screen.** Two fixes:
+  - **Control Center left open.** The start-screen helper now recognizes Control
+    Center (the *Focus* tile and the battery row; OCR reads them as "Focus C" and
+    "... 93% ...") and closes it with one confirmed tap on its empty lower area.
+  - **Search pill.** After the restart, the Home screen's Search pill template
+    failed (5.4 % changed pixels against a 4 % limit), because its translucent fill
+    takes the wallpaper's tint. The Reel run's own Home recognition uses the same
+    template. `farm_creation_layout.home_search` keeps the template and, when it
+    fails, accepts the exact OCR word *Search* inside the pill box.
+  - Tests: Control Center is still refused as Home; a new test covers the label
+    fallback and its negatives; carousel creation, the layout suites and the three
+    protocol happy paths pass.
+- All three windows re-prepared: fingerprint
+  `dd9726a1b3426d39b661be66c4c90b22730f396e253aab4a7b6efba803e1b9a8`; tokens Reel
+  `03f451facdd9`, TikTok `f854b4bfcdb0`, X `9f50b5f1a993`. Archive
+  `reel-prep6-auto-connect-and-start-screen` (68 files).

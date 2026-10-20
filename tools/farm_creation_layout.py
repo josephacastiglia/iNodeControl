@@ -138,9 +138,21 @@ def caption_editor(text, caption=None, frame=None):
     return True
 
 
+HOME_SEARCH_BOX=(205,879,296,920)
+
+
+def home_search(frame,text):
+    """The Home screen Search pill. Its translucent fill takes the wallpaper's tint (C24C, 20 Oct:
+    5.4% changed pixels after a restart), so the exact OCR word inside the pill box also proves it."""
+    try: return control(frame,'home_search')
+    except InspectionStopped:
+        require(words_at(text,'search',HOME_SEARCH_BOX),'The Home screen Search pill is not recognized.')
+        return list(HOME_SEARCH_BOX)
+
+
 def home(text,frame=None):
     if frame is not None:
-        control(frame,'home_search')
+        home_search(frame,text)
         grid=[]
         for row in text.get('lines',[]):
             words=row.get('words',[])

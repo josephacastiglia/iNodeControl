@@ -14,7 +14,7 @@ from PIL import Image
 
 from farm_carousel_inspection import OwnedCaptureRun, InspectionStopped
 from farm_creation_layout import (require, exact, source_match, picker_grid,
-    selected_badges, caption_editor, home, app_target, control, empty_search, test_video_preview, restored_app_search)
+    selected_badges, caption_editor, home, home_search, app_target, control, empty_search, test_video_preview, restored_app_search)
 from farm_draft_workflow import Workflow, atomic_json, centre, icon_matches
 from farm_draft_verification import caption_comparison
 from farm_live_verification import idle
@@ -248,7 +248,7 @@ class CreationWorkflow(Workflow):
         except InspectionStopped: point=None
         if point:
             self.step(visit+'-open-'+name,'home',point=lambda v,f:app_target(v['text'],name,f));return
-        self.step(visit+'-search-'+name,'home',point=lambda v,f:centre(control(f,'home_search')))
+        self.step(visit+'-search-'+name,'home',point=lambda v,f:centre(home_search(f,v['text'])))
         value,frame=self.observe('app_search_entry')
         try:app_target(value['text'],name,frame);desired=True
         except InspectionStopped:desired=False
