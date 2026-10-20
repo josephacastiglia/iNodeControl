@@ -21,6 +21,7 @@ from unittest.mock import patch
 from PIL import Image, ImageDraw
 
 import farm_test_network  # noqa: F401  Refuse every real socket in this process.
+import farm_permission_prompts as prompts
 import farm_tiktok_layout as tt
 from farm_carousel_inspection import InspectionStopped
 from farm_draft_workflow import references
@@ -134,6 +135,19 @@ class Screens:
         self.frames['profile_saved'] = self.frames['profile_after']
         self.texts['profile_saved'] = copy.deepcopy(self.texts['profile_after'])
         self.texts['profile_saved']['lines'].append(line('Draft saved', 205, 147, 90, 13))
+        # First-time Photos access prompt over the camera (synthetic composite; iOS wording).
+        with Image.open(io.BytesIO(self.frames['tt_camera'])) as base:
+            image = base.convert('RGB'); draw = ImageDraw.Draw(image)
+            draw.rounded_rectangle((60, 260, 440, 860), 18, fill=(242, 242, 242))
+            for label, y in (('Allow "TikTok" to access', 300), ('your photos?', 322), ('Limit Access...', 700),
+                             ('Allow Full Access', 760), ("Don't Allow", 820)):
+                draw.text((120, y), label, fill='black')
+            self.frames['tt_photos_prompt'] = png(image)
+        prompt_text = copy.deepcopy(self.texts['tt_camera'])
+        prompt_text['lines'] += [line('Allow "TikTok" to access', 120, 300), line('your photos?', 120, 322),
+                                 line('Limit Access...', 120, 700), line('Allow Full Access', 120, 760), line("Don't Allow", 120, 820)]
+        self.texts['tt_photos_prompt'] = prompt_text
+        self.targets['allow_full'] = prompts.detect(prompt_text)['buttons']['Allow Full Access']
         # Paste callout above the press point (shape observed on the Instagram caption sheet).
         with Image.open(io.BytesIO(self.frames['tt_details_focused'])) as base:
             image = base.convert('RGB'); draw = ImageDraw.Draw(image)
@@ -267,7 +281,8 @@ class FixtureKernel:
             ('home', 'click', (192, 128), 'tt_feed'),
             ('tt_feed', 'click', (450, 1005), 'profile'),
             ('profile', 'click', (250, 1009), 'tt_camera'),
-            ('tt_camera', 'click', (40, 1000), 'tt_picker'),
+            ('tt_camera', 'click', (40, 1000), 'tt_photos_prompt' if self.scenario == 'photos_prompt' else 'tt_picker'),
+            ('tt_photos_prompt', 'click', self.screens.targets['allow_full'], 'tt_picker'),
             ('tt_picker', 'click', (478, 825), 'tt_selected'),
             ('tt_selected', 'click', (367, 1006), 'tt_editor'),
             ('tt_editor', 'click', (339, 115), 'tt_editor'),
@@ -424,6 +439,22 @@ class TikTokProtocolTests(unittest.TestCase):
         self.assertEqual(('profile', True), (result['landedAfterSave'], result['draftSavedToast']))
         self.assertEqual(dict(before=1, after=2), result['draftsCount']); self.assertEqual(1, kernel.saves)
         self.assertNotIn('open-profile-after-save', [a['label'] for a in result['actions']])
+
+    def test_permission_prompt_stops_unless_a_method_is_validated(self):
+        flow, kernel = self.fixture('photos_prompt'); result = flow.run()
+        self.assertEqual('review_required', result['state']); self.assertEqual(0, kernel.saves)
+        self.assertIn('one-time step per phone and app', result['error']); self.assertEqual('tt_photos_prompt', kernel.screen)
+        prompt = result['permissionPrompts'][0]
+        self.assertEqual(('photos', 'TikTok', 'Allow Full Access', 'stop'), (prompt['kind'], prompt['app'], prompt['answer'], prompt['action']))
+        self.assertEqual('confirmed', result['cleanup'])
+        # A method proven in a validation window answers once and the run continues.
+        flow, kernel = self.fixture('photos_prompt')
+        flow.validated_prompt_methods = {('photos', 'pointer_tap'): ('validated', 'fixture')}
+        result = flow.run()
+        self.assertEqual('created_unverified', result['state'], result.get('error')); self.assertEqual([], kernel.unexpected)
+        self.assertIn('answer-photos-prompt-1', [a['label'] for a in result['actions']])
+        self.assertEqual('answer-photos-prompt-1', result['permissionPrompts'][-1]['answeredBy'])
+        self.assertEqual(1, kernel.saves)
 
     def test_lost_drafts_answer_is_never_repeated(self):
         flow, kernel = self.fixture('lost_save'); result = flow.run()

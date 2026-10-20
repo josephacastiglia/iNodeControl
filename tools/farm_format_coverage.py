@@ -68,10 +68,15 @@ _FORMATS = {
         offline=None, live=None,
         remaining='Integrated adapter, account recognition, drafts-list identity and recovery checks.'),
     UploadFormat.X_VIDEO: dict(
-        platform='x', name='X video', level='supervised_phone', draftMechanism='observed',
-        supervised='Transferred MP4 draft saved and reopened; the blank preview played after Play. ' + SUPERVISED_17,
-        offline=None, live=None,
-        remaining='Integrated adapter with playback evidence and recovery checks.'),
+        platform='x', name='X video', level='integrated_offline', draftMechanism='observed',
+        supervised='Transferred MP4 draft saved and reopened; the blank preview played after Play (17 Oct steps 114-130). '
+                   + SUPERVISED_17,
+        offline='Draft-only X candidate on the account signed in first (bound from the side menu, rechecked by the verifier): '
+                'video import, exact one-line text by paste, the matching video from the system picker, Save to drafts once, '
+                'independent exact-text reopen with playback. Disabled without its isolated configuration '
+                '(analysis/farm-x-draft-20261019/README.md).',
+        live=None,
+        remaining='Fresh integrated C24C acceptance (X Paste callout and picker timing unobserved); longer text, repeated runs.'),
     UploadFormat.X_THREAD: dict(
         platform='x', name='X thread', level='unsupported_draft', draftMechanism='not_observed',
         supervised=None, offline=None, live=None,
@@ -96,7 +101,7 @@ _FORMATS = {
 # Only these routes can drive C24C at all, and only when the backend was started
 # with their explicit isolated configuration. Everything else has no live route.
 CANDIDATE_ROUTES = {UploadFormat.IG_CAROUSEL: '/api/farm/draft-creations', UploadFormat.IG_REEL: '/api/farm/reel-creations',
-                    UploadFormat.TT_VIDEO: '/api/farm/tiktok-creations'}
+                    UploadFormat.TT_VIDEO: '/api/farm/tiktok-creations', UploadFormat.X_VIDEO: '/api/farm/x-creations'}
 
 
 def coverage():

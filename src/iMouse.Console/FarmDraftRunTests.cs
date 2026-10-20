@@ -16,7 +16,7 @@ internal sealed partial class FarmDraftRunWindow
         internal string StoreId = Guid.NewGuid().ToString(), DraftId = Guid.NewGuid().ToString();
         internal string? Id, BookmarkPath, ImportedFrom, EligibleImportedFrom;
         internal string? CreationId, CreationStoreId, CreationRecordSha256, EligibleCreationId;
-        internal bool Inspection, WrongCreationProof, Reel, TikTok;
+        internal bool Inspection, WrongCreationProof, Reel, TikTok, X, XFixedAccount, WrongXCheckAccount;
         internal int Starts, Cancels, EligibilityCalls;
         internal bool Missing, Terminal, Verified, Enabled = true, WrongResult, BookmarkBeforePost;
         internal bool CreationConfirmed = true, RetryBeforeImport, ContinueImported;
@@ -28,7 +28,7 @@ internal sealed partial class FarmDraftRunWindow
             terminal = Terminal, savedDraftVerified = Verified, retryBeforeImportAllowed = RetryBeforeImport, continueImportedAllowed = ContinueImported, cleanup = Terminal ? "confirmed" : "unconfirmed",
             reason = Verified ? "The matching draft was saved, reopened and checked." : "Save reply lost; no replay.", draftChangedSinceRun = true, publishing = false, messaging = false, automaticResume = false,
             inspectionOnly = Inspection, originalOutcomeChanged = false, appRestartVerified = false,
-            workflow = new { source = "candidate_phone_workflow", mode = Inspection ? "inspect_saved_draft" : Reel ? "create_reel_draft" : TikTok ? "create_tiktok_draft" : "create_new_draft", inspectionOnly = Inspection, createdDraftVerified = CreationConfirmed, mediaDelivery = new { stopped = true }, actions = new[] { new { label = Inspection ? "inspect-open-draft" : "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
+            workflow = new { source = "candidate_phone_workflow", mode = Inspection ? "inspect_saved_draft" : Reel ? "create_reel_draft" : TikTok ? "create_tiktok_draft" : X ? "create_x_draft" : "create_new_draft", inspectionOnly = Inspection, account = X ? "fixture_handle" : null, verification = new { account = WrongXCheckAccount ? "other_handle" : "fixture_handle" }, createdDraftVerified = CreationConfirmed, mediaDelivery = new { stopped = true }, actions = new[] { new { label = Inspection ? "inspect-open-draft" : "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
                 observations = new[] { new { observationId = "frame1", role = "library", state = "observed" } } }
         };
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
@@ -46,7 +46,7 @@ internal sealed partial class FarmDraftRunWindow
                 BookmarkBeforePost = BookmarkPath is not null && System.IO.File.ReadAllText(BookmarkPath).Contains(Id!);
                 throw new HttpRequestException("Response lost after admission");
             }
-            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled }, draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false }, draftRecovery = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, inspectionOnly = true }, reelCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "ig_reel" }, tiktokCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "tt_video" } });
+            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled }, draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false }, draftRecovery = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, inspectionOnly = true }, reelCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "ig_reel" }, tiktokCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "tt_video" }, xCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = XFixedAccount ? "xs.halle.xo" : null, accountPolicy = XFixedAccount ? "fixed" : "first_signed_in", publishing = false, messaging = false, format = "x_video" } });
             if (route.EndsWith("/eligibility"))
             {
                 EligibilityCalls++;
@@ -59,7 +59,7 @@ internal sealed partial class FarmDraftRunWindow
                 }
                 return Response(new { protocolVersion = 2, eligibility = eligible });
             }
-            if (route is "/api/farm/draft-runs" or "/api/farm/draft-creations" or "/api/farm/draft-recoveries" or "/api/farm/reel-creations" or "/api/farm/tiktok-creations") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
+            if (route is "/api/farm/draft-runs" or "/api/farm/draft-creations" or "/api/farm/draft-recoveries" or "/api/farm/reel-creations" or "/api/farm/tiktok-creations" or "/api/farm/x-creations") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
             if (route.Contains("/frames/")) return Response(new { protocolVersion = 2, frame = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=" });
             return Missing ? Response(new { error = "Saved result missing" }, HttpStatusCode.NotFound) : Response(new { protocolVersion = 2, run = Result() });
         }
@@ -224,6 +224,35 @@ internal sealed partial class FarmDraftRunWindow
             catch (ArgumentException) { refused = true; }
             check("One window never drives both the Reel and TikTok routes", refused);
             handler.TikTok = false;
+
+            handler.Id = null; handler.Terminal = handler.Verified = false; handler.X = true; handler.XFixedAccount = true;
+            int xStarts = handler.Starts, xRoutes = handler.Routes.Count;
+            var pinnedX = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "X acceptance", createNew: true, x: true); windows.Add(pinnedX);
+            await pinnedX.RunAsync(pinnedX.InitializeAsync);
+            check("An X backend with a fixed account is refused; X binds the account signed in first", !pinnedX._start.IsEnabled && pinnedX._status.Text.Contains("designated") && handler.Starts == xStarts);
+            handler.XFixedAccount = false;
+            var xWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "X acceptance", createNew: true, x: true); windows.Add(xWindow);
+            handler.BookmarkPath = xWindow._bookmarkPath; await xWindow.RunAsync(xWindow.InitializeAsync);
+            check("X creation opens with its own capability, route and bookmark and sends nothing", xWindow._start.IsEnabled && xWindow._route == "/api/farm/x-creations" && xWindow._capability == "xCreation"
+                && xWindow._bookmarkPath.EndsWith("farm-pending-x-creation.json") && xWindow._bookmarkPath != tiktok._bookmarkPath && handler.Starts == xStarts
+                && xWindow._start.Content as string == "Create and verify X draft on C24C" && xWindow._status.Text.Contains("not a saved X draft"));
+            await xWindow.RunAsync(xWindow.StartAsync); xWindow._poll.Stop();
+            check("X creation journals admission before POST and keeps a lost reply", handler.Starts == xStarts + 1 && handler.BookmarkBeforePost && xWindow._pending?.Id == handler.Id && !xWindow._start.IsEnabled);
+            await xWindow.StopAsync();
+            check("X Stop uses the original X request route", handler.Routes.Last() == "/api/farm/x-creations/" + handler.Id + "/cancel");
+            handler.Terminal = handler.Verified = true; handler.WrongXCheckAccount = true; await xWindow.RunAsync(xWindow.RecoverAsync);
+            check("A verified X result checked on another account is refused and kept", xWindow._pending is not null && !xWindow._status.Text.Contains("NEW X DRAFT CREATED AND VERIFIED"));
+            handler.WrongXCheckAccount = false; await xWindow.RunAsync(xWindow.RecoverAsync);
+            check("A verified X draft names the bound account and its matching check", xWindow._pending is null && xWindow._status.Text.Contains("NEW X DRAFT CREATED AND VERIFIED")
+                && xWindow._status.Text.Contains("X account bound by this run: @fixture_handle (the separate check saw the same handle).") && !xWindow._inspect.IsEnabled);
+            check("The X window calls only health and its own scoped route", handler.Routes.Skip(xRoutes).All(r => r == "/health" || r.StartsWith("/api/farm/x-creations")));
+            foreach (var (reelFlag, tiktokFlag) in new[] { (true, false), (false, true) })
+            {
+                try { _ = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Both", createNew: true, reel: reelFlag, tiktok: tiktokFlag, x: true); refused = false; }
+                catch (ArgumentException) { refused = true; }
+                check("One window never drives X together with " + (reelFlag ? "Reel" : "TikTok"), refused);
+            }
+            handler.X = false;
             var report = JsonSerializer.Deserialize<JsonElement>("{\"features\":[{\"name\":\"Jobs\",\"availability\":\"Simulation tested\",\"detail\":\"Durable IDs.\"}],"
                 + "\"formats\":[{\"name\":\"Instagram Reel\",\"level\":\"integrated_offline\",\"remaining\":\"Fresh C24C acceptance.\"},"
                 + "{\"name\":\"Instagram story\",\"level\":\"unsupported_draft\",\"remaining\":\"No draft mechanism.\"}]}");

@@ -8,6 +8,7 @@ import io
 import json
 from pathlib import Path
 import sys
+import tempfile
 import zipfile
 
 HERE = Path(__file__).resolve().parent
@@ -24,6 +25,11 @@ def main():
     problems = []
     for name, digest in prep['productSources'].items():
         if sha(ROOT/name) != digest: problems.append('Product source changed: ' + name)
+    # The live Start script refuses a different backend fingerprint; catch that here, offline.
+    import imouse_farm_server as server  # Same fingerprint code the live backend reports; simulation, no listener.
+    with tempfile.TemporaryDirectory(prefix='verify-source-hash-') as directory:
+        if server.FarmBackendRuntime(Path(directory)/'farm.db', Path(directory)/'stage').source_hash != prep['backendSourceHash']:
+            problems.append('Backend source fingerprint changed; Start would refuse. Re-prepare this window.')
     for path, digest in ((prep['assembly'], prep['nativeSha256']), (Path(prep['kernel']).with_suffix('.dll'), prep['kernelSha256']),
                          (prep['nativeProbe'], prep['nativeProbeSha256']), (prep['receiver'], prep['receiverSha256'])):
         if sha(path) != digest: problems.append('Prepared binary changed: ' + str(path))

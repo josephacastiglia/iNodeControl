@@ -13,6 +13,7 @@ from farm_draft_transport import allowed_tap
 from farm_live_verification import idle
 from farm_observations import classify
 from farm_transitions import wait_for_transition
+import farm_permission_prompts as prompts
 import farm_reel_layout as reel
 from imouse_social_automation import LIVE_TEST_DEVICE_ID
 
@@ -32,7 +33,23 @@ COMMITTING = ('download-linked-file', 'save-video-to-photos', 'select-package-vi
               'paste-exact-caption', 'save-reel-draft-once')
 
 
+class PermissionPrompt(InspectionStopped):
+    """A recognized iOS permission prompt over the expected screen, with its policy decision."""
+    def __init__(self, decision):
+        super().__init__(decision.get('request') or decision.get('reason') or 'A permission prompt needs review.')
+        self.decision = decision
+
+
 class ReelCreationWorkflow(CreationWorkflow):
+    APP_NAME = 'Instagram'
+    MEDIA_ROLES = ('reel_picker',)           # The app's own media picker opens here.
+    PASTE_ROLES = ('reel_caption_pasted',)   # Directly after this run's own Paste.
+    PROMPT_LIMIT = 2                         # Prompts answered per observation, at most.
+    # Proven (family, method) pairs from a validation window; none yet, so every
+    # recognized prompt stops the run with its one-time request.
+    validated_prompt_methods = None
+    _prompt_role = None                      # Screen whose context an answered prompt keeps.
+
     def __init__(self, folder, kernel, store, video, caption, templates, expected_hash, expected_uid, *,
                  transfer_url, download, video_bytes, **kwargs):
         require(reel.caption_supported(caption), 'Reel creation supports one visible ASCII caption line up to 40 characters.')
@@ -44,9 +61,59 @@ class ReelCreationWorkflow(CreationWorkflow):
                            videoSeconds=video.seconds, downloadName=download, mediaMethod='safari_download_save_video',
                            captionMethod='verified_safari_copy_and_instagram_paste', draftsCount=dict(before=None, after=None))
 
+    # -- permission prompts ------------------------------------------------------------
+    def prompt_decision(self, value, role):
+        found = prompts.detect(value['text'])
+        if not found: return None
+        decision = prompts.plan(found, app_expected=self.APP_NAME, needs_media_picker=role in self.MEDIA_ROLES,
+                                after_own_paste=role in self.PASTE_ROLES, validated=self.validated_prompt_methods)
+        seen = self.record.setdefault('permissionPrompts', [])
+        if not any(p.get('observationId') == value.get('id') for p in seen):
+            seen.append(dict(role=role, observationId=value.get('id'), **decision)); self.save()
+        return decision
+
+    def check_prompt(self, role, value):
+        """Every recognized screen is first checked for a permission prompt over it."""
+        if role == 'permission_prompt':
+            decision = self.prompt_decision(value, self._prompt_role)
+            require(decision, 'The permission prompt is no longer visible.')
+            return decision
+        decision = self.prompt_decision(value, role)
+        if decision: raise PermissionPrompt(decision)
+        return None
+
+    def prompt_target(self, value, frame, decision):
+        fresh = self.prompt_decision(value, self._prompt_role)
+        require(fresh and fresh['action'] == 'answer' and (fresh['kind'], fresh['answer']) == (decision['kind'], decision['answer']),
+                'The permission prompt changed before its answer.')
+        return fresh['target']
+
+    def answer_prompt(self, decision, role):
+        """One journaled answer by a proven method; the screen is then observed again."""
+        count = sum(1 for a in self.record['actions'] if a['label'].startswith('answer-'))
+        label = 'answer-' + decision['kind'].replace('_', '-') + '-prompt-' + str(count+1)
+        self._prompt_role = role
+        target = self.check_target('permission_prompt', lambda v, f: self.prompt_target(v, f, decision))
+        if decision['method'] == 'pointer_tap': self.step(label, 'permission_prompt', point=target, settle=True)
+        elif decision['method'] == 'long_press': self.step(label, 'permission_prompt', point=target, hold=True)
+        elif decision['method'] == 'keyboard_escape' and decision['answer'] in ("Don't Allow", 'Ask App Not to Track', "Don't Allow Paste"):
+            self.step(label, 'permission_prompt', key='Escape')
+        else:
+            raise InspectionStopped('This candidate has no implementation for the validated prompt method ' + str(decision['method']) + '.')
+        self.record['permissionPrompts'][-1]['answeredBy'] = label; self.save()
+
+    def observe(self, role, index=None, require_next=False):
+        for attempt in range(self.PROMPT_LIMIT+1):
+            try: return self.observe_screen(role, index, require_next)
+            except PermissionPrompt as prompt:
+                if prompt.decision['action'] != 'answer' or attempt == self.PROMPT_LIMIT: raise
+                self.answer_prompt(prompt.decision, role)
+
     # -- recognition -------------------------------------------------------------
     def verify_screen(self, role, value, frame, index=None, require_next=False):
         text = value['text']
+        decision = self.check_prompt(role, value)
+        if decision is not None: return decision
         if role == 'reel_safari_entry':
             try: return self.verify_screen('safari', value, frame)
             except InspectionStopped: return reel.leftover_preview(frame, text)
@@ -79,7 +146,7 @@ class ReelCreationWorkflow(CreationWorkflow):
         if role == 'reel_preview': return reel.reel_preview(frame, text, self.video, self.account, self.caption)
         return super().verify_screen(role, value, frame, index, require_next)
 
-    def observe(self, role, index=None, require_next=False):
+    def observe_screen(self, role, index=None, require_next=False):
         if role not in PRE_SETTLE: return super().observe(role, index, require_next)
         self.pause(PRE_SETTLE[role])
         if role not in SETTLED: return self.capture(role, index)
@@ -119,11 +186,11 @@ class ReelCreationWorkflow(CreationWorkflow):
     def transfer_page(self, text):
         return reel.reel_transfer_page(text, self.download)
 
-    def import_video(self):
-        """Profile -> Safari package page -> copy caption -> download -> Files -> Save Video -> Home."""
+    def import_video(self, start_role='profile', label='home-from-profile'):
+        """Start screen -> Safari package page -> copy caption -> download -> Files -> Save Video -> Home."""
         self.phase('open-transfer')
-        self.observe('profile')
-        self.step('home-from-profile', 'profile', key='Home')
+        self.observe(start_role)
+        self.step(label, start_role, key='Home')
         self.open_app('Safari', 'transfer')
         entry, _, _ = self.screen('reel_safari_entry')
         if entry.get('leftoverPreview'):

@@ -99,6 +99,9 @@ def tiktok_guard(text, x, y, role):
 
 class TikTokCreationWorkflow(ReelCreationWorkflow):
     PLATFORM = 'tiktok'
+    APP_NAME = 'TikTok'
+    MEDIA_ROLES = ('tiktok_picker',)
+    PASTE_ROLES = ('tiktok_details',)
 
     def __init__(self, folder, kernel, store, video, caption, templates, expected_hash, expected_uid, *,
                  transfer_url, download, video_bytes, **kwargs):
@@ -117,6 +120,8 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
 
     def verify_screen(self, role, value, frame, index=None, require_next=False):
         text, result = value['text'], value['result']
+        decision = self.check_prompt(role, value)
+        if decision is not None: return decision
         if role == 'reel_safari_entry':
             try: return self.verify_screen('safari', value, frame)
             except InspectionStopped: return tt.leftover_preview(frame, text)
@@ -146,7 +151,7 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
         if role == 'tiktok_drafts': return tt.tiktok_drafts(frame, text, self.video)
         return super().verify_screen(role, value, frame, index, require_next)
 
-    def observe(self, role, index=None, require_next=False):
+    def observe_screen(self, role, index=None, require_next=False):
         if role not in PRE_SETTLE: return Workflow.observe(self, role, index, require_next)
         def journal(event):
             self.record['transitionChecks'].append(event); self.save()

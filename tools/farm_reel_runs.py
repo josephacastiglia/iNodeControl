@@ -40,6 +40,8 @@ class ReelCreationRuns(DraftRuns):
     FORMAT, LABEL = 'ig_reel', 'Reel'
     workflow, verifier, reference, committing = ReelCreationWorkflow, ReelVerification, VideoReference, COMMITTING
     caption_supported = staticmethod(caption_supported)
+    # False: no fixed account; creation binds the signed-in one and the verifier must see it again.
+    PINNED_ACCOUNT = True
     ENABLED_REASON = ('Saves one prepared Reel video as an Instagram draft: Safari downloads it, Files saves it to Photos, the exact '
                       'one-line caption is pasted, Save draft is pressed once, then a separate check reopens and plays it. Start on @'
                       "{account}'s profile. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced.")
@@ -55,8 +57,9 @@ class ReelCreationRuns(DraftRuns):
                'independently reopened, played and kept. No publication or app-restart persistence claim.')
 
     def capability(self):
-        return dict(version=1, storeId=self.store_id, enabled=self.config is not None, device='C24C', account=ACCOUNT,
-            format=self.FORMAT, candidateOnly=True, integratedLiveValidated=False, publishing=False, messaging=False,
+        return dict(version=1, storeId=self.store_id, enabled=self.config is not None, device='C24C',
+            account=ACCOUNT if self.PINNED_ACCOUNT else None,
+            accountPolicy='fixed' if self.PINNED_ACCOUNT else 'first_signed_in', format=self.FORMAT, candidateOnly=True, integratedLiveValidated=False, publishing=False, messaging=False,
             desktopControl=False, automaticResume=False,
             reason=self.ENABLED_REASON.format(account=ACCOUNT) if self.config else self.DISABLED_REASON)
 
@@ -154,7 +157,7 @@ class ReelCreationRuns(DraftRuns):
         def serve():
             while not stopped.is_set() and server.clock() < server.deadline: server.handle_request()
         worker = threading.Thread(target=serve, daemon=True)
-        arguments = dict(account=ACCOUNT, package_hash=package_hash, cancelled=cancelled)
+        arguments = dict(account=ACCOUNT if self.PINNED_ACCOUNT else None, package_hash=package_hash, cancelled=cancelled)
         try:
             worker.start()
             kernel = CreationKernel(self.config['api'])
@@ -175,8 +178,9 @@ class ReelCreationRuns(DraftRuns):
                           error=result.get('error') or 'Creation or media cleanup is unconfirmed; no automatic retry.')
         else:
             child = folder / 'verification'; child.mkdir(exist_ok=False)
+            checking = arguments if self.PINNED_ACCOUNT else dict(arguments, account=result.get('account'))
             verified = self.verifier(child, kernel, store, video, caption, references(), self.config['kernelSha256'],
-                                        self.config['expectedUid'], **arguments).run()
+                                        self.config['expectedUid'], **checking).run()
             result['creationState'] = 'created_unverified'; result['verification'] = verified
             result['actions'] += [{**a, 'label': 'verification-'+a['label']} for a in verified['actions']]
             result['observations'] += [{**e, 'frame': 'verification/'+e['frame']} for e in verified['observations']]

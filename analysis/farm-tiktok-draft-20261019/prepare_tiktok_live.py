@@ -30,7 +30,7 @@ SOURCES = ['tools/' + name for name in (
     'imouse_farm_server.py', 'farm_tiktok_layout.py', 'farm_tiktok_controls.json', 'farm_tiktok_creation.py', 'farm_tiktok_runs.py',
     'farm_reel_layout.py', 'farm_reel_controls.json', 'farm_reel_creation.py', 'farm_reel_runs.py', 'farm_reel_test_media.py',
     'farm_video.py', 'farm_media_transfer.py', 'farm_transitions.py', 'farm_draft_creation.py', 'farm_draft_workflow.py',
-    'farm_draft_transport.py', 'farm_creation_layout.py', 'farm_observations.py', 'farm_format_coverage.py')]
+    'farm_draft_transport.py', 'farm_creation_layout.py', 'farm_observations.py', 'farm_format_coverage.py', 'farm_permission_prompts.py')]
 
 
 def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()

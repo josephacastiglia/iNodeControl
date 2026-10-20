@@ -1,0 +1,7 @@
+﻿  iMouse.Console -> C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\output\claude-farm-x-20261019\iMouse2.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.65

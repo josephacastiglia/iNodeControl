@@ -41,7 +41,7 @@ internal sealed partial class VideoDraftWindow
                     return new(HttpStatusCode.Conflict) { Content = new StringContent("{\"error\":\"Preparation busy\"}", Encoding.UTF8, "application/json") };
                 }
                 var data = JsonDocument.Parse(body).RootElement; CreatedId = data.GetProperty("id").GetString();
-                SavedDraft = new { id = data.GetProperty("id").GetString(), revision = 1, title = "Test video", caption = "DRAFT ONLY", platform = Format == "ig_reel" ? "Instagram" : "TikTok", format = Format,
+                SavedDraft = new { id = data.GetProperty("id").GetString(), revision = 1, title = "Test video", caption = "DRAFT ONLY", platform = Format switch { "ig_reel" => "Instagram", "x_video" => "X", _ => "TikTok" }, format = Format,
                     video = new { seconds = 2.0, codec = "h264", width = 720, height = 1280, fitted = true, upscaled = true }, published = false, savedInApp = false };
                 if (ServerErrorAfterSave)
                     return new(HttpStatusCode.InternalServerError) { Content = new StringContent("{\"error\":\"Response failed after saving\"}", Encoding.UTF8, "application/json") };
@@ -168,6 +168,17 @@ internal sealed partial class VideoDraftWindow
             check("Without a candidate data folder the TikTok action is absent", !plain._tiktok.IsEnabled && plain.TikTokWindow() is null);
             reel._caption.Text = "Edited TikTok caption";
             check("Editing the caption disables the TikTok draft action for the stale copy", !reel._tiktok.IsEnabled && reel.TikTokWindow() is null);
+            reelHandler.Format = "x_video"; reel._format.SelectedIndex = 1; reel._sources.SelectedIndex = 0;
+            await reel.RunAsync(reel.PrepareAsync);
+            var xWindow = reel.XWindow();
+            check("A saved X video copy enables only the bounded X candidate window", reel._x.IsEnabled && !reel._tiktok.IsEnabled && !reel._reel.IsEnabled && xWindow is not null
+                && xWindow.Route == "/api/farm/x-creations" && xWindow.Capability == "xCreation" && xWindow.BookmarkPath.EndsWith("farm-pending-x-creation.json")
+                && xWindow.DraftId == reelHandler.CreatedId && !xWindow.InspectAvailable && reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
+            xWindow?.Close();
+            plain._draft = reel._draft;
+            check("Without a candidate data folder the X action is absent", !plain._x.IsEnabled && plain.XWindow() is null);
+            reel._caption.Text = "Edited X text";
+            check("Editing the caption disables the X draft action for the stale copy", !reel._x.IsEnabled && reel.XWindow() is null);
         }
         finally { reel.Close(); plain.Close(); Directory.Delete(folder, recursive: true); }
     }

@@ -33,6 +33,9 @@ PAGES = {
     'tt_video': dict(title='TikTok draft', app='TikTok', prefix='tt', proof='a TikTok draft',
                      steps='In TikTok check the account, tap + and the gallery, select this video, remove any suggested '
                            'sound, paste the caption and choose Drafts. Do not tap Post, Share or Your Story.'),
+    'x_video': dict(title='X draft', app='X', prefix='x', proof='an X draft',
+                    steps='In X check the signed-in account, start a post, paste the text, add this video from Photos, then '
+                          'choose Cancel and Save to drafts. Do not tap Post or Discard.'),
 }
 
 
