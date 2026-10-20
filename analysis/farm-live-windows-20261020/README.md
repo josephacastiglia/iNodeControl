@@ -282,3 +282,34 @@ positively identified:
   `dd9726a1b3426d39b661be66c4c90b22730f396e253aab4a7b6efba803e1b9a8`; tokens Reel
   `03f451facdd9`, TikTok `f854b4bfcdb0`, X `9f50b5f1a993`. Archive
   `reel-prep6-auto-connect-and-start-screen` (68 files).
+
+## 9. Auto-connect is disabled; the start screen and the first download work
+
+- **Auto-connect on the unlocked phone.** Its three inputs were answered, but
+  Control Center never opened, so the two taps landed on whatever screen was
+  underneath. The operator then connected mirroring by hand.
+- **With video, `ControlBar` toggles.** It closed an open Control Center and,
+  from the Home screen, opened it. Because the starting state cannot be seen
+  blind, **`farm_mirroring.py` must not be used** until it has positive evidence
+  that the Screen Mirroring list opened before any row tap (the phone's Bonjour
+  browse burst is the candidate). It is not wired into any window script.
+- **Start-screen helper.** It recognizes the Instagram feed directly and taps the
+  profile tab. On the feed, the confirming frame is compared only on Instagram's
+  fixed header and tab bar, because feed videos and ads move. Live: from Control
+  Center → Home → Search → Instagram (feed) → profile tab → exact profile, with no
+  operator help.
+- **Reel attempt in prep 7.** Seven actions were answered: Home, Safari, the
+  address bar, the transfer URL, *Copy caption*, the long press, and **Download
+  Linked File**. That proves the link-menu and copy fixes on the phone. It then
+  stopped at the downloads icon:
+  - Safari now shows the **outlined** downloads icon; the 17 Oct template is the
+    filled one.
+  - The download was answered, so this attempt cannot be retried; no duplicate
+    import is allowed.
+  - The phone keeps that test video in Safari Downloads.
+  - Archive `reel-prep7-attempt-1`: 113 files.
+- **Fix.** `download_badge` accepts the original filled template or a new
+  outlined template, cropped from that frame in the same box. A test covers both
+  icons and refuses a bar without one. Layout and helper tests (36), plus the
+  Reel, TikTok and X happy paths, pass.
+- Re-prepared: fingerprint `218f020ec6760fe0b2285775fe98d7d969b44e30c0732ece47fac79407ae2d20`.

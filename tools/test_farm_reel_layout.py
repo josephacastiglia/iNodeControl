@@ -134,6 +134,18 @@ class SyntheticReelLayoutTests(unittest.TestCase):
         far = [(t, x+120, y) if t != 'Hide preview' else (t, x, y) for t, x, y in rows]
         with self.assertRaises(InspectionStopped): reel.link_menu(ocr(*far))
 
+    def test_downloads_icon_is_accepted_filled_or_outlined_only(self):
+        # 17 Oct: filled icon; 20 Oct: outlined after the download. Both templates sit in the same box.
+        import base64, json
+        from PIL import Image as PImage
+        rows = json.loads(Path(reel.__file__).with_name('farm_reel_controls.json').read_text(encoding='utf-8'))
+        for name in ('safari_download', 'safari_download_outline'):
+            with self.subTest(name=name):
+                image = PImage.new('RGB', (500, 1080), 'white')
+                image.paste(PImage.open(io.BytesIO(base64.b64decode(rows[name]['png']))).convert('RGB'), tuple(rows[name]['box'][:2]))
+                self.assertEqual((91, 955), reel.download_badge(png(image))['target'])
+        with self.assertRaises(InspectionStopped): reel.download_badge(png(PImage.new('RGB', (500, 1080), 'white')))
+
     def test_page_menu_tolerates_only_the_known_promo(self):
         base = [('Downloads', 51, 920)]
         self.assertEqual((92, 929), reel.page_menu(ocr(*base, ('Not Now', 109, 759), ('Turn On', 321, 759)))['target'])

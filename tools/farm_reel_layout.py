@@ -429,7 +429,9 @@ def link_menu(text):
 
 
 def download_badge(frame):
-    reel_control(frame, 'safari_download')
+    """Safari's downloads icon: filled while a download is shown (17 Oct) or outlined after it (20 Oct)."""
+    try: reel_control(frame, 'safari_download')
+    except InspectionStopped: reel_control(frame, 'safari_download_outline')
     return dict(target=(91, 955))
 
 

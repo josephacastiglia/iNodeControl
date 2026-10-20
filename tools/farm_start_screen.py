@@ -26,6 +26,7 @@ API = 'http://127.0.0.1:9916/api'
 MAX_AGE_MS = 1500
 PROFILE_TAB = (447, 1010)       # Instagram's tab bar, own-profile avatar (C24C, 20 Oct frames).
 FRESH_TRIES = 5
+FEED_BARS = ((0, 65, 500, 120), (0, 975, 500, 1045))   # Instagram's header and tab bar; the feed between moves.
 CONTROL_CENTER_EMPTY = (250, 960)   # Below C24C's Control Center grid (16 Sep and 20 Oct frames).
 
 
@@ -72,7 +73,7 @@ class StartScreen:
             entry['state'] = 'stale_or_old'; self.save()
         raise InspectionStopped(f'No fresh frame for {role} after {FRESH_TRIES} pointer challenges; nothing was tapped.')
 
-    def confirm_unchanged(self, recognized, role):
+    def confirm_unchanged(self, recognized, role, only=None):
         """Recognition (OCR) is slow on a loaded PC; a decision uses a newer frame that shows the same screen.
 
         Frame B must be fresh and match recognized frame A outside the status bar and the
@@ -94,6 +95,10 @@ class StartScreen:
             sequence = int(headers.get('X-iMouse-Frame-Sequence', -1)); age = float(headers.get('X-iMouse-Frame-Age-Ms', 'inf'))
             b = pixels(raw)
             mask = np.ones(a.shape[:2], dtype=bool); mask[:65] = False; mask[250:350, 400:500] = False
+            if only is not None:   # Screens with moving content: compare only the app's own fixed bars.
+                keep = np.zeros(a.shape[:2], dtype=bool)
+                for left, top, right, bottom in only: keep[top:bottom, left:right] = True
+                mask &= keep
             mean = float(np.abs(a - b)[mask].mean()) if a.shape == b.shape else 1.0
             entry = dict(role=role + '-confirm', attempt=attempt, sequence=sequence, ageMs=age, before=before, mean=mean,
                          frame=f'{len(self.record["observations"])+1:02d}-{role}-confirm.bmp', frameSha256=hashlib.sha256(raw).hexdigest())
@@ -125,10 +130,10 @@ class StartScreen:
         labels = {line['text'].strip().casefold() for line in text.get('lines', []) if line.get('words')}
         return {'edit profile', 'share profile'} <= labels
 
-    def tap(self, raw, text, point, role, purpose):
+    def tap(self, raw, text, point, role, purpose, only=None):
         """One tap on a point recognized in `raw`, decided on a newer fresh frame showing the same screen."""
         allowed_tap(text, *point, 'open_app')
-        taken, age = self.confirm_unchanged(raw, role)
+        taken, age = self.confirm_unchanged(raw, role, only)
         if (self.clock() - taken) * 1000 + age > MAX_AGE_MS:
             raise InspectionStopped(f'The {role} decision aged past the limit; nothing was tapped.')
         self.command('/mouse/click', purpose, x=point[0], y=point[1], button=1)
@@ -184,6 +189,13 @@ class StartScreen:
             self.record['before'] = dict(screen=result['screen'], accountStatus=result['accountStatus'])
             if ready:
                 self.record.update(state='already_at_start'); return self.record
+            if self.instagram_feed(text) and not self.own_profile_scrolled(text):
+                self.tap(raw, text, PROFILE_TAB, 'instagram_feed', 'open-profile-tab', only=FEED_BARS)
+                self.pause(1.5)
+                raw, text, taken, age = self.fresh('after-profile-tab')
+                ready, result = self.instagram_profile(raw, text)
+                if ready:
+                    self.record.update(state='at_start', after=dict(screen=result['screen'], accountStatus=result['accountStatus'])); return self.record
             if not self.own_profile_scrolled(text):
                 raw, text, taken, age = self.open_from_home('Instagram')
                 ready, result = self.instagram_profile(raw, text)
@@ -192,7 +204,7 @@ class StartScreen:
                     self.record.update(state='at_start', after=self.record['afterOpen']); return self.record
                 if self.instagram_feed(text):
                     # A relaunched Instagram opens on its feed; the profile tab is the workflow's own route.
-                    self.tap(raw, text, PROFILE_TAB, 'instagram_feed', 'open-profile-tab')
+                    self.tap(raw, text, PROFILE_TAB, 'instagram_feed', 'open-profile-tab', only=FEED_BARS)
                     self.pause(1.5)
                     raw, text, taken, age = self.fresh('after-profile-tab')
                     ready, result = self.instagram_profile(raw, text)
