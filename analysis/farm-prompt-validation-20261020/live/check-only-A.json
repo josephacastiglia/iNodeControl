@@ -1,0 +1,48 @@
+﻿{
+    "utc":  "2026-10-20T04:25:47.4045961Z",
+    "part":  "A",
+    "checkOnly":  true,
+    "processes":  [
+                      {
+                          "ProcessId":  26424,
+                          "ExecutablePath":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-live-kernel-20261018\\iMouse2.Kernel.exe",
+                          "CommandLine":  "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-live-kernel-20261018\\iMouse2.Kernel.exe\" \"http://127.0.0.1:9916/api/\" \"--data-dir\" \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-reel-20261019\\data\" \"--input-pid\" \"C24C\" \"--receivers\" \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-reel-20261019\\data\\receivers.json\" \"--receiver\" \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe\" \"--receiver-runtime\" \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime\" "
+                      },
+                      {
+                          "ProcessId":  44836,
+                          "ExecutablePath":  "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
+                          "CommandLine":  "\"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe\" -n iMouse2-C24C -nh -s 500x1080 -fps 30 -avdec -vs appsink -as fakesink -p 7110 -restrict -allow 86:1D:4A:04:2F:F6 -m 02:49:4D:32:C2:4C"
+                      },
+                      {
+                          "ProcessId":  51848,
+                          "ExecutablePath":  "C:\\Users\\joey_\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+                          "CommandLine":  "\"C:\\Users\\joey_\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\" \"-u\" \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\tools\\imouse_farm_server.py\" \"--no-browser\" \"--mode\" \"live\" \"--port\" \"9915\" \"--data-dir\" \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-reel-20261019\\backend\" \"--draft-creation-config\" \"C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-recovery-20261019\\creation-config.json\" "
+                      }
+                  ],
+    "tcp":  [
+                {
+                    "LocalAddress":  "::",
+                    "LocalPort":  7111,
+                    "OwningProcess":  44836
+                },
+                {
+                    "LocalAddress":  "127.0.0.1",
+                    "LocalPort":  9916,
+                    "OwningProcess":  4
+                },
+                {
+                    "LocalAddress":  "127.0.0.1",
+                    "LocalPort":  9915,
+                    "OwningProcess":  51848
+                },
+                {
+                    "LocalAddress":  "0.0.0.0",
+                    "LocalPort":  7111,
+                    "OwningProcess":  44836
+                }
+            ],
+    "udp":  [
+
+            ],
+    "phoneInput":  false
+}

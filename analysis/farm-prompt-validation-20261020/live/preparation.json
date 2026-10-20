@@ -1,0 +1,122 @@
+{
+  "prepared": "2026-10-20T04:25:42.887613+00:00",
+  "root": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts",
+  "runDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\output\\candidate-runs\\prompt-validation-20261020",
+  "windowRecord": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\analysis\\farm-prompt-validation-20261020\\window",
+  "python": "C:\\Users\\joey_\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+  "kernel": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-live-kernel-20261018\\iMouse2.Kernel.exe",
+  "kernelSha256": "c72fa4e0b02b82ec4f7a949c9a80375c69da68d7357084401c7bb422c194a873",
+  "kernelProbeStrings": [
+    "--absolute-probe-pid",
+    "Absolute probe permits pointer moves and reset only",
+    "EXPERIMENTAL absolute probe on "
+  ],
+  "kernelSource": "9fa7a859bbeb60495cdbbda326d25010c3ba7961 (contains probe commit 373dd58)",
+  "kernelUrl": "http://127.0.0.1:9916/api",
+  "expectedDeviceId": "86:1D:4A:04:2F:F6",
+  "expectedUid": "C24CBFBD",
+  "receiver": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
+  "receiverSha256": "46fd3c38745fd63bdd188c45c98b55f1a875ecce5dc7718d07e5d150e31cb136",
+  "receiverRuntime": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime",
+  "parts": {
+    "A": {
+      "arguments": [
+        "http://127.0.0.1:9916/api/",
+        "--data-dir",
+        "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\output\\candidate-runs\\prompt-validation-20261020\\data-A",
+        "--input-pid",
+        "C24C",
+        "--receivers",
+        "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\output\\candidate-runs\\prompt-validation-20261020\\data-A\\receivers.json",
+        "--receiver",
+        "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
+        "--receiver-runtime",
+        "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime"
+      ],
+      "data": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\output\\candidate-runs\\prompt-validation-20261020\\data-A",
+      "mapping": {
+        "devices.json": "30a49e2ef0638c1fbf6dd2715c9986931390e484076092559dedb62459fb045c",
+        "receivers.json": "1a8f387245700d0e4325c5087814b7bc2b59ffc6e8416ad51c1abca88c7721ab",
+        "pointer-calibration.json": "3c0cb25b5a4add1df67a51b341660cbd30be720258af84e8e7b3eea413e1c9f0"
+      },
+      "absoluteProbe": false,
+      "kernel": "normal private kernel"
+    },
+    "B": {
+      "arguments": [
+        "http://127.0.0.1:9916/api/",
+        "--data-dir",
+        "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\output\\candidate-runs\\prompt-validation-20261020\\data-B",
+        "--input-pid",
+        "C24C",
+        "--receivers",
+        "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\output\\candidate-runs\\prompt-validation-20261020\\data-B\\receivers.json",
+        "--receiver",
+        "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
+        "--receiver-runtime",
+        "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime",
+        "--hid-replies-pid",
+        "C24C",
+        "--absolute-probe-pid",
+        "C24C"
+      ],
+      "data": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\output\\candidate-runs\\prompt-validation-20261020\\data-B",
+      "mapping": {
+        "devices.json": "30a49e2ef0638c1fbf6dd2715c9986931390e484076092559dedb62459fb045c",
+        "receivers.json": "1a8f387245700d0e4325c5087814b7bc2b59ffc6e8416ad51c1abca88c7721ab",
+        "pointer-calibration.json": "3c0cb25b5a4add1df67a51b341660cbd30be720258af84e8e7b3eea413e1c9f0"
+      },
+      "absoluteProbe": true,
+      "kernel": "move-only absolute probe"
+    }
+  },
+  "productSources": {
+    "tools/farm_carousel_inspection.py": "03a6386d39bfde9551b7a06bac7a10b7479c6d95593acf96fe18bee03944e79e",
+    "tools/farm_draft_media.py": "11c08f7638ac133db8dce2cdd187c9937922d7b4ddaafdd6adbca4ce20e6a224",
+    "tools/farm_draft_rehearsal.py": "863bad817c5eb39df2caa9b2f86a6a436b361f2875c54d520ba724d7dd0ee16c",
+    "tools/farm_draft_transport.py": "0d8a7c6b3af7d228a1134f0425e378e9d5fbbabd04a79e9ef7320403a3371845",
+    "tools/farm_draft_verification.py": "2cc13942941d2ff1d3746b466bed1146e30f562862cdd83d6a40d00f677cb951",
+    "tools/farm_draft_workflow.py": "e1822ee0b05107ed0e061732c7dfd7b0936582c2e783e4920c19b4526f7538c9",
+    "tools/farm_drafts.py": "bac9511e1f52864b431a66752cd643697560886c270d489e4bd3555d0c9869c3",
+    "tools/farm_frame_evidence.py": "b30fc3054031ac1bf64c7cf68260f0f41e4efb73d9cfacdeda73ab8759412ea0",
+    "tools/farm_jobs.py": "ef70692d5a5536cfe1d9e3e4aae90dc09ab27d0ca71872b89ea05599518b77e9",
+    "tools/farm_live_verification.py": "5f9fc0445d76c1b7b5cf654059cbb978be9fe71c1b403b9f9678d82fbbedbd09",
+    "tools/farm_media_transfer.py": "ba868d364df728546218f66a2ad6e7285dbbcbcdd1a260f26f391de11223656b",
+    "tools/farm_observations.py": "aec9249736dcd769fbedd64261c35587de74822b1cfeed823c6ebae3f72c0ed2",
+    "tools/farm_permission_prompts.py": "04183d0541b5eb2bbe00767cb95adbb37b2415398022aa75178937753b19fe5d",
+    "tools/farm_prompt_validation.py": "ce6a343f61bc8d5c548f3cb9d121856f6b362891537e069da6a9b75b9fc7df02",
+    "tools/farm_screen_layout.py": "4886ad88bcdc737fd15436e09e7e14b9a56873f1a462e7e308b8e829b84565b0",
+    "tools/farm_transfers.py": "d22d221bd23fd788ed919d784d4f9211a690b8c7633fdc45a9011f3adbceae16",
+    "tools/farm_transitions.py": "239fa529384882167e783ea10589cfdcd6ce083fa28fb64635f6c55c3c14968c",
+    "tools/imouse_social_automation.py": "0fdb61e56c1645590ec2c964d663bc219d78740cb140c05b1ddfcdeddb083a08",
+    "tools/Read-FarmImageText.ps1": "9acd231638b04f6bce3e80b9907ce02856447ae99ed3e2a4298368493f9896ba"
+  },
+  "probePoints": [
+    [
+      250,
+      540
+    ],
+    [
+      80,
+      160
+    ],
+    [
+      420,
+      160
+    ],
+    [
+      420,
+      860
+    ],
+    [
+      80,
+      860
+    ]
+  ],
+  "protectedFiles": 25,
+  "mappingFrom": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-recovery-20261019\\data",
+  "serviceStarted": false,
+  "phoneInput": false,
+  "desktopControl": false,
+  "backend": null
+}

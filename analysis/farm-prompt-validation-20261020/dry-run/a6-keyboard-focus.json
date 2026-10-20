@@ -1,0 +1,170 @@
+{
+  "label": "a6-keyboard-focus",
+  "trial": "e970e00c-abd0-46ef-b6ab-2ce7eb288e64",
+  "date": "2026-10-20",
+  "phone": "C24C",
+  "source": "c24c_prompt_validation_window",
+  "recordSource": "offline_fixture",
+  "kernelMode": "normal",
+  "kernelSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "step": "trial",
+  "method": "keyboard_focus",
+  "activate": true,
+  "state": "completed",
+  "error": null,
+  "cleanup": "confirmed",
+  "family": "paste",
+  "app": "TikTok",
+  "answerTargeted": "Don't Allow Paste",
+  "target": [
+    166,
+    614
+  ],
+  "buttons": {
+    "Don't Allow Paste": [
+      166,
+      614
+    ],
+    "Allow Paste": [
+      330,
+      614
+    ]
+  },
+  "layout": "row",
+  "promptReason": null,
+  "detected": null,
+  "precheck": {
+    "kind": "paste",
+    "app": "TikTok",
+    "declining": "Don't Allow Paste"
+  },
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "data": {},
+      "purpose": "park_pointer_off_alert",
+      "state": "answered"
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered"
+    },
+    {
+      "fun": "/key/sendkey",
+      "data": {
+        "fn_key": "Tab"
+      },
+      "purpose": "focus-tab-1",
+      "state": "answered"
+    },
+    {
+      "fun": "/key/sendkey",
+      "data": {
+        "fn_key": "Tab"
+      },
+      "purpose": "focus-tab-2",
+      "state": "answered"
+    },
+    {
+      "fun": "/key/sendkey",
+      "data": {
+        "key": " "
+      },
+      "purpose": "activate-declining-focus",
+      "state": "answered"
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered"
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered"
+    }
+  ],
+  "commandsAnswered": true,
+  "focusPath": [
+    {
+      "tab": 1,
+      "frame": "01-focus-tab-1.png",
+      "ageUpperBoundMs": 154.99992752075195,
+      "scores": {
+        "Don't Allow Paste": 0.0,
+        "Allow Paste": 0.7234
+      },
+      "textChange": 0.0,
+      "state": "focused",
+      "button": "Allow Paste"
+    },
+    {
+      "tab": 2,
+      "frame": "02-focus-tab-2.png",
+      "ageUpperBoundMs": 154.99992752075195,
+      "scores": {
+        "Don't Allow Paste": 0.6918,
+        "Allow Paste": 0.0
+      },
+      "textChange": 0.0,
+      "state": "focused",
+      "button": "Don't Allow Paste"
+    }
+  ],
+  "focusResult": "space_sent_on_declining_focus",
+  "probePoints": null,
+  "probe": null,
+  "repliesBefore": null,
+  "outcome": "dismissed",
+  "result": "dismissed",
+  "beforeFrameSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653",
+  "afterFrameSha256": "c21c2b5971486445fa2f8e7ac7942ad822ade5180aa97167586d4ebdba1dadc3",
+  "frames": [
+    {
+      "name": "01-focus-tab-1.png",
+      "pngSha256": "09d7b6287aacd94705599ca010bf0e96195c492d441f72c2494c7ce59ec3e316",
+      "sequence": 122,
+      "ageUpperBoundMs": 154.99992752075195
+    },
+    {
+      "name": "02-focus-tab-2.png",
+      "pngSha256": "864b38a2e785d24e235dca75825acfd83192491a9091ccb2686b6f38b918aac6",
+      "sequence": 123,
+      "ageUpperBoundMs": 154.99992752075195
+    },
+    {
+      "name": "obs-01-precheck.png",
+      "pngSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd"
+    },
+    {
+      "name": "obs-02-prompt_before.png",
+      "pngSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653"
+    },
+    {
+      "name": "obs-03-prompt_after.png",
+      "pngSha256": "c21c2b5971486445fa2f8e7ac7942ad822ade5180aa97167586d4ebdba1dadc3"
+    }
+  ],
+  "allowTargeted": false,
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false,
+  "confirmation": {
+    "declined": true,
+    "observed": "Fixture: the field stayed empty",
+    "utc": "2026-10-20T00:00:17.980972+00:00"
+  }
+}

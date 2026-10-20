@@ -1,0 +1,130 @@
+{
+  "label": "a4-long-press",
+  "trial": "f684e2cd-8a52-4469-9c72-28d632effc9d",
+  "date": "2026-10-20",
+  "phone": "C24C",
+  "source": "c24c_prompt_validation_window",
+  "recordSource": "offline_fixture",
+  "kernelMode": "normal",
+  "kernelSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "step": "trial",
+  "method": "long_press",
+  "activate": null,
+  "state": "completed",
+  "error": null,
+  "cleanup": "confirmed",
+  "family": "paste",
+  "app": "TikTok",
+  "answerTargeted": "Don't Allow Paste",
+  "target": [
+    166,
+    614
+  ],
+  "buttons": {
+    "Don't Allow Paste": [
+      166,
+      614
+    ],
+    "Allow Paste": [
+      330,
+      614
+    ]
+  },
+  "layout": "row",
+  "promptReason": null,
+  "detected": null,
+  "precheck": {
+    "kind": "paste",
+    "app": "TikTok",
+    "declining": "Don't Allow Paste"
+  },
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "data": {},
+      "purpose": "park_pointer_off_alert",
+      "state": "answered"
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered"
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 166,
+        "y": 614
+      },
+      "purpose": "long-press-position",
+      "state": "answered"
+    },
+    {
+      "fun": "/mouse/down",
+      "data": {
+        "button": 1
+      },
+      "purpose": "long-press-press",
+      "state": "answered"
+    },
+    {
+      "fun": "/mouse/up",
+      "data": {
+        "button": 1
+      },
+      "purpose": "long-press-release",
+      "state": "answered"
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 480,
+        "y": 300
+      },
+      "purpose": "park_after_answered_action",
+      "state": "answered"
+    },
+    {
+      "fun": "/mouse/move",
+      "data": {
+        "x": 450,
+        "y": 300
+      },
+      "purpose": "fresh_frame_challenge",
+      "state": "answered"
+    }
+  ],
+  "commandsAnswered": true,
+  "focusPath": [],
+  "focusResult": null,
+  "probePoints": null,
+  "probe": null,
+  "repliesBefore": null,
+  "outcome": "ignored",
+  "result": "ignored",
+  "beforeFrameSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653",
+  "afterFrameSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd",
+  "frames": [
+    {
+      "name": "obs-01-precheck.png",
+      "pngSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd"
+    },
+    {
+      "name": "obs-02-prompt_before.png",
+      "pngSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653"
+    },
+    {
+      "name": "obs-03-prompt_after.png",
+      "pngSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd"
+    }
+  ],
+  "allowTargeted": false,
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false,
+  "confirmation": null
+}

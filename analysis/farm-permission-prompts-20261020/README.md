@@ -132,3 +132,8 @@ this order, stopping at the first unexpected result:
 Each method that dismisses the prompt with the intended answer becomes
 `validated` for that family, with its evidence, and only then can runs use it.
 No method is ever tried on *Allow* buttons during validation.
+
+The window is prepared offline in
+[the prompt-validation record](../farm-prompt-validation-20261020/README.md)
+(branch `local/prompt-validation-20261020`): scripts, steps, candidate prompts,
+stop conditions and how a result becomes `validated`.
