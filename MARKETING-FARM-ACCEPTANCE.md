@@ -1,6 +1,6 @@
 # Marketing Farm — acceptance record
 
-Updated 19 October 2026. **The full marketing product is not accepted for unattended use.** A fresh three-slide Instagram creation/save/reopen workflow has scoped native-interface acceptance on C24C. Other platform draft saves have supervised evidence. Automatic publishing and messaging remain disabled.
+Updated 20 October 2026. **The full marketing product is not accepted for unattended use.** A fresh three-slide Instagram creation/save/reopen workflow has scoped native-interface acceptance on C24C. Other platform draft saves have supervised evidence. Automatic publishing and messaging remain disabled.
 
 ## Priority 3 offline candidate (not accepted)
 
@@ -24,6 +24,29 @@ description and keeps it. Post, Your Story and LIVE are refused targets. Like th
 Reel, it passed only offline checks on retained C24C layouts, **has no live phone
 acceptance**, and is disabled without its isolated configuration.
 [Record](analysis/farm-tiktok-draft-20261019/README.md).
+
+An X video draft-only candidate followed on 20 October. It uses whichever X
+account is signed in first, as the operator decided:
+
+- Before any other X input it binds the handle shown in X's side menu.
+- Later menu reads and the independent check must show the same handle.
+- The video reaches Photos by the shared route.
+- The exact one-line text is pasted, the one matching video is added from the iOS
+  photo picker and Save to drafts is pressed once.
+- The independent check reopens the draft by its exact text and thumbnail, plays
+  it and keeps it.
+- Post, Discard and the media remove × are refused targets.
+
+The same limits apply: offline checks on retained C24C layouts only, **no live
+phone acceptance**, disabled without its isolated configuration.
+[Record](analysis/farm-x-draft-20261019/README.md).
+
+**Permission prompts are not handled automatically yet.** Every Reel, TikTok and
+X screen check now recognizes an iOS permission alert and applies a
+least-privilege policy. But the 17 Oct evidence shows these alerts ignore the
+pointer's clicks and Escape. Until an input method is validated on a phone, a
+prompt stops the run with a one-time request.
+[Record](analysis/farm-permission-prompts-20261020/README.md).
 
 ## Latest integrated candidate acceptance
 
@@ -131,9 +154,9 @@ interactive Windows hit-test result. See [the scoped live evidence](analysis/far
 | Instagram Reel | Supervised 17 Oct MP4 Reel saved, reopened and played. Integrated draft-only candidate implemented and tested offline (package-named import, exact one-line caption, single Save, independent reopen with playback) | Fresh integrated C24C acceptance, multiline captions, repeated runs and other accounts |
 | Instagram Post/Story | Single-image post: simulation only. Story: no verified draft mechanism, so unsupported | Observe a real draft mechanism first; a story is never posted in place of a draft |
 | TikTok video | Supervised 17 Oct MP4 draft saved, reopened and played; suggested sound removed. Integrated draft-only candidate implemented and tested offline (package-named import, suggested-sound removal, exact one-line description checked caret-free, single Drafts press, independent silent reopen) | Fresh integrated C24C acceptance (Paste callout and suggestion timing unobserved), wrapped descriptions, repeated runs and other accounts |
-| TikTok photo/story/text | Three-photo draft saved and reopened with exact test labels (a suggested sound stayed attached). Story and text: no verified draft mechanism | Photo adapter with sound handling; text/story modes need an observed draft mechanism |
-| X post/video/thread | Image and transferred MP4 drafts saved and reopened with exact labels; video played after tapping its initially blank preview | Threads, repeated recovery checks and unattended state validation |
-| YouTube Short/video/community | Photo-derived Short and transferred MP4 Short saved and reopened with exact titles; MP4 playback and 3.0-second trim view verified | Long video/community modes, unattended permission handling and state validation |
+| TikTok photo/story/text | Three-photo draft saved and reopened with exact test labels (a suggested sound stayed attached). Story and text: no verified draft mechanism | Photo adapter that keeps a sound attached (operator decision, 20 Oct; silent only in no-sound tests); text/story modes need an observed draft mechanism |
+| X post/video/thread | Image and transferred MP4 drafts saved and reopened with exact labels; video played after tapping its initially blank preview. Integrated video draft-only candidate implemented and tested offline on the account signed in first (side-menu handle binding, exact one-line text by paste, matching video from the iOS photo picker, single Save to drafts, independent exact-text reopen with playback on the same handle) | Fresh integrated C24C X acceptance (X Paste callout and picker timing unobserved), image posts, threads, repeated runs |
+| YouTube Short/video/community | Photo-derived Short and transferred MP4 Short saved and reopened with exact titles; MP4 playback and 3.0-second trim view verified | Short adapter; a validated way to answer its local-network prompt (or one physical answer per phone); long video/community modes and state validation |
 | Publishing | Disabled under current instructions | Explicit publishing test scope, observed published item, duplicate prevention and failure recovery |
 
 ## Acceptance rules

@@ -122,26 +122,22 @@ GitHub-only clone; synthetic and service tests always run.
 
 ## 5. Live acceptance plan (prepared, not run)
 
-Prepared offline by `prepare_reel_live.py`; recheck with `live/verify_preparation.py`. Re-prepared later on
-19 Oct, after the TikTok work changed shared sources; the earlier preparation
-(token `c0bb4ce25dae`) and intermediate ones (`1fbf9bfdcb71`, `397aae4ea4ca`) were never
-used and were replaced.
-
-**Stale since the run-journal read retry**
-([analysis/farm-journal-read-race-20261019](../farm-journal-read-race-20261019/README.md)). That
-change altered the backend source fingerprint below, so `live/Start-ReelWindow.ps1` now
-refuses offline. `verify_preparation.py` does not check that fingerprint. Re-prepare before any
-window: new token, new run folder, new dry run.
+Prepared offline by `prepare_reel_live.py`; recheck with `live/verify_preparation.py`, which
+now also recomputes the backend source fingerprint that `live/Start-ReelWindow.ps1` requires.
+Re-prepared on 19 Oct after the TikTok work, and again on 20 Oct after the journal read
+retry (`f7fab4a`) and the X and permission-prompt work (`c358e74`) changed shared sources.
+The earlier preparations (tokens `c0bb4ce25dae`, `1fbf9bfdcb71`, `397aae4ea4ca` and
+`47c20b0ff4aa`) were never used and were replaced.
 
 | Item | Value |
 |---|---|
 | Run folder | `output/candidate-runs/farm-reel-20261019` (fresh; C24C-only mapping/calibration copied byte-identically) |
-| Test media | Labelled `REEL DRAFT TEST`, 4 s, 720×1280, silent; token `47c20b0ff4aa`, colour code `[5,4,5,0,5,2]` |
-| Video SHA-256 | `d3784ff40c45dedf38fed23497a8082938a51d507ac1f5377b3c2ba82b1a3c4c` |
+| Test media | Labelled `REEL DRAFT TEST`, 4 s, 720×1280, silent; token `e41ac269fd84`, colour code `[7,1,6,2,6,3]` |
+| Video SHA-256 | `5626cef45addfcae56521c868ecb68ee83ff3b1e0e38443a2c69f987ac9bd304` |
 | Caption | `Fresh reel acceptance` |
-| Download name | `imouse-reel-wvkhwf` |
+| Download name | `imouse-reel-pdkapf` |
 | Native DLL | `58b4057833d360d2077617c4f0f49b14f7ae749ab780c9207a3b8fd619c83aa1` |
-| Backend source fingerprint | `f3e083ae0230da93293df1ace6cef935d083b605c765c0b0527ef32475570819` (same backend as the TikTok window) |
+| Backend source fingerprint | `c5784346da3d24e9f334212fb16dbe50356f45660adbc10160e7fa0c83b18e48` (same backend as the TikTok and X windows) |
 | Private kernel | unchanged `c72fa4e0…a873` on 9916; media 9917 bind 192.168.4.26 → C24C 192.168.4.57 (recheck the phone's address) |
 
 Window steps (C24C only; no C241 input, desktop control, publishing or FKA change):

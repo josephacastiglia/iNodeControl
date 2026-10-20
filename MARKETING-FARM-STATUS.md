@@ -1,10 +1,74 @@
-# Marketing Farm candidate — 19 October 2026
+# Marketing Farm candidate — 19–20 October 2026
 
 For the continuation task and the original seven-priority roadmap, read
 [the Claude handoff](CLAUDE-HANDOFF-20261019.md). Priorities 1–2 have scoped
 Instagram acceptance; broader platform coverage is next.
 
-## Latest: Priority 3 — TikTok video draft candidate prepared offline
+## Latest: Priority 3 — X video draft candidate and permission-prompt handling (offline)
+
+**Implemented and tested offline; not live-accepted and disabled by default.**
+It follows the operator's answers of 20 Oct:
+
+- X uses whichever account is signed in first.
+- Permission prompts should be handled without people having to step in.
+- Uploaded carousels keep a sound unless the test is about no sound.
+
+The X candidate:
+
+- `/api/farm/x-creations` saves one prepared X video copy as a draft on the X
+  account signed in first. The run reads that handle from X's side menu before
+  any other X input. Every later menu read, and the separate check, must show the
+  same handle; a different one stops the run. The handle stays out of Git.
+- The video reaches Photos by the shared Safari/Files route. In X:
+  1. compose;
+  2. paste the exact one-line text (≤32 characters);
+  3. add the one matching video from the iOS photo picker;
+  4. Cancel → **Save to drafts** once.
+- A separate owned run opens Drafts and reopens the row with the exact text and
+  a matching thumbnail. It plays the video (two different frames) and keeps it
+  with Save to drafts.
+- **Post**, **Discard** and the media remove × are never targets.
+- The native video window offers **Create X draft on C24C…**.
+
+**Permission prompts:** every Reel, TikTok and X screen check first looks for an
+iOS alert, records it and applies a least-privilege policy.
+
+- The 17 Oct evidence shows iOS privacy alerts ignore the pointer's clicks and
+  Escape.
+- So until an input method is validated on a phone, a prompt stops the run with
+  a precise one-time request (iOS keeps the answer per phone and app).
+- [The record](analysis/farm-permission-prompts-20261020/README.md) ranks the ways
+  to remove the human step. The first is the never-run absolute-coordinate probe.
+
+Offline: 556 Python farm tests passed, none skipped (was 531); 600 native
+headless checks (was 588). The run used no phone input, rack service, desktop
+control, publishing, messaging, FKA change or installed-release change.
+[X design, evidence limits and live plan](analysis/farm-x-draft-20261019/README.md).
+
+## Waiting on the operator (20 Oct)
+
+- **Three live windows are prepared** and share one backend fingerprint:
+  - Reel: start on the Instagram profile.
+  - TikTok: start on the TikTok profile.
+  - X: start on the X home timeline, signed in to the account the draft should
+    use.
+
+  Each needs an agreed time and C24C mirroring connected. Steps are in each
+  record's live acceptance plan (section 5; section 6 for X). A first-time
+  permission prompt stops a run with a one-time request.
+- **A permission-prompt validation window** (operator present). In order:
+  1. the move-only absolute-coordinate probe;
+  2. finding a system prompt that can be raised on demand (none is confirmed);
+  3. long press, then keyboard focus, on the declining button.
+
+  Only methods that pass may answer prompts in runs.
+- **YouTube Short:** no adapter yet. Its local-network prompt needs one physical
+  *Don't Allow* per phone (iOS keeps the answer), unless a method is validated
+  first.
+- **TikTok photo carousel:** decided (keep the sound unless testing no sound).
+  The adapter is not built yet.
+
+## Previous: Priority 3 — TikTok video draft candidate prepared offline
 
 **Implemented and tested offline; not live-accepted and disabled by default.**
 `/api/farm/tiktok-creations` saves one prepared TikTok copy as a draft.
@@ -32,23 +96,6 @@ changes keep Instagram behaviour unchanged; the Reel suites and the
 byte-identical Reel page show this. A fresh TikTok window is prepared, and the
 Reel window was re-prepared on the same backend. Each waits for an agreed time.
 [Design, evidence limits and live plan](analysis/farm-tiktok-draft-20261019/README.md).
-
-## Waiting on the operator (19 Oct)
-
-- **Two live windows are prepared** and share one backend fingerprint:
-  - Reel: start on the Instagram profile.
-  - TikTok: start on the TikTok profile.
-
-  Each needs an agreed time and C24C mirroring connected. Nothing else physical is
-  expected unless a first-time permission prompt appears. Steps are in each
-  record's section 5.
-- **X adapter:** which X account is authorized on C24C? On 17 Oct the X app was
-  signed in to a different handle than @xs.halle.xo. The route is mapped and the
-  adapter is not built ([groundwork](analysis/farm-x-draft-20261019/README.md)).
-- **YouTube Short:** its optional permission prompt needed a physical tap on 17
-  Oct. Setup must resolve it before any unattended claim.
-- **TikTok photo carousel:** on 17 Oct a suggested sound stayed attached. Should
-  a photo draft also have to be silent?
 
 ## Previous: Priority 3 — Instagram Reel draft candidate prepared offline
 

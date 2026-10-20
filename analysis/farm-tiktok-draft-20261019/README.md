@@ -172,24 +172,22 @@ GitHub-only clone; synthetic, guard and service tests always run.
 
 ## 5. Live acceptance plan
 
-Prepared offline by `prepare_tiktok_live.py`; recheck with `live/verify_preparation.py`. Not run.
-
-**Stale since the run-journal read retry**
-([analysis/farm-journal-read-race-20261019](../farm-journal-read-race-20261019/README.md)). That
-change altered the backend source fingerprint below, so `live/Start-TikTokWindow.ps1` now
-refuses offline. `verify_preparation.py` does not check that fingerprint. Re-prepare before any
-window: new token, new run folder, new dry run.
+Prepared offline by `prepare_tiktok_live.py`; recheck with `live/verify_preparation.py`, which
+now also recomputes the backend source fingerprint that `live/Start-TikTokWindow.ps1` requires.
+Not run. Re-prepared on 20 Oct after the journal read retry (`f7fab4a`) and the X and
+permission-prompt work (`c358e74`) changed shared sources; the earlier preparation (token
+`e4c33174fe15`) was never used and was replaced.
 
 | Item | Value |
 |---|---|
 | Run folder | `output/candidate-runs/farm-tiktok-20261019` (fresh; C24C-only mapping/calibration copied byte-identically) |
-| Test media | Labelled `TIKTOK DRAFT TEST`, 4 s, 720×1280, silent; token `e4c33174fe15`, colour code `[3,6,1,2,1,7]` |
-| Video SHA-256 | `a9bb5e16f7cf5dd34b2d9cec827f2aa53522efecc0761e0f11f04e1ef4ca5a9a` |
+| Test media | Labelled `TIKTOK DRAFT TEST`, 4 s, 720×1280, silent; token `6353b96d2277`, colour code `[3,0,6,5,1,7]` |
+| Video SHA-256 | `04a649ad8e0ca35f2e25935c5ddbec63c070b2d5af61c44a4f868ff16d6ef6cb` |
 | Description | `Fresh tiktok acceptance` (23 characters, one line) |
-| Download name | `imouse-tt-tktykw` |
+| Download name | `imouse-tt-wxfrrx` |
 | Native DLL | `3d058ca4a2c85cc5db921ef62203920c8cc355992687125b87c756cedf3001d7` (`output/claude-farm-tiktok-20261019`) |
 | Headless driver | `output/farm-tiktok-native-probe-20261019/TikTokProbe.exe`; dry run 3/3 (assembly, TikTok route/capability/bookmark, zero window handles; no HTTP) |
-| Backend source fingerprint | `f3e083ae0230da93293df1ace6cef935d083b605c765c0b0527ef32475570819` (same backend as the re-prepared Reel window) |
+| Backend source fingerprint | `c5784346da3d24e9f334212fb16dbe50356f45660adbc10160e7fa0c83b18e48` (same backend as the Reel and X windows) |
 | Private kernel | unchanged `c72fa4e0…a873` on 9916; media 9917 bind 192.168.4.26 → C24C 192.168.4.57 (recheck the phone's address) |
 
 Window steps (C24C only; no C241 input, desktop control, publishing or FKA
@@ -229,9 +227,12 @@ under the live receiver.
   descriptions once their OCR and layout are observed, and other accounts.
 - TikTok photo carousel: it shares this picker and editor. A suggested sound
   stayed attached on 17 Oct.
-- Next adapters: X post/video (text first, Save draft dialog, blank reopened
-  preview) and YouTube Short. YouTube's permission prompt blocks an unattended
-  claim until setup resolves it.
+- X video is now an offline candidate with its own window
+  ([record](../farm-x-draft-20261019/README.md)). Next: YouTube Short, whose
+  local-network prompt needs a validated answer method or one physical answer per
+  phone ([prompts](../farm-permission-prompts-20261020/README.md)).
+- TikTok photo carousel: keep the sound attached unless the test is about no
+  sound (operator decision, 20 Oct).
 
 ## 7. Reproduce
 

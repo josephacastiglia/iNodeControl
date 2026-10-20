@@ -108,3 +108,64 @@ them. An unknown or uncertain answer stops the run; nothing is repeated or resum
 
 Retained-frame tests need the private local artifacts and skip cleanly in a
 GitHub-only clone; synthetic, guard and service tests always run.
+
+## 6. Live acceptance plan (prepared, not run)
+
+Prepared offline on 20 Oct by `prepare_x_live.py` from the committed sources
+(`c358e74`). Recheck with `live/verify_preparation.py`, which also recomputes the
+backend source fingerprint that `live/Start-XWindow.ps1` requires. Nothing about
+an X account is prepared: the run binds whichever account is signed in.
+
+| Item | Value |
+|---|---|
+| Run folder | `output/candidate-runs/farm-x-20261019` (fresh; C24C-only mapping/calibration copied byte-identically) |
+| Test media | Labelled `X DRAFT TEST`, 4 s, 720×1280, silent; token `dcecea04c632`, colour code `[0,2,3,4,2,5]` |
+| Video SHA-256 | `ffce68c88e71a93508c97dce160ff6c758dc14edfc172d3a10e32d7627451a4a` |
+| Text | `Fresh x acceptance` (18 characters, one line) |
+| Download name | `imouse-x-vakvtp` |
+| Native DLL | `9652c2316b900c1264c449f8bc15acbd078ab3f0d16f8193b5464585d80262ef` (`output/claude-farm-x-20261019`) |
+| Headless driver | `output/farm-x-native-probe-20261019/XProbe.exe`; dry run 3/3 (assembly, X route/capability/bookmark, zero window handles; no HTTP) |
+| Backend source fingerprint | `c5784346da3d24e9f334212fb16dbe50356f45660adbc10160e7fa0c83b18e48` (same backend as the re-prepared Reel and TikTok windows; the launcher's offline `-ValidateOnly` reports the same value) |
+| Private kernel | unchanged `c72fa4e0…a873` on 9916; media 9917 bind 192.168.4.26 → C24C 192.168.4.57 (recheck the phone's address) |
+
+Window steps (C24C only; no C241 input, desktop control, posting or FKA change).
+This is a separate window from the Reel and TikTok ones; the scripts refuse to
+start while any rack/test service, listener or probe exists.
+
+1. Operator: connect C24C mirroring to `iMouse2-C24C`, open X **on its home
+   timeline** and leave it signed in to the account the draft should use. No
+   other physical help is expected. A first-time system prompt stops the run with
+   a one-time request.
+2. `python live/verify_preparation.py` → `ready: true`.
+3. `live/Start-XWindow.ps1` — validates offline, starts only the private
+   kernel/receiver and the 9915 backend, and checks the exact source fingerprint
+   and draft-only X scope (`account: null`, `accountPolicy: first_signed_in`).
+4. `live/Run-X.ps1` — one headless native X creation and its independent check;
+   never replays an attempt or native data folder. Its output (which names the
+   bound handle) goes to the private run folder, not to this record.
+5. `live/Stop-XWindow.ps1` — graceful stop of only the owned private services,
+   final free-input check, 25 protected installed-file hashes, restored stopped
+   state.
+6. Review the retained frames and journals, archive them with checksums, record
+   the result here without the handle, and update the seven-priority record, pass
+   or fail.
+
+Expected side effects on C24C: one labelled test video in Photos and Safari
+Downloads, one new X draft with the test text, the phone clipboard holding the
+text, Safari left on the Files preview (the next run closes it with Done) and X
+left on its timeline. Nothing is posted or deleted. Repeating the window needs a
+fresh preparation (new token and run folder).
+
+What this window will settle for the first time: Paste in X's callout, how long
+the picker shows *Loading…*, the live picker order, and first-use tips on this
+account.
+
+## 7. Remaining Priority 3 work
+
+- Live acceptance of the Reel, TikTok and X candidates, then repeated runs and
+  other accounts.
+- A permission-prompt validation window
+  ([record](../farm-permission-prompts-20261020/README.md)).
+- X image posts (same composer; the picker selects a photo) and threads (no draft
+  mechanism observed).
+- YouTube Short, and the TikTok photo carousel with its sound kept.
