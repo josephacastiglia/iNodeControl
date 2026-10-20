@@ -407,7 +407,8 @@ def reel_transfer_page(text, download):
 
 
 def caption_copied(text):
-    require('Caption copied. Verify the pasted text in Instagram.' in rows_between(text, 80, 1000),
+    # The phone wraps the confirmation ("... text in" / "Instagram."); the exact sentence may span rows.
+    require('Caption copied. Verify the pasted text in Instagram.' in ' '.join(rows_between(text, 80, 1000)),
             'The transfer page did not confirm copying. No paste is permitted.')
     return dict(copied=True)
 

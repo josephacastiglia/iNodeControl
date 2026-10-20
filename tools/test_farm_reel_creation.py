@@ -95,7 +95,7 @@ class Screens:
         copied = page.copy(); ImageDraw.Draw(copied).text((30, 450), 'Caption copied.', fill='black')
         self.frames['reel_copied'] = png(copied)
         self.texts['reel_copied'] = dict(width=500, height=1080, lines=[line(t, x, y) for t, x, y in rows]
-                                         + [line('Caption copied. Verify the pasted text in Instagram.', 30, 450)])
+                                         + [line('Caption copied. Verify the pasted text in', 30, 450), line('Instagram.', 30, 478)])   # Wrapped as on C24C.
         # Paste callout over the blank caption sheet (shape observed on the carousel sheet).
         with Image.open(io.BytesIO(self.frames['caption_blank'])) as base:
             image = base.convert('RGB'); draw = ImageDraw.Draw(image)

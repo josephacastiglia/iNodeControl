@@ -1,0 +1,310 @@
+{
+  "window": "reel",
+  "attempt": "attempt-2",
+  "archive": "iMouseXP-2.0-evidence-archive\\20261020-farm-live-windows\\reel-attempt-2",
+  "files": 76,
+  "manifestSha256": "16fb86279c12a08d078f8013659f1c25effbf59335f00b36cf6d048ad5d95774",
+  "testToken": "4f7e0356e411",
+  "backendSourceHash": "16e7c437c0bc80ac71ce7fa9ae325f7e1728c2ff89b6250995052e0862ac20c9",
+  "phoneInput": true,
+  "publishing": false,
+  "messaging": false,
+  "runId": "d8a40818-d3d9-485c-b39d-25f2abcdfd5e",
+  "state": "review_required",
+  "error": "InspectionStopped: The transfer page did not confirm copying. No paste is permitted.",
+  "cleanup": "confirmed",
+  "evidenceExport": "confirmed",
+  "savedDraftVerified": false,
+  "actions": [
+    {
+      "label": "home-from-profile",
+      "state": "answered"
+    },
+    {
+      "label": "transfer-open-Safari",
+      "state": "answered"
+    },
+    {
+      "label": "focus-safari-address",
+      "state": "answered"
+    },
+    {
+      "label": "enter-transfer-url",
+      "state": "answered"
+    },
+    {
+      "label": "copy-caption",
+      "state": "answered"
+    }
+  ],
+  "commands": [
+    {
+      "fun": "/mouse/reset",
+      "purpose": "initial_pointer_reset",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/key/sendkey",
+      "purpose": "home-from-profile",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/click",
+      "purpose": "transfer-open-Safari",
+      "state": "answered",
+      "x": 308,
+      "y": 635
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/click",
+      "purpose": "focus-safari-address",
+      "state": "answered",
+      "x": 245,
+      "y": 953
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/key/sendkey",
+      "purpose": "load-transfer-url",
+      "state": "answered",
+      "x": null,
+      "y": null
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/click",
+      "purpose": "copy-caption",
+      "state": "answered",
+      "x": 250,
+      "y": 450
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "park_after_answered_action",
+      "state": "answered",
+      "x": 480,
+      "y": 300
+    },
+    {
+      "fun": "/mouse/move",
+      "purpose": "fresh_frame_challenge",
+      "state": "answered",
+      "x": 450,
+      "y": 300
+    }
+  ],
+  "typedKeyCommands": 5,
+  "observations": [
+    {
+      "role": "profile",
+      "state": "observed",
+      "sequence": 389,
+      "ageMs": 909.0140000026776
+    },
+    {
+      "role": "profile",
+      "state": "observed",
+      "sequence": 421,
+      "ageMs": 595.2890000009604
+    },
+    {
+      "role": "home",
+      "state": "observed",
+      "sequence": 504,
+      "ageMs": 817.4540000019208
+    },
+    {
+      "role": "home",
+      "state": "observed",
+      "sequence": 529,
+      "ageMs": 794.4449999996217
+    },
+    {
+      "role": "reel_safari_entry",
+      "state": "observed",
+      "sequence": 634,
+      "ageMs": 642.575
+    },
+    {
+      "role": "reel_safari_entry",
+      "state": "observed",
+      "sequence": 671,
+      "ageMs": 688.2409999990396
+    },
+    {
+      "role": "safari",
+      "state": "observed",
+      "sequence": 704,
+      "ageMs": 594.3259999977008
+    },
+    {
+      "role": "address_selected",
+      "state": "observed",
+      "sequence": 822,
+      "ageMs": 520.9039999996216
+    },
+    {
+      "role": "reel_page",
+      "state": "observed",
+      "sequence": 1129,
+      "ageMs": 597.8220000013388
+    },
+    {
+      "role": "reel_page",
+      "state": "observed",
+      "sequence": 1162,
+      "ageMs": 553.0169999992434
+    },
+    {
+      "role": "reel_caption_copied",
+      "state": "observed",
+      "sequence": 1253,
+      "ageMs": 651.612
+    }
+  ],
+  "transitionChecks": [
+    {
+      "stage": "reel_safari_entry",
+      "attempt": 1,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required.",
+      "mean": null,
+      "changed": null
+    },
+    {
+      "stage": "reel_safari_entry",
+      "attempt": 2,
+      "state": "ready",
+      "reason": null,
+      "mean": 0.0004313049402507505,
+      "changed": 0.0014183409588223593
+    },
+    {
+      "stage": "reel_page",
+      "attempt": 1,
+      "state": "wait",
+      "reason": "A second independently fresh observation is required.",
+      "mean": null,
+      "changed": null
+    },
+    {
+      "stage": "reel_page",
+      "attempt": 2,
+      "state": "ready",
+      "reason": null,
+      "mean": 0.0,
+      "changed": 0.0
+    },
+    {
+      "stage": "reel_caption_copied",
+      "attempt": null,
+      "state": "held",
+      "reason": "The transfer page did not confirm copying. No paste is permitted.",
+      "mean": null,
+      "changed": null
+    }
+  ],
+  "mediaVideoRequests": 0,
+  "restored": true,
+  "protectedFilesUnchanged": true
+}

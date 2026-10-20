@@ -407,7 +407,8 @@ def transfer_page(text, download, title='TikTok draft'):
 
 
 def caption_copied(text, app='TikTok'):
-    require(f'Caption copied. Verify the pasted text in {app}.' in rows_between(text, 80, 1000),
+    # The phone wraps the confirmation onto a second row (C24C, 20 Oct); the exact sentence may span rows.
+    require(f'Caption copied. Verify the pasted text in {app}.' in ' '.join(rows_between(text, 80, 1000)),
             'The transfer page did not confirm copying. No paste is permitted.')
     return dict(copied=True)
 

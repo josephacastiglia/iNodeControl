@@ -70,3 +70,43 @@ advanced the frame counter.
   | Reel | `4f7e0356e411` | `[2,0,5,6,0,2]` | `imouse-reel-nxrevk` | `08930f4f7393489c8e195c038b3e44945a142c6d4281ab5ce387ea4cb3b06b9a` |
   | TikTok | `8c3052f5abe5` | `[6,4,6,5,7,3]` | `imouse-tt-muafmn` | `dd922d9c76bf032493d355452719306d07ab1622ce8eafae59d9c25f25c8582e` |
   | X | `aa8ab2a6d80b` | `[2,1,7,6,3,4]` | `imouse-x-utremp` | `94dc71a7134581e7a955ee9d7a28600e2fed15d6b4aa42c43476659b0f228ebb` |
+
+## 2. Reel attempt 2: the pointer fix worked; stopped at the copy confirmation
+
+- Started on `06f7a44`; the read-only check again recognized the exact profile.
+- The same five actions were answered. After *Copy caption* the park was at
+  (480, 300) and the challenge moved to (450, 300); a new frame arrived. The
+  pointer fix held on the phone.
+- It then stopped: *The transfer page did not confirm copying. No paste is
+  permitted.* The page **did** show the confirmation, but the phone wrapped it
+  onto two rows (`Caption copied. Verify the pasted text in` / `Instagram.`).
+  The Reel and TikTok/X checks compared the sentence with each OCR row
+  separately. The carousel check, which passed live on 19 Oct, joins the rows
+  first. The offline fixtures had drawn the sentence on one row.
+- State `review_required`, cleanup confirmed, video requested 0 times, nothing
+  imported. Stopped state restored, 25 protected files unchanged.
+  [Summary](reel-attempt-2-summary.json); 76 archived files, manifest
+  `16fb86279c12a08d078f8013659f1c25effbf59335f00b36cf6d048ad5d95774`.
+- Not affected by the selection highlight: after copying, the page selects the
+  caption, and OCR then clips its first and last letters (`resh reel
+  acceptanc`). No check reads that row after copying.
+
+### Fix
+
+- `farm_reel_layout.caption_copied` and `farm_tiktok_layout.caption_copied`
+  (TikTok and X) require the exact sentence in the page's rows joined with
+  single spaces, so wrapping is allowed but nothing is repaired or guessed.
+- The Reel, TikTok and X protocol fixtures now wrap the sentence like the phone.
+  The layout tests add the real wrapped rows, a missing second row and a wrong
+  app name across rows.
+- Before this window: layout tests 27/27, the three protocol happy paths, and 47
+  service/package tests pass. The complete suite is run after the windows,
+  because it would compete with a live window for CPU.
+- All three windows re-prepared on this fix (dry probes 3/3, ready), backend
+  fingerprint `9c9c6fc8fb0af695f737945861a96853c17fc7e1d5162fbe55ad89b7b23a2902`:
+
+  | Window | Token | Colour code | Download name | Video SHA-256 |
+  |---|---|---|---|---|
+  | Reel | `41fcf02910fe` | `[1,0,5,2,5,0]` | `imouse-reel-uaercv` | `c21e145d9b45a78a81028c8218779e83a9bd0c2da35b8def0466fc32ad330963` |
+  | TikTok | `ec8f0dab0e24` | `[6,1,6,7,0,5]` | `imouse-tt-mwdvff` | `6b118768564f78a542bd183f5f5a1eb59caaa94e37ce1b9cb8e5c453596fc86b` |
+  | X | `c6d980f9a79c` | `[0,4,5,1,0,2]` | `imouse-x-vtyxck` | `fc41754b57c6ccafd02ee2d907ee61741e4cd4a5f8c90b69554e1e4e05162a14` |

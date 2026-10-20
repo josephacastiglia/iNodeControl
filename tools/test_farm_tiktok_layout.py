@@ -88,6 +88,12 @@ class SyntheticTikTokLayoutTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped):
             tt.caption_copied(ocr(*rows, ('Caption copied. Verify the pasted text in Instagram.', 30, 450)))
         self.assertTrue(tt.caption_copied(ocr(*rows, ('Caption copied. Verify the pasted text in TikTok.', 30, 450)))['copied'])
+        # On C24C (20 Oct) the sentence wrapped: the exact text may span rows, never be repaired.
+        wrapped = (('Caption copied. Verify the pasted text in', 26, 508), ('TikTok.', 27, 536))
+        self.assertTrue(tt.caption_copied(ocr(*rows, *wrapped))['copied'])
+        self.assertTrue(tt.caption_copied(ocr(*rows, wrapped[0], ('X.', 27, 536)), app='X')['copied'])
+        with self.assertRaises(InspectionStopped): tt.caption_copied(ocr(*rows, wrapped[0], ('Instagram.', 27, 536)))
+        with self.assertRaises(InspectionStopped): tt.caption_copied(ocr(*rows, wrapped[0]))
 
     def test_feed_ignores_content_but_not_dialogs(self):
         nav = [('Home', 35, 1021, 18, 8), ('Friends', 130, 1021, 18, 6), ('Inbox', 334, 1021, 18, 7), ('Profile', 425, 1021, 18, 7),

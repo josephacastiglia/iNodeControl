@@ -125,7 +125,7 @@ class Screens:
         copied = page.copy(); ImageDraw.Draw(copied).text((30, 450), 'Caption copied.', fill='black')
         self.frames['tt_copied'] = png(copied)
         self.texts['tt_copied'] = dict(width=500, height=1080, lines=[line(t, x, y) for t, x, y in rows]
-                                       + [line('Caption copied. Verify the pasted text in TikTok.', 30, 450)])
+                                       + [line('Caption copied. Verify the pasted text in', 30, 450), line('TikTok.', 30, 478)])   # Wrapped as on C24C.
         # The focused blank description with the caret drawn in its blink phase.
         with Image.open(io.BytesIO(self.frames['tt_details_focused'])) as base:
             image = base.convert('RGB'); ImageDraw.Draw(image).rectangle((25, 128, 26, 150), fill=(246, 90, 130))

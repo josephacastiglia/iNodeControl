@@ -115,6 +115,11 @@ class SyntheticReelLayoutTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): reel.reel_transfer_page(ocr(*swapped), name)
         with self.assertRaises(InspectionStopped): reel.caption_copied(ocr(*rows))
         self.assertTrue(reel.caption_copied(ocr(*rows, ('Caption copied. Verify the pasted text in Instagram.', 30, 450)))['copied'])
+        # On C24C (20 Oct) the sentence wrapped: the exact text may span rows, never be repaired.
+        wrapped = (('Caption copied. Verify the pasted text in', 26, 508), ('Instagram.', 27, 536))
+        self.assertTrue(reel.caption_copied(ocr(*rows, *wrapped))['copied'])
+        with self.assertRaises(InspectionStopped): reel.caption_copied(ocr(*rows, wrapped[0]))
+        with self.assertRaises(InspectionStopped): reel.caption_copied(ocr(*rows, wrapped[0], ('Instagram', 27, 536)))
 
     def test_page_menu_tolerates_only_the_known_promo(self):
         base = [('Downloads', 51, 920)]
