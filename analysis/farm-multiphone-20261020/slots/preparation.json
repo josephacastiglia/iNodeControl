@@ -1,0 +1,86 @@
+{
+  "runDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-slots-20261020",
+  "kernel": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\multiphone-kernel-20261020\\iMouse2.Kernel.exe",
+  "kernelSha256": "2350ca2241ae58e7324bc976759f31227c4b6cfe89940bf43632deaa8468cfaf",
+  "arguments": [
+    "http://127.0.0.1:9916/api/",
+    "--data-dir",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-slots-20261020\\data",
+    "--input-pid",
+    "C24C,C214,724E,F215",
+    "--receivers",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-slots-20261020\\data\\receivers.json",
+    "--receiver",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
+    "--receiver-runtime",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime",
+    "--hold-receivers",
+    "C24C,C214,724E,F215"
+  ],
+  "held": [
+    "C24C",
+    "C214",
+    "724E",
+    "F215"
+  ],
+  "boards": [
+    "C24C",
+    "C214",
+    "724E",
+    "F215"
+  ],
+  "inputEnabled": [
+    "C24C",
+    "C214",
+    "724E",
+    "F215"
+  ],
+  "receivers": [
+    {
+      "board": "C24C",
+      "name": "iMouse2-18",
+      "port": 7110
+    },
+    {
+      "board": "C214",
+      "name": "iMouse2-20",
+      "port": 7130
+    },
+    {
+      "board": "724E",
+      "name": "iMouse2-17",
+      "port": 7140
+    },
+    {
+      "board": "F215",
+      "name": "iMouse2-16",
+      "port": 7150
+    }
+  ],
+  "sources": {
+    "C24C": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-recovery-20261019\\data",
+    "others": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\five-phone-config"
+  },
+  "excluded": [
+    "C241"
+  ],
+  "renamed": {
+    "F215": "iMouse2-Phone5 -> iMouse2-F215"
+  },
+  "dataSha256": {
+    "devices.json": "6f0119e133ad62bf145f9de2a1a00add11790d616c37a4d9c6823b1cbd7d376d",
+    "receivers.json": "b1bf7a9c15f907c85ecc7aee7ccff1762bdee74daf5d5ee56209b54eecf85b5e",
+    "pointer-calibration.json": "69b2c68d23614b3d9685d6b294856a46955edf404236f578593c165a0fe5f402"
+  },
+  "protectedBefore": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-recovery-live-20261019\\protected-before.json",
+  "serviceStarted": false,
+  "phoneInput": false,
+  "slots": {
+    "F215": 16,
+    "724E": 17,
+    "C24C": 18,
+    "C214": 20
+  },
+  "derivedFrom": "held\\preparation.json",
+  "f215BoundTo": "slot 16 phone (receiver log 20 Oct 21:40)"
+}

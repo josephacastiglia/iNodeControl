@@ -1,6 +1,6 @@
 # Advertises one held receiver on the running one-at-a-time kernel, so the phone being
 # connected sees exactly one new Screen Mirroring choice. Sends no phone input.
-param([Parameter(Mandatory)][ValidatePattern('^[0-9A-Fa-f]{4}$')][string]$Board,[ValidateSet('held')][string]$Stage='held')
+param([Parameter(Mandatory)][ValidatePattern('^[0-9A-Fa-f]{4}$')][string]$Board,[ValidateSet('held','slots')][string]$Stage='held')
 $ErrorActionPreference='Stop'
 $taskDir=Join-Path $PSScriptRoot $Stage
 $taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json

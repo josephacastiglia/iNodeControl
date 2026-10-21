@@ -1,7 +1,7 @@
 # Private kernel with four receivers (C24C, C214, 724E, F215) so each phone can mirror.
 # Refuses if any rack/test service or listener exists. Starts no backend and sends no input.
 # -Stage held starts the one-at-a-time mode: every receiver held until Release-Receiver.ps1.
-param([ValidateSet('','held')][string]$Stage='')
+param([ValidateSet('','held','slots')][string]$Stage='')
 $ErrorActionPreference='Stop'
 $taskDir=if($Stage){Join-Path $PSScriptRoot $Stage}else{$PSScriptRoot}
 $taskProcessFile=Join-Path $taskDir 'processes.json'

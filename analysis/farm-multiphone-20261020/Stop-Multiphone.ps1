@@ -1,6 +1,6 @@
 # Stops the multi-phone kernel with Ctrl+C (it then ends each receiver it started) and
 # confirms no kernel, receiver or listener remains. Never force-kills anything.
-param([ValidateSet('','held')][string]$Stage='')
+param([ValidateSet('','held','slots')][string]$Stage='')
 $ErrorActionPreference='Stop'
 $taskDir=if($Stage){Join-Path $PSScriptRoot $Stage}else{$PSScriptRoot}
 $taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json
@@ -19,7 +19,6 @@ if($taskLeft.Count -or $taskTcp.Count){throw "Still present: $($taskLeft.Count) 
 # phone keeps listing the stopped names for 75 minutes.
 $taskBoards=@($taskPrep.receivers | ForEach-Object {'--board'; $_.board})
 & python (Join-Path $PSScriptRoot '..\..\tools\mdns_goodbye.py') --receivers (Join-Path $taskPrep.runDirectory 'data\receivers.json') @taskBoards
-eceivers.json') @taskBoards
 if($LASTEXITCODE){throw 'Receivers stopped, but their AirPlay names were not withdrawn.'}
 Rename-Item -LiteralPath (Join-Path $taskDir 'processes.json') -NewName ('processes-stopped-' + [datetime]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '.json')
 'Stopped: no kernel, receiver or listener remains.'
