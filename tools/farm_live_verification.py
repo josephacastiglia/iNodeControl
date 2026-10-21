@@ -15,7 +15,8 @@ import urllib.request
 import uuid
 
 from farm_observations import ObservationStore
-from imouse_social_automation import IMouseKernel, LIVE_TEST_DEVICE_ID, KernelSafetyError
+from imouse_social_automation import IMouseKernel, KernelSafetyError
+from farm_phone_identity import LEGACY_C24C, PhoneIdentityError, own_receiver
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -24,7 +25,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 class ReadOnlyKernel(IMouseKernel):
-    def __init__(self, url, transport=None):
+    def __init__(self, url, transport=None, *, phone):
         parsed = urllib.parse.urlsplit(url)
         if (parsed.scheme != 'http' or parsed.hostname != '127.0.0.1'
                 or parsed.port not in (9916,) or parsed.path.rstrip('/') != '/api'
@@ -37,7 +38,7 @@ class ReadOnlyKernel(IMouseKernel):
             permitted = (
                 method == 'GET' and body is None and target in (
                     base + '/kernel/status', base + '/device/get',
-                    base + '/pic/screenshot?id=' + urllib.parse.quote(LIVE_TEST_DEVICE_ID) + '&binary=true')
+                    base + '/pic/screenshot?id=' + urllib.parse.quote(phone.device_id) + '&binary=true')
                 or method == 'POST' and target == base + '/' and body == {'fun': '/input/status', 'data': {}})
             if not permitted:
                 raise KernelSafetyError('Read-only verification refused an input or unrelated request.')
@@ -53,8 +54,8 @@ class ReadOnlyKernel(IMouseKernel):
                     raise KernelSafetyError('Candidate response exceeds its evidence limit.')
                 return raw, dict(response.headers)
 
-        super().__init__(base, transport=restricted)
-        self._is_live_http = True  # Keep the production C24C target checks.
+        super().__init__(base, transport=restricted, phone=phone)
+        self._is_live_http = True  # Keep the production target checks for this window's phone.
 
     def devices(self):
         raw, _ = self._transport('GET', self.url + '/device/get', None, 5)
@@ -64,21 +65,34 @@ class ReadOnlyKernel(IMouseKernel):
         return value['data'].get('list', [])
 
 
-def validate_runtime(status, devices, expected_hash, expected_uid):
+def validate_runtime(status, devices, expected_hash, expected_uid, phone=LEGACY_C24C, allowed=None):
+    """The running kernel is the prepared one and maps this window's phone exactly.
+
+    allowed=None is the single-phone kernel: input enabled for this board only, one receiver and
+    one device. A multi-phone kernel passes its prepared allow-list, which must match exactly;
+    this phone's receiver and board must then be unique and agree on its device ID."""
     if not re.fullmatch(r'[0-9a-f]{64}', expected_hash):
         raise ValueError('An exact prepared kernel SHA-256 is required.')
+    expected_allowed = [phone.board] if allowed is None else list(allowed)
     if (status.get('code') != 0 or status.get('build_identity', {}).get('sha256') != expected_hash
-            or status.get('input_leases_required') is not True or status.get('allowed') != ['C24C']):
-        raise KernelSafetyError('Running kernel does not match the prepared C24C-only candidate.')
+            or status.get('input_leases_required') is not True or status.get('allowed') != expected_allowed
+            or phone.board not in expected_allowed):
+        raise KernelSafetyError(f'Running kernel does not match the prepared candidate for {phone.board}.')
     process = status.get('process', {})
     if type(process.get('pid')) is not int or process['pid'] <= 0 or not process.get('started_utc'):
         raise KernelSafetyError('Kernel process identity is incomplete.')
     receivers = status.get('receivers', [])
-    if (len(receivers) != 1 or receivers[0].get('deviceid') != LIVE_TEST_DEVICE_ID
-            or receivers[0].get('name') != 'iMouse2-C24C'):
-        raise KernelSafetyError('Receiver mapping is not exclusively C24C.')
-    if (len(devices) != 1 or devices[0].get('deviceid') != LIVE_TEST_DEVICE_ID
-            or devices[0].get('pid') != 'C24C' or devices[0].get('uid') != expected_uid):
+    try:
+        own_receiver(status, phone)
+    except PhoneIdentityError as error:
+        raise KernelSafetyError(f'Receiver mapping does not give {phone.board} exactly its own receiver.') from error
+    if allowed is None and len(receivers) != 1:
+        raise KernelSafetyError(f'Receiver mapping is not exclusively {phone.board}.')
+    if len({r.get('name') for r in receivers}) != len(receivers) or len({r.get('deviceid') for r in receivers}) != len(receivers):
+        raise KernelSafetyError('Receiver names or phones are not unique.')
+    mine = [d for d in devices if d.get('pid') == phone.board or d.get('deviceid') == phone.device_id]
+    if ((allowed is None and len(devices) != 1) or len(mine) != 1 or mine[0].get('deviceid') != phone.device_id
+            or mine[0].get('pid') != phone.board or mine[0].get('uid') != expected_uid):
         raise KernelSafetyError('Phone/board identity does not match the prepared configuration.')
     return process['pid'], process['started_utc']
 
@@ -90,16 +104,16 @@ def idle(state):
 
 def capture_once(kernel, store, expectation, expected_hash, expected_uid):
     before = kernel.kernel_status()
-    identity = validate_runtime(before, kernel.devices(), expected_hash, expected_uid)
-    original_input = kernel.input_status().get(LIVE_TEST_DEVICE_ID)
+    identity = validate_runtime(before, kernel.devices(), expected_hash, expected_uid, kernel.phone)
+    original_input = kernel.input_status().get(kernel.phone.device_id)
     if not idle(original_input):
-        raise KernelSafetyError('C24C is not idle/free; verification will not take control.')
+        raise KernelSafetyError(f'{kernel.phone.board} is not idle/free; verification will not take control.')
     request_id = str(uuid.uuid4())
-    value = store.capture(dict(id=request_id, device_id='C24C', **expectation), kernel)
+    value = store.capture(dict(id=request_id, device_id=kernel.phone.board, **expectation), kernel)
     after = kernel.kernel_status()
-    if validate_runtime(after, kernel.devices(), expected_hash, expected_uid) != identity:
+    if validate_runtime(after, kernel.devices(), expected_hash, expected_uid, kernel.phone) != identity:
         raise KernelSafetyError('Kernel changed during verification.')
-    final_input = kernel.input_status().get(LIVE_TEST_DEVICE_ID)
+    final_input = kernel.input_status().get(kernel.phone.device_id)
     if not idle(final_input) or original_input != final_input:
         raise KernelSafetyError('Phone input state changed during verification; no conclusion is accepted.')
     # Extra identity reads consume the age budget too.
@@ -135,7 +149,7 @@ def main():
     if hashlib.sha256(kernel_path.read_bytes()).hexdigest() != expected_hash:
         raise KernelSafetyError('Prepared kernel bytes changed.')
     args.out.mkdir(parents=True, exist_ok=False)
-    kernel = ReadOnlyKernel(preparation['arguments'][0])
+    kernel = ReadOnlyKernel(preparation['arguments'][0], phone=LEGACY_C24C)   # This one-off check predates the rack.
     store = ObservationStore(args.out / 'observations.sqlite3')
     report = dict(source='phone', samples=[], automaticInputAllowed=False, savedDraftVerified=False,
                   phoneInput=False, publishing=False, messaging=False, kernelSha256=expected_hash)

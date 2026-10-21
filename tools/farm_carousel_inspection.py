@@ -41,10 +41,10 @@ class OwnedCaptureRun:
 
     def acquire(self):
         self.check_budget()
-        preflight = self.kernel.preflight_phone('C24C')
+        preflight = self.kernel.preflight_phone(self.kernel.phone.board)
         self.resolved = preflight['resolved_id']
         self.stream = self.receiver_context(preflight['receiver'])
-        self.tokens = self.kernel.acquire(['C24C'], lease_ms=30000)
+        self.tokens = self.kernel.acquire([self.kernel.phone.board], lease_ms=30000)
         state = self.kernel.input_status().get(self.resolved)
         if not self.settled(state): raise InspectionStopped('Acquired input state was not settled.')
         self.generation = state['generation']

@@ -21,6 +21,7 @@ from farm_draft_workflow import Workflow, references
 from farm_draft_transport import StepKernel
 from farm_observations import ObservationStore
 from imouse_social_automation import KernelSafetyError
+from farm_phone_identity import LEGACY_C24C, PhoneIdentity, PhoneIdentityError
 
 
 ACCOUNT = 'xs.halle.xo'
@@ -58,16 +59,46 @@ def source_content(package):
     return assets, manifest['caption'], digest
 
 
+CORE_V1 = {'version', 'api', 'kernelSha256', 'expectedUid'}
+# Version 2 is one window of the multi-phone kernel: its own phone, the kernel's prepared
+# allow-list (which must match the running kernel exactly) and the account signed in on that
+# phone, or null where creation binds the signed-in account itself (X).
+CORE_V2 = CORE_V1 | {'phone', 'allowed', 'account'}
+
+
 def load_config(path, mode):
     if path is None: return None
     if mode != 'live': raise ValueError('A phone draft configuration requires explicit live mode.')
     config = json.loads(Path(path).read_text(encoding='utf-8-sig'))
-    if (not isinstance(config, dict) or set(config) != {'version', 'api', 'kernelSha256', 'expectedUid'}
-            or type(config['version']) is not int or config['version'] != 1 or config['api'] != API
+    if (not isinstance(config, dict) or set(config) not in (CORE_V1, CORE_V2)
+            or type(config['version']) is not int or config['version'] != (1 if set(config) == CORE_V1 else 2) or config['api'] != API
             or not isinstance(config['kernelSha256'], str) or not re.fullmatch('[0-9a-f]{64}', config['kernelSha256'])
             or not isinstance(config['expectedUid'], str) or not 1 <= len(config['expectedUid']) <= 64):
-        raise ValueError('Draft candidate needs version 1, the isolated 9916 API, kernel SHA-256 and C24C UID.')
+        raise ValueError('Draft candidate needs version 1 or 2, the isolated 9916 API, kernel SHA-256 and the board UID.')
+    if config['version'] == 2:
+        try: phone = PhoneIdentity.from_config(config['phone'])
+        except PhoneIdentityError as error: raise ValueError(str(error)) from error
+        allowed = config['allowed']
+        if (not isinstance(allowed, list) or not allowed or len(set(allowed)) != len(allowed) or phone.board not in allowed
+                or not all(isinstance(b, str) and re.fullmatch('[0-9A-F]{4}', b) for b in allowed)):
+            raise ValueError("The kernel allow-list must be distinct board IDs that include this window's phone.")
+        account = config['account']
+        if account is not None and not (isinstance(account, str) and re.fullmatch(r'[A-Za-z0-9_.]{1,30}', account)):
+            raise ValueError('Account must be a signed-in handle without @, or null for a signed-in binding.')
     return config
+
+
+def phone_of(config):
+    """The one phone this window drives; a version 1 config is the pre-rack C24C window."""
+    return LEGACY_C24C if config['version'] == 1 else PhoneIdentity.from_config(config['phone'])
+
+
+def allowed_of(config):
+    return None if config['version'] == 1 else list(config['allowed'])
+
+
+def account_of(config):
+    return ACCOUNT if config['version'] == 1 else config['account']
 
 
 class DraftRuns:
@@ -90,11 +121,13 @@ class DraftRuns:
         finally: connection.close()
 
     def capability(self):
+        phone = phone_of(self.config) if self.config else LEGACY_C24C
+        account = account_of(self.config) if self.config else ACCOUNT
         return dict(version=1, storeId=self.store_id, enabled=self.config is not None,
-            device='C24C', account=ACCOUNT, candidateOnly=True, integratedLiveValidated=False,
+            device=phone.board, slot=phone.slot, account=account, candidateOnly=True, integratedLiveValidated=False,
             publishing=False, messaging=False, desktopControl=False,
-            reason=('Prepared candidate only: the existing labelled three-slide test draft on @'+ACCOUNT+'.'
-                    if self.config else 'Phone verification is disabled. Prepare the isolated C24C candidate first.'),
+            reason=('Prepared candidate only: the existing labelled three-slide test draft on @'+str(account)+'.'
+                    if self.config else 'Phone verification is disabled. Prepare the isolated candidate first.'),
             contentSha256=CONTENT_SHA256)
 
     def eligibility(self, draft_id, revision):
@@ -160,11 +193,11 @@ class DraftRuns:
             return self.get(spec['id'])
 
     def execute(self, folder, assets, caption, package_hash, cancelled):
-        kernel = StepKernel(self.config['api'])
+        kernel = StepKernel(self.config['api'], phone=phone_of(self.config))
         store = ObservationStore(folder / 'observations.sqlite3')
         return Workflow(folder, kernel, store, assets, caption, references(),
-            self.config['kernelSha256'], self.config['expectedUid'], account=ACCOUNT,
-            package_hash=package_hash, cancelled=cancelled).run()
+            self.config['kernelSha256'], self.config['expectedUid'], account=account_of(self.config),
+            package_hash=package_hash, cancelled=cancelled, allowed=allowed_of(self.config)).run()
 
     def get(self, run_id):
         run_id = identifier(run_id)

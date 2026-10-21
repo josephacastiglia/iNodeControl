@@ -51,7 +51,7 @@ from farm_observations import ObservationStore
 from farm_draft_verification import DraftVerifications
 from farm_carousel_inspection import CarouselInspections
 from farm_draft_rehearsal import DraftRehearsals
-from farm_draft_runs import DraftRuns, load_config
+from farm_draft_runs import DraftRuns, load_config, phone_of
 from farm_draft_recovery import RecoveryRuns
 from farm_creation_runs import CreationRuns, creation_config
 from farm_reel_runs import ReelCreationRuns
@@ -118,7 +118,8 @@ class FarmBackendRuntime:
         self.jobs = FarmJobs(journal_path=db_path.parent / "jobs.db")
         self.stage_root = stage_root
         self.drafts = CarouselDrafts(db_path.parent / "carousel-drafts.db", stage_root)
-        self.videos = VideoDrafts(db_path.parent / "video-drafts.db", stage_root)
+        # A window's videos are staged and stamped for its own phone.
+        self.videos = VideoDrafts(db_path.parent / "video-drafts.db", stage_root, phone_of(create_config).board if create_config else "C24C")
         self.observations = ObservationStore(db_path.parent / 'observations.db')
         self.verifications = DraftVerifications(db_path.parent / 'draft-verifications.db', self.observations, self.drafts)
         self.inspections = CarouselInspections(db_path.parent / 'carousel-inspections.db', self.observations, self.drafts)

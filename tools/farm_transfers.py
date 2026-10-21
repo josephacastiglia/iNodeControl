@@ -144,7 +144,7 @@ class CarouselTransfers:
                 raise TransferConflict('A transfer is already open. Check or stop it before starting another.')
             if kind == 'video':
                 from farm_video import VideoTransferPackage
-                package = VideoTransferPackage(self.videos.export(draft_id, revision))
+                package = VideoTransferPackage(self.videos.export(draft_id, revision), self.videos.board)
             else:
                 package = TransferPackage(self.drafts.export(draft_id, revision))
             value = {**request, 'state': 'starting', 'createdAt': datetime.now(timezone.utc).isoformat(),

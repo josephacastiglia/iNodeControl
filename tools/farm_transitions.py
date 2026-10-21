@@ -11,7 +11,7 @@ import numpy as np
 from farm_carousel_inspection import InspectionStopped
 from farm_frame_evidence import capture_settled
 from farm_draft_media import media_comparison
-from imouse_social_automation import LIVE_TEST_DEVICE_ID
+from farm_phone_identity import LEGACY_C24C
 from farm_screen_layout import (create_menu_controls, editor_controls, next_label,
                                 picker_controls, picker_stability, pixels)
 
@@ -97,14 +97,14 @@ def compare_frames(stage, first, first_text, second, second_text):
     raise InspectionStopped('Protected screen content changed during settling; no action sent.')
 
 
-def _validate(value, frame, platform='instagram', require_recent=True):
+def _validate(value, frame, platform='instagram', require_recent=True, phone=LEGACY_C24C):
     if ((require_recent and value.get('freshness') != 'recent') or value.get('expired') or value.get('state') != 'observed'
             or value.get('stable') is not True or value.get('inputSettled') is not True
             or not capture_settled(value) or value.get('frameEvidence', {}).get('pairedMetadata') is not True):
         raise InspectionStopped('Settling requires a fresh authenticated frame at every capture.')
-    if (value.get('expected', {}).get('device_id') != 'C24C'
+    if (value.get('expected', {}).get('device_id') != phone.board
             or value.get('expected', {}).get('platform') != platform
-            or value.get('resolvedDeviceId') not in ('C24C', LIVE_TEST_DEVICE_ID)
+            or value.get('resolvedDeviceId') not in (phone.board, phone.device_id)
             or value.get('reviewFrameSha256') != hashlib.sha256(frame).hexdigest()
             or not value.get('frameSha256') or value.get('text', {}).get('frameSha256') != value['frameSha256']):
         raise InspectionStopped('Settling frame, OCR or target identity changed.')
@@ -123,7 +123,7 @@ def _validate(value, frame, platform='instagram', require_recent=True):
 def wait_for_transition(stage, capture, check, current, *, assets=(), index=None,
                         require_next=False, journal=lambda event: None,
                         monotonic=time.monotonic, pause=time.sleep, ready=None, compare=None, platform='instagram',
-                        require_recent=True):
+                        require_recent=True, phone=LEGACY_C24C):
     """Return the latest of two fresh stable observations, or stop within bounds.
 
     capture retains evidence through the owning workflow. check authenticates its
@@ -150,7 +150,7 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
             value, frame = capture()
             check()
             if monotonic() >= deadline: raise InspectionStopped('Transition capture exceeded its settling budget.')
-            context, sequence = _validate(value, frame, platform, require_recent)
+            context, sequence = _validate(value, frame, platform, require_recent, phone)
             ready(frame, value['text'])
             if previous is None:
                 decision = dict(state='wait', reason='A second independently fresh observation is required.')
@@ -165,7 +165,7 @@ def wait_for_transition(stage, capture, check, current, *, assets=(), index=None
             if decision['state'] == 'ready':
                 check()
                 final, retained = current(value['id'])
-                final_context = _validate(final, retained, platform, require_recent)
+                final_context = _validate(final, retained, platform, require_recent, phone)
                 if monotonic() >= deadline:
                     raise InspectionStopped('Transition verification exceeded its settling budget.')
                 if (final_context != (context, sequence)

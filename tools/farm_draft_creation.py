@@ -20,7 +20,7 @@ from farm_draft_verification import caption_comparison
 from farm_live_verification import idle
 from farm_observations import classify
 from farm_screen_layout import pixels, words_at, line_at, overlay_present
-from imouse_social_automation import LIVE_TEST_DEVICE_ID
+from farm_phone_identity import own_receiver
 
 
 class CreationOwnership(OwnedCaptureRun):
@@ -57,7 +57,7 @@ class CreationWorkflow(Workflow):
 
     def check_import_continuity(self,state):
         if not self.imported_media:return
-        receiver=self.kernel.kernel_status()['receivers'][0]
+        receiver=own_receiver(self.kernel.kernel_status(),self.phone)
         require(idle(state) and state['generation']==self.imported_media['generation']
             and receiver.get('receiver_pid')==self.imported_media['receiverPid']
             and receiver.get('frame_session')==self.imported_media['frameSession'],
@@ -269,10 +269,10 @@ class CreationWorkflow(Workflow):
     def run(self):
         try:
             self.identity=self.runtime()
-            state=self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)
-            require(idle(state), 'C24C is not free.')
+            state=self.kernel.input_status().get(self.phone.device_id)
+            require(idle(state), f'{self.phone.board} is not free.')
             self.check_import_continuity(state)
-            raw,_=self.kernel.shot('C24C');initial_text=self.store.ocr.read(raw);initial=classify(initial_text,
+            raw,_=self.kernel.shot(self.phone.board);initial_text=self.store.ocr.read(raw);initial=classify(initial_text,
                 dict(platform='instagram',account=self.account,caption=self.caption),raw)
             initial_profile=initial['screen']=='profile' and initial['accountStatus']=='exact_text_match'
             initial_home=initial_search=initial_results=initial_media=False

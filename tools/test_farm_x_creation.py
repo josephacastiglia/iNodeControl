@@ -8,6 +8,7 @@ frame of the reopened card. The signed-in handle is read from the retained menu
 frame at run time and is never written into this file. This tests the protocol
 and recognizers on known layouts. It is not fresh-phone acceptance.
 """
+from farm_phone_identity import LEGACY_C24C
 import copy
 import hashlib
 import io
@@ -131,6 +132,7 @@ class FixtureOcr:
 
 class FixtureKernel:
     _is_live_http = False
+    phone = LEGACY_C24C   # Fixtures model the single-phone C24C window.
 
     def __init__(self, screens, scenario='normal', fault_screen=None, saved=False):
         self.screens, self.scenario, self.fault_screen = screens, scenario, fault_screen

@@ -22,7 +22,6 @@ from farm_transitions import wait_for_transition
 import farm_reel_layout as reel
 import farm_tiktok_layout as tt
 from farm_reel_creation import ReelCreationWorkflow, ReelVerification, PRE_SETTLE as REEL_PRE_SETTLE
-from imouse_social_automation import LIVE_TEST_DEVICE_ID
 
 # Read-only waits before the first capture of screens that animate in. Shared
 # Safari/Files screens keep the Reel values.
@@ -165,7 +164,7 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
                 value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
                     journal=journal, monotonic=self.monotonic, pause=self.pause,
                     ready=lambda frame, text: None, compare=compare(role), platform=self.PLATFORM,
-                    require_recent=self.confirmation_compare(role) is None)
+                    require_recent=self.confirmation_compare(role) is None, phone=self.phone)
             else:
                 value, frame = self.capture(role, index)
             entry = next(e for e in reversed(self.record['observations']) if e.get('observationId') == value['id'])
@@ -234,8 +233,8 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
     # -- workflow ----------------------------------------------------------------
     def admit(self):
         self.identity = self.runtime()
-        require(idle(self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)), 'C24C is not free; no takeover is allowed.')
-        raw, _ = self.kernel.shot('C24C')
+        require(idle(self.kernel.input_status().get(self.phone.device_id)), f'{self.phone.board} is not free; no takeover is allowed.')
+        raw, _ = self.kernel.shot(self.phone.board)
         initial = classify(self.store.ocr.read(raw), dict(platform='tiktok', account=self.account, caption=self.caption), raw)
         require(initial['screen'] == 'profile' and initial['accountStatus'] == 'exact_text_match',
                 'Start on the authorized TikTok profile. No input was sent.')

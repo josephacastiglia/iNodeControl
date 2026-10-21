@@ -48,13 +48,13 @@ def checked_text(value, label, maximum, *, required=False):
     return value
 
 
-def generated_manifest(stage_root, generation=None, checksum=None):
+def generated_manifest(stage_root, generation=None, checksum=None, board='C24C'):
     """Read either the latest batch or a checksum-pinned historical batch."""
     pinned = generation is not None or checksum is not None
     if pinned and (not isinstance(generation, str) or not re.fullmatch(r'[0-9a-f]{32}', generation) or
                    not isinstance(checksum, str) or not re.fullmatch(r'[0-9a-f]{64}', checksum)):
         raise ValueError('A generated batch needs its exact generation and manifest checksum.')
-    folder = (Path(stage_root) / 'C24C').resolve()
+    folder = (Path(stage_root) / board).resolve()   # Each phone's media stage is its own board folder.
     path = folder / (f'manifest_{generation}.json' if pinned else 'manifest.json')
     if not path.is_file(): raise ValueError('Generated batch is missing. No newer batch was substituted.')
     if not path.resolve().is_relative_to(folder) or path.stat().st_size > 128 * 1024:
@@ -63,8 +63,8 @@ def generated_manifest(stage_root, generation=None, checksum=None):
     if pinned and digest != checksum: raise ValueError('Generated manifest checksum changed; this batch cannot be reviewed.')
     document = json.loads(raw)
     if not isinstance(document, dict) or not isinstance(document.get('assets'), list): raise ValueError('Invalid generated manifest.')
-    if pinned and (document.get('generation') != generation or document.get('deviceId') != 'C24C'):
-        raise ValueError('Generated manifest does not belong to this C24C batch.')
+    if pinned and (document.get('generation') != generation or document.get('deviceId') != board):
+        raise ValueError(f'Generated manifest does not belong to this {board} batch.')
     return document, digest
 
 

@@ -1,4 +1,5 @@
 """The live evidence probe cannot issue input, even through the base client API."""
+from farm_phone_identity import LEGACY_C24C
 import copy
 import hashlib
 import io
@@ -58,7 +59,7 @@ class Clock:
 class ProbeTests(unittest.TestCase):
     def setUp(self):
         self.fixture = Fixture()
-        self.kernel = ReadOnlyKernel(URL, transport=self.fixture.wire)
+        self.kernel = ReadOnlyKernel(URL, transport=self.fixture.wire, phone=LEGACY_C24C)
         self.clock = Clock()
         self.temp = tempfile.TemporaryDirectory(prefix='farm-probe-test-')
         self.addCleanup(self.temp.cleanup)
@@ -98,7 +99,7 @@ class ProbeTests(unittest.TestCase):
         for endpoint in ('http://127.0.0.1:9913/api', 'http://127.0.0.1:9911/api',
                          'http://example.com:9916/api', URL+'?other=1', URL+'#fragment',
                          'http://user:pass@127.0.0.1:9916/api', 'https://127.0.0.1:9916/api'):
-            with self.subTest(endpoint=endpoint), self.assertRaises(KernelSafetyError): ReadOnlyKernel(endpoint)
+            with self.subTest(endpoint=endpoint), self.assertRaises(KernelSafetyError): ReadOnlyKernel(endpoint, phone=LEGACY_C24C)
 
     def test_wrong_build_and_extra_phone_refused_without_screenshot(self):
         for key, value in (('build_identity', dict(sha256='c'*64)), ('allowed', ['C24C','C241']),

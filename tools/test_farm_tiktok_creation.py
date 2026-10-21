@@ -8,6 +8,7 @@ blank description, a profile count read as 1 before the save, and the one-line
 description substituted for the wrapped 17 Oct caption in OCR. This tests the
 protocol and recognizers on known layouts. It is not fresh-phone acceptance.
 """
+from farm_phone_identity import LEGACY_C24C
 import copy
 import hashlib
 import io
@@ -180,6 +181,7 @@ class FixtureOcr:
 
 class FixtureKernel:
     _is_live_http = False
+    phone = LEGACY_C24C   # Fixtures model the single-phone C24C window.
 
     def __init__(self, screens, scenario='normal', fault_screen=None, saved=False):
         self.screens, self.scenario, self.fault_screen = screens, scenario, fault_screen

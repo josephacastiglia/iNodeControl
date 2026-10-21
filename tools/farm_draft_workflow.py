@@ -27,7 +27,7 @@ from farm_live_verification import validate_runtime, idle
 from farm_observations import classify
 from farm_screen_layout import pixels, words_at, line_at, create_menu_controls, picker_controls, next_label
 from farm_transitions import wait_for_transition, screen_ready
-from imouse_social_automation import LIVE_TEST_DEVICE_ID
+from farm_phone_identity import own_receiver
 
 # Full save/reopen has two complete slide/caption passes and final restoration.
 # Fixed candidate policy, never a request-controlled timeout.
@@ -122,8 +122,9 @@ class Workflow:
     PLATFORM = 'instagram'   # Every observation is requested and validated for this one app.
 
     def __init__(self, folder, kernel, store, assets, caption, templates, expected_hash, expected_uid,
-                 *, account, package_hash, cancelled=None, monotonic=time.monotonic, pause=time.sleep):
+                 *, account, package_hash, cancelled=None, monotonic=time.monotonic, pause=time.sleep, allowed=None):
         self.folder, self.kernel, self.store = Path(folder), kernel, store
+        self.phone, self.allowed = kernel.phone, allowed   # allowed: the multi-phone kernel's prepared allow-list.
         self.assets, self.caption, self.templates = assets, caption, templates
         self.account, self.package_hash = account, package_hash
         self.expected_hash, self.expected_uid = expected_hash, expected_uid
@@ -143,7 +144,8 @@ class Workflow:
         atomic_json(self.folder / 'record.json', self.record)
 
     def runtime(self):
-        return validate_runtime(self.kernel.kernel_status(), self.kernel.devices(), self.expected_hash, self.expected_uid)
+        return validate_runtime(self.kernel.kernel_status(), self.kernel.devices(), self.expected_hash, self.expected_uid,
+                                self.phone, self.allowed)
 
     def check(self):
         if (self.folder / 'STOP').exists(): self.cancelled.set()
@@ -184,7 +186,7 @@ class Workflow:
             # Once send() begins, a missing reply must instead stay uncertain.
             item.update(state='not_sent', refusal=type(error).__name__ + ': ' + str(error))
             self.save(); raise
-        item['response'] = self.kernel.send('C24C', self.owned.tokens['C24C'], fun, **data)
+        item['response'] = self.kernel.send(self.phone.board, self.owned.tokens[self.phone.board], fun, **data)
         item['state'] = 'answered'; self.save()
 
     def validate(self, value, frame, require_recent=True):
@@ -193,11 +195,11 @@ class Workflow:
                 or value.get('frameEvidence', {}).get('pairedMetadata') is not True
                 or value.get('ownershipEvidence', {}).get('runId') != self.owned.run_id
                 or value.get('inputGeneration') != self.owned.generation
-                or value.get('resolvedDeviceId') != LIVE_TEST_DEVICE_ID
+                or value.get('resolvedDeviceId') != self.phone.device_id
                 or value.get('observerSession') != self.store.session
                 or value.get('receiverPid') != self.owned.stream[1]
                 or value.get('frameEvidence', {}).get('session') != self.owned.stream[3]
-                or value.get('expected', {}).get('device_id') != 'C24C'
+                or value.get('expected', {}).get('device_id') != self.phone.board
                 or value.get('expected', {}).get('platform') != self.PLATFORM
                 or value.get('expected', {}).get('account') != self.account
                 or value.get('expected', {}).get('caption') != self.caption
@@ -205,7 +207,7 @@ class Workflow:
                 or not value.get('frameSha256')
                 or value.get('text', {}).get('frameSha256') != value.get('frameSha256')
                 or value.get('reviewFrameSha256') != hashlib.sha256(frame).hexdigest()):
-            raise InspectionStopped('The decision has no fresh, intact C24C frame under this ownership.')
+            raise InspectionStopped(f'The decision has no fresh, intact {self.phone.board} frame under this ownership.')
         if not require_recent:
             return   # Freshness is then proven by a newer confirming frame (reconfirm), never skipped.
         evidence = value['frameEvidence']
@@ -267,18 +269,18 @@ class Workflow:
         base = value['frameEvidence'].get('sequence', -1)
         for attempt in range(CONFIRMATION_TRIES):
             self.check()
-            before = self.kernel.kernel_status()['receivers'][0]['frames']
+            before = own_receiver(self.kernel.kernel_status(), self.phone)['frames']
             x = 450 if self.pointer_position() == (480, 300) else 480
             self.command('/mouse/move', purpose='fresh_frame_confirmation', x=x, y=300)
             self.pause(.12)
-            raw, headers = self.kernel.shot('C24C')
+            raw, headers = self.kernel.shot(self.phone.board)
             taken = self.monotonic()
             try:
                 sequence = int(headers.get('X-iMouse-Frame-Sequence', -1)); age = float(headers.get('X-iMouse-Frame-Age-Ms', 'nan'))
             except (TypeError, ValueError):
                 sequence, age = -1, float('nan')
-            receiver = self.kernel.kernel_status()['receivers'][0]
-            state = self.kernel.input_status().get(LIVE_TEST_DEVICE_ID) or {}
+            receiver = own_receiver(self.kernel.kernel_status(), self.phone)
+            state = self.kernel.input_status().get(self.phone.device_id) or {}
             entry = dict(role=role, observationId=value['id'], attempt=attempt, sequence=sequence, ageAtCaptureMs=age,
                          capturedMonotonic=taken, frameSha256=hashlib.sha256(raw).hexdigest(), compare=None, state='rejected',
                          frame='confirm-%02d-%s.bmp' % (len(self.record.setdefault('decisionConfirmations', [])) + 1, role))
@@ -315,14 +317,14 @@ class Workflow:
         # recognition, and unchanged final comparison still have to pass. The move
         # must change something: onto the pointer's current spot (for example the
         # park point) a static screen sends no new frame (C24C Reel window, 20 Oct).
-        before = self.kernel.kernel_status()['receivers'][0]['frames']
+        before = own_receiver(self.kernel.kernel_status(), self.phone)['frames']
         x = 450 if self.pointer_position() == (480, 300) else 480
         self.command('/mouse/move', purpose='fresh_frame_challenge', x=x, y=300)
         self.pause(.12)
         key = str(uuid.uuid4())
         entry = dict(role=role, index=index, observationId=key, state='requested')
         self.record['observations'].append(entry); self.save()
-        observed = self.store.capture(dict(id=key, device_id='C24C', platform=self.PLATFORM, account=self.account, caption=self.caption),
+        observed = self.store.capture(dict(id=key, device_id=self.phone.board, platform=self.PLATFORM, account=self.account, caption=self.caption),
                                      self.kernel, owned_run=self.owned)
         if observed.get('state') != 'observed':
             entry.update(state='failed',observation=observed); self.save()
@@ -353,7 +355,7 @@ class Workflow:
                 self.record['transitionChecks'].append(event); self.save()
             value, frame, _ = wait_for_transition(role, lambda:self.capture(role,index,require_next), self.check,
                 self.store.current_evidence, assets=self.assets, index=index, require_next=require_next,
-                journal=journal, monotonic=self.monotonic, pause=self.pause)
+                journal=journal, monotonic=self.monotonic, pause=self.pause, phone=self.phone)
             return value, frame
         return self.capture(role, index, require_next)
 
@@ -487,9 +489,9 @@ class Workflow:
         self.record['mode']='save_reopen'
         try:
             self.identity=self.runtime()
-            if not idle(self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)):
-                raise InspectionStopped('C24C is not free; no takeover is allowed.')
-            raw,_=self.kernel.shot('C24C')
+            if not idle(self.kernel.input_status().get(self.phone.device_id)):
+                raise InspectionStopped(f'{self.phone.board} is not free; no takeover is allowed.')
+            raw,_=self.kernel.shot(self.phone.board)
             text=self.store.ocr.read(raw)
             initial=classify(text,dict(platform='instagram',account=self.account,caption=self.caption),raw)
             if initial['screen']!='profile' or initial['accountStatus']!='exact_text_match':
@@ -532,7 +534,7 @@ class Workflow:
         """Cleanup/export shared with the separately bounded new-draft workflow."""
         try:
             if self.owned.tokens: self.owned.release(); self.record['cleanup']='confirmed'
-            self.record['finalInput']=self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)
+            self.record['finalInput']=self.kernel.input_status().get(self.phone.device_id)
             if not idle(self.record['finalInput']):
                 self.record.update(state='review_required',cleanup='unconfirmed')
         except Exception as error:

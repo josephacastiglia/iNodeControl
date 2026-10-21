@@ -10,7 +10,7 @@ import sqlite3
 import threading
 import zipfile
 
-from farm_draft_runs import DraftRuns, ACCOUNT, sha
+from farm_draft_runs import DraftRuns, ACCOUNT, sha, phone_of, allowed_of, account_of
 from farm_drafts import DraftConflict, identifier
 from farm_draft_transport import CreationKernel
 from farm_draft_workflow import references, atomic_json
@@ -57,17 +57,18 @@ class ReelCreationRuns(DraftRuns):
                'independently reopened, played and kept. No publication or app-restart persistence claim.')
 
     def capability(self):
-        return dict(version=1, storeId=self.store_id, enabled=self.config is not None, device='C24C',
-            account=ACCOUNT if self.PINNED_ACCOUNT else None,
+        account = (account_of(self.config) if self.config else ACCOUNT) if self.PINNED_ACCOUNT else None
+        return dict(version=1, storeId=self.store_id, enabled=self.config is not None,
+            device=phone_of(self.config).board if self.config else 'C24C', account=account,
             accountPolicy='fixed' if self.PINNED_ACCOUNT else 'first_signed_in', format=self.FORMAT, candidateOnly=True, integratedLiveValidated=False, publishing=False, messaging=False,
             desktopControl=False, automaticResume=False,
-            reason=self.ENABLED_REASON.format(account=ACCOUNT) if self.config else self.DISABLED_REASON)
+            reason=self.ENABLED_REASON.format(account=account) if self.config else self.DISABLED_REASON)
 
     def supports(self, package):
         manifest, caption, _ = reel_content(package)
         video = manifest.get('video') or {}
         seconds = video.get('seconds')
-        return (manifest.get('format') == self.FORMAT and manifest.get('deviceId') == 'C24C' and self.caption_supported(caption)
+        return (manifest.get('format') == self.FORMAT and manifest.get('deviceId') == (phone_of(self.config).board if self.config else 'C24C') and self.caption_supported(caption)
                 and (video.get('width'), video.get('height')) == (720, 1280)
                 and type(seconds) in (int, float) and 2 <= seconds <= MAX_SECONDS)
 
@@ -148,19 +149,20 @@ class ReelCreationRuns(DraftRuns):
     def execute(self, folder, assets, caption, package_hash, cancelled):
         spec, package, digest = self.row(folder.name)
         if digest != package_hash: raise ValueError(self.LABEL + ' source package changed.')
-        parsed = VideoTransferPackage(package)
+        parsed = VideoTransferPackage(package, phone_of(self.config).board)
         video = self.reference(parsed.video)  # Decoded locally before any transport or lease.
         delivered = []
-        server = MediaTransferServer(parsed, self.config['mediaBind'], 9917, self.config['mediaClient'],
+        server = MediaTransferServer(parsed, self.config['mediaBind'], self.config['mediaPort'], self.config['mediaClient'],
                                      minutes=15, on_event=delivered.append)
         stopped = threading.Event()
         def serve():
             while not stopped.is_set() and server.clock() < server.deadline: server.handle_request()
         worker = threading.Thread(target=serve, daemon=True)
-        arguments = dict(account=ACCOUNT if self.PINNED_ACCOUNT else None, package_hash=package_hash, cancelled=cancelled)
+        arguments = dict(account=account_of(self.config) if self.PINNED_ACCOUNT else None, package_hash=package_hash,
+                         cancelled=cancelled, allowed=allowed_of(self.config))
         try:
             worker.start()
-            kernel = CreationKernel(self.config['api'])
+            kernel = CreationKernel(self.config['api'], phone=phone_of(self.config))
             store = ObservationStore(folder / 'observations.sqlite3', retained_limit=160)
             result = self.workflow(folder, kernel, store, video, caption, references(), self.config['kernelSha256'],
                 self.config['expectedUid'], transfer_url=server.url, download=parsed.download_name,

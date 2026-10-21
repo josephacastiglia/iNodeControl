@@ -1,3 +1,4 @@
+from farm_phone_identity import LEGACY_C24C
 import copy
 import io
 import json

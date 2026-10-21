@@ -20,7 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from farm_carousel_inspection import InspectionStopped  # noqa: E402
 from farm_draft_transport import CreationKernel, allowed_tap  # noqa: E402
 from farm_observations import WindowsOcr, classify  # noqa: E402
-from imouse_social_automation import LIVE_TEST_DEVICE_ID  # noqa: E402
+from farm_draft_runs import phone_of  # noqa: E402
+from farm_phone_identity import own_receiver  # noqa: E402
 
 API = 'http://127.0.0.1:9916/api'
 MAX_AGE_MS = 1500
@@ -31,9 +32,11 @@ CONTROL_CENTER_EMPTY = (250, 960)   # Below C24C's Control Center grid (16 Sep a
 
 
 class StartScreen:
-    def __init__(self, folder, kernel=None, ocr=None, clock=time.monotonic, pause=time.sleep):
+    def __init__(self, folder, kernel=None, ocr=None, clock=time.monotonic, pause=time.sleep, phone=None):
         self.folder = Path(folder); self.folder.mkdir(parents=True, exist_ok=True)
-        self.kernel = kernel or CreationKernel(API)
+        if kernel is None and phone is None: raise InspectionStopped('The start screen needs the window phone or its kernel.')
+        self.kernel = kernel or CreationKernel(API, phone=phone)
+        self.phone = self.kernel.phone
         self.ocr, self.clock, self.pause = ocr or WindowsOcr(), clock, pause
         self.tokens, self.pointer = None, None
         self.record = dict(tool='farm_start_screen', target=None, commands=[], observations=[], state='started',
@@ -45,7 +48,7 @@ class StartScreen:
     def command(self, fun, purpose, **data):
         item = dict(fun=fun, purpose=purpose, data=data, state='outcome_unknown')
         self.record['commands'].append(item); self.record['phoneInput'] = True; self.save()
-        self.kernel.send('C24C', self.tokens['C24C'], fun, **data)
+        self.kernel.send(self.phone.board, self.tokens[self.phone.board], fun, **data)
         item['state'] = 'answered'; self.save()
         if fun in ('/mouse/move', '/mouse/click'): self.pointer = (data['x'], data['y'])
         if fun == '/mouse/reset': self.pointer = None
@@ -53,11 +56,11 @@ class StartScreen:
     def fresh(self, role):
         """A new frame within the age limit: move the pointer somewhere new, then capture."""
         for attempt in range(FRESH_TRIES):
-            before = self.kernel.kernel_status()['receivers'][0]['frames']
+            before = own_receiver(self.kernel.kernel_status(), self.phone)['frames']
             x = 450 if self.pointer == (480, 300) else 480
             self.command('/mouse/move', 'fresh_frame_challenge', x=x, y=300)
             self.pause(.3)
-            raw, headers = self.kernel.shot('C24C')
+            raw, headers = self.kernel.shot(self.phone.board)
             taken = self.clock()
             sequence = int(headers.get('X-iMouse-Frame-Sequence', -1))
             age = float(headers.get('X-iMouse-Frame-Age-Ms', 'inf'))
@@ -86,11 +89,11 @@ class StartScreen:
             with Image.open(io.BytesIO(raw)) as image: return np.asarray(image.convert('RGB'), dtype=float) / 255
         a = pixels(recognized)
         for attempt in range(FRESH_TRIES):
-            before = self.kernel.kernel_status()['receivers'][0]['frames']
+            before = own_receiver(self.kernel.kernel_status(), self.phone)['frames']
             x = 450 if self.pointer == (480, 300) else 480
             self.command('/mouse/move', 'fresh_frame_challenge', x=x, y=300)
             self.pause(.3)
-            raw, headers = self.kernel.shot('C24C')
+            raw, headers = self.kernel.shot(self.phone.board)
             taken = self.clock()
             sequence = int(headers.get('X-iMouse-Frame-Sequence', -1)); age = float(headers.get('X-iMouse-Frame-Age-Ms', 'inf'))
             b = pixels(raw)
@@ -173,9 +176,9 @@ class StartScreen:
 
     def to_instagram_profile_top(self):
         self.record['target'] = 'instagram_profile_top'
-        status = self.kernel.preflight_phone('C24C')
+        status = self.kernel.preflight_phone(self.phone.board)
         self.record['preflight'] = dict(receiverLive=status['receiver'].get('live'), generation=status['input_status'].get('generation'))
-        self.tokens = self.kernel.acquire(['C24C'], 30000)
+        self.tokens = self.kernel.acquire([self.phone.board], 30000)
         try:
             self.command('/mouse/reset', 'initial_pointer_reset')
             raw, text, taken, age = self.fresh('before')
@@ -236,9 +239,10 @@ class StartScreen:
 
 
 def main():
-    target, folder = sys.argv[1], Path(sys.argv[2])
+    # farm_start_screen.py instagram-profile <journal folder> <window creation config>
+    target, folder, config = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
     if target != 'instagram-profile': raise SystemExit('Supported start screen: instagram-profile')
-    tool = StartScreen(folder)
+    tool = StartScreen(folder, phone=phone_of(json.loads(config.read_text(encoding='utf-8-sig'))))
     try: tool.to_instagram_profile_top()
     except InspectionStopped: pass
     r = tool.record

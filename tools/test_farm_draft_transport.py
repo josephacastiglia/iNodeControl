@@ -1,4 +1,5 @@
 """Candidate guard regression tests; synthetic frames and an in-memory transport."""
+from farm_phone_identity import LEGACY_C24C
 import copy
 import unittest
 import farm_draft_transport as step
@@ -41,16 +42,16 @@ class DraftTransportTests(unittest.TestCase):
     def test_transport_allows_only_candidate_and_c24c_input(self):
         calls=[]
         def transport(*args): calls.append(args); return b'{}',{}
-        client=step.StepKernel('http://127.0.0.1:9916/api',transport=transport)
+        client=step.StepKernel('http://127.0.0.1:9916/api',transport=transport,phone=LEGACY_C24C)
         address=client.url+'/'
-        for fun,pid in (('/mouse/click',step.LIVE_TEST_DEVICE_ID),('/input/release',step.LIVE_TEST_DEVICE_ID)):
+        for fun,pid in (('/mouse/click',LEGACY_C24C.device_id),('/input/release',LEGACY_C24C.device_id)):
             client._transport('POST',address,dict(fun=fun,data=dict(id=pid)),1)
         self.assertEqual(2,len(calls))
         forbidden=[dict(fun='/mouse/click',data=dict(id='C241')),
-                   dict(fun='/key/send',data=dict(id=step.LIVE_TEST_DEVICE_ID)),
-                   dict(fun='/publish',data=dict(id=step.LIVE_TEST_DEVICE_ID)),
-                   dict(fun='/message',data=dict(id=step.LIVE_TEST_DEVICE_ID)),
-                   dict(fun='/input/stop',data=dict(id=step.LIVE_TEST_DEVICE_ID))]
+                   dict(fun='/key/send',data=dict(id=LEGACY_C24C.device_id)),
+                   dict(fun='/publish',data=dict(id=LEGACY_C24C.device_id)),
+                   dict(fun='/message',data=dict(id=LEGACY_C24C.device_id)),
+                   dict(fun='/input/stop',data=dict(id=LEGACY_C24C.device_id))]
         for body in forbidden:
             with self.subTest(body=body),self.assertRaises(step.KernelSafetyError):
                 client._transport('POST',address,body,1)
@@ -58,4 +59,4 @@ class DraftTransportTests(unittest.TestCase):
         with self.assertRaises(step.KernelSafetyError):
             client._transport('POST','http://127.0.0.1:9913/api/',forbidden[0],1)
         for url in ('http://127.0.0.1:9913/api','http://example.com:9916/api'):
-            with self.assertRaises(step.KernelSafetyError): step.StepKernel(url,transport=transport)
+            with self.assertRaises(step.KernelSafetyError): step.StepKernel(url,transport=transport,phone=LEGACY_C24C)

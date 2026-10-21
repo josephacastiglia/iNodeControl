@@ -30,6 +30,7 @@ import urllib.request
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from farm_carousel_inspection import InspectionStopped  # noqa: E402
+from farm_phone_identity import LEGACY_C24C
 from farm_live_verification import ReadOnlyKernel, NoRedirect, idle  # noqa: E402
 from imouse_social_automation import IMouseKernel, LIVE_TEST_DEVICE_ID, KernelSafetyError  # noqa: E402
 
@@ -99,8 +100,8 @@ def browse(seconds=3.0):
 class MirroringKernel(IMouseKernel):
     """C24C only; ControlBar plus clicks at calibrated or verified points; no other keys or apps."""
     def __init__(self, url, transport=None, points=None):
-        reader = ReadOnlyKernel(url, transport=transport)
-        super().__init__(url)
+        reader = ReadOnlyKernel(url, transport=transport, phone=LEGACY_C24C)   # The pre-rack C24C tool.
+        super().__init__(url, phone=LEGACY_C24C)
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
         allowed_points = set(points or (TILE, *ROWS, CLOSE))
         def limited(method, target, body, timeout):

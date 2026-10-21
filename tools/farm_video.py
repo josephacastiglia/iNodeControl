@@ -1,4 +1,4 @@
-"""Immutable, reviewed C24C video drafts. Local encoding only; no phone input."""
+"""Immutable, reviewed video drafts for one phone (C24C by default). Local encoding only; no phone input."""
 from __future__ import annotations
 
 import hashlib
@@ -105,8 +105,8 @@ def normalize_video(raw):
 
 
 class VideoDrafts:
-    def __init__(self, database, stage_root):
-        self.database, self.stage_root = Path(database), Path(stage_root)
+    def __init__(self, database, stage_root, board='C24C'):
+        self.database, self.stage_root, self.board = Path(database), Path(stage_root), board
         self.database.parent.mkdir(parents=True, exist_ok=True)
         self.lock = threading.RLock()
         with self._connect() as db:
@@ -123,15 +123,16 @@ class VideoDrafts:
         return connection()
 
     def sources(self, generation=None, checksum=None):
-        manifest = self.stage_root / 'C24C/manifest.json'
+        manifest = self.stage_root / self.board / 'manifest.json'
         if generation is None and checksum is None and not manifest.is_file(): return []
-        document, digest = generated_manifest(self.stage_root, generation, checksum)
-        if document.get('deviceId') != 'C24C': raise ValueError('Staged manifest is not for C24C.')
+        document, digest = generated_manifest(self.stage_root, generation, checksum, self.board)
+        if document.get('deviceId') != self.board: raise ValueError(f'Staged manifest is not for {self.board}.')
         result = []
         for item in document.get('assets', []):
             url = item.get('url', '')
-            if not url.startswith('/stage/C24C/') or not url.endswith('.mp4'): continue
-            name = url.removeprefix('/stage/C24C/')
+            prefix = f'/stage/{self.board}/'
+            if not url.startswith(prefix) or not url.endswith('.mp4'): continue
+            name = url.removeprefix(prefix)
             if Path(name).name != name or any(c in name for c in '/\\:%\x00'): raise ValueError('Invalid staged video name.')
             result.append({'name': name, 'sha256': item['sha256'], 'bytes': item['bytes'],
                            'sourceGeneration': document.get('generation'), 'manifestSha256': digest, 'caption': document.get('caption', '')})
@@ -139,8 +140,8 @@ class VideoDrafts:
 
     def create(self, request):
         draft_id = identifier(request.get('id'))
-        if request.get('device_id') != 'C24C' or request.get('format') not in FORMATS:
-            raise ValueError('Choose C24C and a supported video draft format.')
+        if request.get('device_id') != self.board or request.get('format') not in FORMATS:
+            raise ValueError(f'Choose {self.board} and a supported video draft format.')
         caption = checked_text(request.get('caption'), 'Caption', 280)
         if request['format'] == 'yt_short' and len(caption) > 100:
             raise ValueError('This Shorts draft supports a title of at most 100 characters.')
@@ -156,13 +157,13 @@ class VideoDrafts:
                 return json.loads(old[1])
             asset = next((v for v in self.sources(generation, checksum) if v['name'] == request.get('name') and v['sha256'] == request.get('sha256')), None)
             if asset is None: raise ValueError('The staged video changed. Refresh and review it again.')
-            path = self.stage_root / 'C24C' / asset['name']
-            if path.resolve().parent != (self.stage_root / 'C24C').resolve(): raise ValueError('Video path escapes the C24C stage.')
+            path = self.stage_root / self.board / asset['name']
+            if path.resolve().parent != (self.stage_root / self.board).resolve(): raise ValueError(f'Video path escapes the {self.board} stage.')
             if path.stat().st_size != asset['bytes'] or path.stat().st_size > MAX_VIDEO: raise ValueError('Video size changed or exceeds 64 MiB.')
             raw = path.read_bytes()
             if hashlib.sha256(raw).hexdigest() != asset['sha256']: raise ValueError('Staged video checksum changed.')
             encoded, metadata = normalize_video(raw)
-            value = {'id': draft_id, 'revision': 1, 'title': title, 'caption': caption, 'deviceId': 'C24C',
+            value = {'id': draft_id, 'revision': 1, 'title': title, 'caption': caption, 'deviceId': self.board,
                      'format': request['format'], 'platform': FORMATS[request['format']], 'published': False,
                      'savedInApp': False, 'sourceSha256': asset['sha256'], 'sha256': hashlib.sha256(encoded).hexdigest(),
                      'bytes': len(encoded), 'video': metadata}
@@ -197,7 +198,7 @@ class VideoDrafts:
 
 
 class VideoTransferPackage:
-    def __init__(self, raw):
+    def __init__(self, raw, board='C24C'):
         if len(raw) > MAX_VIDEO + 65536: raise ValueError('Video package exceeds its limit.')
         with zipfile.ZipFile(io.BytesIO(raw)) as archive:
             entries = archive.infolist()
@@ -205,8 +206,8 @@ class VideoTransferPackage:
                 raise ValueError('Unexpected video package entries.')
             if sum(e.file_size for e in entries) > MAX_VIDEO + 65536: raise ValueError('Video package expands beyond its limit.')
             doc = json.loads(archive.read('manifest.json'))
-            if doc.get('deviceId') != 'C24C' or doc.get('format') not in FORMATS or doc.get('published') is not False or doc.get('savedInApp') is not False:
-                raise ValueError('Choose an unpublished C24C video draft.')
+            if doc.get('deviceId') != board or doc.get('format') not in FORMATS or doc.get('published') is not False or doc.get('savedInApp') is not False:
+                raise ValueError(f'Choose an unpublished {board} video draft.')
             self.video = archive.read('video.mp4')
             if len(self.video) != doc['bytes'] or hashlib.sha256(self.video).hexdigest() != doc['sha256']:
                 raise ValueError('Video checksum or size changed.')

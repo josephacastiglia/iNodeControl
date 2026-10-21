@@ -88,16 +88,17 @@ class WindowsOcr:
 PLATFORMS = ('instagram', 'tiktok', 'x', 'youtube')
 
 
-def expectations(request):
-    if request.get('device_id') != 'C24C' or request.get('platform') not in PLATFORMS:
-        raise ValueError('Select C24C and a supported platform.')
+def expectations(request, board='C24C'):
+    """board is the window's own phone; the server's single-phone tools keep the C24C default."""
+    if request.get('device_id') != board or request.get('platform') not in PLATFORMS:
+        raise ValueError(f'Select {board} and a supported platform.')
     account = request.get('account', '').removeprefix('@') if isinstance(request.get('account', ''), str) else ''
     if not re.fullmatch(r'[A-Za-z0-9_.-]{1,50}', account):
         raise ValueError('Enter the expected signed-in handle; a display name is not enough.')
     caption = request.get('caption', '')
     if not isinstance(caption, str) or len(caption) > 2200 or any(ord(c) < 32 and c not in '\n\t' for c in caption):
         raise ValueError('Expected text must contain at most 2,200 characters and no control codes.')
-    return {'device_id': 'C24C', 'platform': request['platform'], 'account': account, 'caption': caption}
+    return {'device_id': board, 'platform': request['platform'], 'account': account, 'caption': caption}
 
 
 def classify(text, expected, frame=None):
@@ -342,7 +343,7 @@ class ObservationStore:
         return output
 
     def capture(self, request, kernel, *, owned_run=None):
-        desired = expectations(request)
+        desired = expectations(request, kernel.phone.board)
         request_id = str(uuid.UUID(request.get('id', '')))
         # owned_run is an internal lease guard, never a field accepted from HTTP.
         identity = desired if owned_run is None else {**desired, 'ownedRun': owned_run.run_id}
@@ -363,13 +364,13 @@ class ObservationStore:
             try:
                 # The normal path remains read-only. A managed run authenticates its own
                 # lease on both sides of the frame; it never accepts another owner's lease.
-                resolved = kernel.resolve_device_id('C24C')
+                resolved = kernel.resolve_device_id(kernel.phone.board)
                 if owned_run is not None: owned_run.check(kernel)
                 before = kernel.kernel_status()
                 receiver = next((r for r in before.get('receivers', []) if r.get('deviceid') == resolved), None)
-                if receiver is None or receiver.get('live') is not True: raise ValueError('C24C video is offline.')
+                if receiver is None or receiver.get('live') is not True: raise ValueError(f'{kernel.phone.board} video is offline.')
                 input_before = kernel.input_status().get(resolved)
-                raw, headers = kernel.shot('C24C')
+                raw, headers = kernel.shot(kernel.phone.board)
                 width, height = image_size(raw)
                 text = self.ocr.read(raw)
                 if text.get('frameSha256') != hashlib.sha256(raw).hexdigest():

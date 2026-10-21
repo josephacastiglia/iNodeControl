@@ -15,7 +15,6 @@ from farm_observations import classify
 from farm_transitions import wait_for_transition
 import farm_permission_prompts as prompts
 import farm_reel_layout as reel
-from imouse_social_automation import LIVE_TEST_DEVICE_ID
 
 # Read-only waits for screens that are known to animate in. They delay the
 # first capture only; a capture never repeats an action.
@@ -159,7 +158,7 @@ class ReelCreationWorkflow(CreationWorkflow):
         value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
             journal=journal, monotonic=self.monotonic, pause=self.pause,
             ready=lambda frame, text: None, compare=reel.reel_compare(role),
-            require_recent=self.confirmation_compare(role) is None)
+            require_recent=self.confirmation_compare(role) is None, phone=self.phone)
         return value, frame
 
     def check_target(self, role, point):
@@ -180,8 +179,8 @@ class ReelCreationWorkflow(CreationWorkflow):
     # -- workflow ----------------------------------------------------------------
     def admit(self):
         self.identity = self.runtime()
-        require(idle(self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)), 'C24C is not free; no takeover is allowed.')
-        raw, _ = self.kernel.shot('C24C')
+        require(idle(self.kernel.input_status().get(self.phone.device_id)), f'{self.phone.board} is not free; no takeover is allowed.')
+        raw, _ = self.kernel.shot(self.phone.board)
         initial = classify(self.store.ocr.read(raw), dict(platform='instagram', account=self.account, caption=self.caption), raw)
         require(initial['screen'] == 'profile' and initial['accountStatus'] == 'exact_text_match',
                 'Start on the authorized Instagram profile. No input was sent.')

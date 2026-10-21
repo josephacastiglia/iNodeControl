@@ -1,4 +1,5 @@
 """Offline new-draft admission, visual checks and no-replay regressions."""
+from farm_phone_identity import LEGACY_C24C
 import base64
 import copy
 import errno
@@ -121,7 +122,7 @@ class CreationTests(unittest.TestCase):
     def test_creation_transport_cannot_send_spaces_large_chunks_or_other_targets(self):
         calls=[]
         def fake(*args):calls.append(args);return b'{}',{}
-        client=CreationKernel(API,transport=fake)
+        client=CreationKernel(API,transport=fake,phone=LEGACY_C24C)
         good=dict(id=LIVE_TEST_DEVICE_ID,token='fixture')
         for fun,data in [('/key/sendkey',dict(good,key='Hi there')),('/key/sendkey',dict(good,key='x'*13)),
                          ('/key/sendkey',dict(good,fn_key='AppSwitch')),('/key/sendkey',dict(good,fn_key='Home',key='x')),
@@ -131,7 +132,7 @@ class CreationTests(unittest.TestCase):
         for data in (dict(good,key='Instagram'),dict(good,fn_key='Enter')):
             client._transport('POST',API+'/',dict(fun='/key/sendkey',data=data),8)
         self.assertEqual(2,len(calls))
-        old=StepKernel(API,transport=fake)
+        old=StepKernel(API,transport=fake,phone=LEGACY_C24C)
         with self.assertRaises(KernelSafetyError):old._transport('POST',API+'/',dict(fun='/key/sendkey',data=dict(good,fn_key='Home')),8)
 
     def test_fixed_phase_and_total_budgets_cannot_be_extended_by_phase_change(self):
@@ -339,10 +340,11 @@ class CreationTests(unittest.TestCase):
 
     def test_import_continuity_rejects_a_new_owner_or_receiver_before_any_input(self):
         workflow=object.__new__(CreationWorkflow);workflow.imported_media=dict(generation=8,receiverPid=321,frameSession='fixture-stream')
-        receiver=dict(receiver_pid=321,frame_session='fixture-stream')
+        receiver=dict(receiver_pid=321,frame_session='fixture-stream',deviceid=LEGACY_C24C.device_id,name=LEGACY_C24C.receiver)
         class Kernel:
+            phone=LEGACY_C24C
             def kernel_status(self):return dict(receivers=[receiver])
-        workflow.kernel=Kernel();state=self.imported_value()['workflow']['finalInput']
+        workflow.kernel=Kernel();workflow.phone=LEGACY_C24C;state=self.imported_value()['workflow']['finalInput']
         workflow.check_import_continuity(state)
         for changed in (dict(state,generation=10),dict(state,owned=True)):
             with self.assertRaises(InspectionStopped):workflow.check_import_continuity(changed)

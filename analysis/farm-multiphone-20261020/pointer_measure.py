@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
@@ -40,31 +40,40 @@ def gray(raw): return np.asarray(Image.open(io.BytesIO(raw)).convert('L'), dtype
 
 
 def dot(frames, i):
-    """Centroid of the region where frame i differs from every other frame."""
+    """Centroid of where frame i differs from every other frame, ignoring anything that also
+    changes between the other frames (an animated icon such as Clock's second hand)."""
     mask = np.ones(frames[i].shape, bool)
-    for j, other in enumerate(frames):
-        if j != i: mask &= np.abs(frames[i] - other) > 18
-    ys, xs = np.nonzero(mask)
+    noise = np.zeros(frames[i].shape, bool)
+    others = [f for j, f in enumerate(frames) if j != i]
+    for other in others: mask &= np.abs(frames[i] - other) > 18
+    for a in range(len(others)):
+        for b in range(a + 1, len(others)): noise |= np.abs(others[a] - others[b]) > 18
+    # Widen the noise to whole animated icons: each frame draws Clock's hand at a new angle, so
+    # the hand alone would pass as a dot. Other frames' dots also count, but sit elsewhere.
+    noise = np.asarray(Image.fromarray(noise.astype(np.uint8) * 255).filter(ImageFilter.MaxFilter(41))) > 0
+    ys, xs = np.nonzero(mask & ~noise)
     return None if len(xs) < 20 else (float(np.median(xs)), float(np.median(ys)), int(len(xs)))
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--board', required=True)
-    board = parser.parse_args().board.upper()
+    parser.add_argument('--settle', type=float, default=SETTLE_S)
+    args = parser.parse_args()
+    board = args.board.upper()
     device = next(d for d in request(BASE, 'GET', '/device/get', timeout=8)['list'] if d.get('pid', '').upper() == board)
     status = {r['deviceid']: r for r in request(BASE, 'GET', '/kernel/status', timeout=8)['receivers']}
     if not status.get(device['deviceid'], {}).get('live'): raise SystemExit(f'{board} is not mirroring.')
     folder = HERE / 'measure' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
     folder.mkdir(parents=True)
-    record = dict(board=board, phone=device['name'], points=[], phoneInput='pointer moves and resets only')
+    record = dict(board=board, phone=device['name'], settleS=args.settle, points=[], phoneInput='pointer moves and resets only')
     token = acquire(BASE, device['deviceid'])
 
     def place(x, y, label):
-        for fun, data in (('/mouse/reset', {}), ('/mouse/move', dict(x=x, y=y))):
+        for fun, data in (('/input/renew', {}), ('/mouse/reset', {}), ('/mouse/move', dict(x=x, y=y))):
             got = post(BASE, fun, dict(id=device['deviceid'], token=token, **data))
             if got.get('code') != 0: raise RuntimeError(f'{fun} refused: {got}')
-        time.sleep(SETTLE_S)
+        time.sleep(args.settle)
         raw = shot(device['deviceid'])
         (folder / f'{label}.bmp').write_bytes(raw)
         return raw

@@ -5,6 +5,7 @@ not just whether a mock returns code 0. It never opens a window or uses a real p
 Run with --report <json> to preserve individual results and source hashes.
 """
 from __future__ import annotations
+from farm_phone_identity import LEGACY_C24C
 
 import argparse
 from email.message import Message

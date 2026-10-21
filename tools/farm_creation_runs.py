@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import threading
 
-from farm_draft_runs import DraftRuns, source_content, load_config, read_journal, ACCOUNT
+from farm_draft_runs import DraftRuns, source_content, load_config, read_journal, ACCOUNT, phone_of, allowed_of, account_of
 from farm_drafts import DraftConflict, identifier
 from farm_draft_creation import CreationWorkflow
 from farm_draft_workflow import Workflow, references, atomic_json
@@ -15,11 +15,17 @@ from farm_live_verification import idle
 from imouse_social_automation import KernelSafetyError
 
 
+# Each window's own media port, by box slot; 0 is the pre-rack C24C window.
+MEDIA_PORTS={0:9917,18:9917,20:9927,17:9937,16:9947}
+
+
 def creation_config(path,mode):
     if path is None: return None
     value=json.loads(Path(path).read_text(encoding='utf-8-sig'))
-    if not isinstance(value,dict) or set(value)!={'version','api','kernelSha256','expectedUid','mediaBind','mediaClient','mediaPort'}:
-        raise ValueError('Creation needs an explicit isolated kernel and C24C-only media configuration.')
+    media={'mediaBind','mediaClient','mediaPort'}
+    if not isinstance(value,dict) or not media<=set(value) or set(value)-media not in (
+            {'version','api','kernelSha256','expectedUid'},{'version','api','kernelSha256','expectedUid','phone','allowed','account'}):
+        raise ValueError("Creation needs an explicit isolated kernel and this phone's own media configuration.")
     # Reuse the same strict kernel identity rules, without weakening the old route.
     core={k:v for k,v in value.items() if not k.startswith('media')}
     import tempfile
@@ -27,8 +33,9 @@ def creation_config(path,mode):
         file=Path(directory)/'config.json';file.write_text(json.dumps(core),encoding='utf-8')
         load_config(file,mode)
     value['mediaBind']=checked_address(value['mediaBind']);value['mediaClient']=checked_address(value['mediaClient'])
-    if value['mediaBind']==value['mediaClient'] or type(value['mediaPort']) is not int or value['mediaPort']!=9917:
-        raise ValueError('Use a separate C24C LAN address and the dedicated media port 9917.')
+    port=MEDIA_PORTS[phone_of(value).slot] if phone_of(value).slot in MEDIA_PORTS else None
+    if value['mediaBind']==value['mediaClient'] or type(value['mediaPort']) is not int or value['mediaPort']!=port:
+        raise ValueError("Use the phone's own LAN address and this slot's dedicated media port.")
     return value
 
 
@@ -122,7 +129,8 @@ class CreationRuns(DraftRuns):
 
     def capability(self):
         return dict(version=1,storeId=self.store_id,enabled=self.config is not None,
-            device='C24C',account=ACCOUNT,candidateOnly=True,integratedLiveValidated=False,
+            device=phone_of(self.config).board if self.config else 'C24C',account=account_of(self.config) if self.config else ACCOUNT,
+            candidateOnly=True,integratedLiveValidated=False,
             publishing=False,messaging=False,desktopControl=False,
             reason='Creates a new three-slide draft from this saved revision, pastes its caption, and verifies save/reopen. '
                    'Start on @'+ACCOUNT+"'s Instagram profile. Media import adds images to Photos and replaces the phone clipboard."
@@ -205,7 +213,7 @@ class CreationRuns(DraftRuns):
         # the immutable package. Image/caption checks establish content identity.
         parsed.title='Carousel draft'
         delivered=[]
-        server=MediaTransferServer(parsed,self.config['mediaBind'],9917,self.config['mediaClient'],
+        server=MediaTransferServer(parsed,self.config['mediaBind'],self.config['mediaPort'],self.config['mediaClient'],
             minutes=15,on_event=delivered.append)
         stopped=threading.Event()
         def serve():
@@ -213,8 +221,8 @@ class CreationRuns(DraftRuns):
         worker=threading.Thread(target=serve,daemon=True)
         try:
             worker.start()
-            kernel=CreationKernel(self.config['api']);store=ObservationStore(folder/'observations.sqlite3',retained_limit=160)
-            arguments=dict(account=ACCOUNT,package_hash=package_hash,cancelled=cancelled)
+            kernel=CreationKernel(self.config['api'],phone=phone_of(self.config));store=ObservationStore(folder/'observations.sqlite3',retained_limit=160)
+            arguments=dict(account=account_of(self.config),package_hash=package_hash,cancelled=cancelled,allowed=allowed_of(self.config))
             creator=CreationWorkflow(folder,kernel,store,assets,caption,references(),
                 self.config['kernelSha256'],self.config['expectedUid'],transfer_url=server.url,
                 transfer_title=parsed.title,imported_media=imported,**arguments)

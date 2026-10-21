@@ -1,11 +1,11 @@
-"""Restricted C24C draft transport; no release endpoint or publishing command."""
+"""Restricted draft transport for one window's own phone; no release endpoint or publishing command."""
 import json
 import urllib.request
 from farm_live_verification import ReadOnlyKernel, NoRedirect
 from farm_carousel_inspection import InspectionStopped
 from farm_screen_layout import picker_controls, editor_controls, next_label, NEXT_BOX, words_at
 from farm_draft_rehearsal import save_prompt
-from imouse_social_automation import IMouseKernel, LIVE_TEST_DEVICE_ID, KernelSafetyError
+from imouse_social_automation import IMouseKernel, KernelSafetyError
 
 def allowed_tap(text, x, y, intent, frame=None):
     if not (10 <= x <= 490 and 65 <= y <= 1035):
@@ -55,9 +55,9 @@ def allowed_tap(text, x, y, intent, frame=None):
 
 
 class StepKernel(IMouseKernel):
-    def __init__(self, url, transport=None, *, _creation=False):
-        reader=ReadOnlyKernel(url,transport=transport)
-        super().__init__(url)
+    def __init__(self, url, transport=None, *, phone, _creation=False):
+        reader=ReadOnlyKernel(url,transport=transport,phone=phone)
+        super().__init__(url,phone=phone)
         opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect())
         def limited(method,target,body,timeout):
             if method == 'GET' or body == {'fun':'/input/status','data':{}}:
@@ -71,8 +71,8 @@ class StepKernel(IMouseKernel):
             if _creation: allowed += ('/mouse/down','/mouse/up','/key/sendkey')
             if fun not in allowed:
                 raise KernelSafetyError('This probe cannot send that command.')
-            if data.get('id') != LIVE_TEST_DEVICE_ID:
-                raise KernelSafetyError('Only C24C is accepted.')
+            if data.get('id') != phone.device_id:
+                raise KernelSafetyError(f'Only {phone.board} is accepted.')
             if fun == '/key/sendkey':
                 key=data.get('key')
                 fields=set(data)-{'id','token'}
@@ -93,5 +93,5 @@ class StepKernel(IMouseKernel):
 
 class CreationKernel(StepKernel):
     """Separate internal transport for the creation state machine, never HTTP commands."""
-    def __init__(self,url,transport=None):
-        super().__init__(url,transport,_creation=True)
+    def __init__(self,url,transport=None,*,phone):
+        super().__init__(url,transport,phone=phone,_creation=True)

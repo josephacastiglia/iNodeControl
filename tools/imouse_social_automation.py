@@ -49,6 +49,7 @@ import urllib.parse
 import urllib.request
 import uuid
 from farm_jobs import JobCancelled
+from farm_phone_identity import LEGACY_C24C, PhoneIdentity, PhoneIdentityError, own_receiver
 
 try:
     from PIL import Image, ImageDraw, ImageEnhance, ImageFont
@@ -71,8 +72,9 @@ except ImportError:
 DEFAULT_KERNEL_URL = "http://127.0.0.1:9913/api"
 DEFAULT_STAGE_SERVER_URL = "http://127.0.0.1:9914"
 FORBIDDEN_VENDOR_PORT = 9911
-DEFAULT_SAFE_TEST_DEVICE = "C24C"
-LIVE_TEST_DEVICE_ID = "86:1D:4A:04:2F:F6"
+# The pre-rack single phone. Live draft windows take their phone from their prepared config.
+DEFAULT_SAFE_TEST_DEVICE = LEGACY_C24C.board
+LIVE_TEST_DEVICE_ID = LEGACY_C24C.device_id
 
 
 def persona_device_id(value: str) -> str:
@@ -1850,7 +1852,11 @@ class IMouseKernel:
         self,
         url: str = DEFAULT_KERNEL_URL,
         transport: Optional[Callable[[str, str, Optional[Dict[str, Any]], float], Tuple[bytes, Dict[str, str]]]] = None,
+        phone: PhoneIdentity = LEGACY_C24C,
     ) -> None:
+        if not isinstance(phone, PhoneIdentity):
+            raise KernelSafetyError("A kernel client needs an explicit phone identity.")
+        self.phone = phone
         self.url = url.rstrip("/")
         if f":{FORBIDDEN_VENDOR_PORT}" in self.url:
             raise KernelSafetyError(f"Refusing vendor port {FORBIDDEN_VENDOR_PORT}; use port 9913.")
@@ -1881,15 +1887,15 @@ class IMouseKernel:
             self.check_cancelled()
 
     def _require_live_target(self, pid: str) -> None:
-        if self._is_live_http and (not isinstance(pid, str) or pid.upper() not in (DEFAULT_SAFE_TEST_DEVICE, LIVE_TEST_DEVICE_ID)):
-            raise KernelSafetyError(f"Live farm control is restricted to C24C; target {pid!r} is not approved. Use explicit simulation for other phones.")
+        if self._is_live_http and not self.phone.targets(pid):
+            raise KernelSafetyError(f"Live farm control is restricted to {self.phone.board}; target {pid!r} is not approved. Use explicit simulation for other phones.")
 
     def _validate_post_target(self, fun: str, data: Dict[str, Any]) -> None:
         if not self._is_live_http or fun == "/input/status":
             return
         raw = data.get("id")
         if not isinstance(raw, str) or not raw:
-            raise KernelSafetyError("Live farm input requires an explicit C24C target.")
+            raise KernelSafetyError(f"Live farm input requires an explicit {self.phone.board} target.")
         for pid in raw.split(","):
             self._require_live_target(pid)
         for field in ("tokens", "generations"):
@@ -1904,21 +1910,18 @@ class IMouseKernel:
         self._require_live_target(pid)
         if not self._is_live_http:
             return pid
-        if pid.upper() == LIVE_TEST_DEVICE_ID:
-            return LIVE_TEST_DEVICE_ID
+        if pid.upper() == self.phone.device_id:
+            return self.phone.device_id
         if pid in self._id_alias_map:
             return self._id_alias_map[pid]
-        ks = self.kernel_status()
-        for receiver in ks.get("receivers") or []:
-            name = str(receiver.get("name") or "").upper()
-            if name in ("IMOUSE2-C24C", "C24C"):
-                resolved = str(receiver.get("deviceid") or "")
-                self._require_live_target(resolved)
-                if resolved.upper() != LIVE_TEST_DEVICE_ID:
-                    raise KernelSafetyError("C24C receiver has no verified device ID.")
-                self._id_alias_map[pid] = LIVE_TEST_DEVICE_ID
-                return LIVE_TEST_DEVICE_ID
-        raise KernelSafetyError("The expected C24C receiver identity is missing; refusing input.")
+        # The board PID resolves only when the kernel reports this phone's own receiver, by
+        # device ID and name; another phone's receiver can never stand in for it.
+        try:
+            own_receiver(self.kernel_status(), self.phone)
+        except PhoneIdentityError as error:
+            raise KernelSafetyError(f"The expected {self.phone.receiver} receiver identity is missing; refusing input.") from error
+        self._id_alias_map[pid] = self.phone.device_id
+        return self.phone.device_id
 
     def _http_transport(
         self,

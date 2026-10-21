@@ -1,4 +1,5 @@
 """Read-only screen verification and restart holds; fixtures contain no private accounts."""
+from farm_phone_identity import LEGACY_C24C
 import hashlib
 import io
 import json
@@ -23,6 +24,7 @@ PROFILE = ocr_lines(('@test.account', 130), ('Following', 250), ('Followers', 25
 
 class ReadOnlyKernel:
     _is_live_http = True
+    phone = LEGACY_C24C   # Fixtures model the single-phone C24C window.
     def __init__(self):
         stream = io.BytesIO(); Image.new('RGB', (500, 1080), 'white').save(stream, format='BMP')
         self.raw = stream.getvalue(); self.reads = []; self.offline = False; self.changing = False; self.calls = 0

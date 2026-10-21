@@ -7,7 +7,7 @@ import hashlib
 import re
 
 from farm_carousel_inspection import InspectionStopped
-from farm_draft_runs import DraftRuns, ACCOUNT
+from farm_draft_runs import DraftRuns, ACCOUNT, phone_of, allowed_of, account_of
 from farm_drafts import DraftConflict, identifier
 from farm_draft_transport import StepKernel
 from farm_draft_workflow import Workflow, references
@@ -107,7 +107,7 @@ class RecoveryRuns(DraftRuns):
         saves = [c for c in workflow.get('commands', [])
                  if c.get('purpose') == 'prepared-save-once' and c.get('state') in ('answered', 'outcome_unknown')]
         if (not value['terminal'] or workflow.get('source') != 'candidate_phone_workflow'
-                or workflow.get('mode') != 'create_new_draft' or workflow.get('account') != ACCOUNT
+                or workflow.get('mode') != 'create_new_draft' or workflow.get('account') != (account_of(self.config) if self.config else ACCOUNT)
                 or len(saves) != 1 or not self.creations.supports(package)):
             raise DraftConflict('No terminal creation with a started Instagram Save is recorded. Inspect the original result; no action will be replayed.')
         path = self.creations.folder / creation_id / 'record.json'
@@ -145,10 +145,10 @@ class RecoveryRuns(DraftRuns):
         spec, _, _ = self.row(folder.name)
         self.package_for_request(spec)  # Recheck before constructing a transport.
         _, _, proof = self.source(spec['creation_id'])
-        workflow = RecoveryWorkflow(folder, StepKernel(self.config['api']),
+        workflow = RecoveryWorkflow(folder, StepKernel(self.config['api'], phone=phone_of(self.config)),
             ObservationStore(folder / 'observations.sqlite3'), assets, caption, references(),
-            self.config['kernelSha256'], self.config['expectedUid'], account=ACCOUNT,
-            package_hash=package_hash, cancelled=cancelled)
+            self.config['kernelSha256'], self.config['expectedUid'], account=account_of(self.config),
+            package_hash=package_hash, cancelled=cancelled, allowed=allowed_of(self.config))
         workflow.record['sourceCreation'] = proof
         workflow.save()
         return workflow.run()

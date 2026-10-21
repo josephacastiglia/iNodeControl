@@ -6,6 +6,7 @@ the new transfer page, Paste menu, settled selection and a later Preview frame
 are synthetic composites, labelled as such. This tests the protocol and
 recognizers on known layouts. It is not fresh-phone acceptance.
 """
+from farm_phone_identity import LEGACY_C24C
 import copy
 import hashlib
 import io
@@ -139,6 +140,7 @@ class FixtureOcr:
 
 class FixtureKernel:
     _is_live_http = False
+    phone = LEGACY_C24C   # Fixtures model the single-phone C24C window.
 
     def __init__(self, screens, scenario='normal', fault_screen=None, saved=False):
         self.screens, self.scenario, self.fault_screen = screens, scenario, fault_screen

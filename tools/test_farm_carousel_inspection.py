@@ -1,4 +1,5 @@
 """No hardware/network: exercise the real capture, media checks, journal and lease guard."""
+from farm_phone_identity import LEGACY_C24C
 import base64
 import hashlib
 import io
@@ -23,6 +24,7 @@ from test_farm_observations import ocr_lines
 
 class EditorKernel:
     _is_live_http = False
+    phone = LEGACY_C24C   # Fixtures model the single-phone C24C window.
     def __init__(self, assets):
         self.assets, self.index, self.sequence, self.generation = assets, 0, 1, 4
         self.owned = False; self.active = False; self.paused = False; self.calls = []

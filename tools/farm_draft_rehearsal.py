@@ -3,6 +3,7 @@
 Reuses the inspection journal, immutable frames, ownership guard and recognizers.
 Synthetic frames exercise workflow logic, not OCR accuracy or Instagram behavior.
 """
+from farm_phone_identity import LEGACY_C24C
 import hashlib
 import io
 import json
@@ -50,6 +51,7 @@ The prepared editor is seeded, not imported via a pretend Photos/Instagram route
 Semantic transitions have no direct mapping to phone taps or gestures.
 """
     _is_live_http = False
+    phone = LEGACY_C24C   # Fixtures model the single-phone C24C window.
 
     def __init__(self, assets, caption, scenario):
         self.assets, self.caption, self.scenario = assets, caption, scenario

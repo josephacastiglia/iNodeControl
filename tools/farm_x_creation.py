@@ -22,7 +22,6 @@ import farm_reel_layout as reel
 import farm_tiktok_layout as tt
 import farm_x_layout as xl
 from farm_reel_creation import ReelCreationWorkflow, ReelVerification, PRE_SETTLE as REEL_PRE_SETTLE
-from imouse_social_automation import LIVE_TEST_DEVICE_ID
 
 PENDING = 'pending-x-account'   # Expected-account placeholder until the side menu is read.
 LOADING_ATTEMPTS = 6           # Read-only picker observations while it shows Loading...
@@ -177,7 +176,7 @@ class XCreationWorkflow(ReelCreationWorkflow):
         value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
             journal=journal, monotonic=self.monotonic, pause=self.pause,
             ready=lambda frame, text: None, compare=compare(role), platform=self.PLATFORM,
-            require_recent=self.confirmation_compare(role) is None)
+            require_recent=self.confirmation_compare(role) is None, phone=self.phone)
         return value, frame
 
     def check_target(self, role, point):
@@ -195,8 +194,8 @@ class XCreationWorkflow(ReelCreationWorkflow):
     # -- workflow ----------------------------------------------------------------
     def admit(self):
         self.identity = self.runtime()
-        require(idle(self.kernel.input_status().get(LIVE_TEST_DEVICE_ID)), 'C24C is not free; no takeover is allowed.')
-        raw, _ = self.kernel.shot('C24C')
+        require(idle(self.kernel.input_status().get(self.phone.device_id)), f'{self.phone.board} is not free; no takeover is allowed.')
+        raw, _ = self.kernel.shot(self.phone.board)
         try: xl.x_feed(raw, self.store.ocr.read(raw))
         except InspectionStopped as error: raise InspectionStopped('Start on the X home timeline. No input was sent.') from error
         self.record['cleanup'] = 'unconfirmed'; self.save(); self.owned.acquire()
