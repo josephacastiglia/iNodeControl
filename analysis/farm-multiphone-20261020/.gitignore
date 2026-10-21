@@ -4,3 +4,8 @@ kernel*.txt
 autoconnect/
 measure/
 look/
+windows/
+windows-archive/
+slots/processes*.json
+slots/receivers-ready.json
+slots/releases.jsonl

@@ -14,7 +14,8 @@ from PIL import Image
 
 from farm_carousel_inspection import OwnedCaptureRun, InspectionStopped
 from farm_creation_layout import (require, exact, source_match, picker_grid,
-    selected_badges, caption_editor, home, home_search, app_target, control, empty_search, test_video_preview, restored_app_search)
+    selected_badges, caption_editor, home, home_search, app_target, control, empty_search, test_video_preview, restored_app_search,
+    safari_address_empty)
 from farm_draft_workflow import Workflow, atomic_json, centre, icon_matches
 from farm_draft_verification import caption_comparison
 from farm_live_verification import idle
@@ -44,7 +45,31 @@ class CreationOwnership(OwnedCaptureRun):
         self.phase, self.phase_started = name, self.monotonic()
 
 
+# Home-screen roles whose decision may be reconfirmed by a newer frame: OCR of a full home screen
+# can outlast the 1.5 s frame age limit (1.67 s on slot 18, 21 Oct) although the screen is still.
+STILL_SCREENS = ('home', 'search', 'restored_search', 'app_result')
+POINTER_PARK = (420, 270, 500, 330)   # The fresh-frame challenge moves the pointer here.
+
+
+def still_compare(role):
+    """A newer frame shows the recognized screen: no change outside the status bar and pointer."""
+    def compare(first, first_text, second, second_text):
+        a, b = pixels(first, exact=True).astype(float), pixels(second, exact=True).astype(float)
+        difference = np.abs(a - b) / 255
+        mask = np.ones((1080, 500), dtype=bool); mask[:65] = False
+        left, top, right, bottom = POINTER_PARK; mask[top:bottom, left:right] = False
+        mean = float(difference[mask].mean()); changed = float((difference.max(axis=2) > 35 / 255)[mask].mean())
+        if mean <= .002 and changed <= .005:
+            return dict(state='ready', mean=mean, changed=changed, automaticInputAllowed=False)
+        return dict(state='wait', mean=mean, changed=changed, automaticInputAllowed=False,
+                    reason='The screen changed after recognition; capture again without input.')
+    return compare
+
+
 class CreationWorkflow(Workflow):
+    def confirmation_compare(self, role):
+        return still_compare(role) if role in STILL_SCREENS else None
+
     def __init__(self, *args, transfer_url, transfer_title, imported_media=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.owned=CreationOwnership(self.kernel,self.owned.run_id,self.cancelled,self.monotonic)
@@ -136,11 +161,14 @@ class CreationWorkflow(Workflow):
             return dict(browser='safari')
         if role=='address_selected':
             image=pixels(frame,exact=True)
-            selected=image[940:972,30:385].astype(int)
-            require(((selected[:,:,2]-selected[:,:,0]>15)&(selected[:,:,2]>200)).mean()>.15,
-                    'Safari address is not visibly selected; existing text will not be overwritten blindly.')
             require((image[1066:1069,170:330].max(axis=2)<90).mean()>.85, 'Address field geometry changed.')
-            return dict(addressSelected=True)
+            selected=image[940:972,30:385].astype(int)
+            if ((selected[:,:,2]-selected[:,:,0]>15)&(selected[:,:,2]>200)).mean()>.15:
+                return dict(addressSelected=True)
+            # Focused from Safari's Start Page: nothing to select because the field is empty.
+            try: return safari_address_empty(text)
+            except InspectionStopped:
+                raise InspectionStopped('Safari address is not visibly selected; existing text will not be overwritten blindly.')
         if role=='transfer_home':
             exact(text,self.title,(10,65,490,170))
             exact(text,'Open slide 1 of 3',(60,210,440,370))

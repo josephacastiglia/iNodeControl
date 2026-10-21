@@ -448,20 +448,52 @@ def size_label(byte_count):
     return f'{round(byte_count/1000)} KB' if byte_count < 999_500 else f'{byte_count/1_000_000:.1f} MB'
 
 
+def download_rows(text, left=85, top=560, bottom=1000):
+    """OCR lines in the downloads list merged into visual rows: OCR sometimes splits one file name
+    into fragments (21 Oct, slot 18: 'mouse' + '-cpfypm'). Returns (x0, y0, x1, y1, joined text)."""
+    items = []
+    for line in text.get('lines', []):
+        words = line.get('words') or []
+        if not words: continue
+        box = (min(w['x'] for w in words), min(w['y'] for w in words),
+               max(w['x']+w['width'] for w in words), max(w['y']+w['height'] for w in words))
+        if box[0] >= left and top <= box[1] <= bottom: items.append((*box, line['text']))
+    rows = []
+    for item in sorted(items, key=lambda i: (i[1]+i[3]) / 2):
+        centre = (item[1]+item[3]) / 2
+        row = next((r for r in rows if abs(r[0]-centre) <= 9), None)
+        if row is None: rows.append([centre, [item]])
+        else: row[1].append(item)
+    return [(min(i[0] for i in items), min(i[1] for i in items), max(i[2] for i in items), max(i[3] for i in items),
+             ''.join(i[4].replace(' ', '') for i in sorted(items))) for _, items in rows]
+
+
 def downloads_list(text, download, byte_count):
     exact(text, 'Downloads', (185, 512, 315, 548)); exact(text, 'Done', (18, 512, 90, 548)); exact(text, 'Clear', (415, 512, 490, 548))
-    names = [(min(w['x'] for w in line['words']), min(w['y'] for w in line['words']),
-              max(w['x']+w['width'] for w in line['words']), max(w['y']+w['height'] for w in line['words']))
-             for line in text.get('lines', []) if line.get('words') and line['text'] == download]
-    require(len(names) == 1 and 85 <= names[0][0] and 560 <= names[0][1] <= 1000, 'The package download is absent or ambiguous.')
+    # The name's last part is this package's own six-letter code (no look-alike letters), so the
+    # row is the one and only row ending in it, even when OCR splits or clips the rest of the name.
+    code = download.rsplit('-', 1)[-1]
+    names = [row[:4] for row in download_rows(text) if row[4] == download or row[4].endswith('-' + code)]
+    require(len(names) == 1 and len([row for row in download_rows(text) if code in row[4]]) == 1,
+            'The package download is absent or ambiguous.')
     x0, y0, x1, y1 = names[0]
     sizes = rows_between(text, y1+4, y1+30, 85, 400)
     require(sizes[:1] == [size_label(byte_count)], 'The download is incomplete or has a different size.')
     return dict(target=(round((x0+x1)/2), round((y0+y1)/2)), size=sizes[0])
 
 
+def player_overlay(text):
+    """iOS's playback overlay over a previewed video: its two '10' skip buttons. While it shows,
+    the whole video is dimmed (21 Oct, slot 18), so the picture cannot be compared yet."""
+    tens = [min(w['x'] for w in line['words']) for line in text.get('lines', []) if line.get('words') and line['text'] == '10'
+            and all(520 <= w['y'] <= 575 for w in line['words'])]
+    return len(tens) == 2 and min(tens) < 200 < 300 < max(tens)
+
+
 def quicklook(frame, text, download, reference):
     """Files preview of the downloaded package video. Controls may be hidden."""
+    if player_overlay(text):
+        return dict(overlay=True, media=None, controls=False, shareTarget=(40, 1012), doneTarget=(450, 85), revealTarget=(250, 300))
     media = video_match(frame, (0, 96, 500, 985), reference, ignore=((0, 880, 500, 985),))
     require(media['matched'], 'The previewed download is not the package video.')
     controls = present(frame, 'quicklook_share')

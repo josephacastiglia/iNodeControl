@@ -7,7 +7,7 @@ review. Nothing taps Share, publishes or messages. The verifier is a separate
 owned run that starts from the exact profile and finishes on Reels drafts.
 """
 from farm_carousel_inspection import InspectionStopped
-from farm_creation_layout import require
+from farm_creation_layout import require, safari_blank, leftover_downloads
 from farm_draft_creation import CreationWorkflow
 from farm_draft_transport import allowed_tap
 from farm_live_verification import idle
@@ -115,7 +115,15 @@ class ReelCreationWorkflow(CreationWorkflow):
         if decision is not None: return decision
         if role == 'reel_safari_entry':
             try: return self.verify_screen('safari', value, frame)
+            except InspectionStopped: pass
+            try: return safari_blank(text)   # No tab open: the empty address field is focused next.
+            except InspectionStopped: pass
+            try: return leftover_downloads(text)
             except InspectionStopped: return reel.leftover_preview(frame, text)
+        if role == 'safari_or_blank':
+            # Safari's toolbar, or its Start Page whose empty address field the next step focuses.
+            try: return self.verify_screen('safari', value, frame)
+            except InspectionStopped: return safari_blank(text)
         if role == 'reel_page': return reel.reel_transfer_page(text, self.download)
         if role == 'reel_caption_copied':
             return {**reel.reel_transfer_page(text, self.download), **reel.caption_copied(text)}
@@ -147,7 +155,7 @@ class ReelCreationWorkflow(CreationWorkflow):
 
     def confirmation_compare(self, role):
         """Settled screens may be reconfirmed by a newer frame under their own settling rule."""
-        return reel.reel_compare(role) if role in SETTLED else None
+        return reel.reel_compare(role) if role in SETTLED else super().confirmation_compare(role)
 
     def observe_screen(self, role, index=None, require_next=False):
         if role not in PRE_SETTLE: return super().observe(role, index, require_next)
@@ -197,11 +205,14 @@ class ReelCreationWorkflow(CreationWorkflow):
         self.step(label, start_role, key='Home')
         self.open_app('Safari', 'transfer')
         entry, _, _ = self.screen('reel_safari_entry')
+        if entry.get('leftoverDownloads'):
+            # Done only closes Safari's Downloads sheet left open by an earlier stop.
+            self.tap('close-leftover-downloads', 'reel_safari_entry', entry['doneTarget'])
         if entry.get('leftoverPreview'):
             # A previous run leaves Safari on a read-only Files preview. Done
             # only closes it; the earlier media is not touched or replayed.
             self.tap('close-leftover-preview', 'reel_safari_entry', (450, 85))
-        self.tap('focus-safari-address', 'safari', (245, 953))
+        self.tap('focus-safari-address', 'safari_or_blank', (245, 953))
         self.step('enter-transfer-url', 'address_selected', text=self.url)
         # Same Safari address edit session; never a caption.
         self.command('/key/sendkey', purpose='load-transfer-url', fn_key='Enter')
@@ -218,6 +229,11 @@ class ReelCreationWorkflow(CreationWorkflow):
                  lambda v, f: reel.downloads_list(v['text'], self.download, self.video_bytes)['target'])
         self.phase('save-video-to-photos')
         preview, _, _ = self.screen('quicklook')
+        for _ in range(3):
+            if not preview.get('overlay'): break
+            self.pause(2.5)   # iOS hides the playback overlay by itself while the video plays; no input.
+            preview, _, _ = self.screen('quicklook')
+        require(not preview.get('overlay'), 'The playback overlay stayed over the preview; its video cannot be checked.')
         if not preview['controls']:
             self.tap('reveal-preview-controls', 'quicklook', (250, 300))
         self.tap('open-share-sheet', 'quicklook_controls', (40, 1012))

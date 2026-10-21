@@ -63,3 +63,40 @@ has finished.
 
 Kernel logs, `receivers-ready.json`, and the `identify/` frames and records contain phone device
 IDs and home-screen captures. They are kept in the private evidence archive.
+
+## Windows: one platform per phone (21 Oct)
+
+Operator decisions (21 Oct): one platform per phone (slot 18 Instagram Reel, slot 20 TikTok,
+slot 17 X, slot 16 YouTube Short), each on the account signed in on that phone. X is held after
+the operator's X accounts were suspended on 20 Oct at 19:17; logs show no farm X automation.
+
+Slot-named receivers (`prepare_slots.py`, `iMouse2-16/17/18/20`, F215 locked to the slot 16
+phone). `auto_connect.py` reconnected all four phones from the PC through their own boards; an
+AirPlay query from each phone's address proved its Screen Mirroring card was open before the
+row tap. `pointer_measure.py` (reset, move, compare frames; animated icons masked) put every
+detected landing within 10 px on all four phones. A Search tap plus Home worked on each.
+
+`tools/farm_phone_identity.py` makes every live gate compare against one window's phone; a
+window config (version 2) names that phone, the kernel's exact allow-list and the signed-in
+account. Per window:
+
+```powershell
+python prepare_window.py --platform reel --slot 18 --phone-ip <phone LAN IP> --account <handle>
+.\Start-Window.ps1 -Window reel-slot18      # backend only; the shared kernel keeps running
+python ..\..\tools\farm_start_screen.py instagram-profile windows\reel-slot18\start-screen-1 windows\reel-slot18\creation-config.json
+python run_window.py --window reel-slot18 --attempt 1
+.\Stop-Window.ps1 -Window reel-slot18
+```
+
+Ports: backend 9915/9925/9935/9945 and media 9917/9927/9937/9947 for slots 18/20/17/16.
+A code change alters the backend source fingerprint, so a window is re-prepared (the old one
+moves to `windows-archive/`).
+
+Reel on slot 18, attempts that each stopped safely and led to a fix with tests:
+1. Safari on its blank Start Page (no tab) -> `safari_blank` (Start Page, focused or not).
+2. Home-screen OCR outlasting the 1.5 s frame limit -> home-screen roles reconfirm on a newer frame.
+3. Downloads list OCR split a file name -> rows rebuilt from fragments, matched by the unique code.
+4. Safari reopened on the Downloads sheet -> recognized; Done closes it.
+5. The download opened in iOS's full-screen video player with its playback overlay (whole video
+   dimmed, no Files toolbar) -> overlay recognized. **Open:** how to save the video from this player
+   (one tap hid the overlay; the overlay did not come back on later taps). The Reel import stops here.

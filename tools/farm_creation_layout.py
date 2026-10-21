@@ -21,6 +21,56 @@ def exact(text, label, box):
     return require(line_at(text, label.casefold(), box), 'Exact visible label missing: ' + label)[0]
 
 
+def _line_box(text, predicate):
+    rows = []
+    for line in text.get('lines', []):
+        words = line.get('words') or []
+        if words and predicate(line['text']):
+            rows.append((min(w['x'] for w in words), min(w['y'] for w in words),
+                         max(w['x'] + w['width'] for w in words), max(w['y'] + w['height'] for w in words)))
+    return rows
+
+
+def _inside(boxes, area):
+    return [b for b in boxes if area[0] <= b[0] and b[2] <= area[2] and area[1] <= b[1] and b[3] <= area[3]]
+
+
+def safari_start_page(text):
+    """Safari with no tab open (its Start Page). Its address field is empty, so the transfer URL
+    can be typed after focusing it; the toolbar's share icon is disabled, so the chrome
+    templates do not apply. Observed on C24C, 21 Oct."""
+    require(_inside(_line_box(text, lambda t: t == 'Favorites'), (40, 100, 200, 160)), 'Safari Start Page heading is absent.')
+    require(len(_inside(_line_box(text, lambda t: t.startswith('Search or enter')), (90, 935, 400, 975))) == 1
+            and _inside(_line_box(text, lambda t: t in ('Q', 'q')), (40, 935, 80, 975)), 'Safari Start Page search field is absent.')
+    return dict(browser='safari', startPage=True)
+
+
+def safari_address_empty(text):
+    """The Start Page's address field after it was focused: still empty (iOS shows the placeholder
+    only for an empty field) and moved left over the magnifier, which focus removes. Typing
+    cannot overwrite anything. The small close button is not required: OCR misses it at times."""
+    require(len(_inside(_line_box(text, lambda t: t.startswith('Search or enter')), (25, 930, 330, 975))) == 1
+            and not _inside(_line_box(text, lambda t: t in ('Q', 'q')), (40, 935, 80, 975)),
+            'Safari address field is not focused and empty.')
+    return dict(addressSelected=True, addressEmpty=True)
+
+
+def leftover_downloads(text):
+    """Safari reopened with its Downloads sheet still open (an earlier run stopped there). Done only
+    closes the sheet; no download is opened, cleared or replayed."""
+    exact(text, 'Downloads', (185, 512, 315, 548)); exact(text, 'Done', (18, 512, 90, 548)); exact(text, 'Clear', (415, 512, 490, 548))
+    return dict(browser='safari', leftoverDownloads=True, doneTarget=(51, 530))
+
+
+def safari_blank(text):
+    """Safari with no tab open, its empty address field either unfocused or already focused (Safari
+    restores focus). Either way the next step only focuses the empty field."""
+    try: return safari_start_page(text)
+    except InspectionStopped: pass
+    require(_inside(_line_box(text, lambda t: t == 'Favorites'), (40, 100, 200, 160)), 'Safari Start Page heading is absent.')
+    return dict(safari_address_empty(text), browser='safari', startPage=True)
+
+
 def control(frame,name):
     row=json.loads(Path(__file__).with_name('farm_creation_controls.json').read_text(encoding='utf-8'))[name]
     raw=base64.b64decode(row['png'],validate=True)
