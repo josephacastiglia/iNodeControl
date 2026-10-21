@@ -1,0 +1,69 @@
+{
+  "runDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-20261020",
+  "kernel": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\codex-farm-live-kernel-20261018\\iMouse2.Kernel.exe",
+  "kernelSha256": "c72fa4e0b02b82ec4f7a949c9a80375c69da68d7357084401c7bb422c194a873",
+  "arguments": [
+    "http://127.0.0.1:9916/api/",
+    "--data-dir",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-20261020\\data",
+    "--input-pid",
+    "C24C,C214,724E",
+    "--receivers",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-20261020\\data\\receivers.json",
+    "--receiver",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
+    "--receiver-runtime",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime"
+  ],
+  "boards": [
+    "C24C",
+    "C214",
+    "724E",
+    "F215"
+  ],
+  "inputEnabled": [
+    "C24C",
+    "C214",
+    "724E"
+  ],
+  "receivers": [
+    {
+      "board": "C24C",
+      "name": "iMouse2-C24C",
+      "port": 7110
+    },
+    {
+      "board": "C214",
+      "name": "iMouse2-C214",
+      "port": 7130
+    },
+    {
+      "board": "724E",
+      "name": "iMouse2-724E",
+      "port": 7140
+    },
+    {
+      "board": "F215",
+      "name": "iMouse2-F215",
+      "port": 7150
+    }
+  ],
+  "sources": {
+    "C24C": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-recovery-20261019\\data",
+    "others": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0\\analysis\\five-phone-config"
+  },
+  "excluded": [
+    "C241"
+  ],
+  "renamed": {
+    "F215": "iMouse2-Phone5 -> iMouse2-F215"
+  },
+  "dataSha256": {
+    "devices.json": "1ae9091bbfe4a31e5eab4b35480907d4b8ffd0adf94dda7d9c994e2057fd16f3",
+    "receivers.json": "77cc0dd113aaea5cd6a37d522548e35c6bebad113bd01952e26e85f3259ff426",
+    "pointer-calibration.json": "69b2c68d23614b3d9685d6b294856a46955edf404236f578593c165a0fe5f402"
+  },
+  "protectedBefore": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-recovery-live-20261019\\protected-before.json",
+  "serviceStarted": false,
+  "phoneInput": false
+}

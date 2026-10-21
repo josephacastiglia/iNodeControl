@@ -14,6 +14,8 @@ public sealed class ApiServer : IDisposable
     private readonly InputSessions _inputSessions;
     private readonly FrameStore _frames;
     private readonly Dictionary<string,(string Name,FrameStore Frames)> _sessions;
+    // Starts one held receiver by board PID; null when the kernel holds none.
+    public Func<string,object>? AdvertiseReceiver { get; init; }
 
     public ApiServer(string prefix, DeviceStore store, string castName, InputRouter input, FrameStore frames)
         : this(prefix,store,input,[(castName,frames)]) { }
@@ -160,6 +162,8 @@ public sealed class ApiServer : IDisposable
             "/mouse/move" or "/mouse/down" or "/mouse/up" or "/mouse/click" or "/mouse/reset" or "/mouse/swipe"
                 or "/key/sendkey" or "/device/usb/restart"
                 => await _inputSessions.DispatchAsync(fun, data),
+            "/device/airplay/connect" when AdvertiseReceiver is not null && Str(data, "pid") is { Length: > 0 } pid
+                => KernelOptions.BoardId(pid) ? AdvertiseReceiver(pid) : new { code = 36, message = "pid must be a four-digit hexadecimal board ID." },
             "/device/airplay/connect" or "/device/airplay/disconnect"
                 => new { code = 41, message = "Choose or stop " + _castName + " in the iPhone's Screen Mirroring menu." },
             _ => new { code = 41, message = "Not implemented: " + fun }
@@ -178,7 +182,7 @@ public sealed class ApiServer : IDisposable
     }
 
     private string VideoState(ReceiverInfo rec,FrameStore? frames=null) =>
-        (frames??_frames).State.Live ? "mirroring" : rec.State is "restarting" or "starting" ? "restarting" : rec.State is "failed" ? "failed" : "offline";
+        (frames??_frames).State.Live ? "mirroring" : rec.State is "restarting" or "starting" ? "restarting" : rec.State is "failed" or "held" ? rec.State : "offline";
 
     private string ScreenshotMessage(FrameStore? frames=null,string? name=null)
     {
@@ -186,7 +190,7 @@ public sealed class ApiServer : IDisposable
         var rec=frames.Receiver();
         if (frames.State.Live) return "";
         if (rec.State is "restarting" or "starting") return "Receiver restarting";
-        if (rec.State == "failed") return rec.Message;
+        if (rec.State is "failed" or "held") return rec.Message;
         return "No live frame. Select " + (name??_sessions[frames.DeviceId].Name) + " in iPhone Screen Mirroring.";
     }
 

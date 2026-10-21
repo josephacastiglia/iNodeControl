@@ -40,6 +40,14 @@ internal static class KernelStartupTests
             new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C," },
             new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C", "--hid-caps" } })
             Reject(() => KernelOptions.Parse(args), "Unsafe reply diagnostic scope refused: " + string.Join(' ', args));
+        check(defaults.HeldReceivers.Length == 0 && KernelOptions.Parse(["--hold-receivers", "C214, 724e"]).HeldReceivers.SequenceEqual(new[] { "C214", "724e" }),
+            "Receivers start advertised unless explicitly held");
+        foreach (var args in new[] {
+            new[] { "--hold-receivers", "C214,c214" },
+            new[] { "--hold-receivers", "C214," },
+            new[] { "--hold-receivers", "Phone5" },
+            new[] { "--hold-receivers", "C214", "--hid-caps" } })
+            Reject(() => KernelOptions.Parse(args), "Invalid receiver hold refused: " + string.Join(' ', args));
         check(defaults.PreciseDelayMs == 7 && defaults.Home == HomeSequence.Vendor && defaults.Allowed.Length == 0
             && defaults.Prefix == "http://127.0.0.1:9913/api/", "Startup defaults retain pacing, Home and no enabled boards");
         check(KernelOptions.Parse(["--legacy"]).PreciseDelayMs == 0, "Legacy timing requires its explicit flag");

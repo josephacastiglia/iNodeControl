@@ -88,7 +88,9 @@ if (options.AbsoluteProbeBoard is not null) Console.WriteLine("EXPERIMENTAL abso
 Console.WriteLine("Pointer movement pacing: " + (options.PreciseDelayMs > 0 ? $"high-resolution {options.PreciseDelayMs} ms; reset/drag/settle unchanged" : "legacy Task.Delay"));
 Console.WriteLine("Video waits on an independent AirPlay receiver.");
 var fleet = new ReceiverFleet(config.Receivers, config.Store, config.ReceiverPath, config.RuntimePath, options.DataDir);
-var server = new ApiServer(options.Prefix, config.Store, input, fleet.Sessions.Select(s => (s.Config.Name, s.Frames)));
+var server = new ApiServer(options.Prefix, config.Store, input, fleet.Sessions.Select(s => (s.Config.Name, s.Frames)))
+    { AdvertiseReceiver = options.HeldReceivers.Length == 0 ? null : fleet.Advertise };
+if (options.HeldReceivers.Length > 0) Console.WriteLine("Receivers held until released: " + string.Join(",", options.HeldReceivers));
 int exitCode = 0;
 try
 {
@@ -96,7 +98,7 @@ try
     {
         var boards = HidHost.Enumerate();
         Console.WriteLine($"iMouse 2.0 kernel. {boards.Count} WCH boards (VID_{HidHost.VendorId}).");
-        fleet.Start(cts.Token);
+        fleet.Start(cts.Token, options.HeldReceivers);
     });
 }
 catch (OperationCanceledException) when (cts.IsCancellationRequested) { }

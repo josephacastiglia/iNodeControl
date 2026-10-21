@@ -18,6 +18,9 @@ static class FleetShutdownTests
         yield return ("exhausted retries without a child do not invent a cleanup failure", ExhaustedRetries);
         yield return ("fleet shutdown releases its private frame pipe before returning", ReleasesFramePipe);
         yield return ("all failed children are reported to repeated shutdown callers", ReportsAllFailures);
+        yield return ("held receiver starts only when advertised, once", HeldStartsOnRelease);
+        yield return ("held receiver is never started by shutdown or a later release", HeldNeverStartsAfterShutdown);
+        yield return ("hold of an unconfigured board starts nothing", HoldRejectsUnknownBoard);
     }
     static void Check(bool value, string message) { if (!value) throw new Exception(message); }
     static TaskCompletionSource Signal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -219,6 +222,43 @@ static class FleetShutdownTests
         Check(failure?.InnerExceptions.Count == 2 && failure.ToString().Contains("iMouse2-fixture-0")
             && failure.ToString().Contains("iMouse2-fixture-1"), "One child failure hid the other");
         Check(b.IsFaulted && first.Disposals == 1 && second.Disposals == 1, "Repeated shutdown lost failure or repeated disposal");
+    }
+    static async Task HeldStartsOnRelease()
+    {
+        await using var first = new Child(); await using var second = new Child();
+        first.AllowCleanup.Set(); second.AllowCleanup.Set(); var fleet = Fleet(first, second);
+        string held = fleet.Sessions[1].Config.BoardPid;
+        try
+        {
+            fleet.Start(CancellationToken.None, [held.ToLowerInvariant()]);
+            await first.Started.Task.WaitAsync(TimeSpan.FromSeconds(2)); await Task.Delay(150);
+            Check(!second.Started.Task.IsCompleted && fleet.IsHeld(held) && !fleet.IsHeld(fleet.Sessions[0].Config.BoardPid),
+                "A held receiver started before release");
+            Check(fleet.Advertise("FFFF").ToString()!.Contains("code = 36"), "Unknown board was accepted");
+            Check(fleet.Advertise(held).ToString()!.Contains("started = True"), "Release did not report a start");
+            await second.Started.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            Check(!fleet.IsHeld(held) && fleet.Advertise(held).ToString()!.Contains("started = False"), "Second release restarted it");
+        }
+        finally { await fleet.ShutdownAsync(); }
+        Check(first.Disposals == 1 && second.Disposals == 1, "Released receiver missed cleanup or was started twice");
+    }
+    static async Task HeldNeverStartsAfterShutdown()
+    {
+        await using var child = new Child(); child.AllowCleanup.Set(); var fleet = Fleet(child);
+        string held = fleet.Sessions[0].Config.BoardPid;
+        fleet.Start(CancellationToken.None, [held]);
+        await fleet.ShutdownAsync().WaitAsync(TimeSpan.FromSeconds(2));
+        Check(fleet.Advertise(held).ToString()!.Contains("code = 42") && !fleet.IsHeld(held), "Release after shutdown was accepted");
+        await Task.Delay(100);
+        Check(!child.Started.Task.IsCompleted && child.Disposals == 0, "A held receiver was started");
+    }
+    static async Task HoldRejectsUnknownBoard()
+    {
+        await using var child = new Child(); child.AllowCleanup.Set(); var fleet = Fleet(child); bool refused = false;
+        try { fleet.Start(CancellationToken.None, ["FFFF"]); } catch (ArgumentException) { refused = true; }
+        finally { await fleet.ShutdownAsync(); }
+        Check(refused && !child.Started.Task.IsCompleted && fleet.Advertise(fleet.Sessions[0].Config.BoardPid).ToString()!.Contains("code = 42"),
+            "Invalid hold started or allowed a receiver");
     }
     sealed class Child : IReceiverHandle, IAsyncDisposable
     {

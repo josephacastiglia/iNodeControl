@@ -9,7 +9,9 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
     private sealed record RunningSession(Session Session, Task Frames, Task Supervisor);
     private readonly object _gate = new();
     private readonly List<RunningSession> _runs = [];
+    private readonly HashSet<string> _held = new(StringComparer.OrdinalIgnoreCase);
     private bool _started;
+    private CancellationToken _token;
     private Task? _shutdown;
 
     public static void Validate(IReadOnlyList<ReceiverConfig> configs,IReadOnlyList<Phone> phones)
@@ -44,31 +46,59 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
             var supervisor=executable.Length==0 ? null : new AirplaySupervisor(()=>
                 new AirplayProcess(executable,runtime,c.Name,c.Pipe,c.DeviceId,
                     Path.Combine(dataDir,"receiver-"+c.BoardPid+".log"),c.Port,c.Mac));
-            if(supervisor is not null) { frames.ReceiverPid=()=>supervisor.Info.Pid;frames.Receiver=()=>supervisor.Info; }
+            if(supervisor is not null) { frames.ReceiverPid=()=>supervisor.Info.Pid;frames.Receiver=()=>IsHeld(c.BoardPid) ? Held : supervisor.Info; }
             Sessions.Add(new(c,frames,supervisor));
         }
     }
-    public void Start(CancellationToken ct)
+    private static readonly ReceiverInfo Held = new("held", "Receiver not advertised yet; release it with /device/airplay/connect.", 0, 0);
+
+    // A held receiver is not started, so no phone can list it until it is released.
+    public bool IsHeld(string boardPid) { lock (_gate) return _held.Contains(boardPid); }
+
+    public void Start(CancellationToken ct, IReadOnlyCollection<string>? hold = null)
     {
         lock (_gate)
         {
             ObjectDisposedException.ThrowIf(_shutdown is not null, this);
             if (_started) throw new InvalidOperationException("A receiver fleet can start only once.");
+            if (hold?.Any(pid => !Sessions.Any(s => s.Config.BoardPid.Equals(pid, StringComparison.OrdinalIgnoreCase))) == true)
+                throw new ArgumentException("Every held receiver must be a configured board.");
             _started = true;
+            _token = ct;
             foreach (var session in Sessions)
-            {
-                // Retain every run before releasing the lifecycle lock. Native
-                // startup and cleanup must never hold this lock or a UI thread.
-                var frames = Task.Run(async () =>
-                {
-                    try { await session.Frames.RunAsync().ConfigureAwait(false); }
-                    catch (Exception ex) { Console.WriteLine("Frame pump failed for " + session.Config.Name + ": " + ex); throw; }
-                });
-                var supervisor = session.Supervisor is { } child
-                    ? Task.Run(() => child.RunAsync(ct)) : Task.CompletedTask;
-                _runs.Add(new(session, frames, supervisor));
-            }
+                if (hold?.Contains(session.Config.BoardPid, StringComparer.OrdinalIgnoreCase) == true) _held.Add(session.Config.BoardPid);
+                else Run(session);
         }
+    }
+
+    /// <summary>Starts one held receiver. A started receiver stays advertised until the kernel stops.</summary>
+    public object Advertise(string boardPid)
+    {
+        lock (_gate)
+        {
+            if (_shutdown is not null || !_started) return new { code = 42, message = "Receivers are not running." };
+            var session = Sessions.FirstOrDefault(s => s.Config.BoardPid.Equals(boardPid, StringComparison.OrdinalIgnoreCase));
+            if (session is null) return new { code = 36, message = "No receiver is configured for board " + boardPid + "." };
+            if (!_held.Remove(session.Config.BoardPid))
+                return new { code = 0, message = session.Config.Name + " is already advertised.", name = session.Config.Name, started = false };
+            Run(session);
+            return new { code = 0, message = session.Config.Name + " is now advertised.", name = session.Config.Name, started = true };
+        }
+    }
+
+    private void Run(Session session)
+    {
+        // Retain every run before releasing the lifecycle lock. Native
+        // startup and cleanup must never hold this lock or a UI thread.
+        var frames = Task.Run(async () =>
+        {
+            try { await session.Frames.RunAsync().ConfigureAwait(false); }
+            catch (Exception ex) { Console.WriteLine("Frame pump failed for " + session.Config.Name + ": " + ex); throw; }
+        });
+        var token = _token;
+        var supervisor = session.Supervisor is { } child
+            ? Task.Run(() => child.RunAsync(token)) : Task.CompletedTask;
+        _runs.Add(new(session, frames, supervisor));
     }
 
     public Task ShutdownAsync()
@@ -79,8 +109,11 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
             // Pre-start disposal still cancels each session and forbids Start.
             return _shutdown ??= Task.Run(async () =>
             {
-                var runs = _started ? _runs.ToArray() : Sessions.Select(s =>
-                    new RunningSession(s, Task.CompletedTask, Task.CompletedTask)).ToArray();
+                // Held and never-started sessions are still disposed: that stops
+                // their frame stores and forbids any later receiver start.
+                var runs = _runs.Concat(Sessions.Where(s => !_runs.Any(r => ReferenceEquals(r.Session, s))).Select(s =>
+                    new RunningSession(s, Task.CompletedTask, Task.CompletedTask))).ToArray();
+                _held.Clear();
                 var failures = await Task.WhenAll(runs.Select(StopAndJoinAsync)).ConfigureAwait(false);
                 var errors = failures.SelectMany(f => f).ToArray();
                 if (errors.Length != 0) throw new AggregateException("Receiver fleet shutdown was not fully confirmed.", errors);

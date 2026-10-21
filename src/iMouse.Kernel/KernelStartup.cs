@@ -12,7 +12,7 @@ internal sealed class KernelOptions
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
     private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid", "--precise-delay",
-        "--home-sequence", "--navigation-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hid-replies-pid", "--absolute-probe-pid"];
+        "--home-sequence", "--navigation-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hid-replies-pid", "--absolute-probe-pid", "--hold-receivers"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
     internal string? HardwareMode { get; private set; }
     internal string[] HardwareArguments { get; private set; } = [];
@@ -23,6 +23,7 @@ internal sealed class KernelOptions
     internal int PreciseDelayMs { get; private set; } = 7;
     internal string[] Allowed { get; private set; } = [];
     internal string[] ReplyBoards { get; private set; } = [];
+    internal string[] HeldReceivers { get; private set; } = [];
     internal string DataDir => Path.GetFullPath(Value("--data-dir", Path.Combine(AppContext.BaseDirectory, "data")));
     internal string Value(string name, string fallback = "") => _values.GetValueOrDefault(name, fallback);
     internal static bool BoardId(string? text) => text is not null && Regex.IsMatch(text, "^[0-9A-Fa-f]{4}$");
@@ -82,6 +83,13 @@ internal sealed class KernelOptions
             result.Allowed = ids.Split(',', StringSplitOptions.TrimEntries);
             if (result.Allowed.Any(id => !BoardId(id)) || result.Allowed.Distinct(StringComparer.OrdinalIgnoreCase).Count() != result.Allowed.Length)
                 throw new ArgumentException("--input-pid needs distinct four-digit hexadecimal board IDs, separated by commas.");
+        }
+        if (result._values.TryGetValue("--hold-receivers", out string? held))
+        {
+            result.HeldReceivers = held.Split(',', StringSplitOptions.TrimEntries);
+            if (result.HardwareMode is not null || result.HeldReceivers.Any(id => !BoardId(id))
+                || result.HeldReceivers.Distinct(StringComparer.OrdinalIgnoreCase).Count() != result.HeldReceivers.Length)
+                throw new ArgumentException("--hold-receivers needs distinct four-digit hexadecimal board IDs and normal service mode.");
         }
         _ = result.DataDir; // Check path syntax before any hardware work.
         if (result._values.TryGetValue("--hid-replies-pid", out string? replyIds))
@@ -147,6 +155,8 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
             receivers = [new(id, phone.pid, options.Value("--cast-name", "iMouse2-C24C"), options.Value("--frame-pipe", "iMouse2-C24C-frames"), 7110, "02:49:4D:32:C2:4C")];
         }
         ReceiverFleet.Validate(receivers, phones);
+        if (options.HeldReceivers.Any(pid => !receivers.Any(r => r.BoardPid.Equals(pid, StringComparison.OrdinalIgnoreCase))))
+            throw new ArgumentException("Every --hold-receivers board needs a configured receiver.");
         foreach (string pid in options.Allowed)
         {
             var receiver = receivers.SingleOrDefault(r => r.BoardPid.Equals(pid, StringComparison.OrdinalIgnoreCase));
@@ -176,7 +186,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         absolute_probe_board = Options.AbsoluteProbeBoard,
         navigation_sequence = Options.Value("--navigation-sequence", "vendor"),
         precise_delay_ms = Options.PreciseDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
-        receiver_count = Receivers.Count, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
+        receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
         bindings_complete = Receivers.All(r => r.DeviceId is not ("*" or "") && !r.DeviceId.StartsWith("unbound-", StringComparison.OrdinalIgnoreCase)),
         limitations = new[] { "Physical bindings, targeting and mirroring are not assessed.",
             "Available ports, URL permissions and dependency loading are not tested.",
