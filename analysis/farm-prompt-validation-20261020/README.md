@@ -447,8 +447,9 @@ when any of these happens:
 |---|---|
 | `test_farm_prompt_validation.py` | 33 tests: transports, trials, keyboard focus, the full-access reminder, faults, probe, promotion, equivalence with the runs, real 17 Oct frames, script parsing |
 | `test_farm_permission_prompts.py` | 13 tests, including the window-evidence rules and the reminder |
-| Complete suite `python -m unittest discover -s . -p "test_farm*.py"` | see `python-full.txt` |
+| Complete suite `python -m unittest discover -s . -p "test_farm*.py"` | **597 tests passed, none skipped**, on `c449d0d` (2,853 s at Windows Idle priority): `python-full.txt`. That is the 556 of the combined candidate plus 41 new. |
 | `dry_run.py` | every command-line step against the stand-in; `dry-run/dry-run.json` |
+| Trial merge onto the combined candidate's tip `800b695` | `git merge-tree`, no worktree: the only conflict is `.gitattributes`, where both sides appended one line; keep both. On the merged tree, the permission-prompt, validation and TikTok, X and Reel creation suites passed: 76 tests, none skipped (`merge-check-800b695.txt`). |
 | `Start-PromptWindow.ps1 -Part A -CheckOnly` and `-Part B -CheckOnly` | Passed for both parts on 20 Oct (04:21 and 04:23 UTC) against earlier preparations. For the final preparation (21 Oct, 03:56 UTC) both refused, because the coordinator's multi-phone rack was running (a kernel on 9916 and four receivers): `live/check-only-*.json`. That refusal is the guard working; nothing was started or stopped. |
 | `live/verify_preparation.py --part A` and `--part B` | Both ready at 03:56 UTC on 21 Oct: sources, kernel, receiver, mapping and the 25 protected files unchanged (`live/preparation-recheck-*.json`) |
 
@@ -471,6 +472,8 @@ combined-candidate checkout into this worktree. Without them those suites skip.
   runs use it there.
 - **The preparation is bound to this worktree's paths.** Prepare again
   (`prepare_prompt_window.py`) before running from another checkout.
+- **This branch is cut from `71b3b35`.** The combined candidate has since moved to `800b695` (live-window fixes, multi-phone
+  rack). The trial merge above passed; a real merge still needs the `.gitattributes` line kept and the window re-prepared.
 
 ## Window log
 
