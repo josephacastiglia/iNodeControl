@@ -1,11 +1,12 @@
 """Prompt-validation window steps against a synthetic C24C stand-in. No socket, phone or service.
 
 The fixture draws iOS-style alerts, a pointer and a Full Keyboard Access highlight. It tests
-the protocol and the guards (declining button only, one method once, no replay, lease cleanup,
+the protocol and the guards (safe answer only, one method once, no replay, lease cleanup,
 evidence wiring), not how iOS treats any input.
 """
 import json
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import unittest
@@ -85,7 +86,7 @@ class TrialTests(Steps):
         self.assertEqual(('completed', 'ignored', 'confirmed'), (record['state'], record['result'], record['cleanup']))
         self.assertEqual([('/mouse/reset', {}), ('/mouse/move', dict(x=168, y=809)), ('/mouse/click', dict(x=168, y=809, button=1))],
                          semantic(phone))
-        self.assertEqual("Don't Allow", record['prompt']['declining']); self.assertIsNone(phone.answered)
+        self.assertEqual("Don't Allow", record['prompt']['answer']); self.assertIsNone(phone.answered)
         self.assertEqual('release', phone.calls[-1]); self.assertFalse(phone.owned)
         self.assertTrue((step.folder/'record.json').is_file())
         self.assertTrue(all((step.folder/o['frame']).is_file() for o in record['observations'] if o.get('frame')))
@@ -95,31 +96,38 @@ class TrialTests(Steps):
         self.assertEqual(('dismissed', "Don't Allow"), (record['result'], phone.answered))
         self.assertEqual([('/mouse/reset', {}), ('/mouse/move', dict(x=168, y=809)), ('/mouse/down', dict(button=1)),
                           ('/mouse/up', dict(button=1))], semantic(phone))
+        self.assertEqual(['long-press-aim', 'long-press-held', 'long-press-immediate'], [f['purpose'] for f in record['frames']])
         record, phone, _ = self.trial('keyboard_escape')
         self.assertEqual('ignored', record['result'])
         self.assertEqual([('/mouse/reset', {}), ('/key/sendkey', dict(fn_key='Escape'))], semantic(phone))
 
-    def test_long_press_holds_like_the_run(self):
-        pauses = []
-        phone = PromptPhone(answers={'long_press'})
-        original = phone.pause
-        def pause(seconds): pauses.append((len(phone.calls), seconds)); original(seconds)
-        phone.pause = pause
-        step = self.step(phone); step.pause = pause
-        step.trial('long_press')
-        down = next(i for i, c in enumerate(phone.calls) if c[0] == '/mouse/down')
-        self.assertIn((down, .6), pauses); self.assertIn((down + 1, 1.1), pauses)
+    def test_long_press_and_tap_keep_the_runs_timing_around_their_evidence_frames(self):
+        for method, gaps in (('long_press', (('position', '/mouse/down', .6), ('/mouse/down', '/mouse/up', 1.1))),
+                             ('pointer_tap', (('position', '/mouse/click', .6),))):
+            with self.subTest(method=method):
+                phone = PromptPhone(); times = {}
+                original = phone.send
+                def send(phone_id, token, fun, **data):
+                    key = 'position' if fun == '/mouse/move' and (data['x'], data['y']) not in pv.CHALLENGES else fun
+                    times.setdefault(key, phone.now)
+                    return original(phone_id, token, fun, **data)
+                phone.send = send
+                self.step(phone).trial(method)
+                for start, end, seconds in gaps:
+                    self.assertGreaterEqual(times[end] - times[start], seconds)
+                    self.assertLess(times[end] - times[start], seconds + .1)
 
     def test_keyboard_focus_presses_space_only_on_the_verified_declining_focus(self):
         for style in ('fill', 'ring'):
             with self.subTest(style=style):
                 record, phone, _ = self.trial('keyboard_focus', answers={'keyboard_focus'}, focus_style=style)
-                self.assertEqual(('dismissed', "Don't Allow", 'space_sent_on_declining_focus'),
+                self.assertEqual(('dismissed', "Don't Allow", 'space_sent_on_safe_answer'),
                                  (record['result'], phone.answered, record['focusResult']))
                 keys = [c[1] for c in phone.calls if isinstance(c, tuple) and c[0] == '/key/sendkey']
                 self.assertEqual([dict(fn_key='Tab'), dict(fn_key='Tab'), dict(key=' ')], keys)
+                self.assertEqual('space-immediate', record['frames'][-1]['purpose'])
                 self.assertEqual([('focused', 'Allow'), ('focused', "Don't Allow")], [(s['state'], s['button']) for s in record['focusPath']])
-                space = next(c for c in record['commands'] if c['purpose'] == 'activate-declining-focus')
+                space = next(c for c in record['commands'] if c['purpose'] == 'activate-safe-answer')
                 self.assertLessEqual(space['decisionChecks'][-1]['ageMs'], pv.FOCUS_MAX_AGE_MS)
 
     def test_keyboard_focus_on_a_stacked_location_prompt(self):
@@ -134,8 +142,8 @@ class TrialTests(Steps):
     def test_keyboard_focus_never_sends_space_without_a_verified_declining_focus(self):
         cases = [
             (dict(fka=False), 'no_visible_focus', 'ignored'),
-            (dict(focus_order=('Allow',)), 'declining_never_focused', 'declining_never_focused'),
-            (dict(focus_order=('body', 'Allow')), 'declining_never_focused', 'declining_never_focused'),
+            (dict(focus_order=('Allow',)), 'answer_never_focused', 'answer_never_focused'),
+            (dict(focus_order=('body', 'Allow')), 'answer_never_focused', 'answer_never_focused'),
         ]
         for options, focus, result in cases:
             with self.subTest(options=options):
@@ -146,7 +154,7 @@ class TrialTests(Steps):
 
     def test_a_highlight_left_from_an_earlier_trial_stops_as_ambiguous(self):
         phone = PromptPhone(answers={'keyboard_focus'}, focus_auto_hide=None)
-        self.assertEqual('declining_focused_not_activated', self.step(phone).trial('keyboard_focus', activate=False)['result'])
+        self.assertEqual('answer_focused_not_activated', self.step(phone).trial('keyboard_focus', activate=False)['result'])
         second = self.step(phone).trial('keyboard_focus')
         self.assertEqual('stopped', second['result']); self.assertIn('ambiguous', second['error']); self.assertIsNone(phone.answered)
         # With C24C's 1 s Auto-Hide the highlight is gone before the next trial's unfocused frame.
@@ -157,7 +165,7 @@ class TrialTests(Steps):
 
     def test_focus_only_run_finds_the_focus_and_stops(self):
         record, phone, _ = self.trial('keyboard_focus', activate=False, answers={'keyboard_focus'})
-        self.assertEqual('declining_focused_not_activated', record['result'])
+        self.assertEqual('answer_focused_not_activated', record['result'])
         self.assertNotIn(dict(key=' '), [c[1] for c in phone.calls if isinstance(c, tuple)]); self.assertIsNone(phone.answered)
 
     def test_stale_focus_frame_sends_no_space(self):
@@ -185,12 +193,33 @@ class TrialTests(Steps):
     def test_a_pointer_resting_on_the_answer_is_parked_before_the_target_is_read(self):
         # The resting pointer hides "Don't Allow" from OCR (17 Oct); the family is still recognized.
         record, phone, _ = self.trial('long_press', answers={'long_press'}, pointer=(168, 809))
-        self.assertEqual(('local_network', 'YouTube', "Don't Allow"), tuple(record['precheck'][k] for k in ('kind', 'app', 'declining')))
+        self.assertEqual(('local_network', 'YouTube', "Don't Allow"), tuple(record['precheck'][k] for k in ('kind', 'app', 'answer')))
         self.assertEqual(('/mouse/reset', {}), semantic(phone)[0])
         self.assertEqual(('dismissed', "Don't Allow", [168, 809]), (record['result'], phone.answered, list(record['prompt']['target'])))
         observed = PromptPhone(pointer=(168, 809)); summary = self.step(observed).observe()
         self.assertEqual(('local_network', None), (summary['detected']['kind'], summary['prompt']))
         self.assertIn('not read', summary['promptReason']); self.assertEqual([], observed.calls)
+
+    def test_full_access_reminder_keeps_the_setting_and_never_gets_escape(self):
+        record, phone, _ = self.trial('pointer_tap', prompt='photos_reminder', answers={'pointer_tap'})
+        self.assertEqual(('photos_reminder', 'Allow Full Access', 'stacked'),
+                         (record['prompt']['kind'], record['prompt']['answer'], record['prompt']['layout']))
+        self.assertEqual(('dismissed', 'Allow Full Access'), (record['result'], phone.answered))
+        record, phone, _ = self.trial('keyboard_escape', prompt='photos_reminder', answers={'keyboard_escape'})
+        self.assertEqual('stopped', record['result']); self.assertIn("cancel action", record['error'])
+        self.assertEqual([], [c for c in phone.calls if isinstance(c, tuple)]); self.assertIsNone(phone.answered)
+        record, phone, _ = self.trial('keyboard_focus', prompt='photos_reminder', answers={'keyboard_focus'},
+                                      focus_order=('Limit Access', 'Allow Full Access'))
+        self.assertEqual(('dismissed', 'Allow Full Access'), (record['result'], phone.answered))
+
+    def test_a_click_the_alert_shows_but_ignores_is_one_try_with_evidence(self):
+        # 20 Oct, rack slot 16: the click showed on the alert (highlight, pressed dot) but it did not act.
+        record, phone, step = self.trial('pointer_tap', prompt='photos_reminder')
+        self.assertEqual(('completed', 'ignored', None), (record['state'], record['result'], phone.answered))
+        self.assertEqual(1, sum(1 for c in phone.calls if isinstance(c, tuple) and c[0] == '/mouse/click'))
+        self.assertEqual(['pointer-tap-aim', 'pointer-tap-immediate'], [f['purpose'] for f in record['frames']])
+        self.assertTrue(all((step.folder/f['name']).is_file() for f in record['frames']))
+        self.assertTrue(record['observations'][-1]['frame'].endswith('prompt_after.png'))
 
     def test_lost_reply_stays_uncertain_and_nothing_follows(self):
         record, phone, _ = self.trial('long_press', answers={'long_press'}, lose_reply=lambda fun, data: fun == '/mouse/up')
@@ -229,10 +258,10 @@ class TrialTests(Steps):
         with self.assertRaises(InspectionStopped): pv.ValidationStep(step.folder, phone, store, 'a'*64, 'fixture-uid')
 
     def test_observe_is_read_only(self):
-        for name in ('local_network', 'paste', 'location'):
+        for name in ('local_network', 'paste', 'location', 'photos_reminder'):
             with self.subTest(prompt=name):
                 phone = PromptPhone(name); record = self.step(phone).observe()
-                self.assertEqual(prompts.DECLINING[name], record['prompt']['declining'])
+                self.assertEqual(prompts.SAFE_ANSWER[name], record['prompt']['answer'])
                 self.assertEqual([], phone.calls)
 
 
@@ -277,15 +306,18 @@ class PromotionTests(Steps):
             path.parent.mkdir(parents=True); path.write_text(json.dumps(summary), encoding='utf-8')
             return pv.promotion(path, root)
 
-    def test_only_a_confirmed_declined_dismissal_validates(self):
+    def test_only_a_dismissal_confirmed_as_the_safe_answer_validates(self):
         summary = self.summary(answers={'long_press'})
         self.assertNotIn('OCR', json.dumps(summary)); self.assertNotIn('Phone app', json.dumps(summary))
         entry, problems = self.promote(summary)
-        self.assertIn("The operator's confirmation of the declined answer is missing.", problems)
-        for confirmation in (dict(declined=False, observed='Allow was chosen'), dict(declined=None, observed='not sure')):
+        self.assertIn("The operator's confirmation of the safe answer is missing.", problems)
+        for confirmation in (dict(safeAnswer=False, observed='Allow was chosen'), dict(safeAnswer=None, observed='not sure')):
             self.assertTrue(self.promote(summary, confirmation)[1])
-        entry, problems = self.promote(summary, dict(declined=True, observed='Settings shows Local Network off for YouTube'))
+        entry, problems = self.promote(summary, dict(safeAnswer=True, observed='Settings shows Local Network off for YouTube'))
         self.assertEqual([], problems)
+        reminder = self.summary('pointer_tap', prompt='photos_reminder', answers={'pointer_tap'})
+        kept, problems = self.promote(reminder, dict(safeAnswer=True, observed='Photos access for Instagram still Full'))
+        self.assertEqual(([], 'Allow Full Access', 'validated'), (problems, kept['answer'], kept['state']))
         self.assertEqual(('validated', 'local_network', 'long_press', "Don't Allow"), (entry['state'], entry['family'], entry['method'], entry['answer']))
         with patch.object(prompts, 'WINDOW_EVIDENCE', (entry,)):
             decision = prompts.plan(prompts.detect(dict(lines=[dict(text=t['text'], words=t['words']) for t in PromptPhone().render()[1]['lines']])))
@@ -301,11 +333,11 @@ class PromotionTests(Steps):
 
     def test_focus_only_uncertain_and_fixture_results_never_promote(self):
         self.assertTrue(self.promote(self.summary('keyboard_focus', activate=False, answers={'keyboard_focus'}),
-                                     dict(declined=True, observed='x'))[1])
+                                     dict(safeAnswer=True, observed='x'))[1])
         lost = self.summary(answers={'long_press'}, lose_reply=lambda fun, data: fun == '/mouse/up')
-        self.assertTrue(self.promote(lost, dict(declined=True, observed='x'))[1])
+        self.assertTrue(self.promote(lost, dict(safeAnswer=True, observed='x'))[1])
         fixture = dict(self.summary(answers={'long_press'}), recordSource='offline_fixture')
-        self.assertIn('Only a phone trial can become evidence.', self.promote(fixture, dict(declined=True, observed='x'))[1])
+        self.assertIn('Only a phone trial can become evidence.', self.promote(fixture, dict(safeAnswer=True, observed='x'))[1])
 
     def test_command_line_confirm_and_promote(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -322,13 +354,13 @@ class PromotionTests(Steps):
                 with self.assertRaises(SystemExit):   # Never replayed.
                     pv.main(['trial', *argv, '--part', 'A', '--method', 'long_press'], kernel_factory=lambda probe: phone,
                             ocr=FixtureOcr(phone), clock=phone.clock, monotonic=phone.clock, pause=phone.pause)
-                self.assertEqual(0, pv.main(['confirm', *argv, '--declined', '--observed', 'Local Network: YouTube off'], clock=phone.clock))
-                with self.assertRaises(SystemExit): pv.main(['confirm', *argv, '--declined', '--observed', 'again'])
+                self.assertEqual(0, pv.main(['confirm', *argv, '--safe', '--observed', 'Local Network: YouTube off'], clock=phone.clock))
+                with self.assertRaises(SystemExit): pv.main(['confirm', *argv, '--safe', '--observed', 'again'])
                 self.assertEqual(2, pv.main(['promote', *argv]))      # A fixture is never phone evidence.
                 with self.assertRaises(SystemExit):
                     pv.main(['probe', *argv[:2], '--label', 'b1-probe', '--part', 'A'], kernel_factory=lambda probe: phone)
             summary = json.loads((root/prompts.WINDOW_RECORD/'a3-long-press.json').read_text(encoding='utf-8'))
-            self.assertEqual(('dismissed', True), (summary['result'], summary['confirmation']['declined']))
+            self.assertEqual(('dismissed', True), (summary['result'], summary['confirmation']['safeAnswer']))
             self.assertTrue((root/'run/trials/a3-long-press/record.json').is_file())
 
 
@@ -342,13 +374,19 @@ class EquivalenceTests(unittest.TestCase):
         self.assertIn("self.step(label, 'permission_prompt', point=target, settle=True)", answer)
         self.assertIn("self.step(label, 'permission_prompt', point=target, hold=True)", answer)
         self.assertIn("self.step(label, 'permission_prompt', key='Escape')", answer)
-        for sequence in ("self.command('/mouse/move',basis=value,purpose=label+'-position',x=x,y=y)",
-                         'self.pause(.6)', "self.command('/mouse/down',purpose=label+'-press',button=1)", 'self.pause(1.1)',
-                         "self.command('/mouse/up',purpose=label+'-release',button=1)",
-                         "self.command('/mouse/click',purpose=label,x=x,y=y,button=1)",
-                         "self.command('/mouse/move',purpose='park_after_answered_action',x=480,y=300)", 'self.pause(.7)',
-                         "self.command('/key/sendkey',basis=value,purpose=label,fn_key=key)"):
-            self.assertIn(sequence, step)
+        # The bound first command may also be a bound_command that can reconfirm an aged decision
+        # (combined candidate 800b695); the phone input and its timing are the same either way.
+        bound = r"self\.(?:bound_)?command\('{fun}',basis=value,(?:frame=frame,role=role,)?purpose={purpose}"
+        position = bound.format(fun='/mouse/move', purpose=r"label\+'-position',x=x,y=y\)")
+        sequences = {
+            'hold': position + r".*?self\.pause\(\.6\).*?self\.command\('/mouse/down',purpose=label\+'-press',button=1\)"
+                    r".*?self\.pause\(1\.1\).*?self\.command\('/mouse/up',purpose=label\+'-release',button=1\)",
+            'settled tap': position + r"\s*self\.pause\(\.6\)\s*self\.command\('/mouse/click',purpose=label,x=x,y=y,button=1\)",
+            'escape': bound.format(fun='/key/sendkey', purpose=r"label,fn_key=key\)"),
+            'park': r"self\.command\('/mouse/move',purpose='park_after_answered_action',x=480,y=300\)\s*self\.pause\(\.7\)",
+        }
+        for name, pattern in sequences.items():
+            with self.subTest(name): self.assertRegex(step, re.compile(pattern, re.S))
         self.assertEqual((.6, 1.1, .6, .7, (480, 300)), (*pv.HOLD, pv.SETTLED_TAP, pv.AFTER_ANSWER, pv.PARK))
 
 
@@ -367,7 +405,7 @@ class RetainedPromptTests(unittest.TestCase):
         for name in ('132-youtube-loaded__after', '133-youtube-decline-network__before', '135-youtube-cancel-optional-prompt__after'):
             with self.subTest(name):
                 plan = pv.target_plan(self.text(name))
-                self.assertEqual(('local_network', 'YouTube', "Don't Allow", 'row'), (plan['kind'], plan['app'], plan['declining'], plan['layout']))
+                self.assertEqual(('local_network', 'YouTube', "Don't Allow", 'row'), (plan['kind'], plan['app'], plan['answer'], plan['layout']))
                 x, y = plan['target']
                 self.assertTrue(88 < x < 250 and 782 < y < 835, plan['target'])   # The drawn button, not Allow.
         for name in ('133-youtube-decline-network__pointer', '134-youtube-permission-settled__after', '136-youtube-after-operator__after'):

@@ -22,6 +22,11 @@ PROMPTS = {
     'paste': dict(app='TikTok', box=(88, 420, 412, 640),
                   lines=('"TikTok" would like to paste from', '"Notes"', 'Do you want to allow this?'), top=455,
                   buttons=(("Don't Allow Paste", (88, 588, 250, 640)), ('Allow Paste', (250, 588, 412, 640)))),
+    # iOS's reminder about full photo-library access the app already has (wording from 20 Oct).
+    'photos_reminder': dict(app='Instagram', box=(88, 380, 412, 800),
+                            lines=('"Instagram" has been able to access', 'your entire photo library.', 'Do you want to continue to',
+                                   'allow full access?'), top=415,
+                            buttons=(('Limit Access', (88, 694, 412, 747)), ('Allow Full Access', (88, 747, 412, 800)))),
     'location': dict(app='Maps', box=(88, 360, 412, 840),
                      lines=('Allow "Maps" to use your', 'location?'), top=395, extras=(('Precise: On', (165, 470)),),
                      buttons=(('Allow Once', (88, 680, 412, 733)), ('Allow While Using App', (88, 733, 412, 786)),
@@ -168,7 +173,7 @@ class PromptPhone:
             if self.pressed and 'long_press' in self.answers: self.dismiss(self.pressed)
             self.pressed = None
         elif fun == '/key/sendkey' and data == {'fn_key': 'Escape'}:
-            if self.visible and 'keyboard_escape' in self.answers: self.dismiss(self.declining())
+            if self.visible and 'keyboard_escape' in self.answers: self.dismiss(self.cancel_answer())
         elif fun == '/key/sendkey' and data == {'fn_key': 'Tab'}:
             if self.visible and self.fka:
                 self.focus = self.focus_order[self.tabs % len(self.focus_order)]; self.tabs += 1
@@ -178,7 +183,7 @@ class PromptPhone:
                 self.dismiss(self.focus)
         else: self.flag(fun, data)
 
-    def declining(self):
+    def cancel_answer(self):
         labels = [label for label, _ in self.prompt['buttons']]
         return next(label for label in ("Don't Allow Paste", "Don't Allow", 'Ask App Not to Track') if label in labels)
 

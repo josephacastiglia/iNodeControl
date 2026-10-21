@@ -1,6 +1,6 @@
 {
   "label": "a1-observe",
-  "trial": "8c19256b-fcb9-4cd9-9f60-926152a9467f",
+  "trial": "981b7ec3-0783-4dec-9a8e-3fc41bae8c39",
   "date": "2026-10-20",
   "phone": "C24C",
   "source": "c24c_prompt_validation_window",
@@ -35,9 +35,10 @@
   "detected": {
     "kind": "paste",
     "app": "TikTok",
-    "declining": "Don't Allow Paste"
+    "answer": "Don't Allow Paste"
   },
   "precheck": null,
+  "evidenceGaps": null,
   "commands": [],
   "commandsAnswered": false,
   "focusPath": [],

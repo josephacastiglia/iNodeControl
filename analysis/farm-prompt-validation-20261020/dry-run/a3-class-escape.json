@@ -1,6 +1,6 @@
 {
   "label": "a3-class-escape",
-  "trial": "ddd17f5a-c8d2-4e0a-8a16-03b538d3bbdb",
+  "trial": "07003902-968c-40d5-a8fe-6bf52841c247",
   "date": "2026-10-20",
   "phone": "C24C",
   "source": "c24c_prompt_validation_window",
@@ -36,8 +36,9 @@
   "precheck": {
     "kind": "paste",
     "app": "TikTok",
-    "declining": "Don't Allow Paste"
+    "answer": "Don't Allow Paste"
   },
+  "evidenceGaps": null,
   "commands": [
     {
       "fun": "/mouse/reset",
@@ -92,6 +93,12 @@
   "beforeFrameSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653",
   "afterFrameSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd",
   "frames": [
+    {
+      "name": "01-escape-immediate.png",
+      "pngSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653",
+      "sequence": 107,
+      "ageUpperBoundMs": 293.99992752075195
+    },
     {
       "name": "obs-01-precheck.png",
       "pngSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd"

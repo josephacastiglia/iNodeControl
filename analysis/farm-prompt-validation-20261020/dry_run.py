@@ -51,7 +51,7 @@ def main():
                                monotonic=device.clock, pause=device.pause)
             results.append(dict(label=label, exitCode=code, printed=json.loads(output.getvalue())))
         for label, argv in PART_A: run(label, argv, phone)
-        for label, argv in (('a6-keyboard-focus', ['confirm', '--declined', '--observed', 'Fixture: the field stayed empty']),
+        for label, argv in (('a6-keyboard-focus', ['confirm', '--safe', '--observed', 'Fixture: the field stayed empty']),
                             ('a6-keyboard-focus', ['promote'])):
             run(label, argv, phone)
         # Part B: the move-only probe on a blank page.

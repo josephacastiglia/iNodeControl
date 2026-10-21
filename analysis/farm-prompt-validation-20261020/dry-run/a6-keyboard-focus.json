@@ -1,6 +1,6 @@
 {
   "label": "a6-keyboard-focus",
-  "trial": "e970e00c-abd0-46ef-b6ab-2ce7eb288e64",
+  "trial": "15e4c920-b898-4bcd-bbef-64cfc0c7f572",
   "date": "2026-10-20",
   "phone": "C24C",
   "source": "c24c_prompt_validation_window",
@@ -36,8 +36,9 @@
   "precheck": {
     "kind": "paste",
     "app": "TikTok",
-    "declining": "Don't Allow Paste"
+    "answer": "Don't Allow Paste"
   },
+  "evidenceGaps": null,
   "commands": [
     {
       "fun": "/mouse/reset",
@@ -75,7 +76,7 @@
       "data": {
         "key": " "
       },
-      "purpose": "activate-declining-focus",
+      "purpose": "activate-safe-answer",
       "state": "answered"
     },
     {
@@ -124,7 +125,7 @@
       "button": "Don't Allow Paste"
     }
   ],
-  "focusResult": "space_sent_on_declining_focus",
+  "focusResult": "space_sent_on_safe_answer",
   "probePoints": null,
   "probe": null,
   "repliesBefore": null,
@@ -146,6 +147,12 @@
       "ageUpperBoundMs": 154.99992752075195
     },
     {
+      "name": "03-space-immediate.png",
+      "pngSha256": "82538467476a0b6c07d9ac5bac0a4fd07297dae7162aeb7b62d28227ef88cac8",
+      "sequence": 124,
+      "ageUpperBoundMs": 153.99992752075195
+    },
+    {
       "name": "obs-01-precheck.png",
       "pngSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd"
     },
@@ -163,8 +170,8 @@
   "messaging": false,
   "desktopControl": false,
   "confirmation": {
-    "declined": true,
+    "safeAnswer": true,
     "observed": "Fixture: the field stayed empty",
-    "utc": "2026-10-20T00:00:17.980972+00:00"
+    "utc": "2026-10-20T00:00:18.607970+00:00"
   }
 }

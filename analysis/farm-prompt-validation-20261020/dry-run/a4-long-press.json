@@ -1,6 +1,6 @@
 {
   "label": "a4-long-press",
-  "trial": "f684e2cd-8a52-4469-9c72-28d632effc9d",
+  "trial": "224b181f-04d6-4fad-8691-e17b8a9f6ff1",
   "date": "2026-10-20",
   "phone": "C24C",
   "source": "c24c_prompt_validation_window",
@@ -36,8 +36,9 @@
   "precheck": {
     "kind": "paste",
     "app": "TikTok",
-    "declining": "Don't Allow Paste"
+    "answer": "Don't Allow Paste"
   },
+  "evidenceGaps": null,
   "commands": [
     {
       "fun": "/mouse/reset",
@@ -109,6 +110,24 @@
   "beforeFrameSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653",
   "afterFrameSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd",
   "frames": [
+    {
+      "name": "01-long-press-aim.png",
+      "pngSha256": "17b8900bc582a7c7bb1958442a2028dba944d5fd15a04d7f4a99260dcedb1af0",
+      "sequence": 111,
+      "ageUpperBoundMs": 304.99992752075195
+    },
+    {
+      "name": "02-long-press-held.png",
+      "pngSha256": "17b8900bc582a7c7bb1958442a2028dba944d5fd15a04d7f4a99260dcedb1af0",
+      "sequence": 111,
+      "ageUpperBoundMs": 1158.999927520752
+    },
+    {
+      "name": "03-long-press-immediate.png",
+      "pngSha256": "17b8900bc582a7c7bb1958442a2028dba944d5fd15a04d7f4a99260dcedb1af0",
+      "sequence": 111,
+      "ageUpperBoundMs": 1861.999927520752
+    },
     {
       "name": "obs-01-precheck.png",
       "pngSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd"

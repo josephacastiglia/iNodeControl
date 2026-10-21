@@ -7,7 +7,7 @@ param(
     [ValidateSet('A','B')][string]$Part,
     [ValidateSet('pointer_tap','keyboard_escape','long_press','keyboard_focus')][string]$Method,
     [switch]$NoActivate,
-    [ValidateSet('declined','not-declined','unclear')][string]$Answer,
+    [ValidateSet('safe','other','unclear')][string]$Answer,
     [string]$Observed
 )
 $ErrorActionPreference='Stop'

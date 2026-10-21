@@ -10,7 +10,9 @@ operator chose Don't Allow by hand.
 
 A method becomes validated only through WINDOW_EVIDENCE: results that
 tools/farm_prompt_validation.py recorded in a C24C validation window, each with
-the operator's confirmation of the declined answer. Nothing is validated by default.
+the operator's confirmation of the safe answer. Nothing is validated by default.
+Evidence is per phone: on 20 Oct the same move-then-click answered a prompt on one
+rack phone and was ignored on another.
 """
 import re
 import uuid
@@ -29,14 +31,23 @@ POLICY = {
     'photos': 'Allow Full Access',
     # Needed only directly after the run's own Paste.
     'paste': 'Allow Paste',
+    # iOS's reminder about full photo-library access the app already has. Allow Full Access
+    # keeps the current setting; Limit Access would change it and open the photo selection.
+    'photos_reminder': 'Allow Full Access',
     'unknown_permission': None,
 }
-# The declining button of each family: the only button a validation window ever targets.
-DECLINING = {
+# The safe answer of each family: the only button a validation window ever targets. It grants
+# nothing the app does not already have: the declining button, or for the full-access
+# reminder, keeping the current setting.
+SAFE_ANSWER = {
     'local_network': "Don't Allow", 'notifications': "Don't Allow", 'tracking': 'Ask App Not to Track',
     'camera': "Don't Allow", 'microphone': "Don't Allow", 'location': "Don't Allow", 'contacts': "Don't Allow",
-    'bluetooth': "Don't Allow", 'photos': "Don't Allow", 'paste': "Don't Allow Paste",
+    'bluetooth': "Don't Allow", 'photos': "Don't Allow", 'paste': "Don't Allow Paste", 'photos_reminder': 'Allow Full Access',
 }
+# Answers an alert's cancel action gives. Escape reaches only that action, so it is used only for these.
+CANCEL_ANSWERS = ("Don't Allow", 'Ask App Not to Track', "Don't Allow Paste")
+# Families whose policy answer changes nothing, so it is answered even for another app.
+ALWAYS_SAFE = ('local_network', 'notifications', 'tracking', 'photos_reminder')
 
 # Input methods, in the order a validation window tries them. Each records its
 # evidence per prompt family. Only 'validated' entries are ever used by a run.
@@ -64,6 +75,8 @@ FAMILIES = (
     ('tracking', re.compile(r'track your activity', re.I)),
     ('notifications', re.compile(r'send you notifications', re.I)),
     ('paste', re.compile(r'would like to paste from|wants to paste from', re.I)),
+    # Before 'photos': the reminder about existing full access, never a first request.
+    ('photos_reminder', re.compile(r'has been able to access your entire photo library|continue to allow full access', re.I)),
     ('photos', re.compile(r'access (to )?your (photos|photo library)', re.I)),
     ('camera', re.compile(r'access (to )?(the|your) camera', re.I)),
     ('microphone', re.compile(r'access (to )?(the|your) microphone', re.I)),
@@ -71,14 +84,15 @@ FAMILIES = (
     ('contacts', re.compile(r'access (to )?your contacts', re.I)),
     ('bluetooth', re.compile(r'use bluetooth|find and connect to bluetooth', re.I)),
 )
-BUTTONS = ("Don't Allow", 'Allow', 'Allow Full Access', 'Limit Access...', 'Ask App Not to Track', 'Allow Paste',
+BUTTONS = ("Don't Allow", 'Allow', 'Allow Full Access', 'Limit Access...', 'Limit Access', 'Ask App Not to Track', 'Allow Paste',
            "Don't Allow Paste", 'Allow Once', 'Allow While Using App', 'OK')
 APP = re.compile(r'(?:allow\s+' + _QUOTE + r'(?P<a>[^"“”‘’\']{1,40})' + _QUOTE + r'|'
-                 + _QUOTE + r'(?P<b>[^"“”‘’\']{1,40})' + _QUOTE + r'\s+(?:would like|wants))', re.I)
+                 + _QUOTE + r'(?P<b>[^"“”‘’\']{1,40})' + _QUOTE + r'\s+(?:would like|wants)|'
+                 + _QUOTE + r'(?P<c>[^"“”‘’\']{1,40})' + _QUOTE + r'\s+has been able)', re.I)
 
 
 def _norm(value):
-    return ' '.join(str(value).replace('’', "'").replace('‘', "'").split())
+    return ' '.join(str(value).replace('’', "'").replace('‘', "'").replace('…', '...').split())
 
 
 def _rows(text):
@@ -107,7 +121,7 @@ def detect(text):
     if kind is None and not permission_like: return None
     if kind is None: kind = 'unknown_permission'
     match = APP.search(joined)
-    app = (match.group('a') or match.group('b')).strip() if match else None
+    app = (match.group('a') or match.group('b') or match.group('c')).strip() if match else None
     return dict(kind=kind, app=app, buttons=buttons, ambiguous=False, joined=joined)
 
 
@@ -127,12 +141,12 @@ def window_problems(entry):
     if not isinstance(entry, dict): return ['A window entry must be a record.']
     problems = []
     family, method, state = entry.get('family'), entry.get('method'), entry.get('state')
-    if family not in DECLINING: problems.append('The prompt family is unknown or has no declining button.')
+    if family not in SAFE_ANSWER: problems.append('The prompt family is unknown or has no safe answer.')
     if method not in METHODS: problems.append('The input method is unknown.')
     if state not in ('validated', 'ignored'): problems.append('A window result is either validated or ignored.')
     if entry.get('source') != WINDOW_SOURCE or entry.get('phone') != 'C24C': problems.append('This is not C24C validation-window evidence.')
-    if family in DECLINING and entry.get('answer') != DECLINING[family]:
-        problems.append('Validation only ever targets the declining button.')
+    if family in SAFE_ANSWER and entry.get('answer') != SAFE_ANSWER[family]:
+        problems.append('Validation only ever targets the safe answer.')
     if not re.fullmatch(r'2\d{3}-\d{2}-\d{2}', str(entry.get('date'))): problems.append('The window date is missing.')
     try: uuid.UUID(str(entry.get('trial')))
     except ValueError: problems.append('The trial identity is missing.')
@@ -145,8 +159,8 @@ def window_problems(entry):
     if entry.get('commandsAnswered') is not True: problems.append('A trial command has no answered reply.')
     if entry.get('outcome') != {'validated': 'dismissed', 'ignored': 'ignored'}.get(state):
         problems.append('The recorded outcome does not support this state.')
-    if state == 'validated' and (entry.get('declinedConfirmed') is not True or not str(entry.get('confirmation') or '').strip()):
-        problems.append("The operator's confirmation of the declined answer is missing.")
+    if state == 'validated' and (entry.get('safeAnswerConfirmed') is not True or not str(entry.get('confirmation') or '').strip()):
+        problems.append("The operator's confirmation of the safe answer is missing.")
     return problems
 
 
@@ -178,16 +192,18 @@ def plan(prompt, *, app_expected=None, needs_media_picker=False, after_own_paste
     answer = POLICY.get(kind)
     if kind == 'photos' and not needs_media_picker: answer = None
     if kind == 'paste' and not after_own_paste: answer = None
-    if app_expected and app and app.casefold() != app_expected.casefold() and kind not in ('local_network', 'notifications', 'tracking'):
+    if app_expected and app and app.casefold() != app_expected.casefold() and kind not in ALWAYS_SAFE:
         answer = None   # A prompt for another app during this run is not ours to answer.
     reason = None
+    if kind == 'photos_reminder' and "Don't Allow" in prompt['buttons']:
+        answer, reason = None, "A full-access reminder has no Don't Allow; this alert needs review."
     if prompt.get('ambiguous'): answer, reason = None, 'Two identical buttons were read.'
     if answer is not None and answer not in prompt['buttons']:
         answer, reason = None, 'The policy answer is not visible on this prompt.'
     known = evidence()
     proven = {key: value for key, value in (validated if validated is not None else known).items() if value[0] == 'validated'}
     runnable = [m for m in METHODS if (kind, m) in proven and m in RUN_METHODS
-                and (m != 'keyboard_escape' or answer == DECLINING.get(kind))]
+                and (m != 'keyboard_escape' or (answer in CANCEL_ANSWERS and answer == SAFE_ANSWER.get(kind)))]
     if answer is not None and runnable:
         method = runnable[0]
         return dict(action='answer', kind=kind, app=app, answer=answer, method=method, target=prompt['buttons'][answer],
@@ -196,8 +212,9 @@ def plan(prompt, *, app_expected=None, needs_media_picker=False, after_own_paste
     if answer and waiting and reason is None:
         reason = 'Validated but not usable for this answer in a run: ' + ', '.join(waiting) + '.'
     who = f'"{app}"' if app else 'this app'
-    request = (f'Choose "{answer}" on {who}\'s {kind.replace("_", " ")} prompt on the phone. iOS keeps this answer, '
-               'so it is a one-time step per phone and app.' if answer else
+    keeps = ('That keeps the current setting; iOS repeats this reminder from time to time.' if kind == 'photos_reminder'
+             else 'iOS keeps this answer, so it is a one-time step per phone and app.')
+    request = (f'Choose "{answer}" on {who}\'s {kind.replace("_", " ")} prompt on the phone. {keeps}' if answer else
                f'Review {who}\'s {kind.replace("_", " ")} prompt on the phone; the farm has no safe automatic answer for it.')
     tried = sorted(m for (k, m), (state, _) in known.items() if k == kind and state == 'ignored')
     return dict(action='stop', kind=kind, app=app, answer=answer, method=None, request=request,

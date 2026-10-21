@@ -45,6 +45,7 @@ control, publishing or messaging.
   | tracking | Ask App Not to Track |
   | photos | Allow Full Access, only for the app whose own media picker the run is opening; otherwise stop |
   | paste | Allow Paste, only directly after the run's own Paste |
+  | photos reminder ("has been able to access your entire photo library", 20 Oct) | Allow Full Access, which keeps the current setting |
   | unknown | stop |
 
   A prompt for a different app than the one being driven is not answered. The

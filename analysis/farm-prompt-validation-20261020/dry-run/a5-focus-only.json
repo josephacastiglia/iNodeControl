@@ -1,6 +1,6 @@
 {
   "label": "a5-focus-only",
-  "trial": "f140a845-a9c4-4457-afc0-d80fde419717",
+  "trial": "656dba6e-7735-48ef-9a5c-699fe1923f4e",
   "date": "2026-10-20",
   "phone": "C24C",
   "source": "c24c_prompt_validation_window",
@@ -36,8 +36,9 @@
   "precheck": {
     "kind": "paste",
     "app": "TikTok",
-    "declining": "Don't Allow Paste"
+    "answer": "Don't Allow Paste"
   },
+  "evidenceGaps": null,
   "commands": [
     {
       "fun": "/mouse/reset",
@@ -116,12 +117,12 @@
       "button": "Don't Allow Paste"
     }
   ],
-  "focusResult": "declining_focused_not_activated",
+  "focusResult": "answer_focused_not_activated",
   "probePoints": null,
   "probe": null,
   "repliesBefore": null,
   "outcome": "ignored",
-  "result": "declining_focused_not_activated",
+  "result": "answer_focused_not_activated",
   "beforeFrameSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653",
   "afterFrameSha256": "68bddbc95c972ad8707dd714fc56339cfe207fdad54ef9a68abf05be93edaccd",
   "frames": [

@@ -85,8 +85,8 @@
         "app": "TikTok",
         "target": "Don't Allow Paste",
         "outcome": "ignored",
-        "result": "declining_focused_not_activated",
-        "focus": "declining_focused_not_activated",
+        "result": "answer_focused_not_activated",
+        "focus": "answer_focused_not_activated",
         "cleanup": "confirmed",
         "error": null
       }
@@ -104,7 +104,7 @@
         "target": "Don't Allow Paste",
         "outcome": "dismissed",
         "result": "dismissed",
-        "focus": "space_sent_on_declining_focus",
+        "focus": "space_sent_on_safe_answer",
         "cleanup": "confirmed",
         "error": null
       }
@@ -115,9 +115,9 @@
       "printed": {
         "label": "a6-keyboard-focus",
         "confirmation": {
-          "declined": true,
+          "safeAnswer": true,
           "observed": "Fixture: the field stayed empty",
-          "utc": "2026-10-20T00:00:17.980972+00:00"
+          "utc": "2026-10-20T00:00:18.607970+00:00"
         }
       }
     },
@@ -140,14 +140,14 @@
           "phone": "C24C",
           "source": "c24c_prompt_validation_window",
           "date": "2026-10-20",
-          "trial": "e970e00c-abd0-46ef-b6ab-2ce7eb288e64",
+          "trial": "15e4c920-b898-4bcd-bbef-64cfc0c7f572",
           "summary": "analysis/farm-prompt-validation-20261020/dry-run/a6-keyboard-focus.json",
-          "summarySha256": "c45938c67f3f9844bec24072f28b1a17d0e8f0bc24c9bff0674fbfd3bf9c3ab0",
+          "summarySha256": "ab126537156d5b7f535c62ca83a2acf3eb0676a0d761a65dbc63e15718430933",
           "beforeFrameSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653",
           "afterFrameSha256": "c21c2b5971486445fa2f8e7ac7942ad822ade5180aa97167586d4ebdba1dadc3",
           "outcome": "dismissed",
           "commandsAnswered": true,
-          "declinedConfirmed": true,
+          "safeAnswerConfirmed": true,
           "confirmation": "Fixture: the field stayed empty",
           "note": "keyboard_focus on Don't Allow Paste of TikTok's paste prompt: dismissed; operator: Fixture: the field stayed empty"
         }
@@ -181,7 +181,7 @@
     "a6-keyboard-focus",
     "b1-probe"
   ],
-  "privateFramesExported": 27,
+  "privateFramesExported": 34,
   "stateAfterPartA": {
     "answered": "Don't Allow Paste",
     "promptVisible": false

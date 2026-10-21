@@ -1,6 +1,6 @@
 {
   "label": "b1-probe",
-  "trial": "97f249a8-feed-4706-bca6-47c519d4bbf3",
+  "trial": "d649b34d-8ca9-47d3-bdc1-091034ecca2c",
   "date": "2026-10-20",
   "phone": "C24C",
   "source": "c24c_prompt_validation_window",
@@ -22,6 +22,7 @@
   "promptReason": null,
   "detected": null,
   "precheck": null,
+  "evidenceGaps": null,
   "commands": [
     {
       "fun": "/mouse/move",

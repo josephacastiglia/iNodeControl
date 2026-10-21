@@ -3,17 +3,22 @@
 Every step talks only to the private kernel on 127.0.0.1:9916 with the prepared SHA-256,
 process and C24C-only mapping. It needs C24C free, takes its own lease and always releases it.
 
-- observe: read-only. Reports a recognized prompt and its declining button. No input.
-- trial: one input method, once, aimed only at the declining button of a recognized prompt.
+- observe: read-only. Reports a recognized prompt and its safe answer. No input.
+- trial: one input method, once, aimed only at the safe answer of a recognized prompt: the
+  declining button, or Allow Full Access on the reminder about existing full photo access.
   pointer_tap and keyboard_escape are the class checks (both ignored on 17 Oct); they and
-  long_press send exactly what the run answer path sends. keyboard_focus presses Tab until a
-  focus highlight is verified on the declining button, then sends one Space (never Return).
+  long_press send exactly what the run answer path sends, with read-only frames kept as
+  evidence. keyboard_focus presses Tab until a focus highlight is verified on the safe
+  answer, then sends one Space (never Return). Escape is used only where the alert's
+  cancel action is the safe answer.
 - probe: on the move-only absolute probe kernel (--absolute-probe-pid C24C), A0 moves to
   blank points, each checked for the pointer at that point. That kernel cannot press.
 - confirm / promote: the operator's statement of what the phone shows, then the entry for
   farm_permission_prompts.WINDOW_EVIDENCE. A method is validated only this way.
 
-A lost reply stays uncertain. Nothing is retried, replayed or sent to an Allow button.
+A lost reply stays uncertain. A method the alert ignores (20 Oct: a click that showed on the
+alert but did not act) is recorded with its frames and never tried again in that step.
+Nothing is retried or replayed, and no answer that grants new access is ever a target.
 """
 import argparse
 from datetime import datetime, timezone
@@ -97,29 +102,29 @@ def button_cells(boxes):
 
 
 def target_plan(text):
-    """The recognized prompt, its declining button and the regions a focus check reads."""
+    """The recognized prompt, its safe answer and the regions a focus check reads."""
     found = prompts.detect(text)
     if not found: raise InspectionStopped('No recognized permission prompt is visible. No validation input is sent.')
     kind = found['kind']
-    if found.get('ambiguous') or kind not in prompts.DECLINING:
-        raise InspectionStopped('The prompt is not a recognized family with a declining button. No validation input is sent.')
-    declining = prompts.DECLINING[kind]
+    if found.get('ambiguous') or kind not in prompts.SAFE_ANSWER:
+        raise InspectionStopped('The prompt is not a recognized family with a safe answer. No validation input is sent.')
+    answer = prompts.SAFE_ANSWER[kind]
     boxes = prompts.button_boxes(text)
-    if not boxes or declining not in boxes:
-        raise InspectionStopped(f'"{declining}" is not read on this frame. No validation input is sent.')
+    if not boxes or answer not in boxes:
+        raise InspectionStopped(f'"{answer}" is not read on this frame. No validation input is sent.')
     if len(boxes) < 2:
-        raise InspectionStopped('The other answers are not read, so the declining button cannot be told apart.')
-    l, t, r, b = boxes[declining]
+        raise InspectionStopped('The other answers are not read, so the safe answer cannot be told apart.')
+    l, t, r, b = boxes[answer]
     target = (round((l+r)/2), round((t+b)/2))
     for label, (ol, ot, orr, ob) in boxes.items():
-        if label != declining and math.hypot((ol+orr)/2 - target[0], (ot+ob)/2 - target[1]) < 40:
-            raise InspectionStopped('The answers are too close together to aim at the declining button alone.')
+        if label != answer and math.hypot((ol+orr)/2 - target[0], (ot+ob)/2 - target[1]) < 40:
+            raise InspectionStopped('The answers are too close together to aim at the safe answer alone.')
     if not (10 <= target[0] <= 490 and 65 <= target[1] <= 1035):
-        raise InspectionStopped('The declining button is outside the reviewed phone area.')
+        raise InspectionStopped('The safe answer is outside the reviewed phone area.')
     cells = button_cells(boxes)
-    cl, ct, cr, cb = cells[declining]
+    cl, ct, cr, cb = cells[answer]
     if not (cl + 8 <= target[0] <= cr - 8 and ct + 4 <= target[1] <= cb - 4):
-        raise InspectionStopped('The declining button has no clear region of its own.')
+        raise InspectionStopped('The safe answer has no clear region of its own.')
     # The alert's own title band: its title row (app name or family wording) and the next 90
     # pixels. A map or video lower in the alert may still be moving; the title never does.
     left = min(c[0] for c in cells.values()) - 10; right = max(c[2] for c in cells.values()) + 10
@@ -128,7 +133,7 @@ def target_plan(text):
     titles = [r['top'] for r in rows if prompts.APP.search(r['text']) or any(p.search(r['text']) for _, p in prompts.FAMILIES)]
     words = [r for r in rows if titles and min(titles) <= r['top'] <= min(titles) + 90]
     if not words: raise InspectionStopped('The prompt title above the answers is not read.')
-    return dict(kind=kind, app=found.get('app'), declining=declining, target=target,
+    return dict(kind=kind, app=found.get('app'), answer=answer, target=target,
                 buttons={k: [round((v[0]+v[2])/2), round((v[1]+v[3])/2)] for k, v in boxes.items()},
                 cells={k: list(v) for k, v in cells.items()},
                 textBoxes=[[r['left'], r['top'], r['right'], r['bottom']] for r in words],
@@ -160,15 +165,15 @@ def focused_button(base, after, geometry):
 
 
 def recognized(text):
-    """A recognized family with a declining button, for the read-only check before any input.
+    """A recognized family with a safe answer, for the read-only check before any input.
 
     Its buttons need not be read here: a label under the resting pointer is lost (17 Oct), and
     the trial reads the full target only after parking the pointer off the alert.
     """
     found = prompts.detect(text)
-    if not found or found.get('ambiguous') or found['kind'] not in prompts.DECLINING:
-        raise InspectionStopped('No recognized permission prompt with a declining answer is visible. Nothing was sent.')
-    return dict(kind=found['kind'], app=found.get('app'), declining=prompts.DECLINING[found['kind']])
+    if not found or found.get('ambiguous') or found['kind'] not in prompts.SAFE_ANSWER:
+        raise InspectionStopped('No recognized permission prompt with a safe answer is visible. Nothing was sent.')
+    return dict(kind=found['kind'], app=found.get('app'), answer=prompts.SAFE_ANSWER[found['kind']])
 
 
 def outcome(geometry, text):
@@ -426,6 +431,19 @@ class ValidationStep:
         self.save()
         return dict(image=image, name=name, evidence=evidence, grabbedAt=measured)
 
+    def rest_with_frame(self, seconds, purpose):
+        """Rest exactly as long as the runs do, keeping one read-only frame from the middle as evidence."""
+        started = self.monotonic()
+        self.pause(seconds/2)
+        self.evidence_frame(purpose)
+        self.pause(max(0.0, seconds - (self.monotonic() - started)))
+
+    def evidence_frame(self, purpose):
+        """A read-only frame for the record. A missing one is noted; the next command still checks everything."""
+        try: self.grab(purpose)
+        except InspectionStopped as error:
+            self.record.setdefault('evidenceGaps', []).append(dict(purpose=purpose, reason=str(error))); self.save()
+
     def replies(self):
         boards = (self.kernel.kernel_status().get('hid_replies') or {}).get('boards') or []
         return next((b.get('observation') for b in boards if b.get('pid') == 'C24C'), None)
@@ -457,6 +475,9 @@ class ValidationStep:
             value, _ = self.read_only('precheck')
             first = recognized(value['text'])       # Nothing is sent unless this succeeds.
             self.record['precheck'] = first
+            if method == 'keyboard_escape' and first['answer'] not in prompts.CANCEL_ANSWERS:
+                raise InspectionStopped(f'Escape reaches only the alert\'s cancel action, which may not be "{first["answer"]}" here. '
+                                        'Nothing was sent.')
             self.record['cleanup'] = 'unconfirmed'; self.save()
             self.owned.acquire()
             # Off the alert, so no answer is hovered or highlighted; let any focus highlight hide.
@@ -464,25 +485,30 @@ class ValidationStep:
             self.pause(POINTER_REST)
             value, frame = self.capture('prompt_before')
             geometry = target_plan(value['text'])
-            if (geometry['kind'], geometry['app'], geometry['declining']) != (first['kind'], first['app'], first['declining']):
+            if (geometry['kind'], geometry['app'], geometry['answer']) != (first['kind'], first['app'], first['answer']):
                 raise InspectionStopped('The prompt changed after the read-only check.')
             self.record['prompt'] = geometry; self.save()
             x, y = geometry['target']
             sent = True
+            # The runs' sequences and timings; the frames inside them are read-only evidence.
             if method == 'pointer_tap':          # As the run's settled tap: rest, then one click.
                 self.command('/mouse/move', basis=value, purpose='pointer-tap-position', x=x, y=y)
-                self.pause(SETTLED_TAP)
+                self.rest_with_frame(SETTLED_TAP, 'pointer-tap-aim')
                 self.command('/mouse/click', purpose='pointer-tap', x=x, y=y, button=1)
+                self.pause(.15); self.evidence_frame('pointer-tap-immediate')
             elif method == 'long_press':         # As the run's hold step.
                 self.command('/mouse/move', basis=value, purpose='long-press-position', x=x, y=y)
-                self.pause(HOLD[0])
+                self.rest_with_frame(HOLD[0], 'long-press-aim')
                 self.command('/mouse/down', purpose='long-press-press', button=1)
-                self.pause(HOLD[1])
+                self.rest_with_frame(HOLD[1], 'long-press-held')
                 self.command('/mouse/up', purpose='long-press-release', button=1)
+                self.pause(.15); self.evidence_frame('long-press-immediate')
             elif method == 'keyboard_escape':
                 self.command('/key/sendkey', basis=value, purpose='escape', fn_key='Escape')
+                self.pause(.15); self.evidence_frame('escape-immediate')
             else:
                 sent = self.keyboard_focus(value, frame, geometry, activate)
+                if sent: self.pause(.15); self.evidence_frame('space-immediate')
             self.command('/mouse/move', purpose='park_after_answered_action', x=PARK[0], y=PARK[1])
             self.pause(AFTER_ANSWER + OUTCOME_WAIT)
             after, _ = self.capture('prompt_after')
@@ -500,7 +526,7 @@ class ValidationStep:
         return self.record
 
     def keyboard_focus(self, value, frame, geometry, activate):
-        """Tab until the focus highlight is verified on the declining answer, then one Space."""
+        """Tab until the focus highlight is verified on the safe answer, then one Space."""
         base, path = rgb(frame), self.record.setdefault('focusPath', [])
         for tab in range(1, MAX_TABS + 1):
             sequence = self.receiver()['frames']
@@ -514,13 +540,13 @@ class ValidationStep:
             self.save()
             if found['state'] in ('alert_changed', 'ambiguous', 'focused_text_changed'):
                 raise InspectionStopped(f'After Tab {tab} the focus is not on one clear answer ({found["state"]}); no Space was sent.')
-            if found['state'] == 'focused' and found['button'] == geometry['declining']:
+            if found['state'] == 'focused' and found['button'] == geometry['answer']:
                 if not activate:
-                    self.record['focusResult'] = 'declining_focused_not_activated'; return False
-                self.command('/key/sendkey', fast=grabbed, purpose='activate-declining-focus', key=' ')
-                self.record['focusResult'] = 'space_sent_on_declining_focus'; return True
+                    self.record['focusResult'] = 'answer_focused_not_activated'; return False
+                self.command('/key/sendkey', fast=grabbed, purpose='activate-safe-answer', key=' ')
+                self.record['focusResult'] = 'space_sent_on_safe_answer'; return True
         seen = any(step.get('state') == 'focused' for step in path)
-        self.record['focusResult'] = 'declining_never_focused' if seen else 'no_visible_focus'
+        self.record['focusResult'] = 'answer_never_focused' if seen else 'no_visible_focus'
         return False
 
     def probe_moves(self):
@@ -607,9 +633,9 @@ def summarize(record, label, kernel_sha):
         label=label, trial=record['id'], date=record['started'][:10], phone='C24C', source=prompts.WINDOW_SOURCE,
         recordSource=record['source'], kernelMode=record['kernelMode'], kernelSha256=kernel_sha, step=record.get('step'),
         method=record.get('method'), activate=record.get('activate'), state=record['state'], error=record.get('error'),
-        cleanup=record['cleanup'], family=prompt.get('kind'), app=prompt.get('app'), answerTargeted=prompt.get('declining'),
+        cleanup=record['cleanup'], family=prompt.get('kind'), app=prompt.get('app'), answerTargeted=prompt.get('answer'),
         target=prompt.get('target'), buttons=prompt.get('buttons'), layout=prompt.get('layout'), promptReason=record.get('promptReason'),
-        detected=record.get('detected'), precheck=record.get('precheck'),
+        detected=record.get('detected'), precheck=record.get('precheck'), evidenceGaps=record.get('evidenceGaps'),
         commands=commands, commandsAnswered=bool(commands) and all(c['state'] == 'answered' for c in commands),
         focusPath=[{k: v for k, v in step.items()} for step in record.get('focusPath', [])], focusResult=record.get('focusResult'),
         probePoints=record.get('points'), probe=record.get('probe'), repliesBefore=record.get('repliesBefore'),
@@ -634,7 +660,7 @@ def window_entry(summary, path, digest):
                 trial=summary.get('trial'), summary=path, summarySha256=digest,
                 beforeFrameSha256=summary.get('beforeFrameSha256'), afterFrameSha256=summary.get('afterFrameSha256'),
                 outcome=result, commandsAnswered=summary.get('commandsAnswered'),
-                declinedConfirmed=confirmation.get('declined') is True, confirmation=confirmation.get('observed', ''), note=note)
+                safeAnswerConfirmed=confirmation.get('safeAnswer') is True, confirmation=confirmation.get('observed', ''), note=note)
 
 
 def promotion(summary_path, root):
@@ -679,8 +705,8 @@ def main(argv=None, *, kernel_factory=None, ocr=None, clock=time.time, monotonic
             command.add_argument('--no-activate', action='store_true', help='keyboard_focus: find the focus, never send Space')
         if name == 'confirm':
             answer = command.add_mutually_exclusive_group(required=True)
-            answer.add_argument('--declined', action='store_true')
-            answer.add_argument('--not-declined', action='store_true')
+            answer.add_argument('--safe', action='store_true', help='the phone shows the safe answer took effect')
+            answer.add_argument('--other', action='store_true', help='the phone shows another answer took effect')
             answer.add_argument('--unclear', action='store_true')
             command.add_argument('--observed', required=True, help='what the phone shows, in the operator\'s words')
     args = parser.parse_args(argv)
@@ -694,7 +720,7 @@ def main(argv=None, *, kernel_factory=None, ocr=None, clock=time.time, monotonic
     if args.step == 'confirm':
         summary = load(summary_path)
         if summary.get('confirmation') is not None: raise SystemExit('This step already has a confirmation; it is not rewritten.')
-        summary['confirmation'] = dict(declined=True if args.declined else False if args.not_declined else None,
+        summary['confirmation'] = dict(safeAnswer=True if args.safe else False if args.other else None,
                                        observed=args.observed.strip(), utc=utc(clock))
         atomic_json(summary_path, summary)
         print(json.dumps(dict(label=args.label, confirmation=summary['confirmation'])))

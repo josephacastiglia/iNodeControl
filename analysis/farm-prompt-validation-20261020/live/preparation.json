@@ -1,5 +1,5 @@
 {
-  "prepared": "2026-10-20T04:25:42.887613+00:00",
+  "prepared": "2026-10-21T03:56:01.205913+00:00",
   "root": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts",
   "runDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\output\\candidate-runs\\prompt-validation-20261020",
   "windowRecord": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-prompts\\analysis\\farm-prompt-validation-20261020\\window",
@@ -83,8 +83,8 @@
     "tools/farm_live_verification.py": "5f9fc0445d76c1b7b5cf654059cbb978be9fe71c1b403b9f9678d82fbbedbd09",
     "tools/farm_media_transfer.py": "ba868d364df728546218f66a2ad6e7285dbbcbcdd1a260f26f391de11223656b",
     "tools/farm_observations.py": "aec9249736dcd769fbedd64261c35587de74822b1cfeed823c6ebae3f72c0ed2",
-    "tools/farm_permission_prompts.py": "04183d0541b5eb2bbe00767cb95adbb37b2415398022aa75178937753b19fe5d",
-    "tools/farm_prompt_validation.py": "ce6a343f61bc8d5c548f3cb9d121856f6b362891537e069da6a9b75b9fc7df02",
+    "tools/farm_permission_prompts.py": "86f3aa9713e3fbf8c2e15663f8c3baf037341e127e600cd9cae8d2829463fa7b",
+    "tools/farm_prompt_validation.py": "3ed413228254f34e4ef4c8491daf68e500088bc24730f936c70037b11796e35e",
     "tools/farm_screen_layout.py": "4886ad88bcdc737fd15436e09e7e14b9a56873f1a462e7e308b8e829b84565b0",
     "tools/farm_transfers.py": "d22d221bd23fd788ed919d784d4f9211a690b8c7633fdc45a9011f3adbceae16",
     "tools/farm_transitions.py": "239fa529384882167e783ea10589cfdcd6ce083fa28fb64635f6c55c3c14968c",
