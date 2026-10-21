@@ -18,8 +18,8 @@ internal sealed partial class FarmDraftRunWindow : Window
     private readonly string _route, _capability;
     private readonly bool _createNew;
     private readonly bool _inspection;
-    private readonly bool _reel, _tiktok, _x;
-    private bool Video => _reel || _tiktok || _x;   // One saved video copy -> one app draft.
+    private readonly bool _reel, _tiktok, _x, _youtube;
+    private bool Video => _reel || _tiktok || _x || _youtube;   // One saved video copy -> one app draft.
     private readonly string _dataFolder;
     private readonly string? _creationSourceId;
     private string? _creationStoreId, _creationRecordSha256, _inspectionDraftId;
@@ -45,31 +45,35 @@ internal sealed partial class FarmDraftRunWindow : Window
     internal string Route => _route; internal string Capability => _capability; internal string BookmarkPath => _bookmarkPath;
     internal string DraftId => _draftId; internal bool InspectAvailable => _inspect.IsEnabled;
 
-    internal FarmDraftRunWindow(FarmApiClient api, string dataFolder, string draftId, int revision, string title, bool createNew = false, string? inspectCreationId = null, bool reel = false, bool tiktok = false, bool x = false)
+    internal FarmDraftRunWindow(FarmApiClient api, string dataFolder, string draftId, int revision, string title, bool createNew = false, string? inspectCreationId = null, bool reel = false, bool tiktok = false, bool x = false, bool youtube = false)
     {
-        _api = api; _draftId = draftId; _revision = revision; _createNew = createNew; _reel = reel; _tiktok = tiktok; _x = x;
+        _api = api; _draftId = draftId; _revision = revision; _createNew = createNew; _reel = reel; _tiktok = tiktok; _x = x; _youtube = youtube;
         _dataFolder = dataFolder; _creationSourceId = inspectCreationId; _inspection = inspectCreationId is not null;
         if (_inspection && (createNew || !Guid.TryParse(inspectCreationId, out _))) throw new ArgumentException("Choose one recorded creation for inspection.");
         if (reel && (!createNew || _inspection || tiktok)) throw new ArgumentException("A Reel draft is created from one saved video copy.");
         if (tiktok && (!createNew || _inspection)) throw new ArgumentException("A TikTok draft is created from one saved video copy.");
         if (x && (!createNew || _inspection || reel || tiktok)) throw new ArgumentException("An X draft is created from one saved video copy.");
+        if (youtube && (!createNew || _inspection || reel || tiktok || x)) throw new ArgumentException("A YouTube Short draft is created from one saved video copy.");
         _route = createNew ? "/api/farm/draft-creations" : "/api/farm/draft-runs";
         _capability = createNew ? "draftCreation" : "draftWorkflow";
         if (_inspection) { _route = "/api/farm/draft-recoveries"; _capability = "draftRecovery"; }
         if (reel) { _route = "/api/farm/reel-creations"; _capability = "reelCreation"; }
         if (tiktok) { _route = "/api/farm/tiktok-creations"; _capability = "tiktokCreation"; }
         if (x) { _route = "/api/farm/x-creations"; _capability = "xCreation"; }
+        if (youtube) { _route = "/api/farm/youtube-creations"; _capability = "youtubeCreation"; }
         _bookmarkPath = Path.Combine(dataFolder, createNew ? "farm-pending-draft-creation.json" : "farm-pending-draft-run.json");
         if (_inspection) _bookmarkPath = Path.Combine(dataFolder, "farm-pending-draft-inspection.json");
         if (reel) _bookmarkPath = Path.Combine(dataFolder, "farm-pending-reel-creation.json");
         if (tiktok) _bookmarkPath = Path.Combine(dataFolder, "farm-pending-tiktok-creation.json");
         if (x) _bookmarkPath = Path.Combine(dataFolder, "farm-pending-x-creation.json");
+        if (youtube) _bookmarkPath = Path.Combine(dataFolder, "farm-pending-youtube-creation.json");
         Title = createNew ? "Create a verified C24C draft" : "C24C draft save and reopen";
         if (createNew) _start.Content = "Create and verify new draft on C24C"; Width = 840; Height = 820; MinWidth = 680; MinHeight = 600;
         if (_inspection) { Title = "Inspect the saved C24C draft"; _start.Content = "Inspect saved content on C24C"; }
         if (reel) { Title = "Create a verified C24C Reel draft"; _start.Content = "Create and verify Reel draft on C24C"; }
         if (tiktok) { Title = "Create a verified C24C TikTok draft"; _start.Content = "Create and verify TikTok draft on C24C"; }
         if (x) { Title = "Create a verified C24C X draft"; _start.Content = "Create and verify X draft on C24C"; }
+        if (youtube) { Title = "Create a verified YouTube Short draft"; _start.Content = "Create and verify YouTube draft"; }
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         SetResourceReference(BackgroundProperty, "SurfaceBrush"); SetResourceReference(ForegroundProperty, "TextBrush");
         var panel = new StackPanel { Margin = new Thickness(24) };
@@ -92,6 +96,11 @@ internal sealed partial class FarmDraftRunWindow : Window
         {
             ((TextBlock)panel.Children[0]).Text = "Create a new verified X draft";
             ((TextBlock)panel.Children[^1]).Text = "C24C · X · the account signed in first\nBefore any other input the run reads the signed-in handle from the X side menu and binds this draft to it; later screens and the separate check must show the same handle. Safari downloads this saved video and Files saves it to Photos. X then gets the one-line text by paste and the exact video from the photo picker, and Save to drafts is pressed once. A separate check reopens the draft with the exact text, plays it and keeps it in Drafts. Start on the X home timeline. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced. Nothing is posted or messaged.";
+        }
+        if (youtube)
+        {
+            ((TextBlock)panel.Children[0]).Text = "Create a new verified YouTube Short draft";
+            ((TextBlock)panel.Children[^1]).Text = "YouTube · the phone this backend is configured for · the channel signed in on it\nSafari downloads this saved video and Files saves it to Photos. YouTube then selects that exact video from its gallery and keeps its whole length. The run reads the channel shown on Add details and binds this draft to it before the title is entered; the separate check must show the same channel. The one-line title is pasted, checked without the text caret, and Save draft is pressed once. A separate check reopens the draft with the exact title, sees it play, keeps it with Save draft and finds it once in Drafts. Start on the YouTube home feed. A permission prompt stops the run with a one-time request. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced. Nothing is uploaded, posted or messaged.";
         }
         var buttons = new WrapPanel { Margin = new Thickness(0, 16, 0, 16) };
         buttons.Children.Add(_start); buttons.Children.Add(_recover); buttons.Children.Add(_stop); panel.Children.Add(buttons);
@@ -156,11 +165,12 @@ internal sealed partial class FarmDraftRunWindow : Window
         var health = await _api.SendAsync("/health");
         var capability = health.GetProperty(_capability);
         if (capability.GetProperty("version").GetInt32() != 1) throw new InvalidOperationException("Use the matching draft candidate backend.");
-        if ((_createNew || _inspection) && (capability.GetProperty("device").GetString() != "C24C" || !DesignatedAccount(capability) || capability.GetProperty("publishing").GetBoolean() || capability.GetProperty("messaging").GetBoolean())) throw new InvalidOperationException("Use the designated C24C account and draft-only backend.");
+        if ((_createNew || _inspection) && (!DesignatedDevice(capability) || !DesignatedAccount(capability) || capability.GetProperty("publishing").GetBoolean() || capability.GetProperty("messaging").GetBoolean())) throw new InvalidOperationException(_youtube ? "Use the draft-only backend designated for the configured YouTube phone; the run binds the signed-in channel." : "Use the designated C24C account and draft-only backend.");
         if (_inspection && !capability.GetProperty("inspectionOnly").GetBoolean()) throw new InvalidOperationException("This backend cannot inspect without Save.");
         if (_reel && capability.GetProperty("format").GetString() != "ig_reel") throw new InvalidOperationException("This backend does not offer the Reel draft candidate.");
         if (_tiktok && capability.GetProperty("format").GetString() != "tt_video") throw new InvalidOperationException("This backend does not offer the TikTok draft candidate.");
         if (_x && capability.GetProperty("format").GetString() != "x_video") throw new InvalidOperationException("This backend does not offer the X draft candidate.");
+        if (_youtube && capability.GetProperty("format").GetString() != "yt_short") throw new InvalidOperationException("This backend does not offer the YouTube draft candidate.");
         _storeId = capability.GetProperty("storeId").GetString();
         if (!Guid.TryParse(_storeId, out _)) throw new InvalidOperationException("Candidate storage identity is missing.");
         if (_pending is not null && _pending.StoreId != _storeId) throw new InvalidOperationException("This is a different candidate data store. Reopen the original backend to retrieve the pending result.");
@@ -185,13 +195,29 @@ internal sealed partial class FarmDraftRunWindow : Window
             _start.Content = "Continue · use imported images";
         }
         await HistoryAsync();
-        _status.Text = eligible.GetProperty("reason").GetString() + "\n\n" + eligible.GetProperty("contentReason").GetString() + "\n\nThe interface integration still needs a fresh phone acceptance run. An offline pass is not a saved " + (_x ? "X" : _tiktok ? "TikTok" : "Instagram") + " draft.";
+        _status.Text = eligible.GetProperty("reason").GetString() + "\n\n" + eligible.GetProperty("contentReason").GetString() + "\n\nThe interface integration still needs a fresh phone acceptance run. An offline pass is not a saved " + (_youtube ? "YouTube" : _x ? "X" : _tiktok ? "TikTok" : "Instagram") + " draft.";
+        if (_youtube) _status.Text = "Configured phone: " + PhoneLabel(capability) + "\n\n" + _status.Text;
     }
-    // X has no fixed handle: its backend must bind whichever account is signed in first, never a configured one.
+    // YouTube runs on the phone its backend is configured for (box slot 16 from 20 Oct), never a default; the other routes on C24C.
+    private bool DesignatedDevice(JsonElement capability)
+    {
+        var device = capability.GetProperty("device");
+        if (!_youtube) return device.ValueKind == JsonValueKind.String && device.GetString() == "C24C";
+        return device.ValueKind == JsonValueKind.String && capability.TryGetProperty("phone", out var phone) && phone.ValueKind == JsonValueKind.Object
+            && phone.TryGetProperty("board", out var board) && board.ValueKind == JsonValueKind.String && board.GetString() == device.GetString()
+            && phone.TryGetProperty("receiver", out var receiver) && receiver.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(receiver.GetString());
+    }
+    private static string PhoneLabel(JsonElement capability)
+    {
+        var phone = capability.GetProperty("phone");
+        string label = phone.GetProperty("receiver").GetString() + " (board " + phone.GetProperty("board").GetString();
+        return label + (phone.TryGetProperty("slot", out var slot) && slot.ValueKind == JsonValueKind.Number ? ", box slot " + slot.GetInt32() : "") + ")";
+    }
+    // X and YouTube have no fixed handle: the backend must bind whichever account or channel is signed in, never a configured one.
     private bool DesignatedAccount(JsonElement capability)
     {
         var account = capability.GetProperty("account");
-        if (_x) return account.ValueKind == JsonValueKind.Null && capability.TryGetProperty("accountPolicy", out var policy) && policy.GetString() == "first_signed_in";
+        if (_x || _youtube) return account.ValueKind == JsonValueKind.Null && capability.TryGetProperty("accountPolicy", out var policy) && policy.GetString() == "first_signed_in";
         return account.ValueKind == JsonValueKind.String && account.GetString() == "xs.halle.xo";
     }
     private async Task HistoryAsync()
@@ -264,9 +290,9 @@ internal sealed partial class FarmDraftRunWindow : Window
         if (verified && workflow.GetProperty("actions").EnumerateArray().Any(a => a.GetProperty("state").GetString() != "answered")) throw new InvalidOperationException("An uncertain phone action cannot be presented as a verified draft.");
         if (verified && _createNew && (!workflow.GetProperty("createdDraftVerified").GetBoolean() || !workflow.GetProperty("mediaDelivery").GetProperty("stopped").GetBoolean())) throw new InvalidOperationException("New draft creation lacks confirmed import, reopen verification or media-service cleanup.");
         if (verified && _inspection && (workflow.GetProperty("mode").GetString() != "inspect_saved_draft" || !workflow.GetProperty("inspectionOnly").GetBoolean())) throw new InvalidOperationException("The result is not a saved-draft inspection.");
-        string? boundAccount = _x && workflow.ValueKind == JsonValueKind.Object && workflow.TryGetProperty("account", out var bound) && bound.ValueKind == JsonValueKind.String ? bound.GetString() : null;
-        if (verified && _x && (string.IsNullOrEmpty(boundAccount) || !workflow.TryGetProperty("verification", out var check) || check.ValueKind != JsonValueKind.Object
-            || !check.TryGetProperty("account", out var checkedAccount) || checkedAccount.ValueKind != JsonValueKind.String || checkedAccount.GetString() != boundAccount)) throw new InvalidOperationException("A verified X draft must be checked on the account bound by creation.");
+        string? boundAccount = (_x || _youtube) && workflow.ValueKind == JsonValueKind.Object && workflow.TryGetProperty("account", out var bound) && bound.ValueKind == JsonValueKind.String ? bound.GetString() : null;
+        if (verified && (_x || _youtube) && (string.IsNullOrEmpty(boundAccount) || !workflow.TryGetProperty("verification", out var check) || check.ValueKind != JsonValueKind.Object
+            || !check.TryGetProperty("account", out var checkedAccount) || checkedAccount.ValueKind != JsonValueKind.String || checkedAccount.GetString() != boundAccount)) throw new InvalidOperationException(_youtube ? "A verified YouTube draft must be checked on the channel bound by creation." : "A verified X draft must be checked on the account bound by creation.");
         _shownId = expectedId; _terminal = terminal; if (terminal) _poll.Stop();
         _canInspect = _createNew && terminal && workflow.ValueKind == JsonValueKind.Object && workflow.GetProperty("actions").EnumerateArray().Any(a => a.GetProperty("label").GetString() == "prepared-save-once" && a.GetProperty("state").GetString() is "answered" or "outcome_unknown");
         _inspectionDraftId = request.GetProperty("draft_id").GetString(); _inspectionRevision = request.GetProperty("revision").GetInt32();
@@ -277,11 +303,11 @@ internal sealed partial class FarmDraftRunWindow : Window
             && request.GetProperty("draft_id").GetString() == _draftId && request.GetProperty("revision").GetInt32() == _revision;
         _continueFrom = _continueImported ? expectedId : null;
         if (_retryBeforeImport || _continueImported) _eligible = true;
-        if (_createNew) _start.Content = _continueImported ? "Continue · use imported images" : _retryBeforeImport ? "Start new attempt · no media imported" : _reel ? "Create and verify Reel draft on C24C" : _tiktok ? "Create and verify TikTok draft on C24C" : _x ? "Create and verify X draft on C24C" : "Create and verify new draft on C24C";
+        if (_createNew) _start.Content = _continueImported ? "Continue · use imported images" : _retryBeforeImport ? "Start new attempt · no media imported" : _reel ? "Create and verify Reel draft on C24C" : _tiktok ? "Create and verify TikTok draft on C24C" : _x ? "Create and verify X draft on C24C" : _youtube ? "Create and verify YouTube draft" : "Create and verify new draft on C24C";
         if (verified && _pending is not null) Keep(null);
         if (verified && _createNew) _eligible = false;
-        var lines = new List<string> { verified ? (_inspection ? "MATCHING SAVED DRAFT OBSERVED" : _reel ? "NEW REEL DRAFT CREATED AND VERIFIED" : _tiktok ? "NEW TIKTOK DRAFT CREATED AND VERIFIED" : _x ? "NEW X DRAFT CREATED AND VERIFIED" : _createNew ? "NEW PHONE DRAFT CREATED AND VERIFIED" : "PHONE DRAFT VERIFIED") : terminal ? "STOPPED · REVIEW REQUIRED" : "CHECK IN PROGRESS", value.GetProperty("reason").GetString()!, "Lease cleanup: " + cleanup.Replace('_', ' '), "Nothing was published or messaged. A saved draft check does not prove app-restart persistence." };
-        if (boundAccount is not null) lines.Add("X account bound by this run: @" + boundAccount + (verified ? " (the separate check saw the same handle)." : "."));
+        var lines = new List<string> { verified ? (_inspection ? "MATCHING SAVED DRAFT OBSERVED" : _reel ? "NEW REEL DRAFT CREATED AND VERIFIED" : _tiktok ? "NEW TIKTOK DRAFT CREATED AND VERIFIED" : _x ? "NEW X DRAFT CREATED AND VERIFIED" : _youtube ? "NEW YOUTUBE DRAFT CREATED AND VERIFIED" : _createNew ? "NEW PHONE DRAFT CREATED AND VERIFIED" : "PHONE DRAFT VERIFIED") : terminal ? "STOPPED · REVIEW REQUIRED" : "CHECK IN PROGRESS", value.GetProperty("reason").GetString()!, "Lease cleanup: " + cleanup.Replace('_', ' '), "Nothing was published or messaged. A saved draft check does not prove app-restart persistence." };
+        if (boundAccount is not null) lines.Add((_youtube ? "YouTube channel" : "X account") + " bound by this run: @" + boundAccount + (verified ? " (the separate check saw the same handle)." : "."));
         if (_inspection) lines.Add("No Save, import or caption entry is repeated. This result does not change the original request. A completed inspection leaves the phone on draft details.");
         if (value.GetProperty("draftChangedSinceRun").GetBoolean()) lines.Add("This evidence belongs to an older saved revision.");
         if (workflow.ValueKind == JsonValueKind.Object)

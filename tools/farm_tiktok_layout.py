@@ -416,7 +416,7 @@ def caption_copied(text, app='TikTok'):
 def leftover_preview(frame, text):
     """A Files preview of an earlier package download, left open in Safari. Done only closes it."""
     names = [w['text'] for line in text.get('lines', []) for w in line.get('words', [])
-             if re.fullmatch(r'imouse-((reel|tt|x)-[acdefhkmnprtuvwxy]{6}|draft)', str(w.get('text', '')))
+             if re.fullmatch(r'imouse-((reel|tt|x|yt)-[acdefhkmnprtuvwxy]{6}|draft)', str(w.get('text', '')))
              and 150 <= w['x'] and w['x']+w['width'] <= 360 and 65 <= w['y'] and w['y']+w['height'] <= 110]
     require(len(names) == 1 and words_at(text, 'done', (410, 65, 490, 105)) and reel_present(frame, 'quicklook_share'),
             'Safari opened on an unrecognized screen; no input is sent.')

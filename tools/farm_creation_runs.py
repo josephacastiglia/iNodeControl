@@ -18,10 +18,13 @@ from imouse_social_automation import KernelSafetyError
 def creation_config(path,mode):
     if path is None: return None
     value=json.loads(Path(path).read_text(encoding='utf-8-sig'))
-    if not isinstance(value,dict) or set(value)!={'version','api','kernelSha256','expectedUid','mediaBind','mediaClient','mediaPort'}:
+    # 'phone' (optional) names the phone a phone-configured route drives (board, device ID, receiver); only the
+    # YouTube route reads it so far, and validates it itself.
+    if (not isinstance(value,dict) or not {'version','api','kernelSha256','expectedUid','mediaBind','mediaClient','mediaPort'}<=set(value)
+            or set(value)-{'version','api','kernelSha256','expectedUid','mediaBind','mediaClient','mediaPort','phone'}):
         raise ValueError('Creation needs an explicit isolated kernel and C24C-only media configuration.')
     # Reuse the same strict kernel identity rules, without weakening the old route.
-    core={k:v for k,v in value.items() if not k.startswith('media')}
+    core={k:v for k,v in value.items() if not k.startswith('media') and k!='phone'}
     import tempfile
     with tempfile.TemporaryDirectory(prefix='farm-creation-config-') as directory:
         file=Path(directory)/'config.json';file.write_text(json.dumps(core),encoding='utf-8')

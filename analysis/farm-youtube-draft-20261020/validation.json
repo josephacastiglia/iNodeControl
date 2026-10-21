@@ -1,0 +1,62 @@
+{
+  "python": {
+    "tests": 607,
+    "seconds": 3575.787,
+    "passed": true,
+    "skipped": 0,
+    "exitLine": "exit 0"
+  },
+  "native": {
+    "passed": 617,
+    "exitCode": 0,
+    "dllSha256": "7df3c1fd25188b36f4efdd15fcbc621dae872aa7a273b5c9b070a07dc9a312ae"
+  },
+  "controls": {
+    "templates": 13,
+    "allChecksAsExpected": true
+  },
+  "backendSourceFingerprint": {
+    "files": 47,
+    "sha256": "76330668d72bcb278f7c1c78968c574ed9a00a428bd4d7080bf8aa04c111e2a6",
+    "note": "Working-tree bytes of this branch; preparing a live window recomputes it."
+  },
+  "productSources": {
+    "tools/farm_youtube_layout.py": "e5951972091ef4d9d3d29c0873d8a7b61b278a1386cb92c33e37d763eff7c968",
+    "tools/farm_youtube_controls.json": "e120546324e1fbba3d9791858170c91a3e6dd9b021addf9ce0c66314e5dd3ec9",
+    "tools/farm_youtube_creation.py": "d4da9b4f5f2e33d600ddeaa2842cb7734d53f206021dc4979430ffbad79f4965",
+    "tools/farm_youtube_runs.py": "838fe0638d646d5fd91b4fd7a7a78a1f6a7d8fbdef49a189e3a2a8905fc715a9",
+    "tools/farm_format_coverage.py": "0f22eb4382d537451a5cbfc4b09a05f6a1fc773e0fb5e0c1caeb19c55dbb098a",
+    "tools/farm_capabilities.py": "5695ab5241002b11cd3068dce4a9afe776d0ca651e34a9894b4aea23e6142c07",
+    "tools/farm_video.py": "ebf3e6aa20d5fdd48c854e1d96a2e0672b2045ec9652bfc9e7060f9bb0e61245",
+    "tools/farm_tiktok_layout.py": "cf6cccd3ba0b9e166f944d6a2cbb9d4ed74dbe02a01d93ac1de970d2f3a66ff8",
+    "tools/farm_permission_prompts.py": "30df522972160eff78b5b489fe8f92dde50de87c29dd306ffcfcb90e07d101bc",
+    "tools/farm_reel_creation.py": "912673ef34c7854df5269831e2057548b9b7a7089b230cad18359ba0e79bc46f",
+    "tools/farm_reel_runs.py": "f0f771d345d7f66ba8616a1be36ff064187c3df34d350f228d8aae7a08b90ed2",
+    "tools/farm_creation_runs.py": "e050fa44ea0d8e238a1c06e8d5e07bc7b6f4efa97fb91844d22de112f04fc9fa",
+    "tools/farm_transitions.py": "9da240c37d8d24aefdab650b682bff00294625880ff98dd934c905ddd5938f3a",
+    "tools/farm_draft_creation.py": "7ec4651f7fa7e18b934000b942dfba3790894688b07eefe13aece0296bc2858a",
+    "tools/farm_draft_workflow.py": "c93c7f98f49588a0356d757de74c0761c73d3855062bd56a7e06b4bb95598a6d",
+    "tools/imouse_farm_server.py": "cc6903efcfbf90aa38dc5355ac818be4db071e9e785642bd30aab4fa1a8e69c4",
+    "src/iMouse.Console/FarmDraftRunWindow.cs": "878bc9d4ece0b21e3d11f224fa623edc9e80bda65db22ecf2f68cfcaf3f3f375",
+    "src/iMouse.Console/VideoDraftWindow.cs": "fbde0fe8b66d0f5da89a6d89238c06574cafeaf4b51d94ed0d2f775810fbd499",
+    "Open Marketing Farm Candidate.ps1": "2d8efab629d0a5576fa6241dc606f0c6d79575d249cf3ef379538c0e01550f87"
+  },
+  "testSources": {
+    "tools/test_farm_youtube_layout.py": "621f83c2997af92b049c8b1d812085d1fdfb715894227c222f6d699dab7833c5",
+    "tools/test_farm_youtube_creation.py": "13f27a1d8c6eaa9c93401216d90ad66608d5f174671f336bc0365b889a89ba21",
+    "tools/test_farm_youtube_runs.py": "ec769f17161c0050e60a8b5839b51c3831e708251aa369c10d6d6c1d1820657b",
+    "tools/test_farm_reel_runs.py": "5ad3568e4f63f56bd98d3c9a0c2613e1ecb479ede484bf0ec69442e74e8f2d4a",
+    "tools/test_farm_video.py": "3a0ea05eb56dab614566299ca313b7ae8ddba11bed8b7d147599e4af373d4b91",
+    "tools/test_farm_format_coverage.py": "efb26bd759dead8b177b959fb28420f2cb6cb51998709c65f5565e4d68a5ac47",
+    "src/iMouse.Console/FarmDraftRunTests.cs": "b06f4f8185144ccf208be4ed09b11ce825aa9b4984137894e8fa5d3baf1dbf5d",
+    "src/iMouse.Console/VideoDraftTests.cs": "d490f34783b43e5027ab53e375bfbc13b75b8a95cc1d4eb161c42ff52a57beaa"
+  },
+  "phoneInput": false,
+  "desktopControl": false,
+  "serviceStarted": false,
+  "publishing": false,
+  "messaging": false,
+  "liveAccepted": false,
+  "livePrepared": false,
+  "meaning": "Offline candidate checks only; retained frames and simulated HID, not fresh-phone acceptance."
+}

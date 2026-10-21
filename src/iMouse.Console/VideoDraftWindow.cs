@@ -20,6 +20,7 @@ internal sealed partial class VideoDraftWindow : Window
     private readonly Button _reel = new() { Content = "Create Reel draft on C24C…", Padding = new Thickness(14, 8, 14, 8), IsEnabled = false };
     private readonly Button _tiktok = new() { Content = "Create TikTok draft on C24C…", Padding = new Thickness(14, 8, 14, 8), IsEnabled = false };
     private readonly Button _x = new() { Content = "Create X draft on C24C…", Padding = new Thickness(14, 8, 14, 8), IsEnabled = false };
+    private readonly Button _youtube = new() { Content = "Create YouTube Short draft…", Padding = new Thickness(14, 8, 14, 8), IsEnabled = false };
     private readonly string? _dataFolder;
     private JsonElement? _draft;
     private string? _pending;
@@ -43,7 +44,7 @@ internal sealed partial class VideoDraftWindow : Window
         }
         panel.Children.Add(new TextBlock { Text = "Candidate limits: 64 MiB source, at most 45 seconds, 720×1280 output. No trimming; nonvertical media receives margins. Small sources may look soft. Review video and sound in Safari and the app.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 8) });
         var buttons = new WrapPanel(); buttons.Children.Add(_prepare); buttons.Children.Add(_transfer);
-        if (_dataFolder is not null) { buttons.Children.Add(_reel); buttons.Children.Add(_tiktok); buttons.Children.Add(_x); }
+        if (_dataFolder is not null) { buttons.Children.Add(_reel); buttons.Children.Add(_tiktok); buttons.Children.Add(_x); buttons.Children.Add(_youtube); }
         panel.Children.Add(buttons);
         panel.Children.Add(_status); Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         Loaded += async (_, _) => await RunAsync(InitializeAsync);
@@ -62,7 +63,7 @@ internal sealed partial class VideoDraftWindow : Window
             finally { _loadingSaved = false; }
             _draft = saved.Draft;
             _status.Text = "Selected saved copy: " + saved.Name + ". Its saved caption and destination are shown above. Choose a generated source to prepare another copy.";
-            _transfer.IsEnabled = true; _reel.IsEnabled = IsReel(_draft); _tiktok.IsEnabled = IsTikTok(_draft); _x.IsEnabled = IsX(_draft);
+            _transfer.IsEnabled = true; _reel.IsEnabled = IsReel(_draft); _tiktok.IsEnabled = IsTikTok(_draft); _x.IsEnabled = IsX(_draft); _youtube.IsEnabled = IsYouTube(_draft);
         };
         _title.TextChanged += (_, _) => InvalidatePrepared();
         _caption.TextChanged += (_, _) => InvalidatePrepared();
@@ -74,6 +75,7 @@ internal sealed partial class VideoDraftWindow : Window
         _reel.Click += (_, _) => { if (ReelWindow() is { } window) { window.Owner = this; window.ShowDialog(); } };
         _tiktok.Click += (_, _) => { if (TikTokWindow() is { } window) { window.Owner = this; window.ShowDialog(); } };
         _x.Click += (_, _) => { if (XWindow() is { } window) { window.Owner = this; window.ShowDialog(); } };
+        _youtube.Click += (_, _) => { if (YouTubeWindow() is { } window) { window.Owner = this; window.ShowDialog(); } };
         Closing += (_, e) => { if (_busy) { e.Cancel = true; _status.Text = "Wait for the current preparation to finish; no phone input is being sent."; } };
     }
 
@@ -103,7 +105,7 @@ internal sealed partial class VideoDraftWindow : Window
         catch (Exception ex) { _status.Text = ex.Message + (_pending is null ? "" : " Use Check saved draft to recover it. If absent, preparation retries with the same ID and original content; no transfer has started."); }
         finally
         {
-            _busy = false; _prepare.IsEnabled = true; _transfer.IsEnabled = _draft is not null; _reel.IsEnabled = IsReel(_draft); _tiktok.IsEnabled = IsTikTok(_draft); _x.IsEnabled = IsX(_draft);
+            _busy = false; _prepare.IsEnabled = true; _transfer.IsEnabled = _draft is not null; _reel.IsEnabled = IsReel(_draft); _tiktok.IsEnabled = IsTikTok(_draft); _x.IsEnabled = IsX(_draft); _youtube.IsEnabled = IsYouTube(_draft);
             _sources.IsEnabled = _format.IsEnabled = _title.IsEnabled = _caption.IsEnabled = _pending is null;
             _saved.IsEnabled = _pending is null;
             _prepare.Content = _pending is null ? "Prepare video draft" : "Check saved draft";
@@ -152,12 +154,13 @@ internal sealed partial class VideoDraftWindow : Window
     private void InvalidatePrepared()
     {
         if (_busy || _loadingSaved || _pending is not null) return;
-        _draft = null; _transfer.IsEnabled = _reel.IsEnabled = _tiktok.IsEnabled = _x.IsEnabled = false; _saved.SelectedIndex = -1;
+        _draft = null; _transfer.IsEnabled = _reel.IsEnabled = _tiktok.IsEnabled = _x.IsEnabled = _youtube.IsEnabled = false; _saved.SelectedIndex = -1;
     }
 
     private bool IsReel(JsonElement? draft) => IsCandidate(draft, "ig_reel");
     private bool IsTikTok(JsonElement? draft) => IsCandidate(draft, "tt_video");
     private bool IsX(JsonElement? draft) => IsCandidate(draft, "x_video");
+    private bool IsYouTube(JsonElement? draft) => IsCandidate(draft, "yt_short");
 
     private bool IsCandidate(JsonElement? draft, string wanted) => _dataFolder is not null && draft is { } value && !_busy
         && value.TryGetProperty("format", out var format) && format.GetString() == wanted
@@ -183,6 +186,13 @@ internal sealed partial class VideoDraftWindow : Window
         if (!IsX(_draft) || _draft is not { } draft) return null;
         return new FarmDraftRunWindow(_api, _dataFolder!, draft.GetProperty("id").GetString()!, draft.GetProperty("revision").GetInt32(),
             draft.GetProperty("title").GetString() ?? "X draft", createNew: true, x: true);
+    }
+
+    private FarmDraftRunWindow? YouTubeWindow()
+    {
+        if (!IsYouTube(_draft) || _draft is not { } draft) return null;
+        return new FarmDraftRunWindow(_api, _dataFolder!, draft.GetProperty("id").GetString()!, draft.GetProperty("revision").GetInt32(),
+            draft.GetProperty("title").GetString() ?? "YouTube draft", createNew: true, youtube: true);
     }
 
     private async Task RefreshSavedAsync()

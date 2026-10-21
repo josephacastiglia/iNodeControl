@@ -82,11 +82,16 @@ _FORMATS = {
         supervised=None, offline=None, live=None,
         remaining='No observed multi-post thread draft save.'),
     UploadFormat.YT_SHORT: dict(
-        platform='youtube', name='YouTube Short', level='supervised_phone', draftMechanism='observed',
-        supervised='Photo-derived and transferred MP4 Shorts saved and reopened with exact titles; a permission prompt '
-                   'needed a physical tap. ' + SUPERVISED_17,
-        offline=None, live=None,
-        remaining='Integrated adapter; the permission prompt prevents an unattended claim.'),
+        platform='youtube', name='YouTube Short', level='integrated_offline', draftMechanism='observed',
+        supervised='Photo-derived and transferred MP4 Shorts saved and reopened with exact titles (17 Oct steps 46-66, '
+                   '131-151); the local-network prompt needed a physical tap. ' + SUPERVISED_17,
+        offline='Draft-only YouTube Short candidate on the channel signed in on the phone (read on Add details, rechecked by '
+                'the verifier): video import, the matching gallery video kept untrimmed, exact one-line title by paste checked '
+                'caret-free, Save draft once, independent exact-title reopen with playback and a final Drafts check. Disabled '
+                'without its isolated configuration (analysis/farm-youtube-draft-20261020/README.md).',
+        live=None,
+        remaining='Fresh integrated C24C acceptance (Paste callout unobserved; the observed layout changed once on 17 Oct); '
+                  'a permission prompt still needs one physical answer per phone until an input method is validated.'),
     UploadFormat.YT_VIDEO: dict(
         platform='youtube', name='YouTube long video', level='unsupported_draft', draftMechanism='not_observed',
         supervised=None, offline=None, live=None,
@@ -101,7 +106,8 @@ _FORMATS = {
 # Only these routes can drive C24C at all, and only when the backend was started
 # with their explicit isolated configuration. Everything else has no live route.
 CANDIDATE_ROUTES = {UploadFormat.IG_CAROUSEL: '/api/farm/draft-creations', UploadFormat.IG_REEL: '/api/farm/reel-creations',
-                    UploadFormat.TT_VIDEO: '/api/farm/tiktok-creations', UploadFormat.X_VIDEO: '/api/farm/x-creations'}
+                    UploadFormat.TT_VIDEO: '/api/farm/tiktok-creations', UploadFormat.X_VIDEO: '/api/farm/x-creations',
+                    UploadFormat.YT_SHORT: '/api/farm/youtube-creations'}
 
 
 def coverage():

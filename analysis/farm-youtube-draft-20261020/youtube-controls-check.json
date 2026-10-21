@@ -1,0 +1,512 @@
+{
+  "yt_home_logo": {
+    "mode": "pixels",
+    "checks": [
+      {
+        "frame": "136-youtube-after-operator/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "145-youtube-save-video-draft/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "150-youtube-resave-verified-video/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "151-final-home/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "141-youtube-mp4-editor/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "147-youtube-video-draft-library/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "138-youtube-mp4-picker/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_home_actions": {
+    "mode": "glyph",
+    "checks": [
+      {
+        "frame": "136-youtube-after-operator/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "145-youtube-save-video-draft/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "150-youtube-resave-verified-video/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "151-final-home/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "147-youtube-video-draft-library/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "137-youtube-create-video/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_nav_home": {
+    "mode": "glyph",
+    "checks": [
+      {
+        "frame": "136-youtube-after-operator/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "145-youtube-save-video-draft/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "150-youtube-resave-verified-video/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "151-final-home/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "50-youtube-loaded/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "51-youtube-account/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "137-youtube-create-video/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_nav_create": {
+    "mode": "glyph",
+    "checks": [
+      {
+        "frame": "136-youtube-after-operator/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "145-youtube-save-video-draft/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "150-youtube-resave-verified-video/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "151-final-home/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "50-youtube-loaded/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "51-youtube-account/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "137-youtube-create-video/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_camera_record": {
+    "mode": "pixels",
+    "checks": [
+      {
+        "frame": "137-youtube-create-video/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "146-youtube-draft-route/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "147-youtube-video-draft-library/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "52-youtube-create/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "138-youtube-mp4-picker/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "136-youtube-after-operator/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "141-youtube-mp4-editor/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_badge_one": {
+    "mode": "disk",
+    "checks": [
+      {
+        "frame": "140-youtube-mp4-trim-review/pointer.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "140-youtube-mp4-trim-review/immediate.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "138-youtube-mp4-picker/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "139-youtube-select-mp4/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "140-youtube-mp4-trim-review/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_picker_next": {
+    "mode": "pixels",
+    "checks": [
+      {
+        "frame": "139-youtube-select-mp4/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "140-youtube-mp4-trim-review/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "138-youtube-mp4-picker/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "141-youtube-mp4-editor/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "140-youtube-mp4-trim-review/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_trim_done": {
+    "mode": "pixels",
+    "checks": [
+      {
+        "frame": "140-youtube-mp4-trim-review/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "141-youtube-mp4-editor/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "139-youtube-select-mp4/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "141-youtube-mp4-editor/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_editor_next": {
+    "mode": "pixels",
+    "checks": [
+      {
+        "frame": "148-youtube-video-draft-reopen/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "141-youtube-mp4-editor/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "142-youtube-video-details/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "149-youtube-reopened-caption/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "139-youtube-select-mp4/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "140-youtube-mp4-trim-review/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_details_save": {
+    "mode": "pixels",
+    "checks": [
+      {
+        "frame": "143-youtube-video-caption-focus/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "144-youtube-video-caption/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "145-youtube-save-video-draft/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "149-youtube-reopened-caption/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "141-youtube-mp4-editor/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "145-youtube-save-video-draft/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "139-youtube-select-mp4/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_details_upload": {
+    "mode": "pixels",
+    "checks": [
+      {
+        "frame": "143-youtube-video-caption-focus/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "144-youtube-video-caption/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "145-youtube-save-video-draft/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "149-youtube-reopened-caption/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "141-youtube-mp4-editor/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "145-youtube-save-video-draft/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "139-youtube-select-mp4/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_details_back": {
+    "mode": "pixels",
+    "checks": [
+      {
+        "frame": "143-youtube-video-caption-focus/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "144-youtube-video-caption/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "145-youtube-save-video-draft/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "149-youtube-reopened-caption/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "141-youtube-mp4-editor/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "136-youtube-after-operator/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "147-youtube-video-draft-library/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  },
+  "yt_drafts_header": {
+    "mode": "pixels",
+    "checks": [
+      {
+        "frame": "147-youtube-video-draft-library/after.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "148-youtube-video-draft-reopen/before.png",
+        "accepted": true,
+        "expected": true
+      },
+      {
+        "frame": "142-youtube-video-details/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "136-youtube-after-operator/after.png",
+        "accepted": false,
+        "expected": false
+      },
+      {
+        "frame": "137-youtube-create-video/after.png",
+        "accepted": false,
+        "expected": false
+      }
+    ]
+  }
+}

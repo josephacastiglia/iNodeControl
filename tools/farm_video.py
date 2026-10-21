@@ -36,6 +36,9 @@ PAGES = {
     'x_video': dict(title='X draft', app='X', prefix='x', proof='an X draft',
                     steps='In X check the signed-in account, start a post, paste the text, add this video from Photos, then '
                           'choose Cancel and Save to drafts. Do not tap Post or Discard.'),
+    'yt_short': dict(title='YouTube draft', app='YouTube', prefix='yt', proof='a YouTube draft',
+                     steps='In YouTube tap + and Add, select this video, keep its whole length with Done, choose Next, check the '
+                           'channel, paste the title and choose Save draft. Do not tap Upload Short, Post or Live.'),
 }
 
 
