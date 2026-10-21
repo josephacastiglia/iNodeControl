@@ -41,7 +41,7 @@ internal sealed partial class VideoDraftWindow
                     return new(HttpStatusCode.Conflict) { Content = new StringContent("{\"error\":\"Preparation busy\"}", Encoding.UTF8, "application/json") };
                 }
                 var data = JsonDocument.Parse(body).RootElement; CreatedId = data.GetProperty("id").GetString();
-                SavedDraft = new { id = data.GetProperty("id").GetString(), revision = 1, title = "Test video", caption = "DRAFT ONLY", platform = Format switch { "ig_reel" => "Instagram", "x_video" => "X", _ => "TikTok" }, format = Format,
+                SavedDraft = new { id = data.GetProperty("id").GetString(), revision = 1, title = "Test video", caption = "DRAFT ONLY", platform = Format switch { "ig_reel" => "Instagram", "x_video" => "X", "yt_short" => "YouTube", _ => "TikTok" }, format = Format,
                     video = new { seconds = 2.0, codec = "h264", width = 720, height = 1280, fitted = true, upscaled = true }, published = false, savedInApp = false };
                 if (ServerErrorAfterSave)
                     return new(HttpStatusCode.InternalServerError) { Content = new StringContent("{\"error\":\"Response failed after saving\"}", Encoding.UTF8, "application/json") };
@@ -174,11 +174,24 @@ internal sealed partial class VideoDraftWindow
             check("A saved X video copy enables only the bounded X candidate window", reel._x.IsEnabled && !reel._tiktok.IsEnabled && !reel._reel.IsEnabled && xWindow is not null
                 && xWindow.Route == "/api/farm/x-creations" && xWindow.Capability == "xCreation" && xWindow.BookmarkPath.EndsWith("farm-pending-x-creation.json")
                 && xWindow.DraftId == reelHandler.CreatedId && !xWindow.InspectAvailable && reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
+            check("An X copy never offers the YouTube draft action", !reel._youtube.IsEnabled && reel.YouTubeWindow() is null);
             xWindow?.Close();
             plain._draft = reel._draft;
             check("Without a candidate data folder the X action is absent", !plain._x.IsEnabled && plain.XWindow() is null);
             reel._caption.Text = "Edited X text";
             check("Editing the caption disables the X draft action for the stale copy", !reel._x.IsEnabled && reel.XWindow() is null);
+            reelHandler.Format = "yt_short"; reel._format.SelectedIndex = 2; reel._sources.SelectedIndex = 0;
+            await reel.RunAsync(reel.PrepareAsync);
+            var youtube = reel.YouTubeWindow();
+            check("A saved YouTube Short copy enables only the bounded YouTube candidate window", (reel._youtube.Content as string) == "Create YouTube Short draft…" && reel._youtube.IsEnabled && !reel._x.IsEnabled && !reel._tiktok.IsEnabled && !reel._reel.IsEnabled
+                && youtube is not null && youtube.Route == "/api/farm/youtube-creations" && youtube.Capability == "youtubeCreation"
+                && youtube.BookmarkPath.EndsWith("farm-pending-youtube-creation.json") && youtube.DraftId == reelHandler.CreatedId && !youtube.InspectAvailable
+                && reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
+            youtube?.Close();
+            plain._draft = reel._draft;
+            check("Without a candidate data folder the YouTube action is absent", !plain._youtube.IsEnabled && plain.YouTubeWindow() is null);
+            reel._caption.Text = "Edited YouTube title";
+            check("Editing the title disables the YouTube draft action for the stale copy", !reel._youtube.IsEnabled && reel.YouTubeWindow() is null);
         }
         finally { reel.Close(); plain.Close(); Directory.Delete(folder, recursive: true); }
     }

@@ -28,6 +28,11 @@ def capabilities():
              'detail': 'Imports one prepared X copy through Safari and Files, binds the X account signed in first, pastes an exact '
                        'one-line text, adds the matching video, saves once and independently reopens and plays it on the same account. '
                        'Tested on retained C24C layouts only; disabled without its isolated configuration; no live acceptance yet.'},
+            {'id': 'youtube-draft', 'name': 'YouTube Short draft on the configured phone', 'availability': 'Offline candidate',
+             'detail': 'Imports one prepared YouTube Short copy through Safari and Files on the phone named by its configuration (box slot 16), selects it untrimmed, binds the channel shown '
+                       'on Add details, pastes an exact one-line title checked without the caret, saves once and independently '
+                       'reopens, plays and finds it in Drafts on the same channel. A permission prompt stops the run with a one-time '
+                       'request. Tested on retained C24C layouts only; disabled without its isolated configuration; no live acceptance yet.'},
             {'id': 'video-drafts', 'name': 'Prepare and transfer video drafts', 'availability': 'Local candidate',
              'detail': 'Immutable H.264 video copies, whole-frame fitting, source checksums, saved-copy recovery and expiring links. App saves still require observation.'},
             {'id': 'other-drafts', 'name': 'TikTok, X and YouTube draft saves', 'availability': 'Supervised tests passed',

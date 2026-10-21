@@ -18,7 +18,7 @@ from farm_media_transfer import MediaTransferServer
 from farm_reel_layout import caption_supported
 from farm_reel_runs import ReelCreationRuns, reel_content
 from farm_test_network import allowed_ports
-from farm_video import VideoDrafts, VideoTransferPackage, download_name, run_media, NAME_ALPHABET
+from farm_video import VideoDrafts, VideoTransferPackage, download_name, run_media, NAME_ALPHABET, FORMATS, PAGES
 from imouse_social_automation import KernelSafetyError
 import test_farm_http_jobs as http_jobs
 
@@ -171,15 +171,11 @@ class ReelPackageTests(unittest.TestCase, ReelVideoFixture):
         finally:
             server.shutdown(); server.close_clients(); server.server_close(); thread.join(2); allowed_ports.discard(server.server_port)
 
-    def test_other_video_formats_keep_the_supervised_name_and_page(self):
-        # TikTok and X video have their own automated pages (test_farm_tiktok_runs, test_farm_x_runs); YouTube stays supervised.
-        for fmt in ('yt_short',):
-            with self.subTest(format=fmt):
-                temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
-                videos, draft = self.stage(Path(temp.name), fmt=fmt)
-                package = VideoTransferPackage(videos.export(draft['id'], 1))
-                self.assertEqual('imouse-draft', package.download_name)
-                self.assertIn('Open video to save', package.page('/t/x/', 'n').decode('utf-8'))
+    def test_every_video_format_has_its_own_named_page(self):
+        # TikTok, X and YouTube have their own automated pages too (test_farm_tiktok_runs, test_farm_x_runs,
+        # test_farm_youtube_runs); no video format is left on the supervised 'imouse-draft' page.
+        self.assertEqual(set(FORMATS), set(PAGES))
+        self.assertEqual(len(PAGES), len({page['prefix'] for page in PAGES.values()}))
 
 
 class ReelHttpTests(unittest.TestCase, ReelVideoFixture):

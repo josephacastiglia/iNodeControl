@@ -118,7 +118,7 @@ class VideoDraftTests(unittest.TestCase):
         draft = self.create(); package = VideoTransferPackage(self.store.export(draft['id'], 1))
         self.assertEqual(self.encoded, package.video); self.assertEqual(self.request['caption'], package.caption)
         self.assertFalse(draft['savedInApp']); self.assertFalse(draft['published'])
-        # tt_video now gets the automated TikTok package page; X and YouTube keep the supervised page.
+        # tt_video gets the automated TikTok package page.
         page = package.page('/test/', 'nonce').decode()
         self.assertIn('Do not tap Post, Share or Your Story.', page)
         self.assertIn('A download does not prove a Photos save or a TikTok draft.', page)

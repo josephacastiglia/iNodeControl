@@ -16,7 +16,7 @@ internal sealed partial class FarmDraftRunWindow
         internal string StoreId = Guid.NewGuid().ToString(), DraftId = Guid.NewGuid().ToString();
         internal string? Id, BookmarkPath, ImportedFrom, EligibleImportedFrom;
         internal string? CreationId, CreationStoreId, CreationRecordSha256, EligibleCreationId;
-        internal bool Inspection, WrongCreationProof, Reel, TikTok, X, XFixedAccount, WrongXCheckAccount;
+        internal bool Inspection, WrongCreationProof, Reel, TikTok, X, XFixedAccount, WrongXCheckAccount, YouTube, YouTubeFixedAccount, YouTubeNoPhone;
         internal int Starts, Cancels, EligibilityCalls;
         internal bool Missing, Terminal, Verified, Enabled = true, WrongResult, BookmarkBeforePost;
         internal bool CreationConfirmed = true, RetryBeforeImport, ContinueImported;
@@ -28,7 +28,7 @@ internal sealed partial class FarmDraftRunWindow
             terminal = Terminal, savedDraftVerified = Verified, retryBeforeImportAllowed = RetryBeforeImport, continueImportedAllowed = ContinueImported, cleanup = Terminal ? "confirmed" : "unconfirmed",
             reason = Verified ? "The matching draft was saved, reopened and checked." : "Save reply lost; no replay.", draftChangedSinceRun = true, publishing = false, messaging = false, automaticResume = false,
             inspectionOnly = Inspection, originalOutcomeChanged = false, appRestartVerified = false,
-            workflow = new { source = "candidate_phone_workflow", mode = Inspection ? "inspect_saved_draft" : Reel ? "create_reel_draft" : TikTok ? "create_tiktok_draft" : X ? "create_x_draft" : "create_new_draft", inspectionOnly = Inspection, account = X ? "fixture_handle" : null, verification = new { account = WrongXCheckAccount ? "other_handle" : "fixture_handle" }, createdDraftVerified = CreationConfirmed, mediaDelivery = new { stopped = true }, actions = new[] { new { label = Inspection ? "inspect-open-draft" : "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
+            workflow = new { source = "candidate_phone_workflow", mode = Inspection ? "inspect_saved_draft" : Reel ? "create_reel_draft" : TikTok ? "create_tiktok_draft" : X ? "create_x_draft" : YouTube ? "create_youtube_draft" : "create_new_draft", inspectionOnly = Inspection, account = X || YouTube ? "fixture_handle" : null, verification = new { account = WrongXCheckAccount ? "other_handle" : "fixture_handle" }, createdDraftVerified = CreationConfirmed, mediaDelivery = new { stopped = true }, actions = new[] { new { label = Inspection ? "inspect-open-draft" : "prepared-save-once", state = Verified ? "answered" : "outcome_unknown" } },
                 observations = new[] { new { observationId = "frame1", role = "library", state = "observed" } } }
         };
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
@@ -46,7 +46,7 @@ internal sealed partial class FarmDraftRunWindow
                 BookmarkBeforePost = BookmarkPath is not null && System.IO.File.ReadAllText(BookmarkPath).Contains(Id!);
                 throw new HttpRequestException("Response lost after admission");
             }
-            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled }, draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false }, draftRecovery = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, inspectionOnly = true }, reelCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "ig_reel" }, tiktokCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "tt_video" }, xCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = XFixedAccount ? "xs.halle.xo" : null, accountPolicy = XFixedAccount ? "fixed" : "first_signed_in", publishing = false, messaging = false, format = "x_video" } });
+            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftWorkflow = new { version = 1, storeId = StoreId, enabled = Enabled }, draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false }, draftRecovery = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, inspectionOnly = true }, reelCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "ig_reel" }, tiktokCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "tt_video" }, xCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = XFixedAccount ? "xs.halle.xo" : null, accountPolicy = XFixedAccount ? "fixed" : "first_signed_in", publishing = false, messaging = false, format = "x_video" }, youtubeCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = YouTubeNoPhone ? null : "F215", phone = YouTubeNoPhone ? null : new { board = "F215", receiver = "iMouse2-16", slot = 16 }, account = YouTubeFixedAccount ? "xs.halle.xo" : null, accountPolicy = YouTubeFixedAccount ? "fixed" : "first_signed_in", publishing = false, messaging = false, format = "yt_short" } });
             if (route.EndsWith("/eligibility"))
             {
                 EligibilityCalls++;
@@ -59,7 +59,7 @@ internal sealed partial class FarmDraftRunWindow
                 }
                 return Response(new { protocolVersion = 2, eligibility = eligible });
             }
-            if (route is "/api/farm/draft-runs" or "/api/farm/draft-creations" or "/api/farm/draft-recoveries" or "/api/farm/reel-creations" or "/api/farm/tiktok-creations" or "/api/farm/x-creations") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
+            if (route is "/api/farm/draft-runs" or "/api/farm/draft-creations" or "/api/farm/draft-recoveries" or "/api/farm/reel-creations" or "/api/farm/tiktok-creations" or "/api/farm/x-creations" or "/api/farm/youtube-creations") return Response(new { protocolVersion = 2, runs = Id is null ? Array.Empty<object>() : new[] { new { id = Id, revision = 3 } } });
             if (route.Contains("/frames/")) return Response(new { protocolVersion = 2, frame = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=" });
             return Missing ? Response(new { error = "Saved result missing" }, HttpStatusCode.NotFound) : Response(new { protocolVersion = 2, run = Result() });
         }
@@ -253,6 +253,45 @@ internal sealed partial class FarmDraftRunWindow
                 check("One window never drives X together with " + (reelFlag ? "Reel" : "TikTok"), refused);
             }
             handler.X = false;
+
+            handler.Id = null; handler.Terminal = handler.Verified = false; handler.YouTube = true; handler.YouTubeFixedAccount = true;
+            int ytStarts = handler.Starts, ytRoutes = handler.Routes.Count;
+            var pinnedYouTube = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "YouTube acceptance", createNew: true, youtube: true); windows.Add(pinnedYouTube);
+            await pinnedYouTube.RunAsync(pinnedYouTube.InitializeAsync);
+            check("A YouTube backend with a fixed account is refused; YouTube binds the signed-in channel", !pinnedYouTube._start.IsEnabled && pinnedYouTube._status.Text.Contains("designated") && handler.Starts == ytStarts);
+            handler.YouTubeFixedAccount = false; handler.YouTubeNoPhone = true;
+            var phoneless = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "YouTube acceptance", createNew: true, youtube: true); windows.Add(phoneless);
+            await phoneless.RunAsync(phoneless.InitializeAsync);
+            check("A YouTube backend that names no phone is refused; there is no default phone", !phoneless._start.IsEnabled && phoneless._status.Text.Contains("designated") && handler.Starts == ytStarts);
+            handler.YouTubeNoPhone = false;
+            var ytWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "YouTube acceptance", createNew: true, youtube: true); windows.Add(ytWindow);
+            handler.BookmarkPath = ytWindow._bookmarkPath; await ytWindow.RunAsync(ytWindow.InitializeAsync);
+            check("YouTube creation opens with its own capability, route and bookmark and sends nothing", ytWindow._start.IsEnabled && ytWindow._route == "/api/farm/youtube-creations" && ytWindow._capability == "youtubeCreation"
+                && ytWindow._bookmarkPath.EndsWith("farm-pending-youtube-creation.json") && ytWindow._bookmarkPath != xWindow._bookmarkPath && handler.Starts == ytStarts
+                && ytWindow._start.Content as string == "Create and verify YouTube draft" && ytWindow._status.Text.Contains("not a saved YouTube draft"));
+            check("The YouTube window names the phone its backend is configured for", ytWindow._status.Text.StartsWith("Configured phone: iMouse2-16 (board F215, box slot 16)")
+                && !ytWindow.Title.Contains("C24C"));
+            await ytWindow.RunAsync(ytWindow.StartAsync); ytWindow._poll.Stop();
+            check("YouTube creation journals admission before POST and keeps a lost reply", handler.Starts == ytStarts + 1 && handler.BookmarkBeforePost && ytWindow._pending?.Id == handler.Id && !ytWindow._start.IsEnabled);
+            await ytWindow.StopAsync();
+            check("YouTube Stop uses the original YouTube request route", handler.Routes.Last() == "/api/farm/youtube-creations/" + handler.Id + "/cancel");
+            handler.Terminal = handler.Verified = true; handler.WrongXCheckAccount = true; await ytWindow.RunAsync(ytWindow.RecoverAsync);
+            check("A verified YouTube result checked on another channel is refused and kept", ytWindow._pending is not null && !ytWindow._status.Text.Contains("NEW YOUTUBE DRAFT CREATED AND VERIFIED")
+                && ytWindow._status.Text.Contains("checked on the channel bound by creation"));
+            handler.WrongXCheckAccount = false; await ytWindow.RunAsync(ytWindow.RecoverAsync);
+            check("A verified YouTube draft names the bound channel and its matching check", ytWindow._pending is null && ytWindow._status.Text.Contains("NEW YOUTUBE DRAFT CREATED AND VERIFIED")
+                && ytWindow._status.Text.Contains("YouTube channel bound by this run: @fixture_handle (the separate check saw the same handle).") && !ytWindow._inspect.IsEnabled);
+            check("The YouTube window calls only health and its own scoped route", handler.Routes.Skip(ytRoutes).All(r => r == "/health" || r.StartsWith("/api/farm/youtube-creations")));
+            foreach (var (reelFlag, tiktokFlag, xFlag) in new[] { (true, false, false), (false, true, false), (false, false, true) })
+            {
+                try { _ = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Both", createNew: true, reel: reelFlag, tiktok: tiktokFlag, x: xFlag, youtube: true); refused = false; }
+                catch (ArgumentException) { refused = true; }
+                check("One window never drives YouTube together with " + (reelFlag ? "Reel" : tiktokFlag ? "TikTok" : "X"), refused);
+            }
+            try { _ = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Run", youtube: true); refused = false; }
+            catch (ArgumentException) { refused = true; }
+            check("A YouTube window only creates a new draft from a saved copy", refused);
+            handler.YouTube = false;
             var report = JsonSerializer.Deserialize<JsonElement>("{\"features\":[{\"name\":\"Jobs\",\"availability\":\"Simulation tested\",\"detail\":\"Durable IDs.\"}],"
                 + "\"formats\":[{\"name\":\"Instagram Reel\",\"level\":\"integrated_offline\",\"remaining\":\"Fresh C24C acceptance.\"},"
                 + "{\"name\":\"Instagram story\",\"level\":\"unsupported_draft\",\"remaining\":\"No draft mechanism.\"}]}");
