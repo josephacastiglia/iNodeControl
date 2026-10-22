@@ -174,6 +174,8 @@ class XCreationWorkflow(ReelCreationWorkflow):
 
     def confirmation_compare(self, role):
         """Settled screens may be reconfirmed by a newer frame under their own settling rule."""
+        # The focused composer (callout or not) holds still like the empty composer: caret and tips masked.
+        if role == 'x_composer_focused': return compare('x_composer_empty')
         return compare(role) if role in SETTLED else super().confirmation_compare(role)
 
     def observe_screen(self, role, index=None, require_next=False):
