@@ -138,3 +138,20 @@ a test in `tools/test_farm_safari_start.py`.
 - Next on resume: TikTok from the selected video (editor, sound removal, caption, Drafts, verifier);
   X from the Paste callout (caption, attach video, save draft, verifier). Then YouTube Short (slot 16).
 - Start screens: `farm_start_screen.py tiktok-profile|x-timeline <folder> <config>`.
+
+## 22 Oct afternoon: after the power-up
+
+- Bring-up: `Start-Multiphone.ps1 -Stage slots`, then `Release-Receiver.ps1` + `auto_connect.py` per
+  phone (slots 20, 17, 16), each with mDNS proof. Two reconnects outlasted their 15 s lease and
+  left C214/F215 stopped; cleared with `/input/resume` at the expected generation, and
+  `auto_connect.py` now renews the lease before every command.
+- Start screens: `youtube-home` added (shared app-home routine with `x-timeline`); TikTok's
+  profile-tab decision compares only the Profile tab (an activity bubble appears beside Inbox);
+  a lone settling-pointer blob is ignored (each phone resets its pointer to a different spot).
+- TikTok: the selection badge is compared two pixels inside its rim; Safari's blue
+  "downloading" ring counts as the download badge.
+- YouTube (slot 16): the labelled five-item tab bar is accepted (create + at 250,1011).
+- Blocked on the phones: X on slot 17 ignores every pointer click since the power-up (hover still
+  shows; other apps take clicks); phone 16 shows YouTube "You're offline".
+- `one_tap.py`: one supervised navigation tap for backing out of leftover screens.
+- Full context handoff: `CLAUDE-HANDOFF-20261022.md` in the repository root.

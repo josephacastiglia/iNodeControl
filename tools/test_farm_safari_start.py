@@ -547,6 +547,12 @@ class PrivateDownloadBadgeTests(unittest.TestCase):
         with mock.patch.object(reel, 'reel_control', side_effect=InspectionStopped('light-mode template')):
             self.assertEqual((91, 955), reel.download_badge(frame(True))['target'])   # 22 Oct, slot 20.
             with self.assertRaises(InspectionStopped): reel.download_badge(frame(False))
+            import io as _io
+            from PIL import Image as _Image, ImageDraw as _Draw
+            with _Image.open(_io.BytesIO(frame(False))) as base: ringed = base.convert('RGB')
+            _Draw.Draw(ringed).ellipse((80, 944, 103, 967), outline=(20, 120, 250), width=3)   # Still downloading (22 Oct).
+            out = _io.BytesIO(); ringed.save(out, 'BMP')
+            self.assertEqual((91, 955), reel.download_badge(out.getvalue())['target'])
 
 
 class TikTokLaunchTests(unittest.TestCase):
@@ -628,6 +634,65 @@ class TikTokSelectionTests(unittest.TestCase):
                 if expected: self.assertEqual((367, 1006), tt.tiktok_selected(b'f', text(), None)['target'])
                 else:
                     with self.assertRaises(InspectionStopped): tt.tiktok_selected(b'f', text(), None)
+
+
+class AppHomeStartScreenTests(unittest.TestCase):
+    def start(self, screens):
+        from types import SimpleNamespace
+        from farm_start_screen import StartScreen
+        start = StartScreen.__new__(StartScreen); frames = iter(screens); opened = []
+        start.record = dict(commands=[], observations=[]); start.save = lambda: None; start.pause = lambda s: None
+        start.kernel = SimpleNamespace(acquire=lambda boards, ms: {'B': 't'}, release=lambda tokens: None)
+        start.phone = SimpleNamespace(board='B'); start.command = lambda *a, **k: None
+        start.fresh = lambda role: (next(frames), None, 0, 0)
+        start.open_from_home = lambda name: (opened.append(name), (next(frames), None, 0, 0))[1]
+        return start, opened
+
+    def test_the_app_is_opened_once_and_its_start_screen_waited_for(self):
+        def check(raw, text):
+            if raw != 'home': raise InspectionStopped('not yet')
+        start, opened = self.start(['other', 'splash', 'home'])   # 22 Oct: YouTube and X start screens.
+        self.assertEqual('at_start', start.to_app_home('YouTube', 'youtube_home', check)['state'])
+        self.assertEqual(['YouTube'], opened)
+        start, opened = self.start(['other', 'splash', 'splash', 'splash', 'splash'])
+        with self.assertRaises(InspectionStopped): start.to_app_home('YouTube', 'youtube_home', check)
+        self.assertEqual(['YouTube'], opened)
+
+
+class YouTubeLabelledBarTests(unittest.TestCase):
+    def frame(self, plus=True):
+        import io
+        from PIL import Image, ImageDraw
+        image = Image.new('RGB', (500, 1080), 'white'); draw = ImageDraw.Draw(image)
+        draw.ellipse((229, 990, 271, 1032), fill=(236, 236, 236))
+        if plus: draw.rectangle((249, 1001, 250, 1021), fill=(12, 12, 12)); draw.rectangle((239, 1011, 261, 1011), fill=(12, 12, 12))
+        out = io.BytesIO(); image.save(out, 'BMP'); return out.getvalue()
+
+    def test_the_labelled_five_item_bar_is_a_home_feed_with_its_own_plus(self):
+        from unittest import mock
+        import farm_youtube_layout as yl
+        screen = text(('YouTube', 58, 74, 132, 96), ('Home', 38, 1022, 67, 1030), ('Shorts', 134, 1022, 168, 1031),
+                      ('Subscriptions', 312, 1022, 384, 1032))   # 22 Oct, slot 16.
+        with mock.patch.object(yl, 'control', lambda frame, name: None), mock.patch.object(yl, 'no_overlay', lambda text: None):
+            found = yl.yt_home(self.frame(), screen)
+            self.assertEqual(((250, 1011), 'labelled'), (found['createTarget'], found['navLayout']))
+            with self.assertRaises(InspectionStopped): yl.yt_home(self.frame(plus=False), screen)
+            partial = text(('YouTube', 58, 74, 132, 96), ('Home', 38, 1022, 67, 1030))   # Labels, but not this bar.
+            with mock.patch.object(yl, 'control', side_effect=InspectionStopped('unlabelled templates')), self.assertRaises(InspectionStopped):
+                yl.yt_home(self.frame(), partial)
+
+
+class PointerBlobTests(unittest.TestCase):
+    def test_only_a_lone_grey_pointer_sized_change_is_ignored(self):
+        import numpy as np
+        from farm_start_screen import pointer_blob
+        a = np.ones((1080, 500, 3)); mask = np.ones((1080, 500), dtype=bool)
+        b = a.copy(); b[100:122, 162:184] = 160 / 255   # 724E's pointer settling from its reset spot (22 Oct).
+        self.assertTrue(pointer_blob(a, b, mask)[110, 170])
+        c = a.copy(); c[100:122, 162:184] = (1.0, .1, .1)   # A red badge of the same size is a real change.
+        self.assertFalse(pointer_blob(a, c, mask).any())
+        d = b.copy(); d[500:560, 100:300] = 0                # Anything larger than the dot is never ignored.
+        self.assertFalse(pointer_blob(a, d, mask).any())
 
 
 class LeftoverPlayerTests(unittest.TestCase):

@@ -74,7 +74,14 @@ def main():
     watcher = Watcher(lan_address())
     token = acquire(BASE, device['deviceid'])
 
+    def renew():
+        # The lease is 15 s and a reconnect can take 25 s; an expired lease marks the board stopped
+        # (C214 and F215, 22 Oct), so it is renewed before every command and before the release.
+        got = post(BASE, '/input/renew', dict(id=device['deviceid'], token=token))
+        if got.get('code') != 0: raise RuntimeError(f'lease renewal: {got}')
+
     def send(fun, purpose, **data):
+        renew()
         got = post(BASE, fun, dict(id=device['deviceid'], token=token, **data))
         record['steps'].append(dict(t=round(time.time(), 2), fun=fun, purpose=purpose, code=got.get('code')))
         if got.get('code') != 0: raise RuntimeError(f'{purpose}: {got}')
@@ -111,6 +118,8 @@ def main():
                 record['controlCenterClosed'] = not control_center(read_screen(device['deviceid']))
                 if not record['controlCenterClosed']: record['result'] = 'mirroring; Control Center did not close'
     finally:
+        try: renew()
+        except RuntimeError as error: record['renewBeforeRelease'] = str(error)
         record['release'] = post(BASE, '/input/release', dict(id=device['deviceid'], token=token)).get('code')
         watcher.close()
         (folder / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}.json").write_text(json.dumps(record, indent=2), encoding='utf-8')

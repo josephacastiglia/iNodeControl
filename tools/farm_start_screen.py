@@ -34,6 +34,23 @@ DETAILS_BACK = (30, 84)          # The Reel details' back arrow, slot 18, 22 Oct
 CONTROL_CENTER_EMPTY = (250, 960)   # Below C24C's Control Center grid (16 Sep and 20 Oct frames).
 
 
+def pointer_blob(a, b, mask):
+    """The pointer still settling from its reset spot, which differs per phone (C24C about (106, 70),
+    724E about (172, 111), 22 Oct): one changed blob no larger than the dot, grey in one frame."""
+    import numpy as np
+    changed = (np.abs(a - b).max(axis=2) > 35 / 255) & mask
+    ignore = np.zeros(mask.shape, dtype=bool)
+    ys, xs = np.nonzero(changed)
+    if not len(ys) or ys.max() - ys.min() > 34 or xs.max() - xs.min() > 34: return ignore
+    top, bottom, left, right = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    def dot(frame):
+        patch = frame[top:bottom, left:right][changed[top:bottom, left:right]]
+        return bool(len(patch)) and float(((np.abs(patch[:, 0] - patch[:, 2]) < 12 / 255)
+                                            & (patch.min(axis=1) > 110 / 255) & (patch.max(axis=1) < 200 / 255)).mean()) > .6
+    if dot(a) or dot(b): ignore[max(0, top - 4):bottom + 4, max(0, left - 4):right + 4] = True
+    return ignore
+
+
 class StartScreen:
     def __init__(self, folder, kernel=None, ocr=None, clock=time.monotonic, pause=time.sleep, phone=None):
         self.folder = Path(folder); self.folder.mkdir(parents=True, exist_ok=True)
@@ -115,6 +132,7 @@ class StartScreen:
                 keep = np.zeros(a.shape[:2], dtype=bool)
                 for left, top, right, bottom in only: keep[top:bottom, left:right] = True
                 mask &= keep
+            if a.shape == b.shape: mask &= ~pointer_blob(a, b, mask)
             mean = float(np.abs(a - b)[mask].mean()) if a.shape == b.shape else 1.0
             entry = dict(role=role + '-confirm', attempt=attempt, sequence=sequence, ageMs=age, before=before, mean=mean,
                          frame=f'{len(self.record["observations"])+1:02d}-{role}-confirm.bmp', frameSha256=hashlib.sha256(raw).hexdigest())
@@ -298,7 +316,9 @@ class StartScreen:
                 raw, text, _, _ = self.fresh(f'after-splash-{wait + 1}')
             if not profile(raw, text):
                 target = tt.tiktok_feed(raw, text)['profileTarget']   # Stops unless the feed is recognized.
-                self.tap(raw, text, target, 'tiktok_feed', 'open-profile-tab', only=((0, 985, 500, 1040),))   # The video plays down to y 980.
+                # Only the Profile tab: the video plays down to y 980 and an activity bubble can appear beside Inbox
+                # (slot 20, 22 Oct).
+                self.tap(raw, text, target, 'tiktok_feed', 'open-profile-tab', only=((400, 985, 500, 1040),))
                 self.pause(1.5)
                 raw, text, _, _ = self.fresh('after-profile-tab')
             require(profile(raw, text), 'TikTok did not show the authorized profile; no further input.')
@@ -313,20 +333,33 @@ class StartScreen:
     def to_x_timeline(self):
         """X on its home timeline: from anywhere, Home, then open X. No tap inside X."""
         import farm_x_layout as xl
-        def timeline(raw, text):
-            try: xl.x_feed(raw, text); return True
+        return self.to_app_home('X', 'x_timeline', xl.x_feed)
+
+    def to_youtube_home(self):
+        """YouTube on its home feed: from anywhere, Home, then open YouTube. No tap inside YouTube;
+        a permission prompt there stops for the creation run's own prompt handling."""
+        import farm_youtube_layout as yl
+        return self.to_app_home('YouTube', 'youtube_home', yl.yt_home)
+
+    def to_app_home(self, name, target, check):
+        def ready(raw, text):
+            try: check(raw, text); return True
             except InspectionStopped: return False
-        self.record['target'] = 'x_timeline'
+        self.record['target'] = target
         self.tokens = self.kernel.acquire([self.phone.board], 30000)
         try:
             self.command('/mouse/reset', 'initial_pointer_reset')
             raw, text, _, _ = self.fresh('before')
-            self.record['before'] = dict(screen='timeline' if timeline(raw, text) else 'other')
-            if timeline(raw, text):
+            self.record['before'] = dict(screen=target if ready(raw, text) else 'other')
+            if ready(raw, text):
                 self.record.update(state='already_at_start'); return self.record
-            raw, text, _, _ = self.open_from_home('X')
-            require(timeline(raw, text), 'X did not open on its home timeline; no further input.')
-            self.record.update(state='at_start', after=dict(screen='timeline')); return self.record
+            raw, text, _, _ = self.open_from_home(name)
+            for wait in range(3):   # A relaunched app can still be drawing its first screen.
+                if ready(raw, text): break
+                self.pause(1.5)
+                raw, text, _, _ = self.fresh(f'after-launch-{wait + 1}')
+            require(ready(raw, text), f'{name} did not open on its start screen; no further input.')
+            self.record.update(state='at_start', after=dict(screen=target)); return self.record
         except BaseException as error:
             self.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error)); raise
         finally:
@@ -401,15 +434,16 @@ class StartScreen:
 
 
 def main():
-    # farm_start_screen.py instagram-profile|tiktok-profile|x-timeline <journal folder> <window creation config>
+    # farm_start_screen.py instagram-profile|tiktok-profile|x-timeline|youtube-home <journal folder> <window creation config>
     target, folder, config = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
-    if target not in ('instagram-profile', 'tiktok-profile', 'x-timeline'):
-        raise SystemExit('Supported start screens: instagram-profile, tiktok-profile, x-timeline')
+    if target not in ('instagram-profile', 'tiktok-profile', 'x-timeline', 'youtube-home'):
+        raise SystemExit('Supported start screens: instagram-profile, tiktok-profile, x-timeline, youtube-home')
     settings = json.loads(config.read_text(encoding='utf-8-sig'))
     tool = StartScreen(folder, phone=phone_of(settings))
     try:
         if target == 'tiktok-profile': tool.to_tiktok_profile(settings['account'])
         elif target == 'x-timeline': tool.to_x_timeline()
+        elif target == 'youtube-home': tool.to_youtube_home()
         else: tool.to_instagram_profile_top()
     except InspectionStopped: pass
     r = tool.record

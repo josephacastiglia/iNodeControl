@@ -114,7 +114,12 @@ def control(frame, name, *, offset=(0, 0)):
         # (slot 20, 22 Oct: corners .20 changed, the badge .002). The numeral is checked on its own too.
         numeral = expected.min(axis=2) > 230
         require((delta[numeral].max(axis=1) > 35/255).mean() < .1, 'TikTok control changed: '+name)
-        delta = delta[((expected[..., 0] > 180) & (expected[..., 1] < 90)) | numeral][:, None, :]
+        # The disk's anti-aliased rim blends with the tile behind it (.07 changed on 22 Oct); two
+        # pixels in from the rim the red is solid.
+        disk = (expected[..., 0] > 180) & (expected[..., 1] < 90)
+        for _ in range(2):
+            disk = disk & np.roll(disk, 1, 0) & np.roll(disk, -1, 0) & np.roll(disk, 1, 1) & np.roll(disk, -1, 1)
+        delta = delta[disk | numeral][:, None, :]
     require(delta.mean() < .02 and (delta.max(axis=2) > 35/255).mean() < .04, 'TikTok control changed: '+name)
     return left+dx, top+dy, right+dx, bottom+dy
 

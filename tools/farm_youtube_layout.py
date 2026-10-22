@@ -107,15 +107,39 @@ def chrome_only(text, role):
 
 # ---- Home feed and camera ---------------------------------------------------------------
 
+LABELLED_NAV = (('home', (25, 1012, 80, 1040)), ('shorts', (120, 1012, 180, 1040)), ('subscriptions', (300, 1012, 395, 1040)))
+
+
+def labelled_create(frame):
+    """The labelled five-item bar's + (slot 16, 22 Oct): a light grey disk centred at (250, 1011)
+    with a dark plus; returns its centre or None."""
+    image = pixels(frame, exact=True).astype(int)
+    # Each 2 px stroke counts where any pixel across its width is dark.
+    vertical = float((image[1003:1020, 246:255].min(axis=2).min(axis=1) < 90).mean())
+    horizontal = float((image[1008:1015, 241:260].min(axis=2).min(axis=0) < 90).mean())
+    disk = image[996:1027, 232:268]
+    grey = float(((disk.min(axis=2) > 205) & (disk.max(axis=2) < 246)).mean())
+    return (250, 1011) if vertical > .8 and horizontal > .8 and grey > .4 else None
+
+
 def yt_home(frame, text):
-    """Home feed with the four-item bar (Home, Shorts, +, You). Feed content is arbitrary and never a target."""
+    """Home feed with either observed bar: four unlabelled items (Home, Shorts, +, You; C24C, 17 Oct)
+    or five labelled ones (Home, Shorts, +, Subscriptions, You; slot 16, 22 Oct). Feed content is
+    arbitrary and never a target."""
     require(words_at(text, 'youtube', (50, 65, 140, 105)), 'The YouTube home header is not recognized.')
-    for name in ('yt_home_logo', 'yt_home_actions', 'yt_nav_home', 'yt_nav_create'): control(frame, name)
-    # The earlier five-item bar labels every icon; this layout has no labels.
-    require(not any(words_at(text, label, (0, 1005, 500, 1045)) for label in ('home', 'shorts', 'subscriptions', 'you')),
-            'This YouTube navigation bar is not the observed layout.')
+    for name in ('yt_home_logo', 'yt_home_actions'): control(frame, name)
+    if all(words_at(text, label, box) for label, box in LABELLED_NAV):
+        target = labelled_create(frame)
+        require(target, 'The YouTube create button is not where it was observed.')
+        layout = 'labelled'
+    else:
+        for name in ('yt_nav_home', 'yt_nav_create'): control(frame, name)
+        # The unlabelled layout shows no tab labels; any other mix is neither observed bar.
+        require(not any(words_at(text, label, (0, 1005, 500, 1045)) for label in ('home', 'shorts', 'subscriptions', 'you')),
+                'This YouTube navigation bar is not the observed layout.')
+        target, layout = (311, 1020), 'unlabelled'
     no_overlay(chrome_only(text, 'yt_home'))
-    return dict(createTarget=(311, 1020), toastSeen=bool(line_at(text, 'draft saved', TOAST[1])))
+    return dict(createTarget=target, navLayout=layout, toastSeen=bool(line_at(text, 'draft saved', TOAST[1])))
 
 
 def yt_camera(frame, text):

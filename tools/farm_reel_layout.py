@@ -575,10 +575,14 @@ def download_badge(frame):
         except InspectionStopped:
             # Private Browsing's dark bar draws it as a white filled glyph (slot 20, 22 Oct: .28 of
             # its box bright; the same bar without a download .0).
-            image = pixels(frame, exact=True)
+            image = pixels(frame, exact=True).astype(int)
             dark = float(image[935:978, 150:350].mean()) < 110
-            bright = float((image[940:971, 76:107].min(axis=2) > 215).mean())
-            require(dark and .2 <= bright <= .5, 'Reel control changed: safari_download_outline')
+            box = image[940:971, 76:107]
+            bright = float((box.min(axis=2) > 215).mean())
+            # While the file is still arriving the glyph is a blue progress ring (.12 of its box blue;
+            # 22 Oct). The Downloads list later still requires the complete file size.
+            ring = float(((box[..., 2] > 200) & (box[..., 0] < 90) & (box[..., 1] > 90)).mean())
+            require(dark and (.2 <= bright <= .5 or .06 <= ring <= .4), 'Reel control changed: safari_download_outline')
     return dict(target=(91, 955))
 
 
