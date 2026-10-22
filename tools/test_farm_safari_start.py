@@ -62,6 +62,9 @@ class LeftoverShareSheetTests(unittest.TestCase):
         self.assertEqual(('imouse-reel-featmr', (460, 531)), (found['name'], found['closeTarget']))
         for header in (('Photo', 69, 521, 237, 536), ('imouse-reel-featmr', 142, 300, 353, 316)):
             with self.subTest(header=header), self.assertRaises(InspectionStopped): reel.leftover_share_sheet(text(header, *self.ROWS))
+        x_rows = [('imouse-x-hctunh', 85, 519, 232, 534)] + [r for r in self.ROWS if r[1] < 100]   # 22 Oct, slot 17 (X route).
+        self.assertEqual('imouse-x-hctunh', reel.leftover_share_sheet(text(*x_rows))['name'])
+        with self.assertRaises(InspectionStopped): reel.leftover_share_sheet(text(('imouse-zz-hctunh', 85, 519, 232, 534), *x_rows[1:]))
         with self.assertRaises(InspectionStopped):   # Not the share sheet's actions.
             reel.leftover_share_sheet(text(('imouse-reel-featmr', 69, 521, 237, 536), *self.ROWS[:4]))
 
@@ -339,6 +342,292 @@ class PreviewAccountTests(unittest.TestCase):
                 reel.reel_preview(b'f', screen('wrong.account • Original audio'), None, 'xs.halle.xo', 'Fresh reel acceptance')
         with mock.patch.multiple(reel, **dict(stubs, band_words=lambda f, b: [('xs.hallexx', 74, 872, 160, 888)])),                 self.assertRaises(InspectionStopped):   # A similar account still needs an exact enlarged read.
             reel.reel_preview(b'f', screen('. hallexx • Original audio'), None, 'xs.halle.xo', 'Fresh reel acceptance')
+
+
+class SuggestionLabelTests(unittest.TestCase):
+    def test_a_missed_suggestion_label_is_read_again_from_its_row(self):
+        from unittest import mock
+        import farm_creation_layout as layout
+        import farm_reel_layout as reel
+        screen = text(('Siri Suggestions', 26, 76, 164, 94), ('YouTube', 166, 212, 225, 223), ('Instagram', 269, 212, 338, 226))
+        row = [('TikTok', 65, 211, 111, 224), ('YouTube', 166, 212, 225, 223)]   # 22 Oct, slot 20: OCR missed 'TikTok'.
+        with mock.patch.object(layout, 'home', side_effect=InspectionStopped('not home')), mock.patch.object(reel, 'band_words', return_value=row):
+            self.assertEqual((88, 169), layout.app_target(screen, 'TikTok', b'frame'))
+            with self.assertRaises(InspectionStopped): layout.app_target(screen, 'Snapchat', b'frame')
+        with mock.patch.object(layout, 'home', side_effect=InspectionStopped('not home')),                 mock.patch.object(reel, 'band_words', return_value=row + [('TikTok', 380, 211, 420, 224)]), self.assertRaises(InspectionStopped):
+            layout.app_target(screen, 'TikTok', b'frame')   # Read twice: ambiguous.
+
+
+class TikTokFeedHeaderTests(unittest.TestCase):
+    def test_a_covered_feed_header_is_read_again_in_place(self):
+        from unittest import mock
+        import farm_tiktok_layout as tt
+        import farm_reel_layout as reel
+        nav = [(name, box[0] + 2, box[1] + 2, box[0] + 30, box[1] + 14) for name, box in tt.NAV]
+        screen = text(*[(name.capitalize(), x0, y0, x1, y1) for name, x0, y0, x1, y1 in nav])
+        for row in screen['lines']: row['words'][0]['text'] = row['text'] = row['text'].casefold()
+        with mock.patch.object(reel, 'band_words', return_value=[('Community', 99, 76, 190, 92), ('Following', 213, 76, 290, 92)]):
+            self.assertEqual((450, 1005), tt.tiktok_feed(b'frame', screen)['profileTarget'])   # 22 Oct, slot 20.
+        with mock.patch.object(reel, 'band_words', return_value=[('Following', 320, 76, 400, 92)]), self.assertRaises(InspectionStopped):
+            tt.tiktok_feed(b'frame', screen)
+
+
+class SafariChromeTests(unittest.TestCase):
+    def frame(self, recolour):
+        import base64, io, json
+        from pathlib import Path
+        import numpy as np
+        from PIL import Image
+        import farm_draft_creation
+        image = Image.new('RGB', (500, 1080), (248, 248, 248))
+        for row in json.loads(Path(farm_draft_creation.__file__).with_name('farm_creation_browser.json').read_text(encoding='utf-8')):
+            with Image.open(io.BytesIO(base64.b64decode(row['png']))) as icon: rgb = np.asarray(icon.convert('RGB')).copy()
+            rgb = recolour(rgb); image.paste(Image.fromarray(rgb), tuple(row['box'][:2]))
+        out = io.BytesIO(); image.save(out, 'BMP'); return out.getvalue()
+
+    def test_black_toolbar_icons_match_by_shape_but_other_shapes_do_not(self):
+        import numpy as np
+        from farm_draft_creation import CreationWorkflow
+        flow = CreationWorkflow.__new__(CreationWorkflow)
+        def black(rgb):   # 22 Oct, slot 20: the same icons drawn black.
+            ink = rgb.min(axis=2) < 150; rgb[ink] = (20, 20, 20); return rgb
+        self.assertEqual('safari', flow.verify_screen('safari', dict(text=text()), self.frame(black))['browser'])
+        def shifted(rgb): return np.roll(black(rgb), 12, axis=1)
+        with self.assertRaises(InspectionStopped): flow.verify_screen('safari', dict(text=text()), self.frame(shifted))
+
+
+class XHeaderTests(unittest.TestCase):
+    def test_the_newer_header_with_more_tabs_is_the_timeline(self):
+        from unittest import mock
+        import numpy as np
+        import farm_x_layout as xl
+        image = np.full((1080, 500, 3), 255, dtype=np.uint8); image[909:961, 428:480] = (29, 155, 240)
+        screen = text(('For you', 31, 130, 96, 148), ('Crypto', 376, 130, 430, 148))
+        screen['lines'].append(dict(text='Following • Add +', words=[dict(text='Following', x=154, y=130, width=80, height=18),
+                                                                    dict(text='•', x=262, y=136, width=4, height=4)]))
+        with mock.patch.object(xl, 'pixels', lambda frame, exact=False: image):
+            self.assertEqual((454, 935), xl.x_feed(b'f', screen)['composeTarget'])   # 22 Oct, slot 17's new account.
+            screen['lines'][-1]['words'][0]['x'] = 100
+            with self.assertRaises(InspectionStopped): xl.x_feed(b'f', screen)
+
+
+class PrivateBrowsingAddressTests(unittest.TestCase):
+    def frame(self, highlight):
+        import io
+        from PIL import Image, ImageDraw
+        image = Image.new('RGB', (500, 1080), (242, 242, 247)); draw = ImageDraw.Draw(image)
+        draw.rectangle((20, 930, 480, 982), fill=(80, 77, 80)); draw.rectangle((0, 1066, 499, 1069), fill=(10, 10, 10))
+        if highlight: draw.rectangle((34, 943, 374, 968), fill=(150, 147, 152))
+        draw.text((40, 948), 'https://www.example.com/', fill=(235, 234, 237))
+        out = io.BytesIO(); image.save(out, 'BMP'); return out.getvalue()
+
+    def test_a_grey_highlight_on_the_dark_private_field_counts_as_selected(self):
+        from farm_draft_creation import CreationWorkflow
+        flow = CreationWorkflow.__new__(CreationWorkflow)
+        self.assertTrue(flow.verify_screen('address_selected', dict(text=text()), self.frame(True))['privateBrowsing'])   # 22 Oct, slot 20.
+        with self.assertRaises(InspectionStopped): flow.verify_screen('address_selected', dict(text=text()), self.frame(False))
+
+
+class XMenuTests(unittest.TestCase):
+    def test_either_grok_row_is_the_account_menu(self):
+        import farm_x_layout as xl
+        rows = [('Profile', 99, 271, 175, 291), ('Communities', 98, 465, 256, 485), ('Settings and privacy', 93, 844, 272, 863),
+                ('@example_handle', 40, 167, 190, 186)]
+        for grok in (('Download Grok', 93, 780, 230, 800), ('Try Grok Bot', 93, 788, 202, 807)):   # Older; 22 Oct slot 17.
+            with self.subTest(grok=grok[0]): self.assertEqual((447, 83), xl.x_menu(None, text(*rows, grok))['closeTarget'])
+        with self.assertRaises(InspectionStopped): xl.x_menu(None, text(*rows))
+
+
+class EmptyAppSearchTests(unittest.TestCase):
+    def test_the_placeholder_shows_an_empty_field_when_the_template_follows_the_wallpaper(self):
+        from unittest import mock
+        import farm_creation_layout as layout
+        base = [('Siri Suggestions', 26, 76, 164, 94)]
+        with mock.patch.object(layout, 'control', side_effect=InspectionStopped('wallpaper')):
+            for placeholder in ('Q Search', 'Q bearch'):   # 22 Oct, slots 17 and 20.
+                with self.subTest(placeholder=placeholder):
+                    self.assertTrue(layout.empty_search(text(*base, (placeholder, 43, 990, 148, 1023)), b'frame'))
+            for typed in (('Q Safari', 43, 990, 148, 1023), ('Q Search', 43, 600, 148, 630)):
+                with self.subTest(typed=typed), self.assertRaises(InspectionStopped):
+                    layout.empty_search(text(*base, typed), b'frame')
+
+
+class SelectedAddressEntryTests(unittest.TestCase):
+    def test_safari_reopened_with_its_address_selected_is_an_entry_that_needs_no_focus_tap(self):
+        from unittest import mock
+        import farm_reel_creation as rc
+        flow = rc.ReelCreationWorkflow.__new__(rc.ReelCreationWorkflow)
+        flow.check_prompt = lambda role, value: None
+        real = rc.ReelCreationWorkflow.verify_screen
+        def verify(self, role, value, frame, index=None, require_next=False):
+            if role == 'safari': raise InspectionStopped('toolbar hidden while editing')
+            if role == 'address_selected': return dict(addressSelected=True, privateBrowsing=True)
+            return real(self, role, value, frame, index, require_next)
+        with mock.patch.object(rc.ReelCreationWorkflow, 'verify_screen', verify), mock.patch.object(rc, 'safari_blank', side_effect=InspectionStopped('no')):
+            entry = real(flow, 'reel_safari_entry', dict(text=text()), b'f')
+        self.assertTrue(entry['addressSelected'])   # 22 Oct, slot 20.
+
+
+class AppResultReconfirmTests(unittest.TestCase):
+    def test_sections_below_the_top_hit_may_rearrange_but_the_top_hit_may_not(self):
+        import io
+        from PIL import Image, ImageDraw
+        from farm_draft_creation import still_compare
+        def frame(box=None):
+            image = Image.new('RGB', (500, 1080), (40, 50, 90))
+            if box: ImageDraw.Draw(image).rectangle(box, fill=(250, 200, 20))
+            out = io.BytesIO(); image.save(out, 'BMP'); return out.getvalue()
+        compare = still_compare('app_result')
+        self.assertEqual('ready', compare(frame(), {}, frame((0, 400, 499, 1040)), None)['state'])   # 22 Oct, slot 17.
+        self.assertEqual('wait', compare(frame(), {}, frame((20, 90, 200, 240)), None)['state'])
+        self.assertEqual('wait', still_compare('home')(frame(), {}, frame((0, 400, 499, 1040)), None)['state'])
+
+
+class SearchClearGlyphTests(unittest.TestCase):
+    def test_the_white_clear_glyph_is_found_in_place_when_the_template_follows_the_wallpaper(self):
+        import io
+        from unittest import mock
+        from PIL import Image, ImageDraw
+        import farm_creation_layout as layout
+        def frame(glyph):
+            image = Image.new('RGB', (500, 1080), (60, 50, 110)); draw = ImageDraw.Draw(image)
+            if glyph: draw.ellipse((434, 992, 458, 1018), fill='white'); draw.line((440, 998, 452, 1012), fill=(60, 50, 110), width=3)
+            out = io.BytesIO(); image.save(out, 'BMP'); return out.getvalue()
+        with mock.patch.object(layout, 'control', side_effect=InspectionStopped('wallpaper')):
+            self.assertEqual([430, 988, 462, 1022], layout.search_clear(frame(True)))   # 22 Oct, slot 17.
+            with self.assertRaises(InspectionStopped): layout.search_clear(frame(False))
+
+
+class SendCopyShareSheetTests(unittest.TestCase):
+    def test_rows_below_a_send_copy_row_are_read_at_their_own_height(self):
+        import farm_reel_layout as reel
+        rows = [('imouse-x-hctunh', 85, 519, 232, 534), ('Send Copy', 120, 566, 209, 583), ('Copy', 50, 795, 96, 814),
+                ('Save Video', 50, 868, 151, 884), ('Add Tags', 50, 929, 134, 948), ('Save to Files', 50, 989, 163, 1005)]   # 22 Oct, slot 17.
+        self.assertEqual((100, 876), reel.share_sheet(text(*rows), 'imouse-x-hctunh')['target'])
+        wrong = [r if r[0] != 'Save Video' else ('Save Video', 50, 920, 151, 936) for r in rows]
+        with self.assertRaises(InspectionStopped): reel.share_sheet(text(*wrong), 'imouse-x-hctunh')
+
+
+class LinkMenuTests(unittest.TestCase):
+    ROWS = [('Hide preview', 372, 100, 457, 114), ('Open', 120, 773, 168, 792), ('Open in New Tab', 120, 826, 274, 845),
+            ('Download Linked File', 120, 879, 312, 895), ('Add to Reading List', 120, 932, 297, 952)]   # 22 Oct, slot 20 (private).
+
+    def test_either_menu_height_and_a_leftover_menu_closes_beside_it(self):
+        import farm_reel_layout as reel
+        self.assertEqual((216, 887), reel.link_menu(text(*self.ROWS))['target'])
+        normal = self.ROWS[:3] + [('Download Linked File', 120, 932, 312, 948), ('Add to Reading List', 120, 985, 297, 1005)]
+        self.assertEqual((216, 940), reel.link_menu(text(*normal))['target'])
+        self.assertEqual((50, 760), reel.leftover_link_menu(text(*self.ROWS))['closeTarget'])
+        swapped = self.ROWS[:3] + [('Download Linked File', 120, 932, 312, 948), ('Add to Reading List', 120, 879, 297, 895)]
+        with self.assertRaises(InspectionStopped): reel.link_menu(text(*swapped))
+
+
+class SplitHeaderNameTests(unittest.TestCase):
+    def test_a_name_split_into_two_words_is_joined_within_its_line(self):
+        import farm_reel_layout as reel
+        split = text(('Done', 426, 77, 474, 92))
+        split['lines'].append(dict(text='imouse-x- hctunh', words=[dict(text='imouse-x-', x=152, y=76, width=90, height=16),
+                                                                  dict(text='hctunh', x=248, y=76, width=68, height=16)]))   # 22 Oct, slot 17.
+        self.assertEqual(['imouse-x-hctunh'], reel.header_names(split, reel.LEFTOVER_NAME))
+        split['lines'][-1]['words'][1]['text'] = 'hctunz'
+        self.assertEqual([], reel.header_names(split, reel.LEFTOVER_NAME))
+
+
+class PrivateDownloadBadgeTests(unittest.TestCase):
+    def test_the_white_download_glyph_in_the_dark_private_bar(self):
+        import io
+        from unittest import mock
+        from PIL import Image, ImageDraw
+        import farm_reel_layout as reel
+        def frame(glyph):
+            image = Image.new('RGB', (500, 1080), (245, 245, 247)); draw = ImageDraw.Draw(image)
+            draw.rounded_rectangle((35, 930, 465, 980), 20, fill=(70, 68, 72))
+            if glyph: draw.ellipse((82, 946, 101, 965), fill='white')
+            out = io.BytesIO(); image.save(out, 'BMP'); return out.getvalue()
+        with mock.patch.object(reel, 'reel_control', side_effect=InspectionStopped('light-mode template')):
+            self.assertEqual((91, 955), reel.download_badge(frame(True))['target'])   # 22 Oct, slot 20.
+            with self.assertRaises(InspectionStopped): reel.download_badge(frame(False))
+
+
+class TikTokLaunchTests(unittest.TestCase):
+    def test_the_launch_splash_is_waited_out_without_input(self):
+        from types import SimpleNamespace
+        from farm_tiktok_creation import TikTokCreationWorkflow
+        flow = TikTokCreationWorkflow.__new__(TikTokCreationWorkflow); flow.record = {}; flow.pause = lambda s: None
+        frames = iter([['TikTok'], ['TikTok'], ['Home', 'Friends', 'Inbox', 'Profile']])   # 22 Oct, slot 20.
+        flow.kernel = SimpleNamespace(shot=lambda board: (b'f', {})); flow.phone = SimpleNamespace(board='C214')
+        flow.store = SimpleNamespace(ocr=SimpleNamespace(read=lambda raw: text(*[(t, 40, 500, 200, 520) for t in next(frames)])))
+        flow.await_launch()
+        self.assertEqual([True, True, False], [w['splash'] for w in flow.record['launchWaits']])
+
+
+class XComposerRowTests(unittest.TestCase):
+    def test_an_avatar_joined_to_the_first_row_is_dropped_only_there(self):
+        import farm_x_layout as xl
+        self.assertEqual(["What's happening?"], xl.composer_rows(text(("O What's happening?", 25, 123, 260, 153))))   # 22 Oct, slot 17.
+        self.assertEqual(['Fresh x acceptance'], xl.composer_rows(text(('O Fresh x acceptance', 25, 123, 260, 153))))
+        self.assertEqual(['O Fresh x acceptance'], xl.composer_rows(text(('O Fresh x acceptance', 66, 123, 260, 153))))   # Typed, not joined.
+        self.assertEqual([], xl.composer_rows(text(('Q Fresh', 25, 123, 260, 153))))
+
+
+class TikTokGridTests(unittest.TestCase):
+    def test_bright_rows_inside_a_short_last_row_are_not_gutters(self):
+        import numpy as np
+        import farm_tiktok_layout as tt
+        image = np.full((1080, 500, 3), 60, dtype=np.uint8)
+        for y in (301, 467, 635): image[y:y+2] = 255
+        image[802:807] = 255                      # Gutter merged with white-topped thumbnails below.
+        image[807:967, 333:] = 255                # The empty third cell.
+        for y in (858, 911): image[y:y+2, :333] = 255   # White spacing inside the two test videos.
+        image[967:] = 255
+        image[:, 166:168] = 255; image[:, 332:334] = 255
+        rows, bottom = tt.grid(image)   # 22 Oct, slot 20.
+        self.assertEqual((967, [303, 469, 637, 807]), (bottom, [r['top'] for r in rows if r['complete']]))
+
+
+class XComposerTipTests(unittest.TestCase):
+    def test_a_tip_may_cover_the_reply_row_but_only_a_known_tip(self):
+        from unittest import mock
+        import farm_x_layout as xl
+        base = [('Cancel', 26, 76, 87, 92), ("O What's happening?", 25, 123, 260, 153), ('O Everyone can', 22, 939, 151, 957)]
+        with mock.patch.object(xl, 'pixels', lambda frame, exact=False: None):
+            self.assertEqual((160, 140), xl.x_composer_empty(b'f', text(*base, ('Find awesome GIFs', 167, 953, 332, 968)))['textTarget'])   # 22 Oct.
+            with self.assertRaises(InspectionStopped): xl.x_composer_empty(b'f', text(*base))
+            full = [base[0], base[1], ('O Everyone can reply', 22, 939, 194, 957)]
+            self.assertEqual((160, 140), xl.x_composer_empty(b'f', text(*full))['textTarget'])
+
+
+class TikTokSelectionTests(unittest.TestCase):
+    def test_the_badge_is_compared_without_the_tile_around_it(self):
+        import base64, io, json
+        from pathlib import Path
+        import numpy as np
+        from PIL import Image
+        import farm_tiktok_layout as tt
+        row = json.loads(Path(tt.__file__).with_name('farm_tiktok_controls.json').read_text(encoding='utf-8'))['tt_badge_one']
+        with Image.open(io.BytesIO(base64.b64decode(row['png']))) as icon: badge = np.asarray(icon.convert('RGB')).copy()
+        keep = ((badge[..., 0] > 180) & (badge[..., 1] < 90)) | (badge.min(axis=2) > 230)
+        def frame(around, numeral=None):
+            image = np.full((1080, 500, 3), around, dtype=np.uint8); patch = badge.copy(); patch[~keep] = around
+            if numeral: patch[badge.min(axis=2) > 230] = numeral
+            left, top = row['box'][:2]; image[top:top+patch.shape[0], left:left+patch.shape[1]] = patch
+            out = io.BytesIO(); Image.fromarray(image).save(out, 'BMP'); return out.getvalue()
+        for around in ((30, 120, 60), (200, 40, 40), (240, 240, 240)):   # 22 Oct, slot 20: another video's picture.
+            with self.subTest(around=around): tt.control(frame(around), 'tt_badge_one')
+        with self.assertRaises(InspectionStopped): tt.control(frame((30, 120, 60), numeral=(200, 30, 50)), 'tt_badge_one')
+
+    def test_the_tray_colours_decide_only_a_narrow_miss(self):
+        from unittest import mock
+        import farm_tiktok_layout as tt
+        stubs = dict(_picker_header=lambda f, t: None, line_at=lambda *a: True, words_at=lambda *a: True, control=lambda *a, **k: None,
+                     pixels=lambda f, exact=False: __import__('numpy').full((1080, 500, 3), 255, dtype='uint8'), grid=lambda image: ([], 980),
+                     _tiles=lambda image, rows: [((334, 657, 500, 820), True)], badge=lambda image, tile: True,
+                     _tile_match=lambda *a: dict(matched=False))
+        for mean, colours, expected in ((.091, True, True), (.091, False, False), (.2, True, False)):
+            with self.subTest(mean=mean, colours=colours), mock.patch.multiple(tt, **stubs),                     mock.patch.object(tt, 'media_match', return_value=dict(matched=False, mean=mean)),                     mock.patch.object(tt, 'tray_colours', return_value=dict(matched=colours)):
+                if expected: self.assertEqual((367, 1006), tt.tiktok_selected(b'f', text(), None)['target'])
+                else:
+                    with self.assertRaises(InspectionStopped): tt.tiktok_selected(b'f', text(), None)
 
 
 class LeftoverPlayerTests(unittest.TestCase):

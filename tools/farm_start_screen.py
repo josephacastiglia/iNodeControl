@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from farm_carousel_inspection import InspectionStopped  # noqa: E402
 from farm_draft_transport import CreationKernel, allowed_tap  # noqa: E402
 from farm_observations import WindowsOcr, classify  # noqa: E402
-from farm_creation_layout import control  # noqa: E402
+from farm_creation_layout import control, require  # noqa: E402
 from farm_draft_runs import phone_of  # noqa: E402
 from farm_phone_identity import own_receiver  # noqa: E402
 
@@ -276,6 +276,64 @@ class StartScreen:
         self.pause(2.5)
         return self.fresh('after-open')
 
+    def to_tiktok_profile(self, account):
+        """TikTok on the window's signed-in profile: from anywhere, Home, open TikTok, and when it lands
+        on its For You feed, its own Profile tab (the creation workflow's route). One tap each."""
+        import farm_tiktok_layout as tt
+        def profile(raw, text):
+            try: tt.tiktok_profile(raw, text, account); return True
+            except InspectionStopped: return False
+        self.record['target'] = 'tiktok_profile'
+        self.tokens = self.kernel.acquire([self.phone.board], 30000)
+        try:
+            self.command('/mouse/reset', 'initial_pointer_reset')
+            raw, text, _, _ = self.fresh('before')
+            self.record['before'] = dict(screen='profile' if profile(raw, text) else 'other')
+            if profile(raw, text):
+                self.record.update(state='already_at_start'); return self.record
+            raw, text, _, _ = self.open_from_home('TikTok')
+            for wait in range(4):   # Its launch splash (the logo alone) can outlast the open pause (slot 20, 22 Oct).
+                if [l['text'].strip().casefold() for l in text.get('lines', []) if l.get('words')] not in ([], ['tiktok']): break
+                self.pause(1.5)
+                raw, text, _, _ = self.fresh(f'after-splash-{wait + 1}')
+            if not profile(raw, text):
+                target = tt.tiktok_feed(raw, text)['profileTarget']   # Stops unless the feed is recognized.
+                self.tap(raw, text, target, 'tiktok_feed', 'open-profile-tab', only=((0, 985, 500, 1040),))   # The video plays down to y 980.
+                self.pause(1.5)
+                raw, text, _, _ = self.fresh('after-profile-tab')
+            require(profile(raw, text), 'TikTok did not show the authorized profile; no further input.')
+            self.record.update(state='at_start', after=dict(screen='profile')); return self.record
+        except BaseException as error:
+            self.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error)); raise
+        finally:
+            try: self.kernel.release(self.tokens); self.record['leaseReleased'] = True
+            except BaseException as error: self.record['leaseReleased'] = False; self.record['releaseError'] = str(error)
+            self.save()
+
+    def to_x_timeline(self):
+        """X on its home timeline: from anywhere, Home, then open X. No tap inside X."""
+        import farm_x_layout as xl
+        def timeline(raw, text):
+            try: xl.x_feed(raw, text); return True
+            except InspectionStopped: return False
+        self.record['target'] = 'x_timeline'
+        self.tokens = self.kernel.acquire([self.phone.board], 30000)
+        try:
+            self.command('/mouse/reset', 'initial_pointer_reset')
+            raw, text, _, _ = self.fresh('before')
+            self.record['before'] = dict(screen='timeline' if timeline(raw, text) else 'other')
+            if timeline(raw, text):
+                self.record.update(state='already_at_start'); return self.record
+            raw, text, _, _ = self.open_from_home('X')
+            require(timeline(raw, text), 'X did not open on its home timeline; no further input.')
+            self.record.update(state='at_start', after=dict(screen='timeline')); return self.record
+        except BaseException as error:
+            self.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error)); raise
+        finally:
+            try: self.kernel.release(self.tokens); self.record['leaseReleased'] = True
+            except BaseException as error: self.record['leaseReleased'] = False; self.record['releaseError'] = str(error)
+            self.save()
+
     def to_instagram_profile_top(self):
         self.record['target'] = 'instagram_profile_top'
         status = self.kernel.preflight_phone(self.phone.board)
@@ -343,11 +401,16 @@ class StartScreen:
 
 
 def main():
-    # farm_start_screen.py instagram-profile <journal folder> <window creation config>
+    # farm_start_screen.py instagram-profile|tiktok-profile|x-timeline <journal folder> <window creation config>
     target, folder, config = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
-    if target != 'instagram-profile': raise SystemExit('Supported start screen: instagram-profile')
-    tool = StartScreen(folder, phone=phone_of(json.loads(config.read_text(encoding='utf-8-sig'))))
-    try: tool.to_instagram_profile_top()
+    if target not in ('instagram-profile', 'tiktok-profile', 'x-timeline'):
+        raise SystemExit('Supported start screens: instagram-profile, tiktok-profile, x-timeline')
+    settings = json.loads(config.read_text(encoding='utf-8-sig'))
+    tool = StartScreen(folder, phone=phone_of(settings))
+    try:
+        if target == 'tiktok-profile': tool.to_tiktok_profile(settings['account'])
+        elif target == 'x-timeline': tool.to_x_timeline()
+        else: tool.to_instagram_profile_top()
     except InspectionStopped: pass
     r = tool.record
     print(json.dumps(dict(state=r['state'], error=r.get('error'), before=r.get('before'), after=r.get('after'),

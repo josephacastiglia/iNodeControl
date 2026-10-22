@@ -15,7 +15,7 @@ from PIL import Image
 from farm_carousel_inspection import OwnedCaptureRun, InspectionStopped
 from farm_creation_layout import (require, exact, source_match, picker_grid,
     selected_badges, caption_editor, home, home_search, app_target, control, empty_search, test_video_preview, restored_app_search,
-    safari_address_empty)
+    safari_address_empty, search_clear)
 from farm_draft_workflow import Workflow, atomic_json, centre, icon_matches
 from farm_draft_verification import caption_comparison
 from farm_live_verification import idle
@@ -48,8 +48,11 @@ class CreationOwnership(OwnedCaptureRun):
 # Still screens whose decision may be reconfirmed by a newer frame: OCR of a full screen can outlast
 # the 1.5 s frame age limit (1.67 s on slot 18, 21 Oct), and a pointer nudge does not always bring a
 # new frame at once (a 1.3 s old profile frame, 21 Oct), although the screen itself is still.
-STILL_SCREENS = ('home', 'search', 'restored_search', 'app_result', 'profile')
+STILL_SCREENS = ('home', 'search', 'restored_search', 'app_result', 'profile', 'address_selected')   # Address: slot 20, 22 Oct.
 POINTER_PARK = (420, 270, 500, 330)   # The fresh-frame challenge moves the pointer here.
+# Screens whose lower part may still rearrange while the decided target holds still: Spotlight
+# reorders the sections below its Top Hit after the first render (slot 17, 22 Oct).
+ONLY_REGIONS = {'app_result': ((0, 65, 500, 260),)}   # The search field is translucent over the list.
 
 
 def still_compare(role):
@@ -58,6 +61,10 @@ def still_compare(role):
         a, b = pixels(first, exact=True).astype(float), pixels(second, exact=True).astype(float)
         difference = np.abs(a - b) / 255
         mask = np.ones((1080, 500), dtype=bool); mask[:65] = False
+        if role in ONLY_REGIONS:
+            keep = np.zeros((1080, 500), dtype=bool)
+            for left, top, right, bottom in ONLY_REGIONS[role]: keep[top:bottom, left:right] = True
+            mask &= keep
         left, top, right, bottom = POINTER_PARK; mask[top:bottom, left:right] = False
         mean = float(difference[mask].mean()); changed = float((difference.max(axis=2) > 35 / 255)[mask].mean())
         if mean <= .002 and changed <= .005:
@@ -143,7 +150,7 @@ class CreationWorkflow(Workflow):
         if role=='app_search_entry':
             try:return dict(empty=empty_search(text,frame))
             except InspectionStopped:
-                control(frame,'search_clear')
+                search_clear(frame)
                 return restored_app_search(text)
         if role=='search_after_escape':
             try:return dict(home=home(text,frame))
@@ -157,15 +164,27 @@ class CreationWorkflow(Workflow):
                 require(hashlib.sha256(raw).hexdigest()==row['sha256'], 'Browser reference is damaged.')
                 left,top,right,bottom=row['box']
                 with Image.open(io.BytesIO(raw)) as reference:
-                    delta=np.abs(image[top:bottom,left:right].astype(float)-np.asarray(reference.convert('RGB')).astype(float))/255
-                require(delta.mean()<.025, 'Safari navigation chrome changed.')
+                    expected=np.asarray(reference.convert('RGB')).astype(float)
+                delta=np.abs(image[top:bottom,left:right].astype(float)-expected)/255
+                # Slot 20's Safari draws the same icons black instead of blue (22 Oct): the icon's
+                # shape (where it is drawn, any colour) must then match instead (.015 vs .69+ elsewhere).
+                ink=lambda rgb:rgb.min(axis=2)<150
+                require(delta.mean()<.025 or float((ink(image[top:bottom,left:right].astype(float))!=ink(expected)).mean())<.04,
+                        'Safari navigation chrome changed.')
             return dict(browser='safari')
         if role=='address_selected':
             image=pixels(frame,exact=True)
-            require((image[1066:1069,170:330].max(axis=2)<90).mean()>.85, 'Address field geometry changed.')
+            # The home indicator below the field: dark, or dimmed grey (130) when Safari reopens in
+            # Private Browsing still editing its address (slot 20, 22 Oct); never the white page.
+            require((image[1066:1069,170:330].max(axis=2)<150).mean()>.85, 'Address field geometry changed.')
             selected=image[940:972,30:385].astype(int)
             if ((selected[:,:,2]-selected[:,:,0]>15)&(selected[:,:,2]>200)).mean()>.15:
                 return dict(addressSelected=True)
+            # Private Browsing (slot 20, 22 Oct): a dark field whose selected text sits on a grey
+            # highlight (.65 of the row; the same field unselected .04).
+            grey=(selected.min(axis=2)>115)&(selected.max(axis=2)<205)&(np.abs(selected[:,:,0]-selected[:,:,2])<14)
+            if image[940:972,400:430].mean()<120 and grey.mean()>.3:
+                return dict(addressSelected=True,privateBrowsing=True)
             # Focused from Safari's Start Page: nothing to select because the field is empty.
             try: return safari_address_empty(text)
             except InspectionStopped:
@@ -286,7 +305,7 @@ class CreationWorkflow(Workflow):
             try:empty_search(value['text'],frame);empty=True
             except InspectionStopped:empty=False
             if not empty:
-                self.step(visit+'-clear-restored-search','restored_search',point=lambda v,f:centre(control(f,'search_clear')))
+                self.step(visit+'-clear-restored-search','restored_search',point=lambda v,f:centre(search_clear(f)))
             self.step(visit+'-query-'+name,'search',text=name)
         self.step(visit+'-open-'+name,'app_result',point=lambda v,f:app_target(v['text'],name,f))
 

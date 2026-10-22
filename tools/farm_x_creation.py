@@ -28,11 +28,11 @@ LOADING_ATTEMPTS = 6           # Read-only picker observations while it shows Lo
 SHARED = ('reel_safari_entry', 'reel_page', 'reel_caption_copied', 'link_menu', 'page_menu', 'downloads', 'quicklook',
           'quicklook_controls', 'share_sheet')
 PRE_SETTLE = {**{role: REEL_PRE_SETTLE[role] for role in SHARED},
-              'x_feed': .8, 'x_menu': .6, 'x_composer_empty': .6, 'x_paste_menu': .4, 'x_composer_text': .6,
+              'x_feed': .8, 'x_menu': .6, 'x_composer_empty': .6, 'x_paste_menu': .4, 'x_composer_focused': .6, 'x_composer_text': .6,
               'x_picker': 1.0, 'x_picker_selected': .4, 'x_composer_media': 1.0, 'x_save_sheet': .6, 'x_drafts': .8,
               'x_reopened': 1.0, 'x_playing': .8}
 # A callout and the playing card are captured once; every other screen needs two agreeing fresh frames.
-SETTLED = set(PRE_SETTLE) - {'x_paste_menu', 'x_playing'}
+SETTLED = set(PRE_SETTLE) - {'x_paste_menu', 'x_composer_focused', 'x_playing'}
 MOVING = {
     'x_feed': ((0, 160, 500, 895), (0, 895, 415, 980)),          # Timeline content plays; compose button protected.
     'x_menu': ((425, 100, 500, 1000),),                            # The timeline edge beside the menu.
@@ -136,7 +136,14 @@ class XCreationWorkflow(ReelCreationWorkflow):
             except InspectionStopped: pass
             try: return safari_blank(text)   # No tab open: the empty address field is focused next.
             except InspectionStopped: pass
+            try:   # Reopened still editing its address, the text selected (slot 20, 22 Oct): typing replaces it.
+                return dict(self.verify_screen('address_selected', value, frame), browser='safari')
+            except InspectionStopped: pass
             try: return leftover_downloads(text)
+            except InspectionStopped: pass
+            try: return reel.leftover_share_sheet(text)   # As in the Reel workflow (22 Oct).
+            except InspectionStopped: pass
+            try: return reel.leftover_link_menu(text)
             except InspectionStopped: pass
             try: return tt.leftover_preview(frame, text)
             except InspectionStopped: return leftover_player(frame, text)
@@ -149,6 +156,10 @@ class XCreationWorkflow(ReelCreationWorkflow):
             return menu
         if role == 'x_composer_empty': return xl.x_composer_empty(frame, text)
         if role == 'x_paste_menu': return xl.x_paste_menu(frame, text)
+        if role == 'x_composer_focused':
+            # A tap on the focused empty field can open the Paste callout at once (slot 17, 22 Oct).
+            try: return dict(xl.x_paste_menu(frame, text), pasteMenu=True)
+            except InspectionStopped: return dict(xl.x_composer_empty(frame, text), pasteMenu=False)
         if role == 'x_composer_text': return xl.x_composer_text(frame, text)
         if role == 'x_picker': return xl.x_picker(frame, text, self.video)
         if role == 'x_picker_selected': return xl.x_picker_selected(frame, text, self.video, self.tile)
@@ -220,7 +231,9 @@ class XCreationWorkflow(ReelCreationWorkflow):
             self.phase('compose-text')
             self.tap('open-composer', 'x_feed', lambda v, f: xl.x_feed(f, v['text'])['composeTarget'])
             self.tap('focus-empty-text', 'x_composer_empty', lambda v, f: xl.x_composer_empty(f, v['text'])['textTarget'])
-            self.tap('open-paste-menu', 'x_composer_empty', lambda v, f: xl.x_composer_empty(f, v['text'])['pressTarget'], hold=True)
+            focused, _, _ = self.screen('x_composer_focused')
+            if not focused['pasteMenu']:
+                self.tap('open-paste-menu', 'x_composer_empty', lambda v, f: xl.x_composer_empty(f, v['text'])['pressTarget'], hold=True)
             self.tap('paste-exact-caption', 'x_paste_menu', lambda v, f: xl.x_paste_menu(f, v['text'])['target'])
             self.pause(2)  # Let the OS paste banner leave the header; nothing is repeated.
             self.phase('attach-video')

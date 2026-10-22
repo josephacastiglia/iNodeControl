@@ -135,9 +135,14 @@ class ReelCreationWorkflow(CreationWorkflow):
             except InspectionStopped: pass
             try: return safari_blank(text)   # No tab open: the empty address field is focused next.
             except InspectionStopped: pass
+            try:   # Reopened still editing its address, the text selected (slot 20, 22 Oct): typing replaces it.
+                return dict(self.verify_screen('address_selected', value, frame), browser='safari')
+            except InspectionStopped: pass
             try: return leftover_downloads(text)
             except InspectionStopped: pass
             try: return reel.leftover_share_sheet(text)
+            except InspectionStopped: pass
+            try: return reel.leftover_link_menu(text)
             except InspectionStopped: pass
             try: return reel.leftover_preview(frame, text)
             except InspectionStopped: return leftover_player(frame, text)
@@ -353,10 +358,12 @@ class ReelCreationWorkflow(CreationWorkflow):
         # behind another. Each is closed with Done, which only closes it, until Safari itself shows.
         for round_ in range(1, LEFTOVER_ROUNDS + 1):
             entry = self.safari_entry()
-            if not any(entry.get(k) for k in ('leftoverPlayer', 'leftoverShareSheet', 'leftoverPreview', 'leftoverDownloads')): break
+            if not any(entry.get(k) for k in ('leftoverPlayer', 'leftoverShareSheet', 'leftoverLinkMenu', 'leftoverPreview', 'leftoverDownloads')): break
             require(round_ < LEFTOVER_ROUNDS, 'Safari still shows an earlier download after closing it; nothing else was sent.')
             if entry.get('leftoverPlayer'):
                 self.close_leftover_player(entry, round_)
+            elif entry.get('leftoverLinkMenu'):
+                self.tap(f'close-leftover-link-menu-{round_}', 'reel_safari_entry', entry['closeTarget'])
             elif entry.get('leftoverShareSheet'):
                 # The sheet's close button only dismisses it; a still preview behind gives no fresh frame.
                 if entry.get('static'):
@@ -373,7 +380,8 @@ class ReelCreationWorkflow(CreationWorkflow):
             else:
                 self.tap(f'close-leftover-downloads-{round_}', 'reel_safari_entry', entry['doneTarget'])
             self.pause(1.5)
-        self.tap('focus-safari-address', 'safari_or_blank', (245, 953))
+        if not entry.get('addressSelected'):
+            self.tap('focus-safari-address', 'safari_or_blank', (245, 953))
         self.step('enter-transfer-url', 'address_selected', text=self.url)
         # Same Safari address edit session; never a caption.
         self.command('/key/sendkey', purpose='load-transfer-url', fn_key='Enter')

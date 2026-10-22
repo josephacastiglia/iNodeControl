@@ -122,3 +122,19 @@ xs.halle.xo, played the package video and stayed in Reels drafts. Nothing was sh
 ```powershell
 python verify_window.py --window reel-slot18 --attempt 1 --check 3   # Refused unless creation saved an unverified draft.
 ```
+
+## TikTok (slot 20) and X (slot 17, new account), 22 Oct, preps 39-53
+
+Neither has a saved draft yet. Every stop was safe (no wrong tap, nothing posted) and each fix has
+a test in `tools/test_farm_safari_start.py`.
+
+- Reached: TikTok saves the video to Photos, reopens TikTok on the profile, opens the gallery and
+  selects the package video. X saves the video, reopens X and opens the empty composer.
+- Phone differences found: slot 20's Safari runs in Private Browsing (black toolbar icons, grey
+  address selection, a shorter link menu, a white download glyph in a dark bar); Siri Suggestions
+  and wallpaper-dependent search controls; TikTok's launch splash and covered feed header; the new
+  X account's extra header tabs, 'Try Grok Bot' menu row, first-use tips and the Paste callout
+  that opens on the first tap; share sheets with a 'Send Copy' row.
+- Next on resume: TikTok from the selected video (editor, sound removal, caption, Drafts, verifier);
+  X from the Paste callout (caption, attach video, save draft, verifier). Then YouTube Short (slot 16).
+- Start screens: `farm_start_screen.py tiktok-profile|x-timeline <folder> <config>`.

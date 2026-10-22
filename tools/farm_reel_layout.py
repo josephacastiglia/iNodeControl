@@ -543,22 +543,42 @@ def caption_copied(text):
 # The rows were identical on 17 and 20 Oct, but iOS placed the menu column about 85 px further
 # right on 20 Oct (labels at x 139 instead of about 60). Only the rows are fixed; the labels
 # must share one left edge, and the target is the exact label's own centre.
+# Private Browsing has one row fewer between 'Open in New Tab' and 'Download Linked File' (slot 20,
+# 22 Oct: Download at y 879 instead of 925), so the lower two rows may sit one row higher.
 LINK_MENU = (('Open', (40, 765, 360, 800)), ('Open in New Tab', (40, 818, 360, 853)),
-             ('Download Linked File', (40, 925, 360, 956)), ('Add to Reading List', (40, 978, 360, 1012)))
+             ('Download Linked File', (40, 870, 360, 956)), ('Add to Reading List', (40, 923, 360, 1012)))
 
 
 def link_menu(text):
-    lefts = [exact(text, label, box)[0] for label, box in LINK_MENU]
+    found = [exact(text, label, box) for label, box in LINK_MENU]
+    lefts, tops = [b[0] for b in found], [b[1] for b in found]
     require(max(lefts) - min(lefts) <= 12, 'The Safari link menu items are not one column.')
+    require(tops == sorted(tops) and 40 <= tops[3] - tops[2] <= 66, 'The Safari link menu rows are out of order.')
     require(line_at(text, 'hide preview', (355, 90, 480, 122)), 'The Safari link preview is not recognized.')
-    bounds = exact(text, 'Download Linked File', LINK_MENU[2][1])
+    bounds = found[2]
     return dict(target=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)))
+
+
+def leftover_link_menu(text):
+    """An earlier run's link menu (touch and hold on the download link), left open over Safari
+    (slot 20, 22 Oct). A tap on the dimmed background beside the menu, below the preview card,
+    only dismisses it."""
+    link_menu(text)
+    return dict(leftoverLinkMenu=True, closeTarget=(50, 760))
 
 
 def download_badge(frame):
     """Safari's downloads icon: filled while a download is shown (17 Oct) or outlined after it (20 Oct)."""
     try: reel_control(frame, 'safari_download')
-    except InspectionStopped: reel_control(frame, 'safari_download_outline')
+    except InspectionStopped:
+        try: reel_control(frame, 'safari_download_outline')
+        except InspectionStopped:
+            # Private Browsing's dark bar draws it as a white filled glyph (slot 20, 22 Oct: .28 of
+            # its box bright; the same bar without a download .0).
+            image = pixels(frame, exact=True)
+            dark = float(image[935:978, 150:350].mean()) < 110
+            bright = float((image[940:971, 76:107].min(axis=2) > 215).mean())
+            require(dark and .2 <= bright <= .5, 'Reel control changed: safari_download_outline')
     return dict(target=(91, 955))
 
 
@@ -676,11 +696,27 @@ def quicklook(frame, text, download, reference):
                 revealTarget=(250, 300))
 
 
+# Any earlier transfer's download name, from every draft route (as tiktok's leftover preview).
+LEFTOVER_NAME = r'imouse-((reel|tt|x|yt)-[acdefhkmnprtuvwxy]{6}|draft)'
+
+
+def header_names(text, pattern):
+    """Download names in a preview header, each line's words joined: OCR can split one name
+    ('imouse-x-' + 'hctunh', slot 17, 22 Oct)."""
+    names = []
+    for line in text.get('lines', []):
+        words = line.get('words') or []
+        if not words: continue
+        joined = ''.join(str(w.get('text', '')) for w in words)
+        if (re.fullmatch(pattern, joined) and 120 <= min(w['x'] for w in words) and max(w['x']+w['width'] for w in words) <= 380
+                and 65 <= min(w['y'] for w in words) and max(w['y']+w['height'] for w in words) <= 110):
+            names.append(joined)
+    return names
+
+
 def leftover_preview(frame, text):
     """A Files preview of an earlier transfer, left open in Safari. Done only closes it."""
-    names = [w['text'] for line in text.get('lines', []) for w in line.get('words', [])
-             if re.fullmatch(r'imouse-(reel-[acdefhkmnprtuvwxy]{6}|draft)', str(w.get('text', '')))
-             and 120 <= w['x'] and w['x']+w['width'] <= 380 and 65 <= w['y'] and w['y']+w['height'] <= 110]
+    names = header_names(text, LEFTOVER_NAME)
     require(len(names) == 1 and words_at(text, 'done', (410, 65, 490, 105)) and present(frame, 'quicklook_share'),
             'Safari opened on an unrecognized screen; no input is sent.')
     return dict(leftoverPreview=True, name=names[0], doneTarget=(450, 85))
@@ -703,7 +739,12 @@ def share_header(text, name_pattern):
 
 
 def share_rows(text, shift):
-    """The sheet's actions, moved with the sheet. A row pushed under the home indicator is not read."""
+    """The sheet's actions, moved with the sheet, or further down by a 'Send Copy' row under the
+    header (slot 17, 22 Oct: Copy at y 795 with the header unmoved). The rows' own shift is taken
+    from 'Copy', within the same bounds. A row pushed under the home indicator is not read."""
+    copy = [w for line in text.get('lines', []) if line.get('text', '').strip().casefold() == 'copy' for w in line.get('words', [])
+            if 40 <= w['x'] <= 70 and 755 + SHARE_SHIFT[0] - 10 <= w['y'] <= 755 + SHARE_SHIFT[1] + 10]
+    if len(copy) == 1: shift = max(SHARE_SHIFT[0], min(SHARE_SHIFT[1], copy[0]['y'] - 765))
     rows = {}
     for label, (left, top, right, bottom) in SHARE_ROWS:
         if bottom + shift <= 1046: rows[label] = exact(text, label, (left, top + shift, right, bottom + shift))
@@ -714,7 +755,7 @@ def share_rows(text, shift):
 def leftover_share_sheet(text):
     """An earlier transfer's share sheet, left open over its preview (22 Oct, slot 18, after a stop
     on this sheet). Its close button only dismisses the sheet; the preview behind is closed next."""
-    name, shift = share_header(text, r'imouse-(reel-[acdefhkmnprtuvwxy]{6}|draft)')
+    name, shift = share_header(text, LEFTOVER_NAME)
     require(name is not None, 'Safari opened on an unrecognized screen; no input is sent.')
     share_rows(text, shift)
     return dict(leftoverShareSheet=True, name=name, closeTarget=(460, 531 + shift))

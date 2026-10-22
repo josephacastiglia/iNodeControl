@@ -185,7 +185,14 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
             except InspectionStopped: pass
             try: return safari_blank(text)   # No tab open: the empty address field is focused next.
             except InspectionStopped: pass
+            try:   # Reopened still editing its address, the text selected (slot 20, 22 Oct): typing replaces it.
+                return dict(self.verify_screen('address_selected', value, frame), browser='safari')
+            except InspectionStopped: pass
             try: return leftover_downloads(text)
+            except InspectionStopped: pass
+            try: return reel.leftover_share_sheet(text)   # As in the Reel workflow (22 Oct).
+            except InspectionStopped: pass
+            try: return reel.leftover_link_menu(text)
             except InspectionStopped: pass
             try: return tt.leftover_preview(frame, text)
             except InspectionStopped: return leftover_player(frame, text)

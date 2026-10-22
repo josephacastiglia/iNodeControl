@@ -126,7 +126,14 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
             except InspectionStopped: pass
             try: return safari_blank(text)   # No tab open: the empty address field is focused next.
             except InspectionStopped: pass
+            try:   # Reopened still editing its address, the text selected (slot 20, 22 Oct): typing replaces it.
+                return dict(self.verify_screen('address_selected', value, frame), browser='safari')
+            except InspectionStopped: pass
             try: return leftover_downloads(text)
+            except InspectionStopped: pass
+            try: return reel.leftover_share_sheet(text)   # As in the Reel workflow (22 Oct).
+            except InspectionStopped: pass
+            try: return reel.leftover_link_menu(text)
             except InspectionStopped: pass
             try: return tt.leftover_preview(frame, text)
             except InspectionStopped: return leftover_player(frame, text)
@@ -228,8 +235,23 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
         require(state['sound'] == 'none', 'TikTok kept a sound on the video; review before any further input.')
         self.record['sound']['final'] = 'none'; self.save()
 
+    SPLASH_POLLS = 6   # About 9 s.
+
+    def await_launch(self):
+        """TikTok can be relaunched when reopened (slot 20, 22 Oct): its splash (the logo alone)
+        is waited out by reading frames, without input, before the entry screen is decided."""
+        waits = self.record.setdefault('launchWaits', [])
+        for attempt in range(self.SPLASH_POLLS):
+            raw, headers = self.kernel.shot(self.phone.board)
+            lines = [l['text'].strip().casefold() for l in self.store.ocr.read(raw).get('lines', []) if l.get('words')]
+            splash = lines in ([], ['tiktok'])
+            waits.append(dict(attempt=attempt, sequence=headers.get('X-iMouse-Frame-Sequence'), splash=splash))
+            if not splash: return
+            self.pause(1.5)
+
     def return_to_profile(self, label):
         """The exact profile, directly or from the feed. Returns (profile, entry screen check)."""
+        self.await_launch()
         entry, _, _ = self.screen('tiktok_entry')
         if entry['screen'] == 'feed':
             self.tap(label, 'tiktok_entry', lambda v, f: tt.tiktok_feed(f, v['text'])['profileTarget'])

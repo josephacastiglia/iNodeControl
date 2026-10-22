@@ -24,7 +24,7 @@ CARD_IGNORE = ((316, 178, 352, 214), (70, 640, 358, 690), (196, 595, 470, 640)) 
 POST = (395, 62, 482, 106)
 REMOVE = (316, 178, 352, 214)
 TIPS = ({'your drafts are here', 'choose who can reply to your post.', 'add your location', 'mark your media as sensitive',
-         'ark your media as sensitive'}, (0, 60, 500, 1040))
+         'ark your media as sensitive', 'find awesome gifs'}, (0, 60, 500, 1040))   # GIFs: slot 17's new account, 22 Oct.
 
 
 def caption_supported(caption):
@@ -43,7 +43,9 @@ def blue_fraction(image, box):
 
 def x_feed(frame, text):
     """Home timeline. Feed content is arbitrary and never a target; only the avatar and compose button are."""
-    require(words_at(text, 'following', (195, 120, 320, 160)) and line_at(text, 'for you', (30, 120, 130, 160)),
+    # A newer account's header adds tabs ('For you v | Following | Add + | Crypto', slot 17, 22 Oct),
+    # moving 'Following' left to x 154.
+    require(words_at(text, 'following', (140, 120, 320, 160)) and line_at(text, 'for you', (30, 120, 130, 160)),
             'The X timeline header is not recognized.')
     image = pixels(frame, exact=True)
     require(blue_fraction(image, (428, 909, 480, 961)) > .5, 'The X compose button is not where it was observed.')
@@ -55,8 +57,11 @@ def x_feed(frame, text):
 def x_menu(frame, text):
     """Side menu: exactly one signed-in handle under the display name."""
     for label, box in (('profile', (90, 262, 190, 300)), ('communities', (90, 455, 265, 495)),
-                       ('download grok', (85, 775, 240, 810)), ('settings and privacy', (85, 828, 280, 866))):
+                       ('settings and privacy', (85, 828, 280, 866))):
         require(line_at(text, label, box), 'The X account menu is not recognized: ' + label)
+    # The Grok row reads 'Try Grok Bot' on slot 17's newer account (22 Oct).
+    require(line_at(text, 'download grok', (85, 775, 240, 810)) or line_at(text, 'try grok bot', (85, 775, 240, 815)),
+            'The X account menu is not recognized: grok')
     handles = [m.group(1) for line in text.get('lines', []) if line.get('words')
                and min(w['y'] for w in line['words']) < 200 and min(w['x'] for w in line['words']) < 120
                for m in HANDLE.finditer(line.get('text', ''))]
@@ -72,14 +77,39 @@ COMPOSER_CANCEL = ({'cancel'}, (18, 68, 100, 100))
 def _composer(frame, text):
     no_overlay(text, (TIPS, COMPOSER_CANCEL))
     exact(text, 'Cancel', (18, 68, 100, 100))
-    require(line_at(text, 'everyone can reply', (40, 930, 205, 966)), 'The X composer is not recognized.')
+    # A tip callout can cover the end of the row ('Everyone can' under 'Find awesome GIFs', 22 Oct).
+    tip = any(' '.join(r['text'].casefold().split()) in TIPS[0] for r in text.get('lines', []) if r.get('words')
+              and min(w['y'] for w in r['words']) > 900)
+    # OCR can also join the globe icon ('O Everyone can', from x 22).
+    reply = [re.sub(r'^[o0]\s+', '', ' '.join(r['text'].casefold().split())) for r in text.get('lines', []) if r.get('words')
+             and 15 <= min(w['x'] for w in r['words']) and max(w['x']+w['width'] for w in r['words']) <= 205
+             and 930 <= min(w['y'] for w in r['words']) and max(w['y']+w['height'] for w in r['words']) <= 966]
+    require('everyone can reply' in reply or (tip and 'everyone can' in reply), 'The X composer is not recognized.')
     return pixels(frame, exact=True)
+
+
+def composer_rows(text, right=490):
+    """The composer's first text row. OCR can join the avatar to it as a leading 'O' and start
+    the line at x 25 ('O What's happening?', slot 17, 22 Oct); only such a joined line loses it."""
+    rows = []
+    for line in text.get('lines', []):
+        words = line.get('words') or []
+        if not words: continue
+        x, y = min(w['x'] for w in words), min(w['y'] for w in words)
+        if not (115 <= y < 165 and 15 <= x < right): continue
+        value = line['text']
+        if x < 55:
+            joined = re.match(r'^[o0]\s+(.*)$', value, flags=re.IGNORECASE)
+            if not joined: continue
+            value = joined.group(1)
+        rows.append((y, x, value))
+    return [row[2] for row in sorted(rows)]
 
 
 def x_composer_empty(frame, text):
     """An empty composer; the Drafts link exists only once drafts exist."""
     _composer(frame, text)
-    rows = [r for r in rows_between(text, 115, 165, 55, 330) if ' '.join(r.casefold().split()) not in TIPS[0]]
+    rows = [r for r in composer_rows(text, 330) if ' '.join(r.casefold().split()) not in TIPS[0]]
     require(len(rows) == 1 and rows[0].casefold().startswith("what's happen"), 'The X composer is not empty.')
     drafts = words_at(text, 'drafts', (310, 70, 380, 98))
     return dict(draftsTarget=(344, 85) if drafts else None, textTarget=(160, 140), pressTarget=(160, 140))
@@ -89,7 +119,7 @@ def x_composer_text(frame, text):
     """Pasted text, enabled Post (never a target) and no media yet."""
     image = _composer(frame, text)
     require(words_at(text, 'post', (410, 70, 470, 98)), 'The X composer Post control is not where it was observed.')
-    rows = rows_between(text, 115, 165, 55, 490)
+    rows = composer_rows(text)
     require(rows and not rows[0].casefold().startswith("what's happen"), 'The pasted text is not visible in the X composer.')
     require((image[CARD[1]:CARD[3], CARD[0]:CARD[2]].min(axis=2) > 235).mean() > .9, 'The X composer already holds media.')
     return dict(galleryTarget=(26, 1009), cancelTarget=(57, 85))
@@ -100,7 +130,7 @@ def x_composer_media(frame, text, reference, *, reopened=False):
     image = _composer(frame, text)
     require(words_at(text, 'post', (410, 70, 470, 98)), 'The X composer Post control is not where it was observed.')
     require(words_at(text, 'people', (120, 700, 190, 730)), 'The X media card is not recognized.')
-    rows = rows_between(text, 115, 165, 55, 490)
+    rows = composer_rows(text)
     require(rows and not rows[0].casefold().startswith("what's happen"), 'The X composer has no text.')
     card = image[CARD[1]:CARD[3], CARD[0]:CARD[2]].astype(float)
     median = np.median(card.reshape(-1, 3), axis=0)

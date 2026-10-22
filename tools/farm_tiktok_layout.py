@@ -95,6 +95,9 @@ def media_match(frame, box, reference, model, *, ignore=(), image=None):
                 worstBlock=worst, model=model, byteIdentityVerified=False)
 
 
+BADGE_CONTROLS = {'tt_badge_one'}
+
+
 def control(frame, name, *, offset=(0, 0)):
     """Fixed control template; same thresholds as the Reel and carousel controls."""
     row = json.loads(Path(__file__).with_name('farm_tiktok_controls.json').read_text(encoding='utf-8'))[name]
@@ -104,7 +107,14 @@ def control(frame, name, *, offset=(0, 0)):
     require(0 <= left+dx and right+dx <= 500 and 0 <= top+dy and bottom+dy <= 1080, 'TikTok control is outside the frame.')
     image = pixels(frame, exact=True)
     with Image.open(io.BytesIO(raw)) as reference:
-        delta = np.abs(image[top+dy:bottom+dy, left+dx:right+dx].astype(float)-np.asarray(reference.convert('RGB')).astype(float))/255
+        expected = np.asarray(reference.convert('RGB')).astype(float)
+    delta = np.abs(image[top+dy:bottom+dy, left+dx:right+dx].astype(float)-expected)/255
+    if name in BADGE_CONTROLS:
+        # Only the badge itself (red disk, white numeral): the tile picture around it differs per video
+        # (slot 20, 22 Oct: corners .20 changed, the badge .002). The numeral is checked on its own too.
+        numeral = expected.min(axis=2) > 230
+        require((delta[numeral].max(axis=1) > 35/255).mean() < .1, 'TikTok control changed: '+name)
+        delta = delta[((expected[..., 0] > 180) & (expected[..., 1] < 90)) | numeral][:, None, :]
     require(delta.mean() < .02 and (delta.max(axis=2) > 35/255).mean() < .04, 'TikTok control changed: '+name)
     return left+dx, top+dy, right+dx, bottom+dy
 
@@ -138,10 +148,18 @@ NAV = (('home', (25, 1012, 80, 1040)), ('friends', (118, 1012, 182, 1040)), ('in
        ('profile', (420, 1012, 480, 1040)))
 
 
+FEED_HEADER = (90, 62, 360, 108)
+
+
 def tiktok_feed(frame, text):
     """For You feed (TikTok's landing screen after Drafts). Content and captions are arbitrary; never a target."""
     for name, box in NAV: require(words_at(text, name, box), 'The TikTok navigation bar is not recognized.')
-    require(words_at(text, 'following', (150, 60, 300, 110)), 'The TikTok feed header is not recognized.')
+    if not words_at(text, 'following', (150, 60, 300, 110)):
+        # A video's own title can cover the light header (slot 20, 22 Oct); the header row is read
+        # again alone, enlarged, and 'Following' must sit in the same place.
+        from farm_reel_layout import band_words
+        require(any(t.casefold() == 'following' and 150 <= x0 and x1 <= 300 for t, x0, _, x1, _ in band_words(frame, FEED_HEADER)),
+                'The TikTok feed header is not recognized.')
     # Feed captions and comments sit in this band; a dialog elsewhere still stops.
     no_overlay({**text, 'lines': [r for r in text.get('lines', []) if not r.get('words')
                                   or not 780 <= min(w['y'] for w in r['words']) < 1000]})
@@ -197,8 +215,15 @@ def grid(image):
     thick = [a for a, b in runs if b-a >= 10]
     require(thick, 'TikTok picker grid geometry changed.')
     bottom = thick[0]
-    lines = [(a, b) for a, b in runs if a < bottom]
-    require(lines and all(b-a <= 3 for a, b in lines)
+    # A last row of white-backed test videos beside an empty white cell has full-width bright
+    # rows inside it (slot 20, 22 Oct: y 858, 911); only lines a row's pitch apart are gutters.
+    lines = []
+    for a, b in runs:
+        if a >= bottom: break
+        if lines and a - lines[-1][0] < PITCH - 1: continue
+        lines.append((a, b))
+    # A gutter above white-topped thumbnails reads up to 5 px (slot 20, 22 Oct); real gutters are 2-3.
+    require(lines and all(b-a <= 6 for a, b in lines)
             and all(abs(b[0]-a[0]-PITCH) <= 1 for a, b in zip(lines, lines[1:])), 'TikTok picker grid geometry changed.')
     starts = [lines[0][0]-(PITCH-2)] + [b for a, b in lines]
     ends = [a for a, b in lines] + [bottom]
@@ -269,6 +294,24 @@ def tiktok_picker(frame, text, reference):
                 durationRead=label[0]['text'] if label else None)
 
 
+def tray_colours(image, reference):
+    """The tray thumbnail squeezes the six test-media tiles into a square (slot 20, 22 Oct: strict
+    mean .091). Each uncovered tile's colour proportions must match this package's: .037 for it,
+    .23 or more for every earlier test video. The remove x and the duration cover tiles 2 and 6."""
+    size, targets = reference.models['square']
+    observed = np.asarray(Image.fromarray(image[882:956, 18:90]).resize(size, Image.Resampling.LANCZOS), dtype=float)/255
+    def grid3x2(rgb):
+        h, w = rgb.shape[:2]; rows = []
+        for r in range(3):
+            for c in range(2):
+                cy, cx = int(h*(r*2+1)/6), int(w*(c*2+1)/4)
+                block = rgb[cy-h//12:cy+h//12, cx-w//8:cx+w//8].reshape(-1, 3).mean(axis=0)
+                rows.append(block/max(float(block.sum()), 1e-6))
+        return np.array(rows)
+    worst = float(np.abs(grid3x2(observed) - grid3x2(targets[0])).max(axis=1)[[0, 2, 3, 4]].max())
+    return dict(matched=worst <= .06, status='tile_colour_match' if worst <= .06 else 'different', worstTile=worst)
+
+
 def tiktok_selected(frame, text, reference):
     """Exactly one tile numbered 1 shows the package video, its thumbnail is in the tray and Next is enabled."""
     _picker_header(frame, text)
@@ -285,6 +328,8 @@ def tiktok_selected(frame, text, reference):
     # A selected tile is drawn zoomed and dimmed, so its match is recorded only.
     # The tray shows exactly what is selected: one thumbnail, the package video.
     tray = media_match(frame, (18, 882, 90, 956), reference, 'square', image=image, ignore=((66, 880, 92, 904), (40, 936, 92, 958)))
+    if not tray['matched'] and tray['mean'] is not None and tray['mean'] <= .15:
+        tray = dict(tray, **tray_colours(image, reference))
     require(tray['matched'], 'The selection tray does not show the package video.')
     require((image[884:954, 100:240].min(axis=2) > 235).mean() > .97, 'The selection tray holds more than one item.')
     return dict(tile=list(tile), tileMatch=_tile_match(frame, tile, reference, image), tray=tray, target=(367, 1006))
@@ -415,9 +460,8 @@ def caption_copied(text, app='TikTok'):
 
 def leftover_preview(frame, text):
     """A Files preview of an earlier package download, left open in Safari. Done only closes it."""
-    names = [w['text'] for line in text.get('lines', []) for w in line.get('words', [])
-             if re.fullmatch(r'imouse-((reel|tt|x|yt)-[acdefhkmnprtuvwxy]{6}|draft)', str(w.get('text', '')))
-             and 120 <= w['x'] and w['x']+w['width'] <= 380 and 65 <= w['y'] and w['y']+w['height'] <= 110]
+    from farm_reel_layout import LEFTOVER_NAME, header_names
+    names = header_names(text, LEFTOVER_NAME)
     require(len(names) == 1 and words_at(text, 'done', (410, 65, 490, 105)) and reel_present(frame, 'quicklook_share'),
             'Safari opened on an unrecognized screen; no input is sent.')
     return dict(leftoverPreview=True, name=names[0], doneTarget=(450, 85))

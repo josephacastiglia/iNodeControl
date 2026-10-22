@@ -255,7 +255,14 @@ def home(text,frame=None):
 def empty_search(text,frame=None):
     require(line_at(text,'siri suggestions',(10,65,320,125)), 'The empty iOS app search is not recognized.')
     if frame is None:require(words_at(text,'search',(40,930,475,1045)), 'The app search field is not empty and focused.')
-    else:control(frame,'empty_ios_search')
+    else:
+        try:control(frame,'empty_ios_search')
+        except InspectionStopped:
+            # The field is translucent, so the template follows the wallpaper (slots 17 and 20, 22 Oct);
+            # then the grey placeholder alone, read at the field's start, shows it is empty.
+            placeholder=[r for r in text.get('lines',[]) if r.get('words') and re.fullmatch(r'(q\s*)?[a-z]?earch',' '.join(r['text'].casefold().split()))
+                         and 35<=min(w['x'] for w in r['words'])<=80 and 975<=min(w['y'] for w in r['words'])<=1010]
+            require(len(placeholder)==1,'The app search field is not empty and focused.')
     return True
 
 
@@ -267,12 +274,27 @@ def test_video_preview(text):
     return dict(readOnlyPreview=True,accountVerified=False)
 
 
+def search_clear(frame):
+    """The app search field's clear button. Its template follows the wallpaper through the
+    translucent field (slot 17, 22 Oct); the white glyph alone is then measured in place
+    (.35 of its box bright; an empty field .0)."""
+    try: return control(frame,'search_clear')
+    except InspectionStopped:
+        image=pixels(frame,exact=True)
+        bright=float((image[988:1022,430:462].min(axis=2)>215).mean())
+        require(.2<=bright<=.6,'Creation control changed: search_clear')
+        return [430,988,462,1022]
+
+
 def restored_app_search(text):
     exact(text,'Top Hit',(10,65,180,125))
     for name in ('Safari','Instagram'):
         try:return dict(app=name,target=app_target(text,name))
         except InspectionStopped:pass
     raise InspectionStopped('Only the known Safari/Instagram app-search result can be dismissed.')
+
+
+SUGGESTION_LABELS=(10,200,490,236)   # The Siri Suggestions app label row in the empty app search.
 
 
 def app_target(text, name,frame=None):
@@ -283,6 +305,14 @@ def app_target(text, name,frame=None):
     suggestions='siri suggestions' in labels
     top_hit='top hit' in labels
     require(home_screen or suggestions or top_hit, 'No recognized Home or app search results.')
-    bounds=exact(text,name,(10,130,490,850 if home_screen else 260))
+    try: bounds=exact(text,name,(10,130,490,850 if home_screen else 260))
+    except InspectionStopped:
+        if not (suggestions and not home_screen and frame is not None): raise
+        # Full-frame OCR can miss a Siri Suggestions label (slot 20, 22 Oct: 'TikTok'); the label row
+        # alone is read again, enlarged, and the name must be read exactly once.
+        from farm_reel_layout import band_words
+        found=[(x0,y0,x1,y1) for t,x0,y0,x1,y1 in band_words(frame,SUGGESTION_LABELS) if t.casefold()==name.casefold()]
+        require(len(found)==1,'Exact visible label missing: '+name)
+        bounds=tuple(round(v) for v in found[0])
     x=(bounds[0]+bounds[2])/2
     return round(x),round((bounds[1]+bounds[3])/2 if top_hit and not home_screen else bounds[1]-42)

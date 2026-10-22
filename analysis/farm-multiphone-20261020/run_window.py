@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
@@ -24,8 +25,11 @@ def call(url, body=None, timeout=10):
     data = None if body is None else json.dumps(body).encode()
     request = urllib.request.Request(url, data=data, method='GET' if body is None else 'POST',
                                      headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return json.load(response)
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return json.load(response)
+    except urllib.error.HTTPError as error:   # The backend's own reason (22 Oct: a refused admission printed none).
+        raise SystemExit(f'{error.code} from {url}: ' + error.read().decode('utf-8', 'replace')[:600]) from error
 
 
 def main():
