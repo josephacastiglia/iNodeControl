@@ -282,7 +282,7 @@ class FixtureKernel:
             ('download_ready', 'click', (91, 955), 'page_menu'),
             ('page_menu', 'click', (100, 928), 'downloads'),
             ('downloads', 'click', (152, 594), 'quicklook_hidden'),
-            ('quicklook_hidden', 'click', (250, 300), 'quicklook'),
+            ('quicklook_hidden', 'click', (40, 960), 'quicklook'),   # Reveal above the toolbar (21 Oct).
             ('quicklook', 'click', (40, 1012), 'share'),
             ('share', 'click', (100, 846), 'quicklook'),
             ('quicklook', 'key:Home', None, 'home'),

@@ -23,11 +23,28 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
-from farm_mirroring import COLLATIONS, ROWS, TILE, browse  # noqa: E402
+from farm_mirroring import CLOSE, COLLATIONS, ROWS, TILE, browse  # noqa: E402
+from farm_observations import WindowsOcr  # noqa: E402
 from identify_phone import acquire, post, request  # noqa: E402
 from mdns_watch import Watcher, lan_address  # noqa: E402
 
 BASE = 'http://127.0.0.1:9916/api'
+
+
+OCR = WindowsOcr()
+
+
+def read_screen(device_id):
+    import urllib.request
+    return OCR.read(urllib.request.urlopen(f'{BASE}/pic/screenshot?id={device_id}', timeout=8).read())
+
+
+def control_center(text):
+    """Control Center: its Focus tile and the battery percentage in the status row (as farm_start_screen)."""
+    rows = [(line['text'].strip().casefold(), min(w['y'] for w in line['words'])) for line in text.get('lines', []) if line.get('words')]
+    # The status row shows the battery percentage or, on the other rack phones, 'SOS only' / 'No SIM'.
+    return (any(t.split()[:1] == ['focus'] and 480 < y < 580 for t, y in rows)
+            and any(('%' in t or 'sos only' in t or 'no sim' in t) and y < 170 for t, y in rows))
 
 
 def row_of(receiver, names):
@@ -85,12 +102,19 @@ def main():
             time.sleep(0.5)
             live = next(r for r in request(BASE, 'GET', '/kernel/status', timeout=5)['receivers'] if r['deviceid'] == device['deviceid'])['live']
         record['result'] = 'mirroring' if live else 'stopped: receiver did not go live within 10 s'
-        if live: time.sleep(1.0); send('/key/sendkey', 'home closes the card', fn_key='Home')
+        if live:
+            time.sleep(1.0); send('/key/sendkey', 'home closes the card', fn_key='Home'); time.sleep(1.5)
+            # Home closes the Screen Mirroring card but not Control Center. Now frames exist, so the
+            # close tap below Control Center's grid is decided on, and confirmed by, a real frame.
+            if control_center(read_screen(device['deviceid'])):
+                tap(CLOSE, 'close Control Center below its grid'); time.sleep(1.5)
+                record['controlCenterClosed'] = not control_center(read_screen(device['deviceid']))
+                if not record['controlCenterClosed']: record['result'] = 'mirroring; Control Center did not close'
     finally:
         record['release'] = post(BASE, '/input/release', dict(id=device['deviceid'], token=token)).get('code')
         watcher.close()
         (folder / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}.json").write_text(json.dumps(record, indent=2), encoding='utf-8')
-        print(json.dumps({k: record.get(k) for k in ('board', 'receiver', 'row', 'cardProof', 'result')}))
+        print(json.dumps({k: record.get(k) for k in ('board', 'receiver', 'row', 'cardProof', 'result', 'controlCenterClosed')}))
 
 
 if __name__ == '__main__':

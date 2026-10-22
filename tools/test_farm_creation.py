@@ -259,7 +259,7 @@ class CreationTests(unittest.TestCase):
         first=dict(width=500,height=1080,lines=[word(label,20+(i%4)*115,170+(i//4)*127,90) for i,label in enumerate(labels)]+[word('Search',235,893,48)])
         second=dict(width=500,height=1080,lines=[word('Top Hit',20,80),word('Safari',130,180)])
         frames=iter([({'text':first},None),({'text':second},None)])
-        workflow=object.__new__(CreationWorkflow);workflow.observe=lambda *args:next(frames)
+        workflow=object.__new__(CreationWorkflow);workflow.observe=lambda *args:next(frames);workflow.pause=lambda seconds:None
         calls=[];workflow.step=lambda label,role,**data:calls.append((label,role,data))
         workflow.open_app('Safari','transfer')
         self.assertEqual(['transfer-search-Safari','transfer-open-Safari'],[c[0] for c in calls])
@@ -270,7 +270,7 @@ class CreationTests(unittest.TestCase):
         first=dict(width=500,height=1080,lines=[word(label,20,170+i*70,90) for i,label in enumerate(labels)]+[word('Search',235,893,48)])
         second=dict(width=500,height=1080,lines=[word('Top Hit',20,80),word('Safari',130,180)])
         frames=iter([({'text':first},None),({'text':second},None)])
-        workflow=object.__new__(CreationWorkflow);workflow.observe=lambda *args:next(frames)
+        workflow=object.__new__(CreationWorkflow);workflow.observe=lambda *args:next(frames);workflow.pause=lambda seconds:None
         calls=[];workflow.step=lambda label,role,**data:calls.append((label,role,data))
         workflow.open_app('Instagram','initial')
         self.assertEqual(['initial-search-Instagram','initial-clear-restored-search','initial-query-Instagram','initial-open-Instagram'],[c[0] for c in calls])

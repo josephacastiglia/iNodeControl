@@ -45,9 +45,10 @@ class CreationOwnership(OwnedCaptureRun):
         self.phase, self.phase_started = name, self.monotonic()
 
 
-# Home-screen roles whose decision may be reconfirmed by a newer frame: OCR of a full home screen
-# can outlast the 1.5 s frame age limit (1.67 s on slot 18, 21 Oct) although the screen is still.
-STILL_SCREENS = ('home', 'search', 'restored_search', 'app_result')
+# Still screens whose decision may be reconfirmed by a newer frame: OCR of a full screen can outlast
+# the 1.5 s frame age limit (1.67 s on slot 18, 21 Oct), and a pointer nudge does not always bring a
+# new frame at once (a 1.3 s old profile frame, 21 Oct), although the screen itself is still.
+STILL_SCREENS = ('home', 'search', 'restored_search', 'app_result', 'profile')
 POINTER_PARK = (420, 270, 500, 330)   # The fresh-frame challenge moves the pointer here.
 
 
@@ -271,6 +272,7 @@ class CreationWorkflow(Workflow):
 
     def open_app(self,name,visit):
         self.search_app=name
+        self.pause(1.0)   # Home's closing animation must end first (a mid-animation frame on slot 18, 22 Oct).
         value,frame=self.observe('home')
         try: point=app_target(value['text'],name,frame)
         except InspectionStopped: point=None
@@ -292,7 +294,16 @@ class CreationWorkflow(Workflow):
         value,_=self.observe('account_entry')
         if value['result'].get('screen')!='profile':
             self.step(label,'instagram_navigation',point=(447,1008))
-        self.observe('profile')
+        try:self.observe('profile')
+        except InspectionStopped as stop:
+            # Instagram can reload to its feed just after reopening on the profile (22 Oct, slot 18).
+            # Once only: the feed is recognized again, then the profile tab, then the account check.
+            # A permission prompt keeps its own handling.
+            if hasattr(stop,'decision'):raise
+            value,_=self.observe('account_entry')
+            if value['result'].get('screen')=='profile':raise stop
+            self.step(label+'-after-reload','instagram_navigation',point=(447,1008))
+            self.observe('profile')
 
     def run(self):
         try:

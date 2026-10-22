@@ -12,7 +12,7 @@ with the exact description and keeps it with Drafts.
 import numpy as np
 
 from farm_carousel_inspection import InspectionStopped
-from farm_creation_layout import require, safari_blank, leftover_downloads
+from farm_creation_layout import require, safari_blank, leftover_downloads, leftover_player
 from farm_draft_transport import allowed_tap
 from farm_draft_workflow import Workflow
 from farm_live_verification import idle
@@ -127,7 +127,9 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
             try: return safari_blank(text)   # No tab open: the empty address field is focused next.
             except InspectionStopped: pass
             try: return leftover_downloads(text)
-            except InspectionStopped: return tt.leftover_preview(frame, text)
+            except InspectionStopped: pass
+            try: return tt.leftover_preview(frame, text)
+            except InspectionStopped: return leftover_player(frame, text)
         if role == 'reel_page': return tt.transfer_page(text, self.download)
         if role == 'reel_caption_copied': return {**tt.transfer_page(text, self.download), **tt.caption_copied(text)}
         if role == 'tiktok_profile':

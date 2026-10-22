@@ -62,6 +62,24 @@ def leftover_downloads(text):
     return dict(browser='safari', leftoverDownloads=True, doneTarget=(51, 530))
 
 
+def leftover_player(frame, text=None):
+    """Safari reopened into iOS's full-screen video player of an earlier download, its toolbar hidden:
+    a black bar above a bright picture, and below it either a black bar or, with the playback
+    overlay up, its scrubber; the overlay's two '10' skip buttons then show (21-22 Oct, slot 18).
+    Done closes it once the toolbar is shown."""
+    image = pixels(frame, exact=True)
+    dark = lambda rows: float((image[rows].max(axis=2) < 25).mean())
+    tens = [line for line in (text or {}).get('lines', []) if line.get('words') and line['text'] == '10'
+            and all(500 <= w['y'] <= 580 for w in line['words'])]
+    # When OCR misses the '10' labels, the overlay's white play glyph at the centre shows it (22 Oct);
+    # the scrubber and home indicator then lighten the bottom bar a little.
+    glyph = float((image[525:580, 230:280].min(axis=2) > 235).mean())
+    overlay = len(tens) >= 1 or (glyph > .15 and dark(slice(990, 1080)) > .85)
+    require(dark(slice(0, 90)) > .97 and dark(slice(100, 980)) < .5 and (dark(slice(990, 1080)) > .97 or overlay),
+            'Safari did not reopen into the full-screen player.')
+    return dict(browser='safari', leftoverPlayer=True, revealTarget=(420, 130), doneTarget=(450, 85))
+
+
 def safari_blank(text):
     """Safari with no tab open, its empty address field either unfocused or already focused (Safari
     restores focus). Either way the next step only focuses the empty field."""
@@ -195,9 +213,23 @@ def home_search(frame,text):
     """The Home screen Search pill. Its translucent fill takes the wallpaper's tint (C24C, 20 Oct:
     5.4% changed pixels after a restart), so the exact OCR word inside the pill box also proves it."""
     try: return control(frame,'home_search')
-    except InspectionStopped:
-        require(words_at(text,'search',HOME_SEARCH_BOX),'The Home screen Search pill is not recognized.')
-        return list(HOME_SEARCH_BOX)
+    except InspectionStopped: pass
+    if words_at(text,'search',HOME_SEARCH_BOX): return list(HOME_SEARCH_BOX)
+    # On a light wallpaper the pill's light label is read neither by the template nor by full-frame
+    # OCR (slot 18, 21 Oct): read the pill alone, enlarged with stronger contrast.
+    require(pill_word(frame)=='search','The Home screen Search pill is not recognized.')
+    return list(HOME_SEARCH_BOX)
+
+
+def pill_word(frame):
+    from PIL import ImageOps
+    from farm_observations import WindowsOcr
+    left,top,right,bottom=HOME_SEARCH_BOX
+    with Image.open(io.BytesIO(frame)) as image:
+        crop=ImageOps.autocontrast(image.convert('L').crop((left-10,top-8,right+10,bottom+4)).resize(((right-left+20)*3,(bottom-top+12)*3),Image.Resampling.LANCZOS))
+    out=io.BytesIO(); crop.convert('RGB').save(out,'BMP')
+    words=[w['text'].casefold() for line in WindowsOcr().read(out.getvalue()).get('lines',[]) for w in line.get('words',[])]
+    return 'search' if words[-1:]==['search'] else (words[-1] if words else '')
 
 
 def home(text,frame=None):

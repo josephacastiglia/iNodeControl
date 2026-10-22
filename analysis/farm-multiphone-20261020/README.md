@@ -98,5 +98,27 @@ Reel on slot 18, attempts that each stopped safely and led to a fix with tests:
 3. Downloads list OCR split a file name -> rows rebuilt from fragments, matched by the unique code.
 4. Safari reopened on the Downloads sheet -> recognized; Done closes it.
 5. The download opened in iOS's full-screen video player with its playback overlay (whole video
-   dimmed, no Files toolbar) -> overlay recognized. **Open:** how to save the video from this player
-   (one tap hid the overlay; the overlay did not come back on later taps). The Reel import stops here.
+   dimmed, no Files toolbar) -> overlay recognized; two reveal taps, then the Share icon template is
+   polled and Done or Share is pressed while it shows.
+
+22 Oct, preps 24-38, each stop safe and fixed with a test in `tools/test_farm_safari_start.py`:
+an earlier share sheet left open (closed by its x); the previous transfer page shown while the new
+one loads (read-only wait for this file name); the Next pill over blurred photos (pill pixels only);
+'First draft' joined to its icon by OCR; a reconfirmed Quick Look frame without OCR text (pixels
+only); the player overlay without OCR '10' labels (white play glyph); the selection tray, the details
+cover and the Preview matched by the package's six tile colours when the strict pixel match narrowly
+misses (other test videos score .4 or more); small editor toolbar labels and the Preview account read
+from an enlarged band; the share sheet settled 35 px lower; the details list grew ('Tag products');
+OCR split 'mouse'+'htxkyd' with no dash; Instagram reloading to its feed after the profile (one
+profile-tab recovery); a white video washing out the Preview title; a playing Preview reconfirmed by
+its button bar. `farm_start_screen.py` now backs out of leftover Reel details, editor ('Start over',
+never 'Save draft') and picker.
+
+**Result (slot 18, 22 Oct 01:11-01:22):** run 38 saved one Reel draft; its verifier stopped on the
+Preview title. `verify_window.py` reran only the verifier on the same admitted package (checks 2 and
+3; check 3 passed): the unique matching draft reopened with the exact caption and account
+xs.halle.xo, played the package video and stayed in Reels drafts. Nothing was shared or published.
+
+```powershell
+python verify_window.py --window reel-slot18 --attempt 1 --check 3   # Refused unless creation saved an unverified draft.
+```

@@ -32,6 +32,13 @@ PICKER_ROWS = ((259, 553), (554, 848))   # Only fully visible rows; never scroll
 CAPTION_LIMIT = 40
 
 
+PILL_CONTROLS = {'next_pill'}
+
+
+def reference_rgb(raw):
+    with Image.open(io.BytesIO(raw)) as reference: return reference.convert('RGB')
+
+
 def reel_control(frame, name, exclude_columns=()):
     """Fixed control template; same thresholds as the carousel controls."""
     row = json.loads(Path(__file__).with_name('farm_reel_controls.json').read_text(encoding='utf-8'))[name]
@@ -42,6 +49,11 @@ def reel_control(frame, name, exclude_columns=()):
     with Image.open(io.BytesIO(raw)) as reference:
         delta = np.abs(image[top:bottom, left:right].astype(float)-np.asarray(reference.convert('RGB')).astype(float))/255
     valid = np.ones(delta.shape[:2], dtype=bool)
+    if name in PILL_CONTROLS:
+        # Only the pill: the picker draws a blurred copy of the photos behind its rounded corners
+        # (22 Oct, slot 18), so those corner pixels follow the library, not the control.
+        pill = np.asarray(reference_rgb(raw))[..., 2] > 180
+        valid = pill & np.roll(pill, 1, 0) & np.roll(pill, -1, 0) & np.roll(pill, 1, 1) & np.roll(pill, -1, 1)
     for a, b in exclude_columns: valid[:, a-left:b-left] = False
     require(delta[valid].mean() < .02 and (delta[valid].max(axis=1) > 35/255).mean() < .04, 'Reel control changed: '+name)
     return row['box']
@@ -219,6 +231,14 @@ def white_disk(image, cell):
     return float((disk.min(axis=2) > 200)[xx*xx+yy*yy <= 10*10].mean())
 
 
+def selected_disk(image, cell):
+    """A selected item's circle: white with its dark selection number in the middle. An empty ring
+    over a white thumbnail is just as white but has nothing dark inside (slot 18, 21 Oct)."""
+    x, y = circle(cell)
+    centre = image[y-6:y+7, x-6:x+7].astype(int)
+    return white_disk(image, cell) >= .3 and float((centre.max(axis=2) < 110).mean()) > .04
+
+
 def numbered_one(image, cell):
     """A settled white disk carrying the numeral 1, at this cell's circle."""
     row = json.loads(Path(__file__).with_name('farm_reel_controls.json').read_text(encoding='utf-8'))['selection_one']
@@ -231,6 +251,18 @@ def numbered_one(image, cell):
     return bool(delta.mean() < .02 and (delta.max(axis=2) > 35/255).mean() < .04)
 
 
+NEAR_MATCH_MEAN = .09   # Slot 18's Recents thumbnail of the package video scored .061/.176 (21 Oct).
+
+
+def tile_colours_match(image, box, reference):
+    """A thumbnail that only narrowly misses the frame match (Instagram crops it slightly differently)
+    still counts when all six test-media tiles carry the package's own colour code."""
+    left, top, right, bottom = box
+    observed = np.asarray(Image.fromarray(image[top:bottom, left:right]).resize(FILL, Image.Resampling.LANCZOS), dtype=float)/255
+    worst = float(np.abs(tile_chroma(observed) - tile_chroma(reference.fill[0])).max())
+    return dict(matched=worst <= TILE_CHROMA, status='tile_colour_match' if worst <= TILE_CHROMA else 'different', worstTile=worst)
+
+
 def reel_picker(frame, text, reference):
     """Locate the one Recents tile that shows the package video."""
     image, chip, count = _picker_frame(frame, text)
@@ -240,13 +272,15 @@ def reel_picker(frame, text, reference):
             if (r, c) == (0, 0): continue  # Camera shortcut, never media.
             result = video_match(frame, (left+2, top+2, right-2, bottom-2), reference, image=image,
                 ignore=((right-46, top, right, top+46), (right-92, bottom-42, right, bottom)))
+            if not result['matched'] and result['mean'] is not None and result['mean'] <= NEAR_MATCH_MEAN:
+                result = dict(result, **tile_colours_match(image, (left+2, top+2, right-2, bottom-2), reference))
             tiles.append(((r, c), result))
     matched = [(cell, value) for cell, value in tiles if value['matched']]
     require(len(matched) == 1, 'The package video is absent or ambiguous in Recents; nothing is selected.')
     cell, best = matched[0]
     others = sorted(v['mean'] for c, v in tiles if c != cell and v['mean'] is not None)
     require(not others or others[0]-best['mean'] >= UNIQUE_MARGIN, 'Another Recents item looks too similar to the package video.')
-    require(all(white_disk(image, (r, c)) < .3 for r in range(len(PICKER_ROWS)) for c in range(3) if (r, c) != (0, 0)),
+    require(not any(selected_disk(image, (r, c)) for r in range(len(PICKER_ROWS)) for c in range(3) if (r, c) != (0, 0)),
             'A Recents item already shows a selection; review the picker.')
     left, right = PICKER_COLUMNS[cell[1]]; top, bottom = PICKER_ROWS[cell[0]]
     label = [w for line in text.get('lines', []) for w in line.get('words', [])
@@ -262,26 +296,61 @@ def reel_selected(frame, text, reference, cell):
     image, _, _ = _picker_frame(frame, text)
     cell = tuple(cell)
     require(numbered_one(image, cell), 'The chosen video is not visibly selected as number 1.')
-    require(all(white_disk(image, (r, c)) < .3 for r in range(len(PICKER_ROWS)) for c in range(3) if (r, c) not in ((0, 0), cell)),
+    require(not any(selected_disk(image, (r, c)) for r in range(len(PICKER_ROWS)) for c in range(3) if (r, c) not in ((0, 0), cell)),
             'Another Recents item is selected or unreadable.')
-    exact(text, 'First draft', (290, 975, 395, 1012))
+    # Each word on its own: OCR may join the button's icon to the label ('t-g First draft', 22 Oct).
+    require(all(words_at(text, word, (290, 975, 395, 1012)) for word in ('first', 'draft')), 'Exact visible label missing: First draft')
     reel_control(frame, 'next_pill')
     # The tray thumbnail carries a remove X at its top-right; it is never tapped.
     tray = video_match(frame, (16, 963, 51, 1025), reference, image=image, ignore=((38, 958, 55, 978),))
+    if not tray['matched'] and tray['mean'] is not None and tray['mean'] <= NEAR_MATCH_MEAN:
+        # The 35 px thumbnail shifts by a pixel between renders (.067 on 22 Oct, slot 18); its six
+        # tiles still carry this package's colour code (.04; other test videos .57 or more).
+        tray = dict(tray, **tile_colours_match(image, (16, 963, 51, 1025), reference))
     require(tray['matched'], 'The selection tray does not show the package video.')
     return dict(cell=list(cell), tray=tray, target=(444, 993))
+
+
+EDITOR_TOOLBAR = (('audio', (45, 902, 108, 942)), ('voice', (222, 902, 282, 942)),
+                  ('captions', (298, 902, 380, 942)), ('overlay', (390, 902, 465, 942)))
+TOOLBAR_BAND, TOOLBAR_SCALE = (30, 905, 475, 940), 4
+
+
+def band_words(frame, band, scale=4):
+    """OCR of one band alone, enlarged with stronger contrast, for small light text that full-frame
+    OCR misses. Words in frame coordinates: (text, left, top, right, bottom)."""
+    from PIL import ImageOps
+    from farm_observations import WindowsOcr
+    left, top, right, bottom = band
+    with Image.open(io.BytesIO(frame)) as image:
+        crop = ImageOps.autocontrast(image.convert('L').crop(band).resize(
+            ((right-left)*scale, (bottom-top)*scale), Image.Resampling.LANCZOS))
+    out = io.BytesIO(); crop.convert('RGB').save(out, 'BMP')
+    return [(str(w['text']), left + w['x']/scale, top + w['y']/scale, left + (w['x']+w['width'])/scale, top + (w['y']+w['height'])/scale)
+            for line in WindowsOcr().read(out.getvalue()).get('lines', []) for w in line.get('words', [])]
+
+
+def toolbar_words(frame):
+    """The editor toolbar's label row alone, enlarged: (word, left, right)."""
+    return [(t.casefold(), x0, x1) for t, x0, _, x1, _ in band_words(frame, TOOLBAR_BAND, TOOLBAR_SCALE)]
 
 
 def reel_editor(frame, text, reference):
     no_overlay(text)
     exact(text, 'Edit video', (25, 975, 125, 1008))
-    toolbar = [words_at(text, name, box) for name, box in (('audio', (45, 902, 108, 942)), ('voice', (222, 902, 282, 942)),
-                                                           ('captions', (298, 902, 380, 942)), ('overlay', (390, 902, 465, 942)))]
+    toolbar = [words_at(text, name, box) for name, box in EDITOR_TOOLBAR]
+    if sum(bool(t) for t in toolbar) < 3:
+        # Full-frame OCR can miss the small light labels over a light video (22 Oct, slot 18).
+        enlarged = toolbar_words(frame)
+        toolbar = [[w for w in enlarged if w[0] == name and box[0] <= w[1] and w[2] <= box[2]] for name, box in EDITOR_TOOLBAR]
     require(sum(bool(t) for t in toolbar) >= 3, 'The Reel editor toolbar is not recognized.')
     require(words_at(text, 'next', (405, 975, 470, 1008)) or present(frame, 'next_pill'), 'The editor Next control is not verified.')
     media = video_match(frame, (0, 56, 500, 945), reference, ignore=((0, 56, 80, 120), (0, 880, 500, 945)))
     require(media['matched'], 'The Reel editor shows different media.')
     return dict(media=media, target=(444, 993))
+
+
+COVER_NEAR_MEAN = .18
 
 
 DETAILS_BUTTONS = (({'save draft'}, (80, 980, 190, 1012)), ({'cancel'}, (12, 62, 90, 96)))
@@ -293,9 +362,14 @@ def reel_details(frame, text, reference, caption=None, *, reopened=False):
     exact(text, 'New reel', (190, 62, 310, 100))
     require(words_at(text, 'preview', (185, 150, 268, 188)) and line_at(text, 'edit cover', (182, 405, 292, 445)),
             'The Reel cover card is not recognized.')
-    for name, box in (('poll', (180, 605, 235, 640)), ('prompt', (245, 605, 350, 640)),
-                      ('location', (60, 735, 190, 770)), ('original', (330, 790, 480, 825))):
+    for name, box in (('poll', (180, 605, 235, 640)), ('prompt', (245, 605, 350, 640))):
         require(words_at(text, name, box), 'Reel details field missing: ' + name)
+    # The settings list grew on 22 Oct (slot 18: a 'Tag products' row), moving location and audio
+    # 58 px down (location y 749 -> 807); either position is accepted, location above audio.
+    rows = [words_at(text, name, box) for name, box in (('location', (60, 735, 190, 835)), ('original', (330, 790, 480, 895)))]
+    for name, found in zip(('location', 'original'), rows):
+        require(found, 'Reel details field missing: ' + name)
+    require(40 <= rows[1][0][1] - rows[0][0][1] <= 80, 'The Reel details rows are out of order.')
     exact(text, 'Save draft', (80, 980, 190, 1012))
     require(words_at(text, 'share', (335, 980, 405, 1012)), 'Reel details buttons are not recognized.')
     if reopened:
@@ -309,6 +383,10 @@ def reel_details(frame, text, reference, caption=None, *, reopened=False):
     else:
         require(lines == [caption], 'The visible Reel caption is missing, different or wrapped.')
     cover = video_match(frame, (160, 136, 340, 456), reference, ignore=((182, 148, 270, 190), (180, 402, 295, 448)))
+    if not cover['matched'] and cover['mean'] is not None and cover['mean'] <= COVER_NEAR_MEAN:
+        # The card now darkens the cover's lower part (22 Oct, slot 18: mean .134); its six tiles
+        # keep this package's colour code (.03; earlier test videos .42 or more, mean .21 or more).
+        cover = dict(cover, **tile_colours_match(pixels(frame, exact=True), (160, 136, 340, 456), reference))
     require(cover['matched'], 'The Reel cover shows different media.')
     return dict(captionExact=caption is not None, cover=cover, reopened=reopened,
                 captionTarget=(80, 505), saveTarget=(130, 996), previewTarget=(225, 172))
@@ -376,18 +454,67 @@ def reels_drafts(frame, text, reference):
     return dict(row=row, rows=len(rows), target=(66, row['editedY']+6))
 
 
+PREVIEW_WASHED = .8                 # Header band brightness (0..1); .85 on 22 Oct.
+PREVIEW_OWNER_BAND = (60, 862, 340, 896)
+
+
+def preview_playback(frame, reference):
+    """The draft Preview's video. Pixels only."""
+    media = video_match(frame, (0, 44, 500, 933), reference, ignore=((0, 44, 500, 112), (420, 560, 500, 900), (0, 820, 500, 933)))
+    if not media['matched'] and media['mean'] is not None and media['mean'] <= COVER_NEAR_MEAN:
+        # Framed slightly differently on 22 Oct (mean .12); the six tiles keep this package's colours (.04).
+        media = dict(media, **tile_colours_match(pixels(frame, exact=True), (0, 44, 500, 933), reference))
+    return media
+
+
+def preview_compare(reference):
+    """A newer Preview frame is the same screen when its button bar is unchanged and it still plays
+    the package video; the video itself never holds still."""
+    def compare(first, first_text, second, second_text):
+        a, b = pixels(first, exact=True).astype(float), pixels(second, exact=True).astype(float)
+        bar = float(np.abs(a[960:1030] - b[960:1030]).mean() / 255)
+        media = preview_playback(second, reference)
+        if bar <= .01 and media['matched']:
+            return dict(state='ready', identity='package_video', bar=bar, automaticInputAllowed=False)
+        return dict(state='wait', bar=bar, reason='The Preview changed or plays other media; capture again without input.',
+                    automaticInputAllowed=False)
+    return compare
+
+
 def reel_preview(frame, text, reference, account, caption):
     """Draft Preview: account, caption and playing package media. Sample counts are not metrics."""
     no_overlay(text, DETAILS_BUTTONS)
-    require(words_at(text, 'preview', (180, 62, 300, 100)), 'The Reel Preview is not recognized.')
-    reel_control(frame, 'preview_back')
+    # The white title and back arrow vanish over a light video (22 Oct, slot 18: this test media's
+    # white top); then the account, caption, buttons and media below decide alone.
+    washed = float(pixels(frame, exact=True)[60:110, 150:350].mean()) / 255 > PREVIEW_WASHED
+    if not washed:
+        require(words_at(text, 'preview', (180, 62, 300, 100)), 'The Reel Preview is not recognized.')
+        reel_control(frame, 'preview_back')
     owner = words_at(text, account.casefold(), (35, 870, 335, 935))
-    require(owner, 'Preview does not show the exact account.')
+    # A handle OCR read cleanly that is unlike this account (the name row or the audio line) stops;
+    # a garbled read of this account ('alle.xu', 22 Oct) is settled by the enlarged read below.
+    from difflib import SequenceMatcher
+    handles = []   # The first handle-like word of each line starting in the name row or the audio line.
+    for line in text.get('lines', []):
+        words = [w for w in line.get('words', []) if 35 <= w['x'] and w['x']+w['width'] <= 335]
+        if not words or not 866 <= min(w['y'] for w in words) <= 910: continue
+        first = next((w['text'] for w in words if re.fullmatch(r'[A-Za-z0-9._]{3,30}', str(w.get('text', '')))
+                      and re.search(r'[a-z]', w['text'].casefold())), None)
+        if first: handles.append(first)
+    others = [h for h in handles if h.casefold() != account.casefold()
+              and SequenceMatcher(None, h.casefold(), account.casefold()).ratio() < .5]
+    require(owner or not others, 'Preview does not show the exact account.')
+    if not owner:   # The light account name over the video's lower part is read enlarged.
+        owner = [(round(x0), round(y0), round(x1), round(y1)) for t, x0, y0, x1, y1 in band_words(frame, PREVIEW_OWNER_BAND)
+                 if t.casefold() == account.casefold() and x1 <= 335]
+        require(len(owner) == 1, 'Preview does not show the exact account.')
     below = [row for row in rows_between(text, owner[0][3]+2, 950, 10, 440)]
+    if below[:1] and 'original aud' in below[0].casefold():
+        below = below[1:]   # The audio line ('<account> · Original audio') now sits above the caption (22 Oct).
     require(below[:1] == [caption], 'Preview caption is missing or different.')
     exact(text, 'Save draft', (80, 980, 190, 1012))
     require(words_at(text, 'share', (335, 980, 405, 1012)), 'Preview buttons are not recognized.')
-    media = video_match(frame, (0, 44, 500, 933), reference, ignore=((0, 44, 500, 112), (420, 560, 500, 900), (0, 820, 500, 933)))
+    media = preview_playback(frame, reference)
     require(media['matched'], 'Preview plays different media.')
     return dict(media=media, accountVerified=True, saveTarget=(130, 996), metrics=None)
 
@@ -473,7 +600,9 @@ def downloads_list(text, download, byte_count):
     # The name's last part is this package's own six-letter code (no look-alike letters), so the
     # row is the one and only row ending in it, even when OCR splits or clips the rest of the name.
     code = download.rsplit('-', 1)[-1]
-    names = [row[:4] for row in download_rows(text) if row[4] == download or row[4].endswith('-' + code)]
+    # OCR can also drop the dash and the 'reel' part ('mouse' + 'htxkyd', 22 Oct, slot 18).
+    names = [row[:4] for row in download_rows(text) if row[4] == download or row[4].endswith('-' + code)
+             or (row[4].endswith(code) and re.match(r'i?mouse', row[4]))]
     require(len(names) == 1 and len([row for row in download_rows(text) if code in row[4]]) == 1,
             'The package download is absent or ambiguous.')
     x0, y0, x1, y1 = names[0]
@@ -486,28 +615,72 @@ def player_overlay(text):
     """iOS's playback overlay over a previewed video: its two '10' skip buttons. While it shows,
     the whole video is dimmed (21 Oct, slot 18), so the picture cannot be compared yet."""
     tens = [min(w['x'] for w in line['words']) for line in text.get('lines', []) if line.get('words') and line['text'] == '10'
-            and all(520 <= w['y'] <= 575 for w in line['words'])]
+            and all(500 <= w['y'] <= 580 for w in line['words'])]
     return len(tens) == 2 and min(tens) < 200 < 300 < max(tens)
 
 
-def quicklook(frame, text, download, reference):
-    """Files preview of the downloaded package video. Controls may be hidden."""
-    if player_overlay(text):
-        return dict(overlay=True, media=None, controls=False, shareTarget=(40, 1012), doneTarget=(450, 85), revealTarget=(250, 300))
+def tile_chroma(fill):
+    """Colour proportions of the six test-media tiles (farm_reel_test_media layout), sampled at each
+    tile's top-left corner, clear of the player's centre buttons. Even dimming keeps them."""
+    height, width = fill.shape[:2]; rows = []
+    for n in range(6):
+        left, top = 60 + (n % 2)*310, 300 + (n // 2)*230
+        x0, x1 = round((left+25)/720*width), round((left+95)/720*width)
+        y0, y1 = round((top+25)/1280*height), round((top+85)/1280*height)
+        colour = fill[y0:y1, x0:x1].reshape(-1, 3).mean(axis=0)
+        rows.append(colour / max(float(colour.sum()), 1e-6))
+    return np.array(rows)
+
+
+def dimmed_video_match(frame, reference):
+    """The package video under the player's dimming overlay: every tile's colour proportions must
+    match the package's own first frame. Proportions are not fitted; dimming only scales them."""
+    image = pixels(frame, exact=True)
+    observed = np.asarray(Image.fromarray(image[96:985, 0:500]).resize(FILL, Image.Resampling.LANCZOS), dtype=float)/255
+    # Undo the overlay's dimming as measured on the plain background between title and tiles; the
+    # same per-channel factor applies to every tile (one physical overlay, not a fit per tile).
+    height, width = observed.shape[:2]
+    band = (slice(round(225/1280*height), round(290/1280*height)), slice(round(60/720*width), round(660/720*width)))
+    scale = reference.fill[0][band].reshape(-1, 3).mean(axis=0) / np.maximum(observed[band].reshape(-1, 3).mean(axis=0), 1e-6)
+    worst = float(np.abs(tile_chroma(np.clip(observed*scale, 0, 1)) - tile_chroma(reference.fill[0])).max())
+    bright = float(observed.mean())
+    matched = worst <= TILE_CHROMA and .25 <= bright
+    return dict(status='tile_colour_match' if matched else 'different', matched=matched, worstTile=worst, brightness=bright,
+                byteIdentityVerified=False)
+
+
+TILE_CHROMA = .06   # Same video 0.037 under the overlay (21 Oct); closest palette pair (blue, sky) differs by 0.078.
+
+
+def preview_media(frame, reference):
+    """The package video in the preview, plain or under the player's dimming overlay. Pixels only."""
     media = video_match(frame, (0, 96, 500, 985), reference, ignore=((0, 880, 500, 985),))
+    if not media['matched']: media = dimmed_video_match(frame, reference)
     require(media['matched'], 'The previewed download is not the package video.')
-    controls = present(frame, 'quicklook_share')
+    return media
+
+
+def quicklook(frame, text, download, reference):
+    """Files preview of the downloaded package video. Controls may be hidden.
+
+    The player's overlay dims the whole video and stays while it is paused at its end (21 Oct,
+    slot 18), so a picture that does not match plainly is matched by its six tiles' colour
+    proportions instead, which dimming keeps. The reviewed header name is required whenever the
+    toolbar shows."""
+    media = preview_media(frame, reference)
+    controls = bool(present(frame, 'quicklook_share'))
     if controls:
-        require(words_at(text, download, (150, 65, 360, 110)) and words_at(text, 'done', (410, 65, 490, 105)),
+        require(words_at(text, download, (120, 65, 380, 110)) and words_at(text, 'done', (410, 65, 490, 105)),
                 'The preview header does not show this download.')
-    return dict(media=media, controls=controls, shareTarget=(40, 1012), doneTarget=(450, 85), revealTarget=(250, 300))
+    return dict(media=media, controls=controls, overlay=player_overlay(text), shareTarget=(40, 1012), doneTarget=(450, 85),
+                revealTarget=(250, 300))
 
 
 def leftover_preview(frame, text):
     """A Files preview of an earlier transfer, left open in Safari. Done only closes it."""
     names = [w['text'] for line in text.get('lines', []) for w in line.get('words', [])
              if re.fullmatch(r'imouse-(reel-[acdefhkmnprtuvwxy]{6}|draft)', str(w.get('text', '')))
-             and 150 <= w['x'] and w['x']+w['width'] <= 360 and 65 <= w['y'] and w['y']+w['height'] <= 110]
+             and 120 <= w['x'] and w['x']+w['width'] <= 380 and 65 <= w['y'] and w['y']+w['height'] <= 110]
     require(len(names) == 1 and words_at(text, 'done', (410, 65, 490, 105)) and present(frame, 'quicklook_share'),
             'Safari opened on an unrecognized screen; no input is sent.')
     return dict(leftoverPreview=True, name=names[0], doneTarget=(450, 85))
@@ -517,8 +690,38 @@ SHARE_ROWS = (('Copy', (40, 755, 120, 795)), ('Save Video', (40, 828, 175, 863))
               ('Save to Files', (40, 950, 185, 985)), ('Add to Shared Album', (40, 1012, 265, 1046)))
 
 
+SHARE_HEADER_TOP = 521      # The file name's top in the sheet header, as on 21-22 Oct.
+SHARE_SHIFT = (-10, 60)     # iOS also settled the whole sheet 35 px lower (22 Oct, slot 18).
+
+
+def share_header(text, name_pattern):
+    """The sheet header's file name and the sheet's vertical shift from the usual position."""
+    found = [(w['text'], round(w['y'] - SHARE_HEADER_TOP)) for line in text.get('lines', []) for w in line.get('words', [])
+             if re.fullmatch(name_pattern, str(w.get('text', ''))) and 60 <= w['x'] and w['x']+w['width'] <= 320
+             and SHARE_HEADER_TOP + SHARE_SHIFT[0] - 9 <= w['y'] and w['y']+w['height'] <= SHARE_HEADER_TOP + SHARE_SHIFT[1] + 24]
+    return found[0] if len(found) == 1 else (None, None)
+
+
+def share_rows(text, shift):
+    """The sheet's actions, moved with the sheet. A row pushed under the home indicator is not read."""
+    rows = {}
+    for label, (left, top, right, bottom) in SHARE_ROWS:
+        if bottom + shift <= 1046: rows[label] = exact(text, label, (left, top + shift, right, bottom + shift))
+    require(len(rows) >= 4, 'The share sheet actions are not recognized.')
+    return rows
+
+
+def leftover_share_sheet(text):
+    """An earlier transfer's share sheet, left open over its preview (22 Oct, slot 18, after a stop
+    on this sheet). Its close button only dismisses the sheet; the preview behind is closed next."""
+    name, shift = share_header(text, r'imouse-(reel-[acdefhkmnprtuvwxy]{6}|draft)')
+    require(name is not None, 'Safari opened on an unrecognized screen; no input is sent.')
+    share_rows(text, shift)
+    return dict(leftoverShareSheet=True, name=name, closeTarget=(460, 531 + shift))
+
+
 def share_sheet(text, download):
-    require(words_at(text, download, (60, 512, 320, 545)), 'The share sheet is not for this download.')
-    for label, box in SHARE_ROWS: exact(text, label, box)
-    bounds = exact(text, 'Save Video', (40, 828, 175, 863))
-    return dict(target=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)))
+    name, shift = share_header(text, re.escape(download))
+    require(name is not None, 'The share sheet is not for this download.')
+    bounds = share_rows(text, shift)['Save Video']
+    return dict(target=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)), shift=shift)

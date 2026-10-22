@@ -118,6 +118,9 @@ def centre(bounds):
     return round((left+right)/2), round((top+bottom)/2)
 
 
+FRAME_WAIT_POLLS = 25   # About two seconds: 1 in 4 nudges took 0.8-1.7 s with four phones mirroring (21 Oct).
+
+
 class Workflow:
     PLATFORM = 'instagram'   # Every observation is requested and validated for this one app.
 
@@ -273,6 +276,9 @@ class Workflow:
             x = 450 if self.pointer_position() == (480, 300) else 480
             self.command('/mouse/move', purpose='fresh_frame_confirmation', x=x, y=300)
             self.pause(.12)
+            for _ in range(FRAME_WAIT_POLLS):
+                if own_receiver(self.kernel.kernel_status(), self.phone)['frames'] > before: break
+                self.pause(.08)
             raw, headers = self.kernel.shot(self.phone.board)
             taken = self.monotonic()
             try:
@@ -321,6 +327,11 @@ class Workflow:
         x = 450 if self.pointer_position() == (480, 300) else 480
         self.command('/mouse/move', purpose='fresh_frame_challenge', x=x, y=300)
         self.pause(.12)
+        # With four phones mirroring over one Wi-Fi a new frame can take longer than that to arrive
+        # (21 Oct). Wait, bounded, until this receiver reports a newer delivery, then capture.
+        for _ in range(FRAME_WAIT_POLLS):
+            if own_receiver(self.kernel.kernel_status(), self.phone)['frames'] > before: break
+            self.pause(.08)
         key = str(uuid.uuid4())
         entry = dict(role=role, index=index, observationId=key, state='requested')
         self.record['observations'].append(entry); self.save()

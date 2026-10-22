@@ -6,8 +6,9 @@ download, Photos save or caption entry is never repeated; a stopped run needs
 review. Nothing taps Share, publishes or messages. The verifier is a separate
 owned run that starts from the exact profile and finishes on Reels drafts.
 """
+import hashlib
 from farm_carousel_inspection import InspectionStopped
-from farm_creation_layout import require, safari_blank, leftover_downloads
+from farm_creation_layout import require, safari_blank, leftover_downloads, leftover_player
 from farm_draft_creation import CreationWorkflow
 from farm_draft_transport import allowed_tap
 from farm_live_verification import idle
@@ -19,7 +20,7 @@ import farm_reel_layout as reel
 # Read-only waits for screens that are known to animate in. They delay the
 # first capture only; a capture never repeats an action.
 PRE_SETTLE = {'reel_safari_entry': .6, 'reel_page': .6, 'reel_caption_copied': .4, 'link_menu': .6, 'page_menu': .6,
-              'downloads': .6, 'quicklook': .8, 'quicklook_controls': .4, 'share_sheet': .8, 'reel_create': .4,
+              'downloads': .6, 'quicklook': .8, 'quicklook_controls': .4, 'share_sheet': 1.8, 'reel_create': .4,
               'reel_picker': .6, 'reel_selected': .6, 'reel_editor': 1.0, 'reel_details_blank': .6, 'reel_caption_blank': .6,
               'reel_paste_menu': .4, 'reel_caption_pasted': .2, 'reel_details': .6, 'reel_saved_picker': 1.0,
               'reels_drafts': .8, 'reel_reopened': .8, 'reel_preview': .8}
@@ -30,6 +31,9 @@ SETTLED = set(PRE_SETTLE) - {'reel_paste_menu', 'reel_preview'}
 # or a draft. Absence of all of them means no phone import or draft can exist.
 COMMITTING = ('download-linked-file', 'save-video-to-photos', 'select-package-video', 'open-reel-editor',
               'paste-exact-caption', 'save-reel-draft-once')
+
+
+LEFTOVER_ROUNDS = 4   # Preview, player and Downloads sheet can stack; then Safari itself.
 
 
 class PermissionPrompt(InspectionStopped):
@@ -101,12 +105,25 @@ class ReelCreationWorkflow(CreationWorkflow):
             raise InspectionStopped('This candidate has no implementation for the validated prompt method ' + str(decision['method']) + '.')
         self.record['permissionPrompts'][-1]['answeredBy'] = label; self.save()
 
+    ACCOUNT_REREADS = 2   # OCR now and then drops a handle's first letter (21 Oct: 's.halle.xo').
+
     def observe(self, role, index=None, require_next=False):
         for attempt in range(self.PROMPT_LIMIT+1):
-            try: return self.observe_screen(role, index, require_next)
+            try: return self.observe_account(role, index, require_next)
             except PermissionPrompt as prompt:
                 if prompt.decision['action'] != 'answer' or attempt == self.PROMPT_LIMIT: raise
                 self.answer_prompt(prompt.decision, role)
+
+    def observe_account(self, role, index=None, require_next=False):
+        """An account mismatch on a frame is read again on a newer frame (moves only, no tap); a
+        really different account keeps failing and still stops the run."""
+        for reread in range(self.ACCOUNT_REREADS + 1):
+            try: return self.observe_screen(role, index, require_next)
+            except PermissionPrompt: raise
+            except InspectionStopped:
+                last = (self.record['observations'] or [{}])[-1].get('observation') or {}
+                if reread == self.ACCOUNT_REREADS or last.get('result', {}).get('accountStatus') != 'different_text': raise
+                self.record.setdefault('accountRereads', []).append(dict(role=role, observationId=last.get('id'))); self.save()
 
     # -- recognition -------------------------------------------------------------
     def verify_screen(self, role, value, frame, index=None, require_next=False):
@@ -119,7 +136,11 @@ class ReelCreationWorkflow(CreationWorkflow):
             try: return safari_blank(text)   # No tab open: the empty address field is focused next.
             except InspectionStopped: pass
             try: return leftover_downloads(text)
-            except InspectionStopped: return reel.leftover_preview(frame, text)
+            except InspectionStopped: pass
+            try: return reel.leftover_share_sheet(text)
+            except InspectionStopped: pass
+            try: return reel.leftover_preview(frame, text)
+            except InspectionStopped: return leftover_player(frame, text)
         if role == 'safari_or_blank':
             # Safari's toolbar, or its Start Page whose empty address field the next step focuses.
             try: return self.verify_screen('safari', value, frame)
@@ -155,7 +176,23 @@ class ReelCreationWorkflow(CreationWorkflow):
 
     def confirmation_compare(self, role):
         """Settled screens may be reconfirmed by a newer frame under their own settling rule."""
+        if role == 'quicklook': return self.preview_identity()
+        if role == 'reel_preview': return reel.preview_compare(self.video)   # A playing video (22 Oct).
         return reel.reel_compare(role) if role in SETTLED else super().confirmation_compare(role)
+
+    def preview_identity(self):
+        """The previewed video plays and its toolbar fades in and out, so no pixels stay still (21 Oct,
+        slot 18). A newer frame counts as the same screen when it still shows this package video."""
+        def compare(first, first_text, second, second_text):
+            try:
+                # A decision reconfirmed before dispatch has no OCR of the newer frame (22 Oct, slot
+                # 18); the decision itself was made on the fully verified preview.
+                if second_text is None: reel.preview_media(second, self.video)
+                else: reel.quicklook(second, second_text, self.download, self.video)
+                return dict(state='ready', identity='package_video', automaticInputAllowed=False)
+            except InspectionStopped as error:
+                return dict(state='wait', reason=str(error), automaticInputAllowed=False)
+        return compare
 
     def observe_screen(self, role, index=None, require_next=False):
         if role not in PRE_SETTLE: return super().observe(role, index, require_next)
@@ -165,7 +202,7 @@ class ReelCreationWorkflow(CreationWorkflow):
             self.record['transitionChecks'].append(event); self.save()
         value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
             journal=journal, monotonic=self.monotonic, pause=self.pause,
-            ready=lambda frame, text: None, compare=reel.reel_compare(role),
+            ready=lambda frame, text: None, compare=self.preview_identity() if role == 'quicklook' else reel.reel_compare(role),
             require_recent=self.confirmation_compare(role) is None, phone=self.phone)
         return value, frame
 
@@ -198,25 +235,150 @@ class ReelCreationWorkflow(CreationWorkflow):
     def transfer_page(self, text):
         return reel.reel_transfer_page(text, self.download)
 
+    def direct_click(self, label, kind, x, y, evidence):
+        """A click whose screen cannot give an OCR-checked fresh frame in time (a fading toolbar, a
+        static player). Journaled as an action like any step, never replayed, its outcome kept
+        uncertain if the answer is lost; evidence names the fixed check it was decided on."""
+        require(not any(a['label'] == label for a in self.record['actions']), 'Creation action cannot be replayed.')
+        row = dict(label=label, kind=kind, state='not_sent', evidence=evidence)
+        self.record['actions'].append(row); self.save()
+        start = len(self.record['commands'])
+        try:
+            self.command('/mouse/click', purpose=label, x=x, y=y)
+            row['state'] = 'answered'; self.save()
+        except BaseException as error:
+            sent = self.record['commands'][start:]
+            row.update(state=sent[-1]['state'] if sent else 'not_sent', reason=str(error)); self.save(); raise
+
+    def safari_entry(self):
+        """Safari's screen after opening it. iOS hides the pointer over the full-screen player and a
+        paused video never changes, so the pointer challenge gets no new frame there; a plain frame
+        must then show that player or a preview, or the run stops as before."""
+        try:
+            entry, _, _ = self.screen('reel_safari_entry')
+            return entry
+        except InspectionStopped as stop:
+            if 'did not produce a new frame' not in str(stop): raise
+            raw, headers = self.kernel.shot(self.phone.board)
+            text = self.store.ocr.read(raw)
+            try: entry = leftover_player(raw, text)
+            except InspectionStopped:
+                try: entry = reel.leftover_share_sheet(text)
+                except InspectionStopped:
+                    try: entry = dict(self.leftover_static_preview(raw, text), leftoverPreview=True)
+                    except InspectionStopped: raise stop
+            self.record.setdefault('leftoverPlayer', []).append(dict(stage='static_entry', sequence=headers.get('X-iMouse-Frame-Sequence'),
+                                                                     frameSha256=hashlib.sha256(raw).hexdigest(), state=sorted(entry)))
+            return dict(entry, static=True)
+
+    def leftover_static_preview(self, raw, text=None):
+        """An earlier download's preview with its toolbar visible: the reviewed header and Share icon."""
+        return reel.leftover_preview(raw, text or self.store.ocr.read(raw))
+
+    SHARE_POLLS = 4
+    PAGE_POLLS = 10   # About 10 s at most.
+
+    def await_transfer_page(self):
+        """Safari keeps showing the previous transfer page (same media origin) while the new one
+        loads (22 Oct, slot 18: the earlier file name under the fading address suggestions). Frames
+        are read without input until this transfer's page shows; the page check itself then
+        decides on a fresh frame as before, and stops if it never appears."""
+        waits = self.record.setdefault('transferPageWait', [])
+        for attempt in range(self.PAGE_POLLS):
+            raw, headers = self.kernel.shot(self.phone.board)
+            try:
+                self.transfer_page(self.store.ocr.read(raw))
+                waits.append(dict(attempt=attempt, sequence=headers.get('X-iMouse-Frame-Sequence'), shown=True)); return
+            except InspectionStopped as stop:
+                waits.append(dict(attempt=attempt, sequence=headers.get('X-iMouse-Frame-Sequence'), reason=str(stop)))
+            self.pause(.8)
+
+    def close_leftover_player(self, entry, round_=1):
+        """An earlier stop left Safari in the full-screen player. Its toolbar shows on a tap and fades
+        within a second, so Done is pressed only while fresh frames show the toolbar (Share icon
+        template); Done only closes the player. No earlier media is touched."""
+        # The reveal point is picture in the player and empty or plain page content in every other
+        # Safari state seen (Start Page, transfer page, Downloads sheet), so it is sent without a
+        # fresh frame, which the static player cannot give.
+        # With the playback overlay up, the first tap only hides the overlay; the second shows the
+        # toolbar (22 Oct, slot 18). Both land on picture.
+        for tap in ('a', 'b'):
+            self.direct_click(f'reveal-leftover-player-{round_}{tap}', 'static_safari_entry', *entry['revealTarget'], 'static_frame_leftover_player')
+            for attempt in range(self.SHARE_POLLS):
+                self.pause(.15)
+                raw, headers = self.kernel.shot(self.phone.board)
+                if reel.present(raw, 'quicklook_share'):
+                    self.record.setdefault('leftoverPlayer', []).append(dict(tap=tap, attempt=attempt, sequence=headers.get('X-iMouse-Frame-Sequence'),
+                                                                             frameSha256=hashlib.sha256(raw).hexdigest()))
+                    self.direct_click(f'close-leftover-player-{round_}', 'quicklook_toolbar', *entry['doneTarget'], 'share_icon_template')
+                    self.pause(1.0)
+                    return
+            self.pause(.6)
+        raise InspectionStopped('The earlier video player did not show its toolbar; nothing else was sent.')
+
+    def open_preview_share(self):
+        """Share from the verified video preview. A tap shows Quick Look's toolbar, which fades again
+        within about a second (21 Oct, slot 18), faster than an OCR-checked decision. So the reveal
+        tap is decided on the verified preview as usual, then fresh frames are polled with the fixed
+        Share icon template alone (milliseconds) and Share is pressed only while it is on screen.
+        The share sheet is then recognized normally before anything is saved."""
+        checks = self.record.setdefault('shareIconChecks', [])
+        raw, headers = self.kernel.shot(self.phone.board)
+        if reel.present(raw, 'quicklook_share'):
+            # The toolbar already shows (the overlay brings it up when the video is paused); a reveal
+            # tap would hide it again.
+            checks.append(dict(attempt='already_shown', sequence=headers.get('X-iMouse-Frame-Sequence'),
+                               frameSha256=hashlib.sha256(raw).hexdigest(), shareIcon=True))
+            self.direct_click('open-share-sheet', 'quicklook_toolbar', 40, 1012, 'share_icon_template')
+            return
+        self.tap('reveal-preview-controls', 'quicklook', (40, 960))   # Picture area just above the toolbar.
+        for attempt in range(self.SHARE_POLLS):
+            self.pause(.15)
+            raw, headers = self.kernel.shot(self.phone.board)
+            shown = bool(reel.present(raw, 'quicklook_share'))
+            checks.append(dict(attempt=attempt, sequence=headers.get('X-iMouse-Frame-Sequence'), ageMs=headers.get('X-iMouse-Frame-Age-Ms'),
+                               frameSha256=hashlib.sha256(raw).hexdigest(), shareIcon=shown))
+            if shown:
+                self.direct_click('open-share-sheet', 'quicklook_toolbar', 40, 1012, 'share_icon_template')
+                return
+        raise InspectionStopped('The preview toolbar did not show its Share icon; nothing was shared or saved.')
+
     def import_video(self, start_role='profile', label='home-from-profile'):
         """Start screen -> Safari package page -> copy caption -> download -> Files -> Save Video -> Home."""
         self.phase('open-transfer')
         self.observe(start_role)
         self.step(label, start_role, key='Home')
         self.open_app('Safari', 'transfer')
-        entry, _, _ = self.screen('reel_safari_entry')
-        if entry.get('leftoverDownloads'):
-            # Done only closes Safari's Downloads sheet left open by an earlier stop.
-            self.tap('close-leftover-downloads', 'reel_safari_entry', entry['doneTarget'])
-        if entry.get('leftoverPreview'):
-            # A previous run leaves Safari on a read-only Files preview. Done
-            # only closes it; the earlier media is not touched or replayed.
-            self.tap('close-leftover-preview', 'reel_safari_entry', (450, 85))
+        # An earlier stop can leave a preview, the video player or the Downloads sheet open, one
+        # behind another. Each is closed with Done, which only closes it, until Safari itself shows.
+        for round_ in range(1, LEFTOVER_ROUNDS + 1):
+            entry = self.safari_entry()
+            if not any(entry.get(k) for k in ('leftoverPlayer', 'leftoverShareSheet', 'leftoverPreview', 'leftoverDownloads')): break
+            require(round_ < LEFTOVER_ROUNDS, 'Safari still shows an earlier download after closing it; nothing else was sent.')
+            if entry.get('leftoverPlayer'):
+                self.close_leftover_player(entry, round_)
+            elif entry.get('leftoverShareSheet'):
+                # The sheet's close button only dismisses it; a still preview behind gives no fresh frame.
+                if entry.get('static'):
+                    self.direct_click(f'close-leftover-share-sheet-{round_}', 'static_safari_entry', *entry['closeTarget'],
+                                      'static_frame_leftover_share_sheet')
+                else:
+                    self.tap(f'close-leftover-share-sheet-{round_}', 'reel_safari_entry', entry['closeTarget'])
+            elif entry.get('static'):
+                # Done (top right) only closes the preview; it is empty or plain page content in every
+                # other Safari state seen, so it is sent without the fresh frame this screen cannot give.
+                self.direct_click(f'close-leftover-preview-{round_}', 'static_safari_entry', 450, 85, 'static_frame_leftover_preview')
+            elif entry.get('leftoverPreview'):
+                self.tap(f'close-leftover-preview-{round_}', 'reel_safari_entry', (450, 85))
+            else:
+                self.tap(f'close-leftover-downloads-{round_}', 'reel_safari_entry', entry['doneTarget'])
+            self.pause(1.5)
         self.tap('focus-safari-address', 'safari_or_blank', (245, 953))
         self.step('enter-transfer-url', 'address_selected', text=self.url)
         # Same Safari address edit session; never a caption.
         self.command('/key/sendkey', purpose='load-transfer-url', fn_key='Enter')
         self.pause(1)
+        self.await_transfer_page()
         self.phase('copy-caption')
         self.tap('copy-caption', 'reel_page', lambda v, f: self.transfer_page(v['text'])['copyTarget'])
         self.phase('download-video')
@@ -228,15 +390,8 @@ class ReelCreationWorkflow(CreationWorkflow):
         self.tap('open-downloaded-video', 'downloads',
                  lambda v, f: reel.downloads_list(v['text'], self.download, self.video_bytes)['target'])
         self.phase('save-video-to-photos')
-        preview, _, _ = self.screen('quicklook')
-        for _ in range(3):
-            if not preview.get('overlay'): break
-            self.pause(2.5)   # iOS hides the playback overlay by itself while the video plays; no input.
-            preview, _, _ = self.screen('quicklook')
-        require(not preview.get('overlay'), 'The playback overlay stayed over the preview; its video cannot be checked.')
-        if not preview['controls']:
-            self.tap('reveal-preview-controls', 'quicklook', (250, 300))
-        self.tap('open-share-sheet', 'quicklook_controls', (40, 1012))
+        self.screen('quicklook')   # The package video, verified (under the player overlay by tile colours).
+        self.open_preview_share()
         self.tap('save-video-to-photos', 'share_sheet', lambda v, f: reel.share_sheet(v['text'], self.download)['target'])
         # The Files preview is not a text field, so Home's leading Tab is harmless here.
         self.step('home-from-saved-video', 'quicklook', key='Home')
