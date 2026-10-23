@@ -21,6 +21,9 @@ CAPTION_LIMIT = 32          # One drafts-list line at the observed width; nothin
 HANDLE = re.compile(r'@([A-Za-z0-9_]{1,15})')
 CARD = (70, 172, 358, 690)  # Composer media card: the whole 9:16 frame.
 CARD_IGNORE = ((316, 178, 352, 214), (70, 640, 358, 690), (196, 595, 470, 640))   # remove x, duration/720p row, sensitive-media tip
+# After X's Edit Video step the card is drawn larger, with a play button and an edit button (slot 17, 23 Oct).
+EDITED_CARD = (66, 170, 362, 697)
+EDITED_IGNORE = ((316, 178, 352, 214), (66, 640, 362, 697), (196, 595, 470, 640), (174, 392, 256, 474))   # ... and play button
 POST = (395, 62, 482, 106)
 REMOVE = (316, 178, 352, 214)
 TIPS = ({'your drafts are here', 'choose who can reply to your post.', 'add your location', 'mark your media as sensitive',
@@ -139,6 +142,8 @@ def x_composer_media(frame, text, reference, *, reopened=False):
     if reopened and blank:
         return dict(blank=True, playTarget=(214, 432), cancelTarget=(57, 85))
     media = media_match(frame, CARD, reference, 'fill', image=image, ignore=CARD_IGNORE)
+    if not media['matched']:
+        media = dict(media_match(frame, EDITED_CARD, reference, 'fill', image=image, ignore=EDITED_IGNORE), card='edited')
     require(media['matched'], 'The X media card shows different media.')
     return dict(blank=False, media=media, cancelTarget=(57, 85))
 

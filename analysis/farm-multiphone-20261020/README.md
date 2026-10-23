@@ -155,3 +155,19 @@ a test in `tools/test_farm_safari_start.py`.
   shows; other apps take clicks); phone 16 shows YouTube "You're offline".
 - `one_tap.py`: one supervised navigation tap for backing out of leftover screens.
 - Full context handoff: `CLAUDE-HANDOFF-20261022.md` in the repository root.
+
+## 22-23 Oct night: phones back, three platforms running
+
+- 22:53 the kernel and every window backend died together when the Claude desktop app updated
+  itself (Windows logged its service reinstall at that minute); no crash was recorded. Restart:
+  `Stop-Multiphone.ps1 -Stage slots`, `Start-Multiphone.ps1 -Stage slots`, then
+  `Release-Receiver.ps1` + `auto_connect.py` per phone. Slots 20 and 17 needed a second
+  `auto_connect.py` (the first tap on their row did not connect; the next one did).
+- Leftover unsaved edits from stopped runs: the operator approved discarding them (23 Oct, "Discard
+  both", then "you can discard whatever you like"). `discard_leftover.py` taps the one 'Discard'
+  of an exactly recognized TikTok editor menu or X Cancel sheet; YouTube's camera close offers
+  'Start over' (taken with `one_tap.py`). 'Save draft' is never chosen for a leftover.
+- Stops fixed (each safe, each with a test): X's new Edit Video screen after Add (Next, never
+  Save); Safari's Downloads size line missed by OCR (read again enlarged); TikTok's sound pill x
+  moved left by a short sound name; YouTube's selected tile drawn under a dark veil with its
+  border a pixel lower, a larger 'Save draft' label on slot 16, and a clipped title placeholder.

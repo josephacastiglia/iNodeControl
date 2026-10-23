@@ -354,7 +354,7 @@ def tiktok_selected(frame, text, reference):
     require(len(selected) == 1 and selected[0][1], 'Exactly one complete TikTok picker item must be selected.')
     tile = selected[0][0]
     x, y = circle(tile)
-    control(frame, 'tt_badge_one', offset=(x-478, y-678))   # Template taken at circle (478, 678).
+    require(badge_one(frame, x, y), 'TikTok control changed: tt_badge_one')
     # A selected tile is drawn zoomed and dimmed, so its match is recorded only.
     # The tray shows exactly what is selected: one thumbnail, the package video.
     tray = media_match(frame, (18, 882, 90, 956), reference, 'square', image=image, ignore=((66, 880, 92, 904), (40, 936, 92, 958)))
@@ -363,6 +363,13 @@ def tiktok_selected(frame, text, reference):
     require(tray['matched'], 'The selection tray does not show the package video.')
     require((image[884:954, 100:240].min(axis=2) > 235).mean() > .97, 'The selection tray holds more than one item.')
     return dict(tile=list(tile), tileMatch=_tile_match(frame, tile, reference, image), tray=tray, target=(367, 1006))
+
+
+def badge_one(frame, x, y):
+    """The numbered badge at a tile's circle. Template taken at circle (478, 678); the middle column's
+    badge can sit a pixel right of the circle its tile edges give (slot 20, 23 Oct), so the template
+    may move one pixel either way."""
+    return any(present(frame, 'tt_badge_one', offset=(x-478+dx, y-678+dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1))
 
 
 # ---- Editor and details --------------------------------------------------------------

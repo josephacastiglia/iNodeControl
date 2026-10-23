@@ -621,6 +621,10 @@ class TikTokSelectionTests(unittest.TestCase):
         for around in ((30, 120, 60), (200, 40, 40), (240, 240, 240)):   # 22 Oct, slot 20: another video's picture.
             with self.subTest(around=around): tt.control(frame(around), 'tt_badge_one')
         with self.assertRaises(InspectionStopped): tt.control(frame((30, 120, 60), numeral=(200, 30, 50)), 'tt_badge_one')
+        drawn = frame((30, 120, 60))   # Drawn at the template's own circle (478, 678).
+        for shift, expected in ((0, True), (1, True), (-1, True), (2, False), (-3, False)):   # 23 Oct: one pixel right.
+            with self.subTest(shift=shift):
+                self.assertEqual(expected, tt.badge_one(drawn, 478+shift, 678))
 
     def test_the_tray_colours_decide_only_a_narrow_miss(self):
         from unittest import mock
@@ -860,10 +864,32 @@ class DiscardLeftoverTests(unittest.TestCase):
         self.assertEqual((100, 176), discard_target(text(*tiktok), 'tiktok')[0])
         x = [('Save to drafts', 180, 455, 320, 480), ('Discard', 210, 528, 290, 552), ('Keep editing', 190, 595, 315, 620)]
         self.assertEqual((250, 540), discard_target(text(*x), 'x')[0])
+        youtube = [('Discard changes?', 107, 482, 298, 505), ('Cancel', 249, 610, 302, 623), ('Discard', 334, 610, 393, 623)]
+        self.assertEqual((364, 616), discard_target(text(*youtube), 'youtube')[0])   # 23 Oct, slot 16.
+        swapped = [youtube[0], ('Discard', 249, 610, 312, 623), ('Cancel', 334, 610, 393, 623)]
+        with self.assertRaises(InspectionStopped): discard_target(text(*swapped), 'youtube')
         reordered = [('Discard', 66, 224, 134, 243), ('Save draft', 66, 166, 159, 186)]
         for rows, dialog in ((reordered, 'tiktok'), (tiktok[:1], 'tiktok'), (tiktok + tiktok[:1], 'tiktok'), (tiktok, 'x')):
             with self.subTest(rows=rows, dialog=dialog), self.assertRaises(InspectionStopped):
                 discard_target(text(*rows), dialog)
+
+
+class XEditedCardTests(unittest.TestCase):
+    def test_the_larger_card_after_edit_video_is_matched_in_its_own_box(self):
+        from unittest import mock
+        import farm_x_layout as xl
+        rows = text(('Cancel', 26, 76, 87, 92), ('Fresh x acceptance', 66, 127, 262, 150), ('Post', 420, 76, 456, 92),
+                    ('Tag people', 104, 708, 182, 724), ('Everyone can reply', 49, 939, 194, 957))   # 23 Oct, slot 17.
+        def media(boxes):
+            return lambda frame, box, ref, model, image=None, ignore=(): dict(matched=box in boxes, mean=.03)
+        stubs = dict(_composer=lambda frame, text: __import__('numpy').zeros((1080, 500, 3)), words_at=lambda *a: True)
+        with mock.patch.multiple(xl, **stubs):
+            with mock.patch.object(xl, 'media_match', media({xl.EDITED_CARD})):
+                self.assertEqual('edited', xl.x_composer_media(b'f', rows, None)['media']['card'])
+            with mock.patch.object(xl, 'media_match', media({xl.CARD})):
+                self.assertNotIn('card', xl.x_composer_media(b'f', rows, None)['media'])
+            with mock.patch.object(xl, 'media_match', media(set())), self.assertRaises(InspectionStopped):
+                xl.x_composer_media(b'f', rows, None)
 
 
 if __name__ == '__main__':

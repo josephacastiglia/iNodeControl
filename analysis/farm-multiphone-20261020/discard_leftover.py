@@ -2,12 +2,13 @@
 
 The tap guards refuse 'Discard' everywhere, which is right inside a workflow. Leaving a stopped
 run's unsaved editor or composer still needs it (the Reel equivalent is 'Start over', 22 Oct).
-The operator approved this for slots 20 and 17 on 23 Oct ("Discard both"); nothing saved or
-posted is affected and the test video stays in Photos.
+The operator approved this on 23 Oct ("Discard both", then "you can discard whatever you like");
+nothing saved or posted is affected and the test video stays in Photos.
 
-Only the two recognized dialogs are accepted, each from its exact labels in order:
-  tiktok  the editor's back menu:   Discard, Save draft
-  x       the composer's Cancel sheet: Save to drafts, Discard, Keep editing
+Only these recognized dialogs are accepted, each from its exact labels in order:
+  tiktok   the editor's back menu:   Discard, Save draft
+  x        the composer's Cancel sheet: Save to drafts, Discard, Keep editing
+  youtube  Add details' back prompt: 'Discard changes?' over Cancel and Discard side by side
 The target is the centre of the one 'Discard' line, decided on a newer fresh frame that matches.
 
   python discard_leftover.py --config windows/tiktok-slot20/creation-config.json --folder windows/tiktok-slot20/nav-3 \
@@ -24,11 +25,13 @@ from farm_carousel_inspection import InspectionStopped  # noqa: E402
 from farm_draft_runs import phone_of  # noqa: E402
 from farm_start_screen import MAX_AGE_MS, StartScreen  # noqa: E402
 
-DIALOGS = {'tiktok': ('discard', 'save draft'), 'x': ('save to drafts', 'discard', 'keep editing')}
+DIALOGS = {'tiktok': ('discard', 'save draft'), 'x': ('save to drafts', 'discard', 'keep editing'),
+           'youtube': ('discard changes?', 'cancel', 'discard')}
 
 
 def discard_target(text, dialog):
-    """Centre of the one 'Discard' line when the dialog's labels each appear once, top to bottom."""
+    """Centre of the one 'Discard' line when the dialog's labels each appear once, in reading order
+    (each next label below the last, or on its row to the right)."""
     rows = {}
     for line in text.get('lines', []):
         words = line.get('words') or []
@@ -39,7 +42,7 @@ def discard_target(text, dialog):
     if any(len(rows.get(label, [])) != 1 for label in labels):
         raise InspectionStopped(f'The {dialog} discard dialog is not shown exactly; nothing was tapped.')
     boxes = [rows[label][0] for label in labels]
-    if not all(a[1] < b[1] for a, b in zip(boxes, boxes[1:])):
+    if not all(a[1] < b[1]-5 or (abs(a[1]-b[1]) <= 5 and a[2] < b[0]) for a, b in zip(boxes, boxes[1:])):
         raise InspectionStopped(f'The {dialog} dialog rows are out of order; nothing was tapped.')
     left, top, right, bottom = rows['discard'][0]
     return (round((left+right)/2), round((top+bottom)/2)), (left-10, top-10, right+10, bottom+10)

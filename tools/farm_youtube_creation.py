@@ -40,7 +40,10 @@ PRE_SETTLE = {**{role: REEL_PRE_SETTLE[role] for role in SHARED},
 # A callout and the playing editor are captured once; every other screen needs two agreeing fresh frames.
 SETTLED = set(PRE_SETTLE) - {'yt_paste_menu', 'yt_playing'}
 CARET_ROLES = ('yt_details_focused', 'yt_details', 'yt_reopened_details')
-CARET_ATTEMPTS = 4          # Settled observations until one shows the title without the caret.
+CARET_ATTEMPTS = 6          # Settled observations until one shows the title without the caret.
+# Pauses between them alternate by about half a blink: with one fixed pause every settled frame
+# landed on the caret's 'on' phase (slot 16, 23 Oct, four attempts in a row).
+CARET_PAUSES = (.35, .85)
 TITLE = (125, 130, 495, 190)
 # iOS dims the home indicator over the dark full-screen views (148/after against 149/before).
 INDICATOR = HOME_INDICATOR
@@ -224,7 +227,7 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
         def journal(event):
             self.record['transitionChecks'].append(event); self.save()
         for attempt in range(CARET_ATTEMPTS if role in CARET_ROLES else 1):
-            self.pause(PRE_SETTLE[role] if attempt == 0 else .35)
+            self.pause(PRE_SETTLE[role] if attempt == 0 else CARET_PAUSES[attempt % 2])
             if role in SETTLED:
                 value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
                     journal=journal, monotonic=self.monotonic, pause=self.pause,
