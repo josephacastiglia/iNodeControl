@@ -419,7 +419,8 @@ def tiktok_details(frame, text, reference, caption=None, *, reopened=False):
     no_overlay(text, (DETAILS_CANCEL,) if reopened else ())
     # A white video washes out 'Preview' and slot 20's parked pointer lands on 'Edit cover' ('dit1Cover',
     # 23 Oct); either label read, or the pointer-clipped one, marks the card. Its media is matched below.
-    edit = [r for r in rows_between(text, 280, 310, 370, 460) if re.fullmatch(r'e?dit\W?\w?\s*cover', r.casefold())]
+    # ('ditlCov' when the video's progress bar shows through the pill, 23 Oct.)
+    edit = [r for r in rows_between(text, 280, 310, 370, 460) if re.fullmatch(r'e?dit\W?\w?\s*cov(er)?', r.casefold())]
     require(words_at(text, 'preview', (350, 125, 425, 155)) or line_at(text, 'edit cover', (370, 280, 460, 310)) or edit,
             'The TikTok cover card is not recognized.')
     require(words_at(text, 'hashtags', (40, 340, 140, 372)) and words_at(text, 'mention', (160, 340, 250, 372)),
@@ -439,6 +440,9 @@ def tiktok_details(frame, text, reference, caption=None, *, reopened=False):
     else: require(lines == [caption], 'The visible TikTok description is missing, different or wrapped.')
     cover = media_match(frame, (345, 122, 475, 313), reference, 'card', image=image,
                         ignore=((345, 122, 425, 152), (345, 278, 475, 313)))
+    if not cover['matched']:   # Slot 20 draws the card larger: (345, 120)-(480, 318) (23 Oct).
+        cover = dict(media_match(frame, (345, 120, 480, 318), reference, 'card', image=image,
+                                 ignore=((345, 120, 430, 152), (345, 278, 480, 318))), card='large')
     require(cover['matched'], 'The TikTok cover shows different media.')
     return dict(captionExact=caption is not None, cover=cover, reopened=reopened,
                 captionTarget=(155, 139), pressTarget=(80, 140), draftsTarget=(130, 1005))

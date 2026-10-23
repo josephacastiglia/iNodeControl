@@ -908,5 +908,73 @@ class SaveVideoRowTests(unittest.TestCase):
                 reel.share_sheet(text(*rows), 'imouse-x-dyayke', b'f')
 
 
+class SheetPendingTests(unittest.TestCase):
+    def test_the_preview_header_after_share_means_wait_not_stop(self):
+        import farm_reel_layout as reel
+        preview = text(('imouse-x-xpftup', 155, 76, 314, 95), ('Done', 426, 77, 474, 92), ('Open in VLC', 131, 1004, 243, 1024))   # 23 Oct, slot 17.
+        with self.assertRaises(reel.SheetPending): reel.share_sheet(preview, 'imouse-x-xpftup')
+        other = text(('imouse-x-aaaaaa', 155, 76, 314, 95), ('Done', 426, 77, 474, 92))
+        with self.assertRaises(InspectionStopped) as stop: reel.share_sheet(other, 'imouse-x-xpftup')
+        self.assertNotIsInstance(stop.exception, reel.SheetPending)   # Another file's preview is a real stop.
+
+
+class XDraftsLoadingTests(unittest.TestCase):
+    def test_a_spinner_alone_means_loading(self):
+        import numpy as np
+        import farm_x_layout as xl
+        image = np.full((1080, 500, 3), 255, dtype=np.uint8)
+        image[600:620, 240:260] = 150                       # Spinner.
+        image[290:310, 437:457] = 150                       # Parked pointer, left out.
+        self.assertTrue(xl.drafts_loading(image))
+        image[214:290, 405:475] = 60                        # A row's thumbnail: not loading.
+        self.assertFalse(xl.drafts_loading(image))
+
+    def test_a_row_without_its_thumbnail_waits(self):
+        from unittest import mock
+        import numpy as np
+        import farm_x_layout as xl
+        rows = text(('Cancel', 26, 91, 87, 107), ('Drafts', 222, 91, 279, 107), ('Scheduled', 327, 148, 403, 161),
+                    ('Fresh x acceptance', 21, 214, 186, 232))
+        with mock.patch.object(xl, 'pixels', lambda f, exact=False: np.full((1080, 500, 3), 255, dtype=np.uint8)):
+            with self.assertRaises(xl.Loading): xl.x_drafts(b'f', rows, None, 'Fresh x acceptance')
+
+
+class XPlayButtonTests(unittest.TestCase):
+    def test_the_triangle_on_its_disc_is_the_paused_card(self):
+        import numpy as np
+        import farm_x_layout as xl
+        image = np.full((1080, 500, 3), 200, dtype=np.uint8)
+        image[396:468, 178:250] = 100                       # Dark disc.
+        image[420:446, 206:230] = 255                       # Triangle.
+        self.assertTrue(xl.play_button(image))
+        gutter = np.full((1080, 500, 3), 200, dtype=np.uint8); gutter[:, 212:216] = 255   # The video's white gutter only.
+        self.assertFalse(xl.play_button(gutter))
+
+
+class YouTubeProcessingTests(unittest.TestCase):
+    def test_processing_is_awaited_like_the_caret(self):
+        import farm_youtube_layout as yl
+        with self.assertRaises(yl.Processing): yl.yt_details(b'f', text(('Processing', 206, 556, 295, 572)), None, 'x', state='titled')
+        self.assertTrue(issubclass(yl.Processing, yl.CaretVisible))
+
+
+class TikTokLargeCoverTests(unittest.TestCase):
+    def test_the_larger_card_is_tried_only_after_the_usual_one(self):
+        from unittest import mock
+        import numpy as np
+        import farm_tiktok_layout as tt
+        seen = []
+        def media(frame, box, ref, model, image=None, ignore=()):
+            seen.append(box); return dict(matched=box == (345, 120, 480, 318), mean=.04)
+        stubs = dict(no_overlay=lambda *a: None, words_at=lambda text, word, box: word not in ('back', 'cancel'),
+                     line_at=lambda *a: True, exact=lambda *a: None, control=lambda *a, **k: None, detail_rows=lambda text: 0,
+                     red_fraction=lambda *a: 1.0, caret_visible=lambda image: False,
+                     rows_between=lambda *a: ['Add description...'],
+                     pixels=lambda f, exact=False: np.full((1080, 500, 3), 255, dtype=np.uint8), media_match=media)
+        with mock.patch.multiple(tt, **stubs):
+            self.assertEqual('large', tt.tiktok_details(b'f', text(), None)['cover']['card'])
+        self.assertEqual([(345, 122, 475, 313), (345, 120, 480, 318)], seen)
+
+
 if __name__ == '__main__':
     unittest.main()

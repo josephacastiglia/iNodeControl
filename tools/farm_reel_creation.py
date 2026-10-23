@@ -107,12 +107,21 @@ class ReelCreationWorkflow(CreationWorkflow):
 
     ACCOUNT_REREADS = 2   # OCR now and then drops a handle's first letter (21 Oct: 's.halle.xo').
 
+    SHEET_WAITS = 4   # Read-only observations while the share sheet has not slid up yet.
+
     def observe(self, role, index=None, require_next=False):
         for attempt in range(self.PROMPT_LIMIT+1):
-            try: return self.observe_account(role, index, require_next)
+            try: return self.observe_sheet(role, index, require_next)
             except PermissionPrompt as prompt:
                 if prompt.decision['action'] != 'answer' or attempt == self.PROMPT_LIMIT: raise
                 self.answer_prompt(prompt.decision, role)
+
+    def observe_sheet(self, role, index=None, require_next=False):
+        for wait in range(self.SHEET_WAITS):
+            try: return self.observe_account(role, index, require_next)
+            except reel.SheetPending:
+                if wait == self.SHEET_WAITS-1: raise
+                self.pause(1.0)
 
     def observe_account(self, role, index=None, require_next=False):
         """An account mismatch on a frame is read again on a newer frame (moves only, no tap); a

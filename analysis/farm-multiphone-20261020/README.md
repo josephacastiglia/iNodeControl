@@ -190,3 +190,16 @@ a test in `tools/test_farm_safari_start.py`.
 - **TikTok (slot 20):** reached the new-draft details screen. Slot 20 shows a different layout
   (rows 54 px higher, now accepted), and its cover thumbnail does not match yet: a different
   crop, plus the AssistiveTouch button sitting over the cover's right side. Open.
+
+### 23 Oct, 02:40-03:10
+
+- The operator deleted the text-only X draft and moved phone 20's AssistiveTouch button. A moved
+  button still lands on some screen (at the left edge it covered TikTok's picker grid), and the
+  other three phones never show it: iOS hides it while a pointer is connected unless
+  'Always Show Menu' is on. Turning that off on phone 20 is a one-time setting (operator's).
+- YouTube's 'Processing' stayed up; `close_app.py` closed YouTube from the app switcher (switcher
+  key and swipe sent directly, as auto_connect does; the app's own card label decides the swipe).
+  Reopening the Short camera then asked 'Continue your draft video?' ('Starting over will save the
+  draft and start a new Short'). Phone 16's mirror then stopped delivering frames; left there.
+- Fixed: TikTok's larger cover card on slot 20; a share sheet still sliding up after Share
+  (read-only wait instead of a stop).

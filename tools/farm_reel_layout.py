@@ -789,8 +789,15 @@ def enlarged_row(frame, label, box):
     return (round(min(w[1] for w in words)), top+5, round(max(w[3] for w in words)), bottom-5)
 
 
+class SheetPending(InspectionStopped):
+    """The preview still shows its own header after Share was answered (slot 17, 23 Oct): the sheet
+    slides up a moment later, so a later frame is read again without input."""
+
+
 def share_sheet(text, download, frame=None):
     name, shift = share_header(text, re.escape(download))
+    if name is None and line_at(text, download, (60, 60, 330, 110)) and line_at(text, 'done', (410, 60, 490, 110)):
+        raise SheetPending('The share sheet has not opened yet; capture again without input.')
     require(name is not None, 'The share sheet is not for this download.')
     bounds = share_rows(text, shift, frame)['Save Video']
     return dict(target=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)), shift=shift)
