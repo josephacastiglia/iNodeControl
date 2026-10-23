@@ -125,15 +125,16 @@ def labelled_create(frame):
     return (250, 1011) if vertical > .8 and horizontal > .8 and grey > .4 else None
 
 
-def yt_home(frame, text):
+def yt_home(frame, text, *, saved=False):
     """Home feed with either observed bar: four unlabelled items (Home, Shorts, +, You; C24C, 17 Oct)
     or five labelled ones (Home, Shorts, +, Subscriptions, You; slot 16, 22 Oct). Feed content is
-    arbitrary and never a target."""
+    arbitrary and never a target. saved: the home shown right after Save draft, where slot 16's
+    'Draft saved' toast slides down over the + (23 Oct); no input follows there, so the + may be hidden."""
     require(words_at(text, 'youtube', (50, 65, 140, 105)), 'The YouTube home header is not recognized.')
     for name in ('yt_home_logo', 'yt_home_actions'): control(frame, name)
     if all(words_at(text, label, box) for label, box in LABELLED_NAV):
         target = labelled_create(frame)
-        require(target, 'The YouTube create button is not where it was observed.')
+        require(target or saved, 'The YouTube create button is not where it was observed.')
         layout = 'labelled'
     else:
         for name in ('yt_nav_home', 'yt_nav_create'): control(frame, name)
@@ -343,6 +344,11 @@ class CaretVisible(InspectionStopped):
     """The title field's caret is drawn; a later frame may show the text without it. No input follows."""
 
 
+class Processing(CaretVisible):
+    """The reopened editor's 'Processing' overlay after Next (slot 16, 23 Oct): Add details follows by
+    itself, so a later frame is awaited the same way, read-only."""
+
+
 def caret_visible(image):
     """A thin dark vertical bar taller than any title glyph (about 24 px against 16)."""
     left, top, right, bottom = TITLE_BAND
@@ -364,6 +370,7 @@ def yt_details(frame, text, reference, caption=None, *, state):
 
     Upload Short publishes and is never a target; Save draft is.
     """
+    if line_at(text, 'processing', (170, 540, 330, 585)): raise Processing('YouTube is still processing the draft; capture again without input.')
     no_overlay(text, DETAILS_BUTTONS)
     require(words_at(text, 'details', (90, 70, 195, 102)), 'YouTube Add details is not recognized.')
     exact(text, 'Save draft', (80, 980, 180, 1012)); exact(text, 'Upload Short', (305, 980, 435, 1012))

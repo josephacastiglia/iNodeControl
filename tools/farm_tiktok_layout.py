@@ -417,14 +417,15 @@ DETAILS_CANCEL = ({'cancel'}, (415, 65, 495, 105))
 def tiktok_details(frame, text, reference, caption=None, *, reopened=False):
     """New or reopened details. caption=None requires the empty placeholder; Post is never a target."""
     no_overlay(text, (DETAILS_CANCEL,) if reopened else ())
-    require(words_at(text, 'preview', (350, 125, 425, 155)) and line_at(text, 'edit cover', (370, 280, 460, 310)),
+    # A white video washes out 'Preview' and slot 20's parked pointer lands on 'Edit cover' ('dit1Cover',
+    # 23 Oct); either label read, or the pointer-clipped one, marks the card. Its media is matched below.
+    edit = [r for r in rows_between(text, 280, 310, 370, 460) if re.fullmatch(r'e?dit\W?\w?\s*cover', r.casefold())]
+    require(words_at(text, 'preview', (350, 125, 425, 155)) or line_at(text, 'edit cover', (370, 280, 460, 310)) or edit,
             'The TikTok cover card is not recognized.')
     require(words_at(text, 'hashtags', (40, 340, 140, 372)) and words_at(text, 'mention', (160, 340, 250, 372)),
             'The TikTok description tools are not recognized.')
     require(words_at(text, 'location', (40, 422, 140, 458)), 'TikTok details field missing: location')
-    for label, box in (('everyone can view this post', (50, 598, 300, 628)), ('more options', (50, 660, 175, 690)),
-                       ('share to', (50, 724, 135, 750))):
-        exact(text, label, box)
+    detail_rows(text)
     require(words_at(text, 'drafts', (105, 985, 190, 1022)), 'The TikTok Drafts button is not recognized.')
     control(frame, 'tt_details_drafts'); control(frame, 'tt_back')
     image = pixels(frame, exact=True)
@@ -441,6 +442,23 @@ def tiktok_details(frame, text, reference, caption=None, *, reopened=False):
     require(cover['matched'], 'The TikTok cover shows different media.')
     return dict(captionExact=caption is not None, cover=cover, reopened=reopened,
                 captionTarget=(155, 139), pressTarget=(80, 140), draftsTarget=(130, 1005))
+
+
+DETAIL_ROWS = (('everyone can view this post', (50, 598, 300, 628)), ('more options', (50, 660, 175, 690)),
+               ('share to', (50, 724, 135, 750)))
+DETAIL_SHIFTS = (0, -54)   # Slot 20 draws these rows 54 px higher under its location chips (23 Oct).
+
+
+def detail_rows(text):
+    """The three rows under Location, all at one of the observed heights. OCR may join a row's icon
+    to its label as a leading 'O' ('O More options', from x 20)."""
+    lines = [(re.sub(r'^[o0]\s+', '', ' '.join(l['text'].casefold().split())), min(w['x'] for w in l['words']),
+              min(w['y'] for w in l['words'])) for l in text.get('lines', []) if l.get('words')]
+    for shift in DETAIL_SHIFTS:
+        if all(any(t == label and 15 <= x <= box[2] and box[1]+shift-6 <= y <= box[3]+shift for t, x, y in lines)
+               for label, box in DETAIL_ROWS):
+            return shift
+    raise InspectionStopped('TikTok details rows are not where they were observed.')
 
 
 def tiktok_paste_menu(frame, text):

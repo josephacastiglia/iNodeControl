@@ -171,3 +171,22 @@ a test in `tools/test_farm_safari_start.py`.
   Save); Safari's Downloads size line missed by OCR (read again enlarged); TikTok's sound pill x
   moved left by a short sound name; YouTube's selected tile drawn under a dark veil with its
   border a pixel lower, a larger 'Save draft' label on slot 16, and a clipped title placeholder.
+
+### 23 Oct, 01:30-02:15: first saved drafts on X and YouTube
+
+- **YouTube (slot 16, prep 65):** Save draft pressed once; YouTube showed 'Draft saved'. Creation
+  then stopped on the home check (the toast covers the + on slot 16; now `yt_home_saved`).
+  `verify_window.py` gained a YouTube case for exactly this (the Save answered, the toast seen,
+  nothing after). Its check 1 reopened the draft and saw it play, then Next showed a
+  'Processing' overlay that was still up 25 minutes later. The phone was left on it, untouched.
+- **X (slot 17, prep 66):** Save to drafts pressed once; the verifier then stopped on its own
+  steps (the drafts tip over the placeholder, the Drafts list loading, the thumbnail's colour
+  match, the edited card reopening paused under a play button), each fixed in turn.
+- **Mistake:** backing out of the reopened X draft by hand, 'Save to drafts' was pressed while
+  the reopened card was still paused on its first frame. The draft was saved again **without its
+  video** (its Drafts row now has no thumbnail). Never re-save a reopened draft by hand; the
+  verifier re-saves only after it has seen the video play. A text-only 'Fresh x acceptance' draft
+  remains on slot 17's account; a new X run needs a different caption or that draft removed.
+- **TikTok (slot 20):** reached the new-draft details screen. Slot 20 shows a different layout
+  (rows 54 px higher, now accepted), and its cover thumbnail does not match yet: a different
+  crop, plus the AssistiveTouch button sitting over the cover's right side. Open.

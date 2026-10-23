@@ -163,7 +163,7 @@ class ReelCreationWorkflow(CreationWorkflow):
             result = reel.quicklook(frame, text, self.download, self.video)
             if role == 'quicklook_controls': require(result['controls'], 'The preview controls are not visible.')
             return result
-        if role == 'share_sheet': return reel.share_sheet(text, self.download)
+        if role == 'share_sheet': return reel.share_sheet(text, self.download, frame)
         if role == 'reel_create': return reel.reel_create(frame, text)
         if role == 'reel_picker': return reel.reel_picker(frame, text, self.video)
         if role == 'reel_selected': return reel.reel_selected(frame, text, self.video, self.cell)
@@ -400,7 +400,7 @@ class ReelCreationWorkflow(CreationWorkflow):
         self.phase('save-video-to-photos')
         self.screen('quicklook')   # The package video, verified (under the player overlay by tile colours).
         self.open_preview_share()
-        self.tap('save-video-to-photos', 'share_sheet', lambda v, f: reel.share_sheet(v['text'], self.download)['target'])
+        self.tap('save-video-to-photos', 'share_sheet', lambda v, f: reel.share_sheet(v['text'], self.download, f)['target'])
         # The Files preview is not a text field, so Home's leading Tab is harmless here.
         self.step('home-from-saved-video', 'quicklook', key='Home')
 

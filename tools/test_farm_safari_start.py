@@ -833,7 +833,7 @@ class YouTubeBlankTitleTests(unittest.TestCase):
         import numpy as np
         import farm_youtube_layout as yl
         stubs = dict(no_overlay=lambda *a: None, words_at=lambda text, word, box: word != 'title', exact=lambda *a: None,
-                     control=lambda *a, **k: None, line_at=lambda *a: True, handle=lambda text: 'channel',
+                     control=lambda *a, **k: None, line_at=lambda text, label, box: label != 'processing', handle=lambda text: 'channel',
                      pixels=lambda f, exact=False: np.full((1080, 500, 3), 255, dtype=np.uint8),
                      media_match=lambda *a, **k: dict(matched=True))
         clipped = text(('Caption y', 134, 151, 210, 170))   # 23 Oct, slot 16.
@@ -890,6 +890,22 @@ class XEditedCardTests(unittest.TestCase):
                 self.assertNotIn('card', xl.x_composer_media(b'f', rows, None)['media'])
             with mock.patch.object(xl, 'media_match', media(set())), self.assertRaises(InspectionStopped):
                 xl.x_composer_media(b'f', rows, None)
+
+
+class SaveVideoRowTests(unittest.TestCase):
+    def test_a_garbled_target_row_is_read_again_enlarged_and_must_be_exact(self):
+        from unittest import mock
+        import farm_reel_layout as reel
+        rows = [('imouse-x-dyayke', 85, 519, 233, 537), ('Send Copy', 120, 566, 209, 583), ('Copy', 50, 795, 96, 814),
+                ('Save V o', 50, 868, 151, 884), ('Add Tags', 50, 929, 134, 948), ('Save to Files', 50, 989, 163, 1005)]   # 23 Oct, slot 17.
+        with self.assertRaises(InspectionStopped): reel.share_sheet(text(*rows), 'imouse-x-dyayke')   # No frame: refused.
+        read = lambda *words: mock.patch.object(reel, 'band_words', return_value=list(words))
+        with read(('Save', 50, 868, 93, 884), ('Video', 99, 868, 151, 884)):
+            self.assertEqual((100, 876), reel.share_sheet(text(*rows), 'imouse-x-dyayke', b'f')['target'])
+        for words in ((('Save', 50, 868, 93, 884),), (('ave', 62, 868, 93, 884), ('Video', 99, 868, 151, 884)),
+                      (('Save', 50, 868, 93, 884), ('Video', 99, 868, 190, 884))):   # Short, clipped, or past the row.
+            with self.subTest(words=words), read(*words), self.assertRaises(InspectionStopped):
+                reel.share_sheet(text(*rows), 'imouse-x-dyayke', b'f')
 
 
 if __name__ == '__main__':

@@ -24,7 +24,7 @@ import farm_x_layout as xl
 from farm_reel_creation import ReelCreationWorkflow, ReelVerification, PRE_SETTLE as REEL_PRE_SETTLE
 
 PENDING = 'pending-x-account'   # Expected-account placeholder until the side menu is read.
-LOADING_ATTEMPTS = 6           # Read-only picker observations while it shows Loading...
+LOADING_ATTEMPTS = 6           # Read-only picker or Drafts observations while either is still loading.
 SHARED = ('reel_safari_entry', 'reel_page', 'reel_caption_copied', 'link_menu', 'page_menu', 'downloads', 'quicklook',
           'quicklook_controls', 'share_sheet')
 PRE_SETTLE = {**{role: REEL_PRE_SETTLE[role] for role in SHARED},
@@ -188,7 +188,7 @@ class XCreationWorkflow(ReelCreationWorkflow):
         return compare(role) if role in SETTLED else super().confirmation_compare(role)
 
     def observe_screen(self, role, index=None, require_next=False):
-        if role != 'x_picker': return self.observe_settled(role, index, require_next)
+        if role not in ('x_picker', 'x_drafts'): return self.observe_settled(role, index, require_next)
         for attempt in range(LOADING_ATTEMPTS):
             try: return self.observe_settled(role, index, require_next)
             except xl.Loading:
@@ -308,7 +308,7 @@ class XVerification(XCreationWorkflow):
                 return found['target']
             self.tap('verify-open-saved-draft', 'x_drafts', choose)
             reopened, _, _ = self.screen('x_reopened')
-            if reopened['blank']:
+            if reopened['blank'] or reopened.get('paused'):
                 self.tap('verify-play-video', 'x_reopened', lambda v, f: xl.x_composer_media(f, v['text'], self.video, reopened=True)['playTarget'])
             self.playback()
             self.tap('verify-cancel-to-save-sheet', 'x_playing',

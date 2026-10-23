@@ -14,8 +14,8 @@ import numpy as np
 from farm_carousel_inspection import InspectionStopped
 from farm_creation_layout import require, exact
 from farm_screen_layout import pixels, words_at, line_at
-from farm_reel_layout import UNIQUE_MARGIN, no_overlay, rows_between, reel_paste_menu
-from farm_tiktok_layout import media_match
+from farm_reel_layout import POINTER, UNIQUE_MARGIN, band_words, no_overlay, rows_between, reel_paste_menu
+from farm_tiktok_layout import media_match, tile_colours
 
 CAPTION_LIMIT = 32          # One drafts-list line at the observed width; nothing truncated.
 HANDLE = re.compile(r'@([A-Za-z0-9_]{1,15})')
@@ -113,6 +113,10 @@ def x_composer_empty(frame, text):
     """An empty composer; the Drafts link exists only once drafts exist."""
     _composer(frame, text)
     rows = [r for r in composer_rows(text, 330) if ' '.join(r.casefold().split()) not in TIPS[0]]
+    if not rows:
+        # The 'Your drafts are here' tip can hide the placeholder from full-frame OCR (slot 17, 23 Oct);
+        # the field alone is read again, enlarged, and must still read as the placeholder.
+        rows = [' '.join(w[0] for w in sorted(band_words(frame, (60, 115, 250, 160), 3), key=lambda w: w[1]))]
     require(len(rows) == 1 and rows[0].casefold().startswith("what's happen"), 'The X composer is not empty.')
     drafts = words_at(text, 'drafts', (310, 70, 380, 98))
     return dict(draftsTarget=(344, 85) if drafts else None, textTarget=(160, 140), pressTarget=(160, 140))
@@ -145,7 +149,17 @@ def x_composer_media(frame, text, reference, *, reopened=False):
     if not media['matched']:
         media = dict(media_match(frame, EDITED_CARD, reference, 'fill', image=image, ignore=EDITED_IGNORE), card='edited')
     require(media['matched'], 'The X media card shows different media.')
-    return dict(blank=False, media=media, cancelTarget=(57, 85))
+    # The edited card reopens paused on its first frame under a play button (slot 17, 23 Oct).
+    paused = bool(reopened and media.get('card') == 'edited' and play_button(image))
+    return dict(blank=False, paused=paused, media=media, cancelTarget=(57, 85), playTarget=(214, 432))
+
+
+def play_button(image):
+    """The white play triangle on its dark disc at the card's centre. The test video's white gutter
+    crosses the same box, about 120 white pixels; the triangle alone adds over 200."""
+    triangle = int((image[418:448, 204:232].min(axis=2) > 235).sum())
+    ring = np.concatenate([image[400:412, 190:240].reshape(-1, 3), image[455:466, 190:240].reshape(-1, 3)]).astype(float)
+    return triangle > 250 and float(ring.mean()) < 170
 
 
 def x_paste_menu(frame, text):
@@ -252,6 +266,16 @@ def x_picker_selected(frame, text, reference, tile):
 
 # ---- Drafts --------------------------------------------------------------------------------
 
+def drafts_loading(image):
+    """An empty Drafts sheet with only its spinner in the middle (slot 17, 23 Oct): a later read-only
+    capture may show the rows."""
+    dark = image.min(axis=2) < 200
+    left, top, right, bottom = POINTER   # The parked pointer.
+    dark[top:bottom, left:right] = False
+    spinner = int(dark[585:635, 225:275].sum())
+    return bool(spinner >= 15 and int(dark[190:950, 20:480].sum()) - spinner <= 40)
+
+
 def x_drafts(frame, text, reference, caption):
     """Drafts sheet: the one row with the exact text and the package video's thumbnail."""
     for label, box in (('Cancel', (18, 82, 100, 115)), ('Drafts', (210, 82, 290, 115)), ('Scheduled', (315, 138, 415, 170))):
@@ -267,10 +291,17 @@ def x_drafts(frame, text, reference, caption):
         thumb = (405, y-3, 476, y+68)
         has_thumb = float(np.std(image[thumb[1]:thumb[3], thumb[0]:thumb[2]].astype(float)/255)) > .05
         match = media_match(frame, thumb, reference, 'square', image=image) if has_thumb else None
+        if match and not match['matched'] and match['mean'] is not None and match['mean'] <= .15:
+            # The rounded thumbnail narrowly misses pixel for pixel (slot 17, 23 Oct: .14); its six colour
+            # blocks decide, as for the TikTok tray (other test videos differ by .4 or more).
+            match = dict(match, **tile_colours(image, (408, y-1, 473, y+72), reference))
         rows.append(dict(text=line['text'], y=y, thumbnail=has_thumb, match=match))
+    if not rows and drafts_loading(image): raise Loading('The X drafts list is still loading.')
     require(rows, 'No X drafts are recognized.')
     exact_rows = [r for r in rows if r['text'] == caption]
     require(len(exact_rows) == 1, 'The exact draft text is absent or ambiguous in X drafts.')
     row = exact_rows[0]
+    # A just re-saved draft lists its row before its thumbnail (slot 17, 23 Oct); a later capture shows it.
+    if not row['thumbnail']: raise Loading('The X draft thumbnail is still loading.')
     require(row['match'] and row['match']['matched'], 'The X draft with this text does not show the package video.')
     return dict(row=row, rows=len(rows), target=(182, row['y']+10))

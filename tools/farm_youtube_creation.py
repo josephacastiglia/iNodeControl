@@ -34,13 +34,13 @@ PENDING = 'pending-youtube-channel'   # Expected-account placeholder until Add d
 SHARED = ('reel_safari_entry', 'reel_page', 'reel_caption_copied', 'link_menu', 'page_menu', 'downloads', 'quicklook',
           'quicklook_controls', 'share_sheet')
 PRE_SETTLE = {**{role: REEL_PRE_SETTLE[role] for role in SHARED},
-              'yt_home': .8, 'yt_camera': .8, 'yt_picker': .8, 'yt_picker_selected': .6, 'yt_trim': 1.0, 'yt_editor': 1.0,
+              'yt_home': .8, 'yt_home_saved': .8, 'yt_camera': .8, 'yt_picker': .8, 'yt_picker_selected': .6, 'yt_trim': 1.0, 'yt_editor': 1.0,
               'yt_details_blank': .6, 'yt_details_focused': .4, 'yt_paste_menu': .4, 'yt_details': .6, 'yt_drafts': .8,
               'yt_reopened_editor': 1.0, 'yt_playing': .8, 'yt_reopened_details': .6}
 # A callout and the playing editor are captured once; every other screen needs two agreeing fresh frames.
 SETTLED = set(PRE_SETTLE) - {'yt_paste_menu', 'yt_playing'}
 CARET_ROLES = ('yt_details_focused', 'yt_details', 'yt_reopened_details')
-CARET_ATTEMPTS = 6          # Settled observations until one shows the title without the caret.
+CARET_ATTEMPTS = 8          # Settled observations until one shows the title without the caret (or Processing).
 # Pauses between them alternate by about half a blink: with one fixed pause every settled frame
 # landed on the caret's 'on' phase (slot 16, 23 Oct, four attempts in a row).
 CARET_PAUSES = (.35, .85)
@@ -49,6 +49,7 @@ TITLE = (125, 130, 495, 190)
 INDICATOR = HOME_INDICATOR
 MOVING = {
     'yt_home': ((0, 110, 500, 980),),                                   # Feed plays; header and bar protected.
+    'yt_home_saved': ((0, 110, 500, 1040),),                            # ... and the Draft saved toast slides over the bar.
     'yt_camera': ((0, 65, 500, 975), INDICATOR),                        # Live camera preview, fading tool labels.
     'yt_picker': (INDICATOR,), 'yt_picker_selected': (INDICATOR,),
     'yt_trim': ((50, 154, 450, 868), (15, 70, 485, 92), (15, 875, 485, 965), INDICATOR),   # Video, its progress bar, the playhead.
@@ -202,6 +203,7 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
         if role == 'reel_page': return self.transfer_page(text)
         if role == 'reel_caption_copied': return {**self.transfer_page(text), **tt.caption_copied(text, app='YouTube')}
         if role == 'yt_home': return yl.yt_home(frame, text)
+        if role == 'yt_home_saved': return yl.yt_home(frame, text, saved=True)
         if role == 'yt_camera': return yl.yt_camera(frame, text)
         if role == 'yt_picker': return yl.yt_picker(frame, text, self.video)
         if role == 'yt_picker_selected': return yl.yt_picker_selected(frame, text, self.video, self.tile)
@@ -239,7 +241,7 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
                 value, frame = self.capture(role, index)
             entry = next(e for e in reversed(self.record['observations']) if e.get('observationId') == value['id'])
             if not entry.get('screenCheck', {}).get('caretVisible'): return value, frame
-        raise InspectionStopped('The YouTube title stayed covered by the text caret; no input was sent.')
+        raise InspectionStopped('The YouTube title stayed covered by the text caret or Processing; no input was sent.')
 
     def check_target(self, role, point):
         def target(value, frame):
@@ -302,7 +304,7 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
             self.pause(2)  # Let the OS paste banner leave the header; nothing is repeated.
             # The single Save draft is decided on a caret-free frame with the exact title and the bound channel.
             self.tap('save-youtube-draft-once', 'yt_details', lambda v, f: self.details('yt_details', v, f)['saveTarget'])
-            home, _, _ = self.screen('yt_home')
+            home, _, _ = self.screen('yt_home_saved')
             self.record.update(draftSavedToast=home['toastSeen'], state='created_unverified',
                                meaning='Package video saved to Photos, selected untrimmed, the exact title pasted and Save draft '
                                        'answered on the bound channel; an independent reopen check is required.')
@@ -357,7 +359,7 @@ class YouTubeVerification(YouTubeCreationWorkflow):
             # Keep the reopened draft with the same single Save draft; an uncertain answer is never repeated.
             self.tap('verify-keep-draft-once', 'yt_reopened_details',
                      lambda v, f: self.details('yt_reopened_details', v, f)['saveTarget'])
-            self.screen('yt_home')
+            self.screen('yt_home_saved')
             self.phase('verify-draft-kept')
             self.open_drafts('final')
             final, _, _ = self.screen('yt_drafts')

@@ -748,7 +748,7 @@ def share_header(text, name_pattern):
     return found[0] if len(found) == 1 else (None, None)
 
 
-def share_rows(text, shift):
+def share_rows(text, shift, frame=None):
     """The sheet's actions, moved with the sheet, or further down by a 'Send Copy' row under the
     header (slot 17, 22 Oct: Copy at y 795 with the header unmoved). The rows' own shift is taken
     from 'Copy', within the same bounds. A row pushed under the home indicator is not read."""
@@ -759,7 +759,9 @@ def share_rows(text, shift):
     for label, (left, top, right, bottom) in SHARE_ROWS:
         if bottom + shift > 1046: continue
         box = (left, top + shift, right, bottom + shift)
-        if label in ('Copy', 'Save Video'): rows[label] = exact(text, label, box)   # Save Video is the target.
+        if label == 'Save Video' and frame is not None and not line_at(text, 'save video', box):
+            rows[label] = enlarged_row(frame, label, box)   # Full-frame OCR read 'Save V o' (slot 17, 23 Oct).
+        elif label in ('Copy', 'Save Video'): rows[label] = exact(text, label, box)   # Save Video is the target.
         else:
             # OCR can clip a neighbour's first letter into its icon ('ave to Files', slot 17, 22 Oct).
             try: rows[label] = exact(text, label, box)
@@ -777,8 +779,18 @@ def leftover_share_sheet(text):
     return dict(leftoverShareSheet=True, name=name, closeTarget=(460, 531 + shift))
 
 
-def share_sheet(text, download):
+def enlarged_row(frame, label, box):
+    """One sheet row read again alone, enlarged: its words must be exactly the label, inside the row's
+    box horizontally. Returns the row's bounds (the words' extent at the box's height)."""
+    left, top, right, bottom = box
+    words = band_words(frame, (30, top-10, 330, bottom+10), 3)
+    require(' '.join(w[0] for w in sorted(words, key=lambda w: w[1])) == label
+            and all(left <= w[1] and w[3] <= right for w in words), 'Exact visible label missing: ' + label)
+    return (round(min(w[1] for w in words)), top+5, round(max(w[3] for w in words)), bottom-5)
+
+
+def share_sheet(text, download, frame=None):
     name, shift = share_header(text, re.escape(download))
     require(name is not None, 'The share sheet is not for this download.')
-    bounds = share_rows(text, shift)['Save Video']
+    bounds = share_rows(text, shift, frame)['Save Video']
     return dict(target=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)), shift=shift)
