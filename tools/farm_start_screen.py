@@ -134,11 +134,14 @@ class StartScreen:
                 mask &= keep
             if a.shape == b.shape: mask &= ~pointer_blob(a, b, mask)
             mean = float(np.abs(a - b)[mask].mean()) if a.shape == b.shape else 1.0
+            # A live camera view adds low-amplitude sensor noise everywhere (TikTok camera, 22 Oct: mean
+            # .005, no pixel off by 35 levels); real screen changes move pixels strongly.
+            strong = float((np.abs(a - b).max(axis=2)[mask] > 35 / 255).mean()) if a.shape == b.shape else 1.0
             entry = dict(role=role + '-confirm', attempt=attempt, sequence=sequence, ageMs=age, before=before, mean=mean,
                          frame=f'{len(self.record["observations"])+1:02d}-{role}-confirm.bmp', frameSha256=hashlib.sha256(raw).hexdigest())
             (self.folder / entry['frame']).write_bytes(raw)
             self.record['observations'].append(entry); self.save()
-            if sequence > before and age <= MAX_AGE_MS and mean <= .003:
+            if sequence > before and age <= MAX_AGE_MS and (mean <= .003 or (mean <= .012 and strong <= .0005)):
                 entry['state'] = 'fresh_unchanged'; self.save()
                 return taken, age
             entry['state'] = 'stale_or_changed'; self.save()

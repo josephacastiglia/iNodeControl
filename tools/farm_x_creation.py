@@ -29,7 +29,7 @@ SHARED = ('reel_safari_entry', 'reel_page', 'reel_caption_copied', 'link_menu', 
           'quicklook_controls', 'share_sheet')
 PRE_SETTLE = {**{role: REEL_PRE_SETTLE[role] for role in SHARED},
               'x_feed': .8, 'x_menu': .6, 'x_composer_empty': .6, 'x_paste_menu': .4, 'x_composer_focused': .6, 'x_composer_text': .6,
-              'x_picker': 1.0, 'x_picker_selected': .4, 'x_composer_media': 1.0, 'x_save_sheet': .6, 'x_drafts': .8,
+              'x_picker': 1.0, 'x_picker_selected': .4, 'x_after_add': 1.0, 'x_video_editor': .6, 'x_composer_media': 1.0, 'x_save_sheet': .6, 'x_drafts': .8,
               'x_reopened': 1.0, 'x_playing': .8}
 # A callout and the playing card are captured once; every other screen needs two agreeing fresh frames.
 SETTLED = set(PRE_SETTLE) - {'x_paste_menu', 'x_composer_focused', 'x_playing'}
@@ -40,10 +40,13 @@ MOVING = {
     'x_composer_text': ((60, 115, 490, 165),),                     # Caret.
     'x_composer_media': ((60, 115, 490, 165), (196, 595, 470, 640)),
     'x_reopened': ((60, 115, 490, 165),),
+    'x_video_editor': ((0, 105, 500, 1010),),                      # The video plays under its first-use callout.
+    'x_after_add': ((0, 105, 500, 1010),),                         # Editor or composer; the tap after it rechecks.
 }
 FORBIDDEN = {
     'x_composer_empty': (xl.POST,), 'x_composer_text': (xl.POST,), 'x_composer_media': (xl.POST, xl.REMOVE),
     'x_reopened': (xl.POST, xl.REMOVE), 'x_playing': (xl.POST, xl.REMOVE), 'x_save_sheet': ((180, 515, 320, 565),),   # Discard
+    'x_video_editor': (xl.EDITOR_SAVE,), 'x_after_add': (xl.EDITOR_SAVE, xl.POST, xl.REMOVE),
 }
 PROHIBITED = ('repost', 'quote', 'reply', 'like', 'bookmark', 'message', 'grok', 'premium', 'subscribe')
 COMMITTING = ('download-linked-file', 'save-video-to-photos', 'select-package-video', 'add-package-video',
@@ -164,6 +167,11 @@ class XCreationWorkflow(ReelCreationWorkflow):
         if role == 'x_picker': return xl.x_picker(frame, text, self.video)
         if role == 'x_picker_selected': return xl.x_picker_selected(frame, text, self.video, self.tile)
         if role == 'x_composer_media': return xl.x_composer_media(frame, text, self.video)
+        if role == 'x_video_editor': return xl.x_video_editor(frame, text)
+        if role == 'x_after_add':
+            # Add can open X's Edit Video screen first (slot 17's new account, 22 Oct); Next leaves it unchanged.
+            try: return dict(xl.x_video_editor(frame, text), editor=True)
+            except InspectionStopped: return dict(xl.x_composer_media(frame, text, self.video), editor=False)
         if role == 'x_save_sheet': return xl.x_save_sheet(text)
         if role == 'x_drafts': return xl.x_drafts(frame, text, self.video, self.caption)
         if role in ('x_reopened', 'x_playing'):
@@ -176,6 +184,7 @@ class XCreationWorkflow(ReelCreationWorkflow):
         """Settled screens may be reconfirmed by a newer frame under their own settling rule."""
         # The focused composer (callout or not) holds still like the empty composer: caret and tips masked.
         if role == 'x_composer_focused': return compare('x_composer_empty')
+        if role == 'quicklook': return self.preview_identity()   # A playing preview, as in the Reel route.
         return compare(role) if role in SETTLED else super().confirmation_compare(role)
 
     def observe_screen(self, role, index=None, require_next=False):
@@ -194,8 +203,8 @@ class XCreationWorkflow(ReelCreationWorkflow):
             self.record['transitionChecks'].append(event); self.save()
         value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
             journal=journal, monotonic=self.monotonic, pause=self.pause,
-            ready=lambda frame, text: None, compare=compare(role), platform=self.PLATFORM,
-            require_recent=self.confirmation_compare(role) is None, phone=self.phone)
+            ready=lambda frame, text: None, compare=self.preview_identity() if role == 'quicklook' else compare(role),
+            platform=self.PLATFORM, require_recent=self.confirmation_compare(role) is None, phone=self.phone)
         return value, frame
 
     def check_target(self, role, point):
@@ -246,6 +255,9 @@ class XCreationWorkflow(ReelCreationWorkflow):
                 return found['target']
             self.tap('select-package-video', 'x_picker', choose)
             self.tap('add-package-video', 'x_picker_selected', lambda v, f: xl.x_picker_selected(f, v['text'], self.video, self.tile)['target'])
+            added, _, _ = self.screen('x_after_add')
+            if added['editor']:
+                self.tap('video-editor-next', 'x_video_editor', lambda v, f: xl.x_video_editor(f, v['text'])['nextTarget'])
             self.phase('save-draft')
             self.tap('cancel-to-save-sheet', 'x_composer_media', lambda v, f: xl.x_composer_media(f, v['text'], self.video)['cancelTarget'])
             self.tap('save-x-draft-once', 'x_save_sheet', lambda v, f: xl.x_save_sheet(v['text'])['target'])

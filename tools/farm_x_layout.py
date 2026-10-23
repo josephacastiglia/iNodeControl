@@ -154,6 +154,21 @@ def x_save_sheet(text):
     return dict(target=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)))
 
 
+EDITOR_TIPS = ({'text gives your video context', "say what it's about in a few words", "sa what it's about in a few words"},
+               (0, 860, 500, 960))   # First-use callout over the video (slot 17's new account, 22 Oct).
+EDITOR_SAVE = (395, 1010, 460, 1045)   # Saves the edit to Photos; never a target.
+
+
+def x_video_editor(frame, text):
+    """X's Edit Video screen after Add (slot 17, 22 Oct): Next continues to the composer, Save is never pressed."""
+    no_overlay(text, (EDITOR_TIPS,))
+    exact(text, 'Edit Video', (190, 72, 310, 102))
+    bounds = exact(text, 'Next', (410, 72, 475, 102))
+    for label, box in (('Trim', (45, 1012, 100, 1045)), ('Cover', (220, 1012, 285, 1045)), ('Save', EDITOR_SAVE)):
+        exact(text, label, box)
+    return dict(nextTarget=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)))
+
+
 # ---- System photo picker ------------------------------------------------------------------
 
 PICKER_TOP, PICKER_PITCH = 201, 167

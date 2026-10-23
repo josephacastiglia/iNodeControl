@@ -96,6 +96,7 @@ def media_match(frame, box, reference, model, *, ignore=(), image=None):
 
 
 BADGE_CONTROLS = {'tt_badge_one'}
+GLYPH_CONTROLS = {'tt_sound_remove', 'tt_sound_note'}
 
 
 def control(frame, name, *, offset=(0, 0)):
@@ -109,6 +110,15 @@ def control(frame, name, *, offset=(0, 0)):
     with Image.open(io.BytesIO(raw)) as reference:
         expected = np.asarray(reference.convert('RGB')).astype(float)
     delta = np.abs(image[top+dy:bottom+dy, left+dx:right+dx].astype(float)-expected)/255
+    if name in GLYPH_CONTROLS:
+        # White glyphs on the sound pill, whose grey follows the video under it (slot 20, 22 Oct):
+        # the glyph must be bright in place and stand out from the pill around it.
+        glyph = expected.min(axis=2) > 200
+        current = image[top+dy:bottom+dy, left+dx:right+dx].astype(float)
+        bright = float((current.min(axis=2)[glyph] > 200).mean())
+        contrast = float(current.mean(axis=2)[glyph].mean() - current.mean(axis=2)[~glyph].mean())
+        require(bright > .85 and contrast > 40, 'TikTok control changed: '+name)
+        return left+dx, top+dy, right+dx, bottom+dy
     if name in BADGE_CONTROLS:
         # Only the badge itself (red disk, white numeral): the tile picture around it differs per video
         # (slot 20, 22 Oct: corners .20 changed, the badge .002). The numeral is checked on its own too.
@@ -267,6 +277,9 @@ def _picker_header(frame, text):
     no_overlay(text)
 
 
+NEAR_TILE_MEAN = .09
+
+
 def _tile_match(frame, tile, reference, image):
     left, top, right, bottom = tile
     return media_match(frame, (left+2, top+2, right-2, bottom-2), reference, 'square', image=image,
@@ -284,7 +297,13 @@ def tiktok_picker(frame, text, reference):
     tiles = []
     for tile, complete in _tiles(image, rows):
         require(not badge(image, tile), 'A TikTok picker item already shows a selection; review the picker.')
-        if complete: tiles.append((tile, _tile_match(frame, tile, reference, image)))
+        if complete:
+            match = _tile_match(frame, tile, reference, image)
+            if not match['matched'] and match['mean'] is not None and match['mean'] <= NEAR_TILE_MEAN:
+                # A narrow miss (.060 on 22 Oct, others .22 or more) is decided by the tiles' colours.
+                left, top, right, bottom = tile
+                match = dict(match, **tile_colours(image, (left+2, top+2, right-2, bottom-2), reference))
+            tiles.append((tile, match))
     matched = [(t, v) for t, v in tiles if v['matched']]
     require(len(matched) == 1, 'The package video is absent or ambiguous in the TikTok picker; nothing is selected.')
     tile, best = matched[0]
@@ -303,8 +322,14 @@ def tray_colours(image, reference):
     """The tray thumbnail squeezes the six test-media tiles into a square (slot 20, 22 Oct: strict
     mean .091). Each uncovered tile's colour proportions must match this package's: .037 for it,
     .23 or more for every earlier test video. The remove x and the duration cover tiles 2 and 6."""
+    return tile_colours(image, (18, 882, 90, 956), reference)
+
+
+def tile_colours(image, box, reference):
+    """Square-crop thumbnail (tray or picker tile): the uncovered test-media tiles' colour proportions."""
+    left, top, right, bottom = box
     size, targets = reference.models['square']
-    observed = np.asarray(Image.fromarray(image[882:956, 18:90]).resize(size, Image.Resampling.LANCZOS), dtype=float)/255
+    observed = np.asarray(Image.fromarray(image[top:bottom, left:right]).resize(size, Image.Resampling.LANCZOS), dtype=float)/255
     def grid3x2(rgb):
         h, w = rgb.shape[:2]; rows = []
         for r in range(3):
@@ -347,21 +372,36 @@ EDITOR_IGNORE = ((0, 65, 500, 95), (0, 90, 70, 140), (150, 90, 360, 140), (425, 
 
 def tiktok_editor(frame, text, reference):
     """Editor with the package video. Your Story publishes and is never a target; reports the sound control."""
-    require(line_at(text, 'your story', (90, 990, 210, 1025)), 'The TikTok editor is not recognized.')
-    control(frame, 'tt_editor_next'); control(frame, 'tt_editor_back')
+    # The Story button reads 'Your Story' or, newer, 'Story 24h' (slot 20, 22 Oct); either way it is never a target.
+    require(line_at(text, 'your story', (90, 990, 210, 1025)) or line_at(text, 'story 24h', (90, 990, 210, 1025)),
+            'The TikTok editor is not recognized.')
+    control(frame, 'tt_editor_next')
+    # The white back arrow cannot be seen over a white video (slot 20, 22 Oct); it is checked only
+    # where the video under it is dark enough to show it.
+    if float(pixels(frame, exact=True)[98:132, 22:50].mean()) < 200: control(frame, 'tt_editor_back')
     no_overlay(text)
     media = media_match(frame, (0, 71, 500, 960), reference, 'fill', ignore=EDITOR_IGNORE)
     require(media['matched'], 'The TikTok editor shows different media.')
     pill = rows_between(text, 95, 135, 140, 360)
     if pill == ['Add sound'] and present(frame, 'tt_sound_note'):
         sound, label = 'none', None
-    elif present(frame, 'tt_sound_remove') and pill and not any('sound' in row.casefold() for row in pill):
-        sound, label = 'attached', pill[0]
+    elif (remove := sound_remove(frame)) is not None and pill and not any('sound' in row.casefold() for row in pill):
+        sound, label = 'attached', re.sub(r'\s+[x×]$', '', pill[0], flags=re.IGNORECASE)   # OCR joins the pill's x.
     elif words_at(text, 'sound', (240, 95, 330, 130)) and not present(frame, 'tt_sound_note') and not present(frame, 'tt_sound_remove'):
         sound, label = 'loading', None
     else:
         raise InspectionStopped('The TikTok sound control is not recognized.')
-    return dict(media=media, sound=sound, soundLabel=label, nextTarget=(367, 1006), removeTarget=(339, 115))
+    return dict(media=media, sound=sound, soundLabel=label, nextTarget=(367, 1006),
+                removeTarget=(339 + (remove if sound == 'attached' else 0), 115))
+
+
+def sound_remove(frame):
+    """Horizontal offset of the sound pill's x from its template spot, or None. The centred pill is as
+    wide as the sound's name, so a short name ('Bounce', slot 20, 23 Oct) moves the x left by 31 px.
+    The x must be found at exactly one place (a run of neighbouring offsets) along the pill row."""
+    hits = [dx for dx in range(-150, 61) if present(frame, 'tt_sound_remove', offset=(dx, 0))]
+    if not hits or hits[-1] - hits[0] > 2: return None
+    return hits[len(hits)//2]
 
 
 DETAILS_CANCEL = ({'cancel'}, (415, 65, 495, 105))

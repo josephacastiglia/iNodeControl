@@ -89,6 +89,9 @@ class RetainedYouTubeLayoutTests(unittest.TestCase):
         for step in ('136-youtube-after-operator', '145-youtube-save-video-draft', '150-youtube-resave-verified-video'):
             f, t = load(step); home = yl.yt_home(f, t)
             self.assertEqual((311, 1020), home['createTarget']); self.assertEqual(step != '136-youtube-after-operator', home['toastSeen'])
+        # The labelled five-item tab bar (17 Oct here; slot 16 since 22 Oct) is accepted with its centre +.
+        home = yl.yt_home(*load('50-youtube-loaded'))
+        self.assertEqual(((250, 1011), 'labelled'), (home['createTarget'], home['navLayout']))
         for step, which in (('137-youtube-create-video', 'after'), ('146-youtube-draft-route', 'after'), ('147-youtube-video-draft-library', 'before')):
             f, t = load(step, which); self.assertEqual(((46, 847), (455, 846)), tuple(yl.yt_camera(f, t)[k] for k in ('addTarget', 'draftsTarget')))
         f, t = load('52-youtube-create'); self.assertIsNone(yl.yt_camera(f, t)['draftsTarget'])     # no drafts yet
@@ -117,7 +120,6 @@ class RetainedYouTubeLayoutTests(unittest.TestCase):
 
     def test_negative_controls_on_real_renderings(self):
         cases = [
-            ('50-youtube-loaded', 'after', lambda f, t: yl.yt_home(f, t)),                       # earlier five-item layout
             ('132-youtube-loaded', 'after', lambda f, t: yl.yt_home(f, t)),                      # local-network prompt over home
             ('137-youtube-create-video', 'after', lambda f, t: yl.yt_home(f, t)),
             ('136-youtube-after-operator', 'after', lambda f, t: yl.yt_camera(f, t)),

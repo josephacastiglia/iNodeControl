@@ -211,7 +211,13 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
 
     def confirmation_compare(self, role):
         """Settled screens may be reconfirmed by a newer frame under their own settling rule."""
+        if role == 'quicklook': return self.preview_identity()   # A playing preview, as in the Reel route.
         return compare(role) if role in SETTLED else super().confirmation_compare(role)
+
+    def settle_compare(self, role):
+        """The preview plays and its toolbar fades (22 Oct, slot 20: the pixel rule ran out of its
+        budget), so it settles on the package video's identity, as in the Reel route."""
+        return self.preview_identity() if role == 'quicklook' else compare(role)
 
     def observe_screen(self, role, index=None, require_next=False):
         if role not in PRE_SETTLE: return Workflow.observe(self, role, index, require_next)
@@ -222,8 +228,10 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
             if role in SETTLED:
                 value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
                     journal=journal, monotonic=self.monotonic, pause=self.pause,
-                    ready=lambda frame, text: None, compare=compare(role), platform=self.PLATFORM,
-                    require_recent=self.confirmation_compare(role) is None)
+                    ready=lambda frame, text: None, compare=self.settle_compare(role), platform=self.PLATFORM,
+                    # The window's own phone: without it settling checks the C24C default and refuses
+                    # every other phone's frames (slot 16, 22 Oct).
+                    require_recent=self.confirmation_compare(role) is None, phone=self.phone)
             else:
                 value, frame = self.capture(role, index)
             entry = next(e for e in reversed(self.record['observations']) if e.get('observationId') == value['id'])

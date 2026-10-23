@@ -25,7 +25,7 @@ from PIL import Image
 from farm_carousel_inspection import InspectionStopped
 from farm_creation_layout import require, exact
 from farm_screen_layout import pixels, words_at, line_at
-from farm_reel_layout import UNIQUE_MARGIN, POINTER, no_overlay, rows_between, reel_paste_menu
+from farm_reel_layout import UNIQUE_MARGIN, POINTER, band_words, no_overlay, rows_between, reel_paste_menu
 from farm_tiktok_layout import media_match
 
 # A 26-character title was read exactly on Add details and on one drafts-list
@@ -79,6 +79,9 @@ def control(frame, name, *, offset=(0, 0), ignore=()):
         delta = np.abs(observed-reference)/255
         require(delta[valid].mean() < .02 and (delta[valid].max(axis=1) > 35/255).mean() < .04, 'YouTube control changed: '+name)
     return left, top, right, bottom
+
+
+SAVE_LABEL = (64, 984, 178, 1006)   # The Save draft label inside its pill.
 
 
 MODES = {'yt_home_logo': 'pixels', 'yt_home_actions': 'glyph', 'yt_nav_home': 'glyph', 'yt_nav_create': 'glyph',
@@ -168,21 +171,32 @@ ROW_TOP, ROW_PITCH, ROW_HEIGHT = 298, 295, 291
 
 
 def _picker_header(frame, text, role):
-    require(line_at(text, 'create from gallery', (8, 250, 220, 285)) and words_at(text, 'recents', (375, 250, 460, 280)),
-            'The YouTube gallery picker is not recognized.')
-    require(line_at(text, 'create video', (190, 190, 310, 220)), 'The YouTube picker header is not recognized.')
+    """Either observed gallery: 'Create from gallery' over 'Recents' (C24C, 17 Oct), or 'Recents' alone
+    at the top left with Create video right below it (slot 16, 22 Oct), which moves the same grid up
+    86 px. Returns the frame's pixels and that vertical offset."""
+    if line_at(text, 'create from gallery', (8, 250, 220, 285)) and words_at(text, 'recents', (375, 250, 460, 280)):
+        require(line_at(text, 'create video', (190, 190, 310, 220)), 'The YouTube picker header is not recognized.')
+        dy, gutters = 0, ((164, 168), (333, 336))
+    else:
+        require(any(line['text'].strip().casefold().startswith('recents') and line.get('words')
+                    and 15 <= min(w['x'] for w in line['words']) <= 40 and 65 <= min(w['y'] for w in line['words']) <= 95
+                    for line in text.get('lines', [])),
+                'The YouTube gallery picker is not recognized.')
+        require(line_at(text, 'create video', (190, 160, 310, 195)), 'The YouTube picker header is not recognized.')
+        # This gallery draws the first column one pixel wider (to x 164) in its second row.
+        dy, gutters = -86, ((165, 168), (333, 336))
     no_overlay(chrome_only(text, role))
     image = pixels(frame, exact=True)
-    for x0, x1 in ((164, 168), (333, 336)):
-        require((image[300:860, x0:x1].max(axis=2) < 40).mean() > .95, 'YouTube picker grid geometry changed.')
-    require((image[589:593, 5:495].max(axis=2) < 40).mean() > .95, 'YouTube picker grid geometry changed.')
-    return image
+    for x0, x1 in gutters:
+        require((image[300+dy:860+dy, x0:x1].max(axis=2) < 40).mean() > .95, 'YouTube picker grid geometry changed.')
+    require((image[589+dy:593+dy, 5:495].max(axis=2) < 40).mean() > .95, 'YouTube picker grid geometry changed.')
+    return image, dy
 
 
-def _tiles(bottom):
+def _tiles(bottom, dy=0):
     """Complete tiles above the given bottom edge; never scroll to find more."""
     for row in range(3):
-        top = ROW_TOP + row*ROW_PITCH
+        top = ROW_TOP + dy + row*ROW_PITCH
         if top + ROW_HEIGHT > bottom: break
         for left, right in COLUMNS: yield (left, top, right, top+ROW_HEIGHT)
 
@@ -201,14 +215,29 @@ def badge(frame, tile):
 def border(image, tile):
     """The white frame YouTube draws round a selected tile. Supplementary: a white picture has white edges too."""
     left, top, right, bottom = tile
-    edges = ((left+1, top+5, left+3, bottom-5), (right-3, top+5, right-1, bottom-5), (left+5, top+1, right-5, top+3))
-    return all(white_fraction(image, box, 200) > .9 for box in edges)
+    sides = ((left+1, top+5, left+3, bottom-5), (right-3, top+5, right-1, bottom-5))
+    # The top edge sits one pixel lower in slot 16's shifted gallery (y 214-215 for a tile top of 212, 22 Oct).
+    tops = [(left+5, top+shift, right-5, top+shift+2) for shift in (1, 2)]
+    return all(white_fraction(image, box, 200) > .9 for box in sides) and max(white_fraction(image, box, 200) for box in tops) > .9
 
 
 def _tile_match(frame, tile, reference, image):
     left, top, right, bottom = tile
     return media_match(frame, (left+2, top+2, right-2, bottom-2), reference, 'fill', image=image,
                        ignore=((right-52, bottom-40, right, bottom), (right-45, top, right, top+45)))
+
+
+def _veiled_match(frame, tile, reference, image):
+    """Slot 16's gallery draws the selected tile under a dark veil (white read as about 180, 22 Oct).
+    The veil's gain comes from the tile's brightest picture pixels (badge and duration corners left out);
+    only a plausible veil is undone, and only inside the tile, before the same match."""
+    left, top, right, bottom = tile
+    bright = float(np.percentile(image[top+50:bottom-45, left+5:right-5].max(axis=2), 98))
+    gain = 255/max(bright, 1)
+    if not 1.2 <= gain <= 1.7: return dict(matched=False, status='no_veil', veilGain=round(gain, 3))
+    lifted = image.copy()
+    lifted[top:bottom, left:right] = np.clip(image[top:bottom, left:right].astype(float)*gain, 0, 255).astype(image.dtype)
+    return dict(_tile_match(frame, tile, reference, lifted), veilGain=round(gain, 3))
 
 
 def _duration(text, tile):
@@ -220,10 +249,10 @@ def _duration(text, tile):
 
 def yt_picker(frame, text, reference):
     """Unselected gallery: the one complete tile showing the package video, nothing selected yet."""
-    image = _picker_header(frame, text, 'yt_picker')
+    image, dy = _picker_header(frame, text, 'yt_picker')
     require(not words_at(text, 'next', (330, 975, 410, 1015)) and not present(frame, 'yt_picker_next'),
             'The YouTube picker already offers Next; review the selection.')
-    tiles = list(_tiles(1040))
+    tiles = list(_tiles(1040, dy))
     require(len(tiles) == 6, 'YouTube picker grid geometry changed.')
     require(not any(badge(frame, t) for t in tiles), 'A YouTube picker item already shows a selection.')
     scored = [(t, _tile_match(frame, t, reference, image)) for t in tiles]
@@ -240,13 +269,14 @@ def yt_picker(frame, text, reference):
 
 def yt_picker_selected(frame, text, reference, tile):
     """Exactly one selection, number 1 on the tile chosen from the unselected frame, one tray item and Next."""
-    image = _picker_header(frame, text, 'yt_picker_selected')
+    image, dy = _picker_header(frame, text, 'yt_picker_selected')
     tile = tuple(tile)
-    complete = list(_tiles(866))
+    complete = list(_tiles(866, dy))
     require(tile in complete, 'The chosen YouTube picker item is no longer fully visible.')
     require(badge(frame, tile) and border(image, tile), 'The chosen video is not visibly selected as number 1.')
     require(not any(badge(frame, t) for t in complete if t != tile), 'Another YouTube picker item is selected.')
     match = _tile_match(frame, tile, reference, image)
+    if not match['matched']: match = _veiled_match(frame, tile, reference, image)
     require(match['matched'], 'The selected YouTube picker item shows different media.')
     # The tray holds exactly one small thumbnail; it is too dark to compare, so only its count is read.
     require((image[884:942, 16:74].max(axis=2) > 12).mean() > .9, 'The YouTube selection tray is empty.')
@@ -337,7 +367,9 @@ def yt_details(frame, text, reference, caption=None, *, state):
     no_overlay(text, DETAILS_BUTTONS)
     require(words_at(text, 'details', (90, 70, 195, 102)), 'YouTube Add details is not recognized.')
     exact(text, 'Save draft', (80, 980, 180, 1012)); exact(text, 'Upload Short', (305, 980, 435, 1012))
-    control(frame, 'yt_details_save'); control(frame, 'yt_details_upload'); control(frame, 'yt_details_back')
+    # Slot 16 draws the 'Save draft' label one size larger than the template (22 Oct); the pill is still
+    # compared and the label is read exactly above.
+    control(frame, 'yt_details_save', ignore=(SAVE_LABEL,)); control(frame, 'yt_details_upload'); control(frame, 'yt_details_back')
     require(words_at(text, 'visibility', (55, 395, 130, 510)) and line_at(text, 'select audience', (55, 530, 220, 600)),
             'The YouTube details fields are not recognized.')
     channel = handle(text)
@@ -348,6 +380,10 @@ def yt_details(frame, text, reference, caption=None, *, state):
     labelled = bool(words_at(text, 'title', (125, 130, 175, 155)))
     rows = rows_between(text, 150 if labelled else top, bottom, left, right)
     if state == 'blank':
+        if not labelled and rows != ['Caption your Short']:
+            # Full-frame OCR clipped the grey placeholder ('Caption y', slot 16, 23 Oct); the field
+            # alone is read again, enlarged, and must hold exactly the placeholder.
+            rows = [' '.join(w[0] for w in sorted(band_words(frame, TITLE_BAND, 3), key=lambda w: (round(w[2]/12), w[1])))]
         require(not labelled and rows == ['Caption your Short'], 'The YouTube title is not empty.')
     else:
         require(labelled, 'The YouTube title field is not focused.')

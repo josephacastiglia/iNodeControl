@@ -619,7 +619,7 @@ def download_rows(text, left=85, top=560, bottom=1000):
              ''.join(i[4].replace(' ', '') for i in sorted(items))) for _, items in rows]
 
 
-def downloads_list(text, download, byte_count):
+def downloads_list(text, download, byte_count, frame=None):
     exact(text, 'Downloads', (185, 512, 315, 548)); exact(text, 'Done', (18, 512, 90, 548)); exact(text, 'Clear', (415, 512, 490, 548))
     # The name's last part is this package's own six-letter code (no look-alike letters), so the
     # row is the one and only row ending in it, even when OCR splits or clips the rest of the name.
@@ -631,6 +631,12 @@ def downloads_list(text, download, byte_count):
             'The package download is absent or ambiguous.')
     x0, y0, x1, y1 = names[0]
     sizes = rows_between(text, y1+4, y1+30, 85, 400)
+    if not sizes and frame is not None:
+        # Full-frame OCR can miss the small grey size line ('31 KB', 23 Oct, slot 17); that row's name
+        # and size are then read alone, enlarged (the size line by itself read as nothing). A misread
+        # there still has to equal the expected label.
+        words = [w for w in band_words(frame, (85, y0-4, 400, y1+42)) if y1 <= w[2] < y1+36]
+        sizes = [' '.join(w[0] for w in sorted(words, key=lambda w: w[1]))] if words else []
     require(sizes[:1] == [size_label(byte_count)], 'The download is incomplete or has a different size.')
     return dict(target=(round((x0+x1)/2), round((y0+y1)/2)), size=sizes[0])
 
@@ -751,8 +757,14 @@ def share_rows(text, shift):
     if len(copy) == 1: shift = max(SHARE_SHIFT[0], min(SHARE_SHIFT[1], copy[0]['y'] - 765))
     rows = {}
     for label, (left, top, right, bottom) in SHARE_ROWS:
-        if bottom + shift <= 1046: rows[label] = exact(text, label, (left, top + shift, right, bottom + shift))
-    require(len(rows) >= 4, 'The share sheet actions are not recognized.')
+        if bottom + shift > 1046: continue
+        box = (left, top + shift, right, bottom + shift)
+        if label in ('Copy', 'Save Video'): rows[label] = exact(text, label, box)   # Save Video is the target.
+        else:
+            # OCR can clip a neighbour's first letter into its icon ('ave to Files', slot 17, 22 Oct).
+            try: rows[label] = exact(text, label, box)
+            except InspectionStopped: pass
+    require(len(rows) >= 3, 'The share sheet actions are not recognized.')
     return rows
 
 

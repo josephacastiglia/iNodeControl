@@ -695,6 +695,41 @@ class PointerBlobTests(unittest.TestCase):
         self.assertFalse(pointer_blob(a, d, mask).any())
 
 
+class CaretAndClippedRowTests(unittest.TestCase):
+    def test_a_caret_read_before_the_placeholder_still_means_empty(self):
+        from farm_creation_layout import safari_address_empty
+        self.assertTrue(safari_address_empty(text(('(Search or enter website name', 35, 943, 310, 963)))['addressEmpty'])   # 22 Oct.
+        with self.assertRaises(InspectionStopped): safari_address_empty(text(('example.com', 35, 943, 140, 963)))
+
+    def test_one_clipped_side_row_is_tolerated_but_never_the_target(self):
+        import farm_reel_layout as reel
+        rows = [('imouse-x-fxpxuu', 85, 521, 230, 539), ('Copy', 50, 797, 96, 816), ('Save Video', 50, 870, 151, 886),
+                ('Add Tags', 50, 931, 134, 950), ('ave to Files', 62, 991, 163, 1007)]   # 22 Oct, slot 17.
+        self.assertEqual((100, 878), reel.share_sheet(text(*rows), 'imouse-x-fxpxuu')['target'])
+        clipped_target = [r if r[0] != 'Save Video' else ('ave Video', 62, 870, 151, 886) for r in rows]
+        with self.assertRaises(InspectionStopped): reel.share_sheet(text(*clipped_target), 'imouse-x-fxpxuu')
+        two_missing = [r for r in rows if r[0] != 'Add Tags']
+        with self.assertRaises(InspectionStopped): reel.share_sheet(text(*two_missing), 'imouse-x-fxpxuu')
+
+
+class TikTokPickerNearMissTests(unittest.TestCase):
+    def test_a_narrow_miss_is_selected_only_by_its_tile_colours(self):
+        from unittest import mock
+        import numpy as np
+        import farm_tiktok_layout as tt
+        tiles = [((167, 807, 332, 967), True), ((0, 807, 166, 967), True)]
+        means = {167: .060, 0: .292}   # 22 Oct, slot 20: the newest test video and an older one.
+        stubs = dict(_picker_header=lambda f, t: None, line_at=lambda *a: True, control=lambda *a, **k: None,
+                     red_fraction=lambda image, box: 1.0, pixels=lambda f, exact=False: np.full((1080, 500, 3), 255, dtype='uint8'),
+                     grid=lambda image: ([], 967), _tiles=lambda image, rows: tiles, badge=lambda image, tile: False,
+                     _tile_match=lambda frame, tile, ref, image: dict(matched=False, mean=means[tile[0]]))
+        for colours, expected in ((True, (310, 828)), (False, None)):
+            with self.subTest(colours=colours), mock.patch.multiple(tt, **stubs),                     mock.patch.object(tt, 'tile_colours', lambda image, box, ref: dict(matched=colours and box[0] == 169)):
+                if expected: self.assertEqual(expected, tt.tiktok_picker(b'f', text(), None)['target'])
+                else:
+                    with self.assertRaises(InspectionStopped): tt.tiktok_picker(b'f', text(), None)
+
+
 class LeftoverPlayerTests(unittest.TestCase):
     def frame(self, top, middle, bottom, overlay=False):
         import io
@@ -721,6 +756,114 @@ class LeftoverPlayerTests(unittest.TestCase):
         for top, middle, bottom in (('white', (240, 240, 235), 'black'), ('black', 'black', 'black'), ('black', (240, 240, 235), 'white')):
             with self.subTest(top=top, middle=middle, bottom=bottom), self.assertRaises(InspectionStopped):
                 leftover_player(self.frame(top, middle, bottom))
+
+
+class XVideoEditorTests(unittest.TestCase):
+    ROWS = [('x', 39, 81, 55, 97), ('Edit Video', 203, 80, 297, 97), ('Next', 422, 83, 460, 96), ('Trim', 58, 1023, 89, 1035),
+            ('Text', 147, 1023, 177, 1035), ('Cover', 230, 1023, 271, 1036), ('Settings', 309, 1023, 367, 1038),
+            ('Save', 409, 1023, 444, 1036)]   # 23 Oct, slot 17's new account, after Add.
+
+    def test_next_is_the_target_and_save_is_fenced_off(self):
+        import farm_x_layout as xl
+        from farm_x_creation import FORBIDDEN
+        tip = [('Text gives your video context', 31, 890, 286, 909), ("Sa what it's about in a few words", 31, 916, 292, 929)]
+        self.assertEqual((441, 90), xl.x_video_editor(b'f', text(*self.ROWS, *tip))['nextTarget'])
+        self.assertIn(xl.EDITOR_SAVE, FORBIDDEN['x_video_editor'])
+        left, top, right, bottom = xl.EDITOR_SAVE
+        self.assertTrue(left <= 426 <= right and top <= 1030 <= bottom)   # The Save label's centre.
+        for missing in ('Next', 'Save', 'Edit Video'):
+            with self.subTest(missing=missing), self.assertRaises(InspectionStopped):
+                xl.x_video_editor(b'f', text(*[r for r in self.ROWS if r[0] != missing]))
+
+
+class DownloadSizeBandTests(unittest.TestCase):
+    def test_a_missed_size_line_is_read_from_the_row_enlarged(self):
+        from unittest import mock
+        import farm_reel_layout as reel
+        rows = text(('Done', 27, 523, 75, 538), ('Downloads', 199, 522, 303, 538), ('Clear', 428, 522, 475, 538),
+                    ('moUse-X-vtrmva', 94, 587, 248, 601), ('mouse', 94, 682, 150, 697))   # 23 Oct: no '31 KB' line.
+        band = [('imouse-x-vtrmva', 94, 586, 248, 600), ('31', 94, 614, 110, 624), ('KB', 113, 615, 133, 624)]
+        with self.assertRaises(InspectionStopped): reel.downloads_list(rows, 'imouse-x-vtrmva', 31166)   # No frame: refused.
+        with mock.patch.object(reel, 'band_words', return_value=band):
+            self.assertEqual('31 KB', reel.downloads_list(rows, 'imouse-x-vtrmva', 31166, b'f')['size'])
+            with self.assertRaises(InspectionStopped): reel.downloads_list(rows, 'imouse-x-vtrmva', 34242, b'f')
+        with mock.patch.object(reel, 'band_words', return_value=band[:1]), self.assertRaises(InspectionStopped):
+            reel.downloads_list(rows, 'imouse-x-vtrmva', 31166, b'f')   # Still nothing below the name.
+
+
+class YouTubeSelectedTileTests(unittest.TestCase):
+    def test_the_top_border_may_sit_one_pixel_lower(self):
+        import numpy as np
+        import farm_youtube_layout as yl
+        tile = (0, 212, 164, 503)
+        def image(top_rows):
+            a = np.full((1080, 500, 3), 170, dtype=np.uint8); a[212:503, 1:3] = 255; a[212:503, 161:163] = 255
+            for y in top_rows: a[y, 5:159] = 255
+            return a
+        self.assertTrue(yl.border(image((213, 214)), tile))
+        self.assertTrue(yl.border(image((214, 215)), tile))   # 23 Oct, slot 16's shifted gallery.
+        self.assertFalse(yl.border(image((216, 217)), tile))
+        self.assertFalse(yl.border(image(()), tile))
+
+    def test_only_a_plausible_dark_veil_is_lifted_inside_the_tile(self):
+        from unittest import mock
+        import numpy as np
+        import farm_youtube_layout as yl
+        tile = (0, 212, 164, 503); seen = []
+        def match(frame, box, ref, image):
+            seen.append(image); return dict(matched=bool(image[300, 80, 0] > 240), mean=0.0)
+        veiled = np.full((1080, 500, 3), 40, dtype=np.uint8); veiled[212:503, 0:164] = 178   # White under the veil.
+        with mock.patch.object(yl, '_tile_match', match):
+            found = yl._veiled_match(b'f', tile, None, veiled)
+            self.assertTrue(found['matched']); self.assertAlmostEqual(1.43, found['veilGain'], places=2)
+            self.assertEqual(40, seen[-1][100, 300, 0])   # Outside the tile nothing changes.
+            plain = veiled.copy(); plain[212:503, 0:164] = 255
+            self.assertEqual('no_veil', yl._veiled_match(b'f', tile, None, plain)['status'])
+            dark = veiled.copy(); dark[212:503, 0:164] = 90
+            self.assertEqual('no_veil', yl._veiled_match(b'f', tile, None, dark)['status'])
+
+
+class YouTubeBlankTitleTests(unittest.TestCase):
+    def test_a_clipped_placeholder_is_read_again_enlarged(self):
+        from unittest import mock
+        import numpy as np
+        import farm_youtube_layout as yl
+        stubs = dict(no_overlay=lambda *a: None, words_at=lambda text, word, box: word != 'title', exact=lambda *a: None,
+                     control=lambda *a, **k: None, line_at=lambda *a: True, handle=lambda text: 'channel',
+                     pixels=lambda f, exact=False: np.full((1080, 500, 3), 255, dtype=np.uint8),
+                     media_match=lambda *a, **k: dict(matched=True))
+        clipped = text(('Caption y', 134, 151, 210, 170))   # 23 Oct, slot 16.
+        placeholder = [('Caption', 134, 151, 200, 170), ('your', 205, 151, 240, 170), ('Short', 245, 151, 297, 170)]
+        with mock.patch.multiple(yl, **stubs):
+            with mock.patch.object(yl, 'band_words', return_value=placeholder):
+                self.assertEqual('blank', yl.yt_details(b'f', clipped, None, state='blank')['state'])
+            with mock.patch.object(yl, 'band_words', return_value=[('Fresh', 134, 151, 180, 170)]), self.assertRaises(InspectionStopped):
+                yl.yt_details(b'f', clipped, None, state='blank')
+
+
+class TikTokSoundPillTests(unittest.TestCase):
+    def test_the_x_is_found_along_a_shorter_pill(self):
+        from unittest import mock
+        import farm_tiktok_layout as tt
+        for hits, expected in (({-31}, -31), ({0}, 0), ({-32, -31, -30}, -31), (set(), None), ({-31, 20}, None)):
+            with self.subTest(hits=hits), mock.patch.object(tt, 'present', lambda frame, name, offset=(0, 0): offset[0] in hits):
+                self.assertEqual(expected, tt.sound_remove(b'f'))
+
+
+class DiscardLeftoverTests(unittest.TestCase):
+    def test_only_the_exact_dialogs_give_a_discard_target(self):
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'analysis' / 'farm-multiphone-20261020'))
+        from discard_leftover import discard_target
+        tiktok = [('Discard', 66, 166, 134, 186), ('Save draft', 66, 224, 159, 243)]   # 23 Oct, slot 20.
+        self.assertEqual((100, 176), discard_target(text(*tiktok), 'tiktok')[0])
+        x = [('Save to drafts', 180, 455, 320, 480), ('Discard', 210, 528, 290, 552), ('Keep editing', 190, 595, 315, 620)]
+        self.assertEqual((250, 540), discard_target(text(*x), 'x')[0])
+        reordered = [('Discard', 66, 224, 134, 243), ('Save draft', 66, 166, 159, 186)]
+        for rows, dialog in ((reordered, 'tiktok'), (tiktok[:1], 'tiktok'), (tiktok + tiktok[:1], 'tiktok'), (tiktok, 'x')):
+            with self.subTest(rows=rows, dialog=dialog), self.assertRaises(InspectionStopped):
+                discard_target(text(*rows), dialog)
 
 
 if __name__ == '__main__':

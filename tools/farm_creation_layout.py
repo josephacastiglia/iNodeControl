@@ -49,7 +49,10 @@ def safari_address_empty(text):
     """The Start Page's address field after it was focused: still empty (iOS shows the placeholder
     only for an empty field) and moved left over the magnifier, which focus removes. Typing
     cannot overwrite anything. The small close button is not required: OCR misses it at times."""
-    require(len(_inside(_line_box(text, lambda t: t.startswith('Search or enter')), (25, 930, 330, 975))) == 1
+    # OCR can read the blinking caret as one character before the placeholder ('(Search or enter...',
+    # slot 16, 22 Oct).
+    require(len(_inside(_line_box(text, lambda t: re.match(r'^[(|\[Il]?\s*Search or enter', t) is not None),
+                        (25, 930, 330, 975))) == 1
             and not _inside(_line_box(text, lambda t: t in ('Q', 'q')), (40, 935, 80, 975)),
             'Safari address field is not focused and empty.')
     return dict(addressSelected=True, addressEmpty=True)

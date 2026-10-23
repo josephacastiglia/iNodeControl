@@ -158,7 +158,7 @@ class ReelCreationWorkflow(CreationWorkflow):
             super().verify_screen('safari', value, frame)
             return reel.download_badge(frame)
         if role == 'page_menu': return reel.page_menu(text)
-        if role == 'downloads': return reel.downloads_list(text, self.download, self.video_bytes)
+        if role == 'downloads': return reel.downloads_list(text, self.download, self.video_bytes, frame)
         if role in ('quicklook', 'quicklook_controls'):
             result = reel.quicklook(frame, text, self.download, self.video)
             if role == 'quicklook_controls': require(result['controls'], 'The preview controls are not visible.')
@@ -396,7 +396,7 @@ class ReelCreationWorkflow(CreationWorkflow):
         self.tap('open-safari-menu', 'download_ready', (91, 955))
         self.tap('open-downloads', 'page_menu', lambda v, f: reel.page_menu(v['text'])['target'])
         self.tap('open-downloaded-video', 'downloads',
-                 lambda v, f: reel.downloads_list(v['text'], self.download, self.video_bytes)['target'])
+                 lambda v, f: reel.downloads_list(v['text'], self.download, self.video_bytes, f)['target'])
         self.phase('save-video-to-photos')
         self.screen('quicklook')   # The package video, verified (under the player overlay by tile colours).
         self.open_preview_share()
