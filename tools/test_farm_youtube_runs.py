@@ -204,10 +204,10 @@ class YouTubePackageTests(unittest.TestCase, YouTubeVideoFixture):
             server.shutdown(); server.close_clients(); server.server_close(); thread.join(2); allowed_ports.discard(server.server_port)
 
     def test_a_leftover_youtube_preview_is_recognized_by_every_video_route(self):
-        import farm_tiktok_layout as tt
-        self.assertRegex('imouse-yt-acdefh', r'imouse-((reel|tt|x|yt)-[acdefhkmnprtuvwxy]{6}|draft)')
-        source = Path(tt.__file__).read_text(encoding='utf-8')
-        self.assertIn("imouse-((reel|tt|x|yt)-[acdefhkmnprtuvwxy]{6}|draft)", source)
+        import farm_reel_layout as reel
+        # The shared leftover-name pattern lives in farm_reel_layout since 22 Oct (used by every video route).
+        self.assertEqual(r'imouse-((reel|tt|x|yt)-[acdefhkmnprtuvwxy]{6}|draft)', reel.LEFTOVER_NAME)
+        self.assertRegex('imouse-yt-acdefh', reel.LEFTOVER_NAME)
 
 
 class YouTubeSourceFingerprintTests(unittest.TestCase):

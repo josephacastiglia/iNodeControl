@@ -80,6 +80,7 @@ class Screens:
         r17('x_picker_loading', '117-x-video-picker'); r17('x_picker', '118-x-picker-loaded'); r17('x_picker_selected', '119-x-select-test-video')
         r17('x_composer_media', '120-x-attach-video'); r17('x_save_sheet', '121-x-video-save-dialog'); r17('x_feed_saved', '122-x-save-video-draft')
         r17('x_composer_drafts', '123-x-open-drafts-route'); r17('x_drafts', '124-x-video-drafts-list')
+        r17('x_composer_drafts_final', '123-x-open-drafts-route')   # The composer again after the drafts sheet closes.
         r17('x_reopened', '125-x-video-draft-reopen'); r17('x_playing', '127-x-reopened-video-play')
         r17('x_keep_sheet', '128-x-close-verified-video'); r17('x_feed_final', '129-x-resave-verified-video')
         self.synthetic()
@@ -254,6 +255,8 @@ class FixtureKernel:
             ('x_save_sheet', 'click', (250, 472), 'x_feed_saved'),
             ('x_composer_drafts', 'click', (344, 85), 'x_drafts'),
             ('x_drafts', 'click', (182, 225), 'x_reopened'),
+            ('x_drafts', 'click', (57, 99), 'x_composer_drafts_final'),        # Read-only verifier (23 Oct).
+            ('x_composer_drafts_final', 'click', (57, 85), 'x_feed_final'),
             ('x_reopened', 'click', (214, 432), 'x_playing'),
             ('x_playing', 'click', (57, 85), 'x_keep_sheet'),
             ('x_keep_sheet', 'click', (250, 472), 'x_feed_final'),
@@ -338,8 +341,10 @@ class XProtocolTests(unittest.TestCase):
         flow, kernel2 = self.fixture(saved=True, verifier=True, account=result['account'])
         verified = flow.run()
         self.assertEqual('validation_passed', verified['state'], verified.get('error'))
-        self.assertEqual(2, kernel2.saves); self.assertEqual('x_feed_final', kernel2.screen)
-        self.assertNotEqual(*verified['playback']['sampledFrameIndices'])
+        # Read only: saving a reopened X draft dropped its video (23 Oct), so nothing is reopened or saved again.
+        self.assertEqual(1, kernel2.saves); self.assertEqual('x_feed_final', kernel2.screen); self.assertFalse(verified['reopened'])
+        self.assertNotIn('verify-open-saved-draft', [a['label'] for a in verified['actions']])
+        self.assertTrue(verified['draftRow']['match']['matched'])
         self.assertEqual(CAPTION, verified['draftRow']['text'])
         self.assertEqual('consistent_sampled_history', verified['accountHistory']['status'])
 
@@ -386,11 +391,13 @@ class XProtocolTests(unittest.TestCase):
         flow, kernel = self.fixture(); flow.video = self.other; result = flow.run()
         self.assertEqual('review_required', result['state']); self.assertEqual(0, kernel.photos); self.assertIn('package video', result['error'])
 
-    def test_verifier_refuses_wrong_text_and_a_frozen_video(self):
+    def test_verifier_refuses_wrong_text_and_other_media(self):
         account = self.create()[0]['account']
-        for scenario in ('wrong_text', 'frozen_video'):
+        for scenario in ('wrong_text', 'other_media'):
             with self.subTest(scenario=scenario):
-                flow, kernel = self.fixture(scenario, saved=True, verifier=True, account=account); result = flow.run()
+                flow, kernel = self.fixture(None if scenario == 'other_media' else scenario, saved=True, verifier=True, account=account)
+                if scenario == 'other_media': flow.video = self.other   # The drafts thumbnail shows other media.
+                result = flow.run()
                 self.assertEqual('review_required', result['state']); self.assertFalse(result['savedDraftVerified'])
                 self.assertEqual(1, kernel.saves); self.assertEqual('confirmed', result['cleanup'])
 

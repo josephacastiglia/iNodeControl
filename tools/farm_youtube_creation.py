@@ -58,6 +58,8 @@ MOVING = {
     'yt_drafts': ((160, 180, 455, 1040),),                              # Relative save times.
 }
 UPLOAD, FEEDBACK = (250, 960, 490, 1035), (285, 315, 490, 375)
+READ_ONLY_VERIFY = True                    # The verifier never reopens a saved YouTube draft (see YouTubeVerification.run).
+DRAFTS_CLOSE, CAMERA_CLOSE = (44, 77), (44, 125)
 FORBIDDEN = {
     'yt_camera': ((195, 790, 305, 900), (120, 965, 440, 1020), (425, 95, 490, 155)),   # record, Video/Short/Live/Post, AI
     'yt_picker': ((11, 150, 489, 226),),                                                 # Create video (AI)
@@ -348,6 +350,21 @@ class YouTubeVerification(YouTubeCreationWorkflow):
             self.admit()
             self.phase('verify-saved-youtube-draft')
             self.open_drafts('verify')
+            if READ_ONLY_VERIFY:
+                # Reopening a saved draft left YouTube on 'Processing' for over half an hour (slot 16, 23 Oct) and
+                # re-saving a reopened draft dropped the video on X, so the check reads the Drafts list only.
+                found, _, _ = self.screen('yt_drafts')
+                self.record['draftsBefore'] = dict(rows=found['rows'], top=found['row']['top'], title=found['row']['title'],
+                                                   match=found['row']['match'])
+                self.tap('verify-close-drafts', 'yt_drafts', DRAFTS_CLOSE)
+                self.tap('verify-close-camera', 'yt_camera', CAMERA_CLOSE)
+                self.screen('yt_home')
+                self.history()
+                self.record.update(state='validation_passed', savedDraftVerified=True, finalScreen='yt_home', reopened=False,
+                    meaning='On the same channel, YouTube Drafts lists exactly one draft with the exact title whose thumbnail shows '
+                            'the package video. Not reopened or played; no Upload Short, publishing or messaging. '
+                            'Not app-restart or server persistence proof.')
+                return self.record
             def choose(value, frame):
                 found = yl.yt_drafts(frame, value['text'], self.video, self.caption)
                 self.record['draftsBefore'] = dict(rows=found['rows'], top=found['row']['top'], title=found['row']['title'])

@@ -98,6 +98,7 @@ class Screens:
         r17('yt_home_saved', '145-youtube-save-video-draft'); r17('yt_camera_drafts', '146-youtube-draft-route')
         r17('yt_reopened', '148-youtube-video-draft-reopen'); r17('yt_reopened_later', '149-youtube-reopened-caption', 'before')
         r17('yt_home_kept', '150-youtube-resave-verified-video')
+        r17('yt_camera_closing', '146-youtube-draft-route')   # The camera again after Drafts closes.
         self.frames['yt_selected'], self.texts['yt_selected'] = layout.selected_picker()
         self.synthetic()
 
@@ -304,6 +305,8 @@ class FixtureKernel:
             ('yt_home_saved', 'click', (311, 1020), 'yt_camera_drafts'),
             ('yt_camera_drafts', 'click', (455, 846), 'yt_drafts'),
             ('yt_drafts', 'click', (228, 264), 'yt_reopened'),
+            ('yt_drafts', 'click', (44, 77), 'yt_camera_closing'),           # Read-only verifier (23 Oct).
+            ('yt_camera_closing', 'click', (44, 125), 'yt_home_kept'),
             ('yt_reopened', 'click', (368, 1006), 'yt_reopened_details'),
             ('yt_reopened_details', 'click', (130, 996), 'yt_home_kept'),
             ('yt_home_kept', 'click', (311, 1020), 'yt_camera_final'),
@@ -399,10 +402,11 @@ class YouTubeProtocolTests(unittest.TestCase):
         flow, kernel2 = self.fixture(saved=True, verifier=True, account=result['account'])
         verified = flow.run()
         self.assertEqual('validation_passed', verified['state'], verified.get('error')); self.assertEqual([], kernel2.unexpected)
-        self.assertEqual(2, kernel2.saves); self.assertEqual('yt_drafts_final', kernel2.screen)
-        self.assertNotEqual(*verified['playback']['sampledFrameIndices'])
+        # Read only (23 Oct): nothing is reopened or saved again; the Drafts list decides.
+        self.assertEqual(1, kernel2.saves); self.assertEqual('yt_home_kept', kernel2.screen); self.assertFalse(verified['reopened'])
+        self.assertNotIn('verify-open-saved-draft', [a['label'] for a in verified['actions']])
         self.assertEqual(([CAPTION], 2), (verified['draftsBefore']['title'], verified['draftsBefore']['rows']))
-        self.assertEqual(verified['draftsBefore'], verified['draftsAfter'])
+        self.assertTrue(verified['draftsBefore']['match']['matched'])
         self.assertEqual('consistent_sampled_history', verified['accountHistory']['status'])
         self.assertEqual(result['account'], verified['account'])
 
@@ -411,12 +415,8 @@ class YouTubeProtocolTests(unittest.TestCase):
         self.assertEqual('review_required', result['state']); self.assertEqual(0, kernel.saves)
         self.assertIn('different YouTube channel', result['error'])
         self.assertNotIn('paste-exact-caption', [a['label'] for a in result['actions'] if a['state'] == 'answered'])
-        account = self.create()[0]['account']
-        flow, kernel = self.fixture('other_channel', saved=True, verifier=True, account=account)
-        kernel.other_after = 0     # The verifier's first details read is already another channel.
-        result = flow.run()
-        self.assertEqual('review_required', result['state']); self.assertFalse(result['savedDraftVerified']); self.assertEqual(1, kernel.saves)
-        self.assertIn('different YouTube channel', result['error'])
+        # The read-only verifier (23 Oct) never opens Add details, so it does not read the channel again;
+        # creation's binding stands.
 
     def test_lost_answer_at_every_creation_action_stops_without_replay(self):
         flow, kernel = self.fixture(); flow.run(); total = len(self.semantic(kernel))
@@ -440,10 +440,6 @@ class YouTubeProtocolTests(unittest.TestCase):
         flow, kernel = self.fixture('lost_save'); result = flow.run()
         self.assertEqual('review_required', result['state']); self.assertEqual(1, kernel.saves)
         self.assertEqual('save-youtube-draft-once', result['actions'][-1]['label']); self.assertEqual('outcome_unknown', result['actions'][-1]['state'])
-        account = self.create()[0]['account']
-        flow, kernel = self.fixture('lost_keep', saved=True, verifier=True, account=account); result = flow.run()
-        self.assertEqual('review_required', result['state']); self.assertEqual(2, kernel.saves)
-        self.assertEqual('verify-keep-draft-once', result['actions'][-1]['label']); self.assertEqual('outcome_unknown', result['actions'][-1]['state'])
 
     def test_faults_stop_before_the_draft(self):
         cases = [('ambiguous_tile', None), ('prompt', 'yt_details_titled'), ('prompt', 'yt_camera'), ('stale_frame', 'yt_selected'),
@@ -483,7 +479,8 @@ class YouTubeProtocolTests(unittest.TestCase):
         self.assertEqual(1, kernel.saves)
 
     def test_admission_needs_the_observed_home_layout(self):
-        flow, kernel = self.fixture(start='yt_old_home'); result = flow.run()
+        # The labelled five-item home (yt_old_home) is accepted since 22 Oct (slot 16); the camera is not a start.
+        flow, kernel = self.fixture(start='yt_camera'); result = flow.run()
         self.assertEqual('review_required', result['state']); self.assertEqual([], kernel.calls)
         self.assertIn('Start on the YouTube home feed', result['error'])
 
@@ -504,11 +501,13 @@ class YouTubeProtocolTests(unittest.TestCase):
                                     transfer_url=URL, download=DOWNLOAD, video_bytes=VIDEO_BYTES, package_hash='b'*64, phone=slot16)
         self.assertEqual([], kernel.calls)
 
-    def test_verifier_refuses_wrong_text_and_a_frozen_video(self):
+    def test_verifier_refuses_wrong_text_and_other_media(self):
         account = self.create()[0]['account']
-        for scenario, reason in (('wrong_text', 'exact draft title is absent'), ('frozen_video', 'did not visibly play')):
+        for scenario, reason in (('wrong_text', 'exact draft title is absent'), ('other_media', 'does not show the package video')):
             with self.subTest(scenario=scenario):
-                flow, kernel = self.fixture(scenario, saved=True, verifier=True, account=account); result = flow.run()
+                flow, kernel = self.fixture(None if scenario == 'other_media' else scenario, saved=True, verifier=True, account=account)
+                if scenario == 'other_media': flow.video = self.other   # The drafts thumbnail shows other media.
+                result = flow.run()
                 self.assertEqual('review_required', result['state']); self.assertFalse(result['savedDraftVerified'])
                 self.assertEqual(1, kernel.saves); self.assertEqual('confirmed', result['cleanup']); self.assertIn(reason, result['error'])
 

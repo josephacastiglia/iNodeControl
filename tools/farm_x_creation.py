@@ -45,9 +45,11 @@ MOVING = {
 }
 FORBIDDEN = {
     'x_composer_empty': (xl.POST,), 'x_composer_text': (xl.POST,), 'x_composer_media': (xl.POST, xl.REMOVE),
-    'x_reopened': (xl.POST, xl.REMOVE), 'x_playing': (xl.POST, xl.REMOVE), 'x_save_sheet': ((180, 515, 320, 565),),   # Discard
+    'x_reopened': (xl.POST, xl.REMOVE), 'x_playing': (xl.POST, xl.REMOVE, xl.EDITOR_SAVE), 'x_save_sheet': ((180, 515, 320, 565),),   # Discard
     'x_video_editor': (xl.EDITOR_SAVE,), 'x_after_add': (xl.EDITOR_SAVE, xl.POST, xl.REMOVE),
 }
+READ_ONLY_VERIFY = True       # The verifier never reopens a saved X draft (see XVerification.run).
+DRAFTS_CANCEL, COMPOSER_CANCEL_TARGET = (57, 99), (57, 85)
 PROHIBITED = ('repost', 'quote', 'reply', 'like', 'bookmark', 'message', 'grok', 'premium', 'subscribe')
 COMMITTING = ('download-linked-file', 'save-video-to-photos', 'select-package-video', 'add-package-video',
               'paste-exact-caption', 'save-x-draft-once')
@@ -174,6 +176,9 @@ class XCreationWorkflow(ReelCreationWorkflow):
             except InspectionStopped: return dict(xl.x_composer_media(frame, text, self.video), editor=False)
         if role == 'x_save_sheet': return xl.x_save_sheet(text)
         if role == 'x_drafts': return xl.x_drafts(frame, text, self.video, self.caption)
+        if role == 'x_playing':
+            try: return xl.x_editor_playing(frame, text, self.video)   # The edited draft plays in Edit Video.
+            except InspectionStopped: pass
         if role in ('x_reopened', 'x_playing'):
             result = xl.x_composer_media(frame, text, self.video, reopened=True)
             if role == 'x_playing': require(not result['blank'], 'The reopened X video did not start playing.')
@@ -289,7 +294,9 @@ class XVerification(XCreationWorkflow):
         second, _, _ = self.screen('x_playing')
         indices = [first['media']['index'], second['media']['index']]
         require(indices[0] != indices[1], 'The reopened X draft did not visibly play the package video.')
-        self.record['playback'] = dict(sampledFrameIndices=indices, byteIdentityVerified=False)
+        require(bool(first.get('editor')) == bool(second.get('editor')), 'The reopened X draft changed screens while playing.')
+        self.record['playback'] = dict(sampledFrameIndices=indices, byteIdentityVerified=False, inEditor=bool(second.get('editor')))
+        return second
 
     def run(self):
         try:
@@ -306,12 +313,29 @@ class XVerification(XCreationWorkflow):
                 found = xl.x_drafts(frame, value['text'], self.video, self.caption)
                 self.record['draftRow'] = dict(rows=found['rows'], y=found['row']['y'], text=found['row']['text'])
                 return found['target']
+            if READ_ONLY_VERIFY:
+                # Reopening and saving again drops the video from an X draft (slot 17, 23 Oct, twice), so the
+                # check reads the Drafts list only: the one exact-text row showing the package video.
+                found, value, frame = self.screen('x_drafts')
+                choose(value, frame)
+                self.record['draftRow']['match'] = found['row']['match']
+                self.tap('verify-close-drafts', 'x_drafts', DRAFTS_CANCEL)
+                self.tap('verify-close-composer', 'x_composer_empty', COMPOSER_CANCEL_TARGET)
+                self.screen('x_feed')
+                self.history()
+                self.record.update(state='validation_passed', savedDraftVerified=True, finalScreen='x_feed', reopened=False,
+                    meaning='On the same signed-in account, X Drafts lists exactly one draft with the exact text whose thumbnail '
+                            'shows the package video. Not reopened (saving a reopened X draft drops its video), not played; no '
+                            'Post, publishing or messaging. Not app-restart or server persistence proof.')
+                return self.record
             self.tap('verify-open-saved-draft', 'x_drafts', choose)
             reopened, _, _ = self.screen('x_reopened')
             if reopened['blank'] or reopened.get('paused'):
                 self.tap('verify-play-video', 'x_reopened', lambda v, f: xl.x_composer_media(f, v['text'], self.video, reopened=True)['playTarget'])
-            self.playback()
-            self.tap('verify-cancel-to-save-sheet', 'x_playing',
+            played = self.playback()
+            if played.get('editor'):   # Back from Edit Video with Next, as creation does; Save is never pressed.
+                self.tap('verify-editor-next', 'x_video_editor', lambda v, f: xl.x_video_editor(f, v['text'])['nextTarget'])
+            self.tap('verify-cancel-to-save-sheet', 'x_reopened' if played.get('editor') else 'x_playing',
                      lambda v, f: xl.x_composer_media(f, v['text'], self.video, reopened=True)['cancelTarget'])
             # Keep the reopened draft with the same single Save to drafts; an uncertain answer is never repeated.
             self.tap('verify-keep-draft-once', 'x_save_sheet', lambda v, f: xl.x_save_sheet(v['text'])['target'])

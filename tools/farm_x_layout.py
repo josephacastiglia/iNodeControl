@@ -48,8 +48,12 @@ def x_feed(frame, text):
     """Home timeline. Feed content is arbitrary and never a target; only the avatar and compose button are."""
     # A newer account's header adds tabs ('For you v | Following | Add + | Crypto', slot 17, 22 Oct),
     # moving 'Following' left to x 154.
-    require(words_at(text, 'following', (140, 120, 320, 160)) and line_at(text, 'for you', (30, 120, 130, 160)),
-            'The X timeline header is not recognized.')
+    # OCR can also clip it and join the chevron before it ('v Followin' from x 108, slot 17, 23 Oct).
+    following = words_at(text, 'following', (140, 120, 320, 160)) or any(
+        re.search(r'(^|\s)followi?n?g?$', ' '.join(r['text'].casefold().split())) and r['text'].casefold().split()[-1].startswith('followin')
+        and 100 <= min(w['x'] for w in r['words']) and max(w['x']+w['width'] for w in r['words']) <= 320
+        and 120 <= min(w['y'] for w in r['words']) <= 160 for r in text.get('lines', []) if r.get('words'))
+    require(following and line_at(text, 'for you', (30, 120, 130, 160)), 'The X timeline header is not recognized.')
     image = pixels(frame, exact=True)
     require(blue_fraction(image, (428, 909, 480, 961)) > .5, 'The X compose button is not where it was observed.')
     no_overlay({**text, 'lines': [r for r in text.get('lines', []) if not r.get('words')
@@ -188,6 +192,15 @@ def x_video_editor(frame, text):
     return dict(nextTarget=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)))
 
 
+def x_editor_playing(frame, text, reference):
+    """A reopened draft's play button opens Edit Video, where the video plays (slot 17, 23 Oct):
+    the package video in the editor's frame; Next returns to the composer, Save is never pressed."""
+    found = x_video_editor(frame, text)
+    media = media_match(frame, (64, 135, 436, 797), reference, 'fill', ignore=(EDITOR_TIPS[1],))
+    require(media['matched'], 'The X editor shows different media.')
+    return dict(found, blank=False, editor=True, media=media)
+
+
 # ---- System photo picker ------------------------------------------------------------------
 
 PICKER_TOP, PICKER_PITCH = 201, 167
@@ -299,6 +312,10 @@ def x_drafts(frame, text, reference, caption):
     if not rows and drafts_loading(image): raise Loading('The X drafts list is still loading.')
     require(rows, 'No X drafts are recognized.')
     exact_rows = [r for r in rows if r['text'] == caption]
+    if len(exact_rows) > 1:
+        # An older draft with the same text but no video (slot 17, 23 Oct) is told apart by the package
+        # video's thumbnail: exactly one such row shows it, and no other row with that text does.
+        exact_rows = [r for r in exact_rows if r['match'] and r['match']['matched']]
     require(len(exact_rows) == 1, 'The exact draft text is absent or ambiguous in X drafts.')
     row = exact_rows[0]
     # A just re-saved draft lists its row before its thumbnail (slot 17, 23 Oct); a later capture shows it.

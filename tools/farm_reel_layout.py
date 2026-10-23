@@ -700,8 +700,13 @@ def quicklook(frame, text, download, reference):
     media = preview_media(frame, reference)
     controls = bool(present(frame, 'quicklook_share'))
     if controls:
-        require(words_at(text, download, (120, 65, 380, 110)) and words_at(text, 'done', (410, 65, 490, 105)),
-                'The preview header does not show this download.')
+        # OCR can split the name at its dash ('imouse-x- kxcyem', slot 17, 23 Oct): the header line is
+        # compared with its spaces removed.
+        named = words_at(text, download, (120, 65, 380, 110)) or any(
+            l['text'].replace(' ', '') == download and 120 <= min(w['x'] for w in l['words'])
+            and max(w['x']+w['width'] for w in l['words']) <= 380 and 65 <= min(w['y'] for w in l['words']) <= 110
+            for l in text.get('lines', []) if l.get('words'))
+        require(named and words_at(text, 'done', (410, 65, 490, 105)), 'The preview header does not show this download.')
     return dict(media=media, controls=controls, overlay=player_overlay(text), shareTarget=(40, 1012), doneTarget=(450, 85),
                 revealTarget=(250, 300))
 

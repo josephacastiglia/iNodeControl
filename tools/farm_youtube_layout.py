@@ -450,6 +450,8 @@ def yt_drafts(frame, text, reference, caption):
         rows.append(dict(top=top, bottom=bottom, title=titles, when=lines[when[0]][1] if when else None, match=match))
     require(rows, 'No YouTube drafts are recognized.')
     exact_rows = [r for r in rows if title_lines(r['title'], caption)]
+    if len(exact_rows) > 1:   # Same title from an earlier test: the package video's thumbnail decides, as on X (23 Oct).
+        exact_rows = [r for r in exact_rows if r['match']['matched']]
     require(len(exact_rows) == 1, 'The exact draft title is absent or ambiguous in YouTube drafts.')
     row = exact_rows[0]
     require(row['match']['matched'], 'The YouTube draft with this title does not show the package video.')

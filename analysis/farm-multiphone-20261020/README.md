@@ -203,3 +203,19 @@ a test in `tools/test_farm_safari_start.py`.
   draft and start a new Short'). Phone 16's mirror then stopped delivering frames; left there.
 - Fixed: TikTok's larger cover card on slot 20; a share sheet still sliding up after Share
   (read-only wait instead of a stop).
+
+### 23 Oct, 03:10-03:30: X verified (slot 17)
+
+- **Re-saving a reopened X draft drops its video.** It happened twice: once by hand and once in the
+  verifier's own 'keep' step (check 3 of prep 68 passed, but Drafts then showed the row without a
+  thumbnail). The X and YouTube verifiers are now read-only (`READ_ONLY_VERIFY`): Drafts must list
+  exactly one row with the exact text whose thumbnail shows the package video; nothing is
+  reopened, played or saved again. Same-text rows from earlier tests are told apart by that
+  thumbnail. The YouTube check no longer re-reads the channel; creation's binding stands.
+- **Result (prep 71, 03:19-03:25):** one X draft saved with the exact text and the package video,
+  then found once in Drafts with its thumbnail by the read-only verifier on the same account
+  (state `verified`). Nothing was posted. The older text-only 'Fresh x acceptance' draft is still
+  listed below it.
+- Also fixed on the way: X's header tab read as 'v Followin'; the preview header name split by
+  OCR ('imouse-x- kxcyem'); the drafts tip hiding the placeholder; the Drafts list and thumbnails
+  still loading.

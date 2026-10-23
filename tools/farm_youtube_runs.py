@@ -29,7 +29,7 @@ class YouTubeCreationRuns(ReelCreationRuns):
     ENABLED_REASON = ('Saves one prepared YouTube Short as a draft on the channel signed in on the configured phone. Safari '
                       'downloads it and Files saves it to Photos; YouTube selects that exact video without trimming, reads the '
                       'channel on Add details, the exact one-line title is pasted and Save draft is pressed once. A separate check '
-                      'on the same channel reopens the draft, sees it play, keeps it and finds it once in Drafts. Start on the '
+                      'finds it once in Drafts by its exact title and the video thumbnail, without reopening it. Start on the '
                       'YouTube home feed. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced.')
     DISABLED_REASON = 'YouTube draft creation is disabled. Prepare the isolated candidate for the YouTube phone first.'
     NO_PHONE_REASON = ('YouTube draft creation is disabled: the candidate configuration names no YouTube phone '
@@ -41,9 +41,11 @@ class YouTubeCreationRuns(ReelCreationRuns):
     HELD_REASON = ('This exact video and title already have a YouTube request. '
                    'Select its saved result; an uncertain import or Save draft is never repeated.')
     RUNNING_REASON = 'Creating a YouTube Short draft from the saved video and exact title. No upload or messaging.'
-    VERIFIED_REASON = 'The YouTube Short draft was saved, reopened on the same channel, played and kept in Drafts. Nothing was uploaded.'
+    VERIFIED_REASON = ('The YouTube Short draft was saved and found once in Drafts with the exact title and the package '
+                       'video thumbnail. Nothing was uploaded.')
     MEANING = ('Package video imported to Photos, selected untrimmed, the exact title pasted and the YouTube draft saved on the bound '
-               'channel, then independently reopened on the same channel, played, kept and found once in Drafts. '
+               'channel, then independently found once in Drafts with the exact title and the package video thumbnail. '
+               'Not reopened (a reopened draft stuck on Processing, 23 Oct), not played, channel not read again. '
                'No upload or app-restart claim.')
 
     def __init__(self, folder, videos, jobs, config=None):
