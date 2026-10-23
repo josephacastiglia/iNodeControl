@@ -219,3 +219,19 @@ a test in `tools/test_farm_safari_start.py`.
 - Also fixed on the way: X's header tab read as 'v Followin'; the preview header name split by
   OCR ('imouse-x- kxcyem'); the drafts tip hiding the placeholder; the Drafts list and thumbnails
   still loading.
+
+### 23 Oct, 11:40-12:00: YouTube verified; first relaunch checks
+
+- After the night all three mirrors were stale (17/20 offline, 16 frozen); kernel restarted and
+  `auto_connect.py` reconnected 16, 17 and 20 on the first try.
+- **YouTube (slot 16):** `verify_window.py --check 3` (read-only) found exactly one 'Fresh short test'
+  draft with the package video's thumbnail. Verified. It had also survived YouTube being closed from
+  the switcher at ~03:00.
+- `relaunch_check.py` (new): open the app, close it from the switcher (`close_app.close`; X's
+  one-letter card is found by its own 'For you' or composer 'Cancel'), cold-start it, rerun the
+  read-only verifier; `appRestartVerified` only when both succeed.
+- **X relaunch (check 2):** closed and cold-started; Drafts then listed one text-only
+  'Fresh x acceptance' and no draft with the video. Opening that row showed text only; it was left
+  with Home and the switcher (nothing saved or discarded). **X video drafts did not survive a relaunch.**
+- **YouTube relaunch (check 1):** after the cold start the Short camera asked 'Continue your draft
+  video?' again and phone 16's mirror stopped delivering frames while it showed; nothing was tapped.

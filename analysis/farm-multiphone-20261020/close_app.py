@@ -26,6 +26,20 @@ from identify_phone import post  # noqa: E402
 BASE = 'http://127.0.0.1:9916/api'
 
 LABELS = (95, 160)   # The switcher's card labels (icon and app name) sit in this band (slot 16, 23 Oct).
+# OCR cannot read a one-letter label ('X', slot 17, 23 Oct); the card then shows the app's own header
+# words, left edge within the card: the timeline's 'For you', or an open composer's 'Cancel'.
+# (words, lowest left x, top band) per app; the card is drawn at about 3/4 scale from x 276, y 155.
+CARD_WORDS = {'X': (('for you', 280, (200, 300)), ('cancel', 280, (195, 235)))}
+
+
+def card_by_content(text, app):
+    """Left x of the app's card found by its own header words (only for apps listed in CARD_WORDS)."""
+    found = []
+    for words, left, (top, bottom) in CARD_WORDS.get(app, ()):
+        found += [min(w['x'] for w in line['words']) - 45 for line in text.get('lines', []) if line.get('words')
+                  and line['text'].strip().casefold().startswith(words) and min(w['x'] for w in line['words']) >= left
+                  and top <= min(w['y'] for w in line['words']) <= bottom]
+    return found[:1]
 
 
 def labels(text):
@@ -38,9 +52,15 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--config', required=True); p.add_argument('--folder', required=True); p.add_argument('--app', required=True)
     a = p.parse_args()
-    config = json.loads(Path(a.config).read_text(encoding='utf-8'))
-    s = StartScreen(a.folder, phone=phone_of(config))
-    s.record.update(purpose='close-stuck-app', app=a.app)
+    print(json.dumps(close(json.loads(Path(a.config).read_text(encoding='utf-8')), a.folder, a.app)))
+
+
+def close(config, folder, app, purpose='close-stuck-app'):
+    """Closes `app` from the switcher on the config's phone; returns dict(state=closed|stopped, ...)."""
+    a = argparse.Namespace(app=app)
+    out = {}
+    s = StartScreen(folder, phone=phone_of(config))
+    s.record.update(purpose=purpose, app=a.app)
     s.tokens = s.kernel.acquire([s.phone.board], 30000)
     def raw(fun, purpose, **data):
         item = dict(fun=fun, purpose=purpose, data=data, state='outcome_unknown', direct=True)
@@ -54,22 +74,26 @@ def main():
         _, text, _, _ = s.fresh('switcher')
         found = [x for name, x in labels(text) if name == a.app]
         s.record['labels'] = [name for name, _ in labels(text)]
+        if not found:
+            found = card_by_content(text, a.app); s.record['foundBy'] = 'card content' if found else None
         if len(found) != 1: raise InspectionStopped(f'{a.app} is not one switcher card ({s.record["labels"]}); nothing was swiped.')
         x = max(60, min(440, found[0] + 45))   # The card's middle, right of its icon and name.
         raw('/mouse/swipe', 'close-' + a.app.casefold(), x1=x, y1=650, x2=x, y2=120, duration=250)
         s.pause(1.5)
         _, text, _, _ = s.fresh('after-swipe')
         s.record['after'] = [name for name, _ in labels(text)]
-        if a.app in s.record['after']: raise InspectionStopped(f'{a.app} is still the middle card; no further input.')
+        if a.app in s.record['after'] or card_by_content(text, a.app):
+            raise InspectionStopped(f'{a.app} is still a switcher card; no further input.')
         s.command('/key/sendkey', 'home-after-close', fn_key='Home')
         s.record['state'] = 'closed'
-        print(json.dumps(dict(state='closed', after=s.record['after'])))
+        out = dict(state='closed', after=s.record['after'])
     except InspectionStopped as stop:
-        s.record['state'] = 'stopped'; print(json.dumps(dict(state='stopped', error=str(stop))))
+        s.record['state'] = 'stopped'; out = dict(state='stopped', error=str(stop))
         if any(c['purpose'] == 'open-app-switcher' for c in s.record['commands']):
             s.command('/key/sendkey', 'home-leaves-switcher', fn_key='Home')   # Leaves the switcher; closes nothing.
     finally:
         s.kernel.release(s.tokens); s.save()
+    return out
 
 
 if __name__ == '__main__':
