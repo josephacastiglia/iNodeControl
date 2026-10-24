@@ -248,3 +248,7 @@ a test in `tools/test_farm_safari_start.py`.
   with the package video and no sound. `verify_window.py --check 3`: **verified**.
 - YouTube relaunch check 2: the camera's 'Continue your draft video?' prompt again froze phone 16's
   mirror after the cold start; nothing tapped.
+- TikTok relaunch check 3: closed from the switcher, cold-started, read-only check passed:
+  **the TikTok draft survives an app relaunch.** (Checks 1-2 stopped safely: the switcher card's label
+  was cut off or read as 'ikTok'; `close_app.py` now accepts a clipped first letter and finds TikTok's
+  card by its profile's 'Following'.)

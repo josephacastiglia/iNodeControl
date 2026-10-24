@@ -29,7 +29,15 @@ LABELS = (95, 160)   # The switcher's card labels (icon and app name) sit in thi
 # OCR cannot read a one-letter label ('X', slot 17, 23 Oct); the card then shows the app's own header
 # words, left edge within the card: the timeline's 'For you', or an open composer's 'Cancel'.
 # (words, lowest left x, top band) per app; the card is drawn at about 3/4 scale from x 276, y 155.
-CARD_WORDS = {'X': (('for you', 280, (200, 300)), ('cancel', 280, (195, 235)))}
+CARD_WORDS = {'X': (('for you', 280, (200, 300)), ('cancel', 280, (195, 235))),
+              # TikTok's card sits centred or pushed to the right edge with its name cut off (slot 20, 24 Oct);
+              # its profile's 'Following' counter label marks it.
+              'TikTok': (('following', 80, (280, 345)),)}
+
+
+def named(label, app):
+    """The card label is the app's name; OCR may clip its first letter ('ikTok', slot 20, 24 Oct)."""
+    return label == app or (len(app) >= 5 and label == app[1:])
 
 
 def card_by_content(text, app):
@@ -39,7 +47,7 @@ def card_by_content(text, app):
         found += [min(w['x'] for w in line['words']) - 45 for line in text.get('lines', []) if line.get('words')
                   and line['text'].strip().casefold().startswith(words) and min(w['x'] for w in line['words']) >= left
                   and top <= min(w['y'] for w in line['words']) <= bottom]
-    return found[:1]
+    return sorted(found)[-1:]   # The rightmost: the front card is the app last used.
 
 
 def labels(text):
@@ -72,7 +80,10 @@ def close(config, folder, app, purpose='close-stuck-app'):
         raw('/key/sendkey', 'open-app-switcher', fn_key='AppSwitch')
         s.pause(1.5)
         _, text, _, _ = s.fresh('switcher')
-        found = [x for name, x in labels(text) if name == a.app]
+        if not any(named(name, a.app) for name, _ in labels(text)) and not card_by_content(text, a.app):
+            s.pause(1.0)   # The switcher can still be sliding in (slot 20, 24 Oct); read once more.
+            _, text, _, _ = s.fresh('switcher-again')
+        found = [x for name, x in labels(text) if named(name, a.app)]
         s.record['labels'] = [name for name, _ in labels(text)]
         if not found:
             found = card_by_content(text, a.app); s.record['foundBy'] = 'card content' if found else None
@@ -82,7 +93,7 @@ def close(config, folder, app, purpose='close-stuck-app'):
         s.pause(1.5)
         _, text, _, _ = s.fresh('after-swipe')
         s.record['after'] = [name for name, _ in labels(text)]
-        if a.app in s.record['after'] or card_by_content(text, a.app):
+        if any(named(name, a.app) for name in s.record['after']) or card_by_content(text, a.app):
             raise InspectionStopped(f'{a.app} is still a switcher card; no further input.')
         s.command('/key/sendkey', 'home-after-close', fn_key='Home')
         s.record['state'] = 'closed'
