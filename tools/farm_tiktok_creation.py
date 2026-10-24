@@ -50,6 +50,8 @@ MOVING = {
     'tiktok_drafts': ((0, 125, 500, 175),),
 }
 CARET_ATTEMPTS = 4          # Settled observations until one shows the description without the caret.
+READ_ONLY_VERIFY = True     # The verifier never reopens a saved TikTok draft (see TikTokVerification.run).
+DRAFTS_BACK = (30, 85)      # The Drafts grid's back arrow (template tt_back).
 SOUND_CAPTURES = 8          # Read-only editor observations until the sound control settles.
 SOUND_HOLD = 1.5            # The same settled sound state, seconds apart.
 # Publication controls that a tap may never land on, even if OCR misreads them.
@@ -336,6 +338,22 @@ class TikTokVerification(TikTokCreationWorkflow):
             profile, _, _ = self.screen('tiktok_profile')
             require(profile['draftsTarget'], 'The TikTok Drafts tile is not visible on the profile.')
             self.tap('verify-open-drafts', 'tiktok_profile', lambda v, f: tt.tiktok_profile(f, v['text'], self.account)['draftsTarget'])
+            if READ_ONLY_VERIFY:
+                # Reopening and saving a draft again dropped the video on X (23 Oct), so the check reads the Drafts
+                # grid only: exactly one tile shows the package video, with no sound label. The description was
+                # read exactly on the details screen before the one Drafts tap; it is not read again here.
+                found, _, _ = self.screen('tiktok_drafts')
+                require(found['tile']['soundLabel'] is None, 'The TikTok draft shows a sound.')
+                self.record['draftsBefore'] = dict(count=found['count'], tile=found['tile']['tile'], soundLabel=None,
+                                                   match=found['tile']['match'])
+                self.tap('verify-close-drafts', 'tiktok_drafts', DRAFTS_BACK)
+                self.screen('tiktok_profile')
+                self.history()
+                self.record.update(state='validation_passed', savedDraftVerified=True, finalScreen='tiktok_profile', reopened=False,
+                    meaning='On the signed-in profile, TikTok Drafts shows exactly one draft whose cover is the package video, '
+                            'with no sound. Not reopened (saving a reopened draft dropped the video on X, 23 Oct); the '
+                            'description was checked before saving. No Post, Story, publishing or messaging.')
+                return self.record
             def choose(value, frame):
                 found = tt.tiktok_drafts(frame, value['text'], self.video)
                 self.record['draftsBefore'] = dict(count=found['count'], tile=found['tile']['tile'], soundLabel=found['tile']['soundLabel'])

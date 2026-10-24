@@ -20,7 +20,7 @@ from farm_carousel_inspection import InspectionStopped
 from farm_creation_layout import require, exact
 from farm_screen_layout import pixels, words_at, line_at
 from farm_reel_layout import (MATCH_MEAN, MATCH_BLOCK, UNIQUE_MARGIN, POINTER, SAMPLE_FPS, FILL, SQUARE,
-                              no_overlay, rows_between, duration_label, reel_paste_menu, present as reel_present)
+                              no_overlay, rows_between, duration_label, reel_paste_menu, present as reel_present, band_words)
 from farm_video import probe_video, run_media
 
 # Centre crops observed on 17 Oct: picker tiles and tray (square), profile and
@@ -192,6 +192,11 @@ def tiktok_profile(frame, text, account):
     control(frame, 'tt_nav_create')
     rows = [r['text'] for r in text.get('lines', []) if r.get('words') and min(w['x'] for w in r['words']) < 40
             and 365 <= min(w['y'] for w in r['words']) <= 400]
+    if not rows:
+        # White 'Drafts: 1' over a white-topped test video is missed by full-frame OCR (slot 20, 24 Oct);
+        # the label band alone is read again, enlarged.
+        words = band_words(frame, (0, 360, 170, 400), 3)
+        rows = [' '.join(w[0] for w in sorted(words, key=lambda w: w[1]))] if words else []
     found = [re.fullmatch(r'drafts:\s*(\d+)', ' '.join(r.casefold().split())) for r in rows]
     count = int(found[0].group(1)) if len(found) == 1 and found[0] else None
     # TikTok sometimes lands here after Drafts with the same toast as on the feed (17 Oct photo route).
@@ -232,11 +237,17 @@ def grid(image):
     bottom = thick[0]
     # A last row of white-backed test videos beside an empty white cell has full-width bright
     # rows inside it (slot 20, 22 Oct: y 858, 911); only lines a row's pitch apart are gutters.
-    lines = []
-    for a, b in runs:
-        if a >= bottom: break
-        if lines and a - lines[-1][0] < PITCH - 1: continue
-        lines.append((a, b))
+    # The white-backed test videos also draw 1 px white rows a pitch apart inside their thumbnails
+    # (slot 20, 24 Oct: y 210, 378, 545 against real gutters at 321, 489, 655). Every chain of runs a
+    # pitch apart is built and the one made of the thickest lines wins; real gutters are 2-5 px.
+    candidates = [(a, b) for a, b in runs if a < bottom]
+    chains = []
+    for i, first in enumerate(candidates):
+        chain = [first]
+        for run in candidates[i+1:]:
+            if abs(run[0] - chain[-1][0] - PITCH) <= 1: chain.append(run)
+        chains.append(chain)
+    lines = max(chains, key=lambda c: (sum(b-a for a, b in c), len(c)), default=[])
     # A gutter above white-topped thumbnails reads up to 5 px (slot 20, 22 Oct); real gutters are 2-3.
     require(lines and all(b-a <= 6 for a, b in lines)
             and all(abs(b[0]-a[0]-PITCH) <= 1 for a, b in zip(lines, lines[1:])), 'TikTok picker grid geometry changed.')
@@ -325,10 +336,11 @@ def tray_colours(image, reference):
     return tile_colours(image, (18, 882, 90, 956), reference)
 
 
-def tile_colours(image, box, reference):
-    """Square-crop thumbnail (tray or picker tile): the uncovered test-media tiles' colour proportions."""
+def tile_colours(image, box, reference, model='square'):
+    """Square-crop thumbnail (tray or picker tile), or a 3:4 drafts cover with model='portrait': the
+    uncovered test-media tiles' colour proportions."""
     left, top, right, bottom = box
-    size, targets = reference.models['square']
+    size, targets = reference.models[model]
     observed = np.asarray(Image.fromarray(image[top:bottom, left:right]).resize(size, Image.Resampling.LANCZOS), dtype=float)/255
     def grid3x2(rgb):
         h, w = rgb.shape[:2]; rows = []
@@ -474,6 +486,7 @@ def tiktok_paste_menu(frame, text):
 
 DRAFT_COLUMNS = ((0, 163), (169, 331), (337, 500))
 DRAFT_ROWS = ((238, 453), (459, 674), (680, 895))
+DRAFT_SHIFTS = (0, -50)
 TOAST = ({'draft saved'}, (190, 135, 310, 170))
 
 
@@ -489,16 +502,32 @@ def tiktok_drafts(frame, text, reference):
     found = [re.match(r'(\d+) drafts?\b', ' '.join(h.casefold().split())) for h in header]
     count = int(found[0].group(1)) if len(found) == 1 and found[0] else None
     image = pixels(frame, exact=True)
+    # A 'Sort by' chip row (C24C, 17 Oct, two or more drafts) puts the grid at y 238; without it the grid
+    # starts 50 px higher (slot 20, one draft, 24 Oct), and the first tile's top edge must sit there.
+    chips = any(r['text'].casefold().startswith('sort by') and 175 <= min(w['y'] for w in r['words']) <= 205
+                for r in text.get('lines', []) if r.get('words'))
+    shift = 0
+    if not chips:
+        content = np.where((image[170:470, 10:150].min(axis=2) < 240).mean(axis=1) > .5)[0]
+        first = 170 + int(content[0]) if len(content) else None
+        require(first is not None and abs(first - (DRAFT_ROWS[0][0] + DRAFT_SHIFTS[1])) <= 4, 'TikTok drafts grid geometry changed.')
+        shift = DRAFT_SHIFTS[1]
     tiles = []
-    for top, bottom in DRAFT_ROWS:
+    for top, bottom in ((t + shift, b + shift) for t, b in DRAFT_ROWS):
         for left, right in DRAFT_COLUMNS:
             if (image[top+10:bottom-10, left+10:right-10].min(axis=2) > 235).mean() > .97: continue   # empty slot
             for a, b in ((left-6, left), (right, right+6)):
                 if 0 <= a and b <= 500:
                     require((image[top+5:bottom-5, a:b].min(axis=2) > 235).mean() > .97, 'TikTok drafts grid geometry changed.')
-            require((image[bottom:bottom+6, left+5:right-5].min(axis=2) > 235).mean() > .97, 'TikTok drafts grid geometry changed.')
-            match = media_match(frame, (left+2, top+2, right-2, bottom-2), reference, 'portrait', image=image,
-                                ignore=((left, top, left+62, top+62), (left, bottom-55, right, bottom)))
+            # (Slot 20's tiles end up to 2 px lower, 24 Oct.)
+            require((image[bottom+2:bottom+5, left+5:right-5].min(axis=2) > 235).mean() > .97, 'TikTok drafts grid geometry changed.')
+            # Slot 20's cover fills its tile edge to edge, a pixel lower (24 Oct); C24C's sits 2 px inside.
+            cover = (left+2, top, right-1, bottom+1) if shift else (left+2, top+2, right-2, bottom-2)
+            match = media_match(frame, cover, reference, 'portrait', image=image,
+                                ignore=((left, top, left+62, top+62), (left, bottom-55, right, bottom+2)))
+            if not match['matched'] and match['mean'] is not None and match['mean'] <= .1:
+                # A narrow miss on slot 20's rounded, shaded cover (.068, 24 Oct) is decided by its colour blocks.
+                match = dict(match, **tile_colours(image, (left+2, top+2, right-2, bottom-2), reference, 'portrait'))
             label = rows_between(text, bottom-50, bottom, left, right)
             tiles.append(dict(tile=[left, top, right, bottom], match=match, soundLabel=label[0] if label else None))
     require(tiles, 'No TikTok drafts are recognized.')

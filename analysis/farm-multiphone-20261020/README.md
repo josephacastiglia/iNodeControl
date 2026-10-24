@@ -235,3 +235,16 @@ a test in `tools/test_farm_safari_start.py`.
   with Home and the switcher (nothing saved or discarded). **X video drafts did not survive a relaunch.**
 - **YouTube relaunch (check 1):** after the cold start the Short camera asked 'Continue your draft
   video?' again and phone 16's mirror stopped delivering frames while it showed; nothing was tapped.
+
+### 24 Oct, 00:20-01:30: TikTok verified (slot 20)
+
+- Prompt validation merged (e2ee3a8). The kernel had stopped with the previous session; restarted
+  and reconnected 16, 17, 20 (20 on the third `auto_connect.py`).
+- TikTok prep 66 stopped at selection: white-backed test thumbnails draw 1 px white rows a pitch
+  apart, and the grid locked onto them. Now every pitch-spaced chain is built and the thickest wins.
+- Prep 67 saved the draft (Drafts pressed once). The verifier is now read-only like X and YouTube:
+  the profile's 'Drafts: 1' (read enlarged over the white video), then the Drafts grid (slot 20 has no
+  'Sort by' row, so the grid is 50 px higher, and its covers fill the tile) must show exactly one draft
+  with the package video and no sound. `verify_window.py --check 3`: **verified**.
+- YouTube relaunch check 2: the camera's 'Continue your draft video?' prompt again froze phone 16's
+  mirror after the cold start; nothing tapped.

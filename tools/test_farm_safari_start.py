@@ -976,5 +976,18 @@ class TikTokLargeCoverTests(unittest.TestCase):
         self.assertEqual([(345, 122, 475, 313), (345, 120, 480, 318)], seen)
 
 
+class TikTokGutterChainTests(unittest.TestCase):
+    def test_thin_white_rows_inside_test_videos_lose_to_real_gutters(self):
+        import numpy as np
+        import farm_tiktok_layout as tt
+        image = np.full((1080, 500, 3), 60, dtype=np.uint8)
+        for y in (210, 378, 545): image[y:y+1] = 255             # 1 px rows inside white thumbnails (24 Oct).
+        for y, h in ((321, 5), (489, 4), (655, 2)): image[y:y+h] = 255   # Real gutters.
+        image[820:845] = 255                                      # Selection tray.
+        image[:, 164:168] = 255; image[:, 331:335] = 255
+        rows, bottom = tt.grid(image)
+        self.assertEqual((820, [326, 493, 657]), (bottom, [r['top'] for r in rows if r['complete']]))
+
+
 if __name__ == '__main__':
     unittest.main()

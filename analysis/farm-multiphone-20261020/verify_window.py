@@ -60,6 +60,10 @@ def verify(prep, run, child):
         from farm_youtube_creation import YouTubeVerification, phone_from_config
         verifier, video, account = YouTubeVerification, TikTokReference(raw), workflow['account']
         extra = dict(phone=phone_from_config(config))
+    elif prep['platform'] == 'tiktok':   # TikTok's account is pinned in the window config.
+        from farm_tiktok_layout import TikTokReference
+        from farm_tiktok_creation import TikTokVerification
+        verifier, video, account = TikTokVerification, TikTokReference(raw), account_of(config)
     else:
         verifier, video, account = ReelVerification, VideoReference(raw), account_of(config)
     child.mkdir()
@@ -84,7 +88,7 @@ def main():
     args = parser.parse_args()
     window = HERE / 'windows' / args.window
     prep = json.loads((window / 'preparation.json').read_text(encoding='utf-8'))
-    if prep['platform'] not in ('reel', 'x', 'youtube'): raise SystemExit('Only Reel, X and YouTube windows have this verifier.')
+    if prep['platform'] not in ('reel', 'x', 'youtube', 'tiktok'): raise SystemExit('No verifier for this window.')
     run = json.loads((window / f'attempt-{args.attempt}' / 'result.json').read_text(encoding='utf-8'))['run']
     workflow = run['workflow']
     folder = Path(prep['backendData']) / prep['route'] / run['id']

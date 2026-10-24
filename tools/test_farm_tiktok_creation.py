@@ -302,6 +302,8 @@ class FixtureKernel:
             ('tt_feed_saved', 'click', (450, 1005), 'profile_after'),
             ('profile_after', 'click', (79, 478), 'tt_drafts'),
             ('tt_drafts', 'click', (81, 345), 'tt_reopened'),
+            ('tt_drafts', 'click', (30, 85), 'profile_after'),                 # Read-only verifier (24 Oct).
+            ('tt_drafts_sound', 'click', (30, 85), 'profile_after'),
             ('tt_reopened', 'click', (339, 115), 'tt_reopened'),
             ('tt_reopened', 'click', (367, 1006), 'tt_reopened_details'),
             ('tt_reopened_details', 'click', (130, 1005), 'tt_drafts_kept'),
@@ -388,9 +390,10 @@ class TikTokProtocolTests(unittest.TestCase):
         flow2, kernel2 = self.fixture(saved=True, verifier=True)
         verified = flow2.run()
         self.assertEqual('validation_passed', verified['state'], verified.get('error'))
-        self.assertTrue(verified['savedDraftVerified']); self.assertEqual('tiktok_drafts', verified['finalScreen'])
-        self.assertEqual(2, kernel2.saves); self.assertEqual('tt_drafts_kept', kernel2.screen); self.assertEqual(0, kernel2.removed)
-        self.assertEqual(2, verified['draftsAfter']['count']); self.assertIsNone(verified['draftsAfter']['soundLabel'])
+        # Read only (24 Oct): the Drafts grid decides; nothing is reopened or saved again.
+        self.assertTrue(verified['savedDraftVerified']); self.assertEqual('tiktok_profile', verified['finalScreen'])
+        self.assertEqual(1, kernel2.saves); self.assertEqual('profile_after', kernel2.screen); self.assertEqual(0, kernel2.removed)
+        self.assertFalse(verified['reopened']); self.assertIsNone(verified['draftsBefore']['soundLabel'])
         self.assertEqual('consistent_sampled_history', verified['accountHistory']['status'])
 
     def test_lost_answer_at_every_creation_action_stops_without_replay(self):
@@ -491,16 +494,13 @@ class TikTokProtocolTests(unittest.TestCase):
         self.assertEqual('review_required', result['state']); self.assertEqual(0, kernel.saves)
         self.assertEqual(0, kernel.photos); self.assertIn('package video', result['error'])
 
-    def test_verifier_removes_a_kept_suggested_sound_and_refuses_wrong_state(self):
-        flow, kernel = self.fixture('sound_kept', saved=True, verifier=True); result = flow.run()
-        self.assertEqual('validation_passed', result['state'], result.get('error')); self.assertEqual(1, kernel.removed)
-        self.assertEqual('Whispers', result['draftsBefore']['soundLabel']); self.assertTrue(result['sound']['removed'])
-        for scenario in ('wrong_account', 'wrong_caption', 'sound_stays'):
+    def test_verifier_refuses_a_draft_with_a_sound_and_the_wrong_account(self):
+        # Read only (24 Oct): a draft whose tile still shows a sound is refused, never reopened to fix it.
+        for scenario in ('sound_kept', 'wrong_account'):
             with self.subTest(scenario=scenario):
                 flow, kernel = self.fixture(scenario, saved=True, verifier=True); result = flow.run()
                 self.assertEqual('review_required', result['state']); self.assertFalse(result['savedDraftVerified'])
-                self.assertEqual('confirmed', result['cleanup'])
-                self.assertEqual(1 if scenario != 'sound_stays' else 2, kernel.saves)
+                self.assertEqual('confirmed', result['cleanup']); self.assertEqual(1, kernel.saves); self.assertEqual(0, kernel.removed)
 
     def test_committing_purposes_name_real_creation_actions(self):
         flow, kernel = self.fixture(); flow.run()

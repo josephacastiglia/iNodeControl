@@ -17,7 +17,7 @@ class TikTokCreationRuns(ReelCreationRuns):
     caption_supported = staticmethod(caption_supported)
     ENABLED_REASON = ('Saves one prepared TikTok video as a draft: Safari downloads it, Files saves it to Photos, any suggested '
                       'sound is removed, the exact one-line description is pasted, Drafts is pressed once, then a separate check '
-                      "reopens it silent and keeps it. Start on @{account}'s TikTok profile. The video stays in Photos and Safari "
+                      "finds it once in Drafts with the video cover and no sound, without reopening it. Start on @{account}'s TikTok profile. The video stays in Photos and Safari "
                       'Downloads, and the phone clipboard is replaced.')
     DISABLED_REASON = 'TikTok draft creation is disabled. Prepare the isolated C24C candidate first.'
     SUPPORTED_REASON = 'This saved TikTok copy fits the candidate.'
@@ -26,6 +26,7 @@ class TikTokCreationRuns(ReelCreationRuns):
     HELD_REASON = ('This exact video and description already have a TikTok request. '
                    'Select its saved result; an uncertain import or Drafts press is never repeated.')
     RUNNING_REASON = 'Creating a C24C TikTok draft from the saved video and exact description. No publishing or messaging.'
-    VERIFIED_REASON = 'The TikTok draft was saved, reopened without a sound and kept in Drafts. Nothing was published.'
+    VERIFIED_REASON = 'The TikTok draft was saved and found once in Drafts with the package video cover and no sound. Nothing was published.'
     MEANING = ('Package video imported to Photos, selected, suggested sound removed, exact description pasted, TikTok draft saved, '
-               'then independently reopened silent with the exact description and kept. No publication or app-restart persistence claim.')
+               'then independently found once in Drafts with the package video cover and no sound (not reopened: saving a '
+               'reopened draft dropped the video on X, 23 Oct). No publication or app-restart persistence claim.')
