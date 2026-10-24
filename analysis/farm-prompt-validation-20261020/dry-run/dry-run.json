@@ -1,0 +1,189 @@
+{
+  "meaning": "Synthetic stand-in. Protocol and record shapes only; no phone, kernel or service was used.",
+  "steps": [
+    {
+      "label": "a1-observe",
+      "exitCode": 0,
+      "printed": {
+        "label": "a1-observe",
+        "step": "observe",
+        "method": null,
+        "state": "completed",
+        "family": "paste",
+        "app": "TikTok",
+        "target": "Don't Allow Paste",
+        "outcome": null,
+        "result": null,
+        "focus": null,
+        "cleanup": "not_needed",
+        "error": null
+      }
+    },
+    {
+      "label": "a2-class-tap",
+      "exitCode": 0,
+      "printed": {
+        "label": "a2-class-tap",
+        "step": "trial",
+        "method": "pointer_tap",
+        "state": "completed",
+        "family": "paste",
+        "app": "TikTok",
+        "target": "Don't Allow Paste",
+        "outcome": "ignored",
+        "result": "ignored",
+        "focus": null,
+        "cleanup": "confirmed",
+        "error": null
+      }
+    },
+    {
+      "label": "a3-class-escape",
+      "exitCode": 0,
+      "printed": {
+        "label": "a3-class-escape",
+        "step": "trial",
+        "method": "keyboard_escape",
+        "state": "completed",
+        "family": "paste",
+        "app": "TikTok",
+        "target": "Don't Allow Paste",
+        "outcome": "ignored",
+        "result": "ignored",
+        "focus": null,
+        "cleanup": "confirmed",
+        "error": null
+      }
+    },
+    {
+      "label": "a4-long-press",
+      "exitCode": 0,
+      "printed": {
+        "label": "a4-long-press",
+        "step": "trial",
+        "method": "long_press",
+        "state": "completed",
+        "family": "paste",
+        "app": "TikTok",
+        "target": "Don't Allow Paste",
+        "outcome": "ignored",
+        "result": "ignored",
+        "focus": null,
+        "cleanup": "confirmed",
+        "error": null
+      }
+    },
+    {
+      "label": "a5-focus-only",
+      "exitCode": 0,
+      "printed": {
+        "label": "a5-focus-only",
+        "step": "trial",
+        "method": "keyboard_focus",
+        "state": "completed",
+        "family": "paste",
+        "app": "TikTok",
+        "target": "Don't Allow Paste",
+        "outcome": "ignored",
+        "result": "answer_focused_not_activated",
+        "focus": "answer_focused_not_activated",
+        "cleanup": "confirmed",
+        "error": null
+      }
+    },
+    {
+      "label": "a6-keyboard-focus",
+      "exitCode": 0,
+      "printed": {
+        "label": "a6-keyboard-focus",
+        "step": "trial",
+        "method": "keyboard_focus",
+        "state": "completed",
+        "family": "paste",
+        "app": "TikTok",
+        "target": "Don't Allow Paste",
+        "outcome": "dismissed",
+        "result": "dismissed",
+        "focus": "space_sent_on_safe_answer",
+        "cleanup": "confirmed",
+        "error": null
+      }
+    },
+    {
+      "label": "a6-keyboard-focus",
+      "exitCode": 0,
+      "printed": {
+        "label": "a6-keyboard-focus",
+        "confirmation": {
+          "safeAnswer": true,
+          "observed": "Fixture: the field stayed empty",
+          "utc": "2026-10-20T00:00:18.607970+00:00"
+        }
+      }
+    },
+    {
+      "label": "a6-keyboard-focus",
+      "exitCode": 2,
+      "printed": {
+        "label": "a6-keyboard-focus",
+        "promotable": false,
+        "problems": [
+          "The trial summary is not in the validation record.",
+          "Only a phone trial can become evidence."
+        ],
+        "entry": {
+          "family": "paste",
+          "method": "keyboard_focus",
+          "state": "validated",
+          "answer": "Don't Allow Paste",
+          "app": "TikTok",
+          "phone": "C24C",
+          "source": "c24c_prompt_validation_window",
+          "date": "2026-10-20",
+          "trial": "15e4c920-b898-4bcd-bbef-64cfc0c7f572",
+          "summary": "analysis/farm-prompt-validation-20261020/dry-run/a6-keyboard-focus.json",
+          "summarySha256": "ab126537156d5b7f535c62ca83a2acf3eb0676a0d761a65dbc63e15718430933",
+          "beforeFrameSha256": "6a9ee0c36802509f582554c52c5f66a3892f6ac13c09b3a8d83dd988fce66653",
+          "afterFrameSha256": "c21c2b5971486445fa2f8e7ac7942ad822ade5180aa97167586d4ebdba1dadc3",
+          "outcome": "dismissed",
+          "commandsAnswered": true,
+          "safeAnswerConfirmed": true,
+          "confirmation": "Fixture: the field stayed empty",
+          "note": "keyboard_focus on Don't Allow Paste of TikTok's paste prompt: dismissed; operator: Fixture: the field stayed empty"
+        }
+      }
+    },
+    {
+      "label": "b1-probe",
+      "exitCode": 0,
+      "printed": {
+        "label": "b1-probe",
+        "step": "probe",
+        "method": null,
+        "state": "completed",
+        "family": null,
+        "app": null,
+        "target": null,
+        "outcome": null,
+        "result": "positioned",
+        "focus": null,
+        "cleanup": "confirmed",
+        "error": null
+      }
+    }
+  ],
+  "privateTrialFolders": [
+    "a1-observe",
+    "a2-class-tap",
+    "a3-class-escape",
+    "a4-long-press",
+    "a5-focus-only",
+    "a6-keyboard-focus",
+    "b1-probe"
+  ],
+  "privateFramesExported": 34,
+  "stateAfterPartA": {
+    "answered": "Don't Allow Paste",
+    "promptVisible": false
+  }
+}

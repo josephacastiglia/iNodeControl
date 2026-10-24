@@ -1,0 +1,64 @@
+{
+  "label": "a1-observe",
+  "trial": "981b7ec3-0783-4dec-9a8e-3fc41bae8c39",
+  "date": "2026-10-20",
+  "phone": "C24C",
+  "source": "c24c_prompt_validation_window",
+  "recordSource": "offline_fixture",
+  "kernelMode": "normal",
+  "kernelSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "step": "observe",
+  "method": null,
+  "activate": null,
+  "state": "completed",
+  "error": null,
+  "cleanup": "not_needed",
+  "family": "paste",
+  "app": "TikTok",
+  "answerTargeted": "Don't Allow Paste",
+  "target": [
+    166,
+    614
+  ],
+  "buttons": {
+    "Don't Allow Paste": [
+      166,
+      614
+    ],
+    "Allow Paste": [
+      330,
+      614
+    ]
+  },
+  "layout": "row",
+  "promptReason": null,
+  "detected": {
+    "kind": "paste",
+    "app": "TikTok",
+    "answer": "Don't Allow Paste"
+  },
+  "precheck": null,
+  "evidenceGaps": null,
+  "commands": [],
+  "commandsAnswered": false,
+  "focusPath": [],
+  "focusResult": null,
+  "probePoints": null,
+  "probe": null,
+  "repliesBefore": null,
+  "outcome": null,
+  "result": null,
+  "beforeFrameSha256": null,
+  "afterFrameSha256": null,
+  "frames": [
+    {
+      "name": "obs-01-observe.png",
+      "pngSha256": "119ef7ae1b3b81ff89ac73941c277e2c1f83705924b5d767b8c8f0369f568e76"
+    }
+  ],
+  "allowTargeted": false,
+  "publishing": false,
+  "messaging": false,
+  "desktopControl": false,
+  "confirmation": null
+}

@@ -1,7 +1,10 @@
 """Permission prompt recognition and policy. Synthetic cases always run; retained frames when present."""
+import hashlib
+import inspect
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 import farm_permission_prompts as pp
 
@@ -51,11 +54,23 @@ class PromptTests(unittest.TestCase):
         self.assertEqual(('stop', "Don't Allow", None), (result['action'], result['answer'], result['method']))
         self.assertIn('one-time step per phone and app', result['request'])
         self.assertEqual(['keyboard_escape', 'pointer_tap'], result['ignoredMethods'])
-        proven = {('local_network', 'absolute_tap'): ('validated', 'fixture')}
+        proven = {('local_network', 'long_press'): ('validated', 'fixture')}
         answered = pp.plan(prompt, validated=proven)
-        self.assertEqual(('answer', 'absolute_tap', (168, 808)), (answered['action'], answered['method'], answered['target']))
+        self.assertEqual(('answer', 'long_press', (168, 808)), (answered['action'], answered['method'], answered['target']))
+        # A method validated in a window but not yet sendable by runs stops with the one-time request.
+        waiting = pp.plan(prompt, validated={('local_network', 'absolute_tap'): ('validated', 'fixture'),
+                                             ('local_network', 'keyboard_focus'): ('validated', 'fixture')})
+        self.assertEqual(('stop', None), (waiting['action'], waiting['method']))
+        self.assertEqual('Validated but not usable for this answer in a run: absolute_tap, keyboard_focus.', waiting['reason'])
+        self.assertIn('one-time step per phone and app', waiting['request'])
         # An ignored method never counts as proven.
         self.assertEqual('stop', pp.plan(prompt, validated={('local_network', 'pointer_tap'): ('ignored', 'x')})['action'])
+        # Escape only ever reaches an alert's cancel action, so it never gives an allowing answer.
+        photos = pp.detect(alert('Allow "TikTok" to access', 'your photos?', buttons=(('Limit Access...', 120, 700),
+                           ('Allow Full Access', 120, 760), ("Don't Allow", 120, 820))))
+        escape = {('photos', 'keyboard_escape'): ('validated', 'fixture'), ('local_network', 'keyboard_escape'): ('validated', 'fixture')}
+        self.assertEqual('stop', pp.plan(photos, needs_media_picker=True, app_expected='TikTok', validated=escape)['action'])
+        self.assertEqual('keyboard_escape', pp.plan(prompt, validated=escape)['method'])
 
     def test_context_limits_privileged_answers(self):
         photos = pp.detect(alert('Allow "TikTok" to access', 'your photos?', buttons=(('Limit Access...', 120, 700),
@@ -77,6 +92,119 @@ class PromptTests(unittest.TestCase):
         twice = pp.detect(alert('Allow "YouTube" to find', 'devices on local networks?',
                                 buttons=(("Don't Allow", 118, 800), ("Don't Allow", 118, 860), ('Allow', 307, 800))))
         self.assertTrue(twice['ambiguous']); self.assertEqual('stop', pp.plan(twice, validated=proven)['action'])
+
+
+def window_entry(**changes):
+    """A complete validation-window record for a declined local-network prompt."""
+    entry = dict(family='local_network', method='long_press', state='validated', answer="Don't Allow", app='YouTube', phone='C24C',
+                 source=pp.WINDOW_SOURCE, date='2026-10-21', trial='6f1c1d52-6a0e-4f4c-8a39-2f2a8f3e9b10',
+                 summary=pp.WINDOW_RECORD + 'a3-long-press.json', summarySha256='1'*64, beforeFrameSha256='2'*64,
+                 afterFrameSha256='3'*64, outcome='dismissed', commandsAnswered=True, safeAnswerConfirmed=True,
+                 confirmation='Settings > Privacy > Local Network shows YouTube off', note='fixture')
+    entry.update(changes)
+    return entry
+
+
+class ReminderTests(unittest.TestCase):
+    """20 Oct (coordinator, rack phones): "<App> has been able to access your entire photo library ...
+    continue to allow full access?" with Limit Access / Allow Full Access."""
+    def reminder(self, *extra):
+        return pp.detect(alert('"Instagram" has been able to access', 'your entire photo library.', 'Do you want to continue to',
+                               'allow full access?', buttons=(('Limit Access', 120, 760), ('Allow Full Access', 120, 820), *extra)))
+
+    def test_the_reminder_keeps_the_current_setting(self):
+        found = self.reminder()
+        self.assertEqual(('photos_reminder', 'Instagram'), (found['kind'], found['app']))
+        stop = pp.plan(found, app_expected='Instagram')
+        self.assertEqual(('stop', 'Allow Full Access'), (stop['action'], stop['answer']))
+        self.assertIn('keeps the current setting', stop['request'])
+        proven = {('photos_reminder', 'pointer_tap'): ('validated', 'fixture')}
+        # No media picker is needed, and keeping the setting is safe even for another app.
+        for context in (dict(), dict(app_expected='Instagram'), dict(app_expected='TikTok')):
+            with self.subTest(**context):
+                self.assertEqual(('answer', 'Allow Full Access'), (pp.plan(found, validated=proven, **context)['action'],
+                                                                   pp.plan(found, validated=proven, **context)['answer']))
+        # Escape could reach Limit Access, which changes the setting: never used here.
+        self.assertEqual('stop', pp.plan(found, validated={('photos_reminder', 'keyboard_escape'): ('validated', 'fixture')})['action'])
+        # A Don't Allow means this is not the reminder; it is not answered.
+        odd = self.reminder(("Don't Allow", 120, 880))
+        self.assertEqual(('photos_reminder', 'stop'), (odd['kind'], pp.plan(odd, validated=proven)['action']))
+
+    def test_ellipsis_variants_read_as_the_same_button(self):
+        first = pp.detect(alert('Allow "TikTok" to access', 'your photos?', buttons=(('Limit Access…', 120, 700),
+                                ('Allow Full Access', 120, 760), ("Don't Allow", 120, 820))))
+        self.assertEqual('photos', first['kind']); self.assertIn('Limit Access...', first['buttons'])
+        self.assertIn('Limit Access', self.reminder()['buttons'])
+
+
+class WindowEvidenceTests(unittest.TestCase):
+    prompt = staticmethod(lambda: pp.detect(alert('Allow "YouTube" to find', 'devices on local networks?')))
+
+    def test_nothing_is_validated_by_default(self):
+        self.assertEqual((), pp.WINDOW_EVIDENCE)
+        self.assertFalse([key for key, (state, _) in pp.evidence().items() if state == 'validated'])
+        self.assertEqual('stop', pp.plan(self.prompt())['action'])
+
+    def test_complete_window_evidence_validates_its_family_and_method_only(self):
+        self.assertEqual([], pp.window_problems(window_entry()))
+        with patch.object(pp, 'WINDOW_EVIDENCE', (window_entry(),)):
+            decision = pp.plan(self.prompt())
+            self.assertEqual(('answer', 'long_press', "Don't Allow"), (decision['action'], decision['method'], decision['answer']))
+            self.assertIn('C24C window trial', decision['evidence'])
+            other = pp.detect(alert('Allow "YouTube" to use your location?'))
+            self.assertEqual('stop', pp.plan(other)['action'])
+
+    def test_incomplete_or_contradicted_evidence_never_validates(self):
+        broken = {
+            'allow button': dict(answer='Allow'), 'not confirmed': dict(safeAnswerConfirmed=False), 'no confirmation text': dict(confirmation=' '),
+            'ignored outcome': dict(outcome='ignored'), 'uncertain command': dict(commandsAnswered=False),
+            'outside the record': dict(summary='analysis/other/a3.json'), 'path escape': dict(summary=pp.WINDOW_RECORD + '../x.json'),
+            'no summary hash': dict(summarySha256='abc'), 'no frame hash': dict(afterFrameSha256=None), 'other phone': dict(phone='C241'),
+            'other source': dict(source='simulation'), 'unknown family': dict(family='unknown_permission'),
+            'unknown method': dict(method='voice'), 'no date': dict(date='today'), 'no trial': dict(trial='a3'), 'other state': dict(state='likely'),
+        }
+        for name, change in broken.items():
+            with self.subTest(name):
+                self.assertTrue(pp.window_problems(window_entry(**change)))
+                with patch.object(pp, 'WINDOW_EVIDENCE', (window_entry(**change),)):
+                    self.assertEqual('stop', pp.plan(self.prompt())['action'])
+        self.assertTrue(pp.window_problems('validated'))
+        ignored = window_entry(state='ignored', outcome='ignored', safeAnswerConfirmed=False, confirmation='')
+        self.assertEqual([], pp.window_problems(ignored))
+        for entries in ((ignored,), (window_entry(), ignored), (window_entry(method='pointer_tap'),)):
+            with self.subTest(entries=len(entries)), patch.object(pp, 'WINDOW_EVIDENCE', entries):
+                self.assertEqual('stop', pp.plan(self.prompt())['action'])
+        with patch.object(pp, 'WINDOW_EVIDENCE', (ignored,)):
+            self.assertEqual(['keyboard_escape', 'long_press', 'pointer_tap'], pp.plan(self.prompt())['ignoredMethods'])
+        with patch.object(pp, 'WINDOW_EVIDENCE', (window_entry(), ignored)):
+            self.assertEqual('conflicting', pp.evidence()[('local_network', 'long_press')][0])
+
+    def test_committed_window_evidence_matches_its_recorded_summaries(self):
+        for entry in pp.WINDOW_EVIDENCE:
+            with self.subTest(trial=entry.get('trial')):
+                self.assertEqual([], pp.window_problems(entry))
+                summary = ROOT/entry['summary']
+                self.assertEqual(entry['summarySha256'], hashlib.sha256(summary.read_bytes()).hexdigest())
+                recorded = json.loads(summary.read_text(encoding='utf-8'))
+                self.assertEqual((entry['trial'], entry['family'], entry['method'], 'phone'),
+                                 (recorded['trial'], recorded['family'], recorded['method'], recorded['recordSource']))
+
+    def test_safe_answers_and_run_methods(self):
+        self.assertEqual(set(pp.POLICY) - {'unknown_permission'}, set(pp.SAFE_ANSWER))
+        self.assertTrue(set(pp.SAFE_ANSWER.values()) <= set(pp.BUTTONS) and set(pp.CANCEL_ANSWERS) <= set(pp.SAFE_ANSWER.values()))
+        # Every safe answer grants nothing new: a declining button, or keeping existing full access.
+        self.assertEqual({'photos_reminder'}, {f for f, a in pp.SAFE_ANSWER.items() if a not in pp.CANCEL_ANSWERS})
+        self.assertTrue(set(pp.RUN_METHODS) <= set(pp.METHODS))
+        # RUN_METHODS is exactly what the shared run answer path implements.
+        from farm_reel_creation import ReelCreationWorkflow
+        source = inspect.getsource(ReelCreationWorkflow.answer_prompt)
+        self.assertEqual(set(pp.RUN_METHODS), {m for m in pp.METHODS if f"'{m}'" in source})
+
+    def test_button_boxes(self):
+        text = alert('Allow "YouTube" to find', 'devices on local networks?')
+        self.assertEqual({"Don't Allow": (118, 800, 217, 816), 'Allow': (307, 800, 352, 816)}, pp.button_boxes(text))
+        twice = alert('x', buttons=(("Don't Allow", 118, 800), ("Don't Allow", 118, 860)))
+        self.assertIsNone(pp.button_boxes(twice))
 
 
 @unittest.skipUnless(PRIVATE, 'Retained private C24C OCR is not available in this checkout.')
