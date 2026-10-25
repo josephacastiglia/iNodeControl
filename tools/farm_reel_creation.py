@@ -458,8 +458,12 @@ class ReelCreationWorkflow(CreationWorkflow):
         return self.record
 
 
+REELS_DRAFTS_CLOSE = (40, 84)   # The Reels drafts list's close control (template drafts_close).
+
+
 class ReelVerification(ReelCreationWorkflow):
     """Separate owned run: reopen the unique saved Reel, check caption and playback, keep it."""
+    READ_ONLY_VERIFY = True   # Never reopens a saved draft (see run).
 
     def __init__(self, folder, kernel, store, video, caption, templates, expected_hash, expected_uid, **kwargs):
         super().__init__(folder, kernel, store, video, caption, templates, expected_hash, expected_uid,
@@ -509,6 +513,20 @@ class ReelVerification(ReelCreationWorkflow):
             self.tap('verify-open-create', 'profile', lambda v, f: self.target('profile_create', v, f))
             self.tap('verify-choose-reel', 'reel_create', lambda v, f: reel.reel_create(f, v['text'])['target'])
             self.tap('verify-open-drafts', 'reel_saved_picker', lambda v, f: reel.reel_saved_picker(f, v['text'])['chipTarget'])
+            if self.READ_ONLY_VERIFY:
+                # Saving a reopened draft again dropped the video on X (23 Oct); every verifier now reads the
+                # drafts list only: exactly one Reels draft row shows the package video. Nothing is reopened.
+                found, _, _ = self.screen('reels_drafts')
+                self.record['draftRow'] = dict(rows=found['rows'], edited=found['row']['edited'], match=found['row']['match'])
+                self.tap('verify-close-drafts', 'reels_drafts', REELS_DRAFTS_CLOSE)
+                self.tap('verify-close-picker', 'reel_saved_picker', lambda v, f: reel.reel_saved_picker(f, v['text'])['closeTarget'])
+                self.observe('profile')
+                self.history()
+                self.record.update(state='validation_passed', savedDraftVerified=True, finalScreen='profile', reopened=False,
+                    meaning='On the signed-in profile, Reels drafts lists exactly one draft whose thumbnail shows the package '
+                            'video. Not reopened (saving a reopened draft dropped the video on X, 23 Oct); the caption was '
+                            'checked before saving. No Share, publishing or messaging.')
+                return self.record
             self.tap('verify-open-saved-reel', 'reels_drafts', lambda v, f: reel.reels_drafts(f, v['text'], self.video)['target'])
             self.tap('verify-open-preview', 'reel_reopened',
                      lambda v, f: reel.reel_details(f, v['text'], self.video, self.caption, reopened=True)['previewTarget'])

@@ -257,6 +257,7 @@ class FixtureKernel:
             ('saved_picker', 'click', (42, 98), 'profile'),
             ('saved_picker', 'click', (70, 160), 'drafts'),
             ('drafts', 'click', (66, 169), 'reopened'),
+            ('drafts', 'click', (40, 84), 'saved_picker'),                    # Read-only verifier (25 Oct).
             ('reopened', 'click', (225, 172), 'preview'),
             ('preview', 'click', (130, 996), 'drafts_kept'),
         ]
@@ -326,9 +327,10 @@ class ReelProtocolTests(unittest.TestCase):
         flow2, kernel2 = self.fixture(saved=True, verifier=True)
         verified = flow2.run()
         self.assertEqual('validation_passed', verified['state'], verified.get('error'))
-        self.assertTrue(verified['savedDraftVerified']); self.assertEqual('reels_drafts', verified['finalScreen'])
-        self.assertEqual(2, kernel2.saves); self.assertEqual('drafts_kept', kernel2.screen)
-        self.assertNotEqual(*verified['playback']['sampledFrameIndices'])
+        # Read only (25 Oct): the drafts list decides; nothing is reopened or saved again.
+        self.assertTrue(verified['savedDraftVerified']); self.assertEqual('profile', verified['finalScreen'])
+        self.assertEqual(1, kernel2.saves); self.assertEqual('profile', kernel2.screen); self.assertFalse(verified['reopened'])
+        self.assertTrue(verified['draftRow']['match']['matched'])
         self.assertEqual('consistent_sampled_history', verified['accountHistory']['status'])
 
     def test_lost_answer_at_every_creation_action_stops_without_replay(self):
@@ -403,10 +405,14 @@ class ReelProtocolTests(unittest.TestCase):
         self.assertEqual('review_required', result['state']); self.assertEqual(0, kernel.saves)
         self.assertIn('caption', result['error'].casefold())
 
-    def test_verifier_refuses_frozen_preview_wrong_account_and_wrong_caption(self):
-        for scenario in ('frozen_preview', 'wrong_account', 'wrong_caption'):
+    def test_verifier_refuses_other_media(self):
+        # Read only (25 Oct): the Preview is never opened, so its playback, caption and account (the fixture's
+        # 'wrong_account' changes only the Preview) are not read again; the profile's account is checked at admission.
+        for scenario in ('other_media',):
             with self.subTest(scenario=scenario):
-                flow, kernel = self.fixture(scenario, saved=True, verifier=True); result = flow.run()
+                flow, kernel = self.fixture('normal' if scenario == 'other_media' else scenario, saved=True, verifier=True)
+                if scenario == 'other_media': flow.video = self.other
+                result = flow.run()
                 self.assertEqual('review_required', result['state']); self.assertFalse(result['savedDraftVerified'])
                 self.assertEqual(1, kernel.saves); self.assertEqual('confirmed', result['cleanup'])
 

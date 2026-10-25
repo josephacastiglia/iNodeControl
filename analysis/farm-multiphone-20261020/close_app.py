@@ -32,7 +32,16 @@ LABELS = (95, 160)   # The switcher's card labels (icon and app name) sit in thi
 CARD_WORDS = {'X': (('for you', 280, (200, 300)), ('cancel', 280, (195, 235))),
               # TikTok's card sits centred or pushed to the right edge with its name cut off (slot 20, 24 Oct);
               # its profile's 'Following' counter label marks it.
-              'TikTok': (('following', 80, (280, 345)),)}
+              'TikTok': (('following', 80, (280, 345)),),
+              # Instagram's profile card shows its note bubble 'Make this space yours' (slot 18, 25 Oct).
+              'Instagram': (('make this', 80, (225, 300)),)}
+
+
+def status_bar(text):
+    """A full-screen app shows the clock at the top left; the switcher has no status bar."""
+    import re
+    return any(re.fullmatch(r'\d{1,2}\W?\W?\d\d', l['text'].strip()) and min(w['y'] for w in l['words']) < 45
+               and min(w['x'] for w in l['words']) < 110 for l in text.get('lines', []) if l.get('words'))
 
 
 def named(label, app):
@@ -81,6 +90,10 @@ def close(config, folder, app, purpose='close-stuck-app'):
         s.pause(1.5)
         _, text, _, _ = s.fresh('switcher')
         if not any(named(name, a.app) for name, _ in labels(text)) and not card_by_content(text, a.app):
+            if status_bar(text):
+                # The switcher key was ignored and the app is still full screen with its status bar
+                # (slot 16, 25 Oct): the key, which only opens the switcher, is sent once more.
+                raw('/key/sendkey', 'open-app-switcher-again', fn_key='AppSwitch')
             s.pause(1.0)   # The switcher can still be sliding in (slot 20, 24 Oct); read once more.
             _, text, _, _ = s.fresh('switcher-again')
         found = [x for name, x in labels(text) if named(name, a.app)]

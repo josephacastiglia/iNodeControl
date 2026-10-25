@@ -252,3 +252,16 @@ a test in `tools/test_farm_safari_start.py`.
   **the TikTok draft survives an app relaunch.** (Checks 1-2 stopped safely: the switcher card's label
   was cut off or read as 'ikTok'; `close_app.py` now accepts a clipped first letter and finds TikTok's
   card by its profile's 'Following'.)
+
+### 25 Oct: Reel survives an app relaunch
+
+- Kernel restarted after the session break; all four phones (16, 17, 18, 20) reconnected first try.
+- Reel verifier made read-only: Reels drafts must list exactly one row with the package video;
+  the list and the picker are closed, nothing reopened.
+- Instagram relaunch check (archived window `windows-archive/reel-slot18-prep38`): check 1 stopped on a
+  Meta 'Your Meta Account is here' sheet (dismissed by tapping the dimmed area above it; 'Review
+  account' is never tapped); check 2 stopped because the switcher pushed Instagram's card to the
+  right edge (now found by its 'Make this space yours' bubble); **check 3 passed**.
+- YouTube relaunch checks 3-4: the switcher key was once ignored (now sent once more while the app is
+  still full screen); after the cold start the camera asks 'Continue your draft video?', the mirror
+  stays live, and a pointer tap on 'Start over' is ignored. Parked for a supervised validation window.

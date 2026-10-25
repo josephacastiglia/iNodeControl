@@ -48,8 +48,11 @@ def main():
     p.add_argument('--window', required=True); p.add_argument('--attempt', type=int, required=True)
     p.add_argument('--check', type=int, required=True, help='1 for the first relaunch check; never reused.')
     args = p.parse_args()
-    window = HERE / 'windows' / args.window
+    # A window name, or a path under this folder for an archived window (the 22 Oct Reel: windows-archive/...).
+    window = HERE / 'windows' / args.window if (HERE / 'windows' / args.window).is_dir() else HERE / args.window
     prep = json.loads((window / 'preparation.json').read_text(encoding='utf-8'))
+    if not Path(prep['config']).exists():   # An archived window keeps its config beside its record.
+        prep['config'] = str(window / 'creation-config.json')
     attempt = window / f'attempt-{args.attempt}'
     run = json.loads((attempt / 'result.json').read_text(encoding='utf-8'))['run']
     basis = verified(attempt, run)

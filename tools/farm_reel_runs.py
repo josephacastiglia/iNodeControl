@@ -43,7 +43,7 @@ class ReelCreationRuns(DraftRuns):
     # False: no fixed account; creation binds the signed-in one and the verifier must see it again.
     PINNED_ACCOUNT = True
     ENABLED_REASON = ('Saves one prepared Reel video as an Instagram draft: Safari downloads it, Files saves it to Photos, the exact '
-                      'one-line caption is pasted, Save draft is pressed once, then a separate check reopens and plays it. Start on @'
+                      'one-line caption is pasted, Save draft is pressed once, then a separate check finds it once in Reels drafts by the video thumbnail, without reopening it. Start on @'
                       "{account}'s profile. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced.")
     DISABLED_REASON = 'Reel draft creation is disabled. Prepare the isolated C24C candidate first.'
     SUPPORTED_REASON = 'This saved Reel copy fits the candidate.'
@@ -52,9 +52,10 @@ class ReelCreationRuns(DraftRuns):
     HELD_REASON = ('This exact video and caption already have a Reel request. '
                    'Select its saved result; an uncertain import or Save is never repeated.')
     RUNNING_REASON = 'Creating a C24C Reel draft from the saved video and exact caption. No publishing or messaging.'
-    VERIFIED_REASON = 'The Reel draft was saved, reopened, played and kept in Reels drafts. Nothing was published.'
+    VERIFIED_REASON = 'The Reel draft was saved and found once in Reels drafts with the package video thumbnail. Nothing was published.'
     MEANING = ('Package video imported to Photos, selected, exact caption pasted, Reel draft saved, then '
-               'independently reopened, played and kept. No publication or app-restart persistence claim.')
+               'independently found once in Reels drafts with the package video thumbnail (not reopened: saving a '
+               'reopened draft dropped the video on X, 23 Oct). No publication or app-restart persistence claim.')
 
     def capability(self):
         account = (account_of(self.config) if self.config else ACCOUNT) if self.PINNED_ACCOUNT else None
