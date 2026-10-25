@@ -285,3 +285,5 @@ a test in `tools/test_farm_safari_start.py`.
 - TikTok 74 stopped on the caret resting at the empty description's start (slot 20's caret does
   not blink off there; the retry now applies only once a description is pasted). **TikTok 75 and 76
   verified back to back with no change between**, each in one pass.
+- **X (slot 17): runs 72 and 73 verified back to back with no change between**; run 73's Drafts held
+  two drafts with the same text, told apart by the package thumbnail.
