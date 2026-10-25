@@ -450,7 +450,9 @@ def tiktok_details(frame, text, reference, caption=None, *, reopened=False):
     header = (words_at(text, 'back', (35, 68, 95, 100)), words_at(text, 'cancel', (415, 68, 490, 100)))
     if reopened: require(all(header), 'The reopened TikTok draft header is not recognized.')
     else: require(not any(header), 'These are not new TikTok draft details.')
-    if caret_visible(image): raise CaretVisible('The text caret covers the description; capture again without input.')
+    # Only a pasted description can be clipped by the caret. Before the paste, slot 20's caret rests at the
+    # empty field's start without blinking off (25 Oct); the placeholder rule below already allows it.
+    if caption is not None and caret_visible(image): raise CaretVisible('The text caret covers the description; capture again without input.')
     lines = rows_between(text, 120, 330, 15, 340)
     if caption is None:
         # The pink caret can sit on the placeholder's 'A' ('hcld description...', 'VAdd description...',
