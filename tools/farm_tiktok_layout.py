@@ -164,6 +164,7 @@ NAV = (('home', (25, 1012, 80, 1040)), ('friends', (118, 1012, 182, 1040)), ('in
 
 
 FEED_HEADER = (90, 62, 360, 108)
+FEED_TABS = {'following', 'shop', 'community', 'explore', 'friends'}   # The feed's own header tabs.
 
 
 def tiktok_feed(frame, text):
@@ -172,9 +173,10 @@ def tiktok_feed(frame, text):
     if not words_at(text, 'following', (150, 60, 300, 110)):
         # A video's own title can cover the light header (slot 20, 22 Oct); the header row is read
         # again alone, enlarged, and 'Following' must sit in the same place.
-        from farm_reel_layout import band_words
-        require(any(t.casefold() == 'following' and 150 <= x0 and x1 <= 300 for t, x0, _, x1, _ in band_words(frame, FEED_HEADER)),
-                'The TikTok feed header is not recognized.')
+        # Over a bright photo even the enlarged read can lose 'Following' while it still reads another of
+        # the feed's own tabs ('Shop', slot 20, 25 Oct); any of them in the header row marks the feed.
+        words = [re.sub(r'[^a-z ]', '', t.casefold()) for t, x0, _, x1, _ in band_words(frame, FEED_HEADER)]
+        require(any(w in FEED_TABS for w in words), 'The TikTok feed header is not recognized.')
     # Feed captions and comments sit in this band; a dialog elsewhere still stops.
     no_overlay({**text, 'lines': [r for r in text.get('lines', []) if not r.get('words')
                                   or not 780 <= min(w['y'] for w in r['words']) < 1000]})
@@ -431,8 +433,9 @@ def tiktok_details(frame, text, reference, caption=None, *, reopened=False):
     no_overlay(text, (DETAILS_CANCEL,) if reopened else ())
     # A white video washes out 'Preview' and slot 20's parked pointer lands on 'Edit cover' ('dit1Cover',
     # 23 Oct); either label read, or the pointer-clipped one, marks the card. Its media is matched below.
-    # ('ditlCov' when the video's progress bar shows through the pill, 23 Oct.)
-    edit = [r for r in rows_between(text, 280, 310, 370, 460) if re.fullmatch(r'e?dit\W?\w?\s*cov(er)?', r.casefold())]
+    # ('ditlCov' when the video's progress bar shows through the pill, 23 Oct; 'dit1CovÅr' and
+    # '•EditlCovcr', 25 Oct: slot 20's parked pointer rests on this label.)
+    edit = [r for r in rows_between(text, 280, 310, 370, 460) if re.search(r'dit.{0,2}c[o0]v', r.casefold())]
     require(words_at(text, 'preview', (350, 125, 425, 155)) or line_at(text, 'edit cover', (370, 280, 460, 310)) or edit,
             'The TikTok cover card is not recognized.')
     require(words_at(text, 'hashtags', (40, 340, 140, 372)) and words_at(text, 'mention', (160, 340, 250, 372)),
@@ -448,7 +451,11 @@ def tiktok_details(frame, text, reference, caption=None, *, reopened=False):
     else: require(not any(header), 'These are not new TikTok draft details.')
     if caret_visible(image): raise CaretVisible('The text caret covers the description; capture again without input.')
     lines = rows_between(text, 120, 330, 15, 340)
-    if caption is None: require(lines == ['Add description...'], 'The new TikTok description is not empty.')
+    if caption is None:
+        # The pink caret can sit on the placeholder's 'A' ('hcld description...', 'VAdd description...',
+        # slot 20, 25 Oct); only the placeholder's own words count, never a pasted caption.
+        require(len(lines) == 1 and (lines[0] == 'Add description...' or re.fullmatch(r'.{0,4}d description\.{2,3}', lines[0])),
+                'The new TikTok description is not empty.')
     else: require(lines == [caption], 'The visible TikTok description is missing, different or wrapped.')
     cover = media_match(frame, (345, 122, 475, 313), reference, 'card', image=image,
                         ignore=((345, 122, 425, 152), (345, 278, 475, 313)))

@@ -310,7 +310,13 @@ class CreationWorkflow(Workflow):
         self.step(visit+'-open-'+name,'app_result',point=lambda v,f:app_target(v['text'],name,f))
 
     def account_profile(self,label):
-        value,_=self.observe('account_entry')
+        try:value,_=self.observe('account_entry')
+        except InspectionStopped as stop:
+            # Reopened Instagram can be caught crossfading from the profile to its feed (25 Oct, slot 18):
+            # one later frame is read again, without input. A permission prompt keeps its own handling.
+            if hasattr(stop,'decision'):raise
+            self.pause(1.0)
+            value,_=self.observe('account_entry')
         if value['result'].get('screen')!='profile':
             self.step(label,'instagram_navigation',point=(447,1008))
         try:self.observe('profile')

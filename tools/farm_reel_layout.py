@@ -187,6 +187,10 @@ def reel_compare(role):
 
 def reel_create(frame, text):
     """The observed Create sheet; OCR often omits 'Reel', so its icon is required too."""
+    if not create_menu_controls(frame, text) and line_at(text, 'edit profile', (40, 395, 220, 440)):
+        # The profile still shows after '+' (slot 18, 25 Oct): the sheet may slide up a moment later,
+        # so a later frame is read again without input.
+        raise SheetPending('The Instagram Create sheet has not opened yet; capture again without input.')
     require(create_menu_controls(frame, text), 'The Instagram Create sheet is not recognized.')
     reel_control(frame, 'reel_row_icon')
     label = words_at(text, 'reel', (60, 555, 140, 600))
@@ -379,7 +383,8 @@ def reel_details(frame, text, reference, caption=None, *, reopened=False):
         reel_control(frame, 'details_back')
     lines = rows_between(text, 470, 530, 10, 490)
     if caption is None:
-        require(lines == ['Add a caption...'], 'The new Reel caption is not empty.')
+        # OCR may drop a dot of the placeholder's ellipsis ('Add a caption..', slot 18, 25 Oct).
+        require(len(lines) == 1 and re.fullmatch(r'Add a caption(\.{2,3}|…)', lines[0]), 'The new Reel caption is not empty.')
     else:
         require(lines == [caption], 'The visible Reel caption is missing, different or wrapped.')
     cover = video_match(frame, (160, 136, 340, 456), reference, ignore=((182, 148, 270, 190), (180, 402, 295, 448)))

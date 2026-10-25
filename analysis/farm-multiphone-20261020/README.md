@@ -265,3 +265,14 @@ a test in `tools/test_farm_safari_start.py`.
 - YouTube relaunch checks 3-4: the switcher key was once ignored (now sent once more while the app is
   still full screen); after the cold start the camera asks 'Continue your draft video?', the mirror
   stays live, and a pointer tap on 'Start over' is ignored. Parked for a supervised validation window.
+
+### 25 Oct afternoon: repeat runs (priority 2)
+
+- **Reel (slot 18): runs 40 and 42 verified** (two more independent drafts; 22 Oct's is the first).
+  Stops in between, each safe and fixed: the empty caption read as 'Add a caption..' (39); Instagram
+  caught crossfading from the profile to its feed when reopened (41, one read-only re-read); the
+  Create sheet not yet open after '+' (43, read-only wait like the share sheet).
+- **TikTok (slot 20): runs 68-71 stopped safely**, each fixed: the feed header over a bright photo
+  ('Shop' counts as a feed tab); slot 20's parked pointer resting on 'Edit cover' ('dit1CovÅr',
+  '•EditlCovcr'; the label is searched, the cover's media match still decides); the pink caret on the
+  empty description's 'A' ('hcld description...').

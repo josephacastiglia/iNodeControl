@@ -366,9 +366,11 @@ class TikTokFeedHeaderTests(unittest.TestCase):
         nav = [(name, box[0] + 2, box[1] + 2, box[0] + 30, box[1] + 14) for name, box in tt.NAV]
         screen = text(*[(name.capitalize(), x0, y0, x1, y1) for name, x0, y0, x1, y1 in nav])
         for row in screen['lines']: row['words'][0]['text'] = row['text'] = row['text'].casefold()
-        with mock.patch.object(reel, 'band_words', return_value=[('Community', 99, 76, 190, 92), ('Following', 213, 76, 290, 92)]):
+        with mock.patch.object(tt, 'band_words', return_value=[('Community', 99, 76, 190, 92), ('Following', 213, 76, 290, 92)]):
             self.assertEqual((450, 1005), tt.tiktok_feed(b'frame', screen)['profileTarget'])   # 22 Oct, slot 20.
-        with mock.patch.object(reel, 'band_words', return_value=[('Following', 320, 76, 400, 92)]), self.assertRaises(InspectionStopped):
+        with mock.patch.object(tt, 'band_words', return_value=[("Fb!19wiK9'", 150, 76, 290, 92), ("'Shop'.", 300, 76, 340, 92)]):
+            self.assertEqual((450, 1005), tt.tiktok_feed(b'frame', screen)['profileTarget'])   # 25 Oct: only 'Shop' read.
+        with mock.patch.object(tt, 'band_words', return_value=[('Sponsored', 150, 76, 260, 92)]), self.assertRaises(InspectionStopped):
             tt.tiktok_feed(b'frame', screen)
 
 
