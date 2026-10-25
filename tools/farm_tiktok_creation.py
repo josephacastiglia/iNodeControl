@@ -49,7 +49,8 @@ MOVING = {
     'tiktok_reopened_details': ((15, 120, 340, 330),),
     'tiktok_drafts': ((0, 125, 500, 175),),
 }
-CARET_ATTEMPTS = 4          # Settled observations until one shows the description without the caret.
+CARET_ATTEMPTS = 6          # Settled observations until one shows the description without the caret.
+CARET_PAUSES = (.35, .85)   # Alternating by about half a blink, as on YouTube (phase lock, 23 Oct).
 READ_ONLY_VERIFY = True     # The verifier never reopens a saved TikTok draft (see TikTokVerification.run).
 DRAFTS_BACK = (30, 85)      # The Drafts grid's back arrow (template tt_back).
 SOUND_CAPTURES = 8          # Read-only editor observations until the sound control settles.
@@ -180,7 +181,7 @@ class TikTokCreationWorkflow(ReelCreationWorkflow):
         def journal(event):
             self.record['transitionChecks'].append(event); self.save()
         for attempt in range(CARET_ATTEMPTS):
-            self.pause(PRE_SETTLE[role] if attempt == 0 else .35)
+            self.pause(PRE_SETTLE[role] if attempt == 0 else CARET_PAUSES[attempt % 2])
             if role in SETTLED:
                 value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
                     journal=journal, monotonic=self.monotonic, pause=self.pause,

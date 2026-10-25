@@ -624,6 +624,13 @@ def download_rows(text, left=85, top=560, bottom=1000):
              ''.join(i[4].replace(' ', '') for i in sorted(items))) for _, items in rows]
 
 
+def code_similarity(name, code):
+    """How closely an OCR'd download name's code (after 'imouse-<route>-') reads as `code`, 0..1."""
+    import difflib
+    tail = re.sub(r'^i?mouse(reel|tt|x|yt)?', '', re.sub(r'[^a-z]', '', name.casefold()))
+    return difflib.SequenceMatcher(None, tail, code).ratio()
+
+
 def downloads_list(text, download, byte_count, frame=None):
     exact(text, 'Downloads', (185, 512, 315, 548)); exact(text, 'Done', (18, 512, 90, 548)); exact(text, 'Clear', (415, 512, 490, 548))
     # The name's last part is this package's own six-letter code (no look-alike letters), so the
@@ -632,8 +639,16 @@ def downloads_list(text, download, byte_count, frame=None):
     # OCR can also drop the dash and the 'reel' part ('mouse' + 'htxkyd', 22 Oct, slot 18).
     names = [row[:4] for row in download_rows(text) if row[4] == download or row[4].endswith('-' + code)
              or (row[4].endswith(code) and re.match(r'i?mouse', row[4]))]
-    require(len(names) == 1 and len([row for row in download_rows(text) if code in row[4]]) == 1,
-            'The package download is absent or ambiguous.')
+    exact_read = len(names) == 1 and len([row for row in download_rows(text) if code in row[4]]) == 1
+    if not exact_read and not names:
+        # OCR can mangle the code itself ('imouse-reel-eareef' read 'mouse' + '— a reef', slot 18, 25 Oct).
+        # Then only the newest row may stand in for it: its code reads closer than .8 to this package's
+        # and every other row's code reads at most .5. The preview header and media are checked next.
+        scored = [(code_similarity(row[4], code), row) for row in download_rows(text) if not re.fullmatch(r'\d+KB|\d+(\.\d)?MB', row[4])]
+        close = [row for score, row in scored if score >= .8]
+        exact_read = (len(close) == 1 and close[0] is scored[0][1] and all(score <= .5 for score, row in scored[1:]))
+        names = [close[0][:4]] if exact_read else []
+    require(exact_read, 'The package download is absent or ambiguous.')
     x0, y0, x1, y1 = names[0]
     sizes = rows_between(text, y1+4, y1+30, 85, 400)
     if not sizes and frame is not None:

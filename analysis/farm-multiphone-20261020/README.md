@@ -276,3 +276,9 @@ a test in `tools/test_farm_safari_start.py`.
   ('Shop' counts as a feed tab); slot 20's parked pointer resting on 'Edit cover' ('dit1CovÅr',
   '•EditlCovcr'; the label is searched, the cover's media match still decides); the pink caret on the
   empty description's 'A' ('hcld description...').
+- Later: Reel 44 stopped on a mangled download code ('imouse-reel-eareef' read 'mouse' + '— a reef';
+  now the newest row may stand in only when its code reads >= .8 alike and every other row <= .5);
+  TikTok 72 on slot 20's lighter pink caret clipping the pasted text (caret colour widened, retry
+  pauses alternate as on YouTube). **Reel 45 and 46 verified back to back with no change between.**
+  TikTok 73 saved; its verifier met two drafts (the 'Sort by' row appears, but slot 20's covers
+  still fill the tile; both crops are compared) and **check 2 verified it**.

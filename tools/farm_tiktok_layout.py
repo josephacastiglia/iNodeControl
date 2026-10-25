@@ -153,7 +153,8 @@ def caret_visible(image, box=(15, 120, 340, 330)):
     """TikTok's pink caret: a thin vertical run of accent pixels in the description area."""
     left, top, right, bottom = box
     part = image[top:bottom, left:right].astype(int)
-    pink = (part[..., 0] > 200) & (part[..., 1] < 140) & (part[..., 2] < 175) & (part[..., 0]-part[..., 1] > 90)
+    # Slot 20 draws it a lighter pink ((254, 142, 171), 25 Oct) than C24C did.
+    pink = (part[..., 0] > 200) & (part[..., 1] < 165) & (part[..., 2] < 200) & (part[..., 0]-part[..., 1] > 80)
     return bool((pink.sum(axis=0) >= 12).any())
 
 
@@ -528,10 +529,12 @@ def tiktok_drafts(frame, text, reference):
                     require((image[top+5:bottom-5, a:b].min(axis=2) > 235).mean() > .97, 'TikTok drafts grid geometry changed.')
             # (Slot 20's tiles end up to 2 px lower, 24 Oct.)
             require((image[bottom+2:bottom+5, left+5:right-5].min(axis=2) > 235).mean() > .97, 'TikTok drafts grid geometry changed.')
-            # Slot 20's cover fills its tile edge to edge, a pixel lower (24 Oct); C24C's sits 2 px inside.
-            cover = (left+2, top, right-1, bottom+1) if shift else (left+2, top+2, right-2, bottom-2)
-            match = media_match(frame, cover, reference, 'portrait', image=image,
-                                ignore=((left, top, left+62, top+62), (left, bottom-55, right, bottom+2)))
+            # C24C's cover sits 2 px inside its tile; slot 20's fills it edge to edge, a pixel lower, whether
+            # or not the 'Sort by' row is shown (24-25 Oct). Both crops are compared; the closer one counts.
+            ignore = ((left, top, left+62, top+62), (left, bottom-55, right, bottom+2))
+            match = min((media_match(frame, cover, reference, 'portrait', image=image, ignore=ignore)
+                         for cover in ((left+2, top+2, right-2, bottom-2), (left+2, top, right-1, bottom+1))),
+                        key=lambda m: (not m['matched'], m['mean'] if m['mean'] is not None else 9))
             if not match['matched'] and match['mean'] is not None and match['mean'] <= .1:
                 # A narrow miss on slot 20's rounded, shaded cover (.068, 24 Oct) is decided by its colour blocks.
                 match = dict(match, **tile_colours(image, (left+2, top+2, right-2, bottom-2), reference, 'portrait'))
