@@ -10,7 +10,7 @@ Last updated: 25 Oct 2026.
 | # | Priority | Where it stands | What is left |
 |---|---|---|---|
 | 1 | New content to a verified draft | **All four first formats verified:** Instagram carousel (C24C, 17-19 Oct), Instagram Reel (slot 18, 22 Oct), X video (slot 17, 23 Oct, prep 71), YouTube Short (slot 16, 23 Oct, prep 65), TikTok video (slot 20, 24 Oct, prep 67). | Every further format or account needs its own first pass. |
-| 2 | Repeatability and recovery | Runs back out of leftover screens on all four phones; unsaved leftovers are discarded under the operator's standing approval. `close_app.py` closes an app from the switcher; `relaunch_check.py` closes and cold-starts the app, then reruns the read-only check. **Back to back: Reel runs 45 and 46 verified in a row with no change between (25 Oct).** **Survive an app relaunch: TikTok (24 Oct), Instagram Reel (25 Oct).** **X: the video draft did not.** YouTube: survived a force-close overnight; the formal check stops on a camera prompt that ignores pointer taps (below). | YouTube relaunch check; back-to-back runs on TikTok, X and YouTube; unattended recovery. |
+| 2 | Repeatability and recovery | Runs back out of leftover screens on all four phones; unsaved leftovers are discarded under the operator's standing approval. `close_app.py` closes an app from the switcher; `relaunch_check.py` closes and cold-starts the app, then reruns the read-only check. **Back to back: Reel runs 45 and 46, and TikTok runs 75 and 76, each verified in a row with no change between (25 Oct).** **Survive an app relaunch: TikTok (24 Oct), Instagram Reel (25 Oct).** **X: the video draft did not.** YouTube: survived a force-close overnight; the formal check stops on a camera prompt that ignores pointer taps (below). | YouTube relaunch check; back-to-back runs on X and YouTube; unattended recovery. |
 | 3 | Platform coverage | Reel, X, YouTube and TikTok video verified. Permission-prompt validation merged (24 Oct). | TikTok photo (sound kept) and X image. Story, text, thread and long video stay unsupported. |
 | 4 | Scheduler and warmup | Local preparation and simulations only. | Review queue, scheduled phone runs, real daily budgets, unattended restart. |
 | 5 | Analytics | Observations keep evidence; low-view rules can pause a schedule. | A real metrics source, checked against actual account numbers. |
@@ -29,7 +29,7 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
 | Instagram Reel | 18 (C24C) | Verified 22 Oct and in runs 40, 42, 45, 46 (45-46 back to back); **survives an app relaunch** | Longer unattended series. |
 | X video | 17 (724E) | Verified 23 Oct, prep 71; **video lost after an app relaunch** | Decided: X video drafts are short-lived (below). |
 | YouTube Short | 16 (F215) | Verified 23 Oct (read-only check 3) | Relaunch check: after a cold start the camera asks 'Continue your draft video?', and that alert ignores pointer taps. |
-| TikTok video | 20 (C214) | Verified in runs 67 and 73; **survives an app relaunch** | Back-to-back pair. |
+| TikTok video | 20 (C214) | Verified in runs 67, 73, 75 and 76 (75-76 back to back); **survives an app relaunch** | Longer unattended series. |
 
 ## Waiting for the operator
 
@@ -83,3 +83,5 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
   OCR ('Add a caption..', mangled download codes, header tabs, 'Edit cover' under the pointer,
   the caret on placeholders), an Instagram crossfade, a late Create sheet, slot 20's lighter caret
   and its two drafts-grid layouts.
+- 25 Oct evening: TikTok 75 and 76 verified back to back with no change between, after the caret
+  retry was limited to fields that already hold a pasted description.

@@ -282,3 +282,6 @@ a test in `tools/test_farm_safari_start.py`.
   pauses alternate as on YouTube). **Reel 45 and 46 verified back to back with no change between.**
   TikTok 73 saved; its verifier met two drafts (the 'Sort by' row appears, but slot 20's covers
   still fill the tile; both crops are compared) and **check 2 verified it**.
+- TikTok 74 stopped on the caret resting at the empty description's start (slot 20's caret does
+  not blink off there; the retry now applies only once a description is pasted). **TikTok 75 and 76
+  verified back to back with no change between**, each in one pass.
