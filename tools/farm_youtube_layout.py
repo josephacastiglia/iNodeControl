@@ -146,15 +146,20 @@ def yt_home(frame, text, *, saved=False):
     return dict(createTarget=target, navLayout=layout, toastSeen=bool(line_at(text, 'draft saved', TOAST[1])))
 
 
+RECORD_CORE = (236, 831, 264, 859)   # The record button's centre: red, or white with the effects row.
+
+
 def yt_camera(frame, text):
     """The Short camera opened by +. Only Add (gallery) and Drafts are ever targets; record, Live and Post never."""
     for label, box in (('video', (135, 978, 200, 1008)), ('short', (218, 978, 282, 1008)), ('live', (300, 978, 352, 1008)),
                        ('post', (370, 978, 425, 1008)), ('add', (25, 878, 65, 900))):
         require(words_at(text, label, box), 'The YouTube camera is not recognized: ' + label)
     require(line_at(text, 'add sound', (215, 110, 320, 140)), 'The YouTube camera is not recognized: add sound')
-    control(frame, 'yt_camera_record')
-    no_overlay(text)
     image = pixels(frame, exact=True)
+    # The record button is red, or white with the effects row beside it (after Start over, slot 16, 26 Oct).
+    if not present(frame, 'yt_camera_record'):
+        require(white_fraction(image, RECORD_CORE) >= .95, 'YouTube control changed: yt_camera_record')
+    no_overlay(text)
     def tab(left, right):   # Background behind a mode label, its bright letters left out.
         part = image[970:1012, left:right].reshape(-1, 3)
         part = part[part.max(axis=1) < 120]
@@ -163,6 +168,19 @@ def yt_camera(frame, text):
     require(tab(214, 286) - max(others) >= 25, 'The YouTube camera is not in Short mode.')
     drafts = words_at(text, 'drafts', (428, 878, 482, 900))
     return dict(addTarget=(46, 847), draftsTarget=(455, 846) if drafts else None)
+
+
+def yt_draft_prompt(text):
+    """YouTube's own 'Continue your draft video?' dialog over the Short camera, met after a cold start
+    (slot 16, 23-26 Oct): 'Starting over will save the draft and start a new Short.' Start over is the
+    target, at the centre of its OCR label; a tap 33 px above it, on the dialog body, did nothing, and
+    the centre closed the dialog (26 Oct). Continue (reopening the unfinished draft) is never a target."""
+    require(line_at(text, 'continue your draft video?', (90, 465, 415, 515)), 'No YouTube draft prompt is shown.')
+    require(line_at(text, 'continue', (300, 590, 420, 640)), 'The draft prompt\'s Continue button is not recognized.')
+    start = line_at(text, 'start over', (185, 590, 320, 640))
+    require(start, 'The draft prompt\'s Start over button is not recognized.')
+    left, top, right, bottom = start[0]
+    return dict(target=((left + right) // 2, (top + bottom) // 2))
 
 
 # ---- Gallery picker ------------------------------------------------------------------------
@@ -183,7 +201,10 @@ def _picker_header(frame, text, role):
                     and 15 <= min(w['x'] for w in line['words']) <= 40 and 65 <= min(w['y'] for w in line['words']) <= 95
                     for line in text.get('lines', [])),
                 'The YouTube gallery picker is not recognized.')
-        require(line_at(text, 'create video', (190, 160, 310, 195)), 'The YouTube picker header is not recognized.')
+        # Create video alone in the middle (22 Oct), or beside a Drafts button on the left (slot 16, 26 Oct,
+        # when the Short camera no longer shows Drafts); the grid below is the same.
+        require(line_at(text, 'create video', (190, 160, 310, 195)) or gallery_drafts(text),
+                'The YouTube picker header is not recognized.')
         # This gallery draws the first column one pixel wider (to x 164) in its second row.
         dy, gutters = -86, ((165, 168), (333, 336))
     no_overlay(chrome_only(text, role))
@@ -192,6 +213,25 @@ def _picker_header(frame, text, role):
         require((image[300+dy:860+dy, x0:x1].max(axis=2) < 40).mean() > .95, 'YouTube picker grid geometry changed.')
     require((image[589+dy:593+dy, 5:495].max(axis=2) < 40).mean() > .95, 'YouTube picker grid geometry changed.')
     return image, dy
+
+
+def gallery_drafts(text):
+    """The gallery's Drafts button (left) beside Create video (right), slot 16, 26 Oct: Drafts' centre or None."""
+    drafts = words_at(text, 'drafts', (90, 160, 170, 195))
+    if not drafts or not line_at(text, 'create video', (300, 160, 440, 195)): return None
+    return 128, 177
+
+
+def yt_gallery(frame, text):
+    """The gallery opened from the Short camera's Add, used by the read-only verifier only to reach Drafts
+    (slot 16, 26 Oct). Media and Create video are never targets here; its X returns to the camera."""
+    _picker_header(frame, text, 'yt_picker')
+    target = gallery_drafts(text)
+    require(target, 'The YouTube gallery shows no Drafts button.')
+    return dict(draftsTarget=target, closeTarget=GALLERY_CLOSE)
+
+
+GALLERY_CLOSE = (465, 87)
 
 
 def _tiles(bottom, dy=0):

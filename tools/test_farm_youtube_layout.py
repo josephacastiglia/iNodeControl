@@ -47,6 +47,18 @@ def selected_picker():
 
 
 class SyntheticYouTubeLayoutTests(unittest.TestCase):
+    def test_the_draft_prompt_targets_start_over_centre(self):
+        # The OCR of slot 16's prompt (26 Oct): Start over's two words, the second lower and shorter.
+        def row(text, *words): return dict(text=text, words=[dict(text=t, x=x, y=y, width=w, height=h) for t, x, y, w, h in words])
+        lines = [row('Continue your draft video?', ('Continue', 107, 482, 96, 19), ('your', 210, 487, 47, 18), ('draft', 264, 482, 51, 19),
+                     ('video?', 321, 482, 70, 19)),
+                 row('Start over', ('Start', 215, 610, 38, 13), ('over', 259, 613, 34, 10)), row('Continue', ('Continue', 323, 610, 71, 13))]
+        text = dict(width=500, height=1080, lines=lines)
+        self.assertEqual((254, 616), yl.yt_draft_prompt(text)['target'])
+        for missing in range(3):   # Title, Start over and Continue are each required.
+            with self.subTest(missing=missing), self.assertRaises(InspectionStopped):
+                yl.yt_draft_prompt(dict(text, lines=lines[:missing] + lines[missing+1:]))
+
     def test_title_rules_never_truncate_wrap_or_repair(self):
         self.assertTrue(yl.caption_supported('Fresh yt acceptance'))
         self.assertTrue(yl.caption_supported('y'*24))
@@ -75,6 +87,34 @@ class SyntheticYouTubeLayoutTests(unittest.TestCase):
         text = dict(width=500, height=1080, lines=[word('Paste', 75, 94, 45), word('AutoFill', 140, 94, 70)])
         self.assertEqual((98, 102), yl.yt_paste_menu(frame, text)['target'])
         with self.assertRaises(InspectionStopped): yl.yt_paste_menu(frame, dict(text, lines=text['lines'][:1]))
+
+
+LIVE26 = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261026-youtube-gallery-drafts'
+
+
+def live26(name):
+    text = json.loads((LIVE26/f'{name}.json').read_text(encoding='utf-8'))
+    return (LIVE26/f'{name}.bmp').read_bytes(), text
+
+
+@unittest.skipUnless((LIVE26/'gallery.bmp').exists(), 'Slot 16 frames of 26 Oct are not available in this checkout.')
+class Slot16CameraGalleryTests(unittest.TestCase):
+    def test_the_draft_prompt_is_answered_at_start_over_and_is_not_the_camera(self):
+        frame, text = live26('prompt')
+        self.assertEqual((254, 616), yl.yt_draft_prompt(text)['target'])
+        with self.assertRaises(InspectionStopped): yl.yt_camera(frame, text)
+
+    def test_the_white_record_button_camera_has_no_drafts_button(self):
+        frame, text = live26('camera-white')
+        self.assertEqual(((46, 847), None), tuple(yl.yt_camera(frame, text)[k] for k in ('addTarget', 'draftsTarget')))
+        with self.assertRaises(InspectionStopped): yl.yt_draft_prompt(text)
+
+    def test_the_gallery_offers_drafts_beside_create_video(self):
+        for name in ('gallery', 'gallery-back'):
+            frame, text = live26(name)
+            self.assertEqual(dict(draftsTarget=(128, 177), closeTarget=(465, 87)), yl.yt_gallery(frame, text))
+        frame, text = live26('camera-white')
+        with self.assertRaises(InspectionStopped): yl.yt_gallery(frame, text)
 
 
 @unittest.skipUnless(PRIVATE, 'Retained private C24C YouTube frames/OCR are not available in this checkout.')

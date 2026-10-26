@@ -10,7 +10,7 @@ Last updated: 25 Oct 2026.
 | # | Priority | Where it stands | What is left |
 |---|---|---|---|
 | 1 | New content to a verified draft | **All four first formats verified:** Instagram carousel (C24C, 17-19 Oct), Instagram Reel (slot 18, 22 Oct), X video (slot 17, 23 Oct, prep 71), YouTube Short (slot 16, 23 Oct, prep 65), TikTok video (slot 20, 24 Oct, prep 67). | Every further format or account needs its own first pass. |
-| 2 | Repeatability and recovery | Runs back out of leftover screens on all four phones; unsaved leftovers are discarded under the operator's standing approval. `close_app.py` closes an app from the switcher; `relaunch_check.py` closes and cold-starts the app, then reruns the read-only check. **Back to back: Reel runs 45 and 46, TikTok runs 75 and 76, and X runs 72 and 73, each verified in a row with no change between (25 Oct).** **Survive an app relaunch: TikTok (24 Oct), Instagram Reel (25 Oct).** **X: the video draft did not.** YouTube: survived a force-close overnight; the formal check stops on a camera prompt that ignores pointer taps (below). | YouTube relaunch check; back-to-back runs on YouTube; unattended recovery. |
+| 2 | Repeatability and recovery | Runs back out of leftover screens on all four phones; unsaved leftovers are discarded under the operator's standing approval. `close_app.py` closes an app from the switcher; `relaunch_check.py` closes and cold-starts the app, then reruns the read-only check. **Back to back: Reel runs 45 and 46, TikTok runs 75 and 76, and X runs 72 and 73, each verified in a row with no change between (25 Oct).** **Survive an app relaunch: TikTok (24 Oct), Instagram Reel (25 Oct), YouTube (26 Oct, check 17).** **X: the video draft did not.** YouTube's 'Continue your draft video?' prompt is answered automatically (Start over). | Back-to-back runs on YouTube; unattended recovery. |
 | 3 | Platform coverage | Reel, X, YouTube and TikTok video verified. Permission-prompt validation merged (24 Oct). | TikTok photo (sound kept) and X image. Story, text, thread and long video stay unsupported. |
 | 4 | Scheduler and warmup | Local preparation and simulations only. | Review queue, scheduled phone runs, real daily budgets, unattended restart. |
 | 5 | Analytics | Observations keep evidence; low-view rules can pause a schedule. | A real metrics source, checked against actual account numbers. |
@@ -28,15 +28,13 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
 |---|---|---|---|
 | Instagram Reel | 18 (C24C) | Verified 22 Oct and in runs 40, 42, 45, 46 (45-46 back to back); **survives an app relaunch** | Longer unattended series. |
 | X video | 17 (724E) | Verified 23 Oct (prep 71) and in runs 72 and 73 (back to back); **video lost after an app relaunch** | Decided: X video drafts are short-lived (below). |
-| YouTube Short | 16 (F215) | Verified 23 Oct (read-only check 3) | Relaunch check: after a cold start the camera asks 'Continue your draft video?', and that alert ignores pointer taps. |
+| YouTube Short | 16 (F215) | Verified 23 Oct (read-only check 3); **survives an app relaunch** (26 Oct) | Back-to-back pair; a new creation run on the 26 Oct camera layout. |
 | TikTok video | 20 (C214) | Verified in runs 67, 73, 75 and 76 (75-76 back to back); **survives an app relaunch** | Longer unattended series. |
 
 ## Waiting for the operator
 
-1. Phone 16: after every YouTube cold start the Short camera asks 'Continue your draft video?'. The
-   mirror is live (the earlier freeze was not permanent), but a pointer tap on 'Start over' is ignored,
-   as the prompt-validation work found for alerts. Does a finger tap on 'Start over' clear it? If yes,
-   a supervised prompt-validation window (operator watching) can find an input it accepts.
+1. ~~Phone 16's 'Continue your draft video?' prompt~~: solved 26 Oct without the operator. The earlier
+   tap had missed the button (y 583, the button is at y 616); a tap at its centre works.
 2. ~~Phone 20 AssistiveTouch~~: 'Always Show Menu' turned off by the operator (23 Oct).
 3. ~~Merge the prompt-validation branch~~: merged 23 Oct on the operator's yes.
 4. Cleanup (operator: 'you do'). Saved drafts are deleted permanently, so the operator deletes leftover
@@ -87,3 +85,10 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
   retry was limited to fields that already hold a pasted description.
 - 25 Oct evening: X 72 and 73 verified back to back with no change between (two same-text drafts;
   the thumbnail tells them apart).
+- 26 Oct: YouTube relaunch solved. 'Continue your draft video?' is YouTube's own dialog, not an iOS
+  alert; the "ignored" tap had landed 33 px above Start over. Creation, the verifier and the start
+  screen now answer it with Start over (saves the draft) at the label's centre. Phone 16's mirror had
+  silently stopped for 9 h (full kernel restart). Switcher swipes on slot 16 fail about half the time
+  with no visible change: up to 3 swipes on the same card. The camera lost its Drafts button (white
+  record button, effects row); Drafts is now reached through the Add gallery. **Relaunch check 17
+  passed.**

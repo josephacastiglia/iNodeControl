@@ -34,7 +34,7 @@ PENDING = 'pending-youtube-channel'   # Expected-account placeholder until Add d
 SHARED = ('reel_safari_entry', 'reel_page', 'reel_caption_copied', 'link_menu', 'page_menu', 'downloads', 'quicklook',
           'quicklook_controls', 'share_sheet')
 PRE_SETTLE = {**{role: REEL_PRE_SETTLE[role] for role in SHARED},
-              'yt_home': .8, 'yt_home_saved': .8, 'yt_camera': .8, 'yt_picker': .8, 'yt_picker_selected': .6, 'yt_trim': 1.0, 'yt_editor': 1.0,
+              'yt_home': .8, 'yt_home_saved': .8, 'yt_camera': .8, 'yt_camera_entry': .8, 'yt_draft_prompt': .8, 'yt_gallery': .8, 'yt_picker': .8, 'yt_picker_selected': .6, 'yt_trim': 1.0, 'yt_editor': 1.0,
               'yt_details_blank': .6, 'yt_details_focused': .4, 'yt_paste_menu': .4, 'yt_details': .6, 'yt_drafts': .8,
               'yt_reopened_editor': 1.0, 'yt_playing': .8, 'yt_reopened_details': .6}
 # A callout and the playing editor are captured once; every other screen needs two agreeing fresh frames.
@@ -51,7 +51,9 @@ MOVING = {
     'yt_home': ((0, 110, 500, 980),),                                   # Feed plays; header and bar protected.
     'yt_home_saved': ((0, 110, 500, 1040),),                            # ... and the Draft saved toast slides over the bar.
     'yt_camera': ((0, 65, 500, 975), INDICATOR),                        # Live camera preview, fading tool labels.
-    'yt_picker': (INDICATOR,), 'yt_picker_selected': (INDICATOR,),
+    'yt_camera_entry': ((0, 65, 500, 975), INDICATOR),                  # The camera, or its draft prompt over it.
+    'yt_draft_prompt': ((0, 65, 500, 445), (0, 652, 500, 975), (0, 445, 75, 652), (425, 445, 500, 652), INDICATOR),   # Around the dialog.
+    'yt_picker': (INDICATOR,), 'yt_picker_selected': (INDICATOR,), 'yt_gallery': (INDICATOR,),
     'yt_trim': ((50, 154, 450, 868), (15, 70, 485, 92), (15, 875, 485, 965), INDICATOR),   # Video, its progress bar, the playhead.
     'yt_editor': ((0, 71, 500, 958), INDICATOR), 'yt_reopened_editor': ((0, 71, 500, 958), INDICATOR),
     'yt_details_blank': (TITLE,), 'yt_details_focused': (TITLE,), 'yt_details': (TITLE,), 'yt_reopened_details': (TITLE,),
@@ -62,7 +64,9 @@ READ_ONLY_VERIFY = True                    # The verifier never reopens a saved 
 DRAFTS_CLOSE, CAMERA_CLOSE = (44, 77), (44, 125)
 FORBIDDEN = {
     'yt_camera': ((195, 790, 305, 900), (120, 965, 440, 1020), (425, 95, 490, 155)),   # record, Video/Short/Live/Post, AI
+    'yt_draft_prompt': ((300, 585, 425, 648), (195, 790, 305, 900), (120, 965, 440, 1020), (425, 95, 490, 155)),   # Continue, then the camera's
     'yt_picker': ((11, 150, 489, 226),),                                                 # Create video (AI)
+    'yt_gallery': ((250, 120, 489, 205), (0, 205, 500, 1040)),                           # Create video, every media tile
     'yt_picker_selected': ((11, 150, 489, 226), (20, 965, 250, 1028)),                   # Create video, Edit with AI
     'yt_editor': ((170, 78, 330, 125), (20, 980, 245, 1030)), 'yt_reopened_editor': ((170, 78, 330, 125), (20, 980, 245, 1030)),
     'yt_playing': ((170, 78, 330, 125), (20, 980, 245, 1030)),
@@ -207,7 +211,12 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
         if role == 'yt_home': return yl.yt_home(frame, text)
         if role == 'yt_home_saved': return yl.yt_home(frame, text, saved=True)
         if role == 'yt_camera': return yl.yt_camera(frame, text)
+        if role == 'yt_camera_entry':
+            try: return dict(draftPrompt=yl.yt_draft_prompt(text))
+            except InspectionStopped: return dict(yl.yt_camera(frame, text), draftPrompt=None)
+        if role == 'yt_draft_prompt': return yl.yt_draft_prompt(text)
         if role == 'yt_picker': return yl.yt_picker(frame, text, self.video)
+        if role == 'yt_gallery': return yl.yt_gallery(frame, text)
         if role == 'yt_picker_selected': return yl.yt_picker_selected(frame, text, self.video, self.tile)
         if role == 'yt_trim': return yl.yt_trim(frame, text, self.video)
         if role in ('yt_editor', 'yt_reopened_editor', 'yt_playing'): return yl.yt_editor(frame, text, self.video)
@@ -254,6 +263,14 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
             return x, y
         return target
 
+    def past_draft_prompt(self, label):
+        """After a cold start YouTube asks 'Continue your draft video?' over the Short camera (slot 16, 23-26 Oct).
+        Start over saves that unfinished draft and starts a new Short; it is answered once, then the camera is read."""
+        entry, _, _ = self.screen('yt_camera_entry')
+        self.record['draftPromptSeen'] = self.record.get('draftPromptSeen', False) or bool(entry['draftPrompt'])
+        if entry['draftPrompt']:
+            self.tap(label + '-start-over-saves-draft', 'yt_draft_prompt', lambda v, f: yl.yt_draft_prompt(v['text'])['target'])
+
     def tap(self, label, role, point, *, hold=False):
         # The 17 Oct YouTube MP4 route used settled taps throughout; Safari keeps plain taps.
         self.step(label, role, point=self.check_target(role, point), hold=hold, settle=not hold and role.startswith('yt_'))
@@ -287,6 +304,7 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
             self.screen('yt_home')
             self.phase('select-youtube-media')
             self.tap('open-youtube-create', 'yt_home', lambda v, f: yl.yt_home(f, v['text'])['createTarget'])
+            self.past_draft_prompt('create')
             self.tap('open-youtube-gallery', 'yt_camera', lambda v, f: yl.yt_camera(f, v['text'])['addTarget'])
             def choose(value, frame):
                 found = yl.yt_picker(frame, value['text'], self.video)
@@ -330,11 +348,20 @@ class YouTubeVerification(YouTubeCreationWorkflow):
 
     def open_drafts(self, label):
         self.tap(label + '-open-create', 'yt_home', lambda v, f: yl.yt_home(f, v['text'])['createTarget'])
-        def drafts(value, frame):
-            found = yl.yt_camera(frame, value['text'])
-            require(found['draftsTarget'], 'The YouTube camera shows no Drafts button.')
-            return found['draftsTarget']
-        self.tap(label + '-open-drafts', 'yt_camera', drafts)
+        self.past_draft_prompt(label)
+        camera, _, _ = self.screen('yt_camera')
+        # The camera's Drafts button (17-25 Oct), or the gallery's (slot 16, 26 Oct: effects beside the record button).
+        self.drafts_route = 'camera' if camera['draftsTarget'] else 'gallery'
+        self.record['draftsRoute'] = self.drafts_route
+        if self.drafts_route == 'camera':
+            def drafts(value, frame):
+                found = yl.yt_camera(frame, value['text'])
+                require(found['draftsTarget'], 'The YouTube camera shows no Drafts button.')
+                return found['draftsTarget']
+            self.tap(label + '-open-drafts', 'yt_camera', drafts)
+            return
+        self.tap(label + '-open-gallery', 'yt_camera', lambda v, f: yl.yt_camera(f, v['text'])['addTarget'])
+        self.tap(label + '-open-gallery-drafts', 'yt_gallery', lambda v, f: yl.yt_gallery(f, v['text'])['draftsTarget'])
 
     def playback(self):
         """Two fresh frames of the reopened editor that match the package video at different times."""
@@ -357,6 +384,7 @@ class YouTubeVerification(YouTubeCreationWorkflow):
                 self.record['draftsBefore'] = dict(rows=found['rows'], top=found['row']['top'], title=found['row']['title'],
                                                    match=found['row']['match'])
                 self.tap('verify-close-drafts', 'yt_drafts', DRAFTS_CLOSE)
+                if self.drafts_route == 'gallery': self.tap('verify-close-gallery', 'yt_gallery', yl.GALLERY_CLOSE)
                 self.tap('verify-close-camera', 'yt_camera', CAMERA_CLOSE)
                 self.screen('yt_home')
                 self.history()

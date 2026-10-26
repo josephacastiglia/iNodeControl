@@ -24,6 +24,7 @@ from farm_start_screen import StartScreen  # noqa: E402
 from identify_phone import post  # noqa: E402
 
 BASE = 'http://127.0.0.1:9916/api'
+SWIPES = 3   # Swipes on one unchanged card before stopping.
 
 LABELS = (95, 160)   # The switcher's card labels (icon and app name) sit in this band (slot 16, 23 Oct).
 # OCR cannot read a one-letter label ('X', slot 17, 23 Oct); the card then shows the app's own header
@@ -45,7 +46,10 @@ def status_bar(text):
 
 
 def named(label, app):
-    """The card label is the app's name; OCR may clip its first letter ('ikTok', slot 20, 24 Oct)."""
+    """The card label is the app's name; OCR may clip its first letter ('ikTok', slot 20, 24 Oct) or read
+    the icon as a short token before it ('-r YouTube', slot 16, 26 Oct)."""
+    words = label.split()
+    if len(words) > 1 and all(len(w) <= 2 for w in words[:-1]): label = words[-1]
     return label == app or (len(app) >= 5 and label == app[1:])
 
 
@@ -101,13 +105,22 @@ def close(config, folder, app, purpose='close-stuck-app'):
         if not found:
             found = card_by_content(text, a.app); s.record['foundBy'] = 'card content' if found else None
         if len(found) != 1: raise InspectionStopped(f'{a.app} is not one switcher card ({s.record["labels"]}); nothing was swiped.')
-        x = max(60, min(440, found[0] + 45))   # The card's middle, right of its icon and name.
-        raw('/mouse/swipe', 'close-' + a.app.casefold(), x1=x, y1=650, x2=x, y2=120, duration=250)
-        s.pause(1.5)
-        _, text, _, _ = s.fresh('after-swipe')
-        s.record['after'] = [name for name, _ in labels(text)]
-        if any(named(name, a.app) for name in s.record['after']) or card_by_content(text, a.app):
-            raise InspectionStopped(f'{a.app} is still a switcher card; no further input.')
+        # On slot 16 (26 Oct) about half the swipes left the switcher frame unchanged, the card untouched,
+        # with or without a pointer reset first (switcher_probe.py swipe-1..4). An unchanged card is swiped
+        # again, at most SWIPES times, each on the app's own card found again in a fresh frame.
+        for attempt in range(1, SWIPES + 1):
+            x = max(60, min(440, found[0] + 45))   # The card's middle, right of its icon and name.
+            s.command('/mouse/reset', 'reset-before-swipe')
+            raw('/mouse/swipe', 'close-' + a.app.casefold(), x1=x, y1=650, x2=x, y2=120, duration=250)
+            s.pause(1.5)
+            _, text, _, _ = s.fresh(f'after-swipe-{attempt}')
+            s.record['after'] = [name for name, _ in labels(text)]
+            found = [x for name, x in labels(text) if named(name, a.app)] or card_by_content(text, a.app)
+            if not found: break
+            if len(found) != 1: raise InspectionStopped(f'{a.app} is not one switcher card after a swipe; no further input.')
+        else:
+            raise InspectionStopped(f'{a.app} is still a switcher card after {SWIPES} swipes; no further input.')
+        s.record['swipes'] = attempt
         s.command('/key/sendkey', 'home-after-close', fn_key='Home')
         s.record['state'] = 'closed'
         out = dict(state='closed', after=s.record['after'])

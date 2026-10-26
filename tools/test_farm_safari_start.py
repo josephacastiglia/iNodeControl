@@ -664,6 +664,24 @@ class AppHomeStartScreenTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): start.to_app_home('YouTube', 'youtube_home', check)
         self.assertEqual(['YouTube'], opened)
 
+    def test_youtube_backs_out_of_its_draft_prompt_and_camera_once_each(self):
+        # 26 Oct, slot 16: YouTube reopened on the Short camera, after a cold start with 'Continue your draft video?'.
+        def check(raw, text):
+            if raw != 'home': raise InspectionStopped('not yet')
+        moves = {'prompt': ((254, 616), 'youtube_draft_prompt', 'start-over-saves-draft', ()),
+                 'camera': ((44, 125), 'youtube_camera', 'close-short-camera', ())}
+        def run(screens):
+            start, _ = self.start(screens); taps = []
+            start.tap = lambda raw, text, point, role, purpose, only=None: taps.append(purpose)
+            try: return start.to_app_home('YouTube', 'youtube_home', check, back_out=lambda raw, text: moves.get(raw))['state'], taps
+            except InspectionStopped: return 'stopped', taps
+        self.assertEqual(('at_start', ['start-over-saves-draft', 'close-short-camera']),
+                         run(['other', 'prompt', 'prompt', 'prompt', 'prompt', 'camera', 'home']))
+        self.assertEqual(('at_start', ['close-short-camera']), run(['other', 'camera', 'camera', 'camera', 'camera', 'home']))
+        # A tap that changes nothing is never repeated.
+        self.assertEqual(('stopped', ['close-short-camera']), run(['other'] + ['camera'] * 8))
+        self.assertEqual(('stopped', []), run(['other', 'feed', 'feed', 'feed', 'feed']))
+
 
 class YouTubeLabelledBarTests(unittest.TestCase):
     def frame(self, plus=True):

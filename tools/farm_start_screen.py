@@ -339,12 +339,22 @@ class StartScreen:
         return self.to_app_home('X', 'x_timeline', xl.x_feed)
 
     def to_youtube_home(self):
-        """YouTube on its home feed: from anywhere, Home, then open YouTube. No tap inside YouTube;
-        a permission prompt there stops for the creation run's own prompt handling."""
-        import farm_youtube_layout as yl
-        return self.to_app_home('YouTube', 'youtube_home', yl.yt_home)
+        """YouTube on its home feed: from anywhere, Home, then open YouTube. A permission prompt there
+        stops for the creation run's own prompt handling.
 
-    def to_app_home(self, name, target, check):
+        YouTube can reopen on its Short camera (slot 16, 26 Oct), or on the camera's 'Continue your draft
+        video?' prompt after a cold start. The prompt is answered with Start over, which saves that draft
+        and starts a new Short; the empty camera is closed with its X. Nothing is recorded or posted."""
+        import farm_youtube_layout as yl
+        def back_out(raw, text):
+            try: return yl.yt_draft_prompt(text)['target'], 'youtube_draft_prompt', 'start-over-saves-draft', ((78, 450, 422, 648),)
+            except InspectionStopped: pass
+            try: yl.yt_camera(raw, text)
+            except InspectionStopped: return None
+            return (44, 125), 'youtube_camera', 'close-short-camera', ((0, 60, 500, 160), (120, 965, 440, 1020))
+        return self.to_app_home('YouTube', 'youtube_home', yl.yt_home, back_out=back_out)
+
+    def to_app_home(self, name, target, check, back_out=None):
         def ready(raw, text):
             try: check(raw, text); return True
             except InspectionStopped: return False
@@ -361,6 +371,16 @@ class StartScreen:
                 if ready(raw, text): break
                 self.pause(1.5)
                 raw, text, _, _ = self.fresh(f'after-launch-{wait + 1}')
+            done = set()   # Each back-out tap at most once, on a recognized screen; none is repeated.
+            while back_out and not ready(raw, text):
+                move = back_out(raw, text)
+                if move is None or move[2] in done: break
+                point, role, purpose, only = move; done.add(purpose)
+                self.tap(raw, text, point, role, purpose, only=only)
+                for wait in range(3):
+                    self.pause(1.5)
+                    raw, text, _, _ = self.fresh(f'after-{purpose}-{wait + 1}')
+                    if ready(raw, text) or back_out(raw, text) != move: break
             require(ready(raw, text), f'{name} did not open on its start screen; no further input.')
             self.record.update(state='at_start', after=dict(screen=target)); return self.record
         except BaseException as error:

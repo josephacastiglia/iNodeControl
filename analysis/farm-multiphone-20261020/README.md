@@ -287,3 +287,21 @@ a test in `tools/test_farm_safari_start.py`.
   verified back to back with no change between**, each in one pass.
 - **X (slot 17): runs 72 and 73 verified back to back with no change between**; run 73's Drafts held
   two drafts with the same text, told apart by the package thumbnail.
+
+### 26 Oct: YouTube's draft prompt, and the relaunch check passes
+
+- **The prompt accepts pointer taps.** 'Continue your draft video?' is YouTube's own dialog (not an iOS
+  alert). The 25 Oct tap was at (252, 583), 33 px above 'Start over' (OCR centre (254, 616)), on the
+  dialog body. A tap at the label's centre closed it (nav-15). `yt_draft_prompt` finds Start over by OCR;
+  creation and the verifier answer it once (`past_draft_prompt`, Continue is forbidden), and the
+  `youtube-home` start screen backs out of it and of an open Short camera (each tap at most once).
+- Phone 16's mirror had delivered no frame for 9 h while 'mirroring'; `/device/airplay/disconnect` is
+  refused for a live phone, so the rack was restarted (all four reconnected on the first try).
+- Switcher swipes on slot 16 failed about half the time with the frame unchanged (`switcher_probe.py`,
+  swipe-1..4, with and without a pointer reset). `close_app.py` resets the pointer and swipes the
+  app's card up to 3 times, finding it again each time; OCR may read the icon as '-r YouTube'.
+- The Short camera changed: a white record button with an effects row and **no Drafts button**. The
+  verifier reaches Drafts through Add -> the gallery's Drafts button, and closes Drafts -> gallery
+  (X at 465, 87) -> camera. Same Drafts list.
+- **YouTube relaunch check 17 passed**: closed from the switcher, cold-started, exactly one 'Fresh short
+  test' draft with the package video. Checks 5-16 stopped safely on the issues above.

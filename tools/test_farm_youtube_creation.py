@@ -100,6 +100,9 @@ class Screens:
         r17('yt_home_kept', '150-youtube-resave-verified-video')
         r17('yt_camera_closing', '146-youtube-draft-route')   # The camera again after Drafts closes.
         self.frames['yt_selected'], self.texts['yt_selected'] = layout.selected_picker()
+        if (layout.LIVE26/'gallery.bmp').exists():   # Slot 16, 26 Oct: Drafts only in the gallery.
+            for key, name in (('yt_camera_white', 'camera-white'), ('yt_gallery', 'gallery'), ('yt_gallery_back', 'gallery-back')):
+                self.frames[key], self.texts[key] = layout.live26(name)
         self.synthetic()
 
     def synthetic(self):
@@ -127,6 +130,18 @@ class Screens:
         text['lines'] += [line('Paste', 75, 94, 45), line('AutoFill', 140, 94, 70)]
         self.texts['yt_paste_menu'] = text
         self.targets['paste'] = (98, 102)
+        # YouTube's 'Continue your draft video?' dialog over the Short camera after a cold start (slot 16, 26 Oct).
+        for camera in ('yt_camera', 'yt_camera_drafts'):
+            with Image.open(io.BytesIO(self.frames[camera])) as base:
+                image = base.convert('RGB'); draw = ImageDraw.Draw(image)
+                draw.rectangle((78, 450, 422, 648), fill='white')
+                for label, x, y in (('Continue your draft video?', 107, 482), ('Start over', 215, 610), ('Continue', 323, 610)):
+                    draw.text((x, y), label, fill='black')
+                self.frames[camera + '_prompt'] = png(image)
+            text = copy.deepcopy(self.texts[camera])
+            text['lines'] += [line('Continue your draft video?', 107, 482, 284, 19), line('Starting over will save the draft and', 107, 530, 273),
+                              line('start a new Short.', 107, 550, 136), line('Start over', 215, 610, 78, 13), line('Continue', 323, 610, 71, 13)]
+            self.texts[camera + '_prompt'] = text
         # The candidate's title drawn into the title field, with and without the caret.
         self.titled('yt_details_titled', 'yt_details_focused', '143-youtube-video-caption-focus')
         self.titled('yt_reopened_details', None, '149-youtube-reopened-caption')
@@ -227,6 +242,7 @@ class FixtureKernel:
     def key(self):
         s, n = self.screen, self.captures.get(self.screen, 0)
         if s in ('home', 'search'): return s + '_' + self.leg
+        if s in ('yt_camera_prompt', 'yt_camera_drafts_prompt'): return s
         if s == 'yt_reopened': return 'yt_reopened_later' if n % 2 and self.scenario != 'frozen_video' else 'yt_reopened'
         if s == 'yt_details_titled' and self.scenario == 'caret_forever': return 'yt_details_caret'
         return {'yt_camera_final': 'yt_camera_drafts', 'yt_drafts_final': 'yt_drafts'}.get(s, s)
@@ -291,7 +307,8 @@ class FixtureKernel:
             ('quicklook', 'key:Home', None, 'home'),
             ('yt_query', 'click', (87, 218), 'yt_prompt' if self.scenario == 'launch_prompt' else 'yt_home'),
             ('yt_prompt', 'click', dont_allow, 'yt_home'),
-            ('yt_home', 'click', (311, 1020), 'yt_camera'),
+            ('yt_home', 'click', (311, 1020), 'yt_camera_prompt' if self.scenario == 'draft_prompt' else 'yt_camera'),
+            ('yt_camera_prompt', 'click', (254, 616), 'yt_camera'),
             ('yt_camera', 'click', (46, 847), 'yt_picker'),
             ('yt_picker', 'click', (141, 320), 'yt_selected'),
             ('yt_selected', 'click', (367, 997), 'yt_trimmed' if self.scenario == 'trimmed' else 'yt_trim'),
@@ -302,10 +319,15 @@ class FixtureKernel:
             ('yt_paste_menu', 'click', self.screens.targets['paste'], 'yt_details_titled'),
             ('yt_details_titled', 'click', (130, 996), 'yt_home_saved'),
             # Verification.
-            ('yt_home_saved', 'click', (311, 1020), 'yt_camera_drafts'),
+            ('yt_home_saved', 'click', (311, 1020), {'draft_prompt': 'yt_camera_drafts_prompt', 'gallery_drafts': 'yt_camera_white'}
+                .get(self.scenario, 'yt_camera_drafts')),
+            ('yt_camera_white', 'click', (46, 847), 'yt_gallery'),
+            ('yt_gallery', 'click', (128, 177), 'yt_drafts'),
+            ('yt_gallery_back', 'click', (465, 87), 'yt_camera_closing'),
+            ('yt_camera_drafts_prompt', 'click', (254, 616), 'yt_camera_drafts'),
             ('yt_camera_drafts', 'click', (455, 846), 'yt_drafts'),
             ('yt_drafts', 'click', (228, 264), 'yt_reopened'),
-            ('yt_drafts', 'click', (44, 77), 'yt_camera_closing'),           # Read-only verifier (23 Oct).
+            ('yt_drafts', 'click', (44, 77), 'yt_gallery_back' if self.scenario == 'gallery_drafts' else 'yt_camera_closing'),   # Read-only verifier (23 Oct).
             ('yt_camera_closing', 'click', (44, 125), 'yt_home_kept'),
             ('yt_reopened', 'click', (368, 1006), 'yt_reopened_details'),
             ('yt_reopened_details', 'click', (130, 996), 'yt_home_kept'),
@@ -337,10 +359,10 @@ class YouTubeGuardTests(unittest.TestCase):
         for role, point in (('yt_details', (370, 996)), ('yt_reopened_details', (370, 996)), ('yt_details_blank', (380, 345)),
                             ('yt_camera', (250, 845)), ('yt_camera', (326, 992)), ('yt_camera', (397, 992)), ('yt_camera', (457, 125)),
                             ('yt_drafts', (474, 205)), ('yt_picker_selected', (147, 995)), ('yt_editor', (266, 101)),
-                            ('yt_editor', (130, 1005))):
+                            ('yt_editor', (130, 1005)), ('yt_draft_prompt', (358, 616)), ('yt_draft_prompt', (250, 845))):
             with self.subTest(role=role, point=point), self.assertRaises(InspectionStopped): guard(empty, *point, role)
         for role, point in (('yt_details', (130, 996)), ('yt_camera', (46, 847)), ('yt_camera', (455, 846)), ('yt_drafts', (228, 264)),
-                            ('yt_picker_selected', (367, 997)), ('yt_editor', (368, 1006))):
+                            ('yt_picker_selected', (367, 997)), ('yt_editor', (368, 1006)), ('yt_draft_prompt', (254, 616))):
             guard(empty, *point, role)
         labelled = dict(width=500, height=1080, lines=[line('Upload Short', 318, 989, 106)])
         with self.assertRaises(InspectionStopped): guard(labelled, 300, 996, 'yt_trim')
@@ -409,6 +431,32 @@ class YouTubeProtocolTests(unittest.TestCase):
         self.assertTrue(verified['draftsBefore']['match']['matched'])
         self.assertEqual('consistent_sampled_history', verified['accountHistory']['status'])
         self.assertEqual(result['account'], verified['account'])
+
+    def test_the_draft_prompt_over_the_camera_is_answered_with_start_over(self):
+        # After a cold start the Short camera asks 'Continue your draft video?' (slot 16, 23-26 Oct); Start over
+        # saves that draft. Creation and the verifier answer it once at Start over's centre, never Continue.
+        result, kernel = self.create('draft_prompt')
+        self.assertEqual([], kernel.unexpected); self.assertTrue(result['draftPromptSeen'])
+        self.assertIn(('/mouse/click', dict(x=253, y=616, button=1)), [c[:2] for c in kernel.calls if isinstance(c, tuple)])
+        labels = [a['label'] for a in result['actions']]
+        self.assertEqual(labels.index('open-youtube-create') + 1, labels.index('create-start-over-saves-draft'))
+        flow, kernel2 = self.fixture('draft_prompt', saved=True, verifier=True, account=result['account'])
+        verified = flow.run()
+        self.assertEqual('validation_passed', verified['state'], verified.get('error')); self.assertEqual([], kernel2.unexpected)
+        self.assertIn('verify-start-over-saves-draft', [a['label'] for a in verified['actions']])
+        flow, kernel3 = self.fixture(saved=True, verifier=True, account=result['account'])
+        self.assertFalse(flow.run()['draftPromptSeen'])
+
+    @unittest.skipUnless((layout.LIVE26/'gallery.bmp').exists(), 'Slot 16 frames of 26 Oct are not available.')
+    def test_the_verifier_reaches_drafts_through_the_gallery_when_the_camera_has_none(self):
+        result, _ = self.create()
+        flow, kernel = self.fixture('gallery_drafts', saved=True, verifier=True, account=result['account'])
+        verified = flow.run()
+        self.assertEqual('validation_passed', verified['state'], verified.get('error')); self.assertEqual([], kernel.unexpected)
+        self.assertEqual('gallery', verified['draftsRoute']); self.assertEqual('yt_home_kept', kernel.screen)
+        labels = [a['label'] for a in verified['actions']]
+        self.assertEqual(['verify-open-create', 'verify-open-gallery', 'verify-open-gallery-drafts', 'verify-close-drafts',
+                          'verify-close-gallery', 'verify-close-camera'], labels)
 
     def test_a_different_channel_stops_creation_and_verification(self):
         flow, kernel = self.fixture('other_channel'); result = flow.run()
