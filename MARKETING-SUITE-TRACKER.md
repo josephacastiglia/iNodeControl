@@ -41,6 +41,11 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
    test drafts; X's text-only 'Fresh x acceptance' was deleted by the operator (24 Oct). Test videos in Photos: Claude to build a cleanup
    that matches each video to its package and only moves those to Recently Deleted (recoverable).
 5. ~~X video drafts after a relaunch~~: decided 23 Oct (operator left it to Claude), see Decisions.
+6. Phone 16 (26 Oct, 02:00): YouTube run 67 stopped on Add details with the title pasted, unsaved.
+   That screen's back arrow ignores pointer taps (also a slow press, Escape and an edge swipe), so the
+   leftover cannot be discarded from the PC. Either the operator taps Back -> Discard on the phone, or
+   YouTube is closed from the switcher, after which its camera offers 'Start over', which *saves* the
+   leftover as one extra draft (for the operator to delete later).
 
 ## Decisions
 
@@ -92,3 +97,6 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
   with no visible change: up to 3 swipes on the same card. The camera lost its Drafts button (white
   record button, effects row); Drafts is now reached through the Add gallery. **Relaunch check 17
   passed.**
+- 26 Oct night: YouTube runs 66 and 67 stopped safely before saving (OCR missed 'Add' over a lamp, then
+  'Title' beside the caret; both are now read again enlarged). The USB boards of phones 16 and 20
+  dropped off and came back (two rack restarts); phone 16's mirror froze once more right after a tap.

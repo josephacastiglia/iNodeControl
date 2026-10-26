@@ -146,6 +146,17 @@ def yt_home(frame, text, *, saved=False):
     return dict(createTarget=target, navLayout=layout, toastSeen=bool(line_at(text, 'draft saved', TOAST[1])))
 
 
+def enlarged_label(frame, label, box):
+    """A small white label the full-frame OCR missed over a bright camera preview ('Add' over a lamp,
+    slot 16, 26 Oct), read again enlarged; it must still lie inside its box."""
+    left, top, right, bottom = box
+    band = (max(0, left-10), top-8, min(500, right+10), bottom+8)
+    for scale in (4, 3):   # 'Title' (run 67) is read only at 3, 'Add' (run 66) at 4.
+        if any(t.casefold() == label and left <= x0 and x1 <= right and top <= y0 and y1 <= bottom
+               for t, x0, y0, x1, y1 in band_words(frame, band, scale)): return True
+    return False
+
+
 RECORD_CORE = (236, 831, 264, 859)   # The record button's centre: red, or white with the effects row.
 
 
@@ -153,7 +164,7 @@ def yt_camera(frame, text):
     """The Short camera opened by +. Only Add (gallery) and Drafts are ever targets; record, Live and Post never."""
     for label, box in (('video', (135, 978, 200, 1008)), ('short', (218, 978, 282, 1008)), ('live', (300, 978, 352, 1008)),
                        ('post', (370, 978, 425, 1008)), ('add', (25, 878, 65, 900))):
-        require(words_at(text, label, box), 'The YouTube camera is not recognized: ' + label)
+        require(words_at(text, label, box) or enlarged_label(frame, label, box), 'The YouTube camera is not recognized: ' + label)
     require(line_at(text, 'add sound', (215, 110, 320, 140)), 'The YouTube camera is not recognized: add sound')
     image = pixels(frame, exact=True)
     # The record button is red, or white with the effects row beside it (after Start over, slot 16, 26 Oct).
@@ -424,7 +435,9 @@ def yt_details(frame, text, reference, caption=None, *, state):
     cover = media_match(frame, (15, 125, 119, 282), reference, 'card', image=image, ignore=((15, 125, 62, 168), (60, 245, 119, 282)))
     require(cover['matched'], 'The YouTube details cover shows different media.')
     left, top, right, bottom = TITLE_BAND
-    labelled = bool(words_at(text, 'title', (125, 130, 175, 155)))
+    # Full-frame OCR can drop the small 'Title' label while the caret blinks beside the pasted title
+    # (run 67, slot 16, 26 Oct); the label alone is read again, enlarged.
+    labelled = bool(words_at(text, 'title', (125, 130, 175, 155))) or (state != 'blank' and enlarged_label(frame, 'title', (125, 130, 175, 155)))
     rows = rows_between(text, 150 if labelled else top, bottom, left, right)
     if state == 'blank':
         if not labelled and rows != ['Caption your Short']:

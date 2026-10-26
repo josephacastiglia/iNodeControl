@@ -94,7 +94,8 @@ LIVE26 = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261026-youtube-gallery-dra
 
 def live26(name):
     text = json.loads((LIVE26/f'{name}.json').read_text(encoding='utf-8'))
-    return (LIVE26/f'{name}.bmp').read_bytes(), text
+    image = LIVE26/f'{name}.bmp'
+    return (image if image.exists() else LIVE26/f'{name}.png').read_bytes(), text
 
 
 @unittest.skipUnless((LIVE26/'gallery.bmp').exists(), 'Slot 16 frames of 26 Oct are not available in this checkout.')
@@ -108,6 +109,19 @@ class Slot16CameraGalleryTests(unittest.TestCase):
         frame, text = live26('camera-white')
         self.assertEqual(((46, 847), None), tuple(yl.yt_camera(frame, text)[k] for k in ('addTarget', 'draftsTarget')))
         with self.assertRaises(InspectionStopped): yl.yt_draft_prompt(text)
+
+    def test_a_label_lost_over_a_bright_preview_is_read_enlarged(self):
+        # Run 66: full-frame OCR missed 'Add' over a lamp; the enlarged band reads it inside its box.
+        frame, text = live26('camera-lamp')
+        self.assertFalse(any(l['text'] == 'Add' for l in text['lines']))
+        self.assertEqual((46, 847), yl.yt_camera(frame, text)['addTarget'])
+        self.assertFalse(yl.enlarged_label(frame, 'live', (25, 878, 65, 900)))
+
+    def test_the_title_label_lost_beside_the_caret_is_read_enlarged(self):
+        # Run 67: full-frame OCR dropped 'Title' and 'test' while the caret blinked after the pasted title.
+        frame, text = live26('details-caret')
+        self.assertFalse(any(l['text'] == 'Title' for l in text['lines']))
+        self.assertTrue(yl.enlarged_label(frame, 'title', (125, 130, 175, 155)))
 
     def test_the_gallery_offers_drafts_beside_create_video(self):
         for name in ('gallery', 'gallery-back'):
