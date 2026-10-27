@@ -10,7 +10,7 @@ Last updated: 25 Oct 2026.
 | # | Priority | Where it stands | What is left |
 |---|---|---|---|
 | 1 | New content to a verified draft | **All four first formats verified:** Instagram carousel (C24C, 17-19 Oct), Instagram Reel (slot 18, 22 Oct), X video (slot 17, 23 Oct, prep 71), YouTube Short (slot 16, 23 Oct, prep 65), TikTok video (slot 20, 24 Oct, prep 67). | Every further format or account needs its own first pass. |
-| 2 | Repeatability and recovery | Runs back out of leftover screens on all four phones; unsaved leftovers are discarded under the operator's standing approval. `close_app.py` closes an app from the switcher; `relaunch_check.py` closes and cold-starts the app, then reruns the read-only check. **Back to back: Reel runs 45 and 46, TikTok runs 75 and 76, and X runs 72 and 73, each verified in a row with no change between (25 Oct).** **Survive an app relaunch: TikTok (24 Oct), Instagram Reel (25 Oct), YouTube (26 Oct, check 17).** **X: the video draft did not.** YouTube's 'Continue your draft video?' prompt is answered automatically (Start over). | Back-to-back runs on YouTube; unattended recovery. |
+| 2 | Repeatability and recovery | Runs back out of leftover screens on all four phones; unsaved leftovers are discarded under the operator's standing approval. `close_app.py` closes an app from the switcher; `relaunch_check.py` closes and cold-starts the app, then reruns the read-only check. **Back to back: Reel runs 45 and 46, TikTok runs 75 and 76, and X runs 72 and 73, each verified in a row with no change between (25 Oct); YouTube runs 76 and 77 (27 Oct).** **Survive an app relaunch: TikTok (24 Oct), Instagram Reel (25 Oct), YouTube (26 Oct, check 17).** **X: the video draft did not.** YouTube's 'Continue your draft video?' prompt is answered automatically (Start over). | Unattended recovery (phone 16's mirror stalls still need a rack restart). |
 | 3 | Platform coverage | Reel, X, YouTube and TikTok video verified. Permission-prompt validation merged (24 Oct). | TikTok photo (sound kept) and X image. Story, text, thread and long video stay unsupported. |
 | 4 | Scheduler and warmup | Local preparation and simulations only. | Review queue, scheduled phone runs, real daily budgets, unattended restart. |
 | 5 | Analytics | Observations keep evidence; low-view rules can pause a schedule. | A real metrics source, checked against actual account numbers. |
@@ -28,7 +28,7 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
 |---|---|---|---|
 | Instagram Reel | 18 (C24C) | Verified 22 Oct and in runs 40, 42, 45, 46 (45-46 back to back); **survives an app relaunch** | Longer unattended series. |
 | X video | 17 (724E) | Verified 23 Oct (prep 71) and in runs 72 and 73 (back to back); **video lost after an app relaunch** | Decided: X video drafts are short-lived (below). |
-| YouTube Short | 16 (F215) | Verified 23 Oct (read-only check 3); **survives an app relaunch** (26 Oct); runs 69 and 71 verified in one pass, 70 by re-check | Back-to-back pair still open: runs 72-74 each stopped safely on a new issue (now fixed). |
+| YouTube Short | 16 (F215) | Verified 23 Oct (read-only check 3); **survives an app relaunch** (26 Oct); runs 69 and 71 verified in one pass, 70 by re-check; **runs 76 and 77 verified back to back (27 Oct)** | — |
 | TikTok video | 20 (C214) | Verified in runs 67, 73, 75 and 76 (75-76 back to back); **survives an app relaunch** | Longer unattended series. |
 
 ## Waiting for the operator
@@ -41,11 +41,10 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
    test drafts; X's text-only 'Fresh x acceptance' was deleted by the operator (24 Oct). Test videos in Photos: Claude to build a cleanup
    that matches each video to its package and only moves those to Recently Deleted (recoverable).
 5. ~~X video drafts after a relaunch~~: decided 23 Oct (operator left it to Claude), see Decisions.
-6. Phone 16 (27 Oct, 00:30): YouTube run 74 left Add details with the title pasted, unsaved. Its back
-   arrow ignores pointer taps, and the switcher swipe that would close YouTube did nothing three times.
-   Please tap Back -> Discard on the phone. (Run 67's leftover, 26 Oct, is gone.) Also delete, when
-   convenient: the untitled 'Oct 26, 2026' YouTube drafts (closing YouTube on an unsaved Add details
-   saved them) and the extra test drafts from runs 69-71.
+6. Phone 16 YouTube drafts to delete, when convenient (27 Oct): the untitled 'Oct 26, 2026' drafts
+   (closing YouTube on an unsaved Add details saves one; run 74's leftover was closed that way at the
+   operator's request, since Back did not work on the phone either) and the extra 'Fresh short test'
+   drafts from runs 69-77.
 7. (old) Phone 16 (26 Oct, 02:00): YouTube run 67 stopped on Add details with the title pasted, unsaved.
    That screen's back arrow ignores pointer taps (also a slow press, Escape and an edge swipe), so the
    leftover cannot be discarded from the PC. Either the operator taps Back -> Discard on the phone, or
@@ -111,3 +110,7 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
   with the caret blanked), the Paste decision 13 ms past its age limit (reconfirmed), the + disk tinted by
   the feed, the draft prompt drawn smaller. Phone 16's mirror stalled twice more and its USB board once
   (rack restarts); switcher swipes on phone 16 fail often (3 of 3 at 00:30).
+- 27 Oct 02:30-03:10: run 74's leftover closed from the switcher (first try). The relaunched home feed's
+  + disk was tinted pink, red near white (grey test now asks for a channel below white). Run 75 stopped
+  before input (pointer dot over the 'YouTube' header), then on a mirror stall at the draft prompt
+  (rack restart; all four reconnected first try). **Runs 76 and 77 verified back to back.**

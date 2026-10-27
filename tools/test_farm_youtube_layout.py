@@ -150,6 +150,8 @@ class Slot16CameraGalleryTests(unittest.TestCase):
     def test_the_create_disk_tinted_by_the_feed_is_still_found(self):
         frame, text = live26('home-tinted')   # Run 73: the bar tinted the + disk teal.
         self.assertEqual((250, 1011), yl.yt_home(frame, text)['createTarget'])
+        frame, text = live26('home-pink')     # Prep 75 relaunch: pink, its red channel near white.
+        self.assertEqual((250, 1011), yl.yt_home(frame, text)['createTarget'])
 
     def test_the_title_is_read_with_only_the_caret_blanked(self):
         # Run 74: the caret was drawn in 18 of 20 frames; blanking its columns reads the exact title.
