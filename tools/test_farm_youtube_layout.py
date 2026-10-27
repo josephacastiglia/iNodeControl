@@ -145,6 +145,10 @@ class Slot16CameraGalleryTests(unittest.TestCase):
         header = next(l for l in text['lines'] if l['text'] == 'Drafts')['words'][0]
         self.assertLess(abs(header['x'] - 70) + abs(header['y'] - 66), 8)
 
+    def test_the_create_disk_tinted_by_the_feed_is_still_found(self):
+        frame, text = live26('home-tinted')   # Run 73: the bar tinted the + disk teal.
+        self.assertEqual((250, 1011), yl.yt_home(frame, text)['createTarget'])
+
     def test_the_gallery_offers_drafts_beside_create_video(self):
         for name in ('gallery', 'gallery-back'):
             frame, text = live26(name)

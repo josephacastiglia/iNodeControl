@@ -121,7 +121,8 @@ def labelled_create(frame):
     vertical = float((image[1003:1020, 246:255].min(axis=2).min(axis=1) < 90).mean())
     horizontal = float((image[1008:1015, 241:260].min(axis=2).min(axis=0) < 90).mean())
     disk = image[996:1027, 232:268]
-    grey = float(((disk.min(axis=2) > 205) & (disk.max(axis=2) < 246)).mean())
+    # The translucent bar tints the disk with the feed behind it (teal, red 194-200, run 73, 27 Oct).
+    grey = float(((disk.min(axis=2) > 170) & (disk.mean(axis=2) > 200) & (disk.max(axis=2) < 246)).mean())
     return (250, 1011) if vertical > .8 and horizontal > .8 and grey > .4 else None
 
 
