@@ -59,6 +59,7 @@ MOVING = {
     'yt_editor': ((0, 71, 500, 958), INDICATOR), 'yt_reopened_editor': ((0, 71, 500, 958), INDICATOR),
     'yt_details_blank': (TITLE,), 'yt_details_focused': (TITLE,), 'yt_details': (TITLE,), 'yt_reopened_details': (TITLE,),
     'yt_drafts': ((160, 180, 455, 1040),),                              # Relative save times.
+    'yt_paste_menu': (TITLE,),                                          # The caret blinks under the callout.
 }
 UPLOAD, FEEDBACK = (250, 960, 490, 1035), (285, 315, 490, 375)
 READ_ONLY_VERIFY = True                    # The verifier never reopens a saved YouTube draft (see YouTubeVerification.run).
@@ -230,7 +231,9 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
     def confirmation_compare(self, role):
         """Settled screens may be reconfirmed by a newer frame under their own settling rule."""
         if role == 'quicklook': return self.preview_identity()   # A playing preview, as in the Reel route.
-        return compare(role) if role in SETTLED else super().confirmation_compare(role)
+        # The Paste callout is captured once; when its tap aged out unsent (run 72, slot 16, 26 Oct: 1513 ms
+        # against 1500), a newer frame that matches it outside the title decides instead.
+        return compare(role) if role in SETTLED or role == 'yt_paste_menu' else super().confirmation_compare(role)
 
     def settle_compare(self, role):
         """The preview plays and its toolbar fades (22 Oct, slot 20: the pixel rule ran out of its

@@ -586,6 +586,13 @@ class YouTubeProtocolTests(unittest.TestCase):
         self.assertTrue(all((flow.folder / c['frame']).is_file() for c in result['decisionConfirmations']))
         self.assertEqual([], kernel.unexpected)
 
+    def test_a_paste_callout_that_aged_out_is_reconfirmed_before_pasting(self):
+        flow, kernel = self.fixture('slow_recognition', 'yt_paste_menu'); result = flow.run()
+        self.assertEqual('created_unverified', result['state'], result.get('error')); self.assertEqual(1, kernel.saves)
+        bound = [c for c in result['commands'] if c.get('confirmation')]
+        self.assertEqual(['paste-exact-caption-position'], [c['purpose'] for c in bound])
+        self.assertEqual([], kernel.unexpected)
+
     def test_a_screen_that_changed_after_recognition_is_never_tapped(self):
         flow, kernel = self.fixture('changed_after_recognition', 'yt_picker'); result = flow.run()
         self.assertEqual('review_required', result['state']); self.assertEqual(0, kernel.saves)
