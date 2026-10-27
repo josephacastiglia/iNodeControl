@@ -28,7 +28,7 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
 |---|---|---|---|
 | Instagram Reel | 18 (C24C) | Verified 22 Oct and in runs 40, 42, 45, 46 (45-46 back to back); **survives an app relaunch** | Longer unattended series. |
 | X video | 17 (724E) | Verified 23 Oct (prep 71) and in runs 72 and 73 (back to back); **video lost after an app relaunch** | Decided: X video drafts are short-lived (below). |
-| YouTube Short | 16 (F215) | Verified 23 Oct (read-only check 3); **survives an app relaunch** (26 Oct) | Back-to-back pair; a new creation run on the 26 Oct camera layout. |
+| YouTube Short | 16 (F215) | Verified 23 Oct (read-only check 3); **survives an app relaunch** (26 Oct); runs 69 and 71 verified in one pass, 70 by re-check | Back-to-back pair still open: runs 72-74 each stopped safely on a new issue (now fixed). |
 | TikTok video | 20 (C214) | Verified in runs 67, 73, 75 and 76 (75-76 back to back); **survives an app relaunch** | Longer unattended series. |
 
 ## Waiting for the operator
@@ -41,7 +41,12 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
    test drafts; X's text-only 'Fresh x acceptance' was deleted by the operator (24 Oct). Test videos in Photos: Claude to build a cleanup
    that matches each video to its package and only moves those to Recently Deleted (recoverable).
 5. ~~X video drafts after a relaunch~~: decided 23 Oct (operator left it to Claude), see Decisions.
-6. Phone 16 (26 Oct, 02:00): YouTube run 67 stopped on Add details with the title pasted, unsaved.
+6. Phone 16 (27 Oct, 00:30): YouTube run 74 left Add details with the title pasted, unsaved. Its back
+   arrow ignores pointer taps, and the switcher swipe that would close YouTube did nothing three times.
+   Please tap Back -> Discard on the phone. (Run 67's leftover, 26 Oct, is gone.) Also delete, when
+   convenient: the untitled 'Oct 26, 2026' YouTube drafts (closing YouTube on an unsaved Add details
+   saved them) and the extra test drafts from runs 69-71.
+7. (old) Phone 16 (26 Oct, 02:00): YouTube run 67 stopped on Add details with the title pasted, unsaved.
    That screen's back arrow ignores pointer taps (also a slow press, Escape and an edge swipe), so the
    leftover cannot be discarded from the PC. Either the operator taps Back -> Discard on the phone, or
    YouTube is closed from the switcher, after which its camera offers 'Start over', which *saves* the
@@ -100,3 +105,9 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
 - 26 Oct night: YouTube runs 66 and 67 stopped safely before saving (OCR missed 'Add' over a lamp, then
   'Title' beside the caret; both are now read again enlarged). The USB boards of phones 16 and 20
   dropped off and came back (two rack restarts); phone 16's mirror froze once more right after a tap.
+- 26-27 Oct night, YouTube on the new camera layout: run 69 verified in one pass; 70 saved and verified
+  by re-check 5; 71 verified in one pass. Stops, each safe and fixed: Windows OCR tilting the Drafts list
+  5.1 deg (words rotated back), the thumbnail's 'TEST' on the title line, a fading/solid caret (title read
+  with the caret blanked), the Paste decision 13 ms past its age limit (reconfirmed), the + disk tinted by
+  the feed, the draft prompt drawn smaller. Phone 16's mirror stalled twice more and its USB board once
+  (rack restarts); switcher swipes on phone 16 fail often (3 of 3 at 00:30).
