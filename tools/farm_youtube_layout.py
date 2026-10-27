@@ -186,13 +186,25 @@ def yt_draft_prompt(text):
     """YouTube's own 'Continue your draft video?' dialog over the Short camera, met after a cold start
     (slot 16, 23-26 Oct): 'Starting over will save the draft and start a new Short.' Start over is the
     target, at the centre of its OCR label; a tap 33 px above it, on the dialog body, did nothing, and
-    the centre closed the dialog (26 Oct). Continue (reopening the unfinished draft) is never a target."""
-    require(line_at(text, 'continue your draft video?', (90, 465, 415, 515)), 'No YouTube draft prompt is shown.')
-    require(line_at(text, 'continue', (300, 590, 420, 640)), 'The draft prompt\'s Continue button is not recognized.')
-    start = line_at(text, 'start over', (185, 590, 320, 640))
-    require(start, 'The draft prompt\'s Start over button is not recognized.')
-    left, top, right, bottom = start[0]
-    return dict(target=((left + right) // 2, (top + bottom) // 2))
+    the centre closed the dialog (26 Oct). Continue (reopening the unfinished draft) is never a target.
+
+    The dialog is placed relative to its title: it was also drawn smaller over a black camera still
+    starting, and OCR read Continue as 'Contirwe' (run 73, 27 Oct). Start over sits 60-140 px below the
+    title, within its width, with a 'Cont...' word to its right on the same row."""
+    def bounds(line):
+        words = line['words']
+        return (min(w['x'] for w in words), min(w['y'] for w in words),
+                max(w['x']+w['width'] for w in words), max(w['y']+w['height'] for w in words))
+    lines = [(' '.join(l['text'].casefold().split()), bounds(l), l) for l in text.get('lines', []) if l.get('words')]
+    titles = [b for t, b, _ in lines if t == 'continue your draft video?' and 60 <= b[0] and b[2] <= 440 and 380 <= b[1] <= 620]
+    require(len(titles) == 1, 'No YouTube draft prompt is shown.')
+    left, top, right, _ = titles[0]
+    starts = [b for t, b, _ in lines if t == 'start over' and left - 10 <= b[0] and b[2] <= right + 10 and top + 60 <= b[1] <= top + 140]
+    require(len(starts) == 1, "The draft prompt's Start over button is not recognized.")
+    x0, y0, x1, y1 = starts[0]
+    require(any(w['text'].casefold().startswith('cont') and w['x'] > x1 and abs(w['y'] - y0) <= 8
+                for _, _, line in lines for w in line['words']), "The draft prompt's Continue button is not recognized.")
+    return dict(target=((x0 + x1) // 2, (y0 + y1) // 2))
 
 
 # ---- Gallery picker ------------------------------------------------------------------------

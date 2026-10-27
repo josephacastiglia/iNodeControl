@@ -113,6 +113,8 @@ class Slot16CameraGalleryTests(unittest.TestCase):
         frame, text = live26('prompt')
         self.assertEqual((254, 616), yl.yt_draft_prompt(text)['target'])
         with self.assertRaises(InspectionStopped): yl.yt_camera(frame, text)
+        _, small = live26('prompt-small')   # Run 73: drawn smaller over a black camera; 'Contirwe'.
+        self.assertEqual((252, 583), yl.yt_draft_prompt(small)['target'])
 
     def test_the_white_record_button_camera_has_no_drafts_button(self):
         frame, text = live26('camera-white')
