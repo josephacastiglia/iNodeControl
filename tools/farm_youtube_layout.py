@@ -401,10 +401,18 @@ class Processing(CaretVisible):
 
 
 def caret_visible(image):
-    """A thin dark vertical bar taller than any title glyph (about 24 px against 16)."""
+    """A thin dark vertical bar taller than any title glyph (about 24 px against 16).
+
+    The caret fades rather than blinking off: mid-fade it is grey, above the dark level, yet still
+    clips the last letter for OCR ('tes€', run 68, slot 16, 26 Oct). So an unbroken grey run of 20 px
+    in one column counts too; the grey 'Title' label above the text is separated from it by a gap."""
     left, top, right, bottom = TITLE_BAND
-    dark = image[top:bottom, left:right].max(axis=2) < 120
-    return bool((dark.sum(axis=0) >= 20).any())
+    band = image[top:bottom, left:right].max(axis=2)
+    if ((band < 120).sum(axis=0) >= 20).any(): return True
+    run = best = np.zeros(band.shape[1], dtype=int)
+    for row in band < 200:
+        run = np.where(row, run + 1, 0); best = np.maximum(best, run)
+    return bool((best >= 20).any())
 
 
 def handle(text):
@@ -481,10 +489,23 @@ def title_lines(lines, caption):
     return (first.endswith('-') and first + second == caption) or first + ' ' + second == caption
 
 
+def drafts_notice(text):
+    """The notice under the Drafts header, two lines. OCR can clip their first letters ('moving the
+    YouTube app ...', 's device.', run 70, slot 16, 26 Oct): each line must end with its words."""
+    def ends(tail, box, longest):
+        left, top, right, bottom = box
+        return sum(1 for line in text.get('lines', []) if line.get('words')
+                   and left <= min(w['x'] for w in line['words']) and max(w['x']+w['width'] for w in line['words']) <= right
+                   and top <= min(w['y'] for w in line['words']) and max(w['y']+w['height'] for w in line['words']) <= bottom
+                   and ' '.join(line['text'].casefold().split()).endswith(tail)
+                   and len(' '.join(line['text'].split())) <= longest) == 1
+    return (ends('the youtube app will delete all draft videos created on', (10, 125, 470, 156), 64)
+            and ends('device.', (10, 145, 110, 170), 12))
+
+
 def yt_drafts(frame, text, reference, caption):
     """Drafts on this device: the one row whose full title equals the caption and whose thumbnail is the package video."""
-    require(line_at(text, 'removing the youtube app will delete all draft videos created on', (10, 125, 470, 156))
-            and line_at(text, 'this device.', (10, 145, 110, 170)), 'The YouTube drafts list is not recognized.')
+    require(drafts_notice(text), 'The YouTube drafts list is not recognized.')
     control(frame, 'yt_drafts_header')
     no_overlay(text)
     image = pixels(frame, exact=True)
@@ -494,8 +515,11 @@ def yt_drafts(frame, text, reference, caption):
         # An empty slot is plain background; light test media still differs from it.
         if (image[top+4:bottom-4, THUMB[0]+4:THUMB[1]-4].min(axis=2) < 235).mean() < .05: continue
         require((image[top-16:top-3, THUMB[0]:THUMB[1]].min(axis=2) > 235).mean() > .97, 'YouTube drafts list geometry changed.')
-        lines = sorted((min(w['y'] for w in r['words']), r['text']) for r in text.get('lines', []) if r.get('words')
-                       and 160 <= min(w['x'] for w in r['words']) <= 180 and top <= min(w['y'] for w in r['words']) < top+110)
+        # Only words in the title column: OCR can join the thumbnail's own 'TEST' to the title line
+        # ('TEST Fresh short test', run 70, slot 16, 26 Oct).
+        columns = [[w for w in r['words'] if w['x'] >= 155] for r in text.get('lines', []) if r.get('words')]
+        lines = sorted((min(w['y'] for w in ws), ' '.join(w['text'] for w in ws)) for ws in columns if ws
+                       and 160 <= min(w['x'] for w in ws) <= 180 and top <= min(w['y'] for w in ws) < top+110)
         when = [i for i, (_, value) in enumerate(lines) if WHEN.fullmatch(value)]
         titles = [value for _, value in (lines[:when[0]] if when else lines)]
         match = media_match(frame, (THUMB[0], top, THUMB[1], bottom), reference, 'card', image=image,

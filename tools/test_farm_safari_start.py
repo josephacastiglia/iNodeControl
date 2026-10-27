@@ -648,7 +648,8 @@ class AppHomeStartScreenTests(unittest.TestCase):
         from farm_start_screen import StartScreen
         start = StartScreen.__new__(StartScreen); frames = iter(screens); opened = []
         start.record = dict(commands=[], observations=[]); start.save = lambda: None; start.pause = lambda s: None
-        start.kernel = SimpleNamespace(acquire=lambda boards, ms: {'B': 't'}, release=lambda tokens: None)
+        start.kernel = SimpleNamespace(acquire=lambda boards, ms: {'B': 't'}, release=lambda tokens: None,
+                                       renew_if_needed=lambda tokens, ms: None)
         start.phone = SimpleNamespace(board='B'); start.command = lambda *a, **k: None
         start.fresh = lambda role: (next(frames), None, 0, 0)
         start.open_from_home = lambda name: (opened.append(name), (next(frames), None, 0, 0))[1]

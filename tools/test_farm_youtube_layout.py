@@ -47,6 +47,15 @@ def selected_picker():
 
 
 class SyntheticYouTubeLayoutTests(unittest.TestCase):
+    def test_unrotate_turns_word_centres_back_about_the_image_centre(self):
+        from farm_observations import unrotate
+        level = dict(width=500, height=1080, textAngle=0.2, lines=[dict(text='a', words=[dict(text='a', x=10, y=20, width=30, height=10)])])
+        unrotate(level); self.assertEqual((10, 20), (level['lines'][0]['words'][0]['x'], level['lines'][0]['words'][0]['y']))
+        tilted = dict(width=500, height=1080, textAngle=90, lines=[dict(text='a', words=[dict(text='a', x=345, y=535, width=10, height=10)])])
+        unrotate(tilted)   # Centre (350, 540) turned 90 degrees about (250, 540) lands on (250, 640).
+        word = tilted['lines'][0]['words'][0]
+        self.assertEqual((245, 635), (word['x'], word['y'])); self.assertEqual(90, tilted['unrotated'])
+
     def test_the_draft_prompt_targets_start_over_centre(self):
         # The OCR of slot 16's prompt (26 Oct): Start over's two words, the second lower and shorter.
         def row(text, *words): return dict(text=text, words=[dict(text=t, x=x, y=y, width=w, height=h) for t, x, y, w, h in words])
@@ -122,6 +131,19 @@ class Slot16CameraGalleryTests(unittest.TestCase):
         frame, text = live26('details-caret')
         self.assertFalse(any(l['text'] == 'Title' for l in text['lines']))
         self.assertTrue(yl.enlarged_label(frame, 'title', (125, 130, 175, 155)))
+
+    def test_a_tilted_ocr_read_of_the_drafts_list_is_rotated_back(self):
+        # Run 70: Windows OCR reported TextAngle 5.1 and every word up to 40 px off; unrotated, the
+        # notice is found where it is drawn and the title column holds the title alone.
+        from farm_observations import WindowsOcr
+        image = (LIVE26/'drafts-tilted.png').read_bytes()
+        with Image.open(io.BytesIO(image)) as frame:
+            out = io.BytesIO(); frame.convert('RGB').save(out, 'BMP')
+        text = WindowsOcr().read(out.getvalue())
+        self.assertGreater(abs(text['textAngle']), 4)
+        self.assertTrue(yl.drafts_notice(text))
+        header = next(l for l in text['lines'] if l['text'] == 'Drafts')['words'][0]
+        self.assertLess(abs(header['x'] - 70) + abs(header['y'] - 66), 8)
 
     def test_the_gallery_offers_drafts_beside_create_video(self):
         for name in ('gallery', 'gallery-back'):

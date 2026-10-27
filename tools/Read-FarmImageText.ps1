@@ -50,7 +50,7 @@ try {
         })
         @{text=$_.Text; words=$words}
     })
-    return @{provider='windows-ocr'; language='en-US'; imageSha256=$imageHash; width=$bitmap.PixelWidth; height=$bitmap.PixelHeight; lines=$lines}
+    return @{provider='windows-ocr'; language='en-US'; imageSha256=$imageHash; width=$bitmap.PixelWidth; height=$bitmap.PixelHeight; textAngle=$result.TextAngle; lines=$lines}
 }
 finally {
     if ($null -ne $bitmap) { $bitmap.Dispose() }

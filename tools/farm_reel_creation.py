@@ -488,6 +488,9 @@ class ReelVerification(ReelCreationWorkflow):
         blockers, previous, context = [], None, None
         for value, frame in timeline:
             entry = known.get(value['id'])
+            if frame is not None and value['id'] in getattr(self, 'rereads', ()):
+                # A journaled read that was not recognized and read again without input (YouTube Drafts, 26 Oct).
+                previous = (value.get('completedAt'), value.get('frameEvidence', {}).get('sequence')); continue
             if frame is None or entry is None or 'screenCheck' not in entry:
                 blockers.append('An observation is unrecognized, pruned or outside this run.')
                 continue

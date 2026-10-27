@@ -196,6 +196,11 @@ class FixtureOcr:
             k.now += 1.6; k.recognitions += 1   # Recognition outlasts the 1.5 s frame-age budget (loaded PC).
         if k.scenario == 'prompt' and k.screen == k.fault_screen:
             text['lines'] += [line('Allow', 120, 600, 60), line("Don't Allow", 260, 600, 110)]
+        if k.scenario == 'shifted_drafts_ocr' and k.screen == 'yt_drafts':
+            k.drafts_reads = getattr(k, 'drafts_reads', 0) + 1
+            if k.drafts_reads <= 2:   # Run 70 (26 Oct): every word of one frame placed about 40 px off.
+                for row in text['lines']:
+                    for word in row['words']: word['x'] = max(0, word['x'] - 40); word['y'] += 14
         return text
 
 
@@ -457,6 +462,15 @@ class YouTubeProtocolTests(unittest.TestCase):
         labels = [a['label'] for a in verified['actions']]
         self.assertEqual(['verify-open-create', 'verify-open-gallery', 'verify-open-gallery-drafts', 'verify-close-drafts',
                           'verify-close-gallery', 'verify-close-camera'], labels)
+
+    def test_a_mispositioned_drafts_read_is_read_again_without_input(self):
+        result, _ = self.create()
+        flow, kernel = self.fixture('shifted_drafts_ocr', saved=True, verifier=True, account=result['account'])
+        verified = flow.run()
+        self.assertEqual('validation_passed', verified['state'], verified.get('error')); self.assertEqual([], kernel.unexpected)
+        self.assertTrue(verified['draftsRereads'])
+        self.assertEqual(['verify-open-create', 'verify-open-drafts', 'verify-close-drafts', 'verify-close-camera'],
+                         [a['label'] for a in verified['actions']])
 
     def test_a_different_channel_stops_creation_and_verification(self):
         flow, kernel = self.fixture('other_channel'); result = flow.run()

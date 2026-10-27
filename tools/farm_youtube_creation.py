@@ -40,10 +40,11 @@ PRE_SETTLE = {**{role: REEL_PRE_SETTLE[role] for role in SHARED},
 # A callout and the playing editor are captured once; every other screen needs two agreeing fresh frames.
 SETTLED = set(PRE_SETTLE) - {'yt_paste_menu', 'yt_playing'}
 CARET_ROLES = ('yt_details_focused', 'yt_details', 'yt_reopened_details')
-CARET_ATTEMPTS = 8          # Settled observations until one shows the title without the caret (or Processing).
-# Pauses between them alternate by about half a blink: with one fixed pause every settled frame
-# landed on the caret's 'on' phase (slot 16, 23 Oct, four attempts in a row).
-CARET_PAUSES = (.35, .85)
+CARET_ATTEMPTS = 16         # Settled observations until one shows the title without the caret (or Processing).
+# Pauses between them vary by about half a blink: with one fixed pause every settled frame landed on
+# the caret's 'on' phase (slot 16, 23 Oct, four attempts in a row). The caret fades rather than blinks
+# off, so it shows in most frames: run 68 (26 Oct) met it in 7 of 8, the free frame unconfirmed.
+CARET_PAUSES = (.35, .85, .6)
 TITLE = (125, 130, 495, 190)
 # iOS dims the home indicator over the dark full-screen views (148/after against 149/before).
 INDICATOR = HOME_INDICATOR
@@ -62,6 +63,7 @@ MOVING = {
 UPLOAD, FEEDBACK = (250, 960, 490, 1035), (285, 315, 490, 375)
 READ_ONLY_VERIFY = True                    # The verifier never reopens a saved YouTube draft (see YouTubeVerification.run).
 DRAFTS_CLOSE, CAMERA_CLOSE = (44, 77), (44, 125)
+DRAFTS_READS = 3            # Fresh reads of the Drafts list when it is not recognized (read-only).
 FORBIDDEN = {
     'yt_camera': ((195, 790, 305, 900), (120, 965, 440, 1020), (425, 95, 490, 155)),   # record, Video/Short/Live/Post, AI
     'yt_draft_prompt': ((300, 585, 425, 648), (195, 790, 305, 900), (120, 965, 440, 1020), (425, 95, 490, 155)),   # Continue, then the camera's
@@ -240,7 +242,7 @@ class YouTubeCreationWorkflow(ReelCreationWorkflow):
         def journal(event):
             self.record['transitionChecks'].append(event); self.save()
         for attempt in range(CARET_ATTEMPTS if role in CARET_ROLES else 1):
-            self.pause(PRE_SETTLE[role] if attempt == 0 else CARET_PAUSES[attempt % 2])
+            self.pause(PRE_SETTLE[role] if attempt == 0 else CARET_PAUSES[attempt % len(CARET_PAUSES)])
             if role in SETTLED:
                 value, frame, _ = wait_for_transition(role, lambda: self.capture(role, index), self.check, self.store.current_evidence,
                     journal=journal, monotonic=self.monotonic, pause=self.pause,
@@ -344,6 +346,7 @@ class YouTubeVerification(YouTubeCreationWorkflow):
         super().__init__(folder, kernel, store, video, caption, templates, expected_hash, expected_uid,
                          transfer_url='verification-only', download='verification-only', video_bytes=0, account=account, **kwargs)
         self.record.update(mode='verify_youtube_draft', inspectionOnly=False, appRestartVerified=False, finalScreen='unknown')
+        self.rereads = set()   # Drafts reads that were not recognized and were read again without input.
         for key in ('transferUrl', 'downloadName'): self.record.pop(key, None)
 
     def open_drafts(self, label):
@@ -380,7 +383,18 @@ class YouTubeVerification(YouTubeCreationWorkflow):
             if READ_ONLY_VERIFY:
                 # Reopening a saved draft left YouTube on 'Processing' for over half an hour (slot 16, 23 Oct) and
                 # re-saving a reopened draft dropped the video on X, so the check reads the Drafts list only.
-                found, _, _ = self.screen('yt_drafts')
+                for read in range(DRAFTS_READS):
+                    # Windows OCR once placed every word of a settled Drafts frame about 40 px off (run 70,
+                    # slot 16, 26 Oct; the same frame read the same way again): a new frame is read, no input.
+                    seen = {value['id'] for value in self.store.list()}
+                    try: found, _, _ = self.screen('yt_drafts'); break
+                    except InspectionStopped as error:
+                        if 'drafts list is not recognized' not in str(error) or read == DRAFTS_READS - 1: raise
+                        # The rejected captures are stored but not journaled as observed.
+                        rejected = [value['id'] for value in self.store.list() if value['id'] not in seen]
+                        self.rereads.update(rejected)
+                        self.record.setdefault('draftsRereads', []).append(dict(error=str(error), observations=rejected))
+                        self.pause(1.0)
                 self.record['draftsBefore'] = dict(rows=found['rows'], top=found['row']['top'], title=found['row']['title'],
                                                    match=found['row']['match'])
                 self.tap('verify-close-drafts', 'yt_drafts', DRAFTS_CLOSE)

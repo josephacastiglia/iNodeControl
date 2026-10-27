@@ -349,9 +349,15 @@ class StartScreen:
         def back_out(raw, text):
             try: return yl.yt_draft_prompt(text)['target'], 'youtube_draft_prompt', 'start-over-saves-draft', ((78, 450, 422, 648),)
             except InspectionStopped: pass
+            # A stopped verifier can leave the Drafts list or the gallery open (26 Oct); each closes with its X.
+            if yl.drafts_notice(text) and yl.words_at(text, 'drafts', (60, 60, 150, 105)):
+                return (44, 77), 'youtube_drafts', 'close-drafts-list', ((0, 60, 500, 175),)
+            try: return yl.yt_gallery(raw, text)['closeTarget'], 'youtube_gallery', 'close-gallery', ((0, 60, 500, 205),)
+            except InspectionStopped: pass
             try: yl.yt_camera(raw, text)
             except InspectionStopped: return None
-            return (44, 125), 'youtube_camera', 'close-short-camera', ((0, 60, 500, 160), (120, 965, 440, 1020))
+            # Only the X's corner and the mode labels: the bar beside them animates (26 Oct).
+            return (44, 125), 'youtube_camera', 'close-short-camera', ((0, 95, 120, 160), (120, 965, 440, 1020))
         return self.to_app_home('YouTube', 'youtube_home', yl.yt_home, back_out=back_out)
 
     def to_app_home(self, name, target, check, back_out=None):
@@ -376,6 +382,8 @@ class StartScreen:
                 move = back_out(raw, text)
                 if move is None or move[2] in done: break
                 point, role, purpose, only = move; done.add(purpose)
+                # Several back-outs outlast one 30 s lease (26 Oct: the lease expired mid-tap); renew first.
+                self.kernel.renew_if_needed(self.tokens, 20000)
                 self.tap(raw, text, point, role, purpose, only=only)
                 for wait in range(3):
                     self.pause(1.5)

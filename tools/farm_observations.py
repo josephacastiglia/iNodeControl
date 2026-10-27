@@ -77,12 +77,32 @@ class WindowsOcr:
             # is used only for a recognized editor missing Next; it never repairs
             # account/caption text or supplies an independent screen decision.
             value = self._read_file(image_path, size, path)
+            unrotate(value)
             detail = value.pop('control', None)
             value['frameSha256'] = hashlib.sha256(raw).hexdigest()
             if size == (500, 1080) and editor_controls(raw, value) and not next_label(raw, value):
                 value['controlOcr'] = {'next': {**detail, 'sourceFrameSha256': value['frameSha256'],
                     'sourcePixelsSha256': source_pixels, 'bounds': list(NEXT_LABEL_BOX), 'scale': NEXT_LABEL_SCALE}}
             return value
+
+
+def unrotate(value):
+    """Windows OCR deskews a page it finds tilted and reports word boxes in that rotated frame. On
+    YouTube's Drafts list (slot 16, 26 Oct, TextAngle 5.1) every word came back up to 40 px off. Each
+    word's centre is rotated back about the image centre by the reported angle, its size kept; this
+    matched an unrotated read within about 5 px. A level page is left unchanged."""
+    angle = value.get('textAngle') or 0
+    if abs(angle) < .5: return
+    import math
+    theta = math.radians(angle); cos, sin = math.cos(theta), math.sin(theta)
+    cx, cy = value['width'] / 2, value['height'] / 2
+    for line in value.get('lines', []):
+        for word in line.get('words', []):
+            x, y = word['x'] + word['width'] / 2 - cx, word['y'] + word['height'] / 2 - cy
+            px, py = cx + x * cos - y * sin, cy + x * sin + y * cos
+            word['x'] = max(0, min(value['width'] - word['width'], round(px - word['width'] / 2)))
+            word['y'] = max(0, min(value['height'] - word['height'], round(py - word['height'] / 2)))
+    value['unrotated'] = angle
 
 
 PLATFORMS = ('instagram', 'tiktok', 'x', 'youtube')

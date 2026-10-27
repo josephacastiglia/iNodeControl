@@ -93,11 +93,11 @@ def main():
     workflow = run['workflow']
     folder = Path(prep['backendData']) / prep['route'] / run['id']
     child = folder / f'verification-{args.check}'
-    if prep['platform'] == 'youtube':
+    if prep['platform'] == 'youtube' and 'verification' not in workflow:
         if not saved_then_stopped(run):
             raise SystemExit('This attempt is not a saved YouTube draft whose creation stopped after Draft saved. Nothing was sent.')
         if child.exists() or (folder / 'verification').exists(): raise SystemExit('This check exists. Never replay a check.')
-    else:
+    else:   # Every platform, YouTube included once its own verifier ran and stopped (run 70, 26 Oct).
         if not (run['terminal'] and workflow.get('creationState') == 'created_unverified' and not run['savedDraftVerified']
                 and workflow.get('cleanup') == 'confirmed' and isinstance(workflow.get('verification'), dict)):
             raise SystemExit('This attempt is not a saved, unverified draft with a stopped verifier. Nothing was sent.')
