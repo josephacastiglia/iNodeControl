@@ -151,6 +151,15 @@ class Slot16CameraGalleryTests(unittest.TestCase):
         frame, text = live26('home-tinted')   # Run 73: the bar tinted the + disk teal.
         self.assertEqual((250, 1011), yl.yt_home(frame, text)['createTarget'])
 
+    def test_the_title_is_read_with_only_the_caret_blanked(self):
+        # Run 74: the caret was drawn in 18 of 20 frames; blanking its columns reads the exact title.
+        from farm_screen_layout import pixels
+        raw = (LIVE26/'details-caret-solid.png').read_bytes(); image = pixels(raw, exact=True)
+        self.assertEqual([269, 270, 271], yl.caret_columns(image))
+        self.assertEqual(['Fresh', 'short', 'test'], [w[0] for w in yl.caret_masked_title(raw, image)])
+        clean = (LIVE26/'details-no-caret.png').read_bytes()
+        self.assertEqual([], yl.caret_masked_title(clean, pixels(clean, exact=True)))
+
     def test_the_gallery_offers_drafts_beside_create_video(self):
         for name in ('gallery', 'gallery-back'):
             frame, text = live26(name)

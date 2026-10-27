@@ -149,6 +149,11 @@ class Screens:
             image = base.convert('RGB'); ImageDraw.Draw(image).rectangle((330, 157, 331, 180), fill=(20, 20, 20))
             self.frames['yt_details_caret'] = png(image)
         self.texts['yt_details_caret'] = copy.deepcopy(self.texts['yt_details_titled'])
+        # A drawn caret beside a field that does not hold the caption (the title area blanked).
+        with Image.open(io.BytesIO(self.frames['yt_details_caret'])) as base:
+            image = base.convert('RGB'); ImageDraw.Draw(image).rectangle((128, 150, 328, 186), fill='white')
+            self.frames['yt_details_caret_wrong'] = png(image)
+        self.texts['yt_details_caret_wrong'] = copy.deepcopy(self.texts['yt_details_titled'])
         # The drafts list with the candidate's title on the newest row (retained rows, thumbnails and times kept).
         step = '147-youtube-video-draft-library'
         with Image.open(R17/step/'after.png') as base:
@@ -250,6 +255,7 @@ class FixtureKernel:
         if s in ('yt_camera_prompt', 'yt_camera_drafts_prompt'): return s
         if s == 'yt_reopened': return 'yt_reopened_later' if n % 2 and self.scenario != 'frozen_video' else 'yt_reopened'
         if s == 'yt_details_titled' and self.scenario == 'caret_forever': return 'yt_details_caret'
+        if s == 'yt_details_titled' and self.scenario == 'caret_wrong': return 'yt_details_caret_wrong'
         return {'yt_camera_final': 'yt_camera_drafts', 'yt_drafts_final': 'yt_drafts'}.get(s, s)
 
     def shot(self, phone):
@@ -505,7 +511,7 @@ class YouTubeProtocolTests(unittest.TestCase):
 
     def test_faults_stop_before_the_draft(self):
         cases = [('ambiguous_tile', None), ('prompt', 'yt_details_titled'), ('prompt', 'yt_camera'), ('stale_frame', 'yt_selected'),
-                 ('trimmed', None), ('caret_forever', None), ('wrong_title', None)]
+                 ('trimmed', None), ('caret_wrong', None), ('wrong_title', None)]
         for scenario, screen in cases:
             with self.subTest(scenario=scenario, screen=screen):
                 flow, kernel = self.fixture(scenario, screen); result = flow.run()
@@ -513,8 +519,11 @@ class YouTubeProtocolTests(unittest.TestCase):
                 self.assertEqual(0, kernel.saves); self.assertEqual([], kernel.unexpected)
         flow, kernel = self.fixture('trimmed'); result = flow.run()
         self.assertIn('whole package video', result['error']); self.assertNotIn('keep-whole-video', [a['label'] for a in result['actions']])
-        flow, kernel = self.fixture('caret_forever'); result = flow.run()
+        flow, kernel = self.fixture('caret_wrong'); result = flow.run()
         self.assertIn('caret', result['error']); self.assertNotIn('save-youtube-draft-once', [a['label'] for a in result['actions']])
+        # A caret drawn in every frame (slot 16, run 74): the exact title read with the caret blanked decides.
+        flow, kernel = self.fixture('caret_forever'); result = flow.run()
+        self.assertEqual('created_unverified', result['state'], result.get('error')); self.assertEqual(1, kernel.saves)
         # Different package media: the Files preview does not match, so nothing reaches Photos or YouTube.
         flow, kernel = self.fixture(); flow.video = self.other; result = flow.run()
         self.assertEqual('review_required', result['state']); self.assertEqual(0, kernel.photos); self.assertIn('package video', result['error'])

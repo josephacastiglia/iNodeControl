@@ -428,6 +428,31 @@ def caret_visible(image):
     return bool((best >= 20).any())
 
 
+def caret_columns(image):
+    """Frame columns of the caret: an unbroken bar under 200 at least 20 px tall in the title band."""
+    left, top, right, bottom = TITLE_BAND
+    band = image[top:bottom, left:right].max(axis=2)
+    run = best = np.zeros(band.shape[1], dtype=int)
+    for row in band < 200:
+        run = np.where(row, run + 1, 0); best = np.maximum(best, run)
+    return [left + int(c) for c in np.nonzero(best >= 20)[0]]
+
+
+def caret_masked_title(frame, image):
+    """The title field read enlarged with only the caret's columns (and one on each side) set to the
+    field's white; words in reading order. Empty when no caret column is found."""
+    columns = caret_columns(image)
+    if not columns or len(columns) > 6: return []
+    masked = image.copy()
+    left, top, right, bottom = TITLE_BAND
+    masked[top:bottom, max(left, columns[0]-1):min(right, columns[-1]+2)] = 255
+    out = io.BytesIO(); Image.fromarray(masked.astype(np.uint8)).save(out, 'BMP')
+    for scale in (3, 4):
+        words = sorted(band_words(out.getvalue(), TITLE_BAND, scale), key=lambda w: (round(w[2]/12), w[1]))
+        if words: return words
+    return []
+
+
 def handle(text):
     """The one channel handle under the channel name; personal content is never read elsewhere."""
     found = [m.group(1) for line in text.get('lines', []) if line.get('words')
@@ -473,11 +498,18 @@ def yt_details(frame, text, reference, caption=None, *, state):
             if rows and caret_visible(image): raise CaretVisible('The title caret may be read as text; capture again without input.')
             require(not rows, 'The YouTube title field is not empty.')
         else:
-            if caret_visible(image): raise CaretVisible('The title caret is drawn; capture again without input.')
-            bounds = [(min(w['x'] for w in line['words']), max(w['x']+w['width'] for w in line['words']))
-                      for line in text.get('lines', []) if line.get('words') and line['text'] in rows]
-            require(rows == [caption] and len(bounds) == 1 and bounds[0][0] >= 128 and bounds[0][1] <= 470,
-                    'The visible YouTube title is missing, different or does not fit the field.')
+            if caret_visible(image):
+                # Slot 16's caret stays drawn in most frames (run 74, 27 Oct: 18 of 20). Only its columns
+                # (an unbroken bar taller than any glyph) are blanked and the field is read again
+                # enlarged; the title must still equal the caption exactly, else capture again.
+                words = caret_masked_title(frame, image)
+                if not (words and ' '.join(w[0] for w in words) == caption and words[0][1] >= 128 and words[-1][3] <= 470):
+                    raise CaretVisible('The title caret is drawn; capture again without input.')
+            else:
+                bounds = [(min(w['x'] for w in line['words']), max(w['x']+w['width'] for w in line['words']))
+                          for line in text.get('lines', []) if line.get('words') and line['text'] in rows]
+                require(rows == [caption] and len(bounds) == 1 and bounds[0][0] >= 128 and bounds[0][1] <= 470,
+                        'The visible YouTube title is missing, different or does not fit the field.')
     return dict(channel=channel, cover=cover, state=state, captionExact=state == 'titled',
                 titleTarget=(256, 161), pressTarget=(220, 165), saveTarget=(130, 996))
 
