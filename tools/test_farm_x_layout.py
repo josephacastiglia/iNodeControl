@@ -16,7 +16,8 @@ from farm_carousel_inspection import InspectionStopped
 
 ROOT = Path(__file__).resolve().parents[1]
 R17 = ROOT/'analysis/farm-platform-drafts-20261017'
-OCR = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261019-farm-x-offline/ocr-20261017'
+import farm_paths  # noqa: E402  (the archive beside the main folder, also from a lane worktree)
+OCR = farm_paths.ARCHIVE/'20261019-farm-x-offline/ocr-20261017'
 PRIVATE = (R17/'normalized-test.mp4').exists() and OCR.exists()
 CAPTION = 'IMOUSE-VlDEO-DRAFT-TEST-20261017'   # The retained frames' exact OCR form.
 

@@ -40,9 +40,10 @@ import test_farm_youtube_layout as layout
 
 ROOT = Path(__file__).resolve().parents[1]
 R17 = layout.R17
-OCR_SAFARI = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261019-farm-reel-offline/ocr-20261017'
+import farm_paths  # noqa: E402  (the archive beside the main folder, also from a lane worktree)
+OCR_SAFARI = farm_paths.ARCHIVE/'20261019-farm-reel-offline/ocr-20261017'
 OCR_YT = layout.OCR
-P1 = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261019-farm-new-draft/backend/draft-creations/b8c155e2-1670-4f60-a090-aeff921e162e'
+P1 = farm_paths.ARCHIVE/'20261019-farm-new-draft/backend/draft-creations/b8c155e2-1670-4f60-a090-aeff921e162e'
 PRIVATE = layout.PRIVATE and all(p.exists() for p in (OCR_SAFARI, P1/'record.json'))
 CAPTION = 'Fresh yt acceptance'
 URL = 'http://192.168.50.2:9917/t/fixture-token/'

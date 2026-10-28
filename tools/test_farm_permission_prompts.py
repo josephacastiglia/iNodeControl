@@ -9,7 +9,8 @@ from unittest.mock import patch
 import farm_permission_prompts as pp
 
 ROOT = Path(__file__).resolve().parents[1]
-ARCHIVE = ROOT.parent/'iMouseXP-2.0-evidence-archive'
+import farm_paths  # noqa: E402  (the archive beside the main folder, also from a lane worktree)
+ARCHIVE = farm_paths.ARCHIVE
 RETAINED = ('20261019-farm-reel-offline', '20261019-farm-tiktok-offline', '20261019-farm-x-offline', '20261020-farm-youtube-offline')
 PRIVATE = all((ARCHIVE/name/'ocr-20261017').is_dir() for name in RETAINED)
 

@@ -31,9 +31,10 @@ from imouse_social_automation import LIVE_TEST_DEVICE_ID
 
 ROOT = Path(__file__).resolve().parents[1]
 R17 = ROOT/'analysis/farm-platform-drafts-20261017'
-OCR_SAFARI = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261019-farm-reel-offline/ocr-20261017'
-OCR_X = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261019-farm-x-offline/ocr-20261017'
-P1 = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261019-farm-new-draft/backend/draft-creations/b8c155e2-1670-4f60-a090-aeff921e162e'
+import farm_paths  # noqa: E402  (the archive beside the main folder, also from a lane worktree)
+OCR_SAFARI = farm_paths.ARCHIVE/'20261019-farm-reel-offline/ocr-20261017'
+OCR_X = farm_paths.ARCHIVE/'20261019-farm-x-offline/ocr-20261017'
+P1 = farm_paths.ARCHIVE/'20261019-farm-new-draft/backend/draft-creations/b8c155e2-1670-4f60-a090-aeff921e162e'
 PRIVATE = all(p.exists() for p in (R17/'normalized-test.mp4', OCR_SAFARI, OCR_X, P1/'record.json'))
 CAPTION = 'IMOUSE-VlDEO-DRAFT-TEST-20261017'   # The retained frames' exact OCR form (32 characters).
 URL = 'http://192.168.50.2:9917/t/fixture-token/'

@@ -21,7 +21,8 @@ from farm_carousel_inspection import InspectionStopped
 
 ROOT = Path(__file__).resolve().parents[1]
 R17 = ROOT/'analysis/farm-platform-drafts-20261017'
-OCR = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261020-farm-youtube-offline/ocr-20261017'
+import farm_paths  # noqa: E402  (the archive beside the main folder, also from a lane worktree)
+OCR = farm_paths.ARCHIVE/'20261020-farm-youtube-offline/ocr-20261017'
 PRIVATE = (R17/'normalized-test.mp4').exists() and OCR.exists() and (R17/'140-youtube-mp4-trim-review/pointer.png').exists()
 TITLE = 'IMOUSE-VIDEO-DRAFT-TEST-20261017'   # The retained MP4 draft's title, 32 characters: longer than the candidate allows.
 FIRST = [0, 298, 164, 589]                  # The package video's tile in the retained picker.
@@ -98,7 +99,7 @@ class SyntheticYouTubeLayoutTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): yl.yt_paste_menu(frame, dict(text, lines=text['lines'][:1]))
 
 
-LIVE26 = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261026-youtube-gallery-drafts'
+LIVE26 = farm_paths.ARCHIVE/'20261026-youtube-gallery-drafts'
 
 
 def live26(name):

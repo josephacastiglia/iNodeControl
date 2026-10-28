@@ -15,7 +15,8 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-ARCHIVE = REPO.parent / 'iMouseXP-2.0-evidence-archive'
+sys.path.insert(0, str(REPO / 'tools'))
+from farm_paths import ARCHIVE  # noqa: E402  (beside the main folder, also from a lane worktree)
 PRIVATE = ARCHIVE / 'privacy'
 OCR = ARCHIVE / '20261019-farm-x-offline/ocr-20261017/31-x-account__after.json'
 

@@ -11,7 +11,10 @@ if(Test-Path -LiteralPath $taskProcessFile){throw 'This window already has a pro
 $taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json
 if((Get-FileHash -LiteralPath $taskPrep.config -Algorithm SHA256).Hash.ToLowerInvariant() -cne $taskPrep.configSha256){throw 'Window config changed.'}
 # The shared kernel: the one the multi-phone preparation started, still the same process and build.
-$taskRack=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'slots\processes.json') -Raw | ConvertFrom-Json
+# Its record is the main folder's, also from a lane's worktree (<main>.worktrees\<lane>, tools/farm_paths.py).
+$taskLanes=Split-Path $taskRoot -Parent
+$taskMain=if((Split-Path $taskLanes -Leaf).EndsWith('.worktrees')){$taskLanes.Substring(0,$taskLanes.Length-'.worktrees'.Length)}else{$taskRoot}
+$taskRack=Get-Content -LiteralPath (Join-Path $taskMain 'analysis\farm-multiphone-20261020\slots\processes.json') -Raw | ConvertFrom-Json
 $taskKernel=Get-CimInstance Win32_Process -Filter "ProcessId=$($taskRack.kernel.pid)"
 if(!$taskKernel -or $taskKernel.ExecutablePath -ne $taskPrep.kernel){throw 'The multi-phone kernel is not running.'}
 $taskStatus=(Invoke-RestMethod 'http://127.0.0.1:9916/api/kernel/status' -TimeoutSec 4).data

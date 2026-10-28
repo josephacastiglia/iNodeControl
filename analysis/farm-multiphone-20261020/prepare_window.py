@@ -24,6 +24,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from farm_creation_runs import MEDIA_PORTS, creation_config  # noqa: E402
+from farm_paths import RACK  # noqa: E402  (the main folder's rack, also from a lane worktree)
 from farm_phone_identity import PhoneIdentity  # noqa: E402
 from farm_reel_test_media import render, colour_code  # noqa: E402
 from farm_video import VideoDrafts, VideoTransferPackage  # noqa: E402
@@ -53,7 +54,7 @@ def main():
     if pinned != (args.account is not None):
         raise SystemExit(f'{args.platform} needs ' + ('the handle signed in on that phone.' if pinned else 'no account: creation binds the signed-in one.'))
 
-    rack = load(HERE / 'slots' / 'preparation.json')
+    rack = load(RACK / 'preparation.json')
     kernel = Path(rack['kernel'])
     if sha(kernel.with_suffix('.dll')) != rack['kernelSha256']: raise SystemExit('Multi-phone kernel changed.')
     data = Path(rack['runDirectory']) / 'data'
@@ -98,7 +99,7 @@ def main():
     preparation = dict(platform=args.platform, route=route, capability=capability, slot=args.slot, phone=phone.as_config(),
                        runDirectory=str(run), backendData=str(backend), backendPort=BACKEND_PORTS[args.slot],
                        mediaPort=MEDIA_PORTS[args.slot], config=str(config_path), configSha256=sha(config_path),
-                       kernel=str(kernel), kernelSha256=rack['kernelSha256'], rackPreparation=str(HERE / 'slots' / 'preparation.json'),
+                       kernel=str(kernel), kernelSha256=rack['kernelSha256'], rackPreparation=str(RACK / 'preparation.json'),
                        account=args.account, videoDraftId=draft['id'], revision=draft['revision'], caption=caption, testToken=token,
                        colourCode=colour_code(token), videoSha256=draft['sha256'], packageSha256=hashlib.sha256(package).hexdigest(),
                        downloadName=parsed.download_name, backendSourceHash=source_hash,

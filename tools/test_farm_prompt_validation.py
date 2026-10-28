@@ -391,7 +391,8 @@ class EquivalenceTests(unittest.TestCase):
 
 
 R17 = ROOT/'analysis/farm-platform-drafts-20261017'
-OCR17 = ROOT.parent/'iMouseXP-2.0-evidence-archive/20261020-farm-youtube-offline/ocr-20261017'
+import farm_paths  # noqa: E402  (the archive beside the main folder, also from a lane worktree)
+OCR17 = farm_paths.ARCHIVE/'20261020-farm-youtube-offline/ocr-20261017'
 PRIVATE = (R17/'135-youtube-cancel-optional-prompt/before.png').exists() and OCR17.is_dir()
 
 

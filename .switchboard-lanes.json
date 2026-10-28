@@ -1,0 +1,5 @@
+{
+  "commit": "by-name",
+  "check": "python tools/privacy_scan_staged.py",
+  "rules": "LANES.md"
+}
