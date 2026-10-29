@@ -40,14 +40,56 @@ def changed_fraction(a, b):
     return float((np.abs(x - y) > 24).mean()) if x.shape == y.shape else 1.0
 
 
+# Traced in 20 px steps: jumps of 200 px or more timed out the board's 2 s HID write midway on
+# rack A's added boards (3523, 28 Oct), while runs of 20 px moves passed on all of them.
+def _edge(a, b, step=20):
+    n = max(abs(b[0] - a[0]), abs(b[1] - a[1])) // step
+    return [(a[0] + (b[0] - a[0]) * i // n, a[1] + (b[1] - a[1]) * i // n) for i in range(1, n + 1)]
+
+
+WATCH_SQUARE = [p for a, b in zip(SQUARE, SQUARE[1:] + SQUARE[:1]) for p in _edge(a, b)]
+WATCH_ROUNDS = 4
+WATCH_STEP_S = 0.08
+
+
+def watch(board, device_id):
+    """Pointer moves only, for the operator's eyes: about 15 s of the square, then the lease goes."""
+    folder = HERE / 'identify' / f"{board}-watch-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
+    folder.mkdir(parents=True)
+    record = dict(board=board, mode='watch', moves=[], phoneInput='pointer moves only')
+    # An added board stopped by an earlier timed-out move (never an operator stop: these phones
+    # carry no farm work yet) is resumed, generation-checked, as board_probe.py does.
+    row = next(p for p in request(BASE, 'GET', '/input/status', timeout=5)['phones'] if p['id'] == device_id)
+    if row['stopped'] and device_id.startswith('pending-'):
+        post(BASE, '/input/resume', dict(id=device_id, expected_generations={device_id: row['generation']}))
+    token = acquire(BASE, device_id)
+    try:
+        for _ in range(WATCH_ROUNDS):
+            post(BASE, '/input/renew', dict(id=device_id, token=token))   # The lease is 15 s; a round is about 4 s.
+            for x, y in WATCH_SQUARE:
+                got = post(BASE, '/mouse/move', dict(id=device_id, token=token, x=x, y=y))
+                record['moves'].append(dict(x=x, y=y, code=got.get('code')))
+                if got.get('code') != 0: raise RuntimeError(f'move refused: {got}')
+                time.sleep(WATCH_STEP_S)
+    finally:
+        record['release'] = post(BASE, '/input/release', dict(id=device_id, token=token)).get('code')
+        (folder / 'record.json').write_text(json.dumps(record, indent=2), encoding='utf-8')
+    print(json.dumps(dict(board=board, mode='watch', moves=len(record['moves']), released=record['release'] == 0)))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--board', required=True)
-    board = parser.parse_args().board.upper()
+    # --watch: a phone not mirroring yet (rack A's added boards, 28 Oct). A larger square for longer,
+    # for the operator to spot in the box; no frames and no screen check.
+    parser.add_argument('--watch', action='store_true')
+    args = parser.parse_args()
+    board = args.board.upper()
     devices = request(BASE, 'GET', '/device/get', timeout=8)['list']
     device = next((d for d in devices if d.get('pid', '').upper() == board), None)
     if not device or device['deviceid'] in ('*', '') or device['deviceid'].startswith('unbound-'):
         raise SystemExit(f'{board} has no bound phone; it cannot be identified by its own screen.')
+    if args.watch: return watch(board, device['deviceid'])
     receivers = {r['deviceid']: r for r in request(BASE, 'GET', '/kernel/status', timeout=8)['receivers']}
     others = [d for d in receivers if d != device['deviceid'] and receivers[d]['live'] and d not in ('*', '')]
     if not receivers.get(device['deviceid'], {}).get('live'): raise SystemExit(f'{board} is not mirroring.')

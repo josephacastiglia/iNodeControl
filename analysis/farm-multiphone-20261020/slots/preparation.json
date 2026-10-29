@@ -1,39 +1,81 @@
 {
-  "runDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-slots-20261020",
+  "runDirectory": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-racka-pending-20261029T031131Z",
   "kernel": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\multiphone-kernel-20261020\\iMouse2.Kernel.exe",
   "kernelSha256": "2350ca2241ae58e7324bc976759f31227c4b6cfe89940bf43632deaa8468cfaf",
   "arguments": [
     "http://127.0.0.1:9916/api/",
     "--data-dir",
-    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-slots-20261020\\data",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-racka-pending-20261029T031131Z\\data",
     "--input-pid",
-    "C24C,C214,724E,F215",
+    "C24C,C214,724E,F215,E414,3523,C415,764E,374C,3848,D446,9515,7949,704E,694E,1248,1814,D142",
     "--receivers",
-    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-slots-20261020\\data\\receivers.json",
+    "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\multiphone-racka-pending-20261029T031131Z\\data\\receivers.json",
     "--receiver",
     "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\receiver\\uxplay.exe",
     "--receiver-runtime",
     "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\candidate-runs\\farm-new-draft-20261019\\runtime",
     "--hold-receivers",
-    "C24C,C214,724E,F215"
+    "C24C,C214,724E,F215,E414,3523,C415,764E,374C,3848,D446,9515,7949,704E,694E,1248,1814,D142"
   ],
   "held": [
     "C24C",
     "C214",
     "724E",
-    "F215"
+    "F215",
+    "E414",
+    "3523",
+    "C415",
+    "764E",
+    "374C",
+    "3848",
+    "D446",
+    "9515",
+    "7949",
+    "704E",
+    "694E",
+    "1248",
+    "1814",
+    "D142"
   ],
   "boards": [
     "C24C",
     "C214",
     "724E",
-    "F215"
+    "F215",
+    "E414",
+    "3523",
+    "C415",
+    "764E",
+    "374C",
+    "3848",
+    "D446",
+    "9515",
+    "7949",
+    "704E",
+    "694E",
+    "1248",
+    "1814",
+    "D142"
   ],
   "inputEnabled": [
     "C24C",
     "C214",
     "724E",
-    "F215"
+    "F215",
+    "E414",
+    "3523",
+    "C415",
+    "764E",
+    "374C",
+    "3848",
+    "D446",
+    "9515",
+    "7949",
+    "704E",
+    "694E",
+    "1248",
+    "1814",
+    "D142"
   ],
   "receivers": [
     {
@@ -55,6 +97,76 @@
       "board": "F215",
       "name": "iMouse2-16",
       "port": 7150
+    },
+    {
+      "board": "E414",
+      "name": "iMouse2-E414",
+      "port": 7160
+    },
+    {
+      "board": "3523",
+      "name": "iMouse2-3523",
+      "port": 7170
+    },
+    {
+      "board": "C415",
+      "name": "iMouse2-C415",
+      "port": 7180
+    },
+    {
+      "board": "764E",
+      "name": "iMouse2-764E",
+      "port": 7190
+    },
+    {
+      "board": "374C",
+      "name": "iMouse2-374C",
+      "port": 7200
+    },
+    {
+      "board": "3848",
+      "name": "iMouse2-3848",
+      "port": 7210
+    },
+    {
+      "board": "D446",
+      "name": "iMouse2-D446",
+      "port": 7220
+    },
+    {
+      "board": "9515",
+      "name": "iMouse2-9515",
+      "port": 7230
+    },
+    {
+      "board": "7949",
+      "name": "iMouse2-7949",
+      "port": 7240
+    },
+    {
+      "board": "704E",
+      "name": "iMouse2-704E",
+      "port": 7250
+    },
+    {
+      "board": "694E",
+      "name": "iMouse2-694E",
+      "port": 7260
+    },
+    {
+      "board": "1248",
+      "name": "iMouse2-1248",
+      "port": 7270
+    },
+    {
+      "board": "1814",
+      "name": "iMouse2-1814",
+      "port": 7280
+    },
+    {
+      "board": "D142",
+      "name": "iMouse2-D142",
+      "port": 7290
     }
   ],
   "sources": {
@@ -68,9 +180,9 @@
     "F215": "iMouse2-Phone5 -> iMouse2-F215"
   },
   "dataSha256": {
-    "devices.json": "6f0119e133ad62bf145f9de2a1a00add11790d616c37a4d9c6823b1cbd7d376d",
-    "receivers.json": "b1bf7a9c15f907c85ecc7aee7ccff1762bdee74daf5d5ee56209b54eecf85b5e",
-    "pointer-calibration.json": "69b2c68d23614b3d9685d6b294856a46955edf404236f578593c165a0fe5f402"
+    "devices.json": "ba480bc4973158a7f0b246bd8a2c1e1876655bae115b20ea418aca01d159737f",
+    "receivers.json": "c98cfe5d1cac8f1a33f9efb5599ba0d722202f1d2c040f800db75337346408d3",
+    "pointer-calibration.json": "0f6f44dd305bc6330871b3536372435be9a3d5e5503e26e101dbba6809142f09"
   },
   "protectedBefore": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-recovery-live-20261019\\protected-before.json",
   "serviceStarted": false,
@@ -81,6 +193,25 @@
     "C24C": 18,
     "C214": 20
   },
-  "derivedFrom": "held\\preparation.json",
-  "f215BoundTo": "slot 16 phone (receiver log 20 Oct 21:40)"
+  "derivedFrom": "slots/preparation-4phone-20261020.json",
+  "f215BoundTo": "slot 16 phone (receiver log 20 Oct 21:40)",
+  "rackAStep": "pending",
+  "pendingRun": null,
+  "added": [
+    "E414",
+    "3523",
+    "C415",
+    "764E",
+    "374C",
+    "3848",
+    "D446",
+    "9515",
+    "7949",
+    "704E",
+    "694E",
+    "1248",
+    "1814",
+    "D142"
+  ],
+  "learned": {}
 }
