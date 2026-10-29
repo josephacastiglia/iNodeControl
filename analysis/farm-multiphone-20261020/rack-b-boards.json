@@ -1,0 +1,126 @@
+{
+    "note":  "Rack B: the second 20-phone box, plugged in 28 Oct 2026 22:32 on its own USB host controller (rack A is on another). Three 7-port hubs, B hub 2 port 4 empty, as in rack A. Hub/port order is USB order, not the physical slot order (rack A proved they differ); slots, phones, models and receivers come at bring-up once the phones are on.",
+    "vendorId":  "720A",
+    "boards":  [
+                   {
+                       "board":  "35B7",
+                       "hub":  1,
+                       "port":  1,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(3)#USB(1)"
+                   },
+                   {
+                       "board":  "E688",
+                       "hub":  1,
+                       "port":  2,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(3)#USB(2)"
+                   },
+                   {
+                       "board":  "6C0C",
+                       "hub":  1,
+                       "port":  3,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(3)#USB(3)"
+                   },
+                   {
+                       "board":  "5F0C",
+                       "hub":  1,
+                       "port":  4,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(3)#USB(4)"
+                   },
+                   {
+                       "board":  "75A3",
+                       "hub":  1,
+                       "port":  5,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(3)#USB(5)"
+                   },
+                   {
+                       "board":  "D505",
+                       "hub":  1,
+                       "port":  6,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(3)#USB(6)"
+                   },
+                   {
+                       "board":  "72A3",
+                       "hub":  1,
+                       "port":  7,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(3)#USB(7)"
+                   },
+                   {
+                       "board":  "24B7",
+                       "hub":  2,
+                       "port":  1,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(4)#USB(1)"
+                   },
+                   {
+                       "board":  "0C6D",
+                       "hub":  2,
+                       "port":  2,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(4)#USB(2)"
+                   },
+                   {
+                       "board":  "636D",
+                       "hub":  2,
+                       "port":  3,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(4)#USB(3)"
+                   },
+                   {
+                       "board":  "29B7",
+                       "hub":  2,
+                       "port":  5,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(4)#USB(5)"
+                   },
+                   {
+                       "board":  "F888",
+                       "hub":  2,
+                       "port":  6,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(4)#USB(6)"
+                   },
+                   {
+                       "board":  "F788",
+                       "hub":  2,
+                       "port":  7,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(4)#USB(7)"
+                   },
+                   {
+                       "board":  "8305",
+                       "hub":  3,
+                       "port":  1,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(5)#USB(1)"
+                   },
+                   {
+                       "board":  "CD51",
+                       "hub":  3,
+                       "port":  2,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(5)#USB(2)"
+                   },
+                   {
+                       "board":  "DF51",
+                       "hub":  3,
+                       "port":  3,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(5)#USB(3)"
+                   },
+                   {
+                       "board":  "7E0C",
+                       "hub":  3,
+                       "port":  4,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(5)#USB(4)"
+                   },
+                   {
+                       "board":  "F605",
+                       "hub":  3,
+                       "port":  5,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(5)#USB(5)"
+                   },
+                   {
+                       "board":  "CA05",
+                       "hub":  3,
+                       "port":  6,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(5)#USB(6)"
+                   },
+                   {
+                       "board":  "EE14",
+                       "hub":  3,
+                       "port":  7,
+                       "locationPath":  "PCIROOT(0)#PCI(0201)#PCI(0000)#PCI(0C00)#PCI(0000)#USBROOT(0)#USB(10)#USB(5)#USB(7)"
+                   }
+               ]
+}

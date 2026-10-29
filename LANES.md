@@ -45,6 +45,23 @@ it is not connected yet, and its phones get lanes once the Rack lane has brought
 | A20 | C214 | TikTok | TikTok photo |
 | B1-B20 | own | own accounts | Rack (bring-up), then assigned here |
 
+Rack A has 19 boards (one hub port is empty); the other 14 phones are in the September full-rack
+config (`iMouseXP-2.0/analysis/full-rack-config`, device IDs known) but not yet in the farm.
+
+**Rack B** (plugged in 28 Oct 22:32): 20 boards on its own USB host controller, listed with their
+hub ports in `analysis/farm-multiphone-20261020/rack-b-boards.json`. Its phones were flat and
+charging through their boards then, and the boards kept dropping off USB. Bring-up, once the
+phones are on and the boards stay present:
+1. Each phone: on, unlocked, on the farm Wi-Fi, with the pointer settings rack A uses
+   (AssistiveTouch on, 'Always Show Menu' off). The operator does this on the phones.
+2. Per board, held mode, one at a time: a receiver that accepts any phone (as F215's did on
+   20 Oct), connected from the board itself; the receiver log names the phone's device ID and
+   model; lock the receiver to it.
+3. `pointer_identify.py`: the operator names the physical slot (1 = far left) as the pointer
+   circles; `pointer_measure.py` calibrates the model. USB hub/port order is not slot order.
+4. Names `iMouse2-B<slot>` and console names `Phone B<slot>`; backend and media ports per slot.
+5. The operator names each phone's platform and account (handles stay out of Git).
+
 ## Lanes
 
 | Lane | Work (tracker priority) | Owns |
