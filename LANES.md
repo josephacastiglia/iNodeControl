@@ -50,8 +50,9 @@ config (`iMouseXP-2.0/analysis/full-rack-config`, device IDs known) but not yet 
 
 **Rack B** (plugged in 28 Oct 22:32): 20 boards on its own USB host controller, listed with their
 hub ports in `analysis/farm-multiphone-20261020/rack-b-boards.json`. Its phones were flat and
-charging through their boards then, and the boards kept dropping off USB. Bring-up, once the
-phones are on and the boards stay present:
+charging through their boards; the boards dropped on and off USB for the first minutes, then all
+20 stayed present (every 10 s, 22:40-23:01; rack A's 19 never dropped). Bring-up, once the
+phones are on:
 1. Each phone: on, unlocked, on the farm Wi-Fi, with the pointer settings rack A uses
    (AssistiveTouch on, 'Always Show Menu' off). The operator does this on the phones.
 2. Per board, held mode, one at a time: a receiver that accepts any phone (as F215's did on
