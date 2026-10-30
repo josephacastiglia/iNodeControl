@@ -11,6 +11,7 @@ import argparse
 import json
 import sys
 import time
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -24,12 +25,35 @@ from identify_phone import acquire, post, request  # noqa: E402
 # how far the swipe carried (shared with auto_connect.py --survey).
 SCROLL = dict(x1=250, y1=880, x2=250, y2=260, duration=600)
 
+# Aim for a 4.7-inch phone (6s, 7, 8: rack A slots 2, 5-8, all of rack B) driven on the placeholder
+# calibration (origin 14, 5.1 px per unit): its 375x667 screen is letterboxed in the 500x1080 frame
+# from y 95, and the pointer lands at 5.61 px per unit from (0, 95) (pointer_measure.py on 1814,
+# 30 Oct: five clean dots within 8 px). to_send turns a frame point into the point to send.
+SMALL = dict(ox=0, oy=95, ppu=5.61)
+SMALL_TILE = (194, 566)   # Control Center's Screen Mirroring tile on a 4.7-inch phone, frame pixels.
+
+
+def to_send(point, aim=None):
+    if aim is None: return point
+    return (round(14 + (point[0] - aim['ox']) / aim['ppu'] * 5.1), round(14 + (point[1] - aim['oy']) / aim['ppu'] * 5.1))
+
+
+def find_line(text, words):
+    """Centre of the first OCR line whose text equals words (case-insensitive), or None."""
+    for line in text.get('lines', []):
+        if line.get('words') and line['text'].strip().casefold() == words.casefold():
+            ws = line['words']
+            return (round(sum(w['x'] + w['width'] / 2 for w in ws) / len(ws)), round(sum(w['y'] + w['height'] / 2 for w in ws) / len(ws)))
+    return None
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--board', required=True)
     # --scroll: read the card scrolled to its end, for rows below the fold (slots 17-20 of 16 listed).
     parser.add_argument('--scroll', action='store_true')
+    # --small: a 4.7-inch phone (6s/7/8) on the placeholder calibration; taps go through SMALL.
+    parser.add_argument('--small', action='store_true')
     args = parser.parse_args()
     board = args.board.upper()
     device = next(d for d in request(BASE, 'GET', '/device/get', timeout=8)['list'] if d.get('pid', '').upper() == board)
@@ -37,7 +61,7 @@ def main():
     if not status['live']: raise SystemExit(f"{status['name']} is not mirroring; its card cannot be read.")
     folder = HERE / 'card-survey' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"; folder.mkdir(parents=True)
     # The card's layout depends on how many receivers it lists, so the advertised set is kept with it.
-    record = dict(board=board, advertised=sorted(browse()[0]), scroll=args.scroll, steps=[])
+    record = dict(board=board, advertised=sorted(browse()[0]), scroll=args.scroll, small=args.small, steps=[])
     token = acquire(BASE, device['deviceid'])
 
     def send(fun, purpose, **data):
@@ -46,17 +70,28 @@ def main():
         record['steps'].append(dict(fun=fun, purpose=purpose, code=got.get('code')))
         if got.get('code') != 0: raise RuntimeError(f'{purpose}: {got}')
 
+    aim = SMALL if args.small else None
+
     def tap(point, purpose):
+        x, y = to_send(point, aim)
         send('/mouse/reset', purpose + ' (reset)')
-        send('/mouse/click', purpose, x=point[0], y=point[1])
+        send('/mouse/click', purpose, x=x, y=y)
 
     try:
         send('/key/sendkey', 'home', fn_key='Home'); time.sleep(1.5)
         send('/key/sendkey', 'open Control Center', fn_key='ControlBar'); time.sleep(1.2)
-        tap(TILE, 'Screen Mirroring tile'); time.sleep(2.5)
+        tile = TILE
+        if args.small:
+            # Control Center on these phones is laid out differently; its tile is found by its label.
+            raw = urllib.request.urlopen(f"{BASE}/pic/screenshot?id={device['deviceid']}", timeout=8).read()
+            (folder / 'control-center.bmp').write_bytes(raw)
+            # iOS 15 shows the tile as an icon only, left of the second row (slot 2, 30 Oct); a label,
+            # where an older iOS shows one, takes precedence.
+            tile = find_line(OCR.read(raw), 'Screen Mirroring') or SMALL_TILE
+            record['tile'] = tile
+        tap(tile, 'Screen Mirroring tile'); time.sleep(2.5)
         if record['scroll']:
             send('/mouse/reset', 'scroll (reset)'); send('/mouse/swipe', 'scroll the card to its end', **SCROLL); time.sleep(1.5)
-        import urllib.request
         raw = urllib.request.urlopen(f"{BASE}/pic/screenshot?id={device['deviceid']}", timeout=8).read()
         (folder / 'card.bmp').write_bytes(raw)
         text = OCR.read(raw)
@@ -65,7 +100,10 @@ def main():
                                 cy=round(sum(w['y'] + w['height'] / 2 for w in l['words']) / len(l['words'])))
                            for l in text.get('lines', []) if l.get('words')]
         send('/key/sendkey', 'home closes the card', fn_key='Home'); time.sleep(1.5)
-        if control_center(read_screen(device['deviceid'])):
+        if args.small:
+            # A Home button phone: a second Home closes Control Center (no tap near its bottom tiles).
+            send('/key/sendkey', 'home closes Control Center', fn_key='Home'); time.sleep(1.5)
+        elif control_center(read_screen(device['deviceid'])):
             tap(CLOSE, 'close Control Center below its grid'); time.sleep(1.5)
         record['controlCenterClosed'] = not control_center(read_screen(device['deviceid']))
     finally:

@@ -74,13 +74,18 @@ def surveyed_point(receiver, names, survey):
 
 
 def main():
+    from card_survey import SMALL, SMALL_TILE, to_send   # card_survey imports this module.
     parser = argparse.ArgumentParser()
     parser.add_argument('--board', required=True)
     # Without --phone-ip (rack B, 29 Oct: addresses not known yet) the card proof is the first AirPlay
     # question from any address but this PC's; valid only while no other phone is being driven.
     parser.add_argument('--phone-ip')
     parser.add_argument('--survey', help="card_survey.py's record.json, for more receivers than the four calibrated rows")
+    # --small: a 4.7-inch phone (6s/7/8) on the placeholder calibration, with a --survey read on one
+    # (card_survey.py --small): its tile, aim and Home-button close.
+    parser.add_argument('--small', action='store_true')
     args = parser.parse_args()
+    if args.small and not args.survey: raise SystemExit('--small needs a --survey read on a 4.7-inch phone.')
     board = args.board.upper()
     device = next(d for d in request(BASE, 'GET', '/device/get', timeout=8)['list'] if d.get('pid', '').upper() == board)
     status = next(r for r in request(BASE, 'GET', '/kernel/status', timeout=8)['receivers'] if r['deviceid'] == device['deviceid'])
@@ -91,6 +96,11 @@ def main():
         survey = json.loads(Path(args.survey).read_text(encoding='utf-8'))
         point = surveyed_point(status['name'], names, survey)
         row = [l['text'].strip() for l in survey['lines'] if l['text'].strip() in names].index(status['name'])
+        if args.small and not survey.get('scroll'):
+            # The short card on these phones has fixed rows 69 px apart and, on the surveyed (mirroring)
+            # phone, a Stop Mirroring row; without it the card may sit up to half a row lower. A quarter
+            # row below the surveyed centre is inside the row either way (slot 2, 30 Oct).
+            point = (point[0], point[1] + 17)
     else:
         row = row_of(status['name'], names)
         point = ROWS[row]
@@ -112,15 +122,23 @@ def main():
         record['steps'].append(dict(t=round(time.time(), 2), fun=fun, purpose=purpose, code=got.get('code')))
         if got.get('code') != 0: raise RuntimeError(f'{purpose}: {got}')
 
+    aim = SMALL if args.small else None
+
     def tap(point, purpose):
+        x, y = to_send(point, aim)
         send('/mouse/reset', purpose + ' (reset)')
-        send('/mouse/click', purpose, x=point[0], y=point[1])
+        send('/mouse/click', purpose, x=x, y=y)
+
+    def home_twice(purpose):
+        # A Home-button phone: Home from the card and again leaves the home screen clean (slot 2,
+        # 30 Oct); the close tap below Control Center's grid would land on its bottom tiles.
+        for i in (1, 2): send('/key/sendkey', f'{purpose} ({i})', fn_key='Home'); time.sleep(1.5)
 
     try:
         send('/key/sendkey', 'home', fn_key='Home'); time.sleep(1.5)
         send('/key/sendkey', 'open Control Center', fn_key='ControlBar'); time.sleep(1.2)
         watcher.drain()
-        tap(TILE, 'Screen Mirroring tile')
+        tap(SMALL_TILE if args.small else TILE, 'Screen Mirroring tile')
         own = lan_address()
         proof = next((q for q in watcher.airplay_queries(4.0, args.phone_ip) if q[1] != own), None)
         record['cardProof'] = None if proof is None else dict(t=round(proof[0], 2), sender=proof[1])
@@ -139,7 +157,9 @@ def main():
             time.sleep(0.5)
             live = next(r for r in request(BASE, 'GET', '/kernel/status', timeout=5)['receivers'] if r['deviceid'] == device['deviceid'])['live']
         record['result'] = 'mirroring' if live else 'stopped: receiver did not go live within 10 s'
-        if live:
+        if args.small:
+            time.sleep(1.0); home_twice('home closes the card and Control Center')
+        elif live:
             time.sleep(1.0); send('/key/sendkey', 'home closes the card', fn_key='Home'); time.sleep(1.5)
             # Home closes the Screen Mirroring card but not Control Center. Now frames exist, so the
             # close tap below Control Center's grid is decided on, and confirmed by, a real frame.

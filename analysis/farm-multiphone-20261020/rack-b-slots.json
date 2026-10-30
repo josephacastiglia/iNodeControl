@@ -1,0 +1,85 @@
+{
+  "note": "Rack B: board per physical slot (1 = far left), named by the operator as the board turned its home-screen page (pointer_identify.py --watch --page), 30 Oct.",
+  "slots": {
+    "1": {
+      "board": "EE14",
+      "receiver": "iMouse2-B1"
+    },
+    "2": {
+      "board": "CA05",
+      "receiver": "iMouse2-B2"
+    },
+    "3": {
+      "board": "F605",
+      "receiver": "iMouse2-B3"
+    },
+    "4": {
+      "board": "8305",
+      "receiver": "iMouse2-B4"
+    },
+    "5": {
+      "board": "CD51",
+      "receiver": "iMouse2-B5"
+    },
+    "6": {
+      "board": "DF51",
+      "receiver": "iMouse2-B6"
+    },
+    "7": {
+      "board": "7E0C",
+      "receiver": "iMouse2-B7"
+    },
+    "8": {
+      "board": "72A3",
+      "receiver": "iMouse2-B8"
+    },
+    "9": {
+      "board": "D505",
+      "receiver": "iMouse2-B9"
+    },
+    "10": {
+      "board": "75A3",
+      "receiver": "iMouse2-B10"
+    },
+    "11": {
+      "board": "35B7",
+      "receiver": "iMouse2-B11"
+    },
+    "12": {
+      "board": "E688",
+      "receiver": "iMouse2-B12"
+    },
+    "13": {
+      "board": "6C0C",
+      "receiver": "iMouse2-B13"
+    },
+    "14": {
+      "board": "5F0C",
+      "receiver": "iMouse2-B14"
+    },
+    "15": {
+      "board": "F788",
+      "receiver": "iMouse2-B15"
+    },
+    "16": {
+      "board": "F888",
+      "receiver": "iMouse2-B16"
+    },
+    "17": {
+      "board": "29B7",
+      "receiver": "iMouse2-B17"
+    },
+    "18": {
+      "board": "24B7",
+      "receiver": "iMouse2-B18"
+    },
+    "19": {
+      "board": "0C6D",
+      "receiver": "iMouse2-B19"
+    },
+    "20": {
+      "board": "636D",
+      "receiver": "iMouse2-B20"
+    }
+  }
+}
