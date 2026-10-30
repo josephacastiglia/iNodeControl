@@ -31,6 +31,16 @@ SCROLL = dict(x1=250, y1=880, x2=250, y2=260, duration=600)
 # 30 Oct: five clean dots within 8 px). to_send turns a frame point into the point to send.
 SMALL = dict(ox=0, oy=95, ppu=5.61)
 SMALL_TILE = (194, 566)   # Control Center's Screen Mirroring tile on a 4.7-inch phone, frame pixels.
+# The 4.7-inch card shows three name rows (69 px apart from y 483) and scrolls inside. A slow drag
+# (500 ms: a 1500 ms drag did not scroll, 30 Oct) up by two rows brings rows 4-5 into view at the same place on every phone.
+NUDGE = dict(x1=250, y1=640, x2=250, y2=501, duration=500)
+
+
+def nudge(send, aim):
+    (x1, y1), (x2, y2) = to_send((NUDGE['x1'], NUDGE['y1']), aim), to_send((NUDGE['x2'], NUDGE['y2']), aim)
+    send('/mouse/reset', 'nudge (reset)')
+    send('/mouse/swipe', 'drag the card up two rows', x1=x1, y1=y1, x2=x2, y2=y2, duration=NUDGE['duration'])
+    time.sleep(1.5)
 
 
 def to_send(point, aim=None):
@@ -54,6 +64,7 @@ def main():
     parser.add_argument('--scroll', action='store_true')
     # --small: a 4.7-inch phone (6s/7/8) on the placeholder calibration; taps go through SMALL.
     parser.add_argument('--small', action='store_true')
+    parser.add_argument('--nudge', action='store_true', help='with --small: read the card dragged up two rows (NUDGE)')
     args = parser.parse_args()
     board = args.board.upper()
     device = next(d for d in request(BASE, 'GET', '/device/get', timeout=8)['list'] if d.get('pid', '').upper() == board)
@@ -61,7 +72,7 @@ def main():
     if not status['live']: raise SystemExit(f"{status['name']} is not mirroring; its card cannot be read.")
     folder = HERE / 'card-survey' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"; folder.mkdir(parents=True)
     # The card's layout depends on how many receivers it lists, so the advertised set is kept with it.
-    record = dict(board=board, advertised=sorted(browse()[0]), scroll=args.scroll, small=args.small, steps=[])
+    record = dict(board=board, advertised=sorted(browse()[0]), scroll=args.scroll, small=args.small, nudge=args.nudge, steps=[])
     token = acquire(BASE, device['deviceid'])
 
     def send(fun, purpose, **data):
@@ -70,7 +81,7 @@ def main():
         record['steps'].append(dict(fun=fun, purpose=purpose, code=got.get('code')))
         if got.get('code') != 0: raise RuntimeError(f'{purpose}: {got}')
 
-    aim = SMALL if args.small else None
+    aim = SMALL if args.small and device['deviceid'].startswith('pending-') else None   # As auto_connect.py.
 
     def tap(point, purpose):
         x, y = to_send(point, aim)
@@ -92,6 +103,7 @@ def main():
         tap(tile, 'Screen Mirroring tile'); time.sleep(2.5)
         if record['scroll']:
             send('/mouse/reset', 'scroll (reset)'); send('/mouse/swipe', 'scroll the card to its end', **SCROLL); time.sleep(1.5)
+        if record['nudge']: nudge(send, aim)
         raw = urllib.request.urlopen(f"{BASE}/pic/screenshot?id={device['deviceid']}", timeout=8).read()
         (folder / 'card.bmp').write_bytes(raw)
         text = OCR.read(raw)

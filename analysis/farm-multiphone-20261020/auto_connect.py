@@ -56,13 +56,37 @@ def row_of(receiver, names):
     return ranks.pop()
 
 
+def ocr_name(text):
+    """A receiver name as OCR may read it: rack B's names are hex (iMouse2-0C6D), and OCR confuses
+    0/O, 1/I/l, 5/S and 8/B; the board IDs differ in more than such a pair, so this stays unique."""
+    return text.strip().upper().translate(str.maketrans('OILSB', '01158'))
+
+
+def unread_row(receiver, names, survey):
+    """OCR drops a lone trailing digit ('iMouse2-5' read as 'iMouse2-', 30 Oct). The receiver's row is
+    the one row whose name was not read, if there is exactly one, and only when the receiver sorts
+    (natural order, as iOS lists them) between the read rows above and below it."""
+    from farm_mirroring import natural
+    listed = {ocr_name(n): n for n in names}
+    rows = [l for l in survey['lines'] if ocr_name(l['text']).startswith('1M0U5E2')]
+    unread = [l for l in rows if ocr_name(l['text']) not in listed]
+    if len(unread) != 1: return None
+    i = rows.index(unread[0])
+    above = [listed[ocr_name(l['text'])] for l in rows[:i]]
+    below = [listed[ocr_name(l['text'])] for l in rows[i + 1:]]
+    if receiver in above + below: return None
+    if all(natural(a) < natural(receiver) for a in above) and all(natural(receiver) < natural(b) for b in below): return unread[0]
+    return None
+
+
 def surveyed_point(receiver, names, survey):
     """The receiver's row on a card read by card_survey.py on a mirroring phone (29 Oct: iOS lists
     receivers in natural order and, with 16 listed, the card fills the screen at fixed rows), valid
     only while the same receivers are advertised. A wrong row is refused by that row's receiver,
     which is locked to its own phone."""
     if set(names) != set(survey['advertised']): raise SystemExit('Advertised receivers differ from the surveyed card; nothing was sent.')
-    line = next((l for l in survey['lines'] if l['text'].strip() == receiver), None)
+    line = next((l for l in survey['lines'] if ocr_name(l['text']) == ocr_name(receiver)), None)
+    if line is None: line = unread_row(receiver, names, survey)
     if line is None: raise SystemExit(f'{receiver} is not visible on the surveyed card; nothing was sent.')
     if not survey.get('scroll'): return 250, line['cy']
     # Scrolled to its end, the surveyed (mirroring) card ends in its Stop Mirroring button; a phone not
@@ -95,7 +119,9 @@ def main():
     if args.survey:
         survey = json.loads(Path(args.survey).read_text(encoding='utf-8'))
         point = surveyed_point(status['name'], names, survey)
-        row = [l['text'].strip() for l in survey['lines'] if l['text'].strip() in names].index(status['name'])
+        # The row number is for the record only: the surveyed name row nearest the tap.
+        rows = [l['cy'] for l in survey['lines'] if ocr_name(l['text']).startswith('1M0U5E2')]
+        row = min(range(len(rows)), key=lambda i: abs(rows[i] - point[1]))
         if args.small and not survey.get('scroll'):
             # The short card on these phones has fixed rows 69 px apart and, on the surveyed (mirroring)
             # phone, a Stop Mirroring row; without it the card may sit up to half a row lower. A quarter
@@ -122,7 +148,9 @@ def main():
         record['steps'].append(dict(t=round(time.time(), 2), fun=fun, purpose=purpose, code=got.get('code')))
         if got.get('code') != 0: raise RuntimeError(f'{purpose}: {got}')
 
-    aim = SMALL if args.small else None
+    # Only a placeholder board still has the placeholder calibration; a bound 4.7-inch phone has the
+    # measured one (prepare_rack_b.py bound), so its points go as they are.
+    aim = SMALL if args.small and device['deviceid'].startswith('pending-') else None
 
     def tap(point, purpose):
         x, y = to_send(point, aim)
@@ -150,6 +178,9 @@ def main():
         if args.survey and survey.get('scroll'):
             from card_survey import SCROLL
             send('/mouse/reset', 'scroll (reset)'); send('/mouse/swipe', 'scroll the card to its end', **SCROLL); time.sleep(1.5)
+        if args.survey and survey.get('nudge'):
+            from card_survey import nudge
+            nudge(send, aim)
         tap(point, f'row {row + 1} ({status["name"]})')
         deadline = time.monotonic() + 10
         live = False
