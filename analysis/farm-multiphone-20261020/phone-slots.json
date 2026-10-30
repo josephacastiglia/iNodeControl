@@ -1,28 +1,88 @@
 {
-  "note": "Physical slots in the 20-phone box, numbered by the user: 1 = far left, 20 = far right.",
-  "slots": {
-    "16": {
-      "board": "F215",
-      "receiver": "iMouse2-F215",
-      "source": "user, 20 Oct 21:45; receiver log: iPhone11,8 (not the C241 phone); board-to-phone pairing not yet proven (F215 input not enabled)"
-    },
-    "17": {
-      "board": "724E",
-      "receiver": "iMouse2-724E",
-      "source": "user, 20 Oct 21:31; receiver log: iPhone11,8, deviceID on file for 724E",
-      "confirmed": "user watched the pointer square / console view, 20 Oct 21:45"
-    },
-    "18": {
-      "board": "C24C",
-      "receiver": "iMouse2-C24C",
-      "source": "user, 20 Oct 21:28",
-      "confirmed": "user watched the pointer square / console view, 20 Oct 21:45"
-    },
-    "20": {
-      "board": "C214",
-      "receiver": "iMouse2-C214",
-      "source": "user, 20 Oct 21:30; receiver log: iPhone11,8, deviceID on file for C214",
-      "confirmed": "user watched the pointer square / console view, 20 Oct 21:45"
-    }
-  }
+    "note":  "Physical slots in the 20-phone box, numbered by the user: 1 = far left, 20 = far right.",
+    "slots":  {
+                  "16":  {
+                             "board":  "F215",
+                             "receiver":  "iMouse2-F215",
+                             "source":  "user, 20 Oct 21:45; receiver log: iPhone11,8 (not the C241 phone); board-to-phone pairing not yet proven (F215 input not enabled)"
+                         },
+                  "17":  {
+                             "board":  "724E",
+                             "receiver":  "iMouse2-724E",
+                             "source":  "user, 20 Oct 21:31; receiver log: iPhone11,8, deviceID on file for 724E",
+                             "confirmed":  "user watched the pointer square / console view, 20 Oct 21:45"
+                         },
+                  "18":  {
+                             "board":  "C24C",
+                             "receiver":  "iMouse2-C24C",
+                             "source":  "user, 20 Oct 21:28",
+                             "confirmed":  "user watched the pointer square / console view, 20 Oct 21:45"
+                         },
+                  "20":  {
+                             "board":  "C214",
+                             "receiver":  "iMouse2-C214",
+                             "source":  "user, 20 Oct 21:30; receiver log: iPhone11,8, deviceID on file for C214",
+                             "confirmed":  "user watched the pointer square / console view, 20 Oct 21:45"
+                         },
+                  "12":  {
+                             "board":  "3523",
+                             "receiver":  "iMouse2-3523",
+                             "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                         },
+                  "13":  {
+                             "board":  "C415",
+                             "receiver":  "iMouse2-C415",
+                             "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                         },
+                  "14":  {
+                             "board":  "764E",
+                             "receiver":  "iMouse2-764E",
+                             "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                         },
+                  "10":  {
+                             "board":  "374C",
+                             "receiver":  "iMouse2-374C",
+                             "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                         },
+                  "15":  {
+                             "board":  "9515",
+                             "receiver":  "iMouse2-9515",
+                             "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                         },
+                  "5":  {
+                            "board":  "704E",
+                            "receiver":  "iMouse2-704E",
+                            "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                        },
+                  "6":  {
+                            "board":  "694E",
+                            "receiver":  "iMouse2-694E",
+                            "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                        },
+                  "7":  {
+                            "board":  "1248",
+                            "receiver":  "iMouse2-1248",
+                            "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                        },
+                  "2":  {
+                            "board":  "1814",
+                            "receiver":  "iMouse2-1814",
+                            "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                        },
+                  "11":  {
+                             "board":  "E414",
+                             "receiver":  "iMouse2-E414",
+                             "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                         },
+                  "19":  {
+                             "board":  "C241",
+                             "receiver":  "iMouse2-C241",
+                             "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                         },
+                  "8":  {
+                            "board":  "D446",
+                            "receiver":  "iMouse2-D446",
+                            "source":  "user, 28 Oct: pointer square near the top-left corner (pointer_identify --watch)"
+                        }
+              }
 }

@@ -56,10 +56,30 @@ def row_of(receiver, names):
     return ranks.pop()
 
 
+def surveyed_point(receiver, names, survey):
+    """The receiver's row on a card read by card_survey.py on a mirroring phone (29 Oct: iOS lists
+    receivers in natural order and, with 16 listed, the card fills the screen at fixed rows), valid
+    only while the same receivers are advertised. A wrong row is refused by that row's receiver,
+    which is locked to its own phone."""
+    if set(names) != set(survey['advertised']): raise SystemExit('Advertised receivers differ from the surveyed card; nothing was sent.')
+    line = next((l for l in survey['lines'] if l['text'].strip() == receiver), None)
+    if line is None: raise SystemExit(f'{receiver} is not visible on the surveyed card; nothing was sent.')
+    if not survey.get('scroll'): return 250, line['cy']
+    # Scrolled to its end, the surveyed (mirroring) card ends in its Stop Mirroring button; a phone not
+    # yet mirroring has none, so its rows end one row lower: C241's tap at iMouse2-19's surveyed row
+    # reached iMouse2-18 (29 Oct).
+    rows = [l for l in survey['lines'] if l['text'].strip() in survey['advertised']]
+    stop = next(l for l in survey['lines'] if l['text'].strip() == 'Stop Mirroring')
+    return 250, line['cy'] + stop['cy'] - rows[-1]['cy']
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--board', required=True)
-    parser.add_argument('--phone-ip', required=True)
+    # Without --phone-ip (rack B, 29 Oct: addresses not known yet) the card proof is the first AirPlay
+    # question from any address but this PC's; valid only while no other phone is being driven.
+    parser.add_argument('--phone-ip')
+    parser.add_argument('--survey', help="card_survey.py's record.json, for more receivers than the four calibrated rows")
     args = parser.parse_args()
     board = args.board.upper()
     device = next(d for d in request(BASE, 'GET', '/device/get', timeout=8)['list'] if d.get('pid', '').upper() == board)
@@ -67,7 +87,13 @@ def main():
     if status['live']: raise SystemExit(f"{status['name']} is already mirroring.")
     if status['receiver_pid'] <= 0: raise SystemExit(f"{status['name']} is not running ({status['receiver_state']}).")
     names, _ = browse()
-    row = row_of(status['name'], names)
+    if args.survey:
+        survey = json.loads(Path(args.survey).read_text(encoding='utf-8'))
+        point = surveyed_point(status['name'], names, survey)
+        row = [l['text'].strip() for l in survey['lines'] if l['text'].strip() in names].index(status['name'])
+    else:
+        row = row_of(status['name'], names)
+        point = ROWS[row]
     folder = HERE / 'autoconnect'; folder.mkdir(exist_ok=True)
     record = dict(board=board, receiver=status['name'], phoneIp=args.phone_ip, advertised=sorted(names), row=row + 1, steps=[],
                   utc=datetime.now(timezone.utc).isoformat())
@@ -95,14 +121,18 @@ def main():
         send('/key/sendkey', 'open Control Center', fn_key='ControlBar'); time.sleep(1.2)
         watcher.drain()
         tap(TILE, 'Screen Mirroring tile')
-        proof = next(watcher.airplay_queries(4.0, args.phone_ip), None)
+        own = lan_address()
+        proof = next((q for q in watcher.airplay_queries(4.0, args.phone_ip) if q[1] != own), None)
         record['cardProof'] = None if proof is None else dict(t=round(proof[0], 2), sender=proof[1])
         if proof is None:
             send('/key/sendkey', 'home after no card proof', fn_key='Home')
             record['result'] = 'stopped: no AirPlay query from the phone after the tile tap'
             return
         time.sleep(1.5)
-        tap(ROWS[row], f'row {row + 1} ({status["name"]})')
+        if args.survey and survey.get('scroll'):
+            from card_survey import SCROLL
+            send('/mouse/reset', 'scroll (reset)'); send('/mouse/swipe', 'scroll the card to its end', **SCROLL); time.sleep(1.5)
+        tap(point, f'row {row + 1} ({status["name"]})')
         deadline = time.monotonic() + 10
         live = False
         while time.monotonic() < deadline and not live:

@@ -11,7 +11,8 @@ a board bound to an explicit phone. So, in two steps (28 Oct):
   python prepare_rack_a.py bound     each added board bound to the one phone its receiver logged, named
                                       'Phone <slot>' / 'iMouse2-<slot>' from phone-slots.json.
 
-Boards listed in ADDED only; C241 stays out. The four slot phones are copied unchanged. Every
+Boards listed in ADDED only (C241 since 28 Oct, on the operator's word that it is no longer their phone). The bound step keeps a board with no slot on its placeholder:
+28 Oct, five boards moved no phone the operator could see (their slots are empty, flat or off). The four slot phones are copied unchanged. Every
 receiver starts held (Release-Receiver.ps1 advertises one at a time). Device IDs stay in the run
 folders under output/, never in Git. Writes slots/preparation.json; refuses to overwrite it
 (archive the previous one first).
@@ -27,13 +28,16 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 FULL = ROOT.parent / 'iMouseXP-2.0/analysis/full-rack-config'
 OUT = HERE / 'slots'
-ADDED = ('E414', '3523', 'C415', '764E', '374C', '3848', 'D446', '9515', '7949', '704E', '694E', '1248', '1814', 'D142')
+ADDED = ('E414', '3523', 'C415', '764E', '374C', '3848', 'D446', '9515', '7949', '704E', '694E', '1248', '1814', 'D142',
+         'C241')   # Untouchable until 28 Oct, when the operator said its phone is no longer theirs.
 # Screen sizes in points by model identifier; an unknown model keeps the September placeholder.
 MODELS = {'iPhone11,8': ('iPhone XR', 414, 896), 'iPhone12,1': ('iPhone 11', 414, 896),
           'iPhone12,8': ('iPhone SE (2nd)', 375, 667), 'iPhone14,6': ('iPhone SE (3rd)', 375, 667),
+          'iPhone8,1': ('iPhone 6s', 375, 667), 'iPhone9,1': ('iPhone 7', 375, 667), 'iPhone9,3': ('iPhone 7', 375, 667),
           'iPhone10,1': ('iPhone 8', 375, 667), 'iPhone10,4': ('iPhone 8', 375, 667),
           'iPhone10,2': ('iPhone 8 Plus', 414, 736), 'iPhone10,5': ('iPhone 8 Plus', 414, 736)}
-REQUEST = re.compile(r'Remote: (\d+\.\d+\.\d+\.\d+)\s*\n(?:.*\n){0,3}?.*connection request from .* \((iPhone[\d,]+)\) with deviceID = ([0-9A-F:]{17})')
+# The address is IPv4 or IPv6 (phone 14 asked over IPv6, 28 Oct).
+REQUEST = re.compile(r'Remote: (\S+)\s*\n(?:.*\n){0,3}?.*connection request from .* \((iPhone[\d,]+)\) with deviceID = ([0-9A-F:]{17})')
 
 
 def load(path): return json.loads(Path(path).read_text(encoding='utf-8-sig'))
@@ -41,11 +45,14 @@ def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def logged_phone(run, board):
-    """The one phone that asked board's placeholder receiver to mirror: (device ID, model, address)."""
-    log = Path(run) / 'data' / f'receiver-{board}.log'
-    if not log.exists(): raise SystemExit(f'{board}: no receiver log in the pending run; connect its phone first.')
-    text = re.sub(r'^\S+ ', '', log.read_text(encoding='utf-8', errors='replace'), flags=re.M)   # drop timestamps
-    found = {(m.group(3), m.group(2), m.group(1)) for m in REQUEST.finditer(text)}
+    """The one phone that asked board's receiver to mirror, in any rack A run (a board left on its
+    placeholder in a bound run is tried there, as E414 was): (device ID, model, address)."""
+    logs = sorted(Path(run).parent.glob(f'multiphone-racka-*/data/receiver-{board}.log'))
+    if not logs: raise SystemExit(f'{board}: no receiver log in a rack A run; connect its phone first.')
+    found = set()
+    for log in logs:
+        text = re.sub(r'^\S+ ', '', log.read_text(encoding='utf-8', errors='replace'), flags=re.M)   # drop timestamps
+        found |= {(m.group(3), m.group(2), m.group(1)) for m in REQUEST.finditer(text)}
     if len({f[0] for f in found}) != 1: raise SystemExit(f'{board}: expected one phone in its receiver log, found {len(found)}.')
     return sorted(found)[-1]
 
@@ -70,13 +77,16 @@ def main():
     learned = {}
     for board in ADDED:
         d, r, c = (dict(full['devices.json'][board]), dict(full['receivers.json'][board]), dict(full['pointer-calibration.json'][board]))
-        if not d['deviceid'].startswith('unbound-') or r['DeviceId'] != d['deviceid']: raise SystemExit(f'{board}: September binding changed.')
-        if step == 'pending':
+        # C241 was bound in September (the phone then in hand); it is identified afresh like the rest.
+        if (board != 'C241' and not d['deviceid'].startswith('unbound-')) or r['DeviceId'] != d['deviceid']:
+            raise SystemExit(f'{board}: September binding changed.')
+        # A board with no slot yet stays on its placeholder in the bound step too: five boards showed no
+        # pointer (28 Oct) while the operator counts 16 working phones, so they are tried again.
+        if step == 'pending' or board not in slots:
             phone = f'pending-{board}'
             d.update(deviceid=phone, name=f'Board {board}', gname='Rack A')
             r.update(DeviceId=phone)
         else:
-            if board not in slots: raise SystemExit(f'{board}: no slot in phone-slots.json yet.')
             phone, model, address = logged_phone(pending_run, board)
             name, width, height = MODELS.get(model, ('iPhone', 0, 0))
             learned[board] = dict(slot=slots[board], model=model, address=address)

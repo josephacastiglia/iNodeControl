@@ -16,7 +16,8 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
 
     public static void Validate(IReadOnlyList<ReceiverConfig> configs,IReadOnlyList<Phone> phones)
     {
-        if(configs.Count is <1 or >19) throw new ArgumentException("This test build requires one to nineteen receivers.");
+        // Two 20-phone racks on one PC (29 Oct): rack A's 19 boards and rack B's 20.
+        if(configs.Count is <1 or >40) throw new ArgumentException("This test build requires one to forty receivers.");
         foreach(var c in configs)
         {
             if(c is null || c.BoardPid is null || !System.Text.RegularExpressions.Regex.IsMatch(c.BoardPid,@"^[0-9A-Fa-f]{4}$") || c.Name is null || c.Pipe is null || c.Mac is null)

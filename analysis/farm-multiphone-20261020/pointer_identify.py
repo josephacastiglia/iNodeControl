@@ -47,12 +47,35 @@ def _edge(a, b, step=20):
     return [(a[0] + (b[0] - a[0]) * i // n, a[1] + (b[1] - a[1]) * i // n) for i in range(1, n + 1)]
 
 
-WATCH_SQUARE = [p for a, b in zip(SQUARE, SQUARE[1:] + SQUARE[:1]) for p in _edge(a, b)]
+# Near the top-left corner, around the first home-screen icon (FaceTime on most phones): the part of
+# each phone the operator sees most easily in the box (28 Oct).
+WATCH_CORNER = [(12, 55), (112, 55), (112, 155), (12, 155)]   # Hugging the left and top edges.
+WATCH_SQUARE = [p for a, b in zip(WATCH_CORNER, WATCH_CORNER[1:] + WATCH_CORNER[:1]) for p in _edge(a, b)]
 WATCH_ROUNDS = 4
 WATCH_STEP_S = 0.08
 
 
-def watch(board, device_id):
+def page(board, device_id):
+    """Reset, then one swipe from right to left across the middle of the home screen."""
+    folder = HERE / 'identify' / f"{board}-page-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
+    folder.mkdir(parents=True)
+    row = next(p for p in request(BASE, 'GET', '/input/status', timeout=5)['phones'] if p['id'] == device_id)
+    if row['stopped'] and device_id.startswith('pending-'):
+        post(BASE, '/input/resume', dict(id=device_id, expected_generations={device_id: row['generation']}))
+    token = acquire(BASE, device_id)
+    record = dict(board=board, mode='page', commands=[], phoneInput='pointer reset and one swipe')
+    try:
+        for fun, data in (('/mouse/reset', {}), ('/mouse/swipe', dict(x1=430, y1=500, x2=70, y2=500, duration=250))):
+            got = post(BASE, fun, dict(id=device_id, token=token, **data))
+            record['commands'].append(dict(fun=fun, code=got.get('code')))
+            time.sleep(0.8)
+    finally:
+        record['release'] = post(BASE, '/input/release', dict(id=device_id, token=token)).get('code')
+        (folder / 'record.json').write_text(json.dumps(record, indent=2), encoding='utf-8')
+    print(json.dumps(dict(board=board, mode='page', codes=[c['code'] for c in record['commands']], released=record['release'] == 0)))
+
+
+def watch(board, device_id, home=False):
     """Pointer moves only, for the operator's eyes: about 15 s of the square, then the lease goes."""
     folder = HERE / 'identify' / f"{board}-watch-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
     folder.mkdir(parents=True)
@@ -63,6 +86,17 @@ def watch(board, device_id):
     if row['stopped'] and device_id.startswith('pending-'):
         post(BASE, '/input/resume', dict(id=device_id, expected_generations={device_id: row['generation']}))
     token = acquire(BASE, device_id)
+    if home:
+        try:
+            for _ in range(3):
+                got = post(BASE, '/key/sendkey', dict(id=device_id, token=token, fn_key='Home'))
+                record['moves'].append(dict(key='Home', code=got.get('code')))
+                time.sleep(2.0)
+        finally:
+            record['release'] = post(BASE, '/input/release', dict(id=device_id, token=token)).get('code')
+            (folder / 'record.json').write_text(json.dumps(record, indent=2), encoding='utf-8')
+        print(json.dumps(dict(board=board, mode='home', presses=[m['code'] for m in record['moves']], released=record['release'] == 0)))
+        return
     try:
         for _ in range(WATCH_ROUNDS):
             post(BASE, '/input/renew', dict(id=device_id, token=token))   # The lease is 15 s; a round is about 4 s.
@@ -83,13 +117,20 @@ def main():
     # --watch: a phone not mirroring yet (rack A's added boards, 28 Oct). A larger square for longer,
     # for the operator to spot in the box; no frames and no screen check.
     parser.add_argument('--watch', action='store_true')
+    # --home (with --watch): Home pressed three times instead, for a phone whose pointer does not show
+    # (AssistiveTouch off): its screen wakes and shows the home screen.
+    parser.add_argument('--home', action='store_true')
+    # --page (with --watch): one swipe left on the home screen, to its second page: every phone in the
+    # box rests on its home screen, so the one that turns its page is plain to see (28 Oct).
+    parser.add_argument('--page', action='store_true')
     args = parser.parse_args()
     board = args.board.upper()
     devices = request(BASE, 'GET', '/device/get', timeout=8)['list']
     device = next((d for d in devices if d.get('pid', '').upper() == board), None)
     if not device or device['deviceid'] in ('*', '') or device['deviceid'].startswith('unbound-'):
         raise SystemExit(f'{board} has no bound phone; it cannot be identified by its own screen.')
-    if args.watch: return watch(board, device['deviceid'])
+    if args.watch and args.page: return page(board, device['deviceid'])
+    if args.watch: return watch(board, device['deviceid'], home=args.home)
     receivers = {r['deviceid']: r for r in request(BASE, 'GET', '/kernel/status', timeout=8)['receivers']}
     others = [d for d in receivers if d != device['deviceid'] and receivers[d]['live'] and d not in ('*', '')]
     if not receivers.get(device['deviceid'], {}).get('live'): raise SystemExit(f'{board} is not mirroring.')
