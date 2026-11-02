@@ -339,6 +339,9 @@ def run_move(args, refs, folder):
         require(target, f"The confirmation does not offer 'Delete {len(farm)} Videos'.")
         phone.tap(target, f'Delete {len(farm)} Videos (to Recently Deleted)', settle=3.0)
         deleted = True
+        # On phone 16 (2 Nov) the sheet ignored pointer presses on Delete while its Cancel worked.
+        _, text = phone.frame('after-delete-tap')
+        require(not delete_target(text, len(farm)), f"Photos ignored the tap on 'Delete {len(farm)} Videos'; the sheet is still open and nothing moved.")
         # Photos may leave Select mode after the move or stay in it with nothing selected.
         image, text, after, cells = select_frame(phone, 'after-move')
         left = classify(image, cells, refs)
