@@ -3,7 +3,7 @@
 The single running list for the iMouse 2.0 Marketing Farm. Updated as work lands; the newest
 state wins. Details live in `analysis/farm-multiphone-20261020/README.md` and the dated handoffs.
 
-Last updated: 25 Oct 2026.
+Last updated: 3 Nov 2026.
 
 ## Seven priorities
 
@@ -11,7 +11,7 @@ Last updated: 25 Oct 2026.
 |---|---|---|---|
 | 1 | New content to a verified draft | **All four first formats verified:** Instagram carousel (C24C, 17-19 Oct), Instagram Reel (slot 18, 22 Oct), X video (slot 17, 23 Oct, prep 71), YouTube Short (slot 16, 23 Oct, prep 65), TikTok video (slot 20, 24 Oct, prep 67). | Every further format or account needs its own first pass. |
 | 2 | Repeatability and recovery | Runs back out of leftover screens on all four phones; unsaved leftovers are discarded under the operator's standing approval. `close_app.py` closes an app from the switcher; `relaunch_check.py` closes and cold-starts the app, then reruns the read-only check. **Back to back: Reel runs 45 and 46, TikTok runs 75 and 76, and X runs 72 and 73, each verified in a row with no change between (25 Oct); YouTube runs 76 and 77 (27 Oct).** **Survive an app relaunch: TikTok (24 Oct), Instagram Reel (25 Oct), YouTube (26 Oct, check 17).** **X: the video draft did not.** YouTube's 'Continue your draft video?' prompt is answered automatically (Start over). | Unattended recovery (phone 16's mirror stalls still need a rack restart). |
-| 3 | Platform coverage | Reel, X, YouTube and TikTok video verified. Permission-prompt validation merged (24 Oct). | TikTok photo (sound kept) and X image. Story, text, thread and long video stay unsupported. |
+| 3 | Platform coverage | Reel, X, YouTube and TikTok video verified. Permission-prompt validation merged (24 Oct). **3 Nov: TikTok photo (A20) and X image (A17) lanes running side by side in Switchboard.** | TikTok photo (sound kept) and X image. Story, text, thread and long video stay unsupported. |
 | 4 | Scheduler and warmup | Local preparation and simulations only. | Review queue, scheduled phone runs, real daily budgets, unattended restart. |
 | 5 | Analytics | Observations keep evidence; low-view rules can pause a schedule. | A real metrics source, checked against actual account numbers. |
 | 6 | Publishing and messaging | Disabled by the operator. | Only with a separate, explicit scope. |
@@ -38,10 +38,13 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
 2. ~~Phone 20 AssistiveTouch~~: 'Always Show Menu' turned off by the operator (23 Oct).
 3. ~~Merge the prompt-validation branch~~: merged 23 Oct on the operator's yes.
 4. Cleanup (operator: 'you do'). Saved drafts are deleted permanently, so the operator deletes leftover
-   test drafts; X's text-only 'Fresh x acceptance' was deleted by the operator (24 Oct). Test videos in Photos: Claude to build a cleanup
-   that matches each video to its package and only moves those to Recently Deleted (recoverable).
+   test drafts; X's text-only 'Fresh x acceptance' was deleted by the operator (24 Oct). Test videos in Photos:
+   `tools/farm_photos_cleanup.py` (merged 3 Nov) plans read-only, matching each tile to its package, then on
+   the operator's OK selects only those and checks the count and badges. Phone 16 (2 Nov, plan c552080c2a3e):
+   18 farm videos, 20 account items; the 18 were selected exactly, but Photos' sheet ignores pointer presses
+   on 'Delete 18 Videos' (its Cancel works), so the operator taps Delete for now.
 5. ~~X video drafts after a relaunch~~: decided 23 Oct (operator left it to Claude), see Decisions.
-6. Phone 16 YouTube drafts to delete, when convenient (27 Oct): the untitled 'Oct 26, 2026' drafts
+6. ~~Phone 16 YouTube drafts to delete~~: all deleted by the operator (1 Nov); the Drafts list is empty. Was (27 Oct): the untitled 'Oct 26, 2026' drafts
    (closing YouTube on an unsaved Add details saves one; run 74's leftover was closed that way at the
    operator's request, since Back did not work on the phone either) and the extra 'Fresh short test'
    drafts from runs 69-77.

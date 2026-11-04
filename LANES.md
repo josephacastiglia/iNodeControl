@@ -2,7 +2,9 @@
 
 The Marketing Farm is worked on by several Switchboard agent tabs at once ("lanes"), each on its own
 branch in its own folder (`iMouseXP-2.0-combined-candidate.worktrees\<lane>`), and one orchestrator
-chat in this main folder that hands out work and merges it into `local/combined-candidate-20261012`.
+that hands out work and merges it into `local/combined-candidate-20261012`. Since 3 Nov the
+orchestrator is the Claude chat opened in the `iMouseXP-2.0` folder (the project's Claude memory lives
+there); Switchboard's own Orchestrator tab stays idle, so only one chat merges, pushes and edits the tracker.
 Every lane reads this file first. Started 27 Oct 2026.
 
 ## Rules for every lane
@@ -33,9 +35,10 @@ Every lane reads this file first. Started 27 Oct 2026.
 
 ## Phones
 
-Rack A is the first 20-slot box (slots numbered by the operator, 1 = far left); four phones are
-connected. Rack B is the second box of 20 phones, each with its own board and accounts, on this PC;
-it is not connected yet, and its phones get lanes once the Rack lane has brought them up.
+Rack A is the first 20-slot box (slots numbered by the operator, 1 = far left). Rack B is the second
+box of 20 phones, each with its own board and accounts, on this PC. Both racks run on one kernel
+(:9916, up to 40 receivers); all 36 phones were connected from the PC on 30 Oct, and the orchestrator
+connects only the phones the running lanes need. Rack B phones get lanes once their accounts are named.
 
 | Phone | Board | Platform / account | Lane |
 |---|---|---|---|
@@ -43,7 +46,7 @@ it is not connected yet, and its phones get lanes once the Rack lane has brought
 | A17 | 724E | X (first account) | X image |
 | A18 | C24C | Instagram Reel | (free: Reel series later) |
 | A20 | C214 | TikTok | TikTok photo |
-| B1-B20 | own | own accounts | Rack (bring-up), then assigned here |
+| B1-B20 | own | own accounts | Bound and connectable (30 Oct); assigned here once accounts are named |
 
 Rack A has 19 boards (one hub port is empty); the other 14 phones are in the September full-rack
 config (`iMouseXP-2.0/analysis/full-rack-config`, device IDs known) but not yet in the farm.
