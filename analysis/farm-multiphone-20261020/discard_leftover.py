@@ -7,7 +7,8 @@ nothing saved or posted is affected and the test video stays in Photos.
 
 Only these recognized dialogs are accepted, each from its exact labels in order:
   tiktok   the editor's back menu:   Discard, Save draft
-  x        the composer's Cancel sheet: Save to drafts, Discard, Keep editing
+  x        the composer's Cancel sheet: Save to drafts, Discard, Keep editing; or, as slot 17's X shows it
+           since 4 Nov, only Save to drafts above Discard
   youtube  Add details' back prompt: 'Discard changes?' over Cancel and Discard side by side
 The target is the centre of the one 'Discard' line, decided on a newer fresh frame that matches.
 
@@ -27,6 +28,8 @@ from farm_start_screen import MAX_AGE_MS, StartScreen  # noqa: E402
 
 DIALOGS = {'tiktok': ('discard', 'save draft'), 'x': ('save to drafts', 'discard', 'keep editing'),
            'youtube': ('discard changes?', 'cancel', 'discard')}
+# Shorter layouts of the same dialog, used only when the longer one's extra label is absent.
+SHORT = {'x': (('save to drafts', 'discard'), 'keep editing')}   # Slot 17, 4 Nov: no Keep editing.
 
 
 def discard_target(text, dialog):
@@ -39,6 +42,7 @@ def discard_target(text, dialog):
         box = (min(w['x'] for w in words), min(w['y'] for w in words), max(w['x']+w['width'] for w in words), max(w['y']+w['height'] for w in words))
         rows.setdefault(line['text'].strip().casefold(), []).append(box)
     labels = DIALOGS[dialog]
+    if dialog in SHORT and not rows.get(SHORT[dialog][1]): labels = SHORT[dialog][0]
     if any(len(rows.get(label, [])) != 1 for label in labels):
         raise InspectionStopped(f'The {dialog} discard dialog is not shown exactly; nothing was tapped.')
     boxes = [rows[label][0] for label in labels]

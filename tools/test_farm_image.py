@@ -359,7 +359,11 @@ class ImageRunsTests(unittest.TestCase):
         self.assertEqual({'x_image': ('farm_x_runs', 'XImageCreationRuns', 'X image', 'create-x-image-draft'),
                           'tt_photo': ('farm_tiktok_photo_runs', 'TikTokPhotoCreationRuns', 'TikTok photo', 'create-tiktok-photo-draft')},
                          LANE_RUNS)
-        for fmt in LANE_RUNS:
+        # X image's lane class exists (4 Nov); a lane without one gets the disabled placeholder on its route.
+        from farm_x_runs import XImageCreationRuns
+        self.assertIs(XImageCreationRuns, image_runs_class('x_image'))
+        self.assertTrue(XImageCreationRuns(self.root/'x_image', self.drafts, self.jobs, CONFIG).built())
+        for fmt in [f for f in LANE_RUNS if image_runs_class(f).__name__.endswith('Pending')]:
             pending = image_runs_class(fmt)
             self.assertTrue(issubclass(pending, ImageCreationRuns)); self.assertEqual(fmt, pending.FORMAT)
             service = pending(self.root/fmt, self.drafts, self.jobs, CONFIG)
@@ -436,7 +440,11 @@ class ImageRunsTests(unittest.TestCase):
         stopped = dict(terminal=True, state='review_required', workflow=dict(source='candidate_phone_workflow', cleanup='confirmed',
                                                                             evidenceExport='confirmed', commands=[]))
         self.assertTrue(LaneImageRuns.retry_allowed(stopped))
-        self.assertFalse(image_runs_class('x_image').retry_allowed(stopped))
+        self.assertTrue(image_runs_class('x_image').retry_allowed(stopped))   # Built: its own prefixes decide.
+        committed = dict(stopped, workflow=dict(stopped['workflow'], commands=[dict(purpose='save-photo-1', state='answered')]))
+        self.assertFalse(image_runs_class('x_image').retry_allowed(committed))
+        if image_runs_class('tt_photo').__name__.endswith('Pending'):   # No committing prefixes: never a retry.
+            self.assertFalse(image_runs_class('tt_photo').retry_allowed(stopped))
 
 
 class VideoExecuteRegressionTests(unittest.TestCase):
