@@ -28,13 +28,16 @@ class SyntheticXLayoutTests(unittest.TestCase):
         for caption in ('', 'x'*33, 'two\nlines', ' lead', 'trail ', 'two  spaces', 'café'):
             self.assertFalse(xl.caption_supported(caption), repr(caption))
 
-    def test_save_sheet_needs_all_three_choices(self):
+    def test_save_sheet_needs_save_above_discard(self):
         def ocr(*rows): return dict(width=500, height=1080, lines=[dict(text=t, words=[dict(text=t, x=x, y=y, width=len(t)*9, height=16)])
                                                                     for t, x, y in rows])
         rows = [('Save to drafts', 181, 464), ('Discard', 213, 531), ('Keep editing', 189, 599)]
         self.assertEqual((244, 472), xl.x_save_sheet(ocr(*rows))['target'])
-        for missing in range(3):
+        for missing in range(2):
             with self.assertRaises(InspectionStopped): xl.x_save_sheet(ocr(*(r for i, r in enumerate(rows) if i != missing)))
+        # Slot 17's X shows only Save to drafts and Discard since 4 Nov; Keep editing, when shown, stays below Discard.
+        self.assertEqual('two_rows', xl.x_save_sheet(ocr(('Save to drafts', 181, 498), ('Discard', 213, 565)))['layout'])
+        with self.assertRaises(InspectionStopped): xl.x_save_sheet(ocr(('Save to drafts', 181, 464), ('Keep editing', 189, 520), ('Discard', 213, 590)))
 
 
 @unittest.skipUnless(PRIVATE, 'Retained private C24C X frames/OCR are not available in this checkout.')
