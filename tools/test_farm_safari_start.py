@@ -885,6 +885,10 @@ class DiscardLeftoverTests(unittest.TestCase):
         self.assertEqual((100, 176), discard_target(text(*tiktok), 'tiktok')[0])
         x = [('Save to drafts', 180, 455, 320, 480), ('Discard', 210, 528, 290, 552), ('Keep editing', 190, 595, 315, 620)]
         self.assertEqual((250, 540), discard_target(text(*x), 'x')[0])
+        two = [('Save to drafts', 181, 498, 318, 515), ('Discard', 213, 565, 287, 582)]   # 4 Nov, slot 17: no Keep editing.
+        self.assertEqual((250, 574), discard_target(text(*two), 'x')[0])
+        for rows in ([('Discard', 213, 498, 287, 515), ('Save to drafts', 181, 565, 318, 582)], two[1:], [x[0], x[1], ('Keep editing', 190, 500, 315, 520)], two + [('Discard', 213, 640, 287, 657)]):
+            with self.subTest(rows=rows), self.assertRaises(InspectionStopped): discard_target(text(*rows), 'x')
         youtube = [('Discard changes?', 107, 482, 298, 505), ('Cancel', 249, 610, 302, 623), ('Discard', 334, 610, 393, 623)]
         self.assertEqual((364, 616), discard_target(text(*youtube), 'youtube')[0])   # 23 Oct, slot 16.
         swapped = [youtube[0], ('Discard', 249, 610, 312, 623), ('Cancel', 334, 610, 393, 623)]
