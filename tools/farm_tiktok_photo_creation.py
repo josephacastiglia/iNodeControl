@@ -30,7 +30,7 @@ import farm_tiktok_photo_layout as ph
 
 # Read-only waits before the first capture of screens that animate in (photo roles); the shared
 # Safari and TikTok video roles keep their own values.
-PHOTO_SETTLE = {'photo_index': .6, 'photo_copied': .6, 'photo_slide': .6, 'photo_menu': .8,
+PHOTO_SETTLE = {'photo_index': .6, 'photo_copied': .6, 'photo_slide': .6, 'photo_menu': .8, 'photo_after_hold': .8,
                 'tiktok_photo_picker': .8, 'tiktok_photo_editor': 1.0, 'tiktok_photo_details': .6,
                 'tiktok_photo_description': .6, 'tiktok_photo_paste_menu': .4, 'tiktok_photo_drafts': .8,
                 'tiktok_photo_profile': .6}
@@ -117,6 +117,10 @@ class TikTokPhotoCreationWorkflow(TikTokCreationWorkflow):
         if role == 'photo_copied': return ph.transfer_copied(text, self.count)
         if role == 'photo_slide': return ph.transfer_slide(frame, text, index, self.count, self.images)
         if role == 'photo_menu': return ph.save_menu(frame, text, index, self.images)
+        if role == 'photo_after_hold':
+            # The image menu, or the unchanged slide page when the press opened nothing.
+            try: return dict(menu=True, **ph.save_menu(frame, text, index, self.images))
+            except InspectionStopped: return dict(menu=False, **ph.transfer_slide(frame, text, index, self.count, self.images))
         if role == 'tiktok_photo_profile': return ph.profile(frame, text, self.account)
         if role == 'tiktok_photo_picker': return ph.photo_picker(frame, text, self.images, index)
         if role == 'tiktok_photo_editor': return ph.photo_editor(frame, text, self.images)
@@ -232,6 +236,12 @@ class TikTokPhotoCreationWorkflow(TikTokCreationWorkflow):
             self.phase(f'save-slide-{number}')
             slide = lambda v, f, n=number: ph.transfer_slide(f, v['text'], n, self.count, self.images)
             self.hold(f'hold-slide-image-{number}', 'photo_slide', lambda v, f, s=slide: s(v, f)['holdTarget'], index=number)
+            after, _, _ = self.screen('photo_after_hold', number)
+            if not after['menu']:
+                # The first press on a freshly loaded slide page opened nothing 3 times in 4 on A20 (4 Nov); the page
+                # is unchanged and nothing is selected, so one more press is sent. A second miss stops the run.
+                self.record.setdefault('holdRetries', []).append(number); self.save()
+                self.hold(f'hold-slide-image-{number}-again', 'photo_slide', lambda v, f, s=slide: s(v, f)['holdTarget'], index=number)
             self.tap(f'save-photo-{number}', 'photo_menu', lambda v, f, n=number: ph.save_menu(f, v['text'], n, self.images)['target'],
                      index=number)
             saved.append(number); self.save()

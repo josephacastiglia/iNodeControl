@@ -114,6 +114,7 @@ class FixtureKernel:
         self.session = uuid.uuid4().hex; self.calls = []; self.typed = ''; self.unexpected = []
         self.pointer = None; self.frame_key = None; self.captures = {}; self.resets = 0; self.last_reset = False
         self.clicked = []   # (screen, x, y) of every click.
+        self.holds = {}
 
     def clock(self): self.now += .001; return self.now
     def pause(self, seconds): self.now += seconds
@@ -165,6 +166,11 @@ class FixtureKernel:
         if fun == '/mouse/down': return dict(code=0)
         if fun == '/mouse/up':
             # A hold works only after a reset with no tap in between (A20, 4 Nov).
+            held = self.screen
+            self.holds[held] = self.holds.get(held, 0) + 1
+            if self.scenario in ('hold_ignored', 'hold_ignored_twice') and held.startswith('slide') and (
+                    self.holds[held] == 1 or self.scenario == 'hold_ignored_twice'):
+                return dict(code=0)   # The press opened nothing (A20, 4 Nov); the page is unchanged.
             if self.last_reset: self.transition('hold', *self.pointer)
             return dict(code=0)
         if fun == '/mouse/click':
@@ -295,6 +301,14 @@ class TikTokPhotoProtocolTests(unittest.TestCase):
                 self.assertEqual('outcome_unknown', result['actions'][-1]['state'])
                 self.assertEqual('release', kernel.calls[-1]); self.assertLessEqual(kernel.saves, 1)
                 self.assertEqual(len(kernel.photos), len(set(kernel.photos)))
+
+    def test_an_ignored_hold_is_pressed_once_more_and_never_a_third_time(self):
+        flow, kernel = self.fixture('hold_ignored'); result = flow.run()
+        self.assertEqual('created_unverified', result['state'], result.get('error'))
+        self.assertEqual([1, 2, 3], result['holdRetries']); self.assertEqual(['menu1', 'menu2', 'menu3'], kernel.photos)
+        flow, kernel = self.fixture('hold_ignored_twice'); result = flow.run()
+        self.assertEqual('review_required', result['state']); self.assertEqual([], kernel.photos)
+        self.assertEqual(2, kernel.holds['slide1']); self.assertEqual(0, kernel.saves)
 
     def test_lost_drafts_answer_is_never_repeated(self):
         flow, kernel = self.fixture('lost_save'); result = flow.run()
