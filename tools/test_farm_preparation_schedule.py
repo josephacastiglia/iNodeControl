@@ -6,7 +6,7 @@ import time
 import unittest
 import uuid
 
-from farm_preparation_schedule import PreparationSchedule
+from farm_preparation_schedule import PreparationSchedule, read_prepared_packages
 
 
 class PreparationTests(unittest.TestCase):
@@ -103,6 +103,17 @@ class PreparationTests(unittest.TestCase):
     def test_live_actions_and_other_targets_cannot_be_scheduled(self):
         for changes in ({'device_id': 'C241'}, {'action': 'publish'}, {'action': 'warmup'}, {'interval_minutes': 1}, {'max_runs': 100}, {'max_runs': True}):
             with self.subTest(changes=changes), self.assertRaises(ValueError): self.schedule.configure({**self.request, **changes})
+
+    def test_prepared_packages_are_read_only_and_carry_their_run(self):
+        self.schedule.configure(self.request); self.schedule.tick()
+        self.schedule.prepare = lambda: []; self.now[0] += 3600; self.schedule.tick()  # failed run adds nothing
+        before = self.path.read_bytes()
+        items = read_prepared_packages(self.path)
+        self.assertEqual([1], [i['id'] for i in items]); self.assertEqual(['a.jpg', 'b.jpg'], items[0]['stagedFiles'])
+        self.assertEqual(self.schedule.status()['runs'][1]['id'], items[0]['runId'])
+        self.assertEqual(items, self.schedule.prepared_packages()); self.assertEqual(before, self.path.read_bytes())
+        self.assertEqual([], read_prepared_packages(Path(self.temp.name) / 'missing.db'))
+        self.assertFalse((Path(self.temp.name) / 'missing.db').exists())
 
     def test_worker_executes_without_ui_heartbeat_and_closes(self):
         self.schedule.configure({**self.request, 'max_runs': 1}); self.schedule.start()

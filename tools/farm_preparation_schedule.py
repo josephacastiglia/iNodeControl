@@ -11,6 +11,25 @@ import uuid
 from farm_transfers import _ListenerOwner
 
 
+def read_prepared_packages(database):
+    """Content items of succeeded runs, oldest first, each with its runId: the review queue's input.
+
+    Opens the database read-only: never creates tables, recovers runs or takes the owner lock,
+    so the operator's command line can read it while the backend is running."""
+    path = Path(database)
+    if not path.exists(): return []
+    db = sqlite3.connect(f'{path.resolve().as_uri()}?mode=ro', uri=True, timeout=10)
+    try: rows = db.execute('SELECT document FROM preparation_runs ORDER BY rowid').fetchall()
+    except sqlite3.OperationalError: return []
+    finally: db.close()
+    items = []
+    for (document,) in rows:
+        run = json.loads(document)
+        if run.get('state') == 'succeeded':
+            items += [{**item, 'runId': run['id']} for item in run.get('contentItems', [])]
+    return items
+
+
 class PreparationSchedule:
     def __init__(self, database, prepare, persona, operation_lock, clock=time.time):
         self.path = Path(database); self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -56,6 +75,8 @@ class PreparationSchedule:
             runs = [json.loads(row[0]) for row in db.execute('SELECT document FROM preparation_runs ORDER BY rowid DESC LIMIT 30')]
         return {'config': config, 'runs': runs, 'workerRunning': bool(self.thread and self.thread.is_alive()),
                 'workerError': self.worker_error, 'phoneInput': False, 'publishing': False, 'messaging': False}
+
+    def prepared_packages(self): return read_prepared_packages(self.path)
 
     def configure(self, request):
         request_id = str(uuid.UUID(request.get('id', '')))
