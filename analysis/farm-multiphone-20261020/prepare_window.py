@@ -7,6 +7,11 @@ data), never a default. The window shares the kernel; it never starts or stops i
 
   python prepare_window.py --platform tiktok --slot 20 --phone-ip 192.168.4.27 --account <handle>
   python prepare_window.py --platform youtube --slot 16 --phone-ip 192.168.4.69
+  python prepare_window.py --platform x-image --slot 17 --phone-ip <A17 address>
+  python prepare_window.py --platform tiktok-photo --slot 20 --phone-ip <A20 address> --account <handle>
+
+Image platforms (x-image, tiktok-photo) stage labelled test slides and save one farm_image draft instead of
+a video; their preparation names it as draftId (video windows keep videoDraftId as well).
 
 Writes windows/<platform>-slot<N>/{preparation.json, creation-config.json} and
 output/candidate-runs/farm-<platform>-slot<N>-<date>-<n>/backend. Refuses to overwrite either.
@@ -28,6 +33,8 @@ from farm_paths import RACK  # noqa: E402  (the main folder's rack, also from a 
 from farm_phone_identity import PhoneIdentity  # noqa: E402
 from farm_reel_test_media import render, colour_code  # noqa: E402
 from farm_video import VideoDrafts, VideoTransferPackage  # noqa: E402
+from farm_image import ImageDrafts, SLIDES, render_test_images  # noqa: E402
+from farm_media_transfer import TransferPackage  # noqa: E402
 
 PC_LAN = '192.168.4.26'
 BACKEND_PORTS = {18: 9915, 20: 9925, 17: 9935, 16: 9945}
@@ -36,7 +43,11 @@ PLATFORMS = {   # format, caption, label, route, capability key, whether a fixed
     'tiktok': ('tt_video', 'Fresh tiktok acceptance', 'TIKTOK DRAFT TEST', 'tiktok-creations', 'tiktokCreation', True),
     'x': ('x_video', 'Fresh x acceptance', 'X DRAFT TEST', 'x-creations', 'xCreation', False),
     'youtube': ('yt_short', 'Fresh short test', 'SHORT DRAFT TEST', 'youtube-creations', 'youtubeCreation', False),
+    'x-image': ('x_image', 'Fresh x image acceptance', 'X IMAGE DRAFT TEST', 'x-image-creations', 'xImageCreation', False),
+    'tiktok-photo': ('tt_photo', 'Fresh tiktok photo test', 'TIKTOK PHOTO TEST', 'tiktok-photo-creations', 'tiktokPhotoCreation', True),
 }
+# Image platforms: their lane's phone (LANES.md) and how many labelled test slides to stage.
+IMAGE_PLATFORMS = {'x-image': dict(slot=17, slides=1), 'tiktok-photo': dict(slot=20, slides=3)}
 
 
 def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -53,6 +64,8 @@ def main():
     fmt, caption, label, route, capability, pinned = PLATFORMS[args.platform]
     if pinned != (args.account is not None):
         raise SystemExit(f'{args.platform} needs ' + ('the handle signed in on that phone.' if pinned else 'no account: creation binds the signed-in one.'))
+    if args.platform in IMAGE_PLATFORMS and args.slot != IMAGE_PLATFORMS[args.platform]['slot']:
+        raise SystemExit(f"{args.platform} runs on slot {IMAGE_PLATFORMS[args.platform]['slot']} only (its lane's phone).")
 
     rack = load(RACK / 'preparation.json')
     kernel = Path(rack['kernel'])
@@ -83,15 +96,21 @@ def main():
     backend = run / 'backend'
     token = uuid.uuid4().hex[:12]
     stage = backend / 'stage' / board; stage.mkdir(parents=True)
-    video = render(token, stage / f'{args.platform}-{token}.mp4', label=label)
-    raw = video.read_bytes(); digest = hashlib.sha256(raw).hexdigest()
-    (stage / 'manifest.json').write_text(json.dumps({'deviceId': board, 'assets': [
-        {'url': f'/stage/{board}/{video.name}', 'sha256': digest, 'bytes': len(raw)}]}), encoding='utf-8')
-    videos = VideoDrafts(backend / 'video-drafts.db', backend / 'stage', board)
-    draft = videos.create(dict(id=str(uuid.uuid4()), device_id=board, format=fmt, name=video.name, sha256=digest,
-                               title=f'{args.platform} slot {args.slot} ' + token[:6], caption=caption))
-    package = videos.export(draft['id'], draft['revision'])
-    parsed = VideoTransferPackage(package, board)
+    title = f'{args.platform} slot {args.slot} ' + token[:6]
+    if args.platform in IMAGE_PLATFORMS:
+        draft, package, media = stage_images(args.platform, fmt, label, caption, title, token, board, backend, stage)
+        parsed = TransferPackage(package, board)
+    else:
+        video = render(token, stage / f'{args.platform}-{token}.mp4', label=label)
+        raw = video.read_bytes(); digest = hashlib.sha256(raw).hexdigest()
+        (stage / 'manifest.json').write_text(json.dumps({'deviceId': board, 'assets': [
+            {'url': f'/stage/{board}/{video.name}', 'sha256': digest, 'bytes': len(raw)}]}), encoding='utf-8')
+        videos = VideoDrafts(backend / 'video-drafts.db', backend / 'stage', board)
+        draft = videos.create(dict(id=str(uuid.uuid4()), device_id=board, format=fmt, name=video.name, sha256=digest,
+                                   title=title, caption=caption))
+        package = videos.export(draft['id'], draft['revision'])
+        parsed = VideoTransferPackage(package, board)
+        media = dict(videoDraftId=draft['id'], colourCode=colour_code(token), videoSha256=draft['sha256'])
 
     import imouse_farm_server as server   # The fingerprint the live backend reports; simulation, no listener.
     with tempfile.TemporaryDirectory(prefix='window-source-hash-') as directory:
@@ -100,13 +119,31 @@ def main():
                        runDirectory=str(run), backendData=str(backend), backendPort=BACKEND_PORTS[args.slot],
                        mediaPort=MEDIA_PORTS[args.slot], config=str(config_path), configSha256=sha(config_path),
                        kernel=str(kernel), kernelSha256=rack['kernelSha256'], rackPreparation=str(RACK / 'preparation.json'),
-                       account=args.account, videoDraftId=draft['id'], revision=draft['revision'], caption=caption, testToken=token,
-                       colourCode=colour_code(token), videoSha256=draft['sha256'], packageSha256=hashlib.sha256(package).hexdigest(),
+                       account=args.account, draftId=draft['id'], **media, revision=draft['revision'], caption=caption, testToken=token,
+                       packageSha256=hashlib.sha256(package).hexdigest(),
                        downloadName=parsed.download_name, backendSourceHash=source_hash,
                        serviceStarted=False, phoneInput=False)
     (window / 'preparation.json').write_text(json.dumps(preparation, indent=2), encoding='utf-8')
     print(json.dumps(dict(prepared=True, window=str(window.relative_to(HERE)), phone=phone.receiver, board=board,
                           backendPort=preparation['backendPort'], mediaPort=preparation['mediaPort'], caption=caption)))
+
+
+def stage_images(platform, fmt, label, caption, title, token, board, backend, stage):
+    """Labelled test slides -> stage manifest -> one saved image draft and its package. No phone, no socket."""
+    count = IMAGE_PLATFORMS[platform]['slides']
+    low, high = SLIDES[fmt]
+    if not low <= count <= high: raise SystemExit(f'{platform} test media must have {low}-{high} slides.')
+    slides = render_test_images(token, stage, count, label)
+    assets = [dict(url=f'/stage/{board}/{p.name}', sha256=hashlib.sha256(p.read_bytes()).hexdigest(), bytes=p.stat().st_size)
+              for p in slides]
+    (stage / 'manifest.json').write_text(json.dumps({'deviceId': board, 'assets': assets}), encoding='utf-8')
+    images = ImageDrafts(backend / 'image-drafts.db', backend / 'stage', board)
+    draft = images.create(dict(id=str(uuid.uuid4()), device_id=board, format=fmt, title=title, caption=caption,
+                               images=[dict(name=p.name, sha256=a['sha256']) for p, a in zip(slides, assets)]))
+    package = images.export(draft['id'], draft['revision'])
+    media = dict(imageSha256s=[a['sha256'] for a in draft['assets']], slideCount=len(draft['assets']),
+                 colourCodes=[colour_code(f'{token}:{n}') for n in range(1, count + 1)])
+    return draft, package, media
 
 
 if __name__ == '__main__':

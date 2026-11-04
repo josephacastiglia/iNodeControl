@@ -1,5 +1,5 @@
 # Stops one window's backend (and only it). Leaves the kernel, receivers and other windows running.
-param([Parameter(Mandatory)][ValidatePattern('^[a-z]+-slot\d+$')][string]$Window)
+param([Parameter(Mandatory)][ValidatePattern('^[a-z]+(-[a-z]+)?-slot\d+$')][string]$Window)
 $ErrorActionPreference='Stop'
 $taskDir=Join-Path $PSScriptRoot "windows\$Window"
 $taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json

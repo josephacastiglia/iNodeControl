@@ -59,10 +59,11 @@ def main():
         raise SystemExit(f"{prep['phone']['board']} is not free. No takeover.")
 
     base = f"http://127.0.0.1:{prep['backendPort']}/api/farm/{prep['route']}"
-    query = urllib.parse.urlencode(dict(draft_id=prep['videoDraftId'], revision=prep['revision']))
+    draft_id = prep.get('draftId') or prep['videoDraftId']   # Image windows name only draftId.
+    query = urllib.parse.urlencode(dict(draft_id=draft_id, revision=prep['revision']))
     eligibility = call(f'{base}/eligibility?{query}')['eligibility']
     if not eligibility.get('eligible'): raise SystemExit('Not eligible: ' + json.dumps(eligibility)[:400])
-    spec = dict(id=str(uuid.uuid4()), draft_id=prep['videoDraftId'], revision=prep['revision'], store_id=eligibility['storeId'])
+    spec = dict(id=str(uuid.uuid4()), draft_id=draft_id, revision=prep['revision'], store_id=eligibility['storeId'])
     out.mkdir()
     (out / 'request.json').write_text(json.dumps(dict(spec, utc=datetime.now(timezone.utc).isoformat()), indent=2), encoding='utf-8')
     run = call(base, spec)['run']
