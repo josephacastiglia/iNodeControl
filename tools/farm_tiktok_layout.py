@@ -188,9 +188,16 @@ def tiktok_profile(frame, text, account):
     """The exact signed-in TikTok profile; the Drafts tile count is supplementary evidence."""
     no_overlay(text)
     require(words_at(text, '@' + account.casefold(), (10, 165, 300, 200)), 'The TikTok profile does not show the exact account.')
-    require(words_at(text, 'following', (10, 228, 100, 258)) and words_at(text, 'likes', (195, 228, 270, 258))
-            and (words_at(text, 'follower', (105, 228, 195, 258)) or words_at(text, 'followers', (105, 228, 205, 258))),
-            'The TikTok profile counters are not recognized.')
+    def counters(found):
+        return (found('following', (10, 228, 100, 258)) and found('likes', (195, 228, 270, 258))
+                and (found('follower', (105, 228, 195, 258)) or found('followers', (105, 228, 205, 258))))
+    if not counters(lambda label, box: words_at(text, label, box)):
+        # Full-frame OCR drops 'Likes' on slot 20 (4 Nov); the counter labels are read again alone, enlarged.
+        band = [(t.casefold(), x0, y0, x1, y1) for t, x0, y0, x1, y1 in band_words(frame, (10, 205, 300, 262), 3)]
+        def enlarged(label, box):
+            return sum(1 for t, x0, y0, x1, y1 in band if t == label and box[0] <= x0 and x1 <= box[2]
+                       and box[1] <= y0 and y1 <= box[3]) == 1
+        require(counters(enlarged), 'The TikTok profile counters are not recognized.')
     require(words_at(text, 'profile', NAV[3][1]), 'The TikTok navigation bar is not recognized.')
     control(frame, 'tt_nav_create')
     rows = [r['text'] for r in text.get('lines', []) if r.get('words') and min(w['x'] for w in r['words']) < 40
@@ -200,7 +207,8 @@ def tiktok_profile(frame, text, account):
         # the label band alone is read again, enlarged.
         words = band_words(frame, (0, 360, 170, 400), 3)
         rows = [' '.join(w[0] for w in sorted(words, key=lambda w: w[1]))] if words else []
-    found = [re.fullmatch(r'drafts:\s*(\d+)', ' '.join(r.casefold().split())) for r in rows]
+    # The enlarged read can lead with a stray mark ('-Drafts: 4', slot 20, 4 Nov).
+    found = [re.fullmatch(r'[^a-z0-9]?drafts:\s*(\d+)', ' '.join(r.casefold().split())) for r in rows]
     count = int(found[0].group(1)) if len(found) == 1 and found[0] else None
     # TikTok sometimes lands here after Drafts with the same toast as on the feed (17 Oct photo route).
     return dict(account=account, draftsCount=count, draftsTarget=(79, 478) if count is not None else None,
