@@ -168,6 +168,24 @@ def profile(frame, text, account):
     return tt.tiktok_profile(frame, text, account)
 
 
+PROFILE_TILES = ((0, 166), (168, 332), (334, 500))   # First profile grid row on A20, y 367-585.
+
+
+def drafts_tile_cover(frame, reference):
+    """The profile's Drafts tile (first grid tile) when its cover is package slide 1. Over a light slide the
+    white 'Drafts: N' label is unreadable even enlarged (A20, 4 Nov: slide 1 .043, every other tile .29+);
+    package slides only ever exist as a draft (nothing is posted), so this cover marks the Drafts tile."""
+    image = pixels(frame, exact=True)
+    boxes = [(left, 367, right, 585) for left, right in PROFILE_TILES]
+    def cover(frame, image, box, ref):
+        left, top, right, bottom = box
+        return media_match(frame, (left+2, top+2, right-2, bottom-2), ref, 'portrait', image=image,
+                           ignore=((left, top, right, top+35), (left, bottom-35, right, bottom)))
+    tile, match = _rank_cover(frame, image, boxes, reference, cover)
+    require(tile == boxes[0], 'The package photo draft is not the first profile tile.')
+    return dict(match, target=(79, 478))
+
+
 # ---- Upload picker: numbered photo selection ------------------------------------------------------
 
 COLUMNS = tt.COLUMNS

@@ -329,6 +329,11 @@ class TikTokPhotoCreationWorkflow(TikTokCreationWorkflow):
             self.record.update(draftSavedToast=bool(landed.get('toastSeen')), landedAfterSave=landed['screen']); self.save()
             before = self.record['draftsCount']['before']
             self.record['draftsCount']['after'] = after['draftsCount']; self.save()
+            if after['draftsCount'] is None:   # Unreadable over the new cover: record whether the cover is ours.
+                try: self.record['draftsTileByCover'] = ph.drafts_tile_cover(self.store.current_evidence(
+                        self.record['observations'][-1]['observationId'])[1], self.images)
+                except Exception as error: self.record['draftsTileByCover'] = dict(error=str(error))
+                self.save()
             if before is not None and after['draftsCount'] is not None:
                 require(after['draftsCount'] == before+1, 'The TikTok drafts count did not increase by one; review before any further input.')
             self.record.update(state='created_unverified', meaning='Package slides saved to Photos and selected in order, the '
@@ -355,9 +360,14 @@ class TikTokPhotoVerification(TikTokPhotoCreationWorkflow):
         try:
             self.admit()
             self.phase('verify-saved-tiktok-photo')
-            profile, _, _ = self.screen('tiktok_photo_profile')
-            require(profile['draftsTarget'], 'The TikTok Drafts tile is not visible on the profile.')
-            self.tap('verify-open-drafts', 'tiktok_photo_profile', lambda v, f: ph.profile(f, v['text'], self.account)['draftsTarget'])
+            profile, _, frame = self.screen('tiktok_photo_profile')
+            if not profile['draftsTarget']:
+                # 'Drafts: N' unreadable over the package cover; the cover itself marks the Drafts tile.
+                self.record['draftsTileByCover'] = ph.drafts_tile_cover(frame, self.images); self.save()
+            def drafts(value, frame):
+                found = ph.profile(frame, value['text'], self.account)
+                return found['draftsTarget'] or ph.drafts_tile_cover(frame, self.images)['target']
+            self.tap('verify-open-drafts', 'tiktok_photo_profile', drafts)
             found, _, _ = self.screen('tiktok_photo_drafts')
             self.record['draftTile'] = dict(count=found['count'], tile=found['tile'], tiles=found['tiles'], match=found['match'],
                                             soundLabel=found['soundLabel'])
