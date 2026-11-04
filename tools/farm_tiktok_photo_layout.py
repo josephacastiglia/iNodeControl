@@ -423,7 +423,14 @@ def photo_drafts(frame, text, reference):
     tile, match = _rank_cover(frame, image, boxes, reference, cover)
     left, top, right, bottom = tile
     label = rows_between(text, bottom-50, bottom, left, right)
+    # The kept sound shows as a dark pill near the cover's foot ('♫ ☆…Van…', A20, 4 Nov); full-frame OCR misses it.
+    band = (left+10, bottom-55, min(right, left+170), bottom-10)
+    pill = float((image[band[1]+7:band[3]-8, band[0]+6:band[2]-30].max(axis=2) < 110).mean())
+    if not label and pill > .4:
+        words = sorted(band_words(frame, band, 3), key=lambda w: w[1])
+        label = [' '.join(w[0] for w in words)] if words else ['(unread)']
     return dict(count=count, tile=list(tile), match=match, tiles=len(boxes), soundLabel=label[0] if label else None,
+                soundPill=round(pill, 3),
                 toastSeen=bool(line_at(text, 'draft saved', tt.TOAST[1])), target=centre(tile))
 
 
