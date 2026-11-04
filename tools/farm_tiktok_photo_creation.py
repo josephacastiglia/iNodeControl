@@ -75,6 +75,18 @@ def compare(role):
 class TikTokPhotoCreationWorkflow(TikTokCreationWorkflow):
     MEDIA_ROLES = ('tiktok_photo_picker',)
     PASTE_ROLES = ('tiktok_photo_description',)
+    # Operator's standing instruction for A20 (4 Nov): iOS's full-access photos reminder is answered with the
+    # policy answer ('Allow Full Access', keeps the current setting) by one pointer tap at the recognized
+    # button, then the screen is read again; this run's journal is the validation evidence. Once per run:
+    # a reminder that returns, or any other prompt, stops the run as before.
+    validated_prompt_methods = {('photos_reminder', 'pointer_tap'): ('validated', 'operator instruction for A20, 4 Nov 2026')}
+    PROMPT_LIMIT = 1
+
+    def answer_prompt(self, decision, role):
+        require(decision['kind'] == 'photos_reminder' and decision['answer'] == 'Allow Full Access'
+                and not any(a['label'].startswith('answer-') for a in self.record['actions']),
+                'Only one photos reminder per run is answered automatically; review the phone.')
+        super().answer_prompt(decision, role)
 
     def __init__(self, folder, kernel, store, images, caption, templates, expected_hash, expected_uid, *,
                  transfer_url, transfer_title, package_name, slides, **kwargs):
