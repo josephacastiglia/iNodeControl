@@ -149,6 +149,12 @@ class XImageCreationWorkflow(xc.XCreationWorkflow):
             return x, y
         return target
 
+    def tap(self, label, role, point, *, hold=False):
+        # Safari ignored an immediate click on 'Open slide 1 of 1' once (slot 17, 4 Nov: no slide request reached
+        # the transfer server); the transfer pages get the settled click (move, rest, the same single click) too.
+        settle = not hold and (role.startswith('x_') or role in ('xi_page', 'xi_slide', 'xi_caption_copied'))
+        self.step(label, role, point=self.check_target(role, point), hold=hold, settle=settle)
+
     # -- workflow ----------------------------------------------------------------
     def open_app(self, name, visit):
         """X is opened from the app search by its Top Hit icon (its label is unreadable); other apps as before."""

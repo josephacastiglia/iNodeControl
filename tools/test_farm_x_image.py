@@ -91,13 +91,14 @@ def menu_frame(raw, rows=None):
     return png(page), ocr(*rows)
 
 
-def composer_frame(raw, *, callout=True):
+def composer_frame(raw, *, callout=True, alt=False):
     image = Image.new('RGB', (500, 1080), 'white')
     image = pasted(image, raw, (xil.CARD_LEFT, xil.CARD_TOP, xil.CARD_LEFT+xil.CARD_WIDTH, xil.CARD_TOP+xil.CARD_HEIGHT))
     draw = ImageDraw.Draw(image)
     draw.ellipse((445, 182, 473, 210), fill='black')                       # remove x
     for left, right in ((208, 303), (314, 421), (432, 477)): draw.rounded_rectangle((left, 648, right, 688), 18, fill=(30, 30, 30))
     if callout: draw.rounded_rectangle((262, 596, 472, 640), 6, fill=(29, 155, 240))   # 'Make Video with Grok'
+    if alt: draw.rounded_rectangle((40, 573, 492, 640), 6, fill=(29, 155, 240))        # 'Describe this image ...'
     draw.rounded_rectangle((402, 64, 474, 104), 20, fill=(29, 155, 240))   # Post
     rows = [('Cancel', 13, 76, 63), ('O Fresh x image acceptance', 25, 125, 304), ('Post', 422, 78, 33), ('Tag people', 104, 710, 77),
             ('Everyone can reply', 50, 941, 144)]
@@ -165,8 +166,11 @@ class ComposerTests(unittest.TestCase):
         frame, text = composer_frame(Images.one)
         found = xil.composer_image(frame, text, Images.ref)
         self.assertTrue(found['media']['matched']); self.assertEqual((57, 85), found['cancelTarget'])
-        frame, text = composer_frame(Images.one, callout=False)
-        self.assertTrue(xil.composer_image(frame, text, Images.ref)['media']['matched'])
+        for kwargs in (dict(callout=False), dict(callout=False, alt=True)):
+            frame, text = composer_frame(Images.one, **kwargs)
+            self.assertTrue(xil.composer_image(frame, text, Images.ref)['media']['matched'])
+        frame, text = composer_frame(Images.two, callout=False, alt=True)
+        with self.assertRaises(InspectionStopped): xil.composer_image(frame, text, Images.ref)
 
     def test_composer_card_with_another_image_or_no_text_stops(self):
         frame, text = composer_frame(Images.two)
@@ -189,6 +193,15 @@ class ComposerTests(unittest.TestCase):
         self.assertEqual((344, 85), xl.x_composer_empty(frame, text)['draftsTarget'])
         text['lines'].append(line('Discard', 213, 565, 74))
         with self.assertRaises(InspectionStopped): xl.x_composer_empty(frame, text)
+
+    def test_drafts_sheet_drawn_lower_on_slot_17(self):
+        # 4 Nov: the sheet's tabs sit 14 px lower ('Scheduled' to y 172); the exact-text row with the image decides.
+        image = Image.new('RGB', (500, 1080), 'white')
+        image = pasted(image, Images.one, (406, 210, 476, 298))
+        text = ocr(('Cancel', 26, 96, 61), ('Drafts', 222, 95, 57), ('Drafts', 113, 160, 45), ('Scheduled', 327, 160, 76),
+                   ('Fresh x image acceptance', 22, 226, 220))
+        with patch.object(xl, 'media_match', lambda *a, **k: dict(matched=True, mean=.01)):
+            self.assertEqual(226, xl.x_drafts(png(image), text, Images.ref, 'Fresh x image acceptance')['row']['y'])
 
     def test_x_top_hit_is_read_from_its_icon(self):
         image = Image.new('RGB', (500, 1080), (40, 60, 110)); draw = ImageDraw.Draw(image)

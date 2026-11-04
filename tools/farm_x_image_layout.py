@@ -137,8 +137,9 @@ def save_menu(frame, text, reference):
 # control top right and Video / +ALT / edit buttons along its bottom edge.
 CARD_LEFT, CARD_TOP, CARD_WIDTH = 66, 170, 420
 CARD_HEIGHT = round(CARD_WIDTH*1350/1080)
-# Slot 17 (4 Nov) adds an Edit button left of Video and a first-use 'Make Video with Grok' callout above them.
-CARD_IGNORE = ((436, 174, 482, 218), (200, 590, 482, 700))   # remove x; callout, Edit, Video, +ALT
+# Slot 17 (4 Nov) adds an Edit button left of Video and first-use callouts above the buttons: 'Make Video with
+# Grok' (x 262-472) and 'Describe this image for those who are blind or low vision' (x 40-492, y 573-640).
+CARD_IGNORE = ((436, 174, 482, 218), (40, 570, 495, 700))   # remove x; callouts, Edit, Video, +ALT
 REMOVE = (436, 174, 482, 218)
 CARD_BUTTONS = (200, 590, 482, 700)
 

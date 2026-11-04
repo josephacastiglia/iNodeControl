@@ -297,7 +297,7 @@ def drafts_loading(image):
 
 def x_drafts(frame, text, reference, caption):
     """Drafts sheet: the one row with the exact text and the package video's thumbnail."""
-    for label, box in (('Cancel', (8, 82, 100, 115)), ('Drafts', (210, 82, 290, 115)), ('Scheduled', (315, 138, 415, 170))):
+    for label, box in (('Cancel', (8, 82, 100, 115)), ('Drafts', (210, 82, 290, 115)), ('Scheduled', (315, 138, 415, 186))):
         exact(text, label, box)
     no_overlay(text, (({'cancel'}, (8, 82, 100, 115)),))   # Cancel from x 13 as in the composer (4 Nov).
     image = pixels(frame, exact=True)
