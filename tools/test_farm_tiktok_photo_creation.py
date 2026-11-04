@@ -83,8 +83,7 @@ class Screens:
             self.frames['drafts'] = png(grid)
         self.texts['drafts'] = copy.deepcopy(self.texts['drafts_video'])
         self.texts['drafts']['lines'].append(line('Talking Body', 20, 420, 90))
-        # Synthetic: the Top Hit label 'TikTok' that full-frame OCR missed on this frame (a live read decides).
-        self.texts['query']['lines'].append(line('TikTok', 65, 206, 44))
+        # The Top Hit label 'TikTok' that full-frame OCR missed on s20 is found by the enlarged read (4 Nov).
 
 
 class FixtureOcr:
@@ -200,7 +199,7 @@ class FixtureKernel:
             ('slide3', 'key:Home', None, 'home'),
             ('home', 'click', (250, 899), 'search'),
             ('search', 'click', (88, 169), 'tiktok'),   # TikTok among the Siri suggestions (enlarged read).
-            ('query', 'click', None, 'tiktok'),
+            ('query', 'click', (87, 217), 'tiktok'),
             ('tiktok', 'click', (450, 1005), 'profile'),
             ('profile', 'click', (250, 1009), 'camera'),
             ('camera', 'click', (40, 1000), 'picker0'),

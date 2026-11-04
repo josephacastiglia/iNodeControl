@@ -135,6 +135,27 @@ def save_menu(frame, text, number, reference):
     return dict(preview=list(box), match=match, target=centre(save))
 
 
+# ---- Spotlight -----------------------------------------------------------------------------------
+
+TOP_HIT_LABELS = (10, 195, 490, 232)
+
+
+def app_target(text, name, frame):
+    """farm_creation_layout.app_target, plus an enlarged read of the Top Hit label row: full-frame OCR
+    missed the Top Hit 'TikTok' label on A20 twice (4 Nov). The name must be read there exactly once,
+    leftmost (the app itself; shortcuts such as Search, Inbox, Create follow it)."""
+    from farm_creation_layout import app_target as shared
+    try: return shared(text, name, frame)
+    except InspectionStopped as stop:
+        labels = {r['text'].casefold() for r in text.get('lines', []) if r.get('words')}
+        if 'top hit' not in labels or frame is None: raise
+        words = sorted(band_words(frame, TOP_HIT_LABELS, 3), key=lambda w: w[1])
+        found = [w for w in words if w[0].casefold() == name.casefold()]
+        if len(found) != 1 or words[0] is not found[0]: raise stop
+        _, x0, y0, x1, y1 = found[0]
+        return round((x0+x1)/2), round((y0+y1)/2)
+
+
 # ---- TikTok profile (A20 reads) -------------------------------------------------------------------
 
 def profile(frame, text, account):

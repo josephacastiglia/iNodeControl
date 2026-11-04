@@ -128,6 +128,11 @@ class TikTokPhotoCreationWorkflow(TikTokCreationWorkflow):
         if role == 'tiktok_photo_description': return ph.description_editor(frame, text, self.images, self.caption if index else None)
         if role == 'tiktok_photo_paste_menu': return ph.paste_menu(frame, text)
         if role == 'tiktok_photo_drafts': return ph.photo_drafts(frame, text, self.images)
+        if role == 'app_result': return dict(target=ph.app_target(text, self.search_app, frame))
+        if role == 'app_search_entry':
+            # Spotlight can reopen with an earlier query's results: accepted when they show the app itself.
+            try: return dict(restoredResult=ph.app_target(text, self.search_app, frame))
+            except InspectionStopped: pass
         if role == 'tiktok_entry':
             # TikTok resumes where it was left: the exact profile, or the feed.
             try: return dict(screen='profile', **ph.profile(frame, text, self.account))
@@ -179,6 +184,30 @@ class TikTokPhotoCreationWorkflow(TikTokCreationWorkflow):
         self.tap(label, role, point, hold=True, index=index)
 
     # -- steps -------------------------------------------------------------------
+    def open_app(self, name, visit):
+        """CreationWorkflow.open_app with the Top Hit label also read enlarged (ph.app_target)."""
+        from farm_creation_layout import home_search, empty_search, search_clear
+        from farm_draft_workflow import centre
+        target = lambda v, f: ph.app_target(v['text'], name, f)
+        self.search_app = name
+        self.pause(1.0)   # Home's closing animation must end first.
+        value, frame = self.observe('home')
+        try: point = target(value, frame)
+        except InspectionStopped: point = None
+        if point:
+            self.step(visit+'-open-'+name, 'home', point=target); return
+        self.step(visit+'-search-'+name, 'home', point=lambda v, f: centre(home_search(f, v['text'])))
+        value, frame = self.observe('app_search_entry')
+        try: target(value, frame); desired = True
+        except InspectionStopped: desired = False
+        if not desired:
+            try: empty_search(value['text'], frame); empty = True
+            except InspectionStopped: empty = False
+            if not empty:
+                self.step(visit+'-clear-restored-search', 'restored_search', point=lambda v, f: centre(search_clear(f)))
+            self.step(visit+'-query-'+name, 'search', text=name)
+        self.step(visit+'-open-'+name, 'app_result', point=target)
+
     def admit(self):
         self.identity = self.runtime()
         require(idle(self.kernel.input_status().get(self.phone.device_id)), f'{self.phone.board} is not free; no takeover is allowed.')
