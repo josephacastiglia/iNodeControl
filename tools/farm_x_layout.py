@@ -78,12 +78,13 @@ def x_menu(frame, text):
 
 # ---- Composer --------------------------------------------------------------------------
 
-COMPOSER_CANCEL = ({'cancel'}, (18, 68, 100, 100))
+# X draws Cancel from x 13 on slot 17 since 4 Nov (26 on C24C, 17 Oct; 18+ on slot 17, 22-25 Oct).
+COMPOSER_CANCEL = ({'cancel'}, (8, 68, 100, 100))
 
 
 def _composer(frame, text):
     no_overlay(text, (TIPS, COMPOSER_CANCEL))
-    exact(text, 'Cancel', (18, 68, 100, 100))
+    exact(text, 'Cancel', COMPOSER_CANCEL[1])
     # A tip callout can cover the end of the row ('Everyone can' under 'Find awesome GIFs', 22 Oct).
     tip = any(' '.join(r['text'].casefold().split()) in TIPS[0] for r in text.get('lines', []) if r.get('words')
               and min(w['y'] for w in r['words']) > 900)
@@ -171,10 +172,15 @@ def x_paste_menu(frame, text):
 
 
 def x_save_sheet(text):
-    """Cancel's sheet: Save to drafts (the target), Discard (never), Keep editing."""
-    bounds = exact(text, 'Save to drafts', (170, 450, 330, 495))
-    exact(text, 'Discard', (200, 520, 300, 560)); exact(text, 'Keep editing', (180, 588, 325, 630))
-    return dict(target=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)))
+    """Cancel's sheet: Save to drafts (the target) above Discard (never); 'Keep editing' below them in the
+    17-25 Oct layout. Slot 17's X shows only the two rows since 4 Nov, Save to drafts at y 498, Discard at 565."""
+    bounds = exact(text, 'Save to drafts', (160, 440, 340, 530))
+    discard = exact(text, 'Discard', (190, 505, 310, 600))
+    require(discard[1] - bounds[3] >= 25, 'Save to drafts is too close to Discard.')
+    keep = line_at(text, 'keep editing', (170, 570, 335, 650))
+    require(not keep or keep[0][1] > discard[3], 'The X save sheet rows are out of order.')
+    return dict(target=(round((bounds[0]+bounds[2])/2), round((bounds[1]+bounds[3])/2)), discard=list(discard),
+                layout='three_rows' if keep else 'two_rows')
 
 
 EDITOR_TIPS = ({'text gives your video context', "say what it's about in a few words", "sa what it's about in a few words"},
@@ -212,7 +218,7 @@ class Loading(InspectionStopped):
 
 
 def _picker_header(text):
-    for label, box in (('Cancel', (18, 88, 100, 120)), ('Photos', (160, 88, 235, 120)), ('Collections', (250, 88, 355, 120)),
+    for label, box in (('Cancel', (8, 88, 100, 120)), ('Photos', (160, 88, 235, 120)), ('Collections', (250, 88, 355, 120)),
                        ('Add', (425, 88, 485, 120))):
         exact(text, label, box)
     require(words_at(text, 'search', (40, 140, 140, 180)) or line_at(text, 'q search your library...', (25, 140, 300, 180)),
@@ -244,7 +250,7 @@ def _tile(frame, tile, reference, image):
 
 def x_picker(frame, text, reference):
     """Unselected system picker: the one tile showing the package video, nothing selected."""
-    if line_at(text, 'loading...', (150, 560, 350, 660)) and exact(text, 'Cancel', (18, 88, 100, 120)):
+    if line_at(text, 'loading...', (150, 560, 350, 660)) and exact(text, 'Cancel', (8, 88, 100, 120)):
         raise Loading('The photo picker is still loading.')
     _picker_header(text)
     require(line_at(text, 'select items', (190, 990, 335, 1025)), 'The photo picker selection bar is not recognized.')
@@ -291,9 +297,9 @@ def drafts_loading(image):
 
 def x_drafts(frame, text, reference, caption):
     """Drafts sheet: the one row with the exact text and the package video's thumbnail."""
-    for label, box in (('Cancel', (18, 82, 100, 115)), ('Drafts', (210, 82, 290, 115)), ('Scheduled', (315, 138, 415, 170))):
+    for label, box in (('Cancel', (8, 82, 100, 115)), ('Drafts', (210, 82, 290, 115)), ('Scheduled', (315, 138, 415, 186))):
         exact(text, label, box)
-    no_overlay(text, (({'cancel'}, (18, 82, 100, 115)),))
+    no_overlay(text, (({'cancel'}, (8, 82, 100, 115)),))   # Cancel from x 13 as in the composer (4 Nov).
     image = pixels(frame, exact=True)
     rows = []
     for line in text.get('lines', []):
