@@ -1,7 +1,7 @@
 # Starts one window's backend against the running multi-phone kernel. Never starts or stops the
 # kernel or a receiver, and sends no phone input. Refuses if the kernel is not the prepared one,
 # if this window already runs, or if its own ports are taken.
-param([Parameter(Mandatory)][ValidatePattern('^[a-z]+-slot\d+$')][string]$Window)
+param([Parameter(Mandatory)][ValidatePattern('^[a-z]+(-[a-z]+)?-slot\d+$')][string]$Window)
 $ErrorActionPreference='Stop'
 $taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $taskPython='C:\Users\joey_\AppData\Local\Programs\Python\Python311\python.exe'

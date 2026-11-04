@@ -151,6 +151,11 @@ class MediaTransferTests(unittest.TestCase):
             files['manifest.json'] = json.dumps(data).encode()
         with self.assertRaisesRegex(ValueError, 'C24C'): TransferPackage(self.modified(change))
 
+    def test_carousel_package_is_served_only_for_c24c(self):
+        self.assertEqual(self.package.images, TransferPackage(self.raw, 'C24C').images)
+        for board in ('724E', 'C214', None):
+            with self.subTest(board=board), self.assertRaises(ValueError): TransferPackage(self.raw, board)
+
     def test_bind_must_be_explicit_private_address_and_time_bounded(self):
         for address in ('0.0.0.0', '8.8.8.8', '224.0.0.1', '169.254.1.2', 'localhost'):
             with self.assertRaises(ValueError): checked_address(address)

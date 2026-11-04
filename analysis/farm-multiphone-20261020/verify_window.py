@@ -14,6 +14,12 @@ bound: Create -> Drafts -> the one exact-title draft -> play -> Save draft (keep
   python verify_window.py --window reel-slot18 --attempt 1 --check 2
   python verify_window.py --window x-slot17 --attempt 1 --check 2
   python verify_window.py --window youtube-slot16 --attempt 1 --check 1
+  python verify_window.py --window x-image-slot17 --attempt 1 --check 2
+
+Image windows (x-image, tiktok-photo) run the verifier of their lane's runs class
+(farm_reel_runs.LANE_RUNS: farm_x_runs.XImageCreationRuns, farm_tiktok_photo_runs.TikTokPhotoCreationRuns)
+against a farm_image.ImageReference of the admitted package. They are loaded only when needed and
+refused, before any phone command, while the lane's class does not exist.
 """
 import argparse
 import hashlib
@@ -31,27 +37,55 @@ from farm_draft_workflow import atomic_json, references  # noqa: E402
 from farm_observations import ObservationStore  # noqa: E402
 from farm_reel_creation import ReelVerification  # noqa: E402
 from farm_reel_layout import VideoReference  # noqa: E402
-from farm_reel_runs import reel_content  # noqa: E402
+from farm_reel_runs import LANE_RUNS, image_content, reel_content  # noqa: E402
 from farm_video import VideoTransferPackage  # noqa: E402
 
 
+# Image platforms -> (package format, account policy). 'workflow': the account creation bound; 'config': pinned.
+IMAGE_PLATFORMS = {'x-image': ('x_image', 'workflow'), 'tiktok-photo': ('tt_photo', 'config')}
+
+
 def admitted(prep, run):
-    """The window's config and the exact package the creation run admitted, from the backend's own journal."""
+    """The window's config and the exact package the creation run admitted, from the backend's own journal.
+
+    Video windows get the package video; image windows get the ordered package images."""
     config = json.loads(Path(prep['config']).read_text(encoding='utf-8'))
     with sqlite3.connect(Path(prep['backendData']) / prep['route'] / 'runs.db') as db:
         rows = db.execute('SELECT * FROM runs WHERE id = ?', (run['id'],)).fetchall()
     package = rows[0][2] if len(rows) == 1 else b''
     if not package or hashlib.sha256(package).hexdigest() != run['workflow']['packageSha256']:
         raise SystemExit('The admitted package is missing or changed. Nothing was sent.')
+    if prep['platform'] in IMAGE_PLATFORMS:
+        from farm_media_transfer import TransferPackage
+        _, caption, _ = image_content(package)
+        return config, caption, list(TransferPackage(package, phone_of(config).board).images.values())
     _, caption, _ = reel_content(package)
     return config, caption, VideoTransferPackage(package, phone_of(config).board).video
 
 
+def lane_runs(platform):
+    """The lane's runs class for an image window, imported only now; refuses clearly while it is absent."""
+    import importlib
+    fmt, _ = IMAGE_PLATFORMS[platform]
+    module_name, class_name, label, _ = LANE_RUNS[fmt]
+    try: found = getattr(importlib.import_module(module_name), class_name, None)
+    except ModuleNotFoundError as error:
+        if error.name != module_name: raise
+        found = None
+    if found is None or getattr(found, 'verifier', None) is None:
+        raise SystemExit(f'No {label} verifier yet: {module_name}.{class_name} does not exist or has no verifier. Nothing was sent.')
+    return found
+
+
 def verify(prep, run, child):
     """Runs the platform's verifier once in `child` (a new folder) against the admitted package."""
+    if prep['platform'] in IMAGE_PLATFORMS: runs = lane_runs(prep['platform'])   # Before reading or decoding anything.
     config, caption, raw = admitted(prep, run)
     workflow, extra = run['workflow'], {}
-    if prep['platform'] == 'x':   # X binds the account creation read from its menu (23 Oct, slot 17).
+    if prep['platform'] in IMAGE_PLATFORMS:
+        verifier, video = runs.verifier, runs.reference(raw)
+        account = workflow['account'] if IMAGE_PLATFORMS[prep['platform']][1] == 'workflow' else account_of(config)
+    elif prep['platform'] == 'x':   # X binds the account creation read from its menu (23 Oct, slot 17).
         from farm_tiktok_layout import TikTokReference
         from farm_x_creation import XVerification
         verifier, video, account = XVerification, TikTokReference(raw), workflow['account']
@@ -88,7 +122,7 @@ def main():
     args = parser.parse_args()
     window = HERE / 'windows' / args.window
     prep = json.loads((window / 'preparation.json').read_text(encoding='utf-8'))
-    if prep['platform'] not in ('reel', 'x', 'youtube', 'tiktok'): raise SystemExit('No verifier for this window.')
+    if prep['platform'] not in ('reel', 'x', 'youtube', 'tiktok', *IMAGE_PLATFORMS): raise SystemExit('No verifier for this window.')
     run = json.loads((window / f'attempt-{args.attempt}' / 'result.json').read_text(encoding='utf-8'))['run']
     workflow = run['workflow']
     folder = Path(prep['backendData']) / prep['route'] / run['id']

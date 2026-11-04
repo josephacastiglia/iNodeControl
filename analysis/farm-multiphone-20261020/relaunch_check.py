@@ -24,7 +24,7 @@ from close_app import close  # noqa: E402
 from verify_window import verify  # noqa: E402
 
 APPS = {'x': ('X', 'x-timeline'), 'youtube': ('YouTube', 'youtube-home'), 'tiktok': ('TikTok', 'tiktok-profile'),
-        'reel': ('Instagram', 'instagram-profile')}
+        'reel': ('Instagram', 'instagram-profile'), 'x-image': ('X', 'x-timeline'), 'tiktok-photo': ('TikTok', 'tiktok-profile')}
 
 
 def verified(attempt, run):

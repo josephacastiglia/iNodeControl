@@ -107,7 +107,15 @@ _FORMATS = {
 # with their explicit isolated configuration. Everything else has no live route.
 CANDIDATE_ROUTES = {UploadFormat.IG_CAROUSEL: '/api/farm/draft-creations', UploadFormat.IG_REEL: '/api/farm/reel-creations',
                     UploadFormat.TT_VIDEO: '/api/farm/tiktok-creations', UploadFormat.X_VIDEO: '/api/farm/x-creations',
-                    UploadFormat.YT_SHORT: '/api/farm/youtube-creations'}
+                    UploadFormat.YT_SHORT: '/api/farm/youtube-creations',
+                    # Image packages (farm_image). Disabled placeholders until the X image and TikTok photo lanes
+                    # add their runs classes; levels stay at the supervised evidence until a lane records more.
+                    UploadFormat.X_POST: '/api/farm/x-image-creations',
+                    UploadFormat.TT_PHOTO_CAROUSEL: '/api/farm/tiktok-photo-creations'}
+# The draft package format each candidate route admits (farm_video FORMATS, farm_image IMAGE_FORMATS, carousel).
+DRAFT_FORMATS = {UploadFormat.IG_CAROUSEL: 'ig_carousel', UploadFormat.IG_REEL: 'ig_reel', UploadFormat.TT_VIDEO: 'tt_video',
+                 UploadFormat.X_VIDEO: 'x_video', UploadFormat.YT_SHORT: 'yt_short', UploadFormat.X_POST: 'x_image',
+                 UploadFormat.TT_PHOTO_CAROUSEL: 'tt_photo'}
 
 
 def coverage():
@@ -117,5 +125,6 @@ def coverage():
         route = CANDIDATE_ROUTES.get(member)
         rows.append(dict(id=member.value, simulation=SIMULATION, publishingEnabled=False,
                          liveRoute='explicit_isolated_candidate' if route else 'none', candidateEndpoint=route,
+                         draftFormat=DRAFT_FORMATS.get(member),
                          **_FORMATS[member]))
     return rows
