@@ -286,7 +286,8 @@ def photo_editor(frame, text, reference):
     require(line_at(text, 'your story', (90, 990, 210, 1025)) or line_at(text, 'story 24h', (90, 990, 210, 1025)),
             'The TikTok photo editor is not recognized.')
     tt.control(frame, 'tt_editor_next')
-    require(words_at(text, 'collage', STRIP), 'The TikTok photo strip is not recognized.')
+    # The strip's Collage button shows its label or, collapsed, its icon alone (4 Nov); the covers on the details
+    # screen prove the slide order before Drafts.
     no_overlay(text)
     media = media_match(frame, (0, 72, 500, 961), reference, 'fill', ignore=EDITOR_IGNORE)
     require(media['matched'], 'The TikTok editor shows different media.')
