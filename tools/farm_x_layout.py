@@ -54,7 +54,14 @@ def x_feed(frame, text):
         re.search(r'(^|\s)followi?n?g?$', ' '.join(r['text'].casefold().split())) and r['text'].casefold().split()[-1].startswith('followi')
         and 100 <= min(w['x'] for w in r['words']) and max(w['x']+w['width'] for w in r['words']) <= 320
         and 120 <= min(w['y'] for w in r['words']) <= 160 for r in text.get('lines', []) if r.get('words'))
-    require(following and line_at(text, 'for you', (30, 120, 130, 160)), 'The X timeline header is not recognized.')
+    # The pointer parks wherever the last tap ended and can cover 'Following' entirely ('FOIA' + 'ing Add +', A17,
+    # 4 Nov). The newer header's own tabs to its right then mark the row: 'Crypto' in its place, or a line ending
+    # 'Add +' in the row ('For you' is still required).
+    tabs = following or line_at(text, 'crypto', (340, 120, 440, 160)) or any(
+        ' '.join(r['text'].casefold().split()).endswith('add +') and 150 <= min(w['x'] for w in r['words'])
+        and max(w['x']+w['width'] for w in r['words']) <= 340 and 120 <= min(w['y'] for w in r['words']) <= 160
+        for r in text.get('lines', []) if r.get('words'))
+    require(tabs and line_at(text, 'for you', (30, 120, 130, 160)), 'The X timeline header is not recognized.')
     image = pixels(frame, exact=True)
     require(blue_fraction(image, (428, 909, 480, 961)) > .5, 'The X compose button is not where it was observed.')
     no_overlay({**text, 'lines': [r for r in text.get('lines', []) if not r.get('words')

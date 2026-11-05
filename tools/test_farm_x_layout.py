@@ -132,6 +132,18 @@ class MenuWithMoneyRowTests(unittest.TestCase):
                 if ok: self.assertEqual((454, 935), xl.x_feed(b'', text)['composeTarget'])
                 else:
                     with self.assertRaises(InspectionStopped): xl.x_feed(b'', text)
+    def test_a_header_with_following_covered_is_marked_by_its_other_tabs(self):
+        from unittest import mock
+        # A17, 4 Nov prep 11: the pointer covered 'Following' ('FOIA' at 154,115; 'ing Add +' at 212,130).
+        cases = ((('FOIA', 154, 115, 200, 135), ('ing Add +', 212, 130, 300, 150), ('Crypto', 361, 130, 420, 150)), True),                 ((('ing Add +', 212, 130, 300, 150),), True), ((('Crypto', 361, 130, 420, 150),), True),                 ((('Crypto', 361, 300, 420, 320),), False), ((('Add +', 268, 400, 320, 420),), False), ((), False)
+        for rows, ok in cases:
+            text = self.menu(('For you', 31, 130, 101, 150), *rows)
+            with self.subTest(rows=rows), mock.patch.object(xl, 'blue_fraction', return_value=1.0),                     mock.patch.object(xl, 'pixels', return_value=None):
+                if ok: self.assertEqual((454, 935), xl.x_feed(b'', text)['composeTarget'])
+                else:
+                    with self.assertRaises(InspectionStopped): xl.x_feed(b'', text)
+        with mock.patch.object(xl, 'blue_fraction', return_value=1.0), mock.patch.object(xl, 'pixels', return_value=None),                 self.assertRaises(InspectionStopped):   # 'For you' stays required.
+            xl.x_feed(b'', self.menu(('Crypto', 361, 130, 420, 150)))
 
 
 class PickerBadgeTests(unittest.TestCase):
