@@ -135,15 +135,18 @@ class WindowSteps:
     def _run(self, package_id, label, argv, timeout):
         self.log_dir.mkdir(parents=True, exist_ok=True)
         log = self.log_dir / f'{package_id}-{label}.txt'
-        try:
-            done = subprocess.run(argv, cwd=self.folder, capture_output=True, text=True, timeout=timeout,
-                                  encoding='utf-8', errors='replace')
-        except subprocess.TimeoutExpired as error:
-            log.write_text(f'TIMEOUT after {timeout} s\n{error.stdout or ""}\n{error.stderr or ""}', encoding='utf-8')
+        # Output goes straight to a file, never a pipe: Start-Window leaves a backend running that inherits
+        # the tool's handles, and waiting on a pipe it holds never ends (4 Nov, slot 18). Only the tool's
+        # own exit is awaited. A timed-out tool is left running (it may be following a live run).
+        with open(log, 'wb') as handle:
+            process = subprocess.Popen(argv, cwd=self.folder, stdin=subprocess.DEVNULL, stdout=handle, stderr=subprocess.STDOUT)
+            try: code = process.wait(timeout=timeout)
+            except subprocess.TimeoutExpired: code = None
+        lines = [line.strip() for line in log.read_text(encoding='utf-8', errors='replace').splitlines() if line.strip()]
+        if code is None:
+            with open(log, 'a', encoding='utf-8') as handle: handle.write(f'\nTIMEOUT after {timeout} s (left running)\n')
             return None, f'{label} did not end within {timeout} s'
-        log.write_text(f'exit {done.returncode}\n--- stdout\n{done.stdout}\n--- stderr\n{done.stderr}', encoding='utf-8')
-        tail = (done.stderr.strip() or done.stdout.strip()).splitlines()[-1:] or ['']
-        return done.returncode, tail[0][:300]
+        return code, (lines[-1:] or [''])[0][:300]
 
     def _powershell(self, script, name):
         return ['powershell', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',

@@ -272,6 +272,31 @@ class StageTests(unittest.TestCase):
         self.assertIn('Fresh reel acceptance', out.getvalue())
 
 
+class ToolProcessTests(unittest.TestCase):
+    def test_a_child_left_running_with_the_tools_handles_does_not_hang_the_step(self):
+        """Start-Window starts a backend that outlives it (4 Nov: the runner waited on its pipe for 25 min)."""
+        import subprocess, sys, time
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            steps = runner.WindowSteps(Path(temp) / 'staging', folder=Path(temp), log_dir=Path(temp) / 'runs')
+            script = ('import subprocess,sys; c=subprocess.Popen([sys.executable,"-c","import time; time.sleep(20)"]); '
+                      'print("started", c.pid); print("ready line")')
+            began = time.monotonic()
+            code, tail = steps._run('pkg', 'start-window', [sys.executable, '-c', script], 15)
+            self.assertLess(time.monotonic() - began, 10)
+            self.assertEqual((0, 'ready line'), (code, tail))
+            started = (Path(temp) / 'runs/pkg-start-window.txt').read_text().split()
+            subprocess.run(['taskkill', '/F', '/PID', started[started.index('started') + 1]], capture_output=True)
+            time.sleep(0.5)
+
+    def test_timeout_is_reported_not_waited_out(self):
+        import sys, time
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            steps = runner.WindowSteps(Path(temp) / 'staging', folder=Path(temp), log_dir=Path(temp) / 'runs')
+            code, tail = steps._run('pkg', 'run-window', [sys.executable, '-c', 'import time; time.sleep(3)'], 1)
+            time.sleep(2.5)    # Let the left-running tool end before the folder is removed.
+            self.assertEqual((None, 'run-window did not end within 1 s'), (code, tail))
+
+
 class CliRunTests(unittest.TestCase):
     def test_run_with_nothing_due_says_so_and_holds_the_phone_lock(self):
         with tempfile.TemporaryDirectory() as temp:
