@@ -56,11 +56,14 @@ def x_feed(frame, text):
         and 120 <= min(w['y'] for w in r['words']) <= 160 for r in text.get('lines', []) if r.get('words'))
     # The pointer parks wherever the last tap ended and can cover 'Following' entirely ('FOIA' + 'ing Add +', A17,
     # 4 Nov). The newer header's own tabs to its right then mark the row: 'Crypto' in its place, or a line ending
-    # 'Add +' in the row ('For you' is still required).
-    tabs = following or line_at(text, 'crypto', (340, 120, 440, 160)) or any(
+    # 'Add +' in the row ('For you' is still required). A whole 'Following' read anywhere else in the row is a
+    # layout change and still stops.
+    misplaced = any(w['text'].casefold() == 'following' and 110 <= w['y'] <= 160
+                    for r in text.get('lines', []) for w in r.get('words', []))
+    tabs = following or (not misplaced and line_at(text, 'crypto', (340, 120, 440, 160))) or (not misplaced and any(
         ' '.join(r['text'].casefold().split()).endswith('add +') and 150 <= min(w['x'] for w in r['words'])
         and max(w['x']+w['width'] for w in r['words']) <= 340 and 120 <= min(w['y'] for w in r['words']) <= 160
-        for r in text.get('lines', []) if r.get('words'))
+        for r in text.get('lines', []) if r.get('words')))
     require(tabs and line_at(text, 'for you', (30, 120, 130, 160)), 'The X timeline header is not recognized.')
     image = pixels(frame, exact=True)
     require(blue_fraction(image, (428, 909, 480, 961)) > .5, 'The X compose button is not where it was observed.')
