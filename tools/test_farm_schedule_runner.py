@@ -302,6 +302,16 @@ class ToolProcessTests(unittest.TestCase):
             subprocess.run(['taskkill', '/F', '/PID', started[started.index('started') + 1]], capture_output=True)
             time.sleep(0.5)
 
+    def test_a_long_summary_line_comes_back_whole(self):
+        """The start screen's JSON summary runs past 300 characters (22:48 slot, A18: cut, then unreadable)."""
+        import sys
+        summary = json.dumps({'state': 'at_start', 'error': None, 'commands': [['open-app-search', 'answered']] * 40})
+        with tempfile.TemporaryDirectory() as temp:
+            steps = runner.WindowSteps(Path(temp) / 'staging', folder=Path(temp), log_dir=Path(temp) / 'runs')
+            code, tail = steps._run('pkg', 'start-screen', [sys.executable, '-c', f'print({summary!r})'], 15)
+        self.assertGreater(len(tail), 300)
+        self.assertIsNone(runner.start_screen_problem(code, tail))
+
     def test_timeout_is_reported_not_waited_out(self):
         import sys, time
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:

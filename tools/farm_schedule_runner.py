@@ -78,9 +78,9 @@ def phone_ready(kernel_status, input_status, prep):
 
 def start_screen_problem(code, last_line):
     """farm_start_screen.py exits 0 even when it stops; its summary line says what happened (4 Nov, slot 18)."""
-    if code != 0: return f'start screen: {last_line}'
+    if code != 0: return f'start screen: {last_line}'[:300]
     try: summary = json.loads(last_line)
-    except ValueError: return f'start screen gave no summary: {last_line}'
+    except ValueError: return f'start screen gave no summary: {last_line}'[:300]
     if summary.get('state') in ('at_start', 'already_at_start'): return None
     return f'start screen {summary.get("state")}: {summary.get("error")}'[:300]
 
@@ -160,7 +160,7 @@ class WindowSteps:
         if code is None:
             with open(log, 'a', encoding='utf-8') as handle: handle.write(f'\nTIMEOUT after {timeout} s (left running)\n')
             return None, f'{label} did not end within {timeout} s'
-        return code, (lines[-1:] or [''])[0][:300]
+        return code, (lines[-1:] or [''])[0]   # Whole: a summary line is JSON (22:48 slot); messages cut it.
 
     def _powershell(self, script, name):
         return ['powershell', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
@@ -168,7 +168,7 @@ class WindowSteps:
 
     def start(self, package_id, name):
         code, tail = self._run(package_id, 'start-window', self._powershell('Start-Window.ps1', name), 90)
-        return None if code == 0 else f'Start-Window: {tail}'
+        return None if code == 0 else f'Start-Window: {tail[:300]}'
 
     def backend_running(self, name): return (self.window_path(name) / 'processes.json').exists()
 
@@ -185,7 +185,7 @@ class WindowSteps:
                                                            '--window', name, '--attempt', '1'], 40 * 60)
         result = self.window_path(name) / 'attempt-1' / 'result.json'
         if code is None: return None, tail
-        if not result.exists(): return None, f'run_window: {tail}'
+        if not result.exists(): return None, f'run_window: {tail[:300]}'
         return json.loads(result.read_text(encoding='utf-8'))['run'], None
 
     def admitted(self, name):
@@ -196,12 +196,12 @@ class WindowSteps:
         code, tail = self._run(package_id, f'verify-{check}', [self.python, str(self.folder / 'verify_window.py'), '--window', name,
                                                                '--attempt', '1', '--check', str(check)], 15 * 60)
         result = self.window_path(name) / 'attempt-1' / f'verification-{check}.json'
-        if not result.exists(): return None, f'verify_window: {tail}'
+        if not result.exists(): return None, f'verify_window: {tail[:300]}'
         return json.loads(result.read_text(encoding='utf-8')), None
 
     def stop(self, package_id, name):
         code, tail = self._run(package_id, 'stop-window', self._powershell('Stop-Window.ps1', name), 60)
-        return None if code == 0 else f'Stop-Window: {tail}'
+        return None if code == 0 else f'Stop-Window: {tail[:300]}'
 
 
 def stage_window(steps, queue, name, account, package_id=None):
