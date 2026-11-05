@@ -189,6 +189,7 @@ def reel_compare(role):
 # ---- Instagram ----------------------------------------------------------------
 
 CREATE_ROWS = ('reel', 'edits', 'post', 'story', 'highlights', 'live', 'fundraiser')
+CREATE_OPTIONAL = ('live',)
 REEL_ICON_Y = 576   # reel_row_icon's centre on A18's sheet.
 
 
@@ -208,9 +209,10 @@ def create_rows(frame, text):
     found = {}
     for label in CREATE_ROWS:
         hits = [b for t, b in rows if t == label and 55 <= b[0] <= 90 and top < b[1] < 1000]
+        if label in CREATE_OPTIONAL and not hits: continue   # A19 (5 Nov) has no Live row; the spacing below still holds.
         if len(hits) != 1: return None
         found[label] = hits[0]
-    ys = [found[label][1] for label in CREATE_ROWS]
+    ys = [found[label][1] for label in CREATE_ROWS if label in found]
     if not 35 <= ys[0] - top <= 70 or not all(44 <= b - a <= 62 for a, b in zip(ys, ys[1:])): return None
     image = pixels(frame, exact=True)
     for left, upper, right, lower in ((180, ys[0] - 10, 400, ys[-1] + 30), (30, ys[-1] + 45, 470, min(ys[-1] + 95, 1040))):

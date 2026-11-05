@@ -354,3 +354,22 @@ class A19ShareSheetTests(unittest.TestCase):
     def test_a_third_row_is_still_required(self):
         with self.assertRaises(InspectionStopped): _rl.share_rows(self.without('Save to Files', 'Add Tags'), 30)
         self.assertEqual({'Copy', 'Save Video', 'Add Tags'}, set(_rl.share_rows(self.without('Save to Files'), 30)))
+
+
+@unittest.skipUnless((_A19/'reel-create.png').exists(), 'A19 frames of 5 Nov are not available in this checkout.')
+class A19CreateSheetTests(unittest.TestCase):
+    """A19's Create sheet (5 Nov): no Live row; 'Create' at y 622, rows 53 px apart."""
+    def setUp(self):
+        self.frame = (_A19/'reel-create.png').read_bytes()
+        self.text = json.loads((_A19/'reel-create.json').read_text(encoding='utf-8'))
+
+    def test_the_reel_row_read_by_ocr_is_the_target(self):
+        found = _rl.reel_create(self.frame, self.text)
+        self.assertEqual('ocr_rows_sheet_and_reel_icon', found['method'])
+        self.assertLess(abs(found['target'][1] - 681), 5)
+
+    def test_only_live_may_be_absent(self):
+        for label in ('create', 'reel', 'edits', 'post', 'story', 'highlights', 'fundraiser'):
+            with self.subTest(label):
+                text = dict(self.text, lines=[l for l in self.text['lines'] if ' '.join(l['text'].casefold().split()) != label])
+                self.assertIsNone(_rl.create_rows(self.frame, text))
