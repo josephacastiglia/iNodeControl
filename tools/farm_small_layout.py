@@ -35,6 +35,23 @@ PAGE_TWO = {'instagram', 'tiktok', 'x', 'youtube', 'threads', 'bluesky', 'clappe
 SUPPORTED = ('Instagram', 'TikTok', 'X', 'YouTube')
 
 
+def small_screen(frame):
+    """A 4.7-inch phone's frame: the screen letterboxed in 500x1080 with pure-black bands above y 95 and
+    below y 985 (B5, 4 Nov). No XR frame matched (176 archived A-rack frames, 5 Nov): their status bar
+    and wallpaper reach the frame's top."""
+    import io
+    import numpy as np
+    from PIL import Image
+    if not isinstance(frame, bytes): return False
+    try:
+        with Image.open(io.BytesIO(frame)) as image:
+            if image.size != (500, 1080): return False
+            a = np.asarray(image.convert('RGB'))
+    except Exception:
+        return False
+    return int(a[:SCREEN[1]].max()) == 0 and int(a[SCREEN[3] + 1:].max()) == 0 and int(a[SCREEN[1]:SCREEN[1] + 25].max()) > 0
+
+
 def require(condition, message):
     if not condition: raise InspectionStopped(message)
 
@@ -183,3 +200,22 @@ def control_center(text):
     Never send Home over it: on 4 Nov a Home there opened Settings."""
     folds = {r['fold'] for r in rows(text)}
     return 'focus' in folds and ('not playing' in folds or any(f.endswith('%') for f in folds))
+
+
+def empty_spotlight(text):
+    """The open 4.7-inch Spotlight with an empty field: its placeholder 'Search' alone in the field."""
+    state = spotlight(text)
+    require(state['state'] == 'ready', state.get('stop', 'Spotlight is not ready.'))
+    inside = [r for r in rows(text) if _inside(r['box'], SPOTLIGHT_FIELD)]
+    require(len(inside) == 1 and re.fullmatch(r'(q\s*)?[a-z]?earch', inside[0]['fold']) is not None,
+            'The 4.7-inch Spotlight field is not empty.')
+    return True
+
+
+def spotlight_clear(frame):
+    raise InspectionStopped('The 4.7-inch Spotlight clear button is not calibrated yet.')
+
+
+def app_target(text, name, frame):
+    """A 4.7-inch phone's tap point for `name`: its Home screen icon."""
+    return app_icon(text, name, frame)
