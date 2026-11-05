@@ -9,6 +9,9 @@ never drops the other. The single kernel for both racks (Stage 'slots') keeps wo
       its own run folder under output/candidate-runs/ (devices, receivers and calibration filtered to
       its boards, never mixed), its own port and '--rack A|B' label. Rack A keeps 9916, so every farm
       tool that talks to 9916 keeps reaching rack A's phones. Refuses to overwrite.
+  python rack_kernels.py rekernel --base slots/preparation-<archived>.json --kernel <exe> [--out slots]
+      Offline. The same preparation (same run folder, data and arguments) on another kernel build:
+      only kernel and kernelSha256 change. Moves the single kernel to a new build, and back.
   python rack_kernels.py check-start --prep <preparation.json> [--rack A|B]    < snapshot.json
   python rack_kernels.py check-stopped --prep <preparation.json> [--rack A|B]  < snapshot.json
       The snapshot is {"processes": [{Name, ProcessId, CommandLine}], "listeners": [port, ...]} from
@@ -115,6 +118,20 @@ def split(base_path, kernel, rack_b_boards, slots_a, slots_b, ports=None, root=R
     return out
 
 
+def rekernel(base_path, kernel, out_dir):
+    base = load(base_path)
+    source = Path(base['runDirectory']) / 'data'
+    for name, digest in base['dataSha256'].items():
+        if sha(source / name) != digest: raise SystemExit(f'Base {name} changed.')
+    target = Path(out_dir) / 'preparation.json'
+    if target.exists(): raise SystemExit(f'{target} exists; archive it first.')
+    kernel = Path(kernel).resolve()
+    prep = dict(base, kernel=str(kernel), kernelSha256=sha(kernel.with_suffix('.dll')), rekernelFrom=dict(kernel=base['kernel'],
+                kernelSha256=base['kernelSha256'], preparation=Path(base_path).name))
+    target.write_text(json.dumps(prep, indent=2), encoding='utf-8')
+    return prep
+
+
 def write(split_result, out_dirs=None):
     out_dirs = out_dirs or {r: rack_dir(r) for r in split_result}
     for rack, (prep, _) in split_result.items():
@@ -187,6 +204,10 @@ def main():
     p.add_argument('--kernel', required=True)
     p.add_argument('--port-a', type=int, default=DEFAULT_PORTS['A'])
     p.add_argument('--port-b', type=int, default=DEFAULT_PORTS['B'])
+    r = sub.add_parser('rekernel')
+    r.add_argument('--base', required=True)
+    r.add_argument('--kernel', required=True)
+    r.add_argument('--out', default='slots')
     for command in ('check-start', 'check-stopped'):
         c = sub.add_parser(command)
         c.add_argument('--prep', required=True)
@@ -200,6 +221,10 @@ def main():
         write(result)
         print(json.dumps({r: dict(port=api_port(p), boards=len(p['boards']), run=str(Path(p['runDirectory']).relative_to(ROOT)))
                           for r, (p, _) in result.items()}))
+        return
+    if args.command == 'rekernel':
+        prep = rekernel(HERE / args.base, args.kernel, HERE / args.out)
+        print(json.dumps(dict(kernel=prep['kernel'], kernelSha256=prep['kernelSha256'], receivers=len(prep['receivers']))))
         return
     snapshot = read_snapshot(sys.stdin.buffer.read())
     reasons, ports = conflicts(load(args.prep), snapshot, args.rack, stopping=args.command == 'check-stopped')

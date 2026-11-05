@@ -98,6 +98,14 @@ class SplitTests(unittest.TestCase):
         with self.assertRaises(SystemExit): rk.split(self.f.base_path, self.f.kernel, B_BOARDS, [], [], dict(A=9930, B=9930), self.f.root, NOW)
         with self.assertRaises(SystemExit): rk.split(self.f.base_path, self.f.kernel, B_BOARDS, [], [], dict(B=7300), self.f.root, NOW)
 
+    def test_rekernel_changes_only_the_kernel(self):
+        out = self.f.root / 'slots'; out.mkdir()
+        prep = rk.rekernel(self.f.base_path, self.f.kernel, out)
+        self.assertEqual({k: v for k, v in prep.items() if k not in ('kernel', 'kernelSha256', 'rekernelFrom')}, self.f.base)
+        self.assertEqual(prep['kernelSha256'], sha(self.f.kernel.with_suffix('.dll')))
+        self.assertEqual(prep['rekernelFrom']['kernelSha256'], '0' * 64)
+        with self.assertRaises(SystemExit): rk.rekernel(self.f.base_path, self.f.kernel, out)   # never overwrites
+
     def test_refuses_changed_base_data_or_an_already_split_base(self):
         data = Path(self.f.base['runDirectory']) / 'data' / 'receivers.json'
         data.write_text(data.read_text(encoding='utf-8') + ' ', encoding='utf-8')
