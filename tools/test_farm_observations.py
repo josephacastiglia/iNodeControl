@@ -125,6 +125,25 @@ class ObservationTests(unittest.TestCase):
         self.assertEqual('needs_review', classify(screen, expect)['captionStatus'])
         self.assertEqual('needs_review', classify(ocr_lines(('DRAFT ONLY', 200)), expect)['captionStatus'])
 
+    def test_interval_audits_the_boundary_phone_not_only_c24c(self):
+        # Until 4 Nov the interval kept only C24C records, so verifiers on 724E/C214 audited 0 observations.
+        with self.store.connect(): pass   # Creates the table.
+        frame = b'frame-bytes'; digest = hashlib.sha256(frame).hexdigest(); ids = {}
+        def put(name, board):
+            ids[name] = str(uuid.uuid4())
+            value = dict(id=ids[name], expected=dict(device_id=board), reviewFrameSha256=digest)
+            db = sqlite3.connect(self.path)
+            try:
+                with db: db.execute('INSERT INTO observations VALUES (?,?,?,?)', (ids[name], 'f', json.dumps(value), frame))
+            finally: db.close()   # Windows cannot remove the temporary folder over an open handle.
+        for name, board in (('first', 'C214'), ('other', '724E'), ('middle', 'C214'), ('last', 'C214'), ('foreign', '724E')):
+            put(name, board)
+        timeline = self.store.interval(ids['first'], ids['last'])
+        self.assertEqual([ids['first'], ids['middle'], ids['last']], [v['id'] for v, _ in timeline])
+        self.assertTrue(all(f == frame for _, f in timeline))
+        with self.assertRaises(ValueError): self.store.interval(ids['first'], ids['foreign'])   # Boundaries on two phones.
+        with self.assertRaises(ValueError): self.store.interval(ids['last'], ids['first'])      # Out of order.
+
     def test_capture_persists_frame_and_duplicate_reads_never_replay(self):
         result = self.store.capture(self.request, self.kernel); count = len(self.kernel.reads)
         self.assertEqual('observed', result['state']); self.assertTrue(result['stable']); self.assertEqual('recent', result['freshness'])

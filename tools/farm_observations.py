@@ -358,23 +358,30 @@ class ObservationStore:
         return current, frame
 
     def interval(self, start_id, end_id):
-        """All stored C24C observations between two row IDs, including failed/pruned ones.
+        """All stored observations of the boundary records' phone between two row IDs, including
+        failed/pruned ones.
 
+        The phone is the one both boundaries were requested for (until 4 Nov this was fixed to C24C, so
+        on every other board the interval came back empty and verifiers recorded 0 observations).
         Uses insertion order as well as timestamps so a bad clock cannot hide a record.
         This is a sampled observation history, not a continuous recording of phone actions.
         """
         with self.connect() as db:
-            ends = [db.execute('SELECT rowid FROM observations WHERE id=?', (str(uuid.UUID(i)),)).fetchone()
+            ends = [db.execute('SELECT rowid,document FROM observations WHERE id=?', (str(uuid.UUID(i)),)).fetchone()
                     for i in (start_id, end_id)]
             if any(row is None for row in ends) or ends[0][0] >= ends[1][0]:
                 raise ValueError('Account boundary observations are missing or out of order.')
+            boards = {json.loads(row[1]).get('expected', {}).get('device_id') for row in ends}
+            if len(boards) != 1 or None in boards:
+                raise ValueError('Account boundary observations name different or no phones.')
+            board = boards.pop()
             rows = db.execute('SELECT document,frame FROM observations WHERE rowid BETWEEN ? AND ? ORDER BY rowid LIMIT 101',
                               (ends[0][0], ends[1][0])).fetchall()
         if len(rows) > 100: raise ValueError('Account observation interval exceeds 100 records; use a shorter review run.')
         output = []
         for document, frame in rows:
             value = json.loads(document)
-            if value.get('expected', {}).get('device_id') != 'C24C': continue
+            if value.get('expected', {}).get('device_id') != board: continue
             valid = frame is not None and value.get('reviewFrameSha256') == hashlib.sha256(frame).hexdigest()
             output.append((value, frame if valid else None))
         return output
