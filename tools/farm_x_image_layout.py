@@ -90,6 +90,20 @@ def caption_copied(text, package):
     return dict(copied=True, copyTarget=centre(rows[1]))
 
 
+def copy_selection(text, package):
+    """The index with Safari's text-selection menu over 'Copy caption' instead of the confirmation: the click was
+    taken as a hold and selected the button's word (A17, 4 Nov, prep 13). The menu row (Copy, Look Up) sits just
+    above the button. The target is blank page right of the button, which only dismisses the selection; the menu's
+    own Copy is never a target."""
+    rows = [exact(text, label, PAGE) for label in ('Package ' + package, 'Copy caption')]
+    require(rows[0][1] < rows[1][1], 'The X image transfer page layout changed.')
+    require('caption copied.' not in ' '.join(rows_between(text, 80, 1000)).casefold(), 'The caption was copied.')
+    button = rows[1]
+    menu = [exact(text, label, (10, button[1]-90, 490, button[1]-5)) for label in ('Copy', 'Look Up')]
+    require(menu[0][0] < menu[1][0], "Safari's text-selection menu is not recognized.")
+    return dict(dismissTarget=(430, round((button[1]+button[3])/2)), copyTarget=centre(button))
+
+
 # The slide is as wide as the page content (23-477 on C24C, 17 Oct step 12) and 4:5 tall; its top
 # follows the instruction paragraph, which wraps differently with the app's name.
 SLIDE_LEFT, SLIDE_WIDTH = 23, 454

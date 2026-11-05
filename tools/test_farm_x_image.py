@@ -125,6 +125,19 @@ class TransferPageTests(unittest.TestCase):
         moved = self.index(); moved['lines'][7] = line('Copy caption', 43, 150, 120)
         with self.assertRaises(InspectionStopped): xil.transfer_index(moved, PACKAGE)
 
+    def test_a_copy_click_taken_as_a_hold_shows_the_selection_menu_and_is_dismissed_beside_the_button(self):
+        # A17, 4 Nov prep 13: the click selected 'caption' and Safari showed Copy / Find Selection / Look Up.
+        menu = (('Copy', 55, 624, 40), ('Find Selection', 137, 623, 120), ('Look Up', 292, 623, 70))
+        found = xil.copy_selection(self.index(*menu), PACKAGE)
+        copy = centre_of(self.index(), 'Copy caption')
+        self.assertEqual(copy, found['copyTarget']); self.assertEqual((430, copy[1]), found['dismissTarget'])
+        with self.assertRaises(InspectionStopped): xil.copy_selection(self.index(), PACKAGE)              # No menu.
+        with self.assertRaises(InspectionStopped):                                                           # Already copied.
+            xil.copy_selection(self.index(*menu, ('Caption copied. Verify the pasted text in X.', 23, 740, 390)), PACKAGE)
+        with self.assertRaises(InspectionStopped): xil.copy_selection(self.index(('Copy', 55, 300, 40), ('Look Up', 292, 300, 70)), PACKAGE)
+        source = Path(xic.__file__).read_text(encoding='utf-8')
+        self.assertEqual(1, source.count("self.tap('copy-caption-again'")); self.assertEqual(1, source.count("self.tap('dismiss-text-selection'"))
+
     def test_copied_page_may_have_scrolled_past_the_title(self):
         # Focusing the caption box scrolls the page by about 54 px (slot 17, 4 Nov): the title is gone.
         text = ocr(('Draft only · nothing published', 23, 90, 270), ('Package ' + PACKAGE, 23, 141, 255), ('Open slide 1 of 1', 175, 273, 150),
