@@ -159,10 +159,13 @@ class Build(Base):
         with self.assertRaisesRegex(ValueError, 'withheld value'):
             build_package(self.base, repo=repo, tokens=['WithheldValue1234'])
 
-    def test_account_labels_are_listed_for_review(self):
+    def test_account_handles_refuse_the_build_unless_review_only(self):
         repo = make_repo(self.base)
         (repo / 'tools/farm_lane_runs.py').write_text('START = "on @somelabel\'s profile"\n', encoding='utf-8')
-        manifest, _, _ = build_package(self.base, repo=repo, accounts=['SomeLabel'])
+        with self.assertRaisesRegex(ValueError, 'account handle .* farm/tools/farm_lane_runs.py'):
+            build_package(self.base, repo=repo, accounts=['SomeLabel'])
+        self.assertFalse((self.base / 'packages').exists(), 'nothing is written before the refusal')
+        manifest, _, _ = build_package(self.base / 'review', repo=repo, accounts=['SomeLabel'], strict_privacy=False)
         self.assertEqual(manifest['account_labels_in'], ['farm/tools/farm_lane_runs.py'])
         manifest, _, _ = build_package(self.base / 'clean', accounts=['SomeLabel'])
         self.assertEqual(manifest['account_labels_in'], [])
