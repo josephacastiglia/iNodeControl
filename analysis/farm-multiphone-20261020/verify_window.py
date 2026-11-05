@@ -32,6 +32,7 @@ import threading
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
 import farm_paths  # noqa: E402
+from farm_rack_lock import hold_rack  # noqa: E402
 STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 from farm_draft_runs import account_of, allowed_of, phone_of  # noqa: E402
 from farm_draft_transport import CreationKernel  # noqa: E402
@@ -138,7 +139,8 @@ def main():
                 and workflow.get('cleanup') == 'confirmed' and isinstance(workflow.get('verification'), dict)):
             raise SystemExit('This attempt is not a saved, unverified draft with a stopped verifier. Nothing was sent.')
         if args.check < 2 or child.exists(): raise SystemExit('This check exists or is reserved. Never replay a check.')
-    result = verify(prep, run, child)
+    with hold_rack(f'verify_window {args.window} attempt {args.attempt} check {args.check}'):
+        result = verify(prep, run, child)
     atomic_json(window / f'attempt-{args.attempt}' / f'verification-{args.check}.json', result)
     print(summary(args, result))
 

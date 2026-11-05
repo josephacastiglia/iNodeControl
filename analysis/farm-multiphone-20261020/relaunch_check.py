@@ -20,6 +20,7 @@ import sys
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
 import farm_paths  # noqa: E402
+from farm_rack_lock import hold_rack  # noqa: E402
 STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 from farm_draft_workflow import atomic_json  # noqa: E402
 from close_app import close  # noqa: E402
@@ -65,7 +66,13 @@ def main():
     app, target = APPS[prep['platform']]
     config = json.loads(Path(prep['config']).read_text(encoding='utf-8'))
     record = dict(window=args.window, attempt=args.attempt, check=args.check, app=app, verifiedBy=basis, appRestartVerified=False)
-    steps = window / f'relaunch-{args.check}'
+    with hold_rack(f'relaunch_check {args.window} attempt {args.attempt} check {args.check}'):
+        check(record, window / f'relaunch-{args.check}', target, app, config, prep, run, child)
+    atomic_json(out_path, record)
+    print(json.dumps({k: record.get(k) for k in ('window', 'app', 'verifiedBy', 'result', 'appRestartVerified')}))
+
+
+def check(record, steps, target, app, config, prep, run, child):
     record['opened'] = start_screen(target, steps / 'open', prep['config'])
     if record['opened'].get('state') not in ('at_start', 'already_at_start'):
         record['result'] = 'stopped: the app did not open on its start screen'
@@ -83,8 +90,6 @@ def main():
                                                                      'draftsBefore', 'reopened', 'finalScreen')}
                 record['appRestartVerified'] = bool(result.get('savedDraftVerified'))
                 record['result'] = 'draft found after relaunch' if record['appRestartVerified'] else 'stopped: verifier did not pass'
-    atomic_json(out_path, record)
-    print(json.dumps({k: record.get(k) for k in ('window', 'app', 'verifiedBy', 'result', 'appRestartVerified')}))
 
 
 if __name__ == '__main__':
