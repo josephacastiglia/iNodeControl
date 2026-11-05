@@ -852,6 +852,7 @@ SHARE_ROWS = (('Copy', (40, 755, 120, 795)), ('Save Video', (40, 828, 175, 863))
               ('Save to Files', (40, 950, 185, 985)), ('Add to Shared Album', (40, 1012, 265, 1046)))
 
 
+SHARE_SWAP = {'Add Tags': (950, 985), 'Save to Files': (890, 928)}   # Each row's top and bottom when the two swap places.
 SHARE_HEADER_TOP = 521      # The file name's top in the sheet header, as on 21-22 Oct.
 SHARE_SHIFT = (-10, 60)     # iOS also settled the whole sheet 35 px lower (22 Oct, slot 18).
 
@@ -881,7 +882,12 @@ def share_rows(text, shift, frame=None):
         else:
             # OCR can clip a neighbour's first letter into its icon ('ave to Files', slot 17, 22 Oct).
             try: rows[label] = exact(text, label, box)
-            except InspectionStopped: pass
+            except InspectionStopped:
+                # A19 (5 Nov) lists Save to Files before Add Tags: either of the two may hold the other's row.
+                other = SHARE_SWAP.get(label)
+                if other and other[1] + shift <= 1046:
+                    try: rows[label] = exact(text, label, (left, other[0] + shift, max(right, 190), other[1] + shift))
+                    except InspectionStopped: pass
     require(len(rows) >= 3, 'The share sheet actions are not recognized.')
     return rows
 

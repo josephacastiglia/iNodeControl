@@ -331,3 +331,26 @@ class A12CreateSheetTests(unittest.TestCase):
             if ' '.join(line['text'].casefold().split()) == 'reel':
                 for w in line['words']: w['y'] += 10
         with self.assertRaises(InspectionStopped): _rl.reel_create(self.frame, moved)
+
+
+_A19 = _paths.ARCHIVE/'20261105-fleet-a19'
+
+
+@unittest.skipUnless((_A19/'share-sheet.png').exists(), 'A19 frames of 5 Nov are not available in this checkout.')
+class A19ShareSheetTests(unittest.TestCase):
+    """A19's share sheet (5 Nov): Copy, Save Video, then Save to Files before Add Tags."""
+    def setUp(self):
+        self.frame = (_A19/'share-sheet.png').read_bytes()
+        self.text = json.loads((_A19/'share-sheet.json').read_text(encoding='utf-8'))
+        self.name = (_A19/'share-name.txt').read_text(encoding='utf-8')
+
+    def without(self, *labels):
+        return dict(self.text, lines=[l for l in self.text['lines'] if l['text'].strip() not in labels])
+
+    def test_save_video_is_the_target(self):
+        found = _rl.share_sheet(self.text, self.name, self.frame)
+        self.assertLess(abs(found['target'][1] - 877), 8)
+
+    def test_a_third_row_is_still_required(self):
+        with self.assertRaises(InspectionStopped): _rl.share_rows(self.without('Save to Files', 'Add Tags'), 30)
+        self.assertEqual({'Copy', 'Save Video', 'Add Tags'}, set(_rl.share_rows(self.without('Save to Files'), 30)))
