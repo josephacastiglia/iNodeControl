@@ -1,9 +1,16 @@
-# Stops the multi-phone kernel with Ctrl+C (it then ends each receiver it started) and
-# confirms no kernel, receiver or listener remains. Never force-kills anything.
-param([ValidateSet('','held','slots')][string]$Stage='')
+# Stops a multi-phone kernel with Ctrl+C (it then ends each receiver it started), confirms nothing of it
+# remains, and withdraws its receivers' AirPlay names. Never force-kills anything.
+#   -Stage held|slots  the single kernel: afterwards no kernel, receiver or listener may remain at all.
+#   -Rack A|B          one rack's kernel: afterwards none of this rack's kernel, receivers or listeners may
+#                      remain; the other rack's kernel and phones keep running.
+param([ValidateSet('','held','slots')][string]$Stage='',[ValidateSet('','A','B')][string]$Rack='')
 $ErrorActionPreference='Stop'
-$taskDir=if($Stage){Join-Path $PSScriptRoot $Stage}else{$PSScriptRoot}
-$taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json
+if($Stage -and $Rack){throw 'Choose -Stage or -Rack, not both.'}
+$taskDir=if($Rack){Join-Path $PSScriptRoot ('rack-'+$Rack.ToLowerInvariant())}elseif($Stage){Join-Path $PSScriptRoot $Stage}else{$PSScriptRoot}
+$taskPrepFile=Join-Path $taskDir 'preparation.json'
+$taskPrep=Get-Content -LiteralPath $taskPrepFile -Raw | ConvertFrom-Json
+if([string]$taskPrep.rack -cne $Rack){throw "The preparation's rack ('$($taskPrep.rack)') is not -Rack '$Rack'."}
+$taskApi=([string]$taskPrep.arguments[0]).TrimEnd('/')
 $taskProcs=Get-Content -LiteralPath (Join-Path $taskDir 'processes.json') -Raw | ConvertFrom-Json
 $taskHelper=Join-Path $PSScriptRoot '..\..\tools\kernel-window\Stop-ConsoleProcessGracefully.ps1'
 if(Get-Process -Id $taskProcs.kernel.pid -ErrorAction SilentlyContinue){
@@ -11,14 +18,17 @@ if(Get-Process -Id $taskProcs.kernel.pid -ErrorAction SilentlyContinue){
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $taskHelper -ProcessId $taskProcs.kernel.pid -ExpectedPath $taskPrep.kernel
     if($LASTEXITCODE){throw "Graceful stop reported exit $LASTEXITCODE; inspect before doing anything else."}
 }
-$taskPorts=@(9916)+@($taskPrep.receivers | ForEach-Object {$_.port; $_.port+1; $_.port+2})
-$taskLeft=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('iMouse2.Kernel.exe','uxplay.exe') })
-$taskTcp=@(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object LocalPort -In $taskPorts)
-if($taskLeft.Count -or $taskTcp.Count){throw "Still present: $($taskLeft.Count) processes, $($taskTcp.Count) listeners."}
+$taskSnap=@{
+    processes=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('iMouse2.Kernel.exe','uxplay.exe') } | ForEach-Object { @{Name=$_.Name;ProcessId=$_.ProcessId;CommandLine=$_.CommandLine} })
+    listeners=@(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | ForEach-Object LocalPort | Sort-Object -Unique)
+} | ConvertTo-Json -Depth 4 -Compress
+$taskRackArgs=if($Rack){@('--rack',$Rack)}else{@()}
+$taskVerdict=$taskSnap | & python (Join-Path $PSScriptRoot 'rack_kernels.py') check-stopped --prep $taskPrepFile @taskRackArgs
+if($LASTEXITCODE -eq 3){throw "Still present: $taskVerdict"}elseif($LASTEXITCODE){throw "Stop check failed (exit $LASTEXITCODE)."}
 # The kernel kills receivers, so they never send their mDNS goodbye; send it for them, or every
 # phone keeps listing the stopped names for 75 minutes.
 $taskBoards=@($taskPrep.receivers | ForEach-Object {'--board'; $_.board})
-& python (Join-Path $PSScriptRoot '..\..\tools\mdns_goodbye.py') --receivers (Join-Path $taskPrep.runDirectory 'data\receivers.json') @taskBoards
+& python (Join-Path $PSScriptRoot '..\..\tools\mdns_goodbye.py') --receivers (Join-Path $taskPrep.runDirectory 'data\receivers.json') --status-url "$taskApi/kernel/status" @taskBoards
 if($LASTEXITCODE){throw 'Receivers stopped, but their AirPlay names were not withdrawn.'}
 Rename-Item -LiteralPath (Join-Path $taskDir 'processes.json') -NewName ('processes-stopped-' + [datetime]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '.json')
-'Stopped: no kernel, receiver or listener remains.'
+if($Rack){"Stopped rack ${Rack}: none of its kernel, receivers or listeners remain."}else{'Stopped: no kernel, receiver or listener remains.'}
