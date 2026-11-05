@@ -228,16 +228,25 @@ def _picker_header(frame, text, role):
                 'The YouTube gallery picker is not recognized.')
         # Create video alone in the middle (22 Oct), or beside a Drafts button on the left (slot 16, 26 Oct,
         # when the Short camera no longer shows Drafts); the grid below is the same.
-        require(line_at(text, 'create video', (190, 160, 310, 195)) or gallery_drafts(text),
-                'The YouTube picker header is not recognized.')
-        # This gallery draws the first column one pixel wider (to x 164) in its second row.
-        dy, gutters = -86, ((165, 168), (333, 336))
+        if line_at(text, 'create video', (190, 160, 310, 195)) or gallery_drafts(text):
+            # This gallery draws the first column one pixel wider (to x 164) in its second row.
+            dy, gutters = -86, ((165, 168), (333, 336))
+        else:
+            # A14 (5 Nov, no drafts yet): no Create video row; the grid starts right under 'Recents' and a
+            # 'Select multiple' bar covers the third row from y 962. Same columns; rows 294 px apart.
+            require(line_at(text, 'select multiple', (40, 975, 220, 1015)), 'The YouTube picker header is not recognized.')
+            dy, gutters = BARE_DY, ((165, 168), (333, 336))
     no_overlay(chrome_only(text, role))
     image = pixels(frame, exact=True)
     for x0, x1 in gutters:
         require((image[300+dy:860+dy, x0:x1].max(axis=2) < 40).mean() > .95, 'YouTube picker grid geometry changed.')
-    require((image[589+dy:593+dy, 5:495].max(axis=2) < 40).mean() > .95, 'YouTube picker grid geometry changed.')
+    gap = (402, 406) if dy == BARE_DY else (589+dy, 593+dy)
+    require((image[gap[0]:gap[1], 5:495].max(axis=2) < 40).mean() > .95, 'YouTube picker grid geometry changed.')
     return image, dy
+
+
+BARE_DY = -186       # A14's gallery without a Create video row (5 Nov).
+GRID_BOTTOM = {BARE_DY: 962}   # Where that gallery's 'Select multiple' bar starts; complete tiles end above it.
 
 
 def gallery_drafts(text):
@@ -318,7 +327,7 @@ def yt_picker(frame, text, reference):
     image, dy = _picker_header(frame, text, 'yt_picker')
     require(not words_at(text, 'next', (330, 975, 410, 1015)) and not present(frame, 'yt_picker_next'),
             'The YouTube picker already offers Next; review the selection.')
-    tiles = list(_tiles(1040, dy))
+    tiles = list(_tiles(GRID_BOTTOM.get(dy, 1040), dy))
     require(len(tiles) == 6, 'YouTube picker grid geometry changed.')
     require(not any(badge(frame, t) for t in tiles), 'A YouTube picker item already shows a selection.')
     scored = [(t, _tile_match(frame, t, reference, image)) for t in tiles]

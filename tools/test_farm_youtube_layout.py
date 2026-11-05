@@ -171,6 +171,39 @@ class Slot16CameraGalleryTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): yl.yt_gallery(frame, text)
 
 
+A14 = farm_paths.ARCHIVE/'20261105-fleet-a14'
+
+
+def a14(name):
+    return (A14/f'{name}.png').read_bytes(), json.loads((A14/f'{name}.json').read_text(encoding='utf-8'))
+
+
+@unittest.skipUnless((A14/'yt-gallery.png').exists(), 'A14 frames of 5 Nov are not available in this checkout.')
+class A14GalleryTests(unittest.TestCase):
+    """A14's gallery before its first draft: Recents, no Create video row, Select multiple over the third row."""
+    def test_the_bare_gallery_finds_the_package_tile(self):
+        frame, text = a14('yt-gallery')
+        image, dy = yl._picker_header(frame, text, 'yt_picker')
+        self.assertEqual(yl.BARE_DY, dy)
+        found = yl.yt_picker(frame, text, tt.TikTokReference((A14/'yt-package.mp4').read_bytes()))
+        self.assertEqual(([0, 112, 164, 403], (141, 134)), (found['tile'], found['target']))
+        self.assertGreater(found['nearestOther'] - found['match']['mean'], yl.UNIQUE_MARGIN)
+
+    def test_without_select_multiple_it_is_not_the_bare_gallery(self):
+        frame, text = a14('yt-gallery')
+        text = dict(text, lines=[l for l in text['lines'] if 'select multiple' not in l['text'].casefold()])
+        with self.assertRaises(InspectionStopped): yl._picker_header(frame, text, 'yt_picker')
+
+    def test_the_bare_gallery_offers_no_drafts_button(self):
+        frame, text = a14('yt-gallery')
+        with self.assertRaises(InspectionStopped): yl.yt_gallery(frame, text)
+
+    def test_the_slot16_offset_does_not_fit_this_grid(self):
+        frame, text = a14('yt-gallery')
+        image = yl.pixels(frame, exact=True)
+        self.assertLess((image[503:507, 5:495].max(axis=2) < 40).mean(), .95)   # Slot 16's row gap: tiles here.
+
+
 @unittest.skipUnless(PRIVATE, 'Retained private C24C YouTube frames/OCR are not available in this checkout.')
 class RetainedYouTubeLayoutTests(unittest.TestCase):
     @classmethod
