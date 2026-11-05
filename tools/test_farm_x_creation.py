@@ -70,6 +70,13 @@ class Screens:
             self.texts[key] = text
         p1_state('home_out', '02-home.png'); p1_state('search_out', '04-app_search_entry.png')
         p1_state('safari', '07-safari.png'); p1_state('address', '08-address_selected.png')
+        # The address field after the transfer address was typed (read back before Enter, 4 Nov).
+        with Image.open(io.BytesIO(self.frames['address'])) as base:
+            image = base.convert('RGB'); ImageDraw.Draw(image).rectangle((30, 938, 385, 975), fill='white')
+            ImageDraw.Draw(image).text((34, 948), URL[7:], fill='black'); self.frames['address_typed'] = png(image)
+        typed = copy.deepcopy(self.texts['address'])
+        typed['lines'] = [row for row in typed['lines'] if not any(925 <= w['y'] <= 985 for w in row['words'])] + [line(URL[7:], 34, 945, 330)]
+        self.texts['address_typed'] = typed
         p1_state('home_back', '25-home.png'); p1_state('search_back', '27-app_search_entry.png')
         for key, step, which in (('link_menu', '77-download-test-video', 'before'), ('download_ready', '78-downloads-menu', 'before'),
                                  ('page_menu', '79-downloads-list', 'before'), ('downloads', '80-downloaded-video-preview', 'before'),
@@ -174,6 +181,7 @@ class FixtureKernel:
     def key(self):
         s, n = self.screen, self.captures.get(self.screen, 0)
         if s in ('home', 'search'): return s + '_' + self.leg
+        if s == 'address' and self.typed: return 'address_typed'
         if s == 'x_picker' and n < 2: return 'x_picker_loading'
         return s
 
