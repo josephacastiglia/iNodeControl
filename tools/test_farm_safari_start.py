@@ -660,6 +660,33 @@ class TikTokSelectionTests(unittest.TestCase):
                     with self.assertRaises(InspectionStopped): tt.tiktok_selected(b'f', text(), None)
 
 
+class StartScreenSpotlightTests(unittest.TestCase):
+    def test_a_restored_query_is_cleared_by_the_glyph_fallback(self):
+        # A17, 4 Nov: Spotlight restored 'Safari'; the clear button's template missed, its glyph did not.
+        from unittest import mock
+        from types import SimpleNamespace
+        import farm_creation_layout as layout
+        from farm_start_screen import StartScreen
+        start = StartScreen.__new__(StartScreen); taps = []; keys = []
+        start.record = dict(commands=[], observations=[]); start.save = lambda: None; start.pause = lambda s: None
+        start.command = lambda fun, purpose, **data: keys.append(purpose)
+        start.tap = lambda raw, text, point, role, purpose, only=None: taps.append((purpose, point))
+        frames = iter([(b'home', 'home'), (b'restored', 'restored'), (b'cleared', 'cleared'), (b'result', 'result'), (b'after', 'after')])
+        start.fresh = lambda role: (*next(frames), 0, 0)
+        def app_target(text, name, frame=None):
+            if text != 'result': raise InspectionStopped('no label')
+            return (87, 163)
+        def empty_search(text, frame=None):
+            if text != 'cleared': raise InspectionStopped('restored query')
+            return True
+        with mock.patch.multiple(layout, app_target=app_target, empty_search=empty_search,
+                                 home_search=lambda raw, text: [205, 879, 296, 920],
+                                 search_clear=lambda raw: [430, 988, 462, 1022]),                 mock.patch.object(layout, 'control', side_effect=AssertionError('template only')):
+            start.open_from_home('X')
+        self.assertEqual(['open-app-search', 'clear-restored-search', 'open-x'], [p for p, _ in taps])
+        self.assertEqual((446, 1005), taps[1][1])
+
+
 class AppHomeStartScreenTests(unittest.TestCase):
     def start(self, screens):
         from types import SimpleNamespace

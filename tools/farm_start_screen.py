@@ -267,7 +267,7 @@ class StartScreen:
 
     def open_from_home(self, name):
         """The workflow's own route: Home, then the app icon, or Spotlight's Search pill and its Top Hit."""
-        from farm_creation_layout import app_target, control, empty_search, home_search
+        from farm_creation_layout import app_target, empty_search, home_search, search_clear
         from farm_draft_workflow import centre
         # Home only leaves the current app for the home screen; it is never an app action.
         self.command('/key/sendkey', 'home-before-start-screen', fn_key='Home')
@@ -285,7 +285,9 @@ class StartScreen:
                 try: empty = empty_search(text, raw)
                 except InspectionStopped: empty = False
                 if not empty:
-                    self.tap(raw, text, centre(control(raw, 'search_clear')), 'app_search_entry', 'clear-restored-search')
+                    # The clear button's template follows the wallpaper through the translucent field; search_clear
+                    # also measures its white glyph in place (A17, 4 Nov: a restored 'Safari' query stopped here twice).
+                    self.tap(raw, text, centre(search_clear(raw)), 'app_search_entry', 'clear-restored-search')
                     self.pause(.8)
                     raw, text, _, _ = self.fresh('app_search_cleared')
                     empty_search(text, raw)
