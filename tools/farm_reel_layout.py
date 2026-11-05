@@ -39,12 +39,15 @@ def reference_rgb(raw):
     with Image.open(io.BytesIO(raw)) as reference: return reference.convert('RGB')
 
 
-def reel_control(frame, name, exclude_columns=()):
-    """Fixed control template; same thresholds as the carousel controls."""
+def reel_control(frame, name, exclude_columns=(), dy=0):
+    """Fixed control template; same thresholds as the carousel controls. dy moves it down for a sheet whose rows
+    were located by OCR (A12's Create sheet, 5 Nov); 0 everywhere else."""
     row = json.loads(Path(__file__).with_name('farm_reel_controls.json').read_text(encoding='utf-8'))[name]
     raw = base64.b64decode(row['png'], validate=True)
     require(hashlib.sha256(raw).hexdigest() == row['sha256'], 'Reel control reference is damaged.')
     left, top, right, bottom = row['box']
+    top, bottom = top + dy, bottom + dy
+    require(0 <= top and bottom <= 1080, 'Reel control is outside the frame.')
     image = pixels(frame, exact=True)
     with Image.open(io.BytesIO(raw)) as reference:
         delta = np.abs(image[top:bottom, left:right].astype(float)-np.asarray(reference.convert('RGB')).astype(float))/255
@@ -56,7 +59,7 @@ def reel_control(frame, name, exclude_columns=()):
         valid = pill & np.roll(pill, 1, 0) & np.roll(pill, -1, 0) & np.roll(pill, 1, 1) & np.roll(pill, -1, 1)
     for a, b in exclude_columns: valid[:, a-left:b-left] = False
     require(delta[valid].mean() < .02 and (delta[valid].max(axis=1) > 35/255).mean() < .04, 'Reel control changed: '+name)
-    return row['box']
+    return [left, top, right, bottom]
 
 
 def present(frame, name):
@@ -185,8 +188,53 @@ def reel_compare(role):
 
 # ---- Instagram ----------------------------------------------------------------
 
+CREATE_ROWS = ('reel', 'edits', 'post', 'story', 'highlights', 'live', 'fundraiser')
+REEL_ICON_Y = 576   # reel_row_icon's centre on A18's sheet.
+
+
+def create_rows(frame, text):
+    """A Create sheet located by its own text (A12, 5 Nov: no Instants row, 'Create' at y 569): a centred
+    'Create' header, then every row label once, in order, evenly spaced, on a light, empty sheet. {label: box} or None.
+    A18's sheet (Instants between Story and Highlights) never fits the even spacing and keeps its positioned rule."""
+    if (text.get('width'), text.get('height')) != (500, 1080) or overlay_present(text): return None
+    def box(line):
+        words = line['words']
+        return (min(w['x'] for w in words), min(w['y'] for w in words),
+                max(w['x']+w['width'] for w in words), max(w['y']+w['height'] for w in words))
+    rows = [(' '.join(l['text'].casefold().split()), box(l)) for l in text.get('lines', []) if l.get('words')]
+    header = [b for t, b in rows if t == 'create' and 190 <= b[0] and b[2] <= 310]
+    if len(header) != 1: return None
+    top = header[0][1]
+    found = {}
+    for label in CREATE_ROWS:
+        hits = [b for t, b in rows if t == label and 55 <= b[0] <= 90 and top < b[1] < 1000]
+        if len(hits) != 1: return None
+        found[label] = hits[0]
+    ys = [found[label][1] for label in CREATE_ROWS]
+    if not 35 <= ys[0] - top <= 70 or not all(44 <= b - a <= 62 for a, b in zip(ys, ys[1:])): return None
+    image = pixels(frame, exact=True)
+    for left, upper, right, lower in ((180, ys[0] - 10, 400, ys[-1] + 30), (30, ys[-1] + 45, 470, min(ys[-1] + 95, 1040))):
+        if (image[upper:lower, left:right].min(axis=2) > 225).mean() < .97: return None
+    return found
+
+
+def _icon_at(frame, dy):
+    try: reel_control(frame, 'reel_row_icon', dy=dy); return True
+    except InspectionStopped: return False
+
+
 def reel_create(frame, text):
     """The observed Create sheet; OCR often omits 'Reel', so its icon is required too."""
+    if not create_menu_controls(frame, text):
+        rows = create_rows(frame, text)
+        if rows:
+            # The Reel row read by OCR is the target; its icon must sit beside it.
+            x0, y0, x1, y1 = rows['reel']
+            centre = (round((x0 + x1) / 2), round((y0 + y1) / 2))
+            # OCR's line box can sit a pixel off the glyphs; the icon is searched within 2 px of the row's centre.
+            if not any(_icon_at(frame, centre[1] - REEL_ICON_Y + d) for d in (0, -1, 1, -2, 2)):
+                raise InspectionStopped('Reel control changed: reel_row_icon')
+            return dict(target=centre, labelRead=True, method='ocr_rows_sheet_and_reel_icon')
     if not create_menu_controls(frame, text) and line_at(text, 'edit profile', (40, 395, 220, 440)):
         # The profile still shows after '+' (slot 18, 25 Oct): the sheet may slide up a moment later,
         # so a later frame is read again without input.

@@ -268,3 +268,44 @@ class RetainedReelLayoutTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+import farm_paths as _paths  # noqa: E402
+import farm_reel_layout as _rl  # noqa: E402
+
+_A12 = _paths.ARCHIVE/'20261105-fleet-a12'
+
+
+@unittest.skipUnless((_A12/'reel-create.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
+class A12CreateSheetTests(unittest.TestCase):
+    """A12's Create sheet (5 Nov): no Instants row, every row 53 px apart from 'Create' at y 569."""
+    def setUp(self):
+        self.frame = (_A12/'reel-create.png').read_bytes()
+        self.text = json.loads((_A12/'reel-create.json').read_text(encoding='utf-8'))
+
+    def without(self, label):
+        return dict(self.text, lines=[l for l in self.text['lines'] if ' '.join(l['text'].casefold().split()) != label])
+
+    def test_the_reel_row_read_by_ocr_is_the_target(self):
+        found = _rl.reel_create(self.frame, self.text)
+        self.assertEqual(('ocr_rows_sheet_and_reel_icon', (88, 628)), (found['method'], found['target']))
+
+    def test_every_row_and_the_header_are_required(self):
+        for label in ('create',) + _rl.CREATE_ROWS:
+            with self.subTest(label):
+                self.assertIsNone(_rl.create_rows(self.frame, self.without(label)))
+                with self.assertRaises(InspectionStopped): _rl.reel_create(self.frame, self.without(label))
+
+    def test_an_extra_row_breaks_the_even_spacing(self):
+        moved = json.loads(json.dumps(self.text))
+        for line in moved['lines']:
+            if ' '.join(line['text'].casefold().split()) in ('highlights', 'live', 'fundraiser'):
+                for w in line['words']: w['y'] += 53   # An Instants row between Story and Highlights, as on A18.
+        self.assertIsNone(_rl.create_rows(self.frame, moved))
+
+    def test_the_icon_must_sit_beside_the_reel_row(self):
+        moved = json.loads(json.dumps(self.text))
+        for line in moved['lines']:
+            if ' '.join(line['text'].casefold().split()) == 'reel':
+                for w in line['words']: w['y'] += 10
+        with self.assertRaises(InspectionStopped): _rl.reel_create(self.frame, moved)
