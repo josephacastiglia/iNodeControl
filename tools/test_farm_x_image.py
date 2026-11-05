@@ -342,6 +342,17 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual('ready', check(frame, text, png(caret), None)['state'])
         self.assertEqual('wait', check(frame, text, png(moved), None)['state'])
 
+    def test_an_ignored_open_slide_click_reads_the_unchanged_page_and_is_sent_once_more(self):
+        # A17, 4 Nov prep 7: Safari ignored even the settled click; the transfer page stayed.
+        flow = self.workflow(); flow.check_prompt = lambda role, value: None
+        index = TransferPageTests().index()
+        self.assertFalse(flow.verify_screen('xi_after_open', dict(text=index), b'')['opened'])
+        frame, text = slide_frame(Images.one)
+        self.assertTrue(flow.verify_screen('xi_after_open', dict(text=text), frame)['opened'])
+        with self.assertRaises(InspectionStopped): flow.verify_screen('xi_after_open', dict(text=ocr(('Loading', 23, 88, 100))), b'')
+        source = Path(xic.__file__).read_text(encoding='utf-8')
+        self.assertEqual(1, source.count("self.tap('open-slide-1-again'"))   # One more click, never a loop.
+
     def test_committing_prefixes_cover_every_save_and_media_step(self):
         self.assertEqual(('save-photo-', 'select-package-image', 'add-package-image', 'paste-exact-caption', 'save-x-draft-once'), xic.COMMITTING)
         source = Path(xic.__file__).read_text(encoding='utf-8')
