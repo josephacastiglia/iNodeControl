@@ -12,7 +12,7 @@ internal sealed class KernelOptions
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
     private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid", "--precise-delay",
-        "--home-sequence", "--navigation-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hid-replies-pid", "--absolute-probe-pid", "--hold-receivers", "--rack"];
+        "--home-sequence", "--navigation-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hid-replies-pid", "--absolute-probe-pid", "--hold-receivers", "--rack", "--stop-file", "--console-log"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
     internal string? HardwareMode { get; private set; }
     internal string[] HardwareArguments { get; private set; } = [];
@@ -26,6 +26,9 @@ internal sealed class KernelOptions
     internal string[] HeldReceivers { get; private set; } = [];
     // A label for one rack's kernel ("A", "B"); empty for the single kernel. Reported in status only.
     internal string Rack { get; private set; } = "";
+    // Detached launch (Start-Multiphone through WMI): a stop request file and a console log file.
+    internal string? StopFile { get; private set; }
+    internal string? ConsoleLog { get; private set; }
     internal string DataDir => Path.GetFullPath(Value("--data-dir", Path.Combine(AppContext.BaseDirectory, "data")));
     internal string Value(string name, string fallback = "") => _values.GetValueOrDefault(name, fallback);
     internal static bool BoardId(string? text) => text is not null && Regex.IsMatch(text, "^[0-9A-Fa-f]{4}$");
@@ -99,6 +102,17 @@ internal sealed class KernelOptions
                 throw new ArgumentException("--rack needs a short letters-and-digits label and normal service mode.");
             result.Rack = rack.ToUpperInvariant();
         }
+        foreach (var (name, set) in new (string, Action<string>)[] { ("--stop-file", v => result.StopFile = v), ("--console-log", v => result.ConsoleLog = v) })
+            if (result._values.TryGetValue(name, out string? file))
+            {
+                if (result.HardwareMode is not null) throw new ArgumentException(name + " needs normal service mode.");
+                string full;
+                try { full = Path.GetFullPath(file); } catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException) { throw new ArgumentException(name + " is not a valid path."); }
+                if (!Directory.Exists(Path.GetDirectoryName(full))) throw new ArgumentException(name + " needs an existing folder.");
+                set(full);
+            }
+        if (result.StopFile is not null && result.StopFile.Equals(result.ConsoleLog, StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("--stop-file and --console-log must be different files.");
         _ = result.DataDir; // Check path syntax before any hardware work.
         if (result._values.TryGetValue("--hid-replies-pid", out string? replyIds))
         {
@@ -194,7 +208,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         absolute_probe_board = Options.AbsoluteProbeBoard,
         navigation_sequence = Options.Value("--navigation-sequence", "vendor"),
         precise_delay_ms = Options.PreciseDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
-        rack = Options.Rack, receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
+        rack = Options.Rack, stop_file = Options.StopFile, console_log = Options.ConsoleLog, receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
         bindings_complete = Receivers.All(r => r.DeviceId is not ("*" or "") && !r.DeviceId.StartsWith("unbound-", StringComparison.OrdinalIgnoreCase)),
         limitations = new[] { "Physical bindings, targeting and mirroring are not assessed.",
             "Available ports, URL permissions and dependency loading are not tested.",
