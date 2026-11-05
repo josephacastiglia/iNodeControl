@@ -2,14 +2,40 @@ namespace IMouse2.Kernel;
 
 public sealed record ReceiverConfig(string DeviceId,string BoardPid,string Name,string Pipe,int Port,string Mac);
 
+/// <summary>
+/// Every configured receiver, each with its own frame store and, while advertised, its own
+/// supervised UxPlay child. One receiver can be withdrawn (stopped and its AirPlay name sent a
+/// goodbye), restarted (withdrawn, then started again) or advertised without touching any other
+/// receiver, any input lease or the HTTP listener.
+/// </summary>
 public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
 {
-    public sealed record Session(ReceiverConfig Config,FrameStore Frames,AirplaySupervisor? Supervisor);
+    public sealed record Session(ReceiverConfig Config,FrameStore Frames);
+
+    // One mutable slot per receiver. Every field is guarded by _gate.
+    private sealed class Entry(Session session)
+    {
+        public readonly Session Session = session;
+        public AirplaySupervisor? Supervisor;
+        public Task SupervisorRun = Task.CompletedTask;
+        public Task? FrameRun;
+        public bool Held;
+        public bool Withdrawn;          // Held because an operator withdrew it, not since startup.
+        public string? Busy;            // "restarting" or "withdrawing" while a change is in flight.
+        public Task Change = Task.CompletedTask;
+        public int RetiredRestarts;     // Crash relaunches counted by supervisors already retired.
+        public int Generation;          // Receiver children started by the fleet for this board.
+        public string Note = "";        // Outcome of the last restart or withdrawal.
+        public ReceiverInfo? Failure;   // A retired child whose exit was not confirmed.
+    }
+
     public List<Session> Sessions { get; } = [];
-    private sealed record RunningSession(Session Session, Task Frames, Task Supervisor);
+    private readonly List<Entry> _entries = [];
     private readonly object _gate = new();
-    private readonly List<RunningSession> _runs = [];
-    private readonly HashSet<string> _held = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Func<ReceiverConfig,IReceiverHandle>? _receiver;
+    private readonly IReceiverWithdrawal _withdrawal;
+    private readonly int _maxRestarts;
+    private readonly TimeSpan _restartDelay;
     private bool _started;
     private CancellationToken _token;
     private Task? _shutdown;
@@ -39,22 +65,54 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
     }
 
     public ReceiverFleet(IReadOnlyList<ReceiverConfig> configs,DeviceStore store,string executable,string runtime,string dataDir)
+        : this(configs,store,executable.Length==0 ? null : c=>new AirplayProcess(executable,runtime,c.Name,c.Pipe,c.DeviceId,
+            Path.Combine(dataDir,"receiver-"+c.BoardPid+".log"),c.Port,c.Mac),new MdnsGoodbye()) { }
+
+    // Tests supply fake receivers and a recording withdrawal; nothing native or networked.
+    internal ReceiverFleet(IReadOnlyList<ReceiverConfig> configs,DeviceStore store,Func<ReceiverConfig,IReceiverHandle>? receiver,
+        IReceiverWithdrawal withdrawal,int maxRestarts=AirplaySupervisor.DefaultMaxRestarts,TimeSpan? restartDelay=null)
     {
         Validate(configs,store.All());
+        _receiver=receiver;
+        _withdrawal=withdrawal;
+        _maxRestarts=maxRestarts;
+        _restartDelay=restartDelay ?? AirplaySupervisor.DefaultDelay;
         foreach(var c in configs)
         {
-            var frames=new FrameStore(c.Pipe,c.DeviceId);
-            var supervisor=executable.Length==0 ? null : new AirplaySupervisor(()=>
-                new AirplayProcess(executable,runtime,c.Name,c.Pipe,c.DeviceId,
-                    Path.Combine(dataDir,"receiver-"+c.BoardPid+".log"),c.Port,c.Mac));
-            if(supervisor is not null) { frames.ReceiverPid=()=>supervisor.Info.Pid;frames.Receiver=()=>IsHeld(c.BoardPid) ? Held : supervisor.Info; }
-            Sessions.Add(new(c,frames,supervisor));
+            var session=new Session(c,new FrameStore(c.Pipe,c.DeviceId));
+            var entry=new Entry(session);
+            if(receiver is not null)
+            {
+                session.Frames.ReceiverPid=()=>Info(entry).Pid;
+                session.Frames.Receiver=()=>Info(entry);
+            }
+            Sessions.Add(session);
+            _entries.Add(entry);
         }
     }
-    private static readonly ReceiverInfo Held = new("held", "Receiver not advertised yet; release it with /device/airplay/connect.", 0, 0);
+
+    private static readonly string HeldMessage = "Receiver not advertised yet; release it with /device/airplay/connect.";
+
+    private ReceiverInfo Info(Entry entry)
+    {
+        lock (_gate)
+        {
+            int restarts = entry.RetiredRestarts + (entry.Supervisor?.Info.Restarts ?? 0);
+            if (entry.Busy is { } busy)
+                return new("restarting", "Receiver " + busy + " on request; other receivers are unaffected.", 0, restarts, entry.Generation);
+            if (entry.Failure is { } failure) return failure with { Restarts = restarts, Generation = entry.Generation };
+            if (entry.Held)
+                return new("held", entry.Withdrawn ? "Receiver withdrawn on request" + (entry.Note.Length == 0 ? "" : " (" + entry.Note + ")")
+                    + "; advertise it with /device/airplay/connect." : HeldMessage, 0, restarts, entry.Generation);
+            var info = entry.Supervisor?.Info ?? new ReceiverInfo("stopped", "", 0, 0);
+            return info with { Restarts = restarts, Generation = entry.Generation };
+        }
+    }
 
     // A held receiver is not started, so no phone can list it until it is released.
-    public bool IsHeld(string boardPid) { lock (_gate) return _held.Contains(boardPid); }
+    public bool IsHeld(string boardPid) { lock (_gate) return Find(boardPid)?.Held == true; }
+
+    private Entry? Find(string boardPid) => _entries.FirstOrDefault(e => e.Session.Config.BoardPid.Equals(boardPid, StringComparison.OrdinalIgnoreCase));
 
     public void Start(CancellationToken ct, IReadOnlyCollection<string>? hold = null)
     {
@@ -62,44 +120,141 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
         {
             ObjectDisposedException.ThrowIf(_shutdown is not null, this);
             if (_started) throw new InvalidOperationException("A receiver fleet can start only once.");
-            if (hold?.Any(pid => !Sessions.Any(s => s.Config.BoardPid.Equals(pid, StringComparison.OrdinalIgnoreCase))) == true)
+            if (hold?.Any(pid => Find(pid) is null) == true)
                 throw new ArgumentException("Every held receiver must be a configured board.");
             _started = true;
             _token = ct;
-            foreach (var session in Sessions)
-                if (hold?.Contains(session.Config.BoardPid, StringComparer.OrdinalIgnoreCase) == true) _held.Add(session.Config.BoardPid);
-                else Run(session);
+            foreach (var entry in _entries)
+                if (hold?.Contains(entry.Session.Config.BoardPid, StringComparer.OrdinalIgnoreCase) == true) entry.Held = true;
+                else Run(entry);
         }
     }
 
-    /// <summary>Starts one held receiver. A started receiver stays advertised until the kernel stops.</summary>
+    /// <summary>Starts one held or withdrawn receiver. A started receiver stays advertised until it is withdrawn or the kernel stops.</summary>
     public object Advertise(string boardPid)
     {
         lock (_gate)
         {
             if (_shutdown is not null || !_started) return new { code = 42, message = "Receivers are not running." };
-            var session = Sessions.FirstOrDefault(s => s.Config.BoardPid.Equals(boardPid, StringComparison.OrdinalIgnoreCase));
-            if (session is null) return new { code = 36, message = "No receiver is configured for board " + boardPid + "." };
-            if (!_held.Remove(session.Config.BoardPid))
-                return new { code = 0, message = session.Config.Name + " is already advertised.", name = session.Config.Name, started = false };
-            Run(session);
-            return new { code = 0, message = session.Config.Name + " is now advertised.", name = session.Config.Name, started = true };
+            var entry = Find(boardPid);
+            if (entry is null) return new { code = 36, message = "No receiver is configured for board " + boardPid + "." };
+            var name = entry.Session.Config.Name;
+            if (entry.Busy is { } busy) return new { code = 409, message = name + " is " + busy + "; wait for it to finish.", name };
+            if (entry.Failure is not null) return new { code = 409, message = name + "'s last receiver exit is unconfirmed; inspect it before starting another.", name };
+            if (!entry.Held)
+                return new { code = 0, message = name + " is already advertised.", name, started = false };
+            entry.Held = false; entry.Withdrawn = false;
+            Run(entry);
+            return new { code = 0, message = name + " is now advertised.", name, started = true };
         }
     }
 
-    private void Run(Session session)
+    /// <summary>Stops one receiver, confirms its exit, withdraws its AirPlay name, and starts it again
+    /// unless <paramref name="hold"/> is set. Every other receiver keeps running.</summary>
+    public Task<object> RestartAsync(string boardPid, bool hold = false) => ChangeAsync(boardPid, hold ? "withdrawing" : "restarting", hold);
+
+    /// <summary>Stops one receiver and withdraws its AirPlay name; it stays held until advertised.</summary>
+    public Task<object> WithdrawAsync(string boardPid) => ChangeAsync(boardPid, "withdrawing", true);
+
+    private async Task<object> ChangeAsync(string boardPid, string action, bool hold)
+    {
+        Entry entry;
+        AirplaySupervisor? retiring;
+        Task retiringRun;
+        TaskCompletionSource done = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        lock (_gate)
+        {
+            if (_shutdown is not null || !_started) return new { code = 42, message = "Receivers are not running." };
+            if (_receiver is null) return new { code = 41, message = "This kernel hosts frame pipes only; it has no receiver to restart." };
+            var found = Find(boardPid);
+            if (found is null) return new { code = 36, message = "No receiver is configured for board " + boardPid + "." };
+            entry = found;
+            if (entry.Busy is { } busy) return new { code = 409, message = entry.Session.Config.Name + " is already " + busy + ".", name = entry.Session.Config.Name };
+            if (entry.Failure is not null)
+                return new { code = 409, message = entry.Session.Config.Name + "'s last receiver exit is unconfirmed; inspect it before starting another.", name = entry.Session.Config.Name };
+            entry.Busy = action;
+            entry.Change = done.Task;
+            retiring = entry.Supervisor;
+            retiringRun = entry.SupervisorRun;
+        }
+        var name = entry.Session.Config.Name;
+        try
+        {
+            // 1. Stop this receiver's child and confirm its exit (bounded in ReceiverProcessLifetime).
+            ReceiverInfo? unconfirmed = null;
+            if (retiring is not null)
+            {
+                await Task.Run(retiring.Dispose).ConfigureAwait(false);
+                try { await retiringRun.ConfigureAwait(false); }
+                catch (Exception ex) { Console.WriteLine(name + " supervisor ended with: " + ex.Message); }
+                unconfirmed = retiring.CleanupFailure;
+            }
+            lock (_gate)
+            {
+                if (retiring is not null && ReferenceEquals(entry.Supervisor, retiring))
+                {
+                    entry.RetiredRestarts += retiring.Info.Restarts;
+                    entry.Supervisor = null; entry.SupervisorRun = Task.CompletedTask;
+                }
+                if (unconfirmed is not null)
+                {
+                    // Never withdraw a name or start a second child while the first may still be alive.
+                    entry.Failure = unconfirmed; entry.Held = true; entry.Withdrawn = true;
+                    entry.Note = "exit unconfirmed";
+                    return new { code = 33, message = name + " was told to stop but its exit is unconfirmed; nothing was withdrawn or started. " + unconfirmed.Message, name };
+                }
+                entry.Held = true; entry.Withdrawn = true;
+            }
+            // 2. A killed UxPlay sends no goodbye; send it so phones drop the name now, not in 75 minutes.
+            string goodbye;
+            bool withdrawn;
+            try
+            {
+                var interfaces = await Task.Run(() => _withdrawal.Withdraw(entry.Session.Config)).ConfigureAwait(false);
+                goodbye = "goodbye sent on " + string.Join(", ", interfaces); withdrawn = true;
+            }
+            catch (Exception ex) { goodbye = "goodbye not sent: " + ex.Message; withdrawn = false; }
+            Console.WriteLine(name + " " + action + ": " + goodbye);
+            // 3. Start it again unless it is to stay withdrawn, and never once shutdown has begun.
+            lock (_gate)
+            {
+                entry.Note = goodbye;
+                if (hold)
+                    return new { code = withdrawn ? 0 : 34, message = name + (withdrawn ? " is withdrawn and held." : " is stopped and held, but its name was not withdrawn: " + goodbye),
+                        name, stopped = retiring is not null, withdrawn, started = false };
+                if (_shutdown is not null)
+                    return new { code = 42, message = name + " was stopped; the kernel is shutting down, so it was not started again.", name };
+                entry.Held = false; entry.Withdrawn = false;
+                Run(entry);
+                return new { code = 0, message = name + " was restarted" + (withdrawn ? "." : "; its old name was not withdrawn: " + goodbye),
+                    name, stopped = retiring is not null, withdrawn, started = true, generation = entry.Generation };
+            }
+        }
+        finally
+        {
+            lock (_gate) entry.Busy = null;
+            done.TrySetResult();
+        }
+    }
+
+    private void Run(Entry entry)
     {
         // Retain every run before releasing the lifecycle lock. Native
         // startup and cleanup must never hold this lock or a UI thread.
-        var frames = Task.Run(async () =>
+        var session = entry.Session;
+        entry.FrameRun ??= Task.Run(async () =>
         {
             try { await session.Frames.RunAsync().ConfigureAwait(false); }
             catch (Exception ex) { Console.WriteLine("Frame pump failed for " + session.Config.Name + ": " + ex); throw; }
         });
+        if (_receiver is null) return;
+        var config = session.Config;
+        var factory = _receiver;
+        var supervisor = new AirplaySupervisor(() => factory(config), _maxRestarts, _restartDelay);
         var token = _token;
-        var supervisor = session.Supervisor is { } child
-            ? Task.Run(() => child.RunAsync(token)) : Task.CompletedTask;
-        _runs.Add(new(session, frames, supervisor));
+        entry.Supervisor = supervisor;
+        entry.SupervisorRun = Task.Run(() => supervisor.RunAsync(token));
+        entry.Generation++;
     }
 
     public Task ShutdownAsync()
@@ -110,37 +265,40 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
             // Pre-start disposal still cancels each session and forbids Start.
             return _shutdown ??= Task.Run(async () =>
             {
-                // Held and never-started sessions are still disposed: that stops
-                // their frame stores and forbids any later receiver start.
-                var runs = _runs.Concat(Sessions.Where(s => !_runs.Any(r => ReferenceEquals(r.Session, s))).Select(s =>
-                    new RunningSession(s, Task.CompletedTask, Task.CompletedTask))).ToArray();
-                _held.Clear();
-                var failures = await Task.WhenAll(runs.Select(StopAndJoinAsync)).ConfigureAwait(false);
+                // A restart in flight finishes its stop first; it starts nothing once shutdown began.
+                Task[] changes;
+                lock (_gate) changes = _entries.Select(e => e.Change).ToArray();
+                await Task.WhenAll(changes).ConfigureAwait(false);
+                Entry[] entries;
+                lock (_gate) entries = [.. _entries];
+                var failures = await Task.WhenAll(entries.Select(StopAndJoinAsync)).ConfigureAwait(false);
                 var errors = failures.SelectMany(f => f).ToArray();
                 if (errors.Length != 0) throw new AggregateException("Receiver fleet shutdown was not fully confirmed.", errors);
             });
         }
     }
 
-    private static async Task<List<Exception>> StopAndJoinAsync(RunningSession run)
+    private async Task<List<Exception>> StopAndJoinAsync(Entry entry)
     {
+        AirplaySupervisor? supervisor; Task run; Task? frames; ReceiverInfo? earlier;
+        lock (_gate) { supervisor = entry.Supervisor; run = entry.SupervisorRun; frames = entry.FrameRun; earlier = entry.Failure; }
+        var name = entry.Session.Config.Name;
         var errors = new List<Exception>();
-        void Record(string operation, Exception ex) => errors.Add(new IOException(
-            run.Session.Config.Name + " " + operation + ": " + ex.Message, ex));
+        void Record(string operation, Exception ex) => errors.Add(new IOException(name + " " + operation + ": " + ex.Message, ex));
         // Initiate peer stops independently; one slow receiver must not delay
         // requesting cleanup of all the others. Each real child has its own
         // bounded exit confirmation in ReceiverProcessLifetime.
         await Task.Run(() =>
         {
-            try { run.Session.Frames.Dispose(); } catch (Exception ex) { Record("frame stop failed", ex); }
-            try { run.Session.Supervisor?.Dispose(); } catch (Exception ex) { Record("receiver stop failed", ex); }
+            try { entry.Session.Frames.Dispose(); } catch (Exception ex) { Record("frame stop failed", ex); }
+            try { supervisor?.Dispose(); } catch (Exception ex) { Record("receiver stop failed", ex); }
         }).ConfigureAwait(false);
-        try { await run.Supervisor.ConfigureAwait(false); } catch (Exception ex) { Record("supervisor failed", ex); }
-        try { await run.Frames.ConfigureAwait(false); } catch (Exception ex) { Record("frame reader failed", ex); }
+        try { await run.ConfigureAwait(false); } catch (Exception ex) { Record("supervisor failed", ex); }
+        if (frames is not null) { try { await frames.ConfigureAwait(false); } catch (Exception ex) { Record("frame reader failed", ex); } }
         // Dispose may find no current handle because the run already claimed
         // cleanup. Only after both paths join is its outcome final.
-        if (run.Session.Supervisor?.CleanupFailure is { } failure)
-            errors.Add(new IOException(run.Session.Config.Name + ": " + failure.Message));
+        if (supervisor?.CleanupFailure is { } failure) errors.Add(new IOException(name + ": " + failure.Message));
+        if (earlier is not null) errors.Add(new IOException(name + ": an earlier restart left an unconfirmed exit. " + earlier.Message));
         return errors;
     }
 

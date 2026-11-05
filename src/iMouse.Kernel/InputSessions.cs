@@ -80,6 +80,16 @@ public sealed class InputSessions : IAsyncDisposable
             throw new InvalidOperationException("Controller lease expired; input stopped.");
         }
     }
+    /// <summary>True when the board's phone has an unexpired input lease held under a different
+    /// token. Reads only: it never ends, renews or changes a lease.</summary>
+    public bool LeasedByOther(string pid, string token)
+    {
+        lock (_sync)
+        {
+            if (!_slots.TryGetValue(pid, out var slot) || slot.Owner is null || _clock() >= slot.Owner.Deadline) return false;
+            return slot.Owner.Token != token;
+        }
+    }
     public object Acquire(JsonElement data)
     {
         var phones = Targets(data);

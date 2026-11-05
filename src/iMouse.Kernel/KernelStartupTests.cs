@@ -15,6 +15,9 @@ internal static class KernelStartupTests
             check(refused, label);
         }
         var defaults = KernelOptions.Parse([]);
+        check(defaults.Rack == "" && KernelOptions.Parse(["--rack", "b"]).Rack == "B", "--rack labels one rack's kernel; the single kernel has none");
+        Reject(() => KernelOptions.Parse(["--rack", "A B"]), "--rack refuses labels with spaces or symbols");
+        Reject(() => KernelOptions.Parse(["--rack", "A", "--hid-caps"]), "--rack is refused with a raw hardware command");
         check(defaults.ReplyBoards.Length == 0, "HID reply observation is off unless explicitly scoped at startup");
         check(defaults.AbsoluteProbeBoard is null && defaults.Navigation == NavigationSequence.Vendor,
             "Experimental absolute/navigation options do not change normal startup");
