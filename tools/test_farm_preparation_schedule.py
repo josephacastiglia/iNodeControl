@@ -122,4 +122,29 @@ class PreparationTests(unittest.TestCase):
         self.schedule.close(); self.assertEqual(1, len(self.calls)); self.assertFalse(self.schedule.thread.is_alive())
 
 
+class IdleTickTests(unittest.TestCase):
+    """A disabled schedule never takes the operation lock: a run request can't collide with its once-a-second tick."""
+    def build(self, lock):
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
+        schedule = PreparationSchedule(Path(temp.name) / 'schedule.db', lambda: [], lambda: {'account_day': 5}, lock)
+        self.addCleanup(schedule.close)
+        return schedule
+
+    def test_idle_tick_leaves_the_lock_alone(self):
+        class Lock:
+            taken = 0
+            def acquire(self, blocking=True): Lock.taken += 1; return True
+            def release(self): pass
+        schedule = self.build(Lock())
+        schedule.tick(); schedule.tick()
+        self.assertEqual(0, Lock.taken)
+
+    def test_enabled_tick_still_takes_it(self):
+        lock = threading.Lock(); schedule = self.build(lock)
+        schedule.configure({'id': str(uuid.uuid4()), 'device_id': 'C24C', 'action': 'create-content', 'interval_minutes': 60, 'max_runs': 1})
+        with lock:
+            schedule.tick()     # Busy: skipped, nothing recorded.
+        self.assertEqual([], schedule.status()['runs'])
+
+
 if __name__ == '__main__': unittest.main()
