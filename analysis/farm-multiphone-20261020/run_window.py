@@ -21,6 +21,7 @@ HERE = Path(__file__).resolve().parent
 import sys  # noqa: E402
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
 import farm_paths  # noqa: E402
+from farm_rack_lock import hold_rack  # noqa: E402
 STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 KERNEL = 'http://127.0.0.1:9916/api'
 
@@ -52,7 +53,12 @@ def main():
         run = json.loads(result.read_text(encoding='utf-8')).get('run') or {}
         if not (run.get('terminal') and run.get('state') == 'review_required' and run.get('retryBeforeImportAllowed')):
             raise SystemExit(f'Attempt {earlier} is not a confirmed stop before import. No new attempt.')
+    # One opted-in run on the rack at a time; the phone checks below are made once it is this run's turn.
+    with hold_rack(f'run_window {args.window} attempt {args.attempt}'):
+        admit_and_follow(args, prep, out)
 
+
+def admit_and_follow(args, prep, out):
     status = call(KERNEL + '/kernel/status')['data']
     own = [r for r in status['receivers'] if r['deviceid'] == prep['phone']['deviceId']]
     if status['build_identity']['sha256'] != prep['kernelSha256'] or len(own) != 1 or own[0]['name'] != prep['phone']['receiver'] or not own[0]['live']:

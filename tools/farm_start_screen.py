@@ -595,14 +595,16 @@ def main():
     if target not in ('instagram-profile', 'tiktok-profile', 'x-timeline', 'youtube-home'):
         raise SystemExit('Supported start screens: instagram-profile, tiktok-profile, x-timeline, youtube-home')
     settings = json.loads(config.read_text(encoding='utf-8-sig'))
-    tool = StartScreen(folder, phone=phone_of(settings))
-    try:
-        if target == 'tiktok-profile': tool.to_tiktok_profile(settings['account'])
-        elif target == 'x-timeline': tool.to_x_timeline()
-        elif target == 'youtube-home': tool.to_youtube_home()
-        else: tool.to_instagram_profile_top()
-    except Exception as error:   # Each route records its own stop; anything else is recorded here.
-        if tool.record.get('state') != 'stopped': tool.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
+    from farm_rack_lock import hold_rack
+    with hold_rack(f'farm_start_screen {target} {phone_of(settings).receiver}'):
+        tool = StartScreen(folder, phone=phone_of(settings))
+        try:
+            if target == 'tiktok-profile': tool.to_tiktok_profile(settings['account'])
+            elif target == 'x-timeline': tool.to_x_timeline()
+            elif target == 'youtube-home': tool.to_youtube_home()
+            else: tool.to_instagram_profile_top()
+        except Exception as error:   # Each route records its own stop; anything else is recorded here.
+            if tool.record.get('state') != 'stopped': tool.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
     r = tool.record
     print(json.dumps(dict(state=r['state'], error=r.get('error'), before=r.get('before'), after=r.get('after'),
                           commands=[(c['purpose'], c['state']) for c in r['commands'] if c['purpose'] != 'fresh_frame_challenge'],

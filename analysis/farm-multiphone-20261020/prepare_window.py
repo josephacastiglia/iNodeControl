@@ -13,6 +13,11 @@ data), never a default. The window shares the kernel; it never starts or stops i
 Image platforms (x-image, tiktok-photo) stage labelled test slides and save one farm_image draft instead of
 a video; their preparation names it as draftId (video windows keep videoDraftId as well).
 
+--into DIR prepares straight into a staging folder (DIR/<package id>), however many windows already wait for this
+slot; the scheduler puts it at windows/<platform>-slot<N> when its slot comes (preparation.json and the config name
+that place). --content FILE uses a real prepared content item instead of test media (farm_schedule_content.py; needs
+--into and --content-stage); content its runs class would refuse stops here, with nothing queued.
+
 Writes windows/<platform>-slot<N>/{preparation.json, creation-config.json} and
 output/candidate-runs/farm-<platform>-slot<N>-<date>-<n>/backend. Refuses to overwrite either.
 """
@@ -21,6 +26,7 @@ from datetime import date
 import hashlib
 import json
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import uuid
@@ -65,7 +71,12 @@ def main():
     parser.add_argument('--slot', required=True, type=int, choices=sorted(BACKEND_PORTS))
     parser.add_argument('--phone-ip', required=True)
     parser.add_argument('--account')
+    parser.add_argument('--into', type=Path, help='staging folder: prepare into <into>/<package id>')
+    parser.add_argument('--package-id', help='the staged folder name (default <platform><slot>-<token>)')
+    parser.add_argument('--content', type=Path, help='a prepared content item (JSON) instead of test media')
+    parser.add_argument('--content-stage', type=Path, help='the media stage root holding that item')
     args = parser.parse_args()
+    if args.content and not (args.into and args.content_stage): raise SystemExit('--content needs --into and --content-stage.')
     fmt, caption, label, route, capability, pinned = PLATFORMS[args.platform]
     if pinned != (args.account is not None):
         raise SystemExit(f'{args.platform} needs ' + ('the handle signed in on that phone.' if pinned else 'no account: creation binds the signed-in one.'))
@@ -86,10 +97,14 @@ def main():
         raise SystemExit(f'Board {board} has no single phone and receiver.')
     phone = PhoneIdentity(board=board, device_id=device[0]['deviceid'], receiver=receiver[0]['Name'], slot=args.slot)
 
-    window = STATE / 'windows' / f'{args.platform}-slot{args.slot}'
+    token = uuid.uuid4().hex[:12]
+    final_window = STATE / 'windows' / f'{args.platform}-slot{args.slot}'
+    package_id = args.package_id or f'{args.platform.replace("-", "")}{args.slot}-{token[:6]}'
+    window = args.into / package_id if args.into else final_window
     run = next(RUNS / f'output/candidate-runs/farm-{args.platform}-slot{args.slot}-{date.today():%Y%m%d}-{n}' for n in range(1, 100)
                if not (RUNS / f'output/candidate-runs/farm-{args.platform}-slot{args.slot}-{date.today():%Y%m%d}-{n}').exists())
-    if (window / 'preparation.json').exists(): raise SystemExit('This window is prepared; archive it before preparing again.')
+    if (window / 'preparation.json').exists():
+        raise SystemExit('This package is already staged.' if args.into else 'This window is prepared; archive it before preparing again.')
     window.mkdir(parents=True, exist_ok=True)
     config = dict(version=2, api='http://127.0.0.1:9916/api', kernelSha256=rack['kernelSha256'], expectedUid=device[0]['uid'],
                   phone=phone.as_config(), allowed=list(rack['inputEnabled']), account=args.account,
@@ -99,10 +114,22 @@ def main():
     creation_config(config_path, 'live')   # The backend's own strict check, before anything else is written.
 
     backend = run / 'backend'
-    token = uuid.uuid4().hex[:12]
     stage = backend / 'stage' / board; stage.mkdir(parents=True)
     title = f'{args.platform} slot {args.slot} ' + token[:6]
-    if args.platform in IMAGE_PLATFORMS:
+    content = None
+    if args.content:
+        import farm_schedule_content as real
+        content = load(args.content); caption = content.get('caption', '')
+        try:
+            if real.platform_of(content.get('format')) != args.platform:
+                raise real.ContentRefused(f"A {content.get('format')} package does not run on a {args.platform} window.")
+            draft, package, parsed, media = real.stage_content(content, args.content_stage, board, backend, stage, title)
+            why = real.refusal(content['format'], package, config)
+            if why: raise real.ContentRefused(why)
+        except real.ContentRefused as refused:
+            shutil.rmtree(window, ignore_errors=True)
+            raise SystemExit(f'Refused, nothing queued: {refused}') from None
+    elif args.platform in IMAGE_PLATFORMS:
         draft, package, media = stage_images(args.platform, fmt, label, caption, title, token, board, backend, stage)
         parsed = TransferPackage(package, board)
     else:
@@ -122,14 +149,15 @@ def main():
         source_hash = server.FarmBackendRuntime(Path(directory) / 'farm.db', Path(directory) / 'stage').source_hash
     preparation = dict(platform=args.platform, route=route, capability=capability, slot=args.slot, phone=phone.as_config(),
                        runDirectory=str(run), backendData=str(backend), backendPort=BACKEND_PORTS[args.slot],
-                       mediaPort=MEDIA_PORTS[args.slot], config=str(config_path), configSha256=sha(config_path),
+                       mediaPort=MEDIA_PORTS[args.slot], config=str(final_window / 'creation-config.json'), configSha256=sha(config_path),
                        kernel=str(kernel), kernelSha256=rack['kernelSha256'], rackPreparation=str(RACK / 'preparation.json'),
                        account=args.account, draftId=draft['id'], **media, revision=draft['revision'], caption=caption, testToken=token,
+                       testPackage=content is None, packageId=package_id if args.into else None,
                        packageSha256=hashlib.sha256(package).hexdigest(),
                        downloadName=parsed.download_name, backendSourceHash=source_hash,
                        serviceStarted=False, phoneInput=False)
     (window / 'preparation.json').write_text(json.dumps(preparation, indent=2), encoding='utf-8')
-    print(json.dumps(dict(prepared=True, window=str(window.relative_to(STATE)), phone=phone.receiver, board=board,
+    print(json.dumps(dict(prepared=True, window=str(final_window.relative_to(STATE)), staged=package_id if args.into else None, phone=phone.receiver, board=board,
                           backendPort=preparation['backendPort'], mediaPort=preparation['mediaPort'], caption=caption)))
 
 
