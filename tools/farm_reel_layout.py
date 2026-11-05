@@ -254,14 +254,17 @@ def _picker_frame(frame, text):
     no_overlay(text, (PICKER_PILL,))
     exact(text, 'New reel', (190, 70, 310, 112))
     require(words_at(text, 'recents', (12, 205, 130, 245)), 'The Reel Recents grid is not visible.')
-    require(words_at(text, 'templates', (40, 140, 270, 175)), 'The Reel picker toolbar is not recognized.')
+    # A19 (5 Nov): with a draft saved the toolbar row reads Edits, Drafts, Templates, moving Templates to x 270-343 and
+    # the Drafts chip to x 110-225. Those wider boxes count only when Edits starts that row.
+    three_chips = bool(words_at(text, 'edits', (20, 135, 120, 175)))
+    require(words_at(text, 'templates', (40, 140, 350 if three_chips else 270, 175)), 'The Reel picker toolbar is not recognized.')
     reel_control(frame, 'picker_close')
     image = pixels(frame, exact=True)
     # Black gutters fix the three-column grid; a sheet over the grid fails here.
     for x in (166, 333):
         require((image[262:550, x].max(axis=1) < 40).mean() > .9, 'Reel picker grid geometry changed.')
     require((image[248:258, :].max(axis=2) < 40).mean() > .9, 'Reel picker grid geometry changed.')
-    chip = words_at(text, 'drafts', (20, 135, 140, 175))
+    chip = words_at(text, 'drafts', (20, 135, 240 if three_chips else 140, 175))
     count = None
     if chip:
         # The count is supplementary evidence; an unreadable digit stays unknown.

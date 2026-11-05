@@ -402,3 +402,21 @@ class A19EditorTests(unittest.TestCase):
         from unittest.mock import patch
         with patch.object(_rl, 'toolbar_words', return_value=[('text', 33, 57), ('audio', 168, 202)]):
             with self.assertRaisesRegex(InspectionStopped, 'toolbar'): _rl.reel_editor(self.frame, self.text, self.ref)
+
+
+@unittest.skipUnless((_A19/'reel-saved-picker.png').exists(), 'A19 frames of 5 Nov are not available in this checkout.')
+class A19SavedPickerTests(unittest.TestCase):
+    """A19's picker after Save draft (5 Nov): the toolbar row reads Edits, Drafts, Templates."""
+    def setUp(self):
+        self.frame = (_A19/'reel-saved-picker.png').read_bytes()
+        self.text = json.loads((_A19/'reel-saved-picker.json').read_text(encoding='utf-8'))
+
+    def test_the_drafts_chip_is_found(self):
+        found = _rl.reel_saved_picker(self.frame, self.text)
+        self.assertLess(abs(found['chipTarget'][0] - 170), 30)
+
+    def test_the_wider_boxes_need_edits_on_that_row(self):
+        text = json.loads(json.dumps(self.text))
+        for line in text['lines']:
+            line['words'] = [w for w in line.get('words', []) if w['text'].casefold() != 'edits']
+        with self.assertRaises(InspectionStopped): _rl.reel_saved_picker(self.frame, text)
