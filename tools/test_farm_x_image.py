@@ -352,6 +352,10 @@ class WorkflowTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): flow.verify_screen('xi_after_open', dict(text=ocr(('Loading', 23, 88, 100))), b'')
         source = Path(xic.__file__).read_text(encoding='utf-8')
         self.assertEqual(1, source.count("self.tap('open-slide-1-again'"))   # One more click, never a loop.
+        # Prep 8: 'Back to caption' was ignored the same way; the unchanged slide page gets one more click.
+        self.assertFalse(flow.verify_screen('xi_after_back', dict(text=text), frame)['back'])
+        self.assertTrue(flow.verify_screen('xi_after_back', dict(text=index), b'')['back'])
+        self.assertEqual(1, source.count("self.tap('back-to-caption-again'"))
 
     def test_committing_prefixes_cover_every_save_and_media_step(self):
         self.assertEqual(('save-photo-', 'select-package-image', 'add-package-image', 'paste-exact-caption', 'save-x-draft-once'), xic.COMMITTING)

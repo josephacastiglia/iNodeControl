@@ -28,8 +28,8 @@ import farm_x_layout as xl
 
 # Read-only waits before the first capture of each image-route screen; the X screens keep the video route's.
 PRE_SETTLE = {**xc.PRE_SETTLE, 'xi_page': .6, 'xi_slide': .8, 'xi_save_menu': .8, 'xi_caption_copied': .4,
-              'x_composer_image': 1.0, 'xi_after_open': .8}
-IMAGE_ROLES = ('xi_page', 'xi_slide', 'xi_save_menu', 'xi_caption_copied', 'x_composer_image', 'xi_after_open')
+              'x_composer_image': 1.0, 'xi_after_open': .8, 'xi_after_back': .6}
+IMAGE_ROLES = ('xi_page', 'xi_slide', 'xi_save_menu', 'xi_caption_copied', 'x_composer_image', 'xi_after_open', 'xi_after_back')
 # Every screen here needs two agreeing fresh frames except a callout (as in the video route).
 SETTLED = set(PRE_SETTLE) - {'x_paste_menu', 'x_composer_focused', 'x_playing'}
 MOVING = {**xc.MOVING, 'x_composer_image': ((60, 115, 490, 165),)}   # Caret.
@@ -118,6 +118,10 @@ class XImageCreationWorkflow(xc.XCreationWorkflow):
             # The slide page, or the unchanged transfer page when Safari ignored the click.
             try: return dict(opened=True, **xil.transfer_slide(frame, text, self.images))
             except InspectionStopped: return dict(opened=False, **self.transfer_page(text))
+        if role == 'xi_after_back':
+            # The transfer page, or the unchanged slide page when Safari ignored 'Back to caption'.
+            try: return dict(back=True, **self.transfer_page(text))
+            except InspectionStopped: return dict(back=False, **xil.transfer_slide(frame, text, self.images))
         if role == 'xi_save_menu': return xil.save_menu(frame, text, self.images)
         if role == 'x_composer_image': return xil.composer_image(frame, text, self.images)
         if role in ('x_picker', 'x_picker_selected', 'x_drafts'):
@@ -168,7 +172,7 @@ class XImageCreationWorkflow(xc.XCreationWorkflow):
     def tap(self, label, role, point, *, hold=False):
         # Safari ignored an immediate click on 'Open slide 1 of 1' once (slot 17, 4 Nov: no slide request reached
         # the transfer server); the transfer pages get the settled click (move, rest, the same single click) too.
-        settle = not hold and (role.startswith('x_') or role in ('xi_page', 'xi_slide', 'xi_caption_copied', 'xi_after_open'))
+        settle = not hold and (role.startswith('x_') or role in ('xi_page', 'xi_slide', 'xi_caption_copied', 'xi_after_open', 'xi_after_back'))
         self.step(label, role, point=self.check_target(role, point), hold=hold, settle=settle)
 
     # -- workflow ----------------------------------------------------------------
@@ -247,6 +251,13 @@ class XImageCreationWorkflow(xc.XCreationWorkflow):
             return found['target']
         self.tap('save-photo-1', 'xi_save_menu', save)
         self.tap('back-to-caption', 'xi_slide', lambda v, f: xil.transfer_slide(f, v['text'], self.images)['backTarget'])
+        after, _, _ = self.screen('xi_after_back')
+        if not after['back']:
+            # Safari ignored 'Back to caption' the same way (A17, 4 Nov, prep 8: the slide page stayed after the image
+            # was saved). One more click on the unchanged slide page; a second miss stops the run.
+            self.record.setdefault('backRetries', []).append(1); self.save()
+            self.tap('back-to-caption-again', 'xi_after_back',
+                     lambda v, f: xil.transfer_slide(f, v['text'], self.images)['backTarget'])
         self.phase('copy-caption')
         self.tap('copy-caption', 'xi_page', lambda v, f: self.transfer_page(v['text'])['copyTarget'])
         # A read-only page: Home's leading Tab only moves focus on it.
