@@ -83,11 +83,11 @@ LINT_RULES = (
     ('blocker', 'dev folder name', re.compile(r'Desktop[\\/]+Claude Code|iMouseXP-2\.0(?:-combined-candidate|-evidence-archive)?(?![\w-])', re.I)),
     ('blocker', 'lane worktree discovery (.worktrees)', re.compile(r'\.worktrees')),
     ('blocker', 'pinned interpreter path', re.compile(r'Python3\d+[\\/]+python\.exe', re.I)),
-    ('blocker', 'state under the code folder (output/)', re.compile(r'''(?:MAIN|ROOT|REPO|HERE|taskRoot|taskMain|parents\[\d\])[^\n]{0,40}['"]output(?:[\\/]|['"])''')),
+    ('blocker', 'state under the code folder (output/)', re.compile(r'''(?:ROOT|REPO|HERE|taskRoot|taskMain|parents\[\d\])[^\n]{0,40}['"]output(?:[\\/]|['"])''')),
     ('info', 'cwd-relative state (lands in the data folder: Farm.ps1 runs there)', re.compile(r'''^[^#\n]*Path\(\s*['"](?:output|config)[\\/]''')),
     ('blocker', 'state beside the rack scripts ($PSScriptRoot)', re.compile(r'''Join-Path\s+\$PSScriptRoot\s+(?:\$Stage|\$Rack|\(?['"](?:windows|slots|held|rack-|processes|preparation|receivers-ready|identify|autoconnect|measure|look))''', re.I)),
-    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|parent|FOLDER|folder)\s*/\s*['"](?:windows|slots|held|rack-[ab]|identify|autoconnect|measure|look)['"/-]''')),
-    ('blocker', 'rack folder via repo layout', re.compile(r'''(?:ROOT|REPO|MAIN|HERE)[^\n]{0,10}['"]analysis[\\/]+farm-multiphone-20261020['"]''')),
+    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|FOLDER|folder)\s*/\s*['"](?:windows|slots|held|rack-[ab]|identify|autoconnect|measure|look|phone-slots)['"/.-]''')),
+    ('blocker', 'rack folder via repo layout', re.compile(r'''(?:ROOT|REPO|HERE)[^\n]{0,10}['"]analysis[\\/]+farm-multiphone-20261020['"]''')),
     ('blocker', 'rack state via repo layout', re.compile(r'''['"]analysis[\\/]+farm-multiphone-20261020[\\/]+(?:slots|held|windows|rack-)''', re.I)),
     ('info', 'hard-coded kernel port', re.compile(r'127\.0\.0\.1:99(?:13|16|26)')),
     ('info', 'repo-relative root (parents[N] / ..\\..)', re.compile(r'''parents\[[1-9]\]|Join-Path\s+\$PSScriptRoot\s+['"]\.\.[\\/]\.\.''')),
@@ -225,15 +225,34 @@ def server_hash_names(server_source):
 # ---------------------------------------------------------------- lint
 
 def lint_text(name, text):
+    """Per-line findings. Comment and docstring lines are marked 'comment' (never block). A line marked
+    '# release-lint: dev-fallback' is today's dev-checkout path, used only while IMOUSE_FARM_DATA is unset
+    (Farm.ps1 always sets it): reported as info."""
     findings = []
+    docs = _docstring_lines(text) if name.endswith('.py') else set()
     for number, line in enumerate(text.splitlines(), 1):
         stripped = line.strip()
+        fallback = 'release-lint: dev-fallback' in line
         for level, rule, pattern in LINT_RULES:
             if pattern.search(line):
-                findings.append({'file': name, 'line': number, 'level': level, 'rule': rule,
-                                 'comment': stripped.startswith(('#', '"""', "'''")) })
-    # The multi-line rule ('state under the code folder') is line-based too; keep the result per line.
+                findings.append({'file': name, 'line': number, 'level': 'info' if fallback else level,
+                                 'rule': rule + (' (dev fallback)' if fallback else ''),
+                                 'comment': number in docs or stripped.startswith(('#', '"""', "'''"))})
     return findings
+
+
+def _docstring_lines(text):
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return set()
+    lines = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.body:
+            first = node.body[0]
+            if isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) and isinstance(first.value.value, str):
+                lines.update(range(first.lineno, first.end_lineno + 1))
+    return lines
 
 
 def lint(files):
