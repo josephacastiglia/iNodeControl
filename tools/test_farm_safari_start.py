@@ -217,12 +217,13 @@ class StartScreenReelEditorTests(unittest.TestCase):
     def test_leftover_details_go_back_to_the_editor_first(self):
         details = text(('New reel', 210, 77, 289, 92), ('Add a caption...', 22, 495, 142, 511), ('Save draft', 90, 991, 171, 1004),
                        ('Share', 347, 991, 392, 1004))   # 22 Oct, slot 18.
-        start, taps = self.screen(text(*self.EDITOR), text(*self.DIALOG), text(*self.PICKER), text(('xs.halle.xo', 150, 90, 260, 110)))
+        # The editor is read twice after the back tap: it must have settled (A18, 4 Nov).
+        start, taps = self.screen(text(*self.EDITOR), text(*self.EDITOR), text(*self.DIALOG), text(*self.PICKER), text(('xs.halle.xo', 150, 90, 260, 110)))
         self.assertTrue(start.reel_details(details) and not start.reel_details(text(*self.EDITOR)))
         start.close_new_reel(b'before', details)
         self.assertEqual(['details-back', 'close-reel-editor', 'start-over-1', 'close-new-reel'], [p for p, _ in taps])
         self.assertEqual((30, 84), taps[0][1])
-        start, taps = self.screen(text(*self.PICKER))
+        start, taps = self.screen(text(*self.PICKER), text(*self.PICKER))
         with self.assertRaises(InspectionStopped): start.close_reel_details(b'before', details)   # Back must reach the editor.
 
     def test_anything_but_the_picker_after_the_close_stops(self):
@@ -231,6 +232,24 @@ class StartScreenReelEditorTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): start.close_reel_editor(b'before', text(*self.EDITOR))
         self.assertEqual(1, len(taps))
 
+
+    def test_the_screen_after_the_back_tap_is_decided_only_once_settled(self):
+        import io
+        from PIL import Image, ImageDraw
+        from farm_start_screen import StartScreen, SETTLE_TRIES
+        def frame(bar_x, video=0):
+            image = Image.new('RGB', (500, 1080), (20, 20, 20)); draw = ImageDraw.Draw(image)
+            draw.rectangle((bar_x, 80, bar_x + 60, 120), fill='white')            # Top bar sliding in.
+            draw.rectangle((0, 300 + video, 500, 400 + video), fill=(200, 50, 50))   # The playing video.
+            out = io.BytesIO(); image.save(out, 'PNG'); return out.getvalue()
+        def start_with(raws):
+            start = StartScreen.__new__(StartScreen); frames = iter(raws); start.pause = lambda s: None
+            start.fresh = lambda role: (next(frames), role, 0, 0)
+            return start
+        start = start_with([frame(200), frame(100), frame(20, 0), frame(20, 40)])   # The video moves; the bar has stopped.
+        self.assertEqual('after-settle-3', start.fresh_settled('after', only=((0, 65, 500, 130),))[1])
+        start = start_with([frame(20 + 30 * n) for n in range(SETTLE_TRIES)])
+        with self.assertRaises(InspectionStopped): start.fresh_settled('after', only=((0, 65, 500, 130),))
 
 class ShiftedShareSheetTests(unittest.TestCase):
     def test_a_sheet_settled_lower_is_read_at_its_own_position(self):
@@ -660,6 +679,87 @@ class TikTokSelectionTests(unittest.TestCase):
                     with self.assertRaises(InspectionStopped): tt.tiktok_selected(b'f', text(), None)
 
 
+class StartScreenSpotlightTests(unittest.TestCase):
+    def test_a_restored_query_is_cleared_by_the_glyph_fallback(self):
+        # A17, 4 Nov: Spotlight restored 'Safari'; the clear button's template missed, its glyph did not.
+        from unittest import mock
+        from types import SimpleNamespace
+        import farm_creation_layout as layout
+        from farm_start_screen import StartScreen
+        start = StartScreen.__new__(StartScreen); taps = []; keys = []
+        start.record = dict(commands=[], observations=[]); start.save = lambda: None; start.pause = lambda s: None
+        start.command = lambda fun, purpose, **data: keys.append(purpose)
+        start.tap = lambda raw, text, point, role, purpose, only=None: taps.append((purpose, point))
+        start.control_center = lambda text: False
+        frames = iter([(b'app', 'app'), (b'home', 'home'), (b'restored', 'restored'), (b'cleared', 'cleared'), (b'result', 'result'),
+                       (b'after', 'after')])
+        start.fresh = lambda role: (*next(frames), 0, 0)
+        def app_target(text, name, frame=None):
+            if text != 'result': raise InspectionStopped('no label')
+            return (87, 163)
+        def empty_search(text, frame=None):
+            if text != 'cleared': raise InspectionStopped('restored query')
+            return True
+        def home(text, frame=None):
+            if text != 'home': raise InspectionStopped('not home')
+            return True
+        with mock.patch.multiple(layout, app_target=app_target, empty_search=empty_search, home=home,
+                                 home_search=lambda raw, text: [205, 879, 296, 920],
+                                 search_clear=lambda raw: [430, 988, 462, 1022]),                 mock.patch.object(layout, 'control', side_effect=AssertionError('template only')):
+            start.open_from_home('X')
+        self.assertEqual(['open-app-search', 'clear-restored-search', 'open-x'], [p for p, _ in taps])
+        self.assertEqual((446, 1005), taps[1][1])
+        self.assertEqual(['home-before-start-screen', 'query-x'], keys)
+
+    def test_home_is_never_sent_over_control_center_or_on_the_home_screen(self):
+        # B5, 4 Nov: a Home over Control Center opened Settings; a Home on the Home screen opened Control Center.
+        from unittest import mock
+        import farm_creation_layout as layout
+        from farm_start_screen import StartScreen
+        def run(screens):
+            start = StartScreen.__new__(StartScreen); keys = []; frames = iter(screens)
+            start.record = dict(commands=[], observations=[]); start.save = lambda: None; start.pause = lambda s: None
+            start.command = lambda fun, purpose, **data: keys.append(purpose)
+            start.tap = lambda raw, text, point, role, purpose, only=None: keys.append(purpose)
+            start.control_center = lambda text: text == 'cc'
+            start.fresh = lambda role: (next(frames), next(frames), 0, 0)
+            def home(text, frame=None):
+                if text != 'home': raise InspectionStopped('not home')
+                return True
+            with mock.patch.multiple(layout, home=home, app_target=lambda text, name, frame=None: (87, 163)):
+                try: start.open_from_home('X'); return 'opened', keys
+                except InspectionStopped: return 'stopped', keys
+        self.assertEqual(('stopped', []), run([b'cc', 'cc']))
+        self.assertEqual(('opened', ['open-x']), run([b'h', 'home', b'a', 'after']))
+        self.assertEqual(('opened', ['home-before-start-screen', 'open-x']), run([b'a', 'app', b'h', 'home', b'x', 'after']))
+        self.assertEqual(('stopped', ['home-before-start-screen']), run([b'a', 'app', b'cc', 'cc']))
+
+
+class StartScreenExitTests(unittest.TestCase):
+    def test_a_stop_prints_its_summary_and_exits_non_zero(self):
+        import io, json, sys, tempfile
+        from contextlib import redirect_stdout
+        from pathlib import Path
+        from unittest import mock
+        import farm_start_screen as fs
+        class Tool:
+            outcome = None
+            def __init__(self, folder, phone=None): self.record = dict(state='started', commands=[])
+            def to_x_timeline(self):
+                if Tool.outcome == 'at_start': self.record['state'] = 'at_start'; return self.record
+                if Tool.outcome == 'stopped': self.record.update(state='stopped', error='InspectionStopped: x'); raise InspectionStopped('x')
+                raise ConnectionError('kernel gone')
+        with tempfile.TemporaryDirectory() as folder:
+            config = Path(folder) / 'c.json'; config.write_text('{}', encoding='utf-8')
+            for outcome, code, state in (('at_start', None, 'at_start'), ('stopped', 1, 'stopped'), ('error', 1, 'stopped')):
+                Tool.outcome = outcome; out = io.StringIO()
+                with self.subTest(outcome=outcome), mock.patch.object(fs, 'StartScreen', Tool), mock.patch.object(fs, 'phone_of', lambda c: None),                         mock.patch.object(sys, 'argv', ['x', 'x-timeline', folder, str(config)]), redirect_stdout(out):
+                    try: fs.main(); got = None
+                    except SystemExit as exit: got = exit.code
+                    self.assertEqual(code, got)
+                    self.assertEqual(state, json.loads(out.getvalue().strip().splitlines()[-1])['state'])
+
+
 class AppHomeStartScreenTests(unittest.TestCase):
     def start(self, screens):
         from types import SimpleNamespace
@@ -1030,6 +1130,80 @@ class TikTokGutterChainTests(unittest.TestCase):
         image[:, 164:168] = 255; image[:, 331:335] = 255
         rows, bottom = tt.grid(image)
         self.assertEqual((820, [326, 493, 657]), (bottom, [r['top'] for r in rows if r['complete']]))
+
+
+class CloseAppEvidenceTests(unittest.TestCase):
+    """close_app reports 'closed' only when the swiped card's pixels are gone (A20, 4 Nov check 4: three swipes
+    changed nothing, 'Following' was simply not read again, and it reported closed)."""
+    @staticmethod
+    def frames():
+        import io
+        import numpy as np
+        from PIL import Image
+        rng = np.random.default_rng(5)
+        base = np.full((1080, 500), 120, np.uint8)
+        card = rng.integers(0, 255, (560, 160), dtype=np.uint8)
+        def png(array):
+            out = io.BytesIO(); Image.fromarray(array).save(out, 'PNG'); return out.getvalue()
+        def at(x, alpha=1.0):
+            image = base.copy(); part = image[180:740, x:x+160].astype(float)
+            image[180:740, x:x+160] = (alpha*card[:, :500-x] + (1-alpha)*part).astype(np.uint8) if x+160 > 500 else (alpha*card + (1-alpha)*part).astype(np.uint8)
+            return png(image)
+        other = rng.integers(0, 255, (1080, 500), dtype=np.uint8)   # What the switcher shows once the card is gone.
+        return at, png(other)
+
+    def module(self):
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'analysis' / 'farm-multiphone-20261020'))
+        import close_app
+        return close_app
+
+    def test_card_pixels_decide_gone_present_or_unclear(self):
+        close_app = self.module(); at, empty = self.frames()
+        before = at(320)
+        self.assertEqual('present', close_app.card_gone(before, before, 320)['verdict'])
+        slid = close_app.card_gone(before, at(200), 320)
+        self.assertEqual(('present', -120), (slid['verdict'], slid['offset']))
+        self.assertEqual('gone', close_app.card_gone(before, empty, 320)['verdict'])
+        self.assertEqual('unclear', close_app.card_gone(before, at(320, .5), 320)['verdict'])
+
+    def run_close(self, after_frames, after_texts):
+        from unittest import mock
+        close_app = self.module(); at, _ = self.frames()
+        following = dict(text='Following', words=[dict(text='Following', x=453, y=300, width=40, height=12)])
+        texts = iter([dict(width=500, height=1080, lines=[following])] + after_texts)
+        frames = iter([at(320)] + after_frames)
+        sent = []
+        class Screen:
+            def __init__(self, folder, phone=None):
+                self.phone = mock.MagicMock(board='C214', device_id='d'); self.record = dict(commands=[])
+                self.kernel = mock.MagicMock(); self.kernel.acquire.return_value = {'C214': 't'}
+            def fresh(self, role): return next(frames), next(texts), 0, 0
+            def command(self, fun, purpose, **data): sent.append(purpose)
+            def pause(self, seconds): pass
+            def save(self): pass
+        def post(base, fun, data): sent.append(fun); return dict(code=0)
+        with mock.patch.object(close_app, 'StartScreen', Screen), mock.patch.object(close_app, 'post', post), \
+                mock.patch.object(close_app, 'phone_of', lambda config: None):
+            result = close_app.close(dict(), 'folder', 'TikTok')
+        return result, sent
+
+    def test_a_card_not_read_again_but_still_there_is_never_closed(self):
+        at, _ = self.frames(); blank = dict(width=500, height=1080, lines=[])
+        result, sent = self.run_close([at(320)] * 3, [blank] * 3)
+        self.assertEqual('stopped', result['state']); self.assertEqual(3, sent.count('/mouse/swipe'))
+        self.assertNotIn('home-after-close', sent)
+
+    def test_a_card_gone_from_the_switcher_is_closed(self):
+        _, empty = self.frames(); blank = dict(width=500, height=1080, lines=[])
+        result, sent = self.run_close([empty], [blank])
+        self.assertEqual('closed', result['state']); self.assertEqual(1, sent.count('/mouse/swipe')); self.assertIn('home-after-close', sent)
+
+    def test_a_partial_match_stops_as_not_proven(self):
+        at, _ = self.frames(); blank = dict(width=500, height=1080, lines=[])
+        result, sent = self.run_close([at(320, .5)], [blank])
+        self.assertEqual('stopped', result['state']); self.assertIn('not proven', result['error'])
 
 
 if __name__ == '__main__':

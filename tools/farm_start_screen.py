@@ -6,9 +6,9 @@ under a held lease; nothing is sent blind, and an uncertain answer is never
 repeated. It refuses on any screen it does not recognize. Supported now: the
 Instagram profile scrolled to the top (one tap on the active profile tab).
 
-Usage: python farm_start_screen.py instagram-profile <journal folder>
+Usage: python farm_start_screen.py instagram-profile|tiktok-profile|x-timeline|youtube-home <journal folder> <config>
 Writes a private journal (frames and OCR stay in that folder); prints a summary
-without OCR text.
+without OCR text as its last line, and exits 1 when it stopped (0 at the start screen).
 """
 import hashlib
 import json
@@ -32,6 +32,30 @@ FEED_BARS = ((0, 65, 500, 120), (0, 982, 500, 1045))   # Instagram's header and 
 NEW_REEL_CLOSE = (41, 98)        # The New reel picker's close (x), slot 18, 21 Oct.
 DETAILS_BACK = (30, 84)          # The Reel details' back arrow, slot 18, 22 Oct.
 CONTROL_CENTER_EMPTY = (250, 960)   # Below C24C's Control Center grid (16 Sep and 20 Oct frames).
+SETTLE_TRIES = 5                 # Fresh frames read after a back tap until two in a row agree.
+EDITOR_BAR = ((0, 65, 500, 130),)   # The Reel editor's top bar; its video plays below it.
+
+
+def frames_agree(a_raw, b_raw, only=None):
+    """Two frames show the same screen: confirm_unchanged's rule (outside the status bar, the pointer's challenge
+    and reset spots and a lone pointer blob; only the `only` regions when given)."""
+    import io
+    import numpy as np
+    from PIL import Image
+    if a_raw == b_raw: return True
+    def pixels(raw):
+        with Image.open(io.BytesIO(raw)) as image: return np.asarray(image.convert('RGB'), dtype=float) / 255
+    a, b = pixels(a_raw), pixels(b_raw)
+    if a.shape != b.shape: return False
+    mask = np.ones(a.shape[:2], dtype=bool); mask[:65] = False; mask[250:350, 400:500] = False; mask[45:100, 80:135] = False
+    if only is not None:
+        keep = np.zeros(a.shape[:2], dtype=bool)
+        for left, top, right, bottom in only: keep[top:bottom, left:right] = True
+        mask &= keep
+    mask &= ~pointer_blob(a, b, mask)
+    mean = float(np.abs(a - b)[mask].mean())
+    strong = float((np.abs(a - b).max(axis=2)[mask] > 35 / 255).mean())
+    return mean <= .003 or (mean <= .012 and strong <= .0005)
 
 
 def pointer_blob(a, b, mask):
@@ -147,6 +171,18 @@ class StartScreen:
             entry['state'] = 'stale_or_changed'; self.save()
         raise InspectionStopped(f'No fresh frame matching the recognized {role} screen; nothing was tapped.')
 
+    def fresh_settled(self, role, only=None):
+        """A screen after a back tap, decided only once it has stopped moving: fresh frames until two in a row
+        agree, at most SETTLE_TRIES. After the Reel details' back the first frame was mid-animation, so the next
+        tap's confirmation never matched it (A18, 4 Nov 22:18)."""
+        raw, text, taken, age = self.fresh(role)
+        for attempt in range(1, SETTLE_TRIES):
+            self.pause(.4)
+            later = self.fresh(f'{role}-settle-{attempt}')
+            if frames_agree(raw, later[0], only): return later
+            raw, text, taken, age = later
+        raise InspectionStopped(f'The {role} screen did not settle; no further input.')
+
     def instagram_profile(self, raw, text):
         result = classify(text, dict(platform='instagram', account='xs.halle.xo', caption=''), raw)
         return result['screen'] == 'profile' and result['accountStatus'] == 'exact_text_match', result
@@ -201,7 +237,7 @@ class StartScreen:
         if not self.reel_details(text): return raw, text
         self.tap(raw, text, DETAILS_BACK, 'reel_details', 'details-back', only=((0, 60, 500, 110),))
         self.pause(1.5)
-        raw, text, _, _ = self.fresh('after-details-back')
+        raw, text, _, _ = self.fresh_settled('after-details-back', only=EDITOR_BAR)
         if not self.reel_editor(text): raise InspectionStopped('The Reel details did not return to the editor; no further input.')
         return raw, text
 
@@ -211,7 +247,7 @@ class StartScreen:
         if not self.reel_editor(text): return raw, text
         target = self.start_over_dialog(text)   # Already up when an earlier close stopped there.
         if not target:
-            self.tap(raw, text, NEW_REEL_CLOSE, 'reel_editor', 'close-reel-editor', only=((0, 65, 500, 130),))
+            self.tap(raw, text, NEW_REEL_CLOSE, 'reel_editor', 'close-reel-editor', only=EDITOR_BAR)
             self.pause(1.5)
             raw, text, _, _ = self.fresh('after-reel-editor')
             target = self.start_over_dialog(text)
@@ -267,12 +303,20 @@ class StartScreen:
 
     def open_from_home(self, name):
         """The workflow's own route: Home, then the app icon, or Spotlight's Search pill and its Top Hit."""
-        from farm_creation_layout import app_target, control, empty_search, home_search
+        from farm_creation_layout import app_target, empty_search, home, home_search, search_clear
         from farm_draft_workflow import centre
-        # Home only leaves the current app for the home screen; it is never an app action.
-        self.command('/key/sendkey', 'home-before-start-screen', fn_key='Home')
-        self.pause(1.2)
-        raw, text, _, _ = self.fresh('home')
+        # Home only leaves the current app for the home screen; it is never an app action. It is never sent over
+        # Control Center (B5, 4 Nov: a Home there opened Settings) nor on the Home screen itself (B5: a Home on
+        # the Home screen opened Control Center once), so the screen is read first.
+        raw, text, _, _ = self.fresh('before-home')
+        if self.control_center(text): raise InspectionStopped('Control Center is open; Home is never sent over it. No input.')
+        try: on_home = home(text, raw)
+        except InspectionStopped: on_home = False
+        if not on_home:
+            self.command('/key/sendkey', 'home-before-start-screen', fn_key='Home')
+            self.pause(1.2)
+            raw, text, _, _ = self.fresh('home')
+            if self.control_center(text): raise InspectionStopped('Home opened Control Center; no further input.')
         try: point = app_target(text, name, raw)
         except InspectionStopped: point = None
         if point is None:
@@ -285,7 +329,9 @@ class StartScreen:
                 try: empty = empty_search(text, raw)
                 except InspectionStopped: empty = False
                 if not empty:
-                    self.tap(raw, text, centre(control(raw, 'search_clear')), 'app_search_entry', 'clear-restored-search')
+                    # The clear button's template follows the wallpaper through the translucent field; search_clear
+                    # also measures its white glyph in place (A17, 4 Nov: a restored 'Safari' query stopped here twice).
+                    self.tap(raw, text, centre(search_clear(raw)), 'app_search_entry', 'clear-restored-search')
                     self.pause(.8)
                     raw, text, _, _ = self.fresh('app_search_cleared')
                     empty_search(text, raw)
@@ -476,12 +522,15 @@ def main():
         elif target == 'x-timeline': tool.to_x_timeline()
         elif target == 'youtube-home': tool.to_youtube_home()
         else: tool.to_instagram_profile_top()
-    except InspectionStopped: pass
+    except Exception as error:   # Each route records its own stop; anything else is recorded here.
+        if tool.record.get('state') != 'stopped': tool.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
     r = tool.record
     print(json.dumps(dict(state=r['state'], error=r.get('error'), before=r.get('before'), after=r.get('after'),
                           commands=[(c['purpose'], c['state']) for c in r['commands'] if c['purpose'] != 'fresh_frame_challenge'],
                           challenges=sum(c['purpose'] == 'fresh_frame_challenge' for c in r['commands']),
                           leaseReleased=r.get('leaseReleased'))))
+    # Callers read the summary line above; the exit code says the same thing (it was 0 on a stop until 5 Nov).
+    if r['state'] not in ('at_start', 'already_at_start'): raise SystemExit(1)
 
 
 if __name__ == '__main__':
