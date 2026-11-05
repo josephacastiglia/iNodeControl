@@ -15,8 +15,21 @@ from farm_live_verification import idle
 from imouse_social_automation import KernelSafetyError
 
 
-# Each window's own media port, by box slot; 0 is the pre-rack C24C window.
-MEDIA_PORTS={0:9917,18:9917,20:9927,17:9937,16:9947}
+# Each window's own (backend, media) port, by rack A box slot; 0 is the pre-rack C24C window.
+# Slots 16-18 and 20 keep the ports their windows were prepared with (99x5/99x7, beside the kernel's 9913/9916
+# and the planned rack B kernel on 9926). Every other rack A slot n gets 9600+10n+5 / +7 (9615-9797, 5 Nov):
+# clear of every 99xx service port and of the receivers' AirPlay ports (7110-7499). Rack B slots get none yet.
+LEGACY_PORTS={0:(9915,9917),18:(9915,9917),20:(9925,9927),17:(9935,9937),16:(9945,9947)}
+
+
+def window_ports(slot):
+    """(backend port, media port) of a rack A slot's window."""
+    if slot in LEGACY_PORTS: return LEGACY_PORTS[slot]
+    if type(slot) is not int or not 1<=slot<=20: raise ValueError(f'No window ports for slot {slot!r}.')
+    return 9600+10*slot+5,9600+10*slot+7
+
+
+MEDIA_PORTS={slot:window_ports(slot)[1] for slot in range(21)}
 
 
 def creation_config(path,mode):
