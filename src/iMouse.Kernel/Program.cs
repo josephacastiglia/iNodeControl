@@ -89,7 +89,8 @@ Console.WriteLine("Pointer movement pacing: " + (options.PreciseDelayMs > 0 ? $"
 Console.WriteLine("Video waits on an independent AirPlay receiver.");
 var fleet = new ReceiverFleet(config.Receivers, config.Store, config.ReceiverPath, config.RuntimePath, options.DataDir);
 var server = new ApiServer(options.Prefix, config.Store, input, fleet.Sessions.Select(s => (s.Config.Name, s.Frames)))
-    { AdvertiseReceiver = options.HeldReceivers.Length == 0 ? null : fleet.Advertise };
+    { AdvertiseReceiver = fleet.Advertise, Receivers = fleet, Rack = options.Rack };
+if (options.Rack.Length > 0) Console.WriteLine("Rack " + options.Rack + ": this kernel serves only the boards and receivers in its configuration.");
 if (options.HeldReceivers.Length > 0) Console.WriteLine("Receivers held until released: " + string.Join(",", options.HeldReceivers));
 int exitCode = 0;
 try

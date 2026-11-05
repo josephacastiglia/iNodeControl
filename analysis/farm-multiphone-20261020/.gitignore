@@ -9,3 +9,4 @@ windows-archive/
 slots/processes*.json
 slots/receivers-ready.json
 slots/releases.jsonl
+rack-*/processes*.json

@@ -12,7 +12,8 @@ public enum ReceiverPhase { Starting, Running, Restarting, Failed, Stopped }
 
 // Restarts counts replacement attempts actually begun, including failed starts.
 // A failed cleanup retains the last known PID; it is not proof the child is alive.
-public sealed record ReceiverInfo(string State, string Message, int Pid, int Restarts);
+// Generation counts children the fleet started for this receiver (a manual restart adds one).
+public sealed record ReceiverInfo(string State, string Message, int Pid, int Restarts, int Generation = 0);
 
 /// <summary>A partially started child could not be cleaned up; its factory must not be retried.</summary>
 public sealed class ReceiverCleanupException(int processId, string message, Exception innerException)

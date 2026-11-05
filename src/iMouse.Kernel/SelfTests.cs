@@ -153,6 +153,7 @@ public static class SelfTests
         BinaryPrimitives.WriteInt16LittleEndian(bmp.AsSpan(26),1);
         BinaryPrimitives.WriteInt16LittleEndian(bmp.AsSpan(28),24);
         Check(FrameStore.ValidateBmp(bmp)==(2,2),"Padded bottom-up BMP accepted");
+        byte[] validBmp=(byte[])bmp.Clone();
         using(var frames=new FrameStore("imouse-frame-test-"+Guid.NewGuid().ToString("N"),"test-one"))
         {
             // The separate pipe check below uses its own random name and synthetic pixels.
@@ -321,6 +322,7 @@ public static class SelfTests
             once.Cancel();
             await run;
         }
+        await ReceiverFleetTests.RunAsync(Check, file, router, validBmp);
         await InputSessionTests.RunAsync(Check);
         await InputSessionTests.HomeSequenceAsync(Check);
         await InputSessionTests.NavigationAndProbeAsync(Check);

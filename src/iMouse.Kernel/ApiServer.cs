@@ -16,6 +16,10 @@ public sealed class ApiServer : IDisposable
     private readonly Dictionary<string,(string Name,FrameStore Frames)> _sessions;
     // Starts one held receiver by board PID; null when the kernel holds none.
     public Func<string,object>? AdvertiseReceiver { get; init; }
+    // Restarts or withdraws one receiver by board PID; null when the kernel runs no receivers.
+    public ReceiverFleet? Receivers { get; init; }
+    // This kernel's rack label ("" for the single kernel), so a script can confirm it reached the right one.
+    public string Rack { get; init; } = "";
 
     public ApiServer(string prefix, DeviceStore store, string castName, InputRouter input, FrameStore frames)
         : this(prefix,store,input,[(castName,frames)]) { }
@@ -118,7 +122,7 @@ public sealed class ApiServer : IDisposable
     {
         var rec = _frames.Receiver();
         var delivery = _frames.Delivery;
-        return new { code = 0, input = "direct-hid", input_protocol = 1, input_leases_required = true,
+        return new { code = 0, rack = Rack, input = "direct-hid", input_protocol = 1, input_leases_required = true,
             build_identity = KernelDiagnostics.BuildIdentity, process = KernelDiagnostics.ProcessSnapshot(),
             input_configuration = _input.DiagnosticConfiguration(),
             hid_replies = _input.ReplyDiagnostics(),
@@ -136,6 +140,7 @@ public sealed class ApiServer : IDisposable
                 var frame = s.Value.Frames.Delivery;
                 return new { deviceid = s.Key, name = s.Value.Name,
                     receiver_pid = receiver.Pid, receiver_restarts = receiver.Restarts,
+                    receiver_generation = receiver.Generation,
                     receiver_state = VideoState(receiver, s.Value.Frames),
                     receiver_message = receiver.Message,
                     live = frame.Available, frames = frame.Sequence,
@@ -164,10 +169,25 @@ public sealed class ApiServer : IDisposable
                 => await _inputSessions.DispatchAsync(fun, data),
             "/device/airplay/connect" when AdvertiseReceiver is not null && Str(data, "pid") is { Length: > 0 } pid
                 => KernelOptions.BoardId(pid) ? AdvertiseReceiver(pid) : new { code = 36, message = "pid must be a four-digit hexadecimal board ID." },
+            "/device/airplay/restart" or "/device/airplay/withdraw" => await ChangeReceiver(fun, data),
             "/device/airplay/connect" or "/device/airplay/disconnect"
                 => new { code = 41, message = "Choose or stop " + _castName + " in the iPhone's Screen Mirroring menu." },
             _ => new { code = 41, message = "Not implemented: " + fun }
         };
+    }
+
+    // One receiver at a time; a phone whose input another controller leases is refused, so a
+    // lane's mirror is never cut mid-run. The lane holding the lease may pass its token.
+    private async Task<object> ChangeReceiver(string fun, JsonElement data)
+    {
+        if (Receivers is null) return new { code = 41, message = "This kernel runs no receivers." };
+        string pid = Str(data, "pid");
+        if (!KernelOptions.BoardId(pid)) return new { code = 36, message = "pid must be a four-digit hexadecimal board ID." };
+        pid = pid.ToUpperInvariant();
+        if (_inputSessions.LeasedByOther(pid, Str(data, "token")))
+            return new { code = 409, message = "Board " + pid + "'s phone has an active input lease. Wait for it to end, or pass that lease's token. Nothing was stopped." };
+        bool hold = Str(data, "hold") is var h && (h.Equals("true", StringComparison.OrdinalIgnoreCase) || h == "1");
+        return fun == "/device/airplay/withdraw" ? await Receivers.WithdrawAsync(pid) : await Receivers.RestartAsync(pid, hold);
     }
 
     private object Bind(JsonElement data)

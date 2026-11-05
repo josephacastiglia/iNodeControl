@@ -51,6 +51,28 @@ three stale names within a second. `Stop-Multiphone.ps1` now sends it after ever
 The same kill-without-goodbye likely explains earlier cases where a restarted receiver was
 not relisted by a phone until a replug.
 
+## One receiver, or one rack, at a time (4 Nov)
+
+Kernels built 4 Nov or later (`output/rack-kernel-20261104`) change one receiver without stopping
+the kernel. `Restart-Receiver.ps1 -Board <pid> [-Stage slots | -Rack A|B]` posts
+`/device/airplay/restart`: the kernel stops that board's UxPlay, confirms its exit, sends the same
+goodbye `mdns_goodbye.py` sends (the C# port is pinned to the same bytes by both test suites), and
+starts it again. `-Hold` or `-Withdraw` leaves it withdrawn; `Release-Receiver.ps1` advertises it
+again. Other receivers, their frames and every input lease are untouched; the phone must choose the
+receiver again in Screen Mirroring (`auto_connect.py`). A phone another controller leases is refused
+unless `-Token` is that lease's token. An unconfirmed exit withdraws and starts nothing and blocks
+the board until the kernel stops. `kernel/status` rows carry `receiver_generation`.
+
+A kernel per rack: `python rack_kernels.py prepare --base slots/preparation.json --kernel
+<rack kernel>` splits the combined preparation into `rack-a/` (port 9916, so every farm tool still
+reaches rack A) and `rack-b/` (port 9926), each with its own run folder and `--rack` label.
+`Start-/Stop-Multiphone.ps1`, `Release-Receiver.ps1`, `Restart-Receiver.ps1` and
+`auto_connect.py` take `-Rack`/`--rack`; a rack's start and stop checks count only that rack's
+kernel, receivers and ports (and the single kernel, which serves both). `-Stage slots` (one kernel
+for both racks) works as before. Tests: kernel `--self-test`, `python -m unittest
+test_rack_kernels`, and `python offrack/offrack_trial.py --kernel <exe>` (a second kernel on :9936
+with stand-in receivers, safe beside the live rack).
+
 ## Mistake recorded
 
 On the earlier live windows (same day), `archive_attempt.py` was run in parallel with

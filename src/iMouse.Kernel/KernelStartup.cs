@@ -12,7 +12,7 @@ internal sealed class KernelOptions
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
     private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid", "--precise-delay",
-        "--home-sequence", "--navigation-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hid-replies-pid", "--absolute-probe-pid", "--hold-receivers"];
+        "--home-sequence", "--navigation-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hid-replies-pid", "--absolute-probe-pid", "--hold-receivers", "--rack"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
     internal string? HardwareMode { get; private set; }
     internal string[] HardwareArguments { get; private set; } = [];
@@ -24,6 +24,8 @@ internal sealed class KernelOptions
     internal string[] Allowed { get; private set; } = [];
     internal string[] ReplyBoards { get; private set; } = [];
     internal string[] HeldReceivers { get; private set; } = [];
+    // A label for one rack's kernel ("A", "B"); empty for the single kernel. Reported in status only.
+    internal string Rack { get; private set; } = "";
     internal string DataDir => Path.GetFullPath(Value("--data-dir", Path.Combine(AppContext.BaseDirectory, "data")));
     internal string Value(string name, string fallback = "") => _values.GetValueOrDefault(name, fallback);
     internal static bool BoardId(string? text) => text is not null && Regex.IsMatch(text, "^[0-9A-Fa-f]{4}$");
@@ -90,6 +92,12 @@ internal sealed class KernelOptions
             if (result.HardwareMode is not null || result.HeldReceivers.Any(id => !BoardId(id))
                 || result.HeldReceivers.Distinct(StringComparer.OrdinalIgnoreCase).Count() != result.HeldReceivers.Length)
                 throw new ArgumentException("--hold-receivers needs distinct four-digit hexadecimal board IDs and normal service mode.");
+        }
+        if (result._values.TryGetValue("--rack", out string? rack))
+        {
+            if (result.HardwareMode is not null || !Regex.IsMatch(rack, "^[A-Za-z0-9]{1,8}$"))
+                throw new ArgumentException("--rack needs a short letters-and-digits label and normal service mode.");
+            result.Rack = rack.ToUpperInvariant();
         }
         _ = result.DataDir; // Check path syntax before any hardware work.
         if (result._values.TryGetValue("--hid-replies-pid", out string? replyIds))
@@ -186,7 +194,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         absolute_probe_board = Options.AbsoluteProbeBoard,
         navigation_sequence = Options.Value("--navigation-sequence", "vendor"),
         precise_delay_ms = Options.PreciseDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
-        receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
+        rack = Options.Rack, receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
         bindings_complete = Receivers.All(r => r.DeviceId is not ("*" or "") && !r.DeviceId.StartsWith("unbound-", StringComparison.OrdinalIgnoreCase)),
         limitations = new[] { "Physical bindings, targeting and mirroring are not assessed.",
             "Available ports, URL permissions and dependency loading are not tested.",
