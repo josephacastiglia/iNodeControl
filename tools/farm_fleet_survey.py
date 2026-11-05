@@ -50,7 +50,7 @@ SIGNED_OUT = {
 }
 # Signed in: the platform's own logged-in chrome. Anything else is 'unknown' (never read as signed in).
 SIGNED_IN = {
-    'Instagram': (('your story',), ('reels',)),
+    'Instagram': (('your story',), ('your story',)),   # The tab bar is icons only (A11, A12: feed with 'Your story').
     'TikTok': (('inbox',), ('profile', 'friends')),
     'X': (('for you',), ('following',)),
     'YouTube': (('subscriptions',), ('shorts', 'you')),
@@ -225,7 +225,15 @@ class FleetSurvey:
         if page is None:
             if self.model != 'xr':
                 return dict(state='not_on_pages_1_2', opened=False), raw, text
-            raw, text, _, _ = self.s.open_from_home(app)   # XR: Spotlight's Search pill and its Top Hit.
+            try: raw, text, _, _ = self.s.open_from_home(app)   # XR: Spotlight's Search pill and its Top Hit.
+            except InspectionStopped as stop:
+                if app != 'X' or 'Exact visible label missing' not in str(stop): raise
+                # OCR misses X's one-letter Top Hit label (A12, 5 Nov; A17, 4 Nov): the X lane's icon recognizer decides.
+                from farm_x_image_creation import x_top_hit
+                raw, text = self.look('x_app_result')
+                self.s.tap(raw, text, x_top_hit(raw, text), 'x_app_result', 'open-x')
+                self.s.pause(2.5)
+                raw, text = self.look('after-open-x')
             return dict(route='spotlight', opened=True), raw, text
         raw, text = self.go_page(page, raw, text)
         labels = grid_labels(text, self.model)
@@ -277,6 +285,51 @@ class FleetSurvey:
         self.current = next((p for p, v in self.pages.items() if v and len(labels & set(v)) >= max(3, len(v) // 2)), 1)
         return raw, text
 
+    def to_instagram_profile(self):
+        """Instagram on the signed-in account's own profile, for a Reel window on this phone: Home, open Instagram,
+        then its own profile tab (farm_start_screen.PROFILE_TAB, decided on the recognized feed). The shared
+        instagram-profile start screen compares against A18's account, so it cannot bring another phone there."""
+        from farm_start_screen import PROFILE_TAB, FEED_BARS
+        raw, text = self.home('home')
+        raw, text, _, _ = self.s.open_from_home('Instagram')
+        for n in range(SETTLE_LOOKS):
+            raw, text = self.look(f'instagram-{n}', 'Instagram')
+            if self.s.instagram_feed(text, raw): break
+            self.s.pause(2)
+        if not self.s.instagram_feed(text, raw): raise InspectionStopped('Instagram did not open on its feed; nothing was tapped in it.')
+        self.s.tap(raw, text, PROFILE_TAB, 'instagram_feed', 'open-profile-tab', only=FEED_BARS)
+        self.s.pause(1.5)
+        raw, text = self.look('instagram-profile', 'Instagram')
+        # The own profile: its Edit profile and Share profile buttons (A14, 5 Nov). The shared classifier needs the
+        # account to call it a profile, and the account is what this step is for (it stays in the run folder).
+        own = {'edit profile', 'share profile'} <= {r['fold'] for r in rows(text)}
+        self.record['apps']['Instagram'] = dict(route='profile', screen='own_profile' if own else 'other',
+                                                frame=self.record['observations'][-1]['frame'])
+        if not own: raise InspectionStopped('The profile tab did not open the own profile; no tap is repeated.')
+        self.record['state'] = 'done'
+
+    def to_tiktok_profile(self):
+        """TikTok on its own Profile tab, to read the signed-in handle for a TikTok window (the shared tiktok-profile
+        start screen needs that handle first). Home, open TikTok, one tap on the feed's Profile tab."""
+        import farm_tiktok_layout as tt
+        raw, text = self.home('home')
+        raw, text, _, _ = self.s.open_from_home('TikTok')
+        for n in range(SETTLE_LOOKS):
+            raw, text = self.look(f'tiktok-{n}', 'TikTok')
+            try: target = tt.tiktok_feed(raw, text)['profileTarget']; break
+            except InspectionStopped: target = None
+            self.s.pause(2)
+        if target is None: raise InspectionStopped('TikTok did not open on its For You feed; nothing was tapped in it.')
+        self.s.tap(raw, text, target, 'tiktok_feed', 'open-profile-tab', only=((400, 985, 500, 1040),))
+        self.s.pause(1.5)
+        raw, text = self.look('tiktok-profile', 'TikTok')
+        folds = {r['fold'] for r in rows(text)}   # TikTok's own profile: Edit (A14, 5 Nov) or Edit profile, Followers, @handle.
+        own = bool(folds & {'edit', 'edit profile'}) and 'followers' in folds and any(f.startswith('@') for f in folds)
+        self.record['apps']['TikTok'] = dict(route='profile', screen='own_profile' if own else 'other',
+                                             frame=self.record['observations'][-1]['frame'])
+        if not own: raise InspectionStopped('The Profile tab did not open the own profile; no tap is repeated.')
+        self.record['state'] = 'done'
+
     def run(self, apps):
         raw, text = self.read_pages()
         for app in apps:
@@ -319,6 +372,8 @@ def contact_sheet(folder, record):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('board'); p.add_argument('--run'); p.add_argument('--apps', default=','.join(APPS))
+    p.add_argument('--instagram-profile', action='store_true', help='only bring Instagram to its own profile (Reel window start)')
+    p.add_argument('--tiktok-profile', action='store_true', help='only bring TikTok to its own Profile tab (to read its handle)')
     a = p.parse_args()
     board = a.board.upper()
     if board not in FLEET: raise SystemExit(f'{board} is not a Fleet lane phone; refused.')
@@ -353,7 +408,13 @@ def main():
             screen.pause(2)
             raw, text = survey.look('after-wake')
         if survey.model is None: survey.model = survey.record['model'] = model_of(raw)
-        survey.run(apps)
+        if a.instagram_profile:
+            if survey.model != 'xr': raise InspectionStopped('Reel windows run on XR phones only.')
+            survey.to_instagram_profile()
+        elif a.tiktok_profile:
+            if survey.model != 'xr': raise InspectionStopped('TikTok windows run on XR phones only.')
+            survey.to_tiktok_profile()
+        else: survey.run(apps)
     except Exception as error:   # Every stop is recorded; nothing further is sent.
         survey.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
     finally:
