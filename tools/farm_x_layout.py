@@ -49,8 +49,9 @@ def x_feed(frame, text):
     # A newer account's header adds tabs ('For you v | Following | Add + | Crypto', slot 17, 22 Oct),
     # moving 'Following' left to x 154.
     # OCR can also clip it and join the chevron before it ('v Followin' from x 108, slot 17, 23 Oct).
+    # The parked pointer can cover its end ('Followi', A17, 4 Nov): 'followi' is the shortest form accepted.
     following = words_at(text, 'following', (140, 120, 320, 160)) or any(
-        re.search(r'(^|\s)followi?n?g?$', ' '.join(r['text'].casefold().split())) and r['text'].casefold().split()[-1].startswith('followin')
+        re.search(r'(^|\s)followi?n?g?$', ' '.join(r['text'].casefold().split())) and r['text'].casefold().split()[-1].startswith('followi')
         and 100 <= min(w['x'] for w in r['words']) and max(w['x']+w['width'] for w in r['words']) <= 320
         and 120 <= min(w['y'] for w in r['words']) <= 160 for r in text.get('lines', []) if r.get('words'))
     require(following and line_at(text, 'for you', (30, 120, 130, 160)), 'The X timeline header is not recognized.')

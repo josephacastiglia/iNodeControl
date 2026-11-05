@@ -123,6 +123,16 @@ class MenuWithMoneyRowTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped):   # The new rows never excuse the old positions.
             xl.x_menu(b'', self.menu(*self.BASE, *self.NEW[:2], *old))
 
+    def test_a_pointer_clipped_following_tab_is_accepted_only_as_followi(self):
+        from unittest import mock
+        # A17, 4 Nov: the parked pointer covered 'ng'; OCR read 'Followi' at x 154.
+        for word, ok in (('Followi', True), ('Follow', False), ('Followix', False)):
+            text = self.menu(('For you', 31, 130, 101, 150), (word, 154, 130, 220, 150))
+            with self.subTest(word=word), mock.patch.object(xl, 'blue_fraction', return_value=1.0),                     mock.patch.object(xl, 'pixels', return_value=None):
+                if ok: self.assertEqual((454, 935), xl.x_feed(b'', text)['composeTarget'])
+                else:
+                    with self.assertRaises(InspectionStopped): xl.x_feed(b'', text)
+
 
 if __name__ == '__main__':
     unittest.main()
