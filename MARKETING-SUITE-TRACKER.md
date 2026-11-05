@@ -3,7 +3,7 @@
 The single running list for the iMouse 2.0 Marketing Farm. Updated as work lands; the newest
 state wins. Details live in `analysis/farm-multiphone-20261020/README.md` and the dated handoffs.
 
-Last updated: 3 Nov 2026.
+Last updated: 4 Nov 2026.
 
 ## Seven priorities
 
@@ -15,12 +15,12 @@ Last updated: 3 Nov 2026.
 | 4 | Scheduler and warmup | **Local layer merged (4 Nov, Scheduler lane):** review queue fed by local preparation runs (approve/reject; changed content is refused, never re-approved silently); planned slots within per-account daily caps, spacing and per-platform caps, optional warmup ramp, a rack-wide gap and a daily window; dry run until `plan --commit`; unrun slots lapse and are replanned, never run late; state survives restarts. Operator CLI: `tools/farm_schedule_cli.py`. | Running planned slots on phones, unattended backend/kernel restart, queue screens in the console/server (shared `imouse_farm_server.py`), real account labels from the operator. |
 | 5 | Analytics | Observations keep evidence; low-view rules can pause a schedule. | A real metrics source, checked against actual account numbers. |
 | 6 | Publishing and messaging | Disabled by the operator. | Only with a separate, explicit scope. |
-| 7 | Rack and release | Four phones connected, identified and driven at once. | More phones, longer unattended runs, usability, packaging, clean-PC install/update/rollback. |
+| 7 | Rack and release | Four phones connected, identified and driven at once. **Rack lane (4 Nov, merged a84680a): one receiver restarts or withdraws without stopping the kernel (mDNS goodbye sent; other phones and leases untouched), and a kernel per rack (A :9916, B :9926); built `output/rack-kernel-20261104`; 331 kernel self-tests, 16 script tests, 19/19 off-rack trial. Live trial pending:** the new build on the single kernel first; per-rack kernels wait on the shared tools that hard-code :9916. | More phones, longer unattended runs, usability, packaging, clean-PC install/update/rollback. |
 
 ## Core release gates (separate from the list above)
 
 All open: Home and App Switcher reliability; the first space dropped when typing (FKA);
-recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC install.
+recasting after a receiver restart; 8- and 19-phone scale (**8-phone stage passed 4 Nov** on rack B home screens: 0 misses, 0 isolation failures in 442 checks, frame age at most 0.62 s; 13 of 19 also run: 0 isolation failures, 1 unexplained landing about 40 px off in 234; the 19-phone run needs B6/B19's stuck mirrors recovered and B3/B7/B10/B17 connected; `analysis/scale-gate-20261104/REPORT.md`); endurance; clean-PC install.
 
 ## Platform status
 
@@ -119,3 +119,4 @@ recasting after a receiver restart; 8- and 19-phone scale; endurance; clean-PC i
   + disk was tinted pink, red near white (grey test now asks for a channel below white). Run 75 stopped
   before input (pointer dot over the 'YouTube' header), then on a mirror stall at the draft prompt
   (rack restart; all four reconnected first try). **Runs 76 and 77 verified back to back.**
+- 4 Nov evening: five lanes started (Rack, Scheduler on A18, Repeatability on A17/A20, Small phone on B5, Scale gate on rack B). B5's Instagram, TikTok, X and YouTube are signed out; no drafts there until the operator signs them in. Rack and Scale gate merged.
