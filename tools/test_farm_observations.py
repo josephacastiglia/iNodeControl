@@ -76,6 +76,27 @@ class ObservationTests(unittest.TestCase):
         self.assertEqual(('profile', 'tiktok', 'exact_text_match'), (result['screen'], result['appPattern'], result['accountStatus']))
         self.assertFalse(result['automaticInputAllowed']); self.assertFalse(result['savedDraftVerified']); self.assertIsNone(result['metrics'])
 
+    def test_tiktok_profile_likes_dropped_by_full_frame_ocr_is_reread_enlarged_in_place(self):
+        # A20, 4 Nov: full-frame OCR drops 'Likes'; only the counter band is read again, enlarged.
+        dropped = ocr_lines(*[(l['text'], l['words'][0]['y']) for l in PROFILE['lines'] if l['text'] != 'Likes'])
+        self.assertEqual('unknown', classify(dropped, expectations(self.request))['screen'])   # No frame: no reread.
+        frame = b'frame'
+        for words, screen in (([('Following', 20, 235, 90, 250), ('Likes', 205, 235, 245, 250)], 'profile'),
+                              ([('Likes', 120, 235, 160, 250)], 'unknown'),                         # Not in its own place.
+                              ([('Likes', 205, 235, 245, 250), ('Likes', 210, 236, 250, 251)], 'unknown'),
+                              ([], 'unknown')):
+            with self.subTest(words=words), patch('farm_reel_layout.band_words', return_value=words) as band:
+                result = classify(dropped, expectations(self.request), frame)
+                self.assertEqual(screen, result['screen'])
+                band.assert_called_once_with(frame, (10, 205, 300, 262), 3)
+                if screen == 'profile':
+                    self.assertEqual(('tiktok', 'exact_text_match'), (result['appPattern'], result['accountStatus']))
+        with patch('farm_reel_layout.band_words', side_effect=ValueError('OCR failed')):
+            self.assertEqual('unknown', classify(dropped, expectations(self.request), frame)['screen'])
+        with patch('farm_reel_layout.band_words') as band:   # Full-frame 'Likes' read: no extra OCR.
+            self.assertEqual('profile', classify(PROFILE, expectations(self.request), frame)['screen'])
+            band.assert_not_called()
+
     def test_wrong_handle_homoglyph_and_wrong_platform_do_not_pass(self):
         for changes in ({'account': 'test.acc0unt'}, {'account': 'test.account1'}, {'platform': 'x'}):
             with self.subTest(changes=changes):

@@ -121,6 +121,22 @@ def expectations(request, board='C24C'):
     return {'device_id': board, 'platform': request['platform'], 'account': account, 'caption': caption}
 
 
+TIKTOK_COUNTER_BAND = (10, 205, 300, 262)   # Following / Followers / Likes labels on a 500x1080 TikTok profile.
+TIKTOK_LIKES_BOX = (195, 228, 270, 258)
+
+
+def tiktok_likes_label(frame):
+    """Full-frame OCR drops the TikTok profile's 'Likes' label on A20 (4 Nov). The counter band alone is
+    read again, enlarged (farm_reel_layout.band_words), and 'Likes' must be read exactly once in its own
+    place. Only ever a reread of that label; it never supplies an account, caption or other screen."""
+    from farm_reel_layout import band_words
+    try: words = band_words(frame, TIKTOK_COUNTER_BAND, 3)
+    except ValueError: return False
+    left, top, right, bottom = TIKTOK_LIKES_BOX
+    return sum(1 for t, x0, y0, x1, y1 in words if str(t).casefold() == 'likes'
+               and left <= x0 and x1 <= right and top <= y0 and y1 <= bottom) == 1
+
+
 def classify(text, expected, frame=None):
     """Conservative English UI patterns; matches are observations, not app authenticity."""
     width, height = text['width'], text['height']
@@ -168,7 +184,8 @@ def classify(text, expected, frame=None):
         state, app = 'caption_editor', 'instagram'
     elif 'search' in lower and sum(name in upper for name in ('instagram', 'tiktok', 'youtube')) >= 3:
         state = 'home'
-    elif has('following') and has('follower') and has('likes') and 'profile' in lower:
+    elif (has('following') and has('follower') and 'profile' in lower
+          and (has('likes') or (frame is not None and (width, height) == (500, 1080) and tiktok_likes_label(frame)))):
         state, app = 'profile', 'tiktok'
     elif has('edit profile') and has('share profile') and has('posts') and has('following'):
         state, app = 'profile', 'instagram'
