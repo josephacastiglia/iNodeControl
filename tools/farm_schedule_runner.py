@@ -224,16 +224,62 @@ def stage_window(steps, queue, name, account, package_id=None):
     package_id = package_id or f'{prep["platform"].replace("-", "")}{prep["slot"]}-{prep["testToken"][:6]}'
     target = steps.staged(package_id)
     if target.exists(): raise ValueError(f'Package {package_id} is already staged.')
-    source = {'kind': 'window', 'window': name, 'slot': prep['slot'], 'manifestSha256': prep['packageSha256'],
-              'stagedFiles': [prep['downloadName']], 'testPackage': True, 'testToken': prep['testToken'],
-              'backendSourceHash': prep['backendSourceHash']}
-    platform = PLATFORMS[prep['platform']][0]
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(window), str(target))
     try:
-        return queue.submit(package_id, platform, FORMATS[prep['platform']], account, prep['caption'], source)
+        return queue_staged(steps, queue, package_id, account)
     except Exception:
         shutil.move(str(target), str(window)); raise
+
+
+def queue_staged(steps, queue, package_id, account):
+    """A test window prepared straight into staging (prepare_window.py --into) enters the queue, pending."""
+    check_label(account, 'Account')
+    prep = steps.read_staged(package_id)
+    name = f'{prep["platform"]}-slot{prep["slot"]}'
+    source = {'kind': 'window', 'window': name, 'slot': prep['slot'], 'manifestSha256': prep['packageSha256'],
+              'stagedFiles': [prep['downloadName']], 'testPackage': True, 'testToken': prep['testToken'],
+              'backendSourceHash': prep['backendSourceHash']}
+    return queue.submit(package_id, PLATFORMS[prep['platform']][0], FORMATS[prep['platform']], account, prep['caption'], source)
+
+
+def prepare_command(platform, slot, phone_ip, handle, staging, python=sys.executable, folder=FOLDER, package_id=None, content=None, content_stage=None):
+    """prepare_window.py straight into staging. Offline: no socket, no phone."""
+    argv = [python, str(Path(folder) / 'prepare_window.py'), '--platform', platform, '--slot', str(slot), '--phone-ip', phone_ip, '--into', str(staging)]
+    if handle: argv += ['--account', handle]
+    if package_id is not None: argv += ['--package-id', str(package_id)]
+    if content is not None: argv += ['--content', str(content), '--content-stage', str(content_stage)]
+    return argv
+
+
+def run_prepare(argv):
+    """Runs prepare_window; returns its summary, or raises ValueError with its own reason."""
+    done = subprocess.run(argv, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=600)
+    lines = [line for line in (done.stdout or '').splitlines() if line.strip()]
+    if done.returncode: raise ValueError((done.stderr or done.stdout or 'prepare_window failed').strip().splitlines()[-1][:400])
+    return json.loads(lines[-1])
+
+
+def convert_package(steps, queue, package_id, slot, phone_ip, handle, stage_root, prepare=run_prepare):
+    """An approved real package -> its staged window, bound in the queue. Local only; it runs when a slot is planned."""
+    from farm_schedule_content import platform_of
+    queue.reload()
+    pkg = queue.state['packages'].get(str(package_id))
+    if pkg is None: raise ValueError(f'No package {package_id} in the queue.')
+    if pkg['state'] != 'approved': raise ValueError(f'Package {package_id} is {pkg["state"]}; only an approved package is converted.')
+    if pkg['source'].get('kind') == 'window': raise ValueError(f'Package {package_id} already has a window.')
+    platform = platform_of(pkg['format'])
+    item = dict(pkg['source'], format=pkg['format'], platform=pkg['platform'], caption=pkg['caption'], id=pkg['id'])
+    steps.staging.mkdir(parents=True, exist_ok=True)
+    content = steps.staging / f'{package_id}.content.json'
+    content.write_text(json.dumps(item), encoding='utf-8')
+    try:
+        summary = prepare(prepare_command(platform, slot, phone_ip, handle, steps.staging, package_id=package_id, content=content, content_stage=stage_root))
+    finally: content.unlink(missing_ok=True)
+    prep = steps.read_staged(package_id)
+    if prep.get('caption') != pkg['caption'] or prep.get('testPackage') is not False: raise ValueError('The prepared window does not hold this package.')
+    queue.bind_window(package_id, f'{platform}-slot{slot}', slot, prep['packageSha256'])
+    return summary
 
 
 @contextmanager
@@ -301,7 +347,8 @@ class SlotRunner:
         # Before any phone input: anything refused here leaves the window staged.
         try:
             prep = steps.read_staged(pid)
-            if prep.get('packageSha256') != source.get('manifestSha256') or prep.get('slot') != self.phone:
+            expected = source.get('windowPackageSha256') or source.get('manifestSha256')   # A real package's batch manifest is not its window package.
+            if prep.get('packageSha256') != expected or prep.get('slot') != self.phone or prep.get('caption', pkg['caption']) != pkg['caption']:
                 raise PhoneNotReady('the staged window no longer holds the approved package')
             problem = steps.phone_ready(prep)
             if problem: raise PhoneNotReady(problem)

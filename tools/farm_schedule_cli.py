@@ -11,6 +11,10 @@ touches a phone (through the window tools, see farm_schedule_runner.py); nothing
   python tools/farm_schedule_cli.py settings --window 9-21 --rack-gap 10 --utc-offset -5 --map tiktok=acct-1
   python tools/farm_schedule_cli.py plan --commit         # record the NEW slots shown by the dry run
   python tools/farm_schedule_cli.py stage-window reel-slot18 --account acct-a18   # queue a prepared window
+  python tools/farm_schedule_cli.py prepare --platform reel --slot 18 --phone-ip 192.168.4.57 --handle <h> --account acct-a18
+                                                          # a test window straight into staging, several per slot
+  python tools/farm_schedule_cli.py convert 21 --slot 18 --phone-ip 192.168.4.57 --handle <h>
+                                                          # an approved real package -> its staged window (local only)
   python tools/farm_schedule_cli.py run --phone 18 --slots 2 --wait 40   # run due slots on phone 18
   python tools/farm_schedule_cli.py abandon reel18-abc123 --reason "backend log reviewed; nothing saved"
 
@@ -60,6 +64,14 @@ def main(argv=None, out=sys.stdout):
     unplan.add_argument('ids', nargs='+', type=package_id)
     stage = sub.add_parser('stage-window', help='queue a freshly prepared window (prepare_window.py) as one package')
     stage.add_argument('window'); stage.add_argument('--account', required=True); stage.add_argument('--id')
+    prepare = sub.add_parser('prepare', help='prepare a test window straight into staging and queue it (offline)')
+    prepare.add_argument('--platform', required=True); prepare.add_argument('--slot', type=int, required=True)
+    prepare.add_argument('--phone-ip', required=True); prepare.add_argument('--handle', help='the signed-in handle, where the platform pins one')
+    prepare.add_argument('--account', required=True)
+    convert = sub.add_parser('convert', help='an approved real package -> its staged window (offline; nothing runs)')
+    convert.add_argument('id', type=package_id); convert.add_argument('--slot', type=int, required=True)
+    convert.add_argument('--phone-ip', required=True); convert.add_argument('--handle')
+    convert.add_argument('--stage-root', type=Path, help='media stage of the preparation (default output/media-stage/v2/live)')
     run = sub.add_parser('run', help="run this phone's due slots (phone input, draft only)")
     run.add_argument('--phone', type=int, required=True, help='box slot of the phone, e.g. 18')
     run.add_argument('--slots', type=int, default=1, help='at most this many slot runs')
@@ -113,6 +125,16 @@ def main(argv=None, out=sys.stdout):
             pkg = runner.stage_window(runner.WindowSteps(args.queue.parent / 'windows'), queue, args.window, args.account, args.id)
             out.write(f'pkg {pkg["id"]}: {pkg["state"]} ({pkg["platform"]}/{pkg["format"]}, phone {pkg["source"]["slot"]}, '
                       f'test package "{pkg["caption"]}")\n')
+        elif args.command == 'prepare':
+            steps = runner.WindowSteps(args.queue.parent / 'windows')
+            summary = runner.run_prepare(runner.prepare_command(args.platform, args.slot, args.phone_ip, args.handle, steps.staging))
+            pkg = runner.queue_staged(steps, queue, summary['staged'], args.account)
+            out.write(f'pkg {pkg["id"]}: {pkg["state"]} ({pkg["platform"]}/{pkg["format"]}, phone {args.slot}, test package)\n')
+        elif args.command == 'convert':
+            steps = runner.WindowSteps(args.queue.parent / 'windows')
+            stage_root = args.stage_root or MAIN / 'output/media-stage/v2/live'
+            runner.convert_package(steps, queue, args.id, args.slot, args.phone_ip, args.handle, stage_root)
+            out.write(f'pkg {args.id}: staged for phone {args.slot}; still approved, `plan --commit` gives it a slot. Nothing ran.\n')
         elif args.command == 'run':
             steps = runner.WindowSteps(args.queue.parent / 'windows')
             log = lambda line: (out.write(line + '\n'), out.flush())

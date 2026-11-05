@@ -275,6 +275,18 @@ class ReviewQueue:
         tz = self._tz()
         return (naive.replace(tzinfo=tz) if tz else naive).timestamp()
 
+    def bind_window(self, package_id, window, slot, package_sha256):
+        """An approved real package gets the prepared window that holds its exact files and caption
+        (farm_schedule_content.py). What was approved does not change: its fingerprint stays. Refused
+        once a slot is planned or a run happened, and for a package already bound."""
+        key = package_key(package_id)
+        with self._change() as state:
+            pkg = self._get(state, key)
+            if pkg['state'] != APPROVED: raise ValueError(f'Package {key} is {pkg["state"]}; approve it first, and bind before planning.')
+            if pkg['source'].get('kind') == 'window': raise ValueError(f'Package {key} already has a window.')
+            pkg['source'].update(kind='window', window=window, slot=slot, windowPackageSha256=package_sha256, testPackage=False)
+            return pkg
+
     # --- slot runs (the runner's side; the queue itself never touches a phone) ---
     def due(self, phone):
         """Planned slots for this phone that may start now: at or after their time, within the grace."""
@@ -358,6 +370,10 @@ class ReviewQueue:
         for pkg in self._ordered(state):
             if pkg['state'] != APPROVED: continue
             account, platform = pkg['account'], pkg['platform']
+            if pkg['source'].get('stagedFiles') and pkg['source'].get('kind') != 'window':
+                # Real content runs only from its window; a slot without one would lapse and spend the day's cap.
+                unplaced.append({'id': pkg['id'], 'account': account, 'platform': platform, 'reason': 'no window yet: run `convert` first'})
+                continue
             gap = self.account(account)['gapMinutes'] * 60; slot, why = None, 'no free time in the window'
             for offset in range(horizon_days):
                 day = first + dt.timedelta(days=offset)

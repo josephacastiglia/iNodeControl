@@ -8,6 +8,7 @@ import uuid
 
 import farm_schedule_cli as cli
 from farm_preparation_schedule import PreparationSchedule
+from farm_schedule_queue import ReviewQueue
 
 
 class CliTests(unittest.TestCase):
@@ -37,6 +38,9 @@ class CliTests(unittest.TestCase):
         code, text = self.run_cli('review'); self.assertIn('pkg 21', text); self.assertIn('file: s2.jpg', text)
         self.assertEqual(2, self.run_cli('approve', '21')[0])  # no account yet: refused
         self.assertIn('pkg 21: approved', self.run_cli('approve', '21', '--account', 'acct-1')[1])
+        code, text = self.run_cli(); self.assertIn('no window yet', text)      # Real content runs only from its window.
+        self.assertIn('Recorded 0 new slot', self.run_cli('plan', '--commit')[1])
+        ReviewQueue(self.queue).bind_window(21, 'reel-slot18', 18, 'c' * 64)
         code, text = self.run_cli(); self.assertIn('DRY RUN', text); self.assertRegex(text, r'pkg 21 +NEW')
         self.assertEqual([], json.loads(self.queue.read_text())['packages']['21'].get('slot', []))
         code, text = self.run_cli('plan', '--commit'); self.assertIn('Recorded 1 new slot', text)
