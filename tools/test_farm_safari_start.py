@@ -217,12 +217,13 @@ class StartScreenReelEditorTests(unittest.TestCase):
     def test_leftover_details_go_back_to_the_editor_first(self):
         details = text(('New reel', 210, 77, 289, 92), ('Add a caption...', 22, 495, 142, 511), ('Save draft', 90, 991, 171, 1004),
                        ('Share', 347, 991, 392, 1004))   # 22 Oct, slot 18.
-        start, taps = self.screen(text(*self.EDITOR), text(*self.DIALOG), text(*self.PICKER), text(('xs.halle.xo', 150, 90, 260, 110)))
+        # The editor is read twice after the back tap: it must have settled (A18, 4 Nov).
+        start, taps = self.screen(text(*self.EDITOR), text(*self.EDITOR), text(*self.DIALOG), text(*self.PICKER), text(('xs.halle.xo', 150, 90, 260, 110)))
         self.assertTrue(start.reel_details(details) and not start.reel_details(text(*self.EDITOR)))
         start.close_new_reel(b'before', details)
         self.assertEqual(['details-back', 'close-reel-editor', 'start-over-1', 'close-new-reel'], [p for p, _ in taps])
         self.assertEqual((30, 84), taps[0][1])
-        start, taps = self.screen(text(*self.PICKER))
+        start, taps = self.screen(text(*self.PICKER), text(*self.PICKER))
         with self.assertRaises(InspectionStopped): start.close_reel_details(b'before', details)   # Back must reach the editor.
 
     def test_anything_but_the_picker_after_the_close_stops(self):
@@ -231,6 +232,24 @@ class StartScreenReelEditorTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): start.close_reel_editor(b'before', text(*self.EDITOR))
         self.assertEqual(1, len(taps))
 
+
+    def test_the_screen_after_the_back_tap_is_decided_only_once_settled(self):
+        import io
+        from PIL import Image, ImageDraw
+        from farm_start_screen import StartScreen, SETTLE_TRIES
+        def frame(bar_x, video=0):
+            image = Image.new('RGB', (500, 1080), (20, 20, 20)); draw = ImageDraw.Draw(image)
+            draw.rectangle((bar_x, 80, bar_x + 60, 120), fill='white')            # Top bar sliding in.
+            draw.rectangle((0, 300 + video, 500, 400 + video), fill=(200, 50, 50))   # The playing video.
+            out = io.BytesIO(); image.save(out, 'PNG'); return out.getvalue()
+        def start_with(raws):
+            start = StartScreen.__new__(StartScreen); frames = iter(raws); start.pause = lambda s: None
+            start.fresh = lambda role: (next(frames), role, 0, 0)
+            return start
+        start = start_with([frame(200), frame(100), frame(20, 0), frame(20, 40)])   # The video moves; the bar has stopped.
+        self.assertEqual('after-settle-3', start.fresh_settled('after', only=((0, 65, 500, 130),))[1])
+        start = start_with([frame(20 + 30 * n) for n in range(SETTLE_TRIES)])
+        with self.assertRaises(InspectionStopped): start.fresh_settled('after', only=((0, 65, 500, 130),))
 
 class ShiftedShareSheetTests(unittest.TestCase):
     def test_a_sheet_settled_lower_is_read_at_its_own_position(self):
