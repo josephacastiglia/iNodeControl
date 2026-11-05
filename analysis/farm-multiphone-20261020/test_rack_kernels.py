@@ -101,7 +101,8 @@ class SplitTests(unittest.TestCase):
     def test_rekernel_changes_only_the_kernel(self):
         out = self.f.root / 'slots'; out.mkdir()
         prep = rk.rekernel(self.f.base_path, self.f.kernel, out)
-        self.assertEqual({k: v for k, v in prep.items() if k not in ('kernel', 'kernelSha256', 'rekernelFrom')}, self.f.base)
+        skip = ('kernel', 'kernelSha256', 'rekernelFrom')
+        self.assertEqual({k: v for k, v in prep.items() if k not in skip}, {k: v for k, v in self.f.base.items() if k not in skip})
         self.assertEqual(prep['kernelSha256'], sha(self.f.kernel.with_suffix('.dll')))
         self.assertEqual(prep['rekernelFrom']['kernelSha256'], '0' * 64)
         with self.assertRaises(SystemExit): rk.rekernel(self.f.base_path, self.f.kernel, out)   # never overwrites
