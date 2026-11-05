@@ -138,6 +138,15 @@ class Build(Base):
         self.assertTrue(manifest['commands']['server']['ready'])
         self.assertFalse(out.with_name(out.name + '.partial').exists())
 
+    def test_zip_is_named_after_the_whole_folder_and_holds_the_package(self):
+        import zipfile
+        manifest, out, _ = build_package(self.base, version='2026.11.05-abc', out=self.base / 'packages/farm-2026.11.05-abc', make_zip=True)
+        archive = self.base / 'packages/farm-2026.11.05-abc.zip'
+        self.assertTrue(archive.is_file(), sorted(p.name for p in archive.parent.iterdir()))
+        with zipfile.ZipFile(archive) as z:
+            self.assertIsNone(z.testzip())
+            self.assertEqual(set(z.namelist()), set(manifest['files']) | {'release.json'})
+
     def test_existing_output_and_checkout_output_rules(self):
         _, out, repo = build_package(self.base)
         kernel, console, receiver, runtime = make_builds(self.base / 'again')

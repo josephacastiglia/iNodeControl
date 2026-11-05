@@ -537,7 +537,7 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
         raise ValueError('package failed its own verification: ' + '; '.join(issues))
     os.replace(partial, out)  # the complete package appears in one step
     if make_zip:
-        archive = out.with_suffix('.zip')
+        archive = out.with_name(out.name + '.zip')  # not with_suffix: versions hold dots (farm-2026.11.05-x)
         with zipfile.ZipFile(archive, 'x', zipfile.ZIP_DEFLATED) as z:
             for p in sorted(out.rglob('*')):
                 if p.is_file():
