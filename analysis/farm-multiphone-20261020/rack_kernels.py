@@ -31,6 +31,10 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # rack-a/, rack-b/, slot and board maps: here in a checkout, the data folder when installed
+RUNS = farm_paths.run_root(ROOT)    # output/candidate-runs/...
 DATA_FILES = ('devices.json', 'receivers.json', 'pointer-calibration.json')
 KERNEL_NAMES = {'iMouse2.Kernel.exe'}
 RECEIVER_NAMES = {'uxplay.exe'}
@@ -42,7 +46,7 @@ DEFAULT_PORTS = {'A': 9916, 'B': 9926}
 
 def load(path): return json.loads(Path(path).read_text(encoding='utf-8-sig'))
 def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-def rack_dir(rack): return HERE / f'rack-{rack.lower()}'
+def rack_dir(rack): return STATE / f'rack-{rack.lower()}'
 
 
 def api_port(prep):
@@ -59,7 +63,7 @@ def _option(arguments, name):
     return arguments[arguments.index(name) + 1] if name in arguments else None
 
 
-def split(base_path, kernel, rack_b_boards, slots_a, slots_b, ports=None, root=ROOT, now=None):
+def split(base_path, kernel, rack_b_boards, slots_a, slots_b, ports=None, root=RUNS, now=None):
     """The two rack preparations and their data rows: {rack: (preparation, {file: rows})}. Writes nothing."""
     ports = dict(DEFAULT_PORTS, **(ports or {}))
     if ports['A'] == ports['B']: raise SystemExit('The two racks need different kernel ports.')
@@ -112,7 +116,7 @@ def split(base_path, kernel, rack_b_boards, slots_a, slots_b, ports=None, root=R
                     receivers=[dict(board=r['BoardPid'], name=r['Name'], port=r['Port']) for r in rack_rows['receivers.json']],
                     slots={b: s for b, s in (base.get('slots') or {}).items() if b.upper() in mine},
                     rackB=sorted(mine) if rack == 'B' else [],
-                    derivedFrom=str(Path(base_path).resolve().relative_to(HERE)).replace('\\', '/') if Path(base_path).resolve().is_relative_to(HERE) else str(base_path),
+                    derivedFrom=str(Path(base_path).resolve().relative_to(STATE)).replace('\\', '/') if Path(base_path).resolve().is_relative_to(STATE) else str(base_path),
                     serviceStarted=False, phoneInput=False)
         out[rack] = (prep, rack_rows)
     return out
@@ -214,16 +218,16 @@ def main():
         c.add_argument('--rack', choices=['A', 'B', 'a', 'b'])
     args = parser.parse_args()
     if args.command == 'prepare':
-        rack_b = [b['board'] for b in load(HERE / 'rack-b-boards.json')['boards']]
-        slots_a = [v['board'] for v in load(HERE / 'phone-slots.json')['slots'].values()]
-        slots_b = [v['board'] for v in load(HERE / 'rack-b-slots.json')['slots'].values()]
-        result = split(HERE / args.base, args.kernel, rack_b, slots_a, slots_b, dict(A=args.port_a, B=args.port_b))
+        rack_b = [b['board'] for b in load(STATE / 'rack-b-boards.json')['boards']]
+        slots_a = [v['board'] for v in load(STATE / 'phone-slots.json')['slots'].values()]
+        slots_b = [v['board'] for v in load(STATE / 'rack-b-slots.json')['slots'].values()]
+        result = split(STATE / args.base, args.kernel, rack_b, slots_a, slots_b, dict(A=args.port_a, B=args.port_b))
         write(result)
-        print(json.dumps({r: dict(port=api_port(p), boards=len(p['boards']), run=str(Path(p['runDirectory']).relative_to(ROOT)))
+        print(json.dumps({r: dict(port=api_port(p), boards=len(p['boards']), run=str(Path(p['runDirectory']).relative_to(RUNS)))
                           for r, (p, _) in result.items()}))
         return
     if args.command == 'rekernel':
-        prep = rekernel(HERE / args.base, args.kernel, HERE / args.out)
+        prep = rekernel(STATE / args.base, args.kernel, STATE / args.out)
         print(json.dumps(dict(kernel=prep['kernel'], kernelSha256=prep['kernelSha256'], receivers=len(prep['receivers']))))
         return
     snapshot = read_snapshot(sys.stdin.buffer.read())

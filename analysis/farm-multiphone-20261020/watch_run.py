@@ -8,6 +8,10 @@ from pathlib import Path
 import time
 
 HERE = Path(__file__).resolve().parent
+import sys  # noqa: E402
+sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 
 
 def main():
@@ -15,7 +19,7 @@ def main():
     parser.add_argument('--window', required=True)
     parser.add_argument('--driver-output', required=True, type=Path)
     args = parser.parse_args()
-    prep = json.loads((HERE / 'windows' / args.window / 'preparation.json').read_text(encoding='utf-8'))
+    prep = json.loads((STATE / 'windows' / args.window / 'preparation.json').read_text(encoding='utf-8'))
     runs = Path(prep['backendData']) / prep['route']
     seen = 0
     while True:

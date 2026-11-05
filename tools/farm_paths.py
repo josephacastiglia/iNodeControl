@@ -40,6 +40,21 @@ def run_root(default):
     return MAIN if DATA else Path(default)
 
 
+def source_option(argv, default, flag='--source'):
+    """Take `flag DIR` out of argv and return DIR. Without it: `default` (today's sibling-repo input) in a
+    checkout; installed there is no sibling repo, so the flag is required."""
+    if flag in argv:
+        i = argv.index(flag)
+        if i + 1 >= len(argv):
+            raise SystemExit(f'{flag} needs a folder.')
+        value = argv[i + 1]
+        del argv[i:i + 2]
+        return Path(value)
+    if DATA:
+        raise SystemExit(f'Installed: pass {flag} <config folder>; there is no sibling checkout to read.')
+    return Path(default)
+
+
 def installed(name, default=None):
     """An installed component Farm.ps1 names (IMOUSE_FARM_KERNEL, _RECEIVER, _RECEIVER_RUNTIME, _PYTHON):
     that path when installed and set, else `default`."""
