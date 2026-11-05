@@ -303,12 +303,20 @@ class StartScreen:
 
     def open_from_home(self, name):
         """The workflow's own route: Home, then the app icon, or Spotlight's Search pill and its Top Hit."""
-        from farm_creation_layout import app_target, empty_search, home_search, search_clear
+        from farm_creation_layout import app_target, empty_search, home, home_search, search_clear
         from farm_draft_workflow import centre
-        # Home only leaves the current app for the home screen; it is never an app action.
-        self.command('/key/sendkey', 'home-before-start-screen', fn_key='Home')
-        self.pause(1.2)
-        raw, text, _, _ = self.fresh('home')
+        # Home only leaves the current app for the home screen; it is never an app action. It is never sent over
+        # Control Center (B5, 4 Nov: a Home there opened Settings) nor on the Home screen itself (B5: a Home on
+        # the Home screen opened Control Center once), so the screen is read first.
+        raw, text, _, _ = self.fresh('before-home')
+        if self.control_center(text): raise InspectionStopped('Control Center is open; Home is never sent over it. No input.')
+        try: on_home = home(text, raw)
+        except InspectionStopped: on_home = False
+        if not on_home:
+            self.command('/key/sendkey', 'home-before-start-screen', fn_key='Home')
+            self.pause(1.2)
+            raw, text, _, _ = self.fresh('home')
+            if self.control_center(text): raise InspectionStopped('Home opened Control Center; no further input.')
         try: point = app_target(text, name, raw)
         except InspectionStopped: point = None
         if point is None:

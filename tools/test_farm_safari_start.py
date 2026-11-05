@@ -690,7 +690,9 @@ class StartScreenSpotlightTests(unittest.TestCase):
         start.record = dict(commands=[], observations=[]); start.save = lambda: None; start.pause = lambda s: None
         start.command = lambda fun, purpose, **data: keys.append(purpose)
         start.tap = lambda raw, text, point, role, purpose, only=None: taps.append((purpose, point))
-        frames = iter([(b'home', 'home'), (b'restored', 'restored'), (b'cleared', 'cleared'), (b'result', 'result'), (b'after', 'after')])
+        start.control_center = lambda text: False
+        frames = iter([(b'app', 'app'), (b'home', 'home'), (b'restored', 'restored'), (b'cleared', 'cleared'), (b'result', 'result'),
+                       (b'after', 'after')])
         start.fresh = lambda role: (*next(frames), 0, 0)
         def app_target(text, name, frame=None):
             if text != 'result': raise InspectionStopped('no label')
@@ -698,12 +700,39 @@ class StartScreenSpotlightTests(unittest.TestCase):
         def empty_search(text, frame=None):
             if text != 'cleared': raise InspectionStopped('restored query')
             return True
-        with mock.patch.multiple(layout, app_target=app_target, empty_search=empty_search,
+        def home(text, frame=None):
+            if text != 'home': raise InspectionStopped('not home')
+            return True
+        with mock.patch.multiple(layout, app_target=app_target, empty_search=empty_search, home=home,
                                  home_search=lambda raw, text: [205, 879, 296, 920],
                                  search_clear=lambda raw: [430, 988, 462, 1022]),                 mock.patch.object(layout, 'control', side_effect=AssertionError('template only')):
             start.open_from_home('X')
         self.assertEqual(['open-app-search', 'clear-restored-search', 'open-x'], [p for p, _ in taps])
         self.assertEqual((446, 1005), taps[1][1])
+        self.assertEqual(['home-before-start-screen', 'query-x'], keys)
+
+    def test_home_is_never_sent_over_control_center_or_on_the_home_screen(self):
+        # B5, 4 Nov: a Home over Control Center opened Settings; a Home on the Home screen opened Control Center.
+        from unittest import mock
+        import farm_creation_layout as layout
+        from farm_start_screen import StartScreen
+        def run(screens):
+            start = StartScreen.__new__(StartScreen); keys = []; frames = iter(screens)
+            start.record = dict(commands=[], observations=[]); start.save = lambda: None; start.pause = lambda s: None
+            start.command = lambda fun, purpose, **data: keys.append(purpose)
+            start.tap = lambda raw, text, point, role, purpose, only=None: keys.append(purpose)
+            start.control_center = lambda text: text == 'cc'
+            start.fresh = lambda role: (next(frames), next(frames), 0, 0)
+            def home(text, frame=None):
+                if text != 'home': raise InspectionStopped('not home')
+                return True
+            with mock.patch.multiple(layout, home=home, app_target=lambda text, name, frame=None: (87, 163)):
+                try: start.open_from_home('X'); return 'opened', keys
+                except InspectionStopped: return 'stopped', keys
+        self.assertEqual(('stopped', []), run([b'cc', 'cc']))
+        self.assertEqual(('opened', ['open-x']), run([b'h', 'home', b'a', 'after']))
+        self.assertEqual(('opened', ['home-before-start-screen', 'open-x']), run([b'a', 'app', b'h', 'home', b'x', 'after']))
+        self.assertEqual(('stopped', ['home-before-start-screen']), run([b'a', 'app', b'cc', 'cc']))
 
 
 class StartScreenExitTests(unittest.TestCase):
