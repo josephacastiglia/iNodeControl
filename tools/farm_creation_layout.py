@@ -323,7 +323,7 @@ def restored_app_search(text):
     for name in RESTORED_QUERIES:
         try:return dict(app=name,target=app_target(text,name))
         except InspectionStopped:pass
-    raise InspectionStopped('Only a known Safari/Instagram/YouTube/TikTok app-search result can be dismissed.')
+    raise InspectionStopped('Only the known Safari/Instagram/YouTube/TikTok app-search result can be dismissed.')   # X image matches this prefix.
 
 
 SUGGESTION_LABELS=(10,200,490,236)   # The Siri Suggestions app label row in the empty app search.
