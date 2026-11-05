@@ -23,6 +23,8 @@ from PIL import Image, ImageFilter
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 from identify_phone import acquire, post, request  # noqa: E402
 
 BASE = 'http://127.0.0.1:9916/api'
@@ -64,7 +66,7 @@ def main():
     device = next(d for d in request(BASE, 'GET', '/device/get', timeout=8)['list'] if d.get('pid', '').upper() == board)
     status = {r['deviceid']: r for r in request(BASE, 'GET', '/kernel/status', timeout=8)['receivers']}
     if not status.get(device['deviceid'], {}).get('live'): raise SystemExit(f'{board} is not mirroring.')
-    folder = HERE / 'measure' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
+    folder = STATE / 'measure' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
     folder.mkdir(parents=True)
     record = dict(board=board, phone=device['name'], settleS=args.settle, points=[], phoneInput='pointer moves and resets only')
     token = acquire(BASE, device['deviceid'])

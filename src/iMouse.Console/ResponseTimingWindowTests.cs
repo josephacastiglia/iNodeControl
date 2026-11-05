@@ -55,7 +55,7 @@ public partial class MainWindow
                 exported.GetProperty("timestamp_frequency").GetInt64() > 0 && exported.GetProperty("dropped_events").GetInt64() == 0
                 && exported.GetProperty("events").GetArrayLength() == trace.Snapshot().Events.Length);
             check("Timing checks never show a window or create a native window handle", !window.IsVisible && new WindowInteropHelper(window).Handle == IntPtr.Zero);
-            string qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+            string qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
             File.WriteAllText(Path.Combine(qa, "response-timing-diagnostics.json"), JsonSerializer.Serialize(report, ConsoleDiagnostics.JsonOptions));
         }
         finally { await window.CloseSafelyAsync(); Directory.Delete(folder, true); }

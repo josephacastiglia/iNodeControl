@@ -8,8 +8,12 @@
 # Prepared receivers start held; Release-Receiver.ps1 advertises one at a time.
 param([ValidateSet('','held','slots')][string]$Stage='',[ValidateSet('','A','B')][string]$Rack='')
 $ErrorActionPreference='Stop'
+# State (preparations, process records, logs) sits beside this script in a checkout; installed, Farm.ps1 sets
+# IMOUSE_FARM_DATA and the state is in the data folder. Python: IMOUSE_FARM_PYTHON when installed, else PATH.
+$taskState=if($env:IMOUSE_FARM_DATA){Join-Path $env:IMOUSE_FARM_DATA 'analysis\farm-multiphone-20261020'}else{$PSScriptRoot}
+$taskPy=if($env:IMOUSE_FARM_PYTHON){$env:IMOUSE_FARM_PYTHON}else{'python'}
 if($Stage -and $Rack){throw 'Choose -Stage or -Rack, not both.'}
-$taskDir=if($Rack){Join-Path $PSScriptRoot ('rack-'+$Rack.ToLowerInvariant())}elseif($Stage){Join-Path $PSScriptRoot $Stage}else{$PSScriptRoot}
+$taskDir=if($Rack){Join-Path $taskState ('rack-'+$Rack.ToLowerInvariant())}elseif($Stage){Join-Path $taskState $Stage}else{$taskState}
 $taskProcessFile=Join-Path $taskDir 'processes.json'
 if(Test-Path -LiteralPath $taskProcessFile){throw 'This multi-phone kernel already has a process record. Do not start duplicates.'}
 $taskPrepFile=Join-Path $taskDir 'preparation.json'
@@ -26,7 +30,7 @@ $taskSnap=@{
     listeners=@(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | ForEach-Object LocalPort | Sort-Object -Unique)
 } | ConvertTo-Json -Depth 4 -Compress
 $taskRackArgs=if($Rack){@('--rack',$Rack)}else{@()}
-$taskVerdict=$taskSnap | & python (Join-Path $PSScriptRoot 'rack_kernels.py') check-start --prep $taskPrepFile @taskRackArgs
+$taskVerdict=$taskSnap | & $taskPy (Join-Path $PSScriptRoot 'rack_kernels.py') check-start --prep $taskPrepFile @taskRackArgs
 if($LASTEXITCODE -eq 3){throw "Nothing was stopped or started: $taskVerdict"}elseif($LASTEXITCODE){throw "Start check failed (exit $LASTEXITCODE); nothing was started."}
 if((Get-FileHash -LiteralPath ([IO.Path]::ChangeExtension($taskPrep.kernel,'.dll')) -Algorithm SHA256).Hash.ToLowerInvariant() -cne $taskPrep.kernelSha256){throw 'Kernel changed.'}
 foreach($taskName in 'devices.json','receivers.json','pointer-calibration.json'){

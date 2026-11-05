@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from farm_carousel_inspection import InspectionStopped  # noqa: E402
 from farm_draft_transport import CreationKernel, allowed_tap  # noqa: E402
 from farm_observations import WindowsOcr, classify  # noqa: E402
+from farm_paths import account_label  # noqa: E402
 from farm_creation_layout import control, require  # noqa: E402
 from farm_draft_runs import phone_of  # noqa: E402
 from farm_phone_identity import own_receiver  # noqa: E402
@@ -184,11 +185,14 @@ class StartScreen:
         raise InspectionStopped(f'The {role} screen did not settle; no further input.')
 
     def instagram_profile(self, raw, text):
-        result = classify(text, dict(platform='instagram', account='xs.halle.xo', caption=''), raw)
+        result = classify(text, dict(platform='instagram', account=account_label(), caption=''), raw)  # private data, not code
         return result['screen'] == 'profile' and result['accountStatus'] == 'exact_text_match', result
 
     def control_center(self, text):
-        """C24C's Control Center: its Focus tile and the battery percentage in the status row."""
+        """C24C's Control Center: its Focus tile and the battery percentage in the status row; or a 4.7-inch
+        phone's (B5, 4 Nov: Focus lower, at y 671, with Now Playing or the battery percentage)."""
+        from farm_small_layout import control_center as small_control_center
+        if small_control_center(text): return True
         rows = [(line['text'].strip().casefold(), min(w['y'] for w in line['words'])) for line in text.get('lines', []) if line.get('words')]
         # OCR reads the tile as 'Focus' plus its chevron and the status row with stray icon glyphs.
         # The status row shows the battery percentage or, on the other rack phones, 'SOS only' / 'No SIM'.
@@ -317,6 +321,8 @@ class StartScreen:
             self.pause(1.2)
             raw, text, _, _ = self.fresh('home')
             if self.control_center(text): raise InspectionStopped('Home opened Control Center; no further input.')
+        from farm_creation_layout import small_screen
+        if small_screen(raw): return self.open_from_small_home(name, raw, text)
         try: point = app_target(text, name, raw)
         except InspectionStopped: point = None
         if point is None:
@@ -339,6 +345,43 @@ class StartScreen:
                 self.pause(1.5)
                 raw, text, _, _ = self.fresh('app_result')
                 point = app_target(text, name, raw)
+        self.tap(raw, text, point, 'app_result', 'open-' + name.casefold())
+        self.pause(2.5)
+        return self.fresh('after-open')
+
+    def open_from_small_home(self, name, raw, text):
+        """A 4.7-inch phone (no Search pill): the app's icon on Home page 2, reached with one 100 ms page swipe
+        (a slower one is a long press there), else Spotlight from a downward swipe. Each step decides on a
+        fresh recognized frame; Spotlight's first-use notice is a stop."""
+        import farm_small_layout as small
+        from farm_creation_layout import app_target, empty_search, search_clear
+        from farm_draft_workflow import centre
+        if small.home_page(text, raw) == 1:
+            self.command('/mouse/reset', 'reset-before-page-swipe')
+            self.command('/mouse/swipe', 'home-page-2', **small.PAGE_LEFT)
+            self.pause(1.2)
+            raw, text, _, _ = self.fresh('home_page_2')
+            require(small.home_page(text, raw) == 2, 'Home page 2 is not recognized after the page swipe.')
+        try: point = app_target(text, name, raw)
+        except InspectionStopped: point = None
+        if point is None:
+            self.command('/mouse/reset', 'reset-before-spotlight')
+            self.command('/mouse/swipe', 'open-spotlight', **small.SPOTLIGHT_SWIPE)
+            self.pause(1.2)
+            raw, text, _, _ = self.fresh('app_search_entry')
+            state = small.spotlight(text)
+            if state['state'] != 'ready': raise InspectionStopped(state['stop'])
+            try: empty = empty_search(text, raw)
+            except InspectionStopped: empty = False
+            if not empty:
+                self.tap(raw, text, centre(search_clear(raw)), 'app_search_entry', 'clear-restored-search')
+                self.pause(.8)
+                raw, text, _, _ = self.fresh('app_search_cleared')
+                empty_search(text, raw)
+            self.command('/key/sendkey', 'query-' + name.casefold(), key=name)
+            self.pause(1.5)
+            raw, text, _, _ = self.fresh('app_result')
+            point = app_target(text, name, raw)
         self.tap(raw, text, point, 'app_result', 'open-' + name.casefold())
         self.pause(2.5)
         return self.fresh('after-open')

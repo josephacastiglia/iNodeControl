@@ -34,9 +34,10 @@ import urllib.request
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from farm_schedule_queue import NOT_READY, STOPPED_SAFELY, VERIFIED, check_label  # noqa: E402
+import farm_paths  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-FOLDER = ROOT / 'analysis/farm-multiphone-20261020'
+FOLDER = ROOT / 'analysis/farm-multiphone-20261020'  # release-lint: code (the rack scripts; their state: farm_paths.rack_state)
 KERNEL = 'http://127.0.0.1:9916/api'
 MAX_FRAME_AGE_MS = 1500
 # window platform -> (queue platform label, start screen)
@@ -104,10 +105,12 @@ class WindowSteps:
 
     def __init__(self, staging, folder=FOLDER, kernel=KERNEL, python=sys.executable, log_dir=None):
         self.staging, self.folder, self.kernel, self.python = Path(staging), Path(folder), kernel, python
+        # Code runs from self.folder; window state lives there too in a checkout, in the data folder when installed.
+        self.state = farm_paths.rack_state(self.folder)
         self.log_dir = Path(log_dir) if log_dir else self.staging.parent / 'runs'
 
     # --- staging ---
-    def window_path(self, name): return self.folder / 'windows' / name
+    def window_path(self, name): return self.state / 'windows' / name
     def staged(self, package_id): return self.staging / str(package_id)
 
     def read_staged(self, package_id):
@@ -125,7 +128,7 @@ class WindowSteps:
         shutil.move(str(self.window_path(name)), str(self.staged(package_id)))
 
     def archive(self, package_id, name):
-        archive = self.folder / 'windows-archive'; archive.mkdir(exist_ok=True)
+        archive = self.state / 'windows-archive'; archive.mkdir(exist_ok=True)
         target = next(archive / f'{name}-sched-{package_id}-{n}' for n in range(1, 1000)
                       if not (archive / f'{name}-sched-{package_id}-{n}').exists())
         shutil.move(str(self.window_path(name)), str(target))

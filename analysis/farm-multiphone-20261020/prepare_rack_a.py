@@ -26,8 +26,13 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-FULL = ROOT.parent / 'iMouseXP-2.0/analysis/full-rack-config'
-OUT = HERE / 'slots'
+sys.path.insert(0, str(ROOT / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # slots/ and phone-slots.json: here in a checkout, the data folder when installed
+RUNS = farm_paths.run_root(ROOT)
+# --source DIR names the full-rack config (devices, receivers, calibration of every board).
+FULL = farm_paths.source_option(sys.argv, ROOT.parent / 'iMouseXP-2.0/analysis/full-rack-config')  # release-lint: dev-fallback
+OUT = STATE / 'slots'
 ADDED = ('E414', '3523', 'C415', '764E', '374C', '3848', 'D446', '9515', '7949', '704E', '694E', '1248', '1814', 'D142',
          'C241')   # Untouchable until 28 Oct, when the operator said its phone is no longer theirs.
 # Screen sizes in points by model identifier; an unknown model keeps the September placeholder.
@@ -61,7 +66,7 @@ def main():
     step = sys.argv[1] if len(sys.argv) > 1 else ''
     if step not in ('pending', 'bound'): raise SystemExit('Usage: prepare_rack_a.py pending|bound')
     if (OUT / 'preparation.json').exists(): raise SystemExit('slots/preparation.json exists; archive it first.')
-    base = load(HERE / 'slots' / 'preparation-4phone-20261020.json')
+    base = load(STATE / 'slots' / 'preparation-4phone-20261020.json')
     source = Path(base['runDirectory']) / 'data'
     for name, digest in base['dataSha256'].items():
         if sha(source / name) != digest: raise SystemExit(f'Four-phone {name} changed.')
@@ -70,10 +75,10 @@ def main():
     calibration = load(source / 'pointer-calibration.json')
     full = {name: {r['pid' if 'pid' in r else 'BoardPid' if 'BoardPid' in r else 'Pid']: r for r in load(FULL / name)}
             for name in ('devices.json', 'receivers.json', 'pointer-calibration.json')}
-    slots = {v['board']: int(k) for k, v in load(HERE / 'phone-slots.json')['slots'].items()}
+    slots = {v['board']: int(k) for k, v in load(STATE / 'phone-slots.json')['slots'].items()}
     xr = next(c for c in calibration if c['Pid'] == 'C24C')
     # The bound step reads the pending run's receiver logs (its preparation archived under this name).
-    pending_run = load(HERE / 'slots' / 'preparation-pending.json')['runDirectory'] if step == 'bound' else None
+    pending_run = load(STATE / 'slots' / 'preparation-pending.json')['runDirectory'] if step == 'bound' else None
     learned = {}
     for board in ADDED:
         d, r, c = (dict(full['devices.json'][board]), dict(full['receivers.json'][board]), dict(full['pointer-calibration.json'][board]))
@@ -96,7 +101,7 @@ def main():
         devices.append(d); receivers.append(r); calibration.append(c)
     if len({r['Port'] for r in receivers}) != len(receivers): raise SystemExit('Receiver ports collide.')
     if len({r['Name'] for r in receivers}) != len(receivers): raise SystemExit('Receiver names collide.')
-    run = ROOT / f"output/candidate-runs/multiphone-racka-{step}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
+    run = RUNS / f"output/candidate-runs/multiphone-racka-{step}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
     data = run / 'data'; data.mkdir(parents=True)
     for name, rows in (('devices.json', devices), ('receivers.json', receivers), ('pointer-calibration.json', calibration)):
         (data / name).write_text(json.dumps(rows, indent=2), encoding='utf-8')
@@ -116,7 +121,7 @@ def main():
                        dataSha256={n: sha(data / n) for n in ('devices.json', 'receivers.json', 'pointer-calibration.json')})
     (OUT / 'preparation.json').write_text(json.dumps(preparation, indent=2), encoding='utf-8')
     if learned: (run / 'learned-addresses.json').write_text(json.dumps({b: v['address'] for b, v in learned.items()}, indent=2), encoding='utf-8')
-    print(json.dumps(dict(prepared=step, boards=len(enabled), run=str(run.relative_to(ROOT)),
+    print(json.dumps(dict(prepared=step, boards=len(enabled), run=str(run.relative_to(RUNS)),
                           receivers=[r['Name'] for r in receivers])))
 
 

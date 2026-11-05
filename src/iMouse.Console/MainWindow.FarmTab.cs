@@ -149,9 +149,9 @@ public partial class MainWindow
         {
             try
             {
-                Process.Start(new ProcessStartInfo("python", $"\"{scriptPath}\" --no-browser --mode simulate --port 9915")
+                Process.Start(new ProcessStartInfo(InstallLayout.Python, $"\"{scriptPath}\" --no-browser --mode simulate --port 9915")
                 {
-                    WorkingDirectory = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(scriptPath)) ?? AppContext.BaseDirectory,
+                    WorkingDirectory = InstallLayout.FarmStateRoot(scriptPath),
                     UseShellExecute = false,
                     CreateNoWindow = true
                 });

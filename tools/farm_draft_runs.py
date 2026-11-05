@@ -24,7 +24,20 @@ from imouse_social_automation import KernelSafetyError
 from farm_phone_identity import LEGACY_C24C, PhoneIdentity, PhoneIdentityError
 
 
-ACCOUNT = 'xs.halle.xo'
+from farm_paths import ARCHIVE
+
+
+def _private_account():
+    """The v1 C24C candidate's account handle: per-machine private data, never in Git or a package
+    (<evidence archive>/privacy/farm-accounts.json, "v1CandidateAccount"). '' when this machine has none,
+    so a v1 workflow naming an account never matches."""
+    try:
+        return str(json.loads((ARCHIVE / 'privacy' / 'farm-accounts.json').read_text(encoding='utf-8'))['v1CandidateAccount'])
+    except (OSError, ValueError, KeyError):
+        return ''
+
+
+ACCOUNT = _private_account()
 CONTENT_SHA256 = 'fa226761c643c72800a2fada366652ae4baa49177cea3e76e5280b71f673a058'
 API = 'http://127.0.0.1:9916/api'
 

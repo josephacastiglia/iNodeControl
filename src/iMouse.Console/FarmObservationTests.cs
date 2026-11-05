@@ -71,8 +71,8 @@ internal sealed partial class FarmObservationWindow
             var bitmap = new RenderTargetBitmap(860, 780, 96, 96, PixelFormats.Pbgra32);
             var background = new DrawingVisual(); using (var drawing = background.RenderOpen()) drawing.DrawRectangle(window.Background, null, new Rect(0, 0, 860, 780));
             bitmap.Render(background); bitmap.Render(content); var png = new PngBitmapEncoder(); png.Frames.Add(BitmapFrame.Create(bitmap));
-            Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "qa"));
-            using (var file = File.Create(Path.Combine(AppContext.BaseDirectory, "qa", "farm-observation-headless.png"))) png.Save(file);
+            Directory.CreateDirectory(Path.Combine(InstallLayout.RunFiles, "qa"));
+            using (var file = File.Create(Path.Combine(InstallLayout.RunFiles, "qa", "farm-observation-headless.png"))) png.Save(file);
             check("Screen review renders headlessly without opening a native window", content.IsArrangeValid && new WindowInteropHelper(window).Handle == IntPtr.Zero);
         }
         finally { window.Close(); }
@@ -139,7 +139,7 @@ internal sealed partial class FarmPreparationWindow
             var bitmap = new RenderTargetBitmap(720, 820, 96, 96, PixelFormats.Pbgra32);
             var background = new DrawingVisual(); using (var drawing = background.RenderOpen()) drawing.DrawRectangle(window.Background, null, new Rect(0, 0, 720, 820));
             bitmap.Render(background); bitmap.Render(content); var png = new PngBitmapEncoder(); png.Frames.Add(BitmapFrame.Create(bitmap));
-            using (var file = File.Create(Path.Combine(AppContext.BaseDirectory, "qa", "farm-preparation-headless.png"))) png.Save(file);
+            using (var file = File.Create(Path.Combine(InstallLayout.RunFiles, "qa", "farm-preparation-headless.png"))) png.Save(file);
             check("Preparation schedule renders without showing a desktop window", content.IsArrangeValid && new WindowInteropHelper(window).Handle == IntPtr.Zero);
         }
         finally { window.Close(); }

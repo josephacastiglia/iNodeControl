@@ -67,7 +67,7 @@ internal sealed partial class FarmDraftVerificationWindow
             var image = new RenderTargetBitmap(1000, 860, 96, 96, PixelFormats.Pbgra32);
             var background = new DrawingVisual(); using (var drawing = background.RenderOpen()) drawing.DrawRectangle(window.Background, null, new Rect(0, 0, 1000, 860));
             image.Render(background); image.Render(content); var png = new PngBitmapEncoder(); png.Frames.Add(BitmapFrame.Create(image));
-            using (var file = File.Create(Path.Combine(AppContext.BaseDirectory, "qa", "farm-draft-verification-headless.png"))) png.Save(file);
+            using (var file = File.Create(Path.Combine(InstallLayout.RunFiles, "qa", "farm-draft-verification-headless.png"))) png.Save(file);
             check("Draft evidence review renders without creating a desktop window", content.IsArrangeValid && new WindowInteropHelper(window).Handle == IntPtr.Zero);
         }
         finally { window.Close(); }

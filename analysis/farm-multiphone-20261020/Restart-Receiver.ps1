@@ -9,9 +9,12 @@
 param([Parameter(Mandatory)][ValidatePattern('^[0-9A-Fa-f]{4}$')][string]$Board,[ValidateSet('','held','slots')][string]$Stage='',
     [ValidateSet('','A','B')][string]$Rack='',[switch]$Hold,[switch]$Withdraw,[string]$Token='')
 $ErrorActionPreference='Stop'
+# State (preparations, process records, logs) sits beside this script in a checkout; installed, Farm.ps1 sets
+# IMOUSE_FARM_DATA and the state is in the data folder. Python: IMOUSE_FARM_PYTHON when installed, else PATH.
+$taskState=if($env:IMOUSE_FARM_DATA){Join-Path $env:IMOUSE_FARM_DATA 'analysis\farm-multiphone-20261020'}else{$PSScriptRoot}
 if($Stage -and $Rack){throw 'Choose -Stage or -Rack, not both.'}
 if(!$Stage -and !$Rack){$Stage='slots'}
-$taskDir=if($Rack){Join-Path $PSScriptRoot ('rack-'+$Rack.ToLowerInvariant())}else{Join-Path $PSScriptRoot $Stage}
+$taskDir=if($Rack){Join-Path $taskState ('rack-'+$Rack.ToLowerInvariant())}else{Join-Path $taskState $Stage}
 $taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json
 if([string]$taskPrep.rack -cne $Rack){throw "The preparation's rack ('$($taskPrep.rack)') is not -Rack '$Rack'."}
 $taskApi=([string]$taskPrep.arguments[0]).TrimEnd('/')

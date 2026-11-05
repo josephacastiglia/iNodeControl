@@ -68,7 +68,7 @@ internal sealed partial class FarmDraftRehearsalWindow
             var image = new RenderTargetBitmap(850, 800, 96, 96, PixelFormats.Pbgra32);
             var background = new DrawingVisual(); using (var drawing = background.RenderOpen()) drawing.DrawRectangle(window.Background, null, new Rect(0, 0, 850, 800));
             image.Render(background); image.Render(content); var png = new PngBitmapEncoder(); png.Frames.Add(BitmapFrame.Create(image));
-            using (var file = System.IO.File.Create(System.IO.Path.Combine(AppContext.BaseDirectory, "qa", "farm-draft-rehearsal-headless.png"))) png.Save(file);
+            using (var file = System.IO.File.Create(System.IO.Path.Combine(InstallLayout.RunFiles, "qa", "farm-draft-rehearsal-headless.png"))) png.Save(file);
             check("Draft rehearsal renders without creating a desktop window", content.IsArrangeValid && new WindowInteropHelper(window).Handle == IntPtr.Zero);
         }
         finally { window.Close(); }

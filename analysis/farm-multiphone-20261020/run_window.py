@@ -18,6 +18,10 @@ import urllib.request
 import uuid
 
 HERE = Path(__file__).resolve().parent
+import sys  # noqa: E402
+sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 KERNEL = 'http://127.0.0.1:9916/api'
 
 
@@ -37,7 +41,7 @@ def main():
     parser.add_argument('--window', required=True)
     parser.add_argument('--attempt', type=int, required=True)
     args = parser.parse_args()
-    folder = HERE / 'windows' / args.window
+    folder = STATE / 'windows' / args.window
     prep = json.loads((folder / 'preparation.json').read_text(encoding='utf-8'))
     if not (folder / 'processes.json').exists(): raise SystemExit('This window is not started.')
     out = folder / f'attempt-{args.attempt}'

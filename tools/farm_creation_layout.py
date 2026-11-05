@@ -212,9 +212,16 @@ def caption_editor(text, caption=None, frame=None):
 HOME_SEARCH_BOX=(205,879,296,920)
 
 
+def small_screen(frame):
+    """A 4.7-inch phone (rack B: iPhone 6s/7/8/SE), told by its letterboxed frame; see farm_small_layout."""
+    from farm_small_layout import small_screen as small
+    return frame is not None and small(frame)
+
+
 def home_search(frame,text):
     """The Home screen Search pill. Its translucent fill takes the wallpaper's tint (C24C, 20 Oct:
     5.4% changed pixels after a restart), so the exact OCR word inside the pill box also proves it."""
+    require(not small_screen(frame),'A 4.7-inch Home screen has no Search pill: Spotlight opens with a downward swipe.')
     try: return control(frame,'home_search')
     except InspectionStopped: pass
     if words_at(text,'search',HOME_SEARCH_BOX): return list(HOME_SEARCH_BOX)
@@ -236,6 +243,10 @@ def pill_word(frame):
 
 
 def home(text,frame=None):
+    if small_screen(frame):
+        from farm_small_layout import home_page
+        home_page(text,frame)   # Page dots and its icon grid, labels read enlarged row by row.
+        return True
     if frame is not None:
         home_search(frame,text)
         grid=[]
@@ -256,6 +267,9 @@ def home(text,frame=None):
 
 
 def empty_search(text,frame=None):
+    if small_screen(frame):
+        from farm_small_layout import empty_spotlight
+        return empty_spotlight(text)
     require(line_at(text,'siri suggestions',(10,65,320,125)), 'The empty iOS app search is not recognized.')
     if frame is None:require(words_at(text,'search',(40,930,475,1045)), 'The app search field is not empty and focused.')
     else:
@@ -281,6 +295,9 @@ def search_clear(frame):
     """The app search field's clear button. Its template follows the wallpaper through the
     translucent field (slot 17, 22 Oct); the white glyph alone is then measured in place
     (.35 of its box bright; an empty field .0)."""
+    if small_screen(frame):
+        from farm_small_layout import spotlight_clear
+        return spotlight_clear(frame)
     try: return control(frame,'search_clear')
     except InspectionStopped:
         image=pixels(frame,exact=True)
@@ -308,6 +325,9 @@ TOP_HIT_LABELS=(10,195,490,232)      # The Spotlight Top Hit label row (the app,
 
 
 def app_target(text, name,frame=None):
+    if small_screen(frame):
+        from farm_small_layout import app_target as small_target
+        return small_target(text,name,frame)
     rows=[r for r in text.get('lines',[]) if r.get('words')]
     labels={r['text'].casefold() for r in rows}
     try: home(text,frame);home_screen=True
