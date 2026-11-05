@@ -200,22 +200,32 @@ def feed_create_button(frame):
     return bool(dark > .7 and .3 < white < .55 and cyan > .02 and pink > .02)
 
 
+CENTRED_COUNTERS = dict(following=(60, 316, 190, 346), follower=(195, 316, 305, 346), followers=(195, 316, 305, 346),
+                        likes=(320, 316, 420, 346))
+CENTRED_BAND = (40, 292, 460, 346)
+
+
 def tiktok_profile(frame, text, account):
     """The exact signed-in TikTok profile; the Drafts tile count is supplementary evidence."""
     no_overlay(text)
-    require(words_at(text, '@' + account.casefold(), (10, 165, 300, 200)), 'The TikTok profile does not show the exact account.')
+    # Two profile layouts: A20's (handle top left, counters at y 228-258) and the newer centred one (A14, 5 Nov:
+    # avatar above, handle centred at y 267, counters at y 324). Each needs its own complete set; none are mixed.
+    centred = words_at(text, '@' + account.casefold(), (150, 255, 350, 295))
+    require(centred or words_at(text, '@' + account.casefold(), (10, 165, 300, 200)), 'The TikTok profile does not show the exact account.')
+    boxes = (CENTRED_COUNTERS if centred else
+             dict(following=(10, 228, 100, 258), likes=(195, 228, 270, 258), follower=(105, 228, 195, 258), followers=(105, 228, 205, 258)))
     def counters(found):
-        return (found('following', (10, 228, 100, 258)) and found('likes', (195, 228, 270, 258))
-                and (found('follower', (105, 228, 195, 258)) or found('followers', (105, 228, 205, 258))))
+        return (found('following', boxes['following']) and found('likes', boxes['likes'])
+                and (found('follower', boxes['follower']) or found('followers', boxes['followers'])))
     if not counters(lambda label, box: words_at(text, label, box)):
-        # Full-frame OCR drops 'Likes' on slot 20 (4 Nov); the counter labels are read again alone, enlarged.
-        band = [(t.casefold(), x0, y0, x1, y1) for t, x0, y0, x1, y1 in band_words(frame, (10, 205, 300, 262), 3)]
+        # Full-frame OCR drops 'Likes' on slot 20 (4 Nov) and on A14 (5 Nov); the counter labels are read again alone, enlarged.
+        band = [(t.casefold(), x0, y0, x1, y1) for t, x0, y0, x1, y1 in band_words(frame, CENTRED_BAND if centred else (10, 205, 300, 262), 3)]
         def enlarged(label, box):
             return sum(1 for t, x0, y0, x1, y1 in band if t == label and box[0] <= x0 and x1 <= box[2]
                        and box[1] <= y0 and y1 <= box[3]) == 1
         require(counters(enlarged), 'The TikTok profile counters are not recognized.')
     require(words_at(text, 'profile', NAV[3][1]), 'The TikTok navigation bar is not recognized.')
-    control(frame, 'tt_nav_create')
+    control(frame, 'tt_nav_create_centred' if centred else 'tt_nav_create')   # A14's + sits 2 px higher, navy (5 Nov).
     rows = [r['text'] for r in text.get('lines', []) if r.get('words') and min(w['x'] for w in r['words']) < 40
             and 365 <= min(w['y'] for w in r['words']) <= 400]
     if not rows:
