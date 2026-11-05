@@ -85,6 +85,13 @@ class Screens:
             self.texts[key] = text
         p1_state('home_out', '02-home.png'); p1_state('search_out', '04-app_search_entry.png')
         p1_state('safari', '07-safari.png'); p1_state('address', '08-address_selected.png')
+        # The address field after the transfer address was typed (read back before Enter, 4 Nov).
+        with Image.open(io.BytesIO(self.frames['address'])) as base:
+            image = base.convert('RGB'); ImageDraw.Draw(image).rectangle((30, 938, 385, 975), fill='white')
+            ImageDraw.Draw(image).text((34, 948), URL[7:], fill='black'); self.frames['address_typed'] = png(image)
+        typed = copy.deepcopy(self.texts['address'])
+        typed['lines'] = [row for row in typed['lines'] if not any(925 <= w['y'] <= 985 for w in row['words'])] + [line(URL[7:], 34, 945, 330)]
+        self.texts['address_typed'] = typed
         for key, step, which in (('link_menu', '77-download-test-video', 'before'), ('download_ready', '78-downloads-menu', 'before'),
                                  ('page_menu', '79-downloads-list', 'before'), ('downloads', '80-downloaded-video-preview', 'before'),
                                  ('quicklook_hidden', '81-file-preview-controls', 'before'), ('quicklook', '89-video-test-home', 'before'),
@@ -223,6 +230,7 @@ class FixtureKernel:
         """The retained frame shown for the current state and capture count."""
         s, n = self.screen, self.captures.get(self.screen, 0)
         if s in ('home', 'search'): return s + '_' + self.leg
+        if s == 'address' and self.typed: return 'address_typed'
         if s == 'tt_editor':
             if self.removed: return 'tt_editor_sound' if self.scenario == 'sound_returns' else 'tt_editor_silent'
             if n < 2: return 'tt_editor_loading'

@@ -19,6 +19,7 @@ from farm_creation_layout import (require, exact, source_match, picker_grid,
 from farm_draft_workflow import Workflow, atomic_json, centre, icon_matches
 from farm_draft_verification import caption_comparison
 from farm_live_verification import idle
+from farm_home_edit import edit_mode
 from farm_observations import classify
 from farm_screen_layout import pixels, words_at, line_at, overlay_present
 from farm_phone_identity import own_receiver
@@ -48,11 +49,18 @@ class CreationOwnership(OwnedCaptureRun):
 # Still screens whose decision may be reconfirmed by a newer frame: OCR of a full screen can outlast
 # the 1.5 s frame age limit (1.67 s on slot 18, 21 Oct), and a pointer nudge does not always bring a
 # new frame at once (a 1.3 s old profile frame, 21 Oct), although the screen itself is still.
+# Home and Spotlight screens: every click there is settled (moved to first) and refused in icon-edit mode.
+HOME_INPUT_ROLES = ('home', 'search', 'restored_search', 'app_search_entry', 'app_result')
 STILL_SCREENS = ('home', 'search', 'restored_search', 'app_result', 'profile', 'address_selected')   # Address: slot 20, 22 Oct.
+# Aged decisions there stopped runs under load (A18, 4 Nov: 'safari_or_blank' 1740 ms before dispatch, and
+# 'instagram_navigation' with no recent frame); a newer matching frame now carries them, the 1.5 s limit unchanged.
+STILL_SCREENS += ('safari_or_blank', 'instagram_navigation')
 POINTER_PARK = (420, 270, 500, 330)   # The fresh-frame challenge moves the pointer here.
 # Screens whose lower part may still rearrange while the decided target holds still: Spotlight
 # reorders the sections below its Top Hit after the first render (slot 17, 22 Oct).
-ONLY_REGIONS = {'app_result': ((0, 65, 500, 260),)}   # The search field is translucent over the list.
+ONLY_REGIONS = {'app_result': ((0, 65, 500, 260),),   # The search field is translucent over the list.
+                # Instagram's feed autoplays between its header and tab bar; the profile tab is in the bar.
+                'instagram_navigation': ((0, 65, 500, 120), (0, 982, 500, 1045))}
 
 
 def still_compare(role):
@@ -242,6 +250,12 @@ class CreationWorkflow(Workflow):
     def step(self,label,role,*,index=None,point=None,hold=False,settle=False,key=None,text=None,swipe=None):
         require(not any(a['label']==label for a in self.record['actions']), 'Creation action cannot be replayed.')
         value,frame=self.observe(role,index)
+        if role in HOME_INPUT_ROLES:
+            # A held press here enters icon-edit mode, where a later tap can remove an app (A12/A13, 5 Nov):
+            # nothing is sent on it. The start screen, not a run, leaves it with one Home.
+            why=edit_mode(value['text'])
+            if why: raise InspectionStopped('The Home screen is in icon-edit mode ('+why+'); nothing was sent.')
+            if point and not hold: settle=True   # Move, let the pointer rest, then click where it is: no travel while down.
         if callable(point): point=point(value,frame)
         row=dict(label=label,kind=role,observationId=value['id'],state='not_sent')
         self.record['actions'].append(row);self.save()
