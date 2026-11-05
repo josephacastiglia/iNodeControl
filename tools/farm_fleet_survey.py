@@ -40,6 +40,7 @@ ICON_DROP = {'xr': 62, 'small': 50}      # Label top -> icon centre.
 SWIPE_MS = {'xr': 250, 'small': 100}     # 4.7-inch: slower swipes count as a long press (icons wiggle, 30 Oct).
 SWIPE_Y = {'xr': 500, 'small': 560}
 SETTLE_LOOKS = 4
+SHEET_DIM = (250, 300)   # The dimmed profile above Instagram's Create sheet; no row or button there.
 
 # What each app shows (OCR, case-folded). Signed out: farm_small_layout.SIGNED_OUT plus the XR wording.
 SIGNED_OUT = {
@@ -300,14 +301,21 @@ class FleetSurvey:
         from farm_start_screen import PROFILE_TAB, FEED_BARS
         raw, text = self.home('home')
         raw, text, _, _ = self.s.open_from_home('Instagram')
+        own_profile = lambda: {'edit profile', 'share profile'} <= {r['fold'] for r in rows(text)}
+        import farm_reel_layout as reel
+        if reel.create_rows(raw, text):
+            # A stopped Reel run's Create sheet is still open (A19, 5 Nov): one tap on the dimmed profile above it closes it.
+            self.s.tap(raw, text, SHEET_DIM, 'instagram_create_sheet', 'close-create-sheet', only=((0, 620, 500, 1040),))
+            self.s.pause(1.5)
         for n in range(SETTLE_LOOKS):
             raw, text = self.look(f'instagram-{n}', 'Instagram')
-            if self.s.instagram_feed(text, raw): break
+            if self.s.instagram_feed(text, raw) or (own_profile() and not reel.create_rows(raw, text)): break
             self.s.pause(2)
-        if not self.s.instagram_feed(text, raw): raise InspectionStopped('Instagram did not open on its feed; nothing was tapped in it.')
-        self.s.tap(raw, text, PROFILE_TAB, 'instagram_feed', 'open-profile-tab', only=FEED_BARS)
-        self.s.pause(1.5)
-        raw, text = self.look('instagram-profile', 'Instagram')
+        if not own_profile():
+            if not self.s.instagram_feed(text, raw): raise InspectionStopped('Instagram did not open on its feed; nothing was tapped in it.')
+            self.s.tap(raw, text, PROFILE_TAB, 'instagram_feed', 'open-profile-tab', only=FEED_BARS)
+            self.s.pause(1.5)
+            raw, text = self.look('instagram-profile', 'Instagram')
         # The own profile: its Edit profile and Share profile buttons (A14, 5 Nov). The shared classifier needs the
         # account to call it a profile, and the account is what this step is for (it stays in the run folder).
         own = {'edit profile', 'share profile'} <= {r['fold'] for r in rows(text)}

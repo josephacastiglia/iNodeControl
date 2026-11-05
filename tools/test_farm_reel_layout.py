@@ -172,7 +172,10 @@ class TypedAddressTests(unittest.TestCase):
         # A19, 5 Nov: the field scrolled, its first visible '9' cut by the edge (read '3'), the final '/' read 'l'.
         url = 'http://192.168.4.26:9797/t/zp2d8nq76ydz6ss7h8wpn3qf/'
         self.assertTrue(reel.typed_transfer_address(self.field('3797/t/zp2d8nq76ydz6ss7h8wpn3qfl'), url)['addressTyped'])
-        for shown in ('3797/t/zp2d8nq76ydz6ss7h8wpn3qxl',      # A different last character is still refused.
+        # The glyphs beside the caret may be misread ('qbyw/' read 'qbyv•d', A19, 5 Nov).
+        self.assertTrue(reel.typed_transfer_address(self.field('9797/t/nmpskdu286qcj2pgvrskqbyv•d'),
+                                                    'http://192.168.4.26:9797/t/nmpskdu286qcj2pgvrskqbyw/')['addressTyped'])
+        for shown in ('3797/t/zp2d8nq76ydz6ss7x8wpn3qfl',      # A different character inside the path is still refused.
                       '3797/t/zp2d8nq76ydz6ssh8wpn3qfl',       # A dropped character too.
                       'zz7/t/zp2d8nq76ydz6ss7h8wpn3qfl'):      # Only one cut glyph is forgiven.
             with self.subTest(shown), self.assertRaises(InspectionStopped):

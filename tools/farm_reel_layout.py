@@ -626,7 +626,13 @@ def typed_transfer_address(text, url):
     if len(shown) >= 2 and shown[-1] in 'l|I1': shown = shown[:-1] + '/'
     if len(shown.rstrip('/')) < len(expected.rstrip('/')): shown = shown[1:]
     require(len(shown.rstrip('/')) >= 24, 'The Safari address field shows too little of the address.')
-    require(_address_fold(expected.rstrip('/')).endswith(_address_fold(shown.rstrip('/'))),
+    want, read = _address_fold(expected.rstrip('/')), _address_fold(shown.rstrip('/'))
+    # The glyphs beside the caret are the least reliable (A19, 5 Nov: 'qbyw/' read 'qbyv•d'): without its last three,
+    # the read must still be one unbroken run of 20 or more, ending within the address's last three. A previous
+    # transfer's path or a dropped chunk never fits; a wrong last character would 404 and stop on the next page check.
+    core = read[:-3]
+    near_end = len(core) >= 20 and core in want and want.rindex(core) + len(core) >= len(want) - 3
+    require(want.endswith(read) or near_end,
             'The Safari address field does not show this transfer address. Enter was not pressed.')
     return dict(addressTyped=True, shownChars=len(shown))
 
