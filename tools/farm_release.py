@@ -53,7 +53,9 @@ RACK_SCRIPT_GLOBS = ('*.py', '*.ps1')
 # One-off rack probes and bring-up helpers with machine-specific values (phone IPs, a fixed path): not
 # packaged unless an operator script names them.
 DEV_ONLY = {'identify_rack_b.py', 'connect_xr.ps1', 'connect_small.ps1', 'learn_rack_b.ps1', 'board_probe.py',
-            'one_tap.py', 'switcher_probe.py', 'open_app_look.py'}
+            'one_tap.py', 'switcher_probe.py', 'open_app_look.py',
+            # 20 Oct one-shot preparations: fixed run names, they refuse to run again (superseded by prepare_rack_a/b, rack_kernels).
+            'prepare_multiphone.py', 'prepare_slots.py'}
 
 # Never packaged, whatever references them. Matched against the package-relative path (case-insensitive).
 PRIVATE_PATTERNS = (
@@ -86,7 +88,7 @@ LINT_RULES = (
     ('blocker', 'state under the code folder (output/)', re.compile(r'''(?:ROOT|REPO|HERE|taskRoot|taskMain|parents\[\d\])[^\n]{0,40}['"]output(?:[\\/]|['"])''')),
     ('info', 'cwd-relative state (lands in the data folder: Farm.ps1 runs there)', re.compile(r'''^[^#\n]*Path\(\s*['"](?:output|config)[\\/]''')),
     ('blocker', 'state beside the rack scripts ($PSScriptRoot)', re.compile(r'''Join-Path\s+\$PSScriptRoot\s+(?:\$Stage|\$Rack|\(?['"](?:windows|slots|held|rack-|processes|preparation|receivers-ready|identify|autoconnect|measure|look))''', re.I)),
-    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|FOLDER|folder)\s*/\s*['"](?:windows|slots|held|rack-[ab]|identify|autoconnect|measure|look|phone-slots)['"/.-]''')),
+    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|FOLDER|folder)\s*/\s*f?['"](?:windows|slots|held|rack-|identify|autoconnect|card-survey|measure|look|phone-slots)''')),
     ('blocker', 'rack folder via repo layout', re.compile(r'''(?:ROOT|REPO|HERE)[^\n]{0,10}['"]analysis[\\/]+farm-multiphone-20261020['"]''')),
     ('blocker', 'rack state via repo layout', re.compile(r'''['"]analysis[\\/]+farm-multiphone-20261020[\\/]+(?:slots|held|windows|rack-)''', re.I)),
     ('info', 'hard-coded kernel port', re.compile(r'127\.0\.0\.1:99(?:13|16|26)')),
