@@ -3,6 +3,66 @@
 Branch `sb/chat-release`. Off the rack throughout: no kernel, receiver, backend or phone was started,
 stopped or called; nothing was installed system-wide. The rehearsal ran in a temporary folder tree.
 
+## Update, 5 Nov evening: dev-path blockers removed
+
+**Lint: 56 blocker lines before (2f26ed8), 0 after.** Every launcher command is now ready from an
+install, including the console. The rule is one variable, `IMOUSE_FARM_DATA`, which `Farm.ps1` sets.
+When it is unset, every path is today's, and that is tested:
+- `test_farm_paths` checks the paths against the 27 Oct definitions, from the main folder and from a
+  lane;
+- `test_rack_state` imports the 12 edited rack scripts both ways;
+- `test_rack_ps_state` runs sandbox copies of the 6 rack PowerShell scripts both ways, and evaluates
+  the API lines on their own;
+- the four live window preparations resolve to the same `http://127.0.0.1:9916/api` as before.
+
+| Item | Change |
+|---|---|
+| 1 `tools/farm_paths.py` | Set: `MAIN` = data folder, `ARCHIVE` = `<data>/evidence-archive`, new `STATE`; helpers `rack_state`, `run_root`, `installed`, `source_option`, `lan_address`, `machine_config`. The schedule tools and Photos cleanup follow through `MAIN`. `farm_schedule_runner.py`'s window state uses `rack_state`. |
+| 2 Rack Python | `run_window`, `verify_window`, `watch_run`, `relaunch_check`, `auto_connect`, `card_survey`, `pointer_identify`, `pointer_measure`, `rack_kernels`, `prepare_window` (window, run and print lines only), `prepare_rack_a`, `prepare_rack_b`. State goes through `STATE`, runs through `RUNS`. `prepare_rack_b` names the installed kernel, receiver and runtime. `prepare_rack_a --source DIR` replaces the sibling-repo input; it is required when installed. |
+| 3 Rack PowerShell | All six take state from `$taskState` (data folder when installed, `$PSScriptRoot` otherwise) and Python from `IMOUSE_FARM_PYTHON`, else `python`. `Start-Window` finds Python by `IMOUSE_FARM_PYTHON`, then this user's Python 3.11 (the same path as before on this PC), then PATH. `Start-Window` and `Stop-Window` take the kernel API from the window's rack preparation, falling back to :9916, so rack B windows on :9926 now work. |
+| 4 LAN address | One line in `prepare_window.py`. A checkout keeps the same address. Installed: `IMOUSE_FARM_LAN`, else `<data>/machine.json` `lanAddress`, else the PC's single private IPv4. This PC has three, so installed it stops and lists them. |
+| 5 Account handle | `farm_draft_runs.ACCOUNT` now reads `<archive>/privacy/farm-accounts.json`. I wrote that file in the main folder's evidence archive with the same value; it is `''` where absent. `farm_format_coverage.py`'s note no longer names the handle. |
+| 6 Console | New `InstallLayout.cs`. Installed: run, failure and QA files go to `<data>\console`, the farm server comes from `IMOUSE_FARM_HOME`, Python from `IMOUSE_FARM_PYTHON`, and the data folder is the server's working folder; no settings mirror beside the exe. **625 self-tests pass** (8 new), both unset and set; set, the build folder stayed unwritten. |
+
+The 20 Oct one-shots `prepare_multiphone.py` and `prepare_slots.py` were not changed. They use fixed
+run names and refuse to run again, so they are left out of the package.
+
+**Rehearsal with the sandbox rack: 24/24** (`rehearsal-sandbox-20261105.json`).
+- The installed farm modules and server self-check ran with `IMOUSE_FARM_DATA` set, and `farm_paths`
+  pointed at the data folder.
+- Then, only through the installed `Farm.ps1`, against an off-rack kernel. That kernel was the
+  *installed* build, on :9956, with three stand-in receivers, board IDs absent from USB and names
+  `iMouse2-Y1..3`:
+  - `start-rack -Rack B` refused beside the live single kernel and started nothing;
+  - `restart-receiver` restarted one stand-in (generation 2, others unchanged);
+  - `release-receiver` started the held stand-in;
+  - `stop-rack` stopped the kernel gracefully and sent goodbyes for the Y names.
+- All records landed in `<data>/analysis/farm-multiphone-20261020/rack-b/`. A **strict** verify of the
+  installed version afterwards found no new file, and nothing of the sandbox remained.
+- :9916 was never read or called.
+
+**Found by the rehearsal and fixed:**
+- Python wrote `__pycache__` into the version folder. `Farm.ps1` now sets `PYTHONPYCACHEPREFIX` and
+  `-X pycache_prefix` to `<data>\cache\pycache`.
+
+**Learned:**
+- Processes started under an agent session inherit "ignore Ctrl+C". A kernel started that way does not
+  stop with `Stop-Multiphone`'s graceful Ctrl+C. This reproduces with the dev helper too, so it is not
+  a script regression; the sandbox kernel is now created through WMI.
+- The kernel *lists* every WCH board (it logged 19) but opens one only for input to an allowed board,
+  so the sandbox could not grab rack A's boards.
+
+**Before merging:**
+- `farm_draft_runs.py` and `farm_format_coverage.py` are in the farm server's `sourceHash` list. After
+  the merge, Start-Window refuses every window prepared before it until it is prepared again. Merge
+  between runs.
+- `tools/farm_start_screen.py:187` (Small phone lane) still names the account handle. The package build
+  lists it under `account_labels_in` for review.
+- New operator steps on a clean PC:
+  - write `<data>\machine.json` `{"lanAddress": "<farm Wi-Fi IPv4>"}`;
+  - copy `farm-accounts.json` and the privacy lists into `<data>\evidence-archive\privacy\`;
+  - prepare racks with `prepare_rack_a.py --source <full-rack config>`.
+
 ## Result
 
 - **Builder** `tools/farm_release.py`: builds a verified package folder (optional zip) from a kernel
