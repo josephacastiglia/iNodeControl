@@ -24,6 +24,7 @@ from farm_paths import account_label  # noqa: E402
 from farm_creation_layout import control, require  # noqa: E402
 from farm_draft_runs import phone_of  # noqa: E402
 from farm_phone_identity import own_receiver  # noqa: E402
+from farm_home_edit import edit_mode  # noqa: E402
 
 API = 'http://127.0.0.1:9916/api'
 MAX_AGE_MS = 1500
@@ -57,6 +58,18 @@ def frames_agree(a_raw, b_raw, only=None):
     mean = float(np.abs(a - b)[mask].mean())
     strong = float((np.abs(a - b).max(axis=2)[mask] > 35 / 255).mean())
     return mean <= .003 or (mean <= .012 and strong <= .0005)
+
+
+HOME_ROLES = ('home', 'app_search_entry', 'app_result', 'home_page_2')
+CLICK_SETTLE = .5   # Seconds the pointer rests on its target before the click.
+
+
+def result_band(point):
+    """What an app_result tap is confirmed on: the target's own row and the search field. Spotlight's other
+    rows may animate ('Create wallpaper' with its moving thumbnail over the blurred wallpaper, A18 5 Nov:
+    mean .0048 between still frames, y 280-440), so they are left out; the limit itself is unchanged."""
+    x, y = point
+    return ((0, max(65, y - 70), 500, min(1080, y + 70)), (0, 960, 500, 1060))
 
 
 def pointer_blob(a, b, mask):
@@ -296,10 +309,24 @@ class StartScreen:
         labels = {line['text'].strip().casefold() for line in text.get('lines', []) if line.get('words')}
         return {'edit profile', 'share profile'} <= labels
 
+    def leave_edit_mode(self, text):
+        """Home's icon-edit mode: one Home leaves it (the only input allowed there), then the start screen stops."""
+        why = edit_mode(text)
+        if not why: return
+        self.command('/key/sendkey', 'leave-icon-edit-mode', fn_key='Home')
+        self.pause(1.2)
+        raise InspectionStopped(f'The Home screen was in icon-edit mode ({why}); one Home was sent to leave it, nothing else.')
+
     def tap(self, raw, text, point, role, purpose, only=None):
         """One tap on a point recognized in `raw`, decided on a newer fresh frame showing the same screen."""
         allowed_tap(text, *point, 'open_app')
+        if role in HOME_ROLES and edit_mode(text): raise InspectionStopped('The Home screen is in icon-edit mode; nothing was tapped.')
         taken, age = self.confirm_unchanged(raw, role, only)
+        # The pointer travels to the target first and rests there; the click then presses where it already is, so
+        # the press never lasts long enough to become a long press (A12/A13, 5 Nov: a click from the parked
+        # pointer entered icon-edit mode).
+        self.command('/mouse/move', purpose + '-position', x=point[0], y=point[1])
+        self.pause(CLICK_SETTLE)
         if (self.clock() - taken) * 1000 + age > MAX_AGE_MS:
             raise InspectionStopped(f'The {role} decision aged past the limit; nothing was tapped.')
         self.command('/mouse/click', purpose, x=point[0], y=point[1], button=1)
@@ -314,6 +341,7 @@ class StartScreen:
         # the Home screen opened Control Center once), so the screen is read first.
         raw, text, _, _ = self.fresh('before-home')
         if self.control_center(text): raise InspectionStopped('Control Center is open; Home is never sent over it. No input.')
+        self.leave_edit_mode(text)
         try: on_home = home(text, raw)
         except InspectionStopped: on_home = False
         if not on_home:
@@ -321,6 +349,7 @@ class StartScreen:
             self.pause(1.2)
             raw, text, _, _ = self.fresh('home')
             if self.control_center(text): raise InspectionStopped('Home opened Control Center; no further input.')
+            self.leave_edit_mode(text)
         from farm_creation_layout import small_screen
         if small_screen(raw): return self.open_from_small_home(name, raw, text)
         try: point = app_target(text, name, raw)
@@ -329,6 +358,7 @@ class StartScreen:
             self.tap(raw, text, centre(home_search(raw, text)), 'home', 'open-app-search')
             self.pause(1.2)
             raw, text, _, _ = self.fresh('app_search_entry')
+            self.leave_edit_mode(text)   # The Search-pill press itself can be the long press (A13, 5 Nov 14:36).
             try: point = app_target(text, name, raw)
             except InspectionStopped: point = None
             if point is None:
@@ -345,7 +375,7 @@ class StartScreen:
                 self.pause(1.5)
                 raw, text, _, _ = self.fresh('app_result')
                 point = app_target(text, name, raw)
-        self.tap(raw, text, point, 'app_result', 'open-' + name.casefold())
+        self.tap(raw, text, point, 'app_result', 'open-' + name.casefold(), only=result_band(point))
         self.pause(2.5)
         return self.fresh('after-open')
 
@@ -369,6 +399,7 @@ class StartScreen:
             self.command('/mouse/swipe', 'open-spotlight', **small.SPOTLIGHT_SWIPE)
             self.pause(1.2)
             raw, text, _, _ = self.fresh('app_search_entry')
+            self.leave_edit_mode(text)   # The Search-pill press itself can be the long press (A13, 5 Nov 14:36).
             state = small.spotlight(text)
             if state['state'] != 'ready': raise InspectionStopped(state['stop'])
             try: empty = empty_search(text, raw)
@@ -382,7 +413,7 @@ class StartScreen:
             self.pause(1.5)
             raw, text, _, _ = self.fresh('app_result')
             point = app_target(text, name, raw)
-        self.tap(raw, text, point, 'app_result', 'open-' + name.casefold())
+        self.tap(raw, text, point, 'app_result', 'open-' + name.casefold(), only=result_band(point))
         self.pause(2.5)
         return self.fresh('after-open')
 

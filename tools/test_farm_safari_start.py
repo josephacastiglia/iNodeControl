@@ -522,6 +522,38 @@ class AppResultReconfirmTests(unittest.TestCase):
         self.assertEqual('wait', still_compare('home')(frame(), {}, frame((0, 400, 499, 1040)), None)['state'])
 
 
+class AgedDecisionRecheckTests(unittest.TestCase):
+    """safari_or_blank and instagram_navigation decisions may be carried by a newer matching frame (A18, 4 Nov)."""
+    @staticmethod
+    def frame(box=None):
+        import io
+        from PIL import Image, ImageDraw
+        image = Image.new('RGB', (500, 1080), (240, 240, 245))
+        if box: ImageDraw.Draw(image).rectangle(box, fill=(30, 120, 220))
+        out = io.BytesIO(); image.save(out, 'BMP'); return out.getvalue()
+
+    def test_both_roles_get_a_still_compare_in_creation_and_reel_runs(self):
+        from farm_draft_creation import CreationWorkflow
+        from farm_reel_creation import ReelCreationWorkflow
+        for role in ('safari_or_blank', 'instagram_navigation'):
+            for flow in (CreationWorkflow, ReelCreationWorkflow):
+                with self.subTest(role=role, flow=flow.__name__):
+                    self.assertIsNotNone(flow.confirmation_compare(flow.__new__(flow), role))
+
+    def test_instagram_feed_may_play_but_its_bars_may_not_change(self):
+        from farm_draft_creation import still_compare
+        compare = still_compare('instagram_navigation')
+        self.assertEqual('ready', compare(self.frame(), {}, self.frame((0, 130, 499, 970)), None)['state'])   # Feed video.
+        self.assertEqual('wait', compare(self.frame(), {}, self.frame((20, 990, 200, 1040)), None)['state'])    # Tab bar.
+        self.assertEqual('wait', compare(self.frame(), {}, self.frame((20, 70, 200, 115)), None)['state'])      # Header.
+
+    def test_safari_compares_the_whole_page(self):
+        from farm_draft_creation import still_compare
+        compare = still_compare('safari_or_blank')
+        self.assertEqual('ready', compare(self.frame(), {}, self.frame(), None)['state'])
+        self.assertEqual('wait', compare(self.frame(), {}, self.frame((20, 400, 300, 600)), None)['state'])
+
+
 class SearchClearGlyphTests(unittest.TestCase):
     def test_the_white_clear_glyph_is_found_in_place_when_the_template_follows_the_wallpaper(self):
         import io
