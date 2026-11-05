@@ -142,7 +142,7 @@ class StartScreen:
             entry['state'] = 'stale_or_old'; self.save()
         raise InspectionStopped(f'No fresh frame for {role} after {FRESH_TRIES} pointer challenges; nothing was tapped.')
 
-    def confirm_unchanged(self, recognized, role, only=None):
+    def confirm_unchanged(self, recognized, role, only=None, near=None):
         """Recognition (OCR) is slow on a loaded PC; a decision uses a newer frame that shows the same screen.
 
         Frame B must be fresh and match recognized frame A outside the status bar and the
@@ -156,8 +156,12 @@ class StartScreen:
         a = pixels(recognized)
         for attempt in range(FRESH_TRIES):
             before = own_receiver(self.kernel.kernel_status(), self.phone)['frames']
-            x = 450 if self.pointer == (480, 300) else 480
-            self.command('/mouse/move', 'fresh_frame_challenge', x=x, y=300)
+            if near is None:
+                x = 450 if self.pointer == (480, 300) else 480
+                self.command('/mouse/move', 'fresh_frame_challenge', x=x, y=300)
+            else:   # The pointer rests on the target: nudge it 4 px and back, never away (settled clicks, 5 Nov).
+                nx, ny = near
+                self.command('/mouse/move', 'fresh_frame_challenge', x=nx, y=ny + 4 if self.pointer == (nx, ny) else ny)
             self.pause(.3)
             self.await_frame(before)
             raw, headers = self.kernel.shot(self.phone.board)
@@ -321,12 +325,13 @@ class StartScreen:
         """One tap on a point recognized in `raw`, decided on a newer fresh frame showing the same screen."""
         allowed_tap(text, *point, 'open_app')
         if role in HOME_ROLES and edit_mode(text): raise InspectionStopped('The Home screen is in icon-edit mode; nothing was tapped.')
-        taken, age = self.confirm_unchanged(raw, role, only)
-        # The pointer travels to the target first and rests there; the click then presses where it already is, so
-        # the press never lasts long enough to become a long press (A12/A13, 5 Nov: a click from the parked
-        # pointer entered icon-edit mode).
+        # The pointer travels to the target first and rests there; the click then presses where it already is (at
+        # most the 4 px confirmation nudge away), so the press never lasts long enough to become a long press
+        # (A12/A13, 5 Nov: a click from the parked pointer entered icon-edit mode). The decision is confirmed after
+        # the move, on a fresh frame, so its age budget is not spent on the move (A18 5 Nov 16:09: aged past it).
         self.command('/mouse/move', purpose + '-position', x=point[0], y=point[1])
         self.pause(CLICK_SETTLE)
+        taken, age = self.confirm_unchanged(raw, role, only, near=point)
         if (self.clock() - taken) * 1000 + age > MAX_AGE_MS:
             raise InspectionStopped(f'The {role} decision aged past the limit; nothing was tapped.')
         self.command('/mouse/click', purpose, x=point[0], y=point[1], button=1)

@@ -189,6 +189,17 @@ def checked_address(value: str) -> str:
     return str(address)
 
 
+# The phone types the transfer address and the run reads it back by OCR before Enter, so the token avoids
+# characters OCR confuses (A12, 5 Nov: a capital I read as l refused a correctly typed address): lowercase
+# only, no i, l, 1, o, 0, 9 (read as 3 on A18, 5 Nov), '-' or '_'. 24 of these 30 characters carry about 118 random bits.
+TOKEN_ALPHABET = 'abcdefghjkmnpqrstuvwxyz2345678'
+TOKEN_LENGTH = 24
+
+
+def transfer_token():
+    return ''.join(secrets.choice(TOKEN_ALPHABET) for _ in range(TOKEN_LENGTH))
+
+
 class MediaTransferServer(HTTPServer):
     allow_reuse_address = False
 
@@ -198,7 +209,7 @@ class MediaTransferServer(HTTPServer):
             raise ValueError('Transfer duration must be 1–60 minutes.')
         self.package, self.allowed_client = package, allowed_client
         self.clock, self.deadline = clock, clock() + minutes * 60
-        self.prefix = '/t/' + secrets.token_urlsafe(18) + '/'
+        self.prefix = '/t/' + transfer_token() + '/'
         self.nonce = secrets.token_urlsafe(24)
         self.on_event = on_event or (lambda event: None)
         self.served_images = set()

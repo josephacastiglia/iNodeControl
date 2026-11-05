@@ -204,6 +204,51 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.q.claim('reel18-aaaaaa', 18)
 
 
+class RackLockRunnerTests(RunnerTests):
+    """The runner holds the rack-wide lock for a whole slot run and never claims while another run holds it."""
+    def busy_lock(self, holders):
+        from farm_rack_lock import RackBusy
+        taken = []
+        from contextlib import contextmanager
+        @contextmanager
+        def lock(holder):
+            if holders and holders.pop(0): raise RackBusy('a lane run on A20')
+            taken.append(holder); yield
+        return lock, taken
+
+    def test_a_held_rack_leaves_the_slot_unclaimed_then_it_runs(self):
+        slot, = self.planned(); self.at(slot + 5)
+        lock, taken = self.busy_lock([True, False]); lines = []
+        r = self.runner(rack_lock=lock, log=lines.append)
+        self.assertIsNone(r.run_due()); self.assertEqual([], self.steps.calls)
+        self.assertEqual(['reel18-aaaaaa'], [s['id'] for s in self.q.schedule()['slots']])   # Still planned.
+        self.assertIn('waiting', lines[0])
+        self.assertEqual('verified', r.run_due()['outcome'])
+        self.assertEqual(['slot runner, phone 18, pkg reel18-aaaaaa'], taken)
+
+    def test_a_rack_held_past_the_grace_lapses_the_slot(self):
+        slot, = self.planned(); self.at(slot)
+        lock, _ = self.busy_lock([True] * 10000)
+        sleeps = []
+        def sleep(seconds): sleeps.append(seconds); self.now[0] += seconds
+        records = runner.SlotRunner(self.q, self.steps, 18, clock=lambda: self.now[0], sleep=sleep, rack_lock=lock).run(1, 3600)
+        self.assertEqual([], records); self.assertEqual([], self.steps.calls)
+        self.assertEqual(['reel18-aaaaaa'], self.q.schedule()['approved'])   # Lapsed, never run late.
+        self.assertTrue(all(s >= 5 for s in sleeps))
+
+    def test_the_lock_is_released_when_the_run_stops(self):
+        from contextlib import contextmanager
+        events = []
+        @contextmanager
+        def lock(holder):
+            events.append('take')
+            try: yield
+            finally: events.append('release')
+        slot, = self.planned(); self.at(slot); self.steps.screen_problem = 'start screen: stopped'
+        self.assertEqual('stopped', self.runner(rack_lock=lock).run_due()['outcome'])
+        self.assertEqual(['take', 'release'], events)
+
+
 class PhoneReadyTests(unittest.TestCase):
     def status(self, **receiver):
         r = {'deviceid': 'dev-18', 'name': 'iMouse2-18', 'live': True, 'receiver_state': 'mirroring',
