@@ -103,5 +103,26 @@ class RetainedXLayoutTests(unittest.TestCase):
                 with self.assertRaises(InspectionStopped): call(frame, text, self.alpha)
 
 
+class MenuWithMoneyRowTests(unittest.TestCase):
+    """A17, 4 Nov evening: X added 'Money' and 'History' rows; Communities, Grok and Settings moved 62 px down."""
+    def menu(self, *rows):
+        lines = [dict(text=t, words=[dict(text=t, x=x0, y=y0, width=x1-x0, height=y1-y0)]) for t, x0, y0, x1, y1 in rows]
+        return dict(width=500, height=1080, lines=lines)
+
+    BASE = [('@lane_handle', 40, 160, 160, 180), ('Profile', 98, 271, 175, 292)]
+    NEW = [('Money', 98, 402, 176, 425), ('History', 99, 465, 184, 489), ('Communities', 98, 528, 256, 551),
+           ('Try Grok Bot', 92, 852, 202, 871), ('Settings and privacy', 92, 908, 271, 928)]
+
+    def test_the_shifted_menu_needs_both_new_rows_in_place(self):
+        self.assertEqual('lane_handle', xl.x_menu(b'', self.menu(*self.BASE, *self.NEW))['handle'])
+        for missing in ('Money', 'History'):
+            with self.subTest(missing=missing), self.assertRaises(InspectionStopped):
+                xl.x_menu(b'', self.menu(*self.BASE, *[r for r in self.NEW if r[0] != missing]))
+        old = [('Communities', 98, 466, 256, 489), ('Try Grok Bot', 92, 790, 202, 809), ('Settings and privacy', 92, 845, 271, 865)]
+        self.assertEqual('lane_handle', xl.x_menu(b'', self.menu(*self.BASE, *old))['handle'])
+        with self.assertRaises(InspectionStopped):   # The new rows never excuse the old positions.
+            xl.x_menu(b'', self.menu(*self.BASE, *self.NEW[:2], *old))
+
+
 if __name__ == '__main__':
     unittest.main()

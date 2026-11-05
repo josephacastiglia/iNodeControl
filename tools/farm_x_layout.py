@@ -63,11 +63,15 @@ def x_feed(frame, text):
 
 def x_menu(frame, text):
     """Side menu: exactly one signed-in handle under the display name."""
-    for label, box in (('profile', (90, 262, 190, 300)), ('communities', (90, 455, 265, 495)),
-                       ('settings and privacy', (85, 828, 280, 866))):
+    # Since 4 Nov evening X adds 'Money' (with 'Claim bonus') and 'History' rows on slot 17; every row
+    # from Communities down then sits 58-63 px lower. That layout is used only when both new rows are read
+    # in their own place; otherwise the earlier boxes apply unchanged.
+    shift = 62 if (line_at(text, 'money', (90, 385, 200, 432)) and line_at(text, 'history', (90, 448, 200, 495))) else 0
+    for label, box in (('profile', (90, 262, 190, 300)), ('communities', (90, 455 + shift, 265, 495 + shift)),
+                       ('settings and privacy', (85, 828 + shift, 280, 866 + shift))):
         require(line_at(text, label, box), 'The X account menu is not recognized: ' + label)
     # The Grok row reads 'Try Grok Bot' on slot 17's newer account (22 Oct).
-    require(line_at(text, 'download grok', (85, 775, 240, 810)) or line_at(text, 'try grok bot', (85, 775, 240, 815)),
+    require(line_at(text, 'download grok', (85, 775 + shift, 240, 810 + shift)) or line_at(text, 'try grok bot', (85, 775 + shift, 240, 815 + shift)),
             'The X account menu is not recognized: grok')
     handles = [m.group(1) for line in text.get('lines', []) if line.get('words')
                and min(w['y'] for w in line['words']) < 200 and min(w['x'] for w in line['words']) < 120
