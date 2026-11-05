@@ -159,6 +159,7 @@ class ReelCreationWorkflow(CreationWorkflow):
             # Safari's toolbar, or its Start Page whose empty address field the next step focuses.
             try: return self.verify_screen('safari', value, frame)
             except InspectionStopped: return safari_blank(text)
+        if role == 'transfer_address_typed': return reel.typed_transfer_address(text, self.url)
         if role == 'reel_page': return reel.reel_transfer_page(text, self.download)
         if role == 'reel_caption_copied':
             return {**reel.reel_transfer_page(text, self.download), **reel.caption_copied(text)}
@@ -307,6 +308,46 @@ class ReelCreationWorkflow(CreationWorkflow):
                 waits.append(dict(attempt=attempt, sequence=headers.get('X-iMouse-Frame-Sequence'), reason=str(stop)))
             self.pause(.8)
 
+    ADDRESS_TRIES = 2
+
+    def enter_transfer_address(self, entry):
+        """Types this transfer's address and reads it back before Enter (4 Nov, slot 18: Enter once
+        loaded an unknown address and Safari kept the previous transfer page). A wrong address is
+        never loaded: Escape only ends the edit, Safari keeps its page, and the address is focused
+        and typed once more; a second mismatch stops the run before Enter."""
+        checks = self.record.setdefault('addressChecks', [])
+        for attempt in range(1, self.ADDRESS_TRIES + 1):
+            suffix = '' if attempt == 1 else f'-{attempt}'
+            if attempt > 1 or not entry.get('addressSelected'):
+                self.tap('focus-safari-address' + suffix, 'safari_or_blank', (245, 953))
+            self.step('enter-transfer-url' + suffix, 'address_selected', text=self.url)
+            try:
+                value, _ = self.observe('transfer_address_typed')
+                checks.append(dict(attempt=attempt, observationId=value['id'], matched=True)); self.save()
+                return
+            except InspectionStopped as stop:
+                checks.append(dict(attempt=attempt, matched=False, reason=str(stop))); self.save()
+                self.command('/key/sendkey', purpose='cancel-transfer-url' + suffix, fn_key='Escape')
+                self.pause(1.0)
+                if attempt == self.ADDRESS_TRIES: raise
+
+    BADGE_POLLS = 10   # About 8 s at most.
+
+    def await_download_badge(self):
+        """Safari draws its downloads icon as a progress ring while the file arrives; on the light bar
+        an early ring is a thin arc that matches neither icon (4 Nov, slot 18: .03 of its box blue,
+        stopped). Frames are read without input until the finished icon shows; the tap that follows
+        still decides on its own fresh frame, and stops if the icon never appears."""
+        waits = self.record.setdefault('downloadBadgeWait', [])
+        for attempt in range(self.BADGE_POLLS):
+            raw, headers = self.kernel.shot(self.phone.board)
+            try:
+                reel.download_badge(raw)
+                waits.append(dict(attempt=attempt, sequence=headers.get('X-iMouse-Frame-Sequence'), shown=True)); return
+            except InspectionStopped as stop:
+                waits.append(dict(attempt=attempt, sequence=headers.get('X-iMouse-Frame-Sequence'), reason=str(stop)))
+            self.pause(.8)
+
     def close_leftover_player(self, entry, round_=1):
         """An earlier stop left Safari in the full-screen player. Its toolbar shows on a tap and fades
         within a second, so Done is pressed only while fresh frames show the toolbar (Share icon
@@ -389,9 +430,7 @@ class ReelCreationWorkflow(CreationWorkflow):
             else:
                 self.tap(f'close-leftover-downloads-{round_}', 'reel_safari_entry', entry['doneTarget'])
             self.pause(1.5)
-        if not entry.get('addressSelected'):
-            self.tap('focus-safari-address', 'safari_or_blank', (245, 953))
-        self.step('enter-transfer-url', 'address_selected', text=self.url)
+        self.enter_transfer_address(entry)
         # Same Safari address edit session; never a caption.
         self.command('/key/sendkey', purpose='load-transfer-url', fn_key='Enter')
         self.pause(1)
@@ -402,6 +441,7 @@ class ReelCreationWorkflow(CreationWorkflow):
         self.tap('hold-download-link', 'reel_caption_copied',
                  lambda v, f: self.transfer_page(v['text'])['downloadTarget'], hold=True)
         self.tap('download-linked-file', 'link_menu', lambda v, f: reel.link_menu(v['text'])['target'])
+        self.await_download_badge()
         self.tap('open-safari-menu', 'download_ready', (91, 955))
         self.tap('open-downloads', 'page_menu', lambda v, f: reel.page_menu(v['text'])['target'])
         self.tap('open-downloaded-video', 'downloads',

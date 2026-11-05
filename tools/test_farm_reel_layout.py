@@ -153,6 +153,30 @@ class SyntheticReelLayoutTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): reel.page_menu(ocr(*base, ('Allow', 120, 600), ("Don't Allow", 260, 600)))
 
 
+class TypedAddressTests(unittest.TestCase):
+    """The address field before Enter (4 Nov, slot 18: Enter once loaded an unknown address)."""
+    URL = 'http://192.168.4.26:9917/t/UUi-uxM76j8_6mfMfHGXwfCw/'
+
+    @staticmethod
+    def field(shown, y=945):
+        return {'width': 500, 'height': 1080, 'lines': [
+            {'text': 'Recently Closed Tabs', 'words': [{'text': 'Recently', 'x': 26, 'y': 510, 'width': 90, 'height': 22}]},
+            {'text': shown, 'words': [{'text': shown, 'x': 34, 'y': y, 'width': 340, 'height': 20}]}]}
+
+    def test_the_end_of_this_address_passes(self):
+        self.assertTrue(reel.typed_transfer_address(self.field('68.4.26:9917/t/UUi-uxM76j8_6mfMfHGXwfCw/'), self.URL)['addressTyped'])
+        # OCR confusions in small type: I/l/1, 0/O.
+        self.assertTrue(reel.typed_transfer_address(self.field('68.4.26:99l7/t/UUl-uxM76j8_6mfMfHGXwfCw'), self.URL)['addressTyped'])
+
+    def test_previous_or_damaged_addresses_stop_before_enter(self):
+        for shown in ('192.168.4.26:9917/t/H8iV9agHEpUc1',           # The previous transfer (4 Nov frame).
+                      '192.168.4.26:9917j8_6mfMfHGXwfCw/',          # A chunk dropped.
+                      'fMfHGXwfCw/'):                                # Too little to tell.
+            with self.subTest(shown), self.assertRaises(InspectionStopped):
+                reel.typed_transfer_address(self.field(shown), self.URL)
+        with self.assertRaises(InspectionStopped): reel.typed_transfer_address(self.field('x' * 30, y=500), self.URL)
+
+
 class DetailsRowsTests(unittest.TestCase):
     """Reel details rows: audio below location (22 Oct), or the 'Add link' row that pushed audio
     under the button bar (4 Nov, slot 18). Word boxes as Windows OCR reported them on those frames."""
