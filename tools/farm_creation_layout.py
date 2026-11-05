@@ -298,6 +298,7 @@ def restored_app_search(text):
 
 
 SUGGESTION_LABELS=(10,200,490,236)   # The Siri Suggestions app label row in the empty app search.
+TOP_HIT_LABELS=(10,195,490,232)      # The Spotlight Top Hit label row (the app, then its shortcuts).
 
 
 def app_target(text, name,frame=None):
@@ -310,12 +311,20 @@ def app_target(text, name,frame=None):
     require(home_screen or suggestions or top_hit, 'No recognized Home or app search results.')
     try: bounds=exact(text,name,(10,130,490,850 if home_screen else 260))
     except InspectionStopped:
-        if not (suggestions and not home_screen and frame is not None): raise
-        # Full-frame OCR can miss a Siri Suggestions label (slot 20, 22 Oct: 'TikTok'); the label row
-        # alone is read again, enlarged, and the name must be read exactly once.
+        if not ((suggestions or top_hit) and not home_screen and frame is not None): raise
         from farm_reel_layout import band_words
-        found=[(x0,y0,x1,y1) for t,x0,y0,x1,y1 in band_words(frame,SUGGESTION_LABELS) if t.casefold()==name.casefold()]
-        require(len(found)==1,'Exact visible label missing: '+name)
+        if suggestions:
+            # Full-frame OCR can miss a Siri Suggestions label (slot 20, 22 Oct: 'TikTok'); the label row
+            # alone is read again, enlarged, and the name must be read exactly once.
+            found=[(x0,y0,x1,y1) for t,x0,y0,x1,y1 in band_words(frame,SUGGESTION_LABELS) if t.casefold()==name.casefold()]
+            require(len(found)==1,'Exact visible label missing: '+name)
+        else:
+            # Full-frame OCR missed the Spotlight Top Hit label twice (A20, 4 Nov: 'TikTok'); the label row
+            # alone is read again, enlarged. The name must be read there exactly once and leftmost: the app
+            # itself, before its shortcuts (Search, Inbox, Create).
+            words=sorted(band_words(frame,TOP_HIT_LABELS,3),key=lambda w:w[1])
+            found=[(x0,y0,x1,y1) for t,x0,y0,x1,y1 in words if t.casefold()==name.casefold()]
+            require(len(found)==1 and words[0][0].casefold()==name.casefold(),'Exact visible label missing: '+name)
         bounds=tuple(round(v) for v in found[0])
     x=(bounds[0]+bounds[2])/2
     return round(x),round((bounds[1]+bounds[3])/2 if top_hit and not home_screen else bounds[1]-42)

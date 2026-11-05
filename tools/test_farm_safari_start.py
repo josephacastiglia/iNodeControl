@@ -357,6 +357,24 @@ class SuggestionLabelTests(unittest.TestCase):
         with mock.patch.object(layout, 'home', side_effect=InspectionStopped('not home')),                 mock.patch.object(reel, 'band_words', return_value=row + [('TikTok', 380, 211, 420, 224)]), self.assertRaises(InspectionStopped):
             layout.app_target(screen, 'TikTok', b'frame')   # Read twice: ambiguous.
 
+    def test_a_missed_top_hit_label_is_read_again_leftmost_in_its_row(self):
+        from unittest import mock
+        import farm_creation_layout as layout
+        import farm_reel_layout as reel
+        screen = text(('Top Hit', 26, 76, 100, 94), ('Search', 160, 212, 214, 224))   # Full-frame OCR missed 'TikTok' and 'Inbox'.
+        row = [('Search', 160, 212, 214, 224), ('TikTok', 62, 212, 112, 225), ('Inbox', 250, 212, 290, 224)]   # A20, 4 Nov.
+        with mock.patch.object(layout, 'home', side_effect=InspectionStopped('not home')), \
+                mock.patch.object(reel, 'band_words', return_value=row) as band:
+            self.assertEqual((87, 218), layout.app_target(screen, 'TikTok', b'frame'))
+            band.assert_called_with(b'frame', layout.TOP_HIT_LABELS, 3)
+            with self.assertRaises(InspectionStopped): layout.app_target(screen, 'Inbox', b'frame')    # A shortcut, not leftmost.
+            with self.assertRaises(InspectionStopped): layout.app_target(screen, 'Snapchat', b'frame')
+            with self.assertRaises(InspectionStopped): layout.app_target(screen, 'TikTok')             # No frame: no reread.
+        for rows in (row + [('TikTok', 380, 212, 430, 225)], []):
+            with self.subTest(rows=rows), mock.patch.object(layout, 'home', side_effect=InspectionStopped('not home')), \
+                    mock.patch.object(reel, 'band_words', return_value=rows), self.assertRaises(InspectionStopped):
+                layout.app_target(screen, 'TikTok', b'frame')
+
 
 class TikTokFeedHeaderTests(unittest.TestCase):
     def test_a_covered_feed_header_is_read_again_in_place(self):

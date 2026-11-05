@@ -125,6 +125,19 @@ class TransferPageTests(unittest.TestCase):
         moved = self.index(); moved['lines'][7] = line('Copy caption', 43, 150, 120)
         with self.assertRaises(InspectionStopped): xil.transfer_index(moved, PACKAGE)
 
+    def test_a_copy_click_taken_as_a_hold_shows_the_selection_menu_and_is_dismissed_beside_the_button(self):
+        # A17, 4 Nov prep 13: the click selected 'caption' and Safari showed Copy / Find Selection / Look Up.
+        menu = (('Copy', 55, 624, 40), ('Find Selection', 137, 623, 120), ('Look Up', 292, 623, 70))
+        found = xil.copy_selection(self.index(*menu), PACKAGE)
+        copy = centre_of(self.index(), 'Copy caption')
+        self.assertEqual(copy, found['copyTarget']); self.assertEqual((430, copy[1]), found['dismissTarget'])
+        with self.assertRaises(InspectionStopped): xil.copy_selection(self.index(), PACKAGE)              # No menu.
+        with self.assertRaises(InspectionStopped):                                                           # Already copied.
+            xil.copy_selection(self.index(*menu, ('Caption copied. Verify the pasted text in X.', 23, 740, 390)), PACKAGE)
+        with self.assertRaises(InspectionStopped): xil.copy_selection(self.index(('Copy', 55, 300, 40), ('Look Up', 292, 300, 70)), PACKAGE)
+        source = Path(xic.__file__).read_text(encoding='utf-8')
+        self.assertEqual(1, source.count("self.tap('copy-caption-again'")); self.assertEqual(1, source.count("self.tap('dismiss-text-selection'"))
+
     def test_copied_page_may_have_scrolled_past_the_title(self):
         # Focusing the caption box scrolls the page by about 54 px (slot 17, 4 Nov): the title is gone.
         text = ocr(('Draft only · nothing published', 23, 90, 270), ('Package ' + PACKAGE, 23, 141, 255), ('Open slide 1 of 1', 175, 273, 150),
@@ -242,6 +255,39 @@ class RetainedC24CTests(unittest.TestCase):
         self.assertEqual('three_rows', xl.x_save_sheet(text)['layout'])
 
 
+class PhotosReminderTests(unittest.TestCase):
+    """A17's prep 5 (4 Nov) stopped on iOS's full-access reminder; the run now answers it once by one tap."""
+    def reminder(self, app='X'):
+        import farm_permission_prompts as pp
+        rows = [(f'"{app}" has been able to access', 110, 290), ('your entire photo library.', 110, 312),
+                ('Do you want to continue to', 110, 334), ('allow full access?', 110, 356),
+                ('Limit Access', 120, 760), ('Allow Full Access', 120, 820)]
+        return pp.detect(dict(width=500, height=1080, lines=[dict(text=t, words=[dict(text=t, x=x, y=y, width=len(t)*9, height=16)])
+                                                              for t, x, y in rows]))
+
+    def test_the_reminder_is_answered_by_one_tap_keeping_the_setting(self):
+        import farm_permission_prompts as pp
+        found = self.reminder()
+        decision = pp.plan(found, app_expected='X', validated=xic.XImageCreationWorkflow.validated_prompt_methods)
+        self.assertEqual(('answer', 'Allow Full Access', 'pointer_tap'), (decision['action'], decision['answer'], decision['method']))
+        self.assertEqual(found['buttons']['Allow Full Access'], decision['target'])
+        self.assertEqual(1, xic.XImageCreationWorkflow.PROMPT_LIMIT)
+        self.assertIs(xic.XImageCreationWorkflow.validated_prompt_methods, xic.XImageVerification.validated_prompt_methods)
+
+    def test_only_one_reminder_per_run_and_no_other_prompt(self):
+        flow = xic.XImageCreationWorkflow.__new__(xic.XImageCreationWorkflow)
+        reminder = dict(kind='photos_reminder', answer='Allow Full Access')
+        for actions, decision in (([dict(label='answer-photos-reminder-prompt-1')], reminder),
+                                  ([], dict(kind='photos', answer='Allow Full Access')),
+                                  ([], dict(kind='photos_reminder', answer='Limit Access'))):
+            with self.subTest(decision=decision, actions=actions),                     patch('farm_reel_creation.ReelCreationWorkflow.answer_prompt') as answered, self.assertRaises(InspectionStopped):
+                flow.record = dict(actions=actions); flow.answer_prompt(decision, 'xi_page')
+            answered.assert_not_called()
+        with patch('farm_reel_creation.ReelCreationWorkflow.answer_prompt') as answered:
+            flow.record = dict(actions=[]); flow.answer_prompt(reminder, 'xi_page')
+            answered.assert_called_once_with(reminder, 'xi_page')
+
+
 class FakeKernel:
     _is_live_http = False
     phone = MagicMock(board=BOARD, device_id=PHONE['deviceId'])
@@ -308,6 +354,21 @@ class WorkflowTests(unittest.TestCase):
         check = xic.compare('x_composer_image')
         self.assertEqual('ready', check(frame, text, png(caret), None)['state'])
         self.assertEqual('wait', check(frame, text, png(moved), None)['state'])
+
+    def test_an_ignored_open_slide_click_reads_the_unchanged_page_and_is_sent_once_more(self):
+        # A17, 4 Nov prep 7: Safari ignored even the settled click; the transfer page stayed.
+        flow = self.workflow(); flow.check_prompt = lambda role, value: None
+        index = TransferPageTests().index()
+        self.assertFalse(flow.verify_screen('xi_after_open', dict(text=index), b'')['opened'])
+        frame, text = slide_frame(Images.one)
+        self.assertTrue(flow.verify_screen('xi_after_open', dict(text=text), frame)['opened'])
+        with self.assertRaises(InspectionStopped): flow.verify_screen('xi_after_open', dict(text=ocr(('Loading', 23, 88, 100))), b'')
+        source = Path(xic.__file__).read_text(encoding='utf-8')
+        self.assertEqual(1, source.count("self.tap('open-slide-1-again'"))   # One more click, never a loop.
+        # Prep 8: 'Back to caption' was ignored the same way; the unchanged slide page gets one more click.
+        self.assertFalse(flow.verify_screen('xi_after_back', dict(text=text), frame)['back'])
+        self.assertTrue(flow.verify_screen('xi_after_back', dict(text=index), b'')['back'])
+        self.assertEqual(1, source.count("self.tap('back-to-caption-again'"))
 
     def test_committing_prefixes_cover_every_save_and_media_step(self):
         self.assertEqual(('save-photo-', 'select-package-image', 'add-package-image', 'paste-exact-caption', 'save-x-draft-once'), xic.COMMITTING)

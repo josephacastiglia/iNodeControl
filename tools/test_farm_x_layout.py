@@ -103,5 +103,58 @@ class RetainedXLayoutTests(unittest.TestCase):
                 with self.assertRaises(InspectionStopped): call(frame, text, self.alpha)
 
 
+class MenuWithMoneyRowTests(unittest.TestCase):
+    """A17, 4 Nov evening: X added 'Money' and 'History' rows; Communities, Grok and Settings moved 62 px down."""
+    def menu(self, *rows):
+        lines = [dict(text=t, words=[dict(text=t, x=x0, y=y0, width=x1-x0, height=y1-y0)]) for t, x0, y0, x1, y1 in rows]
+        return dict(width=500, height=1080, lines=lines)
+
+    BASE = [('@lane_handle', 40, 160, 160, 180), ('Profile', 98, 271, 175, 292)]
+    NEW = [('Money', 98, 402, 176, 425), ('History', 99, 465, 184, 489), ('Communities', 98, 528, 256, 551),
+           ('Try Grok Bot', 92, 852, 202, 871), ('Settings and privacy', 92, 908, 271, 928)]
+
+    def test_the_shifted_menu_needs_both_new_rows_in_place(self):
+        self.assertEqual('lane_handle', xl.x_menu(b'', self.menu(*self.BASE, *self.NEW))['handle'])
+        for missing in ('Money', 'History'):
+            with self.subTest(missing=missing), self.assertRaises(InspectionStopped):
+                xl.x_menu(b'', self.menu(*self.BASE, *[r for r in self.NEW if r[0] != missing]))
+        old = [('Communities', 98, 466, 256, 489), ('Try Grok Bot', 92, 790, 202, 809), ('Settings and privacy', 92, 845, 271, 865)]
+        self.assertEqual('lane_handle', xl.x_menu(b'', self.menu(*self.BASE, *old))['handle'])
+        with self.assertRaises(InspectionStopped):   # The new rows never excuse the old positions.
+            xl.x_menu(b'', self.menu(*self.BASE, *self.NEW[:2], *old))
+
+    def test_a_pointer_clipped_following_tab_is_accepted_only_as_followi(self):
+        from unittest import mock
+        # A17, 4 Nov: the parked pointer covered 'ng'; OCR read 'Followi' at x 154.
+        for word, ok in (('Followi', True), ('Follow', False), ('Followix', False)):
+            text = self.menu(('For you', 31, 130, 101, 150), (word, 154, 130, 220, 150))
+            with self.subTest(word=word), mock.patch.object(xl, 'blue_fraction', return_value=1.0),                     mock.patch.object(xl, 'pixels', return_value=None):
+                if ok: self.assertEqual((454, 935), xl.x_feed(b'', text)['composeTarget'])
+                else:
+                    with self.assertRaises(InspectionStopped): xl.x_feed(b'', text)
+    def test_a_header_with_following_covered_is_marked_by_its_other_tabs(self):
+        from unittest import mock
+        # A17, 4 Nov prep 11: the pointer covered 'Following' ('FOIA' at 154,115; 'ing Add +' at 212,130).
+        cases = ((('FOIA', 154, 115, 200, 135), ('ing Add +', 212, 130, 300, 150), ('Crypto', 361, 130, 420, 150)), True),                 ((('ing Add +', 212, 130, 300, 150),), True), ((('Crypto', 361, 130, 420, 150),), True),                 ((('Crypto', 361, 300, 420, 320),), False), ((('Add +', 268, 400, 320, 420),), False), ((), False)
+        for rows, ok in cases:
+            text = self.menu(('For you', 31, 130, 101, 150), *rows)
+            with self.subTest(rows=rows), mock.patch.object(xl, 'blue_fraction', return_value=1.0),                     mock.patch.object(xl, 'pixels', return_value=None):
+                if ok: self.assertEqual((454, 935), xl.x_feed(b'', text)['composeTarget'])
+                else:
+                    with self.assertRaises(InspectionStopped): xl.x_feed(b'', text)
+        with mock.patch.object(xl, 'blue_fraction', return_value=1.0), mock.patch.object(xl, 'pixels', return_value=None),                 self.assertRaises(InspectionStopped):   # 'For you' stays required.
+            xl.x_feed(b'', self.menu(('Crypto', 361, 130, 420, 150)))
+
+
+class PickerBadgeTests(unittest.TestCase):
+    def test_only_system_blue_is_a_selection_badge(self):
+        # A17, 4 Nov prep 5: a test image's sky-blue corner block read as a selection badge.
+        import numpy as np
+        tile = (0, 201, 166, 367)
+        for colour, badge in (((9, 123, 250), True), ((14, 165, 233), False), ((21, 101, 192), False), ((29, 155, 240), False)):
+            image = np.full((1080, 500, 3), 255, np.uint8); image[201:367, 0:166] = colour
+            with self.subTest(colour=colour): self.assertEqual(badge, xl._badge(image, tile))
+
+
 if __name__ == '__main__':
     unittest.main()

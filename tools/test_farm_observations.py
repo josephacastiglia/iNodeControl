@@ -76,6 +76,27 @@ class ObservationTests(unittest.TestCase):
         self.assertEqual(('profile', 'tiktok', 'exact_text_match'), (result['screen'], result['appPattern'], result['accountStatus']))
         self.assertFalse(result['automaticInputAllowed']); self.assertFalse(result['savedDraftVerified']); self.assertIsNone(result['metrics'])
 
+    def test_tiktok_profile_likes_dropped_by_full_frame_ocr_is_reread_enlarged_in_place(self):
+        # A20, 4 Nov: full-frame OCR drops 'Likes'; only the counter band is read again, enlarged.
+        dropped = ocr_lines(*[(l['text'], l['words'][0]['y']) for l in PROFILE['lines'] if l['text'] != 'Likes'])
+        self.assertEqual('unknown', classify(dropped, expectations(self.request))['screen'])   # No frame: no reread.
+        frame = b'frame'
+        for words, screen in (([('Following', 20, 235, 90, 250), ('Likes', 205, 235, 245, 250)], 'profile'),
+                              ([('Likes', 120, 235, 160, 250)], 'unknown'),                         # Not in its own place.
+                              ([('Likes', 205, 235, 245, 250), ('Likes', 210, 236, 250, 251)], 'unknown'),
+                              ([], 'unknown')):
+            with self.subTest(words=words), patch('farm_reel_layout.band_words', return_value=words) as band:
+                result = classify(dropped, expectations(self.request), frame)
+                self.assertEqual(screen, result['screen'])
+                band.assert_called_once_with(frame, (10, 205, 300, 262), 3)
+                if screen == 'profile':
+                    self.assertEqual(('tiktok', 'exact_text_match'), (result['appPattern'], result['accountStatus']))
+        with patch('farm_reel_layout.band_words', side_effect=ValueError('OCR failed')):
+            self.assertEqual('unknown', classify(dropped, expectations(self.request), frame)['screen'])
+        with patch('farm_reel_layout.band_words') as band:   # Full-frame 'Likes' read: no extra OCR.
+            self.assertEqual('profile', classify(PROFILE, expectations(self.request), frame)['screen'])
+            band.assert_not_called()
+
     def test_wrong_handle_homoglyph_and_wrong_platform_do_not_pass(self):
         for changes in ({'account': 'test.acc0unt'}, {'account': 'test.account1'}, {'platform': 'x'}):
             with self.subTest(changes=changes):
@@ -103,6 +124,25 @@ class ObservationTests(unittest.TestCase):
         screen['lines'][1]['text'] = 'DRAFTONLY'
         self.assertEqual('needs_review', classify(screen, expect)['captionStatus'])
         self.assertEqual('needs_review', classify(ocr_lines(('DRAFT ONLY', 200)), expect)['captionStatus'])
+
+    def test_interval_audits_the_boundary_phone_not_only_c24c(self):
+        # Until 4 Nov the interval kept only C24C records, so verifiers on 724E/C214 audited 0 observations.
+        with self.store.connect(): pass   # Creates the table.
+        frame = b'frame-bytes'; digest = hashlib.sha256(frame).hexdigest(); ids = {}
+        def put(name, board):
+            ids[name] = str(uuid.uuid4())
+            value = dict(id=ids[name], expected=dict(device_id=board), reviewFrameSha256=digest)
+            db = sqlite3.connect(self.path)
+            try:
+                with db: db.execute('INSERT INTO observations VALUES (?,?,?,?)', (ids[name], 'f', json.dumps(value), frame))
+            finally: db.close()   # Windows cannot remove the temporary folder over an open handle.
+        for name, board in (('first', 'C214'), ('other', '724E'), ('middle', 'C214'), ('last', 'C214'), ('foreign', '724E')):
+            put(name, board)
+        timeline = self.store.interval(ids['first'], ids['last'])
+        self.assertEqual([ids['first'], ids['middle'], ids['last']], [v['id'] for v, _ in timeline])
+        self.assertTrue(all(f == frame for _, f in timeline))
+        with self.assertRaises(ValueError): self.store.interval(ids['first'], ids['foreign'])   # Boundaries on two phones.
+        with self.assertRaises(ValueError): self.store.interval(ids['last'], ids['first'])      # Out of order.
 
     def test_capture_persists_frame_and_duplicate_reads_never_replay(self):
         result = self.store.capture(self.request, self.kernel); count = len(self.kernel.reads)

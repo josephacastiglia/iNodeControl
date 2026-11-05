@@ -49,11 +49,22 @@ def x_feed(frame, text):
     # A newer account's header adds tabs ('For you v | Following | Add + | Crypto', slot 17, 22 Oct),
     # moving 'Following' left to x 154.
     # OCR can also clip it and join the chevron before it ('v Followin' from x 108, slot 17, 23 Oct).
+    # The parked pointer can cover its end ('Followi', A17, 4 Nov): 'followi' is the shortest form accepted.
     following = words_at(text, 'following', (140, 120, 320, 160)) or any(
-        re.search(r'(^|\s)followi?n?g?$', ' '.join(r['text'].casefold().split())) and r['text'].casefold().split()[-1].startswith('followin')
+        re.search(r'(^|\s)followi?n?g?$', ' '.join(r['text'].casefold().split())) and r['text'].casefold().split()[-1].startswith('followi')
         and 100 <= min(w['x'] for w in r['words']) and max(w['x']+w['width'] for w in r['words']) <= 320
         and 120 <= min(w['y'] for w in r['words']) <= 160 for r in text.get('lines', []) if r.get('words'))
-    require(following and line_at(text, 'for you', (30, 120, 130, 160)), 'The X timeline header is not recognized.')
+    # The pointer parks wherever the last tap ended and can cover 'Following' entirely ('FOIA' + 'ing Add +', A17,
+    # 4 Nov). The newer header's own tabs to its right then mark the row: 'Crypto' in its place, or a line ending
+    # 'Add +' in the row ('For you' is still required). A whole 'Following' read anywhere else in the row is a
+    # layout change and still stops.
+    misplaced = any(w['text'].casefold() == 'following' and 110 <= w['y'] <= 160
+                    for r in text.get('lines', []) for w in r.get('words', []))
+    tabs = following or (not misplaced and line_at(text, 'crypto', (340, 120, 440, 160))) or (not misplaced and any(
+        ' '.join(r['text'].casefold().split()).endswith('add +') and 150 <= min(w['x'] for w in r['words'])
+        and max(w['x']+w['width'] for w in r['words']) <= 340 and 120 <= min(w['y'] for w in r['words']) <= 160
+        for r in text.get('lines', []) if r.get('words')))
+    require(tabs and line_at(text, 'for you', (30, 120, 130, 160)), 'The X timeline header is not recognized.')
     image = pixels(frame, exact=True)
     require(blue_fraction(image, (428, 909, 480, 961)) > .5, 'The X compose button is not where it was observed.')
     no_overlay({**text, 'lines': [r for r in text.get('lines', []) if not r.get('words')
@@ -63,11 +74,15 @@ def x_feed(frame, text):
 
 def x_menu(frame, text):
     """Side menu: exactly one signed-in handle under the display name."""
-    for label, box in (('profile', (90, 262, 190, 300)), ('communities', (90, 455, 265, 495)),
-                       ('settings and privacy', (85, 828, 280, 866))):
+    # Since 4 Nov evening X adds 'Money' (with 'Claim bonus') and 'History' rows on slot 17; every row
+    # from Communities down then sits 58-63 px lower. That layout is used only when both new rows are read
+    # in their own place; otherwise the earlier boxes apply unchanged.
+    shift = 62 if (line_at(text, 'money', (90, 385, 200, 432)) and line_at(text, 'history', (90, 448, 200, 495))) else 0
+    for label, box in (('profile', (90, 262, 190, 300)), ('communities', (90, 455 + shift, 265, 495 + shift)),
+                       ('settings and privacy', (85, 828 + shift, 280, 866 + shift))):
         require(line_at(text, label, box), 'The X account menu is not recognized: ' + label)
     # The Grok row reads 'Try Grok Bot' on slot 17's newer account (22 Oct).
-    require(line_at(text, 'download grok', (85, 775, 240, 810)) or line_at(text, 'try grok bot', (85, 775, 240, 815)),
+    require(line_at(text, 'download grok', (85, 775 + shift, 240, 810 + shift)) or line_at(text, 'try grok bot', (85, 775 + shift, 240, 815 + shift)),
             'The X account menu is not recognized: grok')
     handles = [m.group(1) for line in text.get('lines', []) if line.get('words')
                and min(w['y'] for w in line['words']) < 200 and min(w['x'] for w in line['words']) < 120
@@ -238,8 +253,13 @@ def _picker_tiles(image):
 
 
 def _badge(image, tile):
+    """The picker's numbered selection badge: iOS system blue (about (9, 123, 250)) over most of its box.
+    The farm's own test images carry sky-blue (14, 165, 233) and dark-blue (21, 101, 192) blocks, and a sky-blue
+    block in a tile's corner passed the wider X-blue test (A17, 4 Nov, prep 5); neither reaches B 240 with G 145 or less."""
     left, top, right, bottom = tile
-    return blue_fraction(image, (right-30, bottom-31, right-8, bottom-9)) > .5
+    part = image[bottom-31:bottom-9, right-30:right-8].astype(int)
+    system_blue = (part[..., 2] >= 240) & (part[..., 0] <= 60) & (part[..., 1] >= 90) & (part[..., 1] <= 145)
+    return float(system_blue.mean()) > .5
 
 
 def _tile(frame, tile, reference, image):
