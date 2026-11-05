@@ -183,3 +183,20 @@ class A14SpreadHeaderTests(unittest.TestCase):
         for missing in ('following', 'add +', 'for you'):
             with self.subTest(missing=missing), self.assertRaises(InspectionStopped):
                 _xl.x_feed(self.frame, self.edited(lambda t: not t.startswith(missing)))
+
+
+_A13 = _paths.ARCHIVE/'20261105-fleet-a13'
+
+
+@unittest.skipUnless((_A13/'x-feed-terms-sheet.bmp').exists(), 'A13 frames of 5 Nov are not available in this checkout.')
+class A13SpreadHeaderTests(unittest.TestCase):
+    """A13's header read as 'For you v' from x 46 and '• Add +' (5 Nov)."""
+    def load(self, name):
+        return (_A13/f'{name}.bmp').read_bytes(), json.loads((_A13/f'{name}.json').read_text(encoding='utf-8'))
+
+    def test_the_timeline_is_recognized(self):
+        self.assertEqual(dict(menuTarget=(45, 85), composeTarget=(454, 935)), _xl.x_feed(*self.load('x-feed')))
+
+    def test_the_terms_sheet_still_stops_at_the_compose_button(self):
+        # The header now fits; X's Terms of Service sheet over the timeline covers compose, so nothing is decided there.
+        with self.assertRaisesRegex(InspectionStopped, 'compose button'): _xl.x_feed(*self.load('x-feed-terms-sheet'))
