@@ -351,7 +351,10 @@ def reel_selected(frame, text, reference, cell):
     require(not any(selected_disk(image, (r, c)) for r in range(len(PICKER_ROWS)) for c in range(3) if (r, c) not in ((0, 0), cell)),
             'Another Recents item is selected or unreadable.')
     # Each word on its own: OCR may join the button's icon to the label ('t-g First draft', 22 Oct).
-    require(all(words_at(text, word, (290, 975, 395, 1012)) for word in ('first', 'draft')), 'Exact visible label missing: First draft')
+    found = all(words_at(text, word, (290, 975, 395, 1012)) for word in ('first', 'draft'))
+    if not found:   # Full-frame OCR can miss the white pill over a dark tray (A18, 5 Nov 16:54); that band alone, enlarged.
+        found = {'first', 'draft'} <= {w[0].casefold() for w in band_words(frame, (280, 970, 400, 1016))}
+    require(found, 'Exact visible label missing: First draft')
     reel_control(frame, 'next_pill')
     # The tray thumbnail carries a remove X at its top-right; it is never tapped.
     tray = video_match(frame, (16, 963, 51, 1025), reference, image=image, ignore=((38, 958, 55, 978),))
@@ -616,6 +619,10 @@ def typed_transfer_address(text, url):
     require(len(rows) == 1, 'The Safari address field is not readable.')
     shown = ''.join(w['text'] for w in rows[0]['words'])
     expected = re.sub(r'^https?://', '', url)
+    # A19 (5 Nov, also seen on A18): the final '/' beside the caret reads as 'l', and when the field is scrolled its
+    # first visible glyph is cut by the field's edge ('9' read '3'). Transfer paths never contain l, I or 1.
+    if len(shown) >= 2 and shown[-1] in 'l|I1': shown = shown[:-1] + '/'
+    if len(shown.rstrip('/')) < len(expected.rstrip('/')): shown = shown[1:]
     require(len(shown.rstrip('/')) >= 24, 'The Safari address field shows too little of the address.')
     require(_address_fold(expected.rstrip('/')).endswith(_address_fold(shown.rstrip('/'))),
             'The Safari address field does not show this transfer address. Enter was not pressed.')

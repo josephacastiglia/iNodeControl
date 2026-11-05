@@ -168,6 +168,17 @@ class TypedAddressTests(unittest.TestCase):
         # OCR confusions in small type: I/l/1, 0/O.
         self.assertTrue(reel.typed_transfer_address(self.field('68.4.26:99l7/t/UUl-uxM76j8_6mfMfHGXwfCw'), self.URL)['addressTyped'])
 
+    def test_a_cut_first_glyph_and_a_slash_read_as_l_pass(self):
+        # A19, 5 Nov: the field scrolled, its first visible '9' cut by the edge (read '3'), the final '/' read 'l'.
+        url = 'http://192.168.4.26:9797/t/zp2d8nq76ydz6ss7h8wpn3qf/'
+        self.assertTrue(reel.typed_transfer_address(self.field('3797/t/zp2d8nq76ydz6ss7h8wpn3qfl'), url)['addressTyped'])
+        for shown in ('3797/t/zp2d8nq76ydz6ss7h8wpn3qxl',      # A different last character is still refused.
+                      '3797/t/zp2d8nq76ydz6ssh8wpn3qfl',       # A dropped character too.
+                      'zz7/t/zp2d8nq76ydz6ss7h8wpn3qfl'):      # Only one cut glyph is forgiven.
+            with self.subTest(shown), self.assertRaises(InspectionStopped):
+                reel.typed_transfer_address(self.field(shown), url)
+        with self.assertRaises(InspectionStopped): reel.typed_transfer_address(self.field('wpn3qfl' * 3), url)   # Too little.
+
     def test_previous_or_damaged_addresses_stop_before_enter(self):
         for shown in ('192.168.4.26:9917/t/H8iV9agHEpUc1',           # The previous transfer (4 Nov frame).
                       '192.168.4.26:9917j8_6mfMfHGXwfCw/',          # A chunk dropped.
@@ -211,6 +222,17 @@ class RetainedReelLayoutTests(unittest.TestCase):
         frame = (R17/step/(which+'.png')).read_bytes()
         text = json.loads((OCR17/f'{step}__{which}.json').read_text(encoding='utf-8')); text.pop('source', None)
         return frame, text
+
+    def test_first_draft_missed_by_full_frame_ocr_is_read_in_its_band(self):
+        # A18, 5 Nov 16:54: full-frame OCR read nothing of the white pill over a dark tray; the band read it.
+        from unittest.mock import patch
+        f, t = self.load('163-instagram-save-reel-draft')
+        missed = dict(t, lines=[l for l in t['lines'] if not {'first', 'draft'} & {w['text'].casefold() for w in l.get('words', [])}])
+        with patch.object(reel, 'band_words', return_value=[('First', 300, 980, 340, 1000), ('draft', 345, 980, 385, 1000)]):
+            self.assertEqual([0, 1], reel.reel_selected(f, missed, self.ref, (0, 1))['cell'])
+        with patch.object(reel, 'band_words', return_value=[('Next', 300, 980, 340, 1000)]):
+            with self.assertRaisesRegex(InspectionStopped, 'First draft'): reel.reel_selected(f, missed, self.ref, (0, 1))
+
 
     def test_every_route_screen_is_recognized_with_its_target(self):
         f, t = self.load('155-instagram-create-menu'); self.assertEqual((105, 576), reel.reel_create(f, t)['target'])
