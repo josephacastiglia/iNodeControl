@@ -243,7 +243,7 @@ class Lint(Base):
         findings = fr.lint_text('farm/tools/x.py', text)
         self.assertTrue(findings)
         self.assertEqual(fr.blockers(findings), [])
-        self.assertTrue(any(f['level'] == 'info' and 'dev fallback' in f['rule'] for f in findings))
+        self.assertTrue(any(f['level'] == 'info' and 'dev-fallback' in f['rule'] for f in findings))
 
     def test_comment_lines_do_not_block(self):
         findings = fr.lint_text('farm/x.ps1', "# C:\\Users\\someone\\Desktop\\Claude Code\\notes\n$a=1\n")

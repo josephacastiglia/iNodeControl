@@ -227,16 +227,16 @@ def server_hash_names(server_source):
 def lint_text(name, text):
     """Per-line findings. Comment and docstring lines are marked 'comment' (never block). A line marked
     '# release-lint: dev-fallback' is today's dev-checkout path, used only while IMOUSE_FARM_DATA is unset
-    (Farm.ps1 always sets it): reported as info."""
+    (Farm.ps1 always sets it); '# release-lint: code' names code, not state. Both are reported as info."""
     findings = []
     docs = _docstring_lines(text) if name.endswith('.py') else set()
     for number, line in enumerate(text.splitlines(), 1):
         stripped = line.strip()
-        fallback = 'release-lint: dev-fallback' in line
+        marker = re.search(r'release-lint: (dev-fallback|code)\b', line)
         for level, rule, pattern in LINT_RULES:
             if pattern.search(line):
-                findings.append({'file': name, 'line': number, 'level': 'info' if fallback else level,
-                                 'rule': rule + (' (dev fallback)' if fallback else ''),
+                findings.append({'file': name, 'line': number, 'level': 'info' if marker else level,
+                                 'rule': rule + (f' ({marker.group(1)})' if marker else ''),
                                  'comment': number in docs or stripped.startswith(('#', '"""', "'''"))})
     return findings
 
