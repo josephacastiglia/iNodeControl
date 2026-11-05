@@ -17,7 +17,7 @@ def line(text, x, y, w=60, h=13):
 
 
 def text(*lines):
-    return dict(lines=list(lines))
+    return dict(width=500, height=1080, lines=list(lines))
 
 
 PAGE_ONE = text(line('FaceTime', 40, 225, 72), line('Calendar', 158, 225, 68), line('Camera', 278, 225, 59),
