@@ -299,13 +299,10 @@ def _closure_of(entry, files):
     return seen
 
 
-# Blockers the text lint cannot see (compiled code). Cleared by hand once the source changes.
-MANUAL_BLOCKERS = {
-    'console': ['src/iMouse.Console App.xaml.cs/MainWindow.xaml.cs: startup-state.json, startup-validation.json, failure '
-                'files and qa\\ are written beside iMouse2.exe (AppContext.BaseDirectory), i.e. into the installed version',
-                'src/iMouse.Console FarmAutomationWindow.cs ResolveFarmServerScriptPath: looks for tools\\imouse_farm_server.py '
-                'above its own folder and starts "python" from PATH with that folder as working directory'],
-}
+# Blockers the text lint cannot see (compiled code), as {command: [reason]}. Cleared by hand once the
+# source changes. Console cleared 5 Nov: src/iMouse.Console/InstallLayout.cs (run files in <data>\console,
+# the farm server from IMOUSE_FARM_HOME; its self-tests cover both layouts).
+MANUAL_BLOCKERS = {}
 
 
 # Launcher commands (install/Farm.ps1). 'kind' says how Farm.ps1 runs the entry.
