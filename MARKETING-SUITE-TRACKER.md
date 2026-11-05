@@ -27,10 +27,10 @@ recasting after a receiver restart; 8- and 19-phone scale (**8-phone stage passe
 | Platform | Phone | State | Next step |
 |---|---|---|---|
 | Instagram Reel | 18 (C24C) | Verified 22 Oct and in runs 40, 42, 45, 46 (45-46 back to back); **survives an app relaunch** | Longer unattended series. |
-| X image | 17 (724E) | Verified 4 Nov (prep 6, check 2). X on A17 changed since Oct: Cancel at x 13, two-row Cancel sheet (Save to drafts, Discard), Drafts sheet 14 px lower, Grok and ALT callouts on the image card; X is opened from Spotlight by its icon. Six test images from preps 1-6 are in A17's Photos. | Repeat runs. |
+| X image | 17 (724E) | Verified 4 Nov (prep 6, check 2); **back to back 4 Nov (preps 14 and 15, no change between)**; **drafts do not survive an app relaunch** (relaunch check 1: six of the day's image drafts gone, as X video on 23 Oct). X added Money/History side-menu rows; Safari sometimes ignores a page click (one more click). X on A17 changed since Oct: Cancel at x 13, two-row Cancel sheet (Save to drafts, Discard), Drafts sheet 14 px lower, Grok and ALT callouts on the image card; X is opened from Spotlight by its icon. Test images from the X image preps are in A17's Photos. | Decided: X image drafts are short-lived, like X video. |
 | X video | 17 (724E) | Verified 23 Oct (prep 71) and in runs 72 and 73 (back to back); **video lost after an app relaunch** | Decided: X video drafts are short-lived (below). |
 | YouTube Short | 16 (F215) | Verified 23 Oct (read-only check 3); **survives an app relaunch** (26 Oct); runs 69 and 71 verified in one pass, 70 by re-check; **runs 76 and 77 verified back to back (27 Oct)** | — |
-| TikTok photo | 20 (C214) | Verified 4 Nov (window tiktok-photo-slot20, attempt 1 of prep 5, read-only checks 2 and 3): slides chosen by image match, suggested sound kept, found once in Drafts, nothing reopened. On A20, reset the pointer before each Safari long press and press once more if the first opens nothing. 12 test slides are in A20's Photos. | Repeat runs. Open: `farm_observations.classify` needs "Likes" on A20's TikTok profile, which full-frame OCR drops (would stop TikTok video on A20); `app_target` has no enlarged Spotlight reread; verifier `accountHistory` often has 0 observations. |
+| TikTok photo | 20 (C214) | **Back to back 4 Nov (preps 1 and 2, sound kept).** First verified 4 Nov (window tiktok-photo-slot20, attempt 1 of prep 5, read-only checks 2 and 3): slides chosen by image match, suggested sound kept, found once in Drafts, nothing reopened. On A20, reset the pointer before each Safari long press and press once more if the first opens nothing. 18 test slides are in A20's Photos. | Relaunch unproven: shared `close_app.py` reports "closed" when it just didn't read the app's label (fix waiting for OK). Fixed 4 Nov: "Likes" reread on A20's profile, enlarged Spotlight reread, and `accountHistory` (was auditing C24C only; every other phone passed with 0 observations). |
 | TikTok video | 20 (C214) | Verified in runs 67, 73, 75 and 76 (75-76 back to back); **survives an app relaunch** | Longer unattended series. |
 
 ## Waiting for the operator
@@ -69,7 +69,8 @@ recasting after a receiver restart; 8- and 19-phone scale (**8-phone stage passe
 ## Rules learned the hard way
 
 - Never reopen and save again a saved X draft: it drops the video. Verifiers read Drafts only.
-- An X video draft also loses its video when X is closed and relaunched (23 Oct, relaunch check 2).
+- An X video draft also loses its video when X is closed and relaunched (23 Oct, relaunch check 2). X image drafts are lost the same way (4 Nov).
+- Before 4 Nov the verifier's account history audited only C24C; checks on other phones passed with nothing audited.
 - A reopened YouTube draft can hang on 'Processing'; the verifier never reopens drafts.
 - The Claude desktop app updating itself stops the kernel and backends (22 Oct, 22:53).
 - Run test suites only while the phones are idle; CPU load breaks the 1.5 s frame-age rule.
@@ -121,3 +122,4 @@ recasting after a receiver restart; 8- and 19-phone scale (**8-phone stage passe
   (rack restart; all four reconnected first try). **Runs 76 and 77 verified back to back.**
 - 4 Nov evening: five lanes started (Rack, Scheduler on A18, Repeatability on A17/A20, Small phone on B5, Scale gate on rack B). B5's Instagram, TikTok, X and YouTube are signed out; no drafts there until the operator signs them in. Rack and Scale gate merged.
 - 5 Nov 00:20: Scheduler slot runner merged; Reel drafts verified from scheduled slots at 23:18 and 00:03 on A18 (Instagram added an 'Add link' row to Reel details; layout updated, never tapped). Two new 'Fresh reel acceptance' drafts and test videos on A18 for the operator to clean up.
+- 5 Nov 00:30: Repeatability merged. X image (A17) and TikTok photo (A20) each verified back to back. X image drafts lost on relaunch. Live trial of the Rack lane's kernel started (new build on the single kernel; reconnecting).
