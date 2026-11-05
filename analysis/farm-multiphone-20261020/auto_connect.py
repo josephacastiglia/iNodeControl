@@ -17,6 +17,7 @@ C24C's calibrated points; no step repeats. One lease, released at the end.
 """
 import argparse
 import json
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -31,7 +32,9 @@ from farm_observations import WindowsOcr  # noqa: E402
 from identify_phone import acquire, post, request  # noqa: E402
 from mdns_watch import Watcher, lan_address  # noqa: E402
 
-BASE = 'http://127.0.0.1:9916/api'   # The single kernel, or rack A's (rack_kernels.py keeps it on 9916).
+# The single kernel, or rack A's (rack_kernels.py keeps it on 9916); rack_recovery.py's bring-up sets
+# IMOUSE_RACK_API for the kernel it is bringing up (card_survey.py imports this BASE too).
+BASE = os.environ.get('IMOUSE_RACK_API') or 'http://127.0.0.1:9916/api'
 
 
 def rack_api(rack):

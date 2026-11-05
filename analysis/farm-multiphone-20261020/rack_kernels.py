@@ -167,6 +167,11 @@ def conflicts(prep, snapshot, rack=None, stopping=False):
     port = api_port(prep)
     names = {r['name'] for r in prep['receivers']}
     own_ports = set(receiver_ports(prep))
+    # An off-rack sandbox (offrack_trial.py) runs beside the live single kernel, so that one rule is
+    # waived for it; it must sit on a port no real kernel or farm service uses.
+    sandbox = bool(prep.get('sandbox'))
+    if sandbox and (port in set(SINGLE_PORTS) | set(DEFAULT_PORTS.values()) or not rack):
+        raise SystemExit('A sandbox preparation needs a rack label and a port no real kernel uses.')
     data_dir = (_option(prep['arguments'], '--data-dir') or '').lower()
     reasons = []
     for p in snapshot.get('processes', []):
@@ -179,7 +184,7 @@ def conflicts(prep, snapshot, rack=None, stopping=False):
         if name in KERNEL_NAMES:
             other = _kernel_rack(command)
             mine = f'127.0.0.1:{port}/' in command or bool(data_dir and data_dir in command.lower())
-            if other is None and not stopping: reasons.append(f'The single kernel ({pid}) is running; it already serves both racks.')
+            if other is None and not stopping and not sandbox: reasons.append(f'The single kernel ({pid}) is running; it already serves both racks.')
             elif other == rack.upper() or mine:
                 reasons.append(f'Rack {rack.upper()} kernel {pid} is running.')
         elif name in RECEIVER_NAMES:

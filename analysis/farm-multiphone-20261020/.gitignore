@@ -10,3 +10,7 @@ slots/processes*.json
 slots/receivers-ready.json
 slots/releases.jsonl
 rack-*/processes*.json
+input-before-stop.json
+stop-request.txt
+watchdog-*
+bringup-*/

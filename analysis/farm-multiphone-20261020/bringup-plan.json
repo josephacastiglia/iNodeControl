@@ -1,0 +1,10 @@
+{
+  "note": "Ordered reconnect after a kernel start (orchestrator, 5 Nov). The 4.7-inch card shows three rows and numeric names sort ahead of 'iMouse2-B..', so rack B and rack A's small phones connect before any XR mirrors. Slots: 'B20' = rack B slot 20 (rack-b-slots.json), '20' = rack A slot 20 (phone-slots.json). An anchor is connected from a crafted survey (no mirroring phone to read the card on); the rest are surveyed on their group's anchor.",
+  "steps": [
+    {"group": "rack B anchor", "anchor": "B20", "card": "small"},
+    {"group": "rack B", "receivers": "B19..B1", "survey": "B20", "card": "small"},
+    {"group": "rack A small phones", "receivers": ["2", "5", "6"], "survey": "B20", "card": "small"},
+    {"group": "rack A anchor", "anchor": "20", "card": "xr"},
+    {"group": "rack A XRs", "receivers": "19..10", "survey": "20", "card": "xr"}
+  ]
+}
