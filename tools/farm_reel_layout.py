@@ -351,7 +351,10 @@ def reel_selected(frame, text, reference, cell):
     require(not any(selected_disk(image, (r, c)) for r in range(len(PICKER_ROWS)) for c in range(3) if (r, c) not in ((0, 0), cell)),
             'Another Recents item is selected or unreadable.')
     # Each word on its own: OCR may join the button's icon to the label ('t-g First draft', 22 Oct).
-    require(all(words_at(text, word, (290, 975, 395, 1012)) for word in ('first', 'draft')), 'Exact visible label missing: First draft')
+    found = all(words_at(text, word, (290, 975, 395, 1012)) for word in ('first', 'draft'))
+    if not found:   # Full-frame OCR can miss the white pill over a dark tray (A18, 5 Nov 16:54); that band alone, enlarged.
+        found = {'first', 'draft'} <= {w[0].casefold() for w in band_words(frame, (280, 970, 400, 1016))}
+    require(found, 'Exact visible label missing: First draft')
     reel_control(frame, 'next_pill')
     # The tray thumbnail carries a remove X at its top-right; it is never tapped.
     tray = video_match(frame, (16, 963, 51, 1025), reference, image=image, ignore=((38, 958, 55, 978),))

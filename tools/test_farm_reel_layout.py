@@ -223,6 +223,17 @@ class RetainedReelLayoutTests(unittest.TestCase):
         text = json.loads((OCR17/f'{step}__{which}.json').read_text(encoding='utf-8')); text.pop('source', None)
         return frame, text
 
+    def test_first_draft_missed_by_full_frame_ocr_is_read_in_its_band(self):
+        # A18, 5 Nov 16:54: full-frame OCR read nothing of the white pill over a dark tray; the band read it.
+        from unittest.mock import patch
+        f, t = self.load('163-instagram-save-reel-draft')
+        missed = dict(t, lines=[l for l in t['lines'] if not {'first', 'draft'} & {w['text'].casefold() for w in l.get('words', [])}])
+        with patch.object(reel, 'band_words', return_value=[('First', 300, 980, 340, 1000), ('draft', 345, 980, 385, 1000)]):
+            self.assertEqual([0, 1], reel.reel_selected(f, missed, self.ref, (0, 1))['cell'])
+        with patch.object(reel, 'band_words', return_value=[('Next', 300, 980, 340, 1000)]):
+            with self.assertRaisesRegex(InspectionStopped, 'First draft'): reel.reel_selected(f, missed, self.ref, (0, 1))
+
+
     def test_every_route_screen_is_recognized_with_its_target(self):
         f, t = self.load('155-instagram-create-menu'); self.assertEqual((105, 576), reel.reel_create(f, t)['target'])
         f, t = self.load('156-instagram-reel-picker'); picker = reel.reel_picker(f, t, self.ref)
