@@ -302,16 +302,28 @@ def search_clear(frame):
     except InspectionStopped:
         image=pixels(frame,exact=True)
         bright=float((image[988:1022,430:462].min(axis=2)>215).mean())
-        require(.2<=bright<=.6,'Creation control changed: search_clear')
+        if .2<=bright<=.6: return [430,988,462,1022]
+        # A tinted wallpaper tints the glyph too (A14, 5 Nov: teal, a cyan glyph; .06 white). Then the glyph is
+        # measured against the empty field beside it: pixels 40 luminance above the field's median. 5 Nov frames:
+        # .39-.41 with the button (A11, A12, A14, A15), .00 empty fields, .20-.21 an alert dimming the Home screen.
+        lum=image[...,:3].astype(float)@np.array([.299,.587,.114])
+        lifted=float((lum[988:1022,430:462]>np.median(lum[990:1020,300:420])+40).mean())
+        require(.30<=lifted<=.55,'Creation control changed: search_clear')
         return [430,988,462,1022]
+
+
+# Queries iOS restores in the app search that a run may clear (recognized only; nothing is opened). YouTube and
+# TikTok joined on 5 Nov: on phones without their icon on Home pages 1-2 (A14) they open from the app search, so
+# the next search shows their query again (youtube-slot14 attempt 1 stopped there).
+RESTORED_QUERIES=('Safari','Instagram','YouTube','TikTok')
 
 
 def restored_app_search(text):
     exact(text,'Top Hit',(10,65,180,125))
-    for name in ('Safari','Instagram'):
+    for name in RESTORED_QUERIES:
         try:return dict(app=name,target=app_target(text,name))
         except InspectionStopped:pass
-    raise InspectionStopped('Only the known Safari/Instagram app-search result can be dismissed.')
+    raise InspectionStopped('Only a known Safari/Instagram/YouTube/TikTok app-search result can be dismissed.')
 
 
 SUGGESTION_LABELS=(10,200,490,236)   # The Siri Suggestions app label row in the empty app search.

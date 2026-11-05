@@ -28,7 +28,7 @@ import uuid
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
-from farm_creation_runs import MEDIA_PORTS, creation_config  # noqa: E402
+from farm_creation_runs import MEDIA_PORTS, creation_config, window_ports  # noqa: E402
 from farm_paths import RACK  # noqa: E402  (the main folder's rack, also from a lane worktree)
 import farm_paths  # noqa: E402
 STATE, RUNS = farm_paths.rack_state(HERE), farm_paths.run_root(ROOT)  # windows/ and output/: the data folder when installed
@@ -39,7 +39,9 @@ from farm_image import ImageDrafts, SLIDES, render_test_images  # noqa: E402
 from farm_media_transfer import TransferPackage  # noqa: E402
 
 PC_LAN = farm_paths.lan_address('192.168.4.26')  # release-lint: dev-fallback (installed: machine.json lanAddress or the one private IPv4)
-BACKEND_PORTS = {18: 9915, 20: 9925, 17: 9935, 16: 9945}
+BACKEND_PORTS = {slot: window_ports(slot)[0] for slot in range(1, 21)}   # Any rack A slot (farm_creation_runs).
+# Rack A's iPhone XRs (LANES.md, 5 Nov): the 6.1-inch layouts every flow was verified on. 2, 5-8 are 4.7-inch.
+XR_SLOTS = (10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
 PLATFORMS = {   # format, caption, label, route, capability key, whether a fixed signed-in account is required
     'reel': ('ig_reel', 'Fresh reel acceptance', 'REEL DRAFT TEST', 'reel-creations', 'reelCreation', True),
     'tiktok': ('tt_video', 'Fresh tiktok acceptance', 'TIKTOK DRAFT TEST', 'tiktok-creations', 'tiktokCreation', True),
@@ -48,7 +50,8 @@ PLATFORMS = {   # format, caption, label, route, capability key, whether a fixed
     'x-image': ('x_image', 'Fresh x image acceptance', 'X IMAGE DRAFT TEST', 'x-image-creations', 'xImageCreation', False),
     'tiktok-photo': ('tt_photo', 'Fresh tiktok photo test', 'TIKTOK PHOTO TEST', 'tiktok-photo-creations', 'tiktokPhotoCreation', True),
 }
-# Image platforms: their lane's phone (LANES.md) and how many labelled test slides to stage.
+# Image platforms: the phone they were first verified on and how many labelled test slides to stage. Since 5 Nov
+# (Fleet lane) they run on any XR slot whose account is signed in (read-only survey, tools/farm_fleet_survey.py).
 IMAGE_PLATFORMS = {'x-image': dict(slot=17, slides=1), 'tiktok-photo': dict(slot=20, slides=3)}
 
 
@@ -66,8 +69,8 @@ def main():
     fmt, caption, label, route, capability, pinned = PLATFORMS[args.platform]
     if pinned != (args.account is not None):
         raise SystemExit(f'{args.platform} needs ' + ('the handle signed in on that phone.' if pinned else 'no account: creation binds the signed-in one.'))
-    if args.platform in IMAGE_PLATFORMS and args.slot != IMAGE_PLATFORMS[args.platform]['slot']:
-        raise SystemExit(f"{args.platform} runs on slot {IMAGE_PLATFORMS[args.platform]['slot']} only (its lane's phone).")
+    if args.platform in IMAGE_PLATFORMS and args.slot not in XR_SLOTS:
+        raise SystemExit(f'{args.platform} runs on an XR slot only ({", ".join(map(str, XR_SLOTS))}).')
 
     rack = load(RACK / 'preparation.json')
     kernel = Path(rack['kernel'])
