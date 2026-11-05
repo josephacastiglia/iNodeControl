@@ -216,10 +216,15 @@ class PhoneReadyTests(unittest.TestCase):
     def test_ready_when_mirroring_fresh_and_idle(self):
         self.assertIsNone(runner.phone_ready(self.status(), self.phones(), PREP))
 
+    def test_a_still_screen_is_ready(self):
+        """No frames while nothing changes on screen (4 Nov, A18 on Home: 'quiet', 55 s old)."""
+        self.assertIsNone(runner.phone_ready(self.status(frame_delivery='quiet', frame_age_ms=55000.0), self.phones(), PREP))
+
     def test_reasons(self):
         cases = [(self.status(frame_age_ms=4000), self.phones(), 'stalled'),
                  (self.status(receiver_state='waiting', live=False), self.phones(), 'not mirroring'),
-                 (self.status(frame_delivery='stalled'), self.phones(), 'not flowing'),
+                 (self.status(frame_delivery='stalled'), self.phones(), 'not arriving'),
+                 (self.status(frame_delivery='quiet', frame_pipe_connected=False), self.phones(), 'not arriving'),
                  (self.status(), self.phones(owned=True), 'not idle (owned)'),
                  (self.status(), {'phones': []}, 'no input board'),
                  ({**self.status(), 'build_identity': {'sha256': 'z'}}, self.phones(), 'kernel is not'),

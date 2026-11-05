@@ -61,9 +61,14 @@ def phone_ready(kernel_status, input_status, prep):
     if len(own) != 1 or own[0].get('name') != phone['receiver']: return 'the kernel does not map this phone to its receiver'
     r = own[0]
     if not r.get('live') or r.get('receiver_state') != 'mirroring': return f'not mirroring (receiver {r.get("receiver_state")})'
-    if r.get('frame_delivery') != 'flowing' or not r.get('frame_pipe_connected'): return 'mirror frames are not flowing'
+    # AirPlay sends no frames while the screen is still: the kernel calls an idle phone 'quiet' (4 Nov, A18 on
+    # Home: 55 s without a frame, flowing again at the next change). Quiet is ready; the start screen and the
+    # workflow refuse stale frames themselves. Anything else, or a broken frame pipe, is not.
+    delivery = r.get('frame_delivery')
+    if delivery not in ('flowing', 'quiet') or not r.get('frame_pipe_connected'): return f'mirror frames are not arriving ({delivery})'
     age = r.get('frame_age_ms')
-    if not isinstance(age, (int, float)) or age > MAX_FRAME_AGE_MS: return f'mirror stalled (newest frame {age} ms old)'
+    if delivery == 'flowing' and (not isinstance(age, (int, float)) or age > MAX_FRAME_AGE_MS):
+        return f'mirror stalled (newest frame {age} ms old)'
     mine = [p for p in input_status.get('phones', []) if p.get('id') == phone['deviceId']]
     if len(mine) != 1: return 'the phone has no input board on the kernel'
     held = [k for k in ('owned', 'active', 'stopped', 'releasing', 'release_failed') if mine[0].get(k)]
