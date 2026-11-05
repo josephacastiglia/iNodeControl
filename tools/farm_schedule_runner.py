@@ -258,9 +258,12 @@ def phone_lock(path):
 
 
 class SlotRunner:
-    def __init__(self, queue, steps, phone, recheck=False, clock=time.time, sleep=time.sleep, log=lambda line: None):
+    def __init__(self, queue, steps, phone, recheck=False, clock=time.time, sleep=time.sleep, log=lambda line: None,
+                 rack_lock=None):
         self.queue, self.steps, self.phone, self.recheck = queue, steps, phone, recheck
         self.clock, self.sleep, self.log = clock, sleep, log
+        # rack_lock(holder) -> context manager that raises farm_rack_lock.RackBusy when another run holds the rack.
+        self.rack_lock, self.waiting_on = rack_lock, None
 
     def run_due(self):
         """Claims and runs the earliest due slot for this phone; returns its outcome record or None."""
@@ -269,7 +272,20 @@ class SlotRunner:
             raise ValueError(f'Phone {self.phone} has a run without a recorded end; review it and `abandon` it first.')
         due = self.queue.due(self.phone)
         if not due: return None
-        pkg = self.queue.claim(due[0]['id'], self.phone)
+        if self.rack_lock is None: return self._run(due[0]['id'])
+        from farm_rack_lock import RackBusy
+        try: lock = self.rack_lock(f'slot runner, phone {self.phone}, pkg {due[0]["id"]}'); lock.__enter__()
+        except RackBusy as busy:
+            # Not claimed: the slot waits within its grace, then lapses (never late). Logged once per holder.
+            if busy.holder != self.waiting_on: self.log(f'pkg {due[0]["id"]}: waiting, {busy}')
+            self.waiting_on = busy.holder
+            return None
+        self.waiting_on = None
+        try: return self._run(due[0]['id'])
+        finally: lock.__exit__(None, None, None)
+
+    def _run(self, package_id):
+        pkg = self.queue.claim(package_id, self.phone)
         self.log(f'pkg {pkg["id"]}: claimed slot on phone {self.phone}')
         try: outcome, reason, details = self._execute(pkg)
         except Exception as error:    # Unknown state after the claim: stop, never retry.
@@ -339,5 +355,5 @@ class SlotRunner:
             if record: records.append(record); continue
             upcoming = self.queue.next_slot(self.phone)
             if upcoming is None or upcoming > deadline: break
-            self.sleep(max(1.0, min(30.0, upcoming - self.clock())))
+            self.sleep(max(5.0 if self.waiting_on is not None else 1.0, min(30.0, upcoming - self.clock())))
         return records

@@ -64,7 +64,7 @@ class StartScreenTests(unittest.TestCase):
 
     def test_edit_mode_after_the_search_pill_gets_one_home_and_a_stop(self):
         s = self.build([HOME, EDIT]); s.clock = lambda: 0.0
-        s.confirm_unchanged = lambda raw, role, only=None: (0.0, 50.0)
+        s.confirm_unchanged = lambda raw, role, only=None, near=None: (0.0, 50.0)
         patches = (mock.patch('farm_creation_layout.home', return_value=True), mock.patch('farm_creation_layout.small_screen', return_value=False),
                    mock.patch('farm_creation_layout.app_target', side_effect=InspectionStopped('no icon')),
                    mock.patch('farm_creation_layout.home_search', return_value=(200, 880, 300, 920)), mock.patch.object(start, 'allowed_tap', lambda *a: None))
@@ -76,7 +76,10 @@ class StartScreenTests(unittest.TestCase):
 
     def test_a_tap_moves_rests_then_clicks_where_the_pointer_is(self):
         s = self.build([]); s.clock = lambda: 0.0
-        s.confirm_unchanged = lambda raw, role, only=None: (0.0, 50.0)
+        def confirm(raw, role, only=None, near=None):   # After the move, nudging only around the target (A18 16:09).
+            self.assertEqual((('/mouse/move', 'open-app-search-position', 250, 900), (250, 900)), (s.sent[-1], near))
+            return 0.0, 50.0
+        s.confirm_unchanged = confirm
         with mock.patch.object(start, 'allowed_tap', lambda *a: None):
             s.tap(b'frame', HOME, (250, 900), 'home', 'open-app-search')
         self.assertEqual([('/mouse/move', 'open-app-search-position', 250, 900), ('/mouse/click', 'open-app-search', 250, 900),

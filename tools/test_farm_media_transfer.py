@@ -169,5 +169,18 @@ class MediaTransferTests(unittest.TestCase):
             with self.assertRaises(AssertionError): network_guard('socket.connect', (None, address))
 
 
+class TransferTokenTests(unittest.TestCase):
+    """The typed-and-read-back transfer address uses no characters OCR confuses (A12/A18, 5 Nov)."""
+    def test_token_alphabet_and_length(self):
+        import farm_media_transfer as transfer
+        tokens = {transfer.transfer_token() for _ in range(200)}
+        self.assertEqual(200, len(tokens))
+        for token in tokens:
+            self.assertEqual(24, len(token))
+            self.assertFalse(set(token) & set('iIlL1oO09-_'), token)
+            self.assertEqual(token, token.lower())
+
+
 if __name__ == '__main__':
     unittest.main()
+
