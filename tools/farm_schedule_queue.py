@@ -1,8 +1,11 @@
-"""Local review queue and planned run slots within per-account daily budgets. Planning only.
+"""Local review queue and planned run slots within per-account daily budgets.
 
 Prepared packages wait for the operator's approve or reject. Approved ones get a planned slot
 (day, time) within each account's daily cap and spacing. Nothing here starts a run, opens a
-window, touches a phone or the kernel, or posts: a slot is a record that later tooling may read.
+window, touches a phone or the kernel, or posts. The slot runner (farm_schedule_runner.py) claims
+a due slot here (planned -> running), runs it, and records its one outcome (finish): verified ->
+done, stopped -> stopped (never retried by itself), phone not ready -> approved again, slot dropped
+(a new slot needs another `plan --commit`). Slots used by a run keep counting toward daily caps.
 Accounts are opaque labels ('acct-1'), never handles or device IDs.
 
 Storage is one JSON file, replaced atomically under an OS lock, so the backend and the operator's
@@ -20,6 +23,9 @@ import tempfile
 import time
 
 PENDING, APPROVED, REJECTED, PLANNED = 'pending', 'approved', 'rejected', 'planned'
+RUNNING, DONE, STOPPED = 'running', 'done', 'stopped'        # set only through claim/finish/abandon
+VERIFIED, STOPPED_SAFELY, NOT_READY = 'verified', 'stopped', 'not_ready'   # slot run outcomes
+USED = (PLANNED, RUNNING, DONE, STOPPED)   # states whose slot counts toward caps and spacing
 MAX_DAILY = 10            # hard ceiling whatever the queue file says
 GRACE_SECONDS = 600       # a planned slot older than this lapses; no late or catch-up runs
 LEAD_SECONDS = 300        # a new slot is never sooner than this from now
@@ -230,6 +236,8 @@ class ReviewQueue:
         key = package_key(package_id)
         with self._change() as state:
             pkg = self._get(state, key)
+            if pkg['state'] == RUNNING: raise ValueError(f'Package {key} is running on a phone; let the run end first.')
+            if pkg['state'] in (DONE, STOPPED): raise ValueError(f'Package {key} already ran ({pkg["state"]}); its record stays.')
             if pkg['state'] != REJECTED:
                 pkg.pop('slot', None); pkg.update(state=REJECTED, decidedAt=self.clock(), reason=str(reason))
             return pkg
@@ -267,6 +275,68 @@ class ReviewQueue:
         tz = self._tz()
         return (naive.replace(tzinfo=tz) if tz else naive).timestamp()
 
+    # --- slot runs (the runner's side; the queue itself never touches a phone) ---
+    def due(self, phone):
+        """Planned slots for this phone that may start now: at or after their time, within the grace."""
+        now = self.clock(); self.reload()
+        return sorted((p for p in self.state['packages'].values() if p['state'] == PLANNED
+                       and p.get('source', {}).get('slot') == phone and 0 <= now - p['slot'] <= GRACE_SECONDS),
+                      key=lambda p: p['slot'])
+
+    def next_slot(self, phone):
+        self.reload()
+        slots = [p['slot'] for p in self.state['packages'].values()
+                 if p['state'] == PLANNED and p.get('source', {}).get('slot') == phone]
+        return min(slots) if slots else None
+
+    def in_progress(self, phone=None):
+        self.reload()
+        return [p for p in self._ordered() if p['state'] == RUNNING and (phone is None or p['run']['phone'] == phone)]
+
+    def claim(self, package_id, phone):
+        """planned -> running, once. Refused when early, past the grace (it lapses instead) or while this
+        phone has a run without a recorded end: one slot at a time per phone."""
+        key = package_key(package_id); now = self.clock()
+        with self._change() as state:
+            self._lapse(state, now)
+            pkg = self._get(state, key)
+            if pkg['state'] != PLANNED:
+                raise ValueError(f'Package {key} is {pkg["state"]}, not planned (a passed slot lapses; never run late).')
+            if pkg.get('source', {}).get('slot') != phone: raise ValueError(f'Package {key} is not for phone {phone}.')
+            if now < pkg['slot']: raise ValueError(f'Package {key} is not due yet.')
+            busy = [p['id'] for p in state['packages'].values() if p['state'] == RUNNING and p['run']['phone'] == phone]
+            if busy:
+                raise ValueError(f'Phone {phone} has a run without a recorded end (package {busy[0]}); review it, then `abandon` it.')
+            pkg.update(state=RUNNING, run={'phone': phone, 'slot': pkg['slot'], 'startedAt': now})
+            return pkg
+
+    def finish(self, package_id, outcome, reason='', **details):
+        """Record a running package's one outcome. verified -> done; stopped -> stopped (the operator
+        decides what next; nothing retries it); not_ready (no phone input sent) -> approved, slot dropped."""
+        if outcome not in (VERIFIED, STOPPED_SAFELY, NOT_READY): raise ValueError(f'Unknown outcome {outcome!r}.')
+        key = package_key(package_id)
+        with self._change() as state:
+            pkg = self._get(state, key)
+            if pkg['state'] != RUNNING: raise ValueError(f'Package {key} is not running.')
+            record = {**pkg.pop('run'), 'outcome': outcome, 'reason': str(reason), 'finishedAt': self.clock(), **details}
+            pkg.setdefault('runs', []).append(record)
+            if outcome == VERIFIED: pkg['state'] = DONE
+            elif outcome == STOPPED_SAFELY: pkg['state'] = STOPPED
+            else: pkg['state'] = APPROVED; pkg.setdefault('notReadySlots', []).append(pkg.pop('slot'))
+            return pkg
+
+    def abandon(self, package_id, reason):
+        """Operator only: a run whose end was never recorded (the runner died) becomes stopped, after review."""
+        if not str(reason).strip(): raise ValueError('Say what the review found.')
+        key = package_key(package_id)
+        with self._change() as state:
+            pkg = self._get(state, key)
+            if pkg['state'] != RUNNING: raise ValueError(f'Package {key} is not running.')
+            pkg.setdefault('runs', []).append({**pkg.pop('run'), 'outcome': STOPPED_SAFELY, 'finishedAt': self.clock(),
+                                               'reason': 'run end not recorded; operator reviewed: ' + str(reason)})
+            pkg['state'] = STOPPED
+            return pkg
+
     # --- planning ---
     def _lapse(self, state, now):
         changed = []
@@ -281,7 +351,7 @@ class ReviewQueue:
 
     def _propose(self, state, now, horizon_days):
         """Slots for approved packages, keeping every existing planned slot. Pure: no writes."""
-        taken = [(p['slot'], p['account'], p['platform']) for p in state['packages'].values() if p['state'] == PLANNED]
+        taken = [(p['slot'], p['account'], p['platform']) for p in state['packages'].values() if p['state'] in USED and 'slot' in p]
         rack_gap = state['settings']['rackGapMinutes'] * 60
         start_h, end_h = state['settings']['window']
         first = self._day(now); proposed, unplaced = [], []
@@ -336,7 +406,14 @@ class ReviewQueue:
         by_state = lambda s: [p['id'] for p in self._ordered() if p['state'] == s]
         return {'slots': [{'id': p['id'], 'platform': p['platform'], 'format': p['format'], 'account': p['account'],
                            'at': p['slot'], 'day': self._day(p['slot']).isoformat()} for p in slots],
-                'pending': by_state(PENDING), 'approved': by_state(APPROVED), 'rejected': by_state(REJECTED), **SAFETY}
+                'pending': by_state(PENDING), 'approved': by_state(APPROVED), 'rejected': by_state(REJECTED),
+                'running': by_state(RUNNING), 'done': by_state(DONE), 'stopped': by_state(STOPPED),
+                'runs': self.history(), **SAFETY}
+
+    def history(self):
+        """Every recorded slot run, oldest first."""
+        return sorted(({'id': p['id'], **r} for p in self.state['packages'].values() for r in p.get('runs', [])),
+                      key=lambda r: r['startedAt'])
 
     def render(self, horizon_days=7):
         """The operator's plain-text plan: committed slots plus what a commit would add."""
@@ -370,6 +447,14 @@ class ReviewQueue:
             out += [f'  pkg {u["id"]:<6} {u["account"]} {u["platform"]}: {u["reason"]}' for u in dry['unplaced']]
         if lapsing:
             out.append(''); out.append('Lapsed (slot passed unrun; replanned, never run late): ' + ', '.join(sorted(lapsing)))
+        running = [p for p in self._ordered() if p['state'] == RUNNING]
+        if running:
+            out.append(''); out.append('Running now (one per phone):')
+            out += [f'  pkg {p["id"]:<6} phone {p["run"]["phone"]} since {stamp(p["run"]["startedAt"])}' for p in running]
+        runs = self.history()
+        if runs:
+            out.append(''); out.append(f'Slot runs ({len(runs)}):')
+            out += [f'  {stamp(r["slot"])}  pkg {r["id"]:<6} phone {r["phone"]}  {r["outcome"]:<9} {short(r["reason"])}' for r in runs]
         rejected = [p for p in self._ordered() if p['state'] == REJECTED]
         if rejected: out.append(''); out.append('Rejected: ' + ', '.join(str(p['id']) for p in rejected))
         return '\n'.join(out) + '\n'

@@ -1,5 +1,5 @@
-"""Operator's command line for the review queue and run plan. Planning only: nothing here
-starts a run, touches a phone or the kernel, or posts.
+"""Operator's command line for the review queue, the run plan and the slot runner. Only `run`
+touches a phone (through the window tools, see farm_schedule_runner.py); nothing here posts.
 
   python tools/farm_schedule_cli.py                       # read the plan (dry run, the default)
   python tools/farm_schedule_cli.py intake --mode live    # queue packages from local preparation
@@ -10,8 +10,12 @@ starts a run, touches a phone or the kernel, or posts.
   python tools/farm_schedule_cli.py account acct-2 --first-day 2026-11-03 --ramp 0,0,0,1,1,2
   python tools/farm_schedule_cli.py settings --window 9-21 --rack-gap 10 --utc-offset -5 --map tiktok=acct-1
   python tools/farm_schedule_cli.py plan --commit         # record the NEW slots shown by the dry run
+  python tools/farm_schedule_cli.py stage-window reel-slot18 --account acct-a18   # queue a prepared window
+  python tools/farm_schedule_cli.py run --phone 18 --slots 2 --wait 40   # run due slots on phone 18
+  python tools/farm_schedule_cli.py abandon reel18-abc123 --reason "backend log reviewed; nothing saved"
 
-The queue lives at <main folder>/output/farm-schedule/queue.json (not committed).
+The queue lives at <main folder>/output/farm-schedule/queue.json (not committed); staged windows
+and run logs sit beside it (windows/, runs/).
 """
 import argparse
 import json
@@ -22,6 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from farm_paths import MAIN  # noqa: E402
 from farm_preparation_schedule import read_prepared_packages  # noqa: E402
 from farm_schedule_queue import ReviewQueue  # noqa: E402
+import farm_schedule_runner as runner  # noqa: E402
 
 DEFAULT_QUEUE = MAIN / 'output/farm-schedule/queue.json'
 
@@ -53,6 +58,15 @@ def main(argv=None, out=sys.stdout):
     reject = sub.add_parser('reject'); reject.add_argument('ids', nargs='+', type=package_id); reject.add_argument('--reason', default='')
     unplan = sub.add_parser('unplan', help='take packages off their slots, keep them approved')
     unplan.add_argument('ids', nargs='+', type=package_id)
+    stage = sub.add_parser('stage-window', help='queue a freshly prepared window (prepare_window.py) as one package')
+    stage.add_argument('window'); stage.add_argument('--account', required=True); stage.add_argument('--id')
+    run = sub.add_parser('run', help="run this phone's due slots (phone input, draft only)")
+    run.add_argument('--phone', type=int, required=True, help='box slot of the phone, e.g. 18')
+    run.add_argument('--slots', type=int, default=1, help='at most this many slot runs')
+    run.add_argument('--wait', type=int, default=0, help='minutes to wait for the next slot to come due')
+    run.add_argument('--recheck', action='store_true', help='rerun only the read-only verifier once when creation saved but its check stopped')
+    abandon = sub.add_parser('abandon', help='a run whose end was never recorded -> stopped, after your review')
+    abandon.add_argument('id', type=package_id); abandon.add_argument('--reason', required=True)
     account = sub.add_parser('account', help='per-account daily cap, spacing, platform caps, warmup ramp')
     account.add_argument('account'); account.add_argument('--daily', type=int); account.add_argument('--gap', type=int, help='minutes')
     account.add_argument('--cap', type=lambda t: pairs(t, int), help='platform=N,...')
@@ -94,6 +108,19 @@ def main(argv=None, out=sys.stdout):
                 elif args.command == 'reject': pkg = queue.reject(pid, args.reason)
                 else: pkg = queue.unplan(pid)
                 out.write(f'pkg {pkg["id"]}: {pkg["state"]}\n')
+        elif args.command == 'stage-window':
+            pkg = runner.stage_window(runner.WindowSteps(args.queue.parent / 'windows'), queue, args.window, args.account, args.id)
+            out.write(f'pkg {pkg["id"]}: {pkg["state"]} ({pkg["platform"]}/{pkg["format"]}, phone {pkg["source"]["slot"]}, '
+                      f'test package "{pkg["caption"]}")\n')
+        elif args.command == 'run':
+            steps = runner.WindowSteps(args.queue.parent / 'windows')
+            log = lambda line: (out.write(line + '\n'), out.flush())
+            with runner.phone_lock(args.queue.parent / f'phone-{args.phone}.lock'):
+                records = runner.SlotRunner(queue, steps, args.phone, recheck=args.recheck, log=log).run(args.slots, args.wait * 60)
+            if args.json: return show(records) or 0
+            if not records: out.write(f'No slot was due on phone {args.phone}.\n')
+        elif args.command == 'abandon':
+            pkg = queue.abandon(args.id, args.reason); out.write(f'pkg {pkg["id"]}: {pkg["state"]}\n')
         elif args.command == 'account':
             result = queue.set_account(args.account, args.daily, args.gap, args.cap, args.first_day, args.ramp)
             show({args.account: result})
