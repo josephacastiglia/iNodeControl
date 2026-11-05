@@ -177,11 +177,27 @@ def tiktok_feed(frame, text):
         # Over a bright photo even the enlarged read can lose 'Following' while it still reads another of
         # the feed's own tabs ('Shop', slot 20, 25 Oct); any of them in the header row marks the feed.
         words = [re.sub(r'[^a-z ]', '', t.casefold()) for t, x0, _, x1, _ in band_words(frame, FEED_HEADER)]
-        require(any(w in FEED_TABS for w in words), 'The TikTok feed header is not recognized.')
+        # A video's own caption box can cover the whole header (A20 after a cold start, 4 Nov: no tab read even
+        # enlarged). The four nav labels (required above) and TikTok's Create button on the dark feed nav bar then
+        # mark the feed.
+        require(any(w in FEED_TABS for w in words) or feed_create_button(frame), 'The TikTok feed header is not recognized.')
     # Feed captions and comments sit in this band; a dialog elsewhere still stops.
     no_overlay({**text, 'lines': [r for r in text.get('lines', []) if not r.get('words')
                                   or not 780 <= min(w['y'] for w in r['words']) < 1000]})
     return dict(toastSeen=bool(line_at(text, 'draft saved', (190, 135, 310, 170))), profileTarget=(450, 1005))
+
+
+def feed_create_button(frame):
+    """TikTok's Create button on the feed's dark nav bar: a white tile with cyan and pink edges (A20, 4 Nov: nav
+    dark .85, tile white .42, cyan .044, pink .035; the light profile nav is dark .07)."""
+    try: image = pixels(frame, exact=True).astype(int)
+    except (OSError, ValueError, InspectionStopped): return False   # An unreadable frame is never the feed.
+    tile = image[990:1030, 215:285]
+    white = (tile.min(axis=2) > 230).mean()
+    cyan = ((tile[..., 0] < 120) & (tile[..., 1] > 180) & (tile[..., 2] > 180)).mean()
+    pink = ((tile[..., 0] > 200) & (tile[..., 1] < 110) & (tile[..., 2] > 90)).mean()
+    dark = (image[985:1045].max(axis=2) < 40).mean()
+    return bool(dark > .7 and .3 < white < .55 and cyan > .02 and pink > .02)
 
 
 def tiktok_profile(frame, text, account):

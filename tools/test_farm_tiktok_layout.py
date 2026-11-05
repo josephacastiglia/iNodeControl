@@ -198,5 +198,31 @@ class RetainedTikTokLayoutTests(unittest.TestCase):
                 with self.assertRaises(InspectionStopped): call(frame, text, self.alpha)
 
 
+class CoveredFeedHeaderTests(unittest.TestCase):
+    """A20 after a cold start (4 Nov): a video's caption box covered the whole feed header."""
+    def frame(self, nav=(0, 0, 0), tile=True):
+        image = Image.new('RGB', (500, 1080), (90, 70, 60)); draw = ImageDraw.Draw(image)
+        draw.rectangle((0, 985, 499, 1079), fill=nav)
+        if tile:
+            draw.rectangle((222, 994, 278, 1024), fill=(255, 255, 255))
+            draw.rectangle((222, 994, 228, 1024), fill=(40, 230, 235)); draw.rectangle((272, 994, 278, 1024), fill=(250, 40, 100))
+            draw.rectangle((246, 1000, 254, 1018), fill=(0, 0, 0))
+        out = io.BytesIO(); image.save(out, 'PNG'); return out.getvalue()
+
+    def text(self):
+        rows = [('Home', 34, 1021, 40), ('Friends', 130, 1021, 50), ('Inbox', 334, 1021, 40), ('Profile', 431, 1020, 45),
+                ('Do Not Post From The', 34, 41, 420)]
+        return dict(width=500, height=1080, lines=[dict(text=t, words=[dict(text=t, x=x, y=y, width=w, height=16)]) for t, x, y, w in rows])
+
+    def test_the_create_button_on_the_dark_nav_marks_the_feed(self):
+        from unittest import mock
+        with mock.patch.object(tt, 'band_words', return_value=[]):
+            self.assertEqual((450, 1005), tt.tiktok_feed(self.frame(), self.text())['profileTarget'])
+            for frame in (self.frame(tile=False), self.frame(nav=(250, 250, 250))):
+                with self.assertRaises(InspectionStopped): tt.tiktok_feed(frame, self.text())
+            missing = self.text(); missing['lines'] = [l for l in missing['lines'] if l['text'] != 'Inbox']
+            with self.assertRaises(InspectionStopped): tt.tiktok_feed(self.frame(), missing)
+
+
 if __name__ == '__main__':
     unittest.main()
