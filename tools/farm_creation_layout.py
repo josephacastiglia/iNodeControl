@@ -302,7 +302,13 @@ def search_clear(frame):
     except InspectionStopped:
         image=pixels(frame,exact=True)
         bright=float((image[988:1022,430:462].min(axis=2)>215).mean())
-        require(.2<=bright<=.6,'Creation control changed: search_clear')
+        if .2<=bright<=.6: return [430,988,462,1022]
+        # A tinted wallpaper tints the glyph too (A14, 5 Nov: teal, a cyan glyph; .06 white). Then the glyph is
+        # measured against the empty field beside it: pixels 40 luminance above the field's median. 5 Nov frames:
+        # .39-.41 with the button (A11, A12, A14, A15), .00 empty fields, .20-.21 an alert dimming the Home screen.
+        lum=image[...,:3].astype(float)@np.array([.299,.587,.114])
+        lifted=float((lum[988:1022,430:462]>np.median(lum[990:1020,300:420])+40).mean())
+        require(.30<=lifted<=.55,'Creation control changed: search_clear')
         return [430,988,462,1022]
 
 
