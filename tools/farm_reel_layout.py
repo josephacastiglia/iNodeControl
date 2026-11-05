@@ -360,6 +360,21 @@ COVER_NEAR_MEAN = .18
 DETAILS_BUTTONS = (({'save draft'}, (80, 980, 190, 1012)), ({'cancel'}, (12, 62, 90, 96)))
 
 
+def details_rows(text):
+    """The settings rows under the cover: location, then audio ('Original audio') 40-80 px below.
+    The list grew on 22 Oct (slot 18: a 'Tag products' row), moving location and audio 58 px down
+    (location y 749 -> 807); either position is accepted, location above audio. On 4 Nov (slot 18)
+    an 'Add link' row ('Try Meta One') appeared between them and pushed audio under the button bar,
+    where OCR does not read it: then the 'Add link' row, in audio's old place, stands in for it.
+    Recognition only; that row is never tapped."""
+    location = words_at(text, 'location', (60, 735, 190, 835))
+    require(location, 'Reel details field missing: location')
+    below = words_at(text, 'original', (330, 790, 480, 895)) or words_at(text, 'link', (60, 790, 190, 895))
+    require(below, 'Reel details field missing: original')
+    require(40 <= below[0][1] - location[0][1] <= 80, 'The Reel details rows are out of order.')
+    return 'audio' if words_at(text, 'original', (330, 790, 480, 895)) else 'link'
+
+
 def reel_details(frame, text, reference, caption=None, *, reopened=False):
     """Fresh or reopened details. caption=None requires the empty placeholder."""
     no_overlay(text, DETAILS_BUTTONS)
@@ -368,12 +383,7 @@ def reel_details(frame, text, reference, caption=None, *, reopened=False):
             'The Reel cover card is not recognized.')
     for name, box in (('poll', (180, 605, 235, 640)), ('prompt', (245, 605, 350, 640))):
         require(words_at(text, name, box), 'Reel details field missing: ' + name)
-    # The settings list grew on 22 Oct (slot 18: a 'Tag products' row), moving location and audio
-    # 58 px down (location y 749 -> 807); either position is accepted, location above audio.
-    rows = [words_at(text, name, box) for name, box in (('location', (60, 735, 190, 835)), ('original', (330, 790, 480, 895)))]
-    for name, found in zip(('location', 'original'), rows):
-        require(found, 'Reel details field missing: ' + name)
-    require(40 <= rows[1][0][1] - rows[0][0][1] <= 80, 'The Reel details rows are out of order.')
+    details_rows(text)
     exact(text, 'Save draft', (80, 980, 190, 1012))
     require(words_at(text, 'share', (335, 980, 405, 1012)), 'Reel details buttons are not recognized.')
     if reopened:
