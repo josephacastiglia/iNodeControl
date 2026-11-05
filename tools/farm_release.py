@@ -380,6 +380,22 @@ def privacy_tokens(archive=None):
             [h.lstrip('@') for h in lines(handles) if len(h.lstrip('@')) >= 4])
 
 
+def account_labels(archive=None):
+    """Account labels kept in per-machine private data (<archive>/privacy/farm-accounts.json). Values never printed."""
+    if archive is None:
+        try:
+            sys.path.insert(0, str(REPO / 'tools'))
+            from farm_paths import ARCHIVE as archive  # noqa: N811
+        except Exception:
+            return []
+    path = Path(archive) / 'privacy' / 'farm-accounts.json'
+    try:
+        values = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return []
+    return [v for k, v in values.items() if k != 'note' and isinstance(v, str) and len(v) >= 4]
+
+
 def git_identity(repo):
     try:
         head = subprocess.run(['git', '-C', str(repo), 'rev-parse', 'HEAD'], capture_output=True, text=True, timeout=10, check=True).stdout.strip()
@@ -427,7 +443,9 @@ def plan(repo, kernel, console, receiver_exe, receiver_runtime):
     return copies
 
 
-def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=None, make_zip=False, tokens=None, now=None):
+def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=None, make_zip=False, tokens=None, now=None, accounts=None):
+    """accounts: account labels from private data; packaged files still naming one are listed in the
+    manifest's 'account_labels_in' for review (not refused while a lane's file still names one)."""
     repo, out = Path(repo).resolve(), Path(out).resolve()
     if out.exists():
         raise ValueError('output already exists; packages are never overwritten')
@@ -446,6 +464,9 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
             problems.append(f'{hit}: {name}')
     if problems:
         raise ValueError('private content refused: ' + '; '.join(problems))
+    labels = [a.casefold() for a in (accounts or ())]
+    account_hits = sorted(n for n, src in copies.items() if labels and not n.startswith('receiver/') and Path(src).suffix.lower() in TEXT_SUFFIXES
+                          and any(a in Path(src).read_text(encoding='utf-8', errors='replace').casefold() for a in labels))
     frameworks = {c: _framework_check(c, copies[f'{c}/{n}']) for c, n in
                   (('kernel', 'iMouse2.Kernel.runtimeconfig.json'), ('console', 'iMouse2.runtimeconfig.json'))}
     pins = _requirements(copies['farm/tools/requirements-farm.txt'])
@@ -480,6 +501,7 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
         'data_layout': 'farm_install.py DATA_DIRS; private state stays in the per-machine data folder',
         'excluded': {'patterns': list(PRIVATE_PATTERNS), 'referenced_private_files': private_refs},
         'dev_path_findings': {'blockers': len(blockers(findings)), 'total': len(findings)},
+        'account_labels_in': account_hits,
         'files': dict(sorted(rows.items())),
     }
     partial = out.with_name(out.name + '.partial')
@@ -597,8 +619,11 @@ def main(argv=None):
         if tokens is None and not args.no_privacy_lists:
             print('Refused: the withheld-value list was not found; pass --no-privacy-lists only for synthetic builds.')
             return 2
-        m = build(args.repo, args.out, args.kernel, args.console, args.receiver_exe, args.receiver_runtime, args.version, args.zip, tokens)
+        m = build(args.repo, args.out, args.kernel, args.console, args.receiver_exe, args.receiver_runtime, args.version, args.zip, tokens,
+                  accounts=None if args.no_privacy_lists else account_labels())
         print(f"Built {m['version']}: {len(m['files'])} files; dev-path blockers {m['dev_path_findings']['blockers']}. Nothing was started.")
+        if m['account_labels_in']:
+            print('REVIEW: an account label from private data is still in: ' + ', '.join(m['account_labels_in']))
         return 0
     except (ValueError, OSError, KeyError) as error:
         print(f'Refused: {error}')

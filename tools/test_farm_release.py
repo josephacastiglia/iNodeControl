@@ -159,6 +159,14 @@ class Build(Base):
         with self.assertRaisesRegex(ValueError, 'withheld value'):
             build_package(self.base, repo=repo, tokens=['WithheldValue1234'])
 
+    def test_account_labels_are_listed_for_review(self):
+        repo = make_repo(self.base)
+        (repo / 'tools/farm_lane_runs.py').write_text('START = "on @somelabel\'s profile"\n', encoding='utf-8')
+        manifest, _, _ = build_package(self.base, repo=repo, accounts=['SomeLabel'])
+        self.assertEqual(manifest['account_labels_in'], ['farm/tools/farm_lane_runs.py'])
+        manifest, _, _ = build_package(self.base / 'clean', accounts=['SomeLabel'])
+        self.assertEqual(manifest['account_labels_in'], [])
+
     def test_wrong_framework_unpinned_requirement_and_missing_hashed_file(self):
         repo = make_repo(self.base)
         kernel, console, receiver, runtime = make_builds(self.base / 'b')
