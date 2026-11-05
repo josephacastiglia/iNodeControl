@@ -76,6 +76,13 @@ if (options.HardwareMode == "--hid-caps")
 }
 
 var config = configuration!;
+if (options.ConsoleLog is { } consoleLog)
+{
+    // Detached (WMI) launch has no redirected console: write what the console would show to a file.
+    var log = new StreamWriter(new FileStream(consoleLog, FileMode.Append, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete)) { AutoFlush = true };
+    Console.SetOut(log); Console.SetError(log);
+}
+Console.WriteLine("Kernel pid " + Environment.ProcessId + " started " + DateTime.UtcNow.ToString("o") + ".");
 Directory.CreateDirectory(options.DataDir);
 using var input = new InputRouter(config.Store, options.Allowed, config.Calibrations, preciseDelayMs: options.PreciseDelayMs,
     replyBoards: options.ReplyBoards, absoluteProbeBoard: options.AbsoluteProbeBoard)
@@ -92,6 +99,8 @@ var server = new ApiServer(options.Prefix, config.Store, input, fleet.Sessions.S
     { AdvertiseReceiver = fleet.Advertise, Receivers = fleet, Rack = options.Rack };
 if (options.Rack.Length > 0) Console.WriteLine("Rack " + options.Rack + ": this kernel serves only the boards and receivers in its configuration.");
 if (options.HeldReceivers.Length > 0) Console.WriteLine("Receivers held until released: " + string.Join(",", options.HeldReceivers));
+if (options.StopFile is { } stopFile) Console.WriteLine("Graceful stop: write this PID to " + stopFile + ".");
+var stopWatch = options.StopFile is { } watched ? new KernelStopFile(watched, Environment.ProcessId).WatchAsync(cts) : Task.CompletedTask;
 int exitCode = 0;
 try
 {

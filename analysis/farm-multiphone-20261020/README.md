@@ -73,6 +73,26 @@ for both racks) works as before. Tests: kernel `--self-test`, `python -m unittes
 test_rack_kernels`, and `python offrack/offrack_trial.py --kernel <exe>` (a second kernel on :9936
 with stand-in receivers, safe beside the live rack).
 
+## Unattended recovery (5 Nov)
+
+- `Start-Multiphone.ps1` launches the kernel detached (WMI `Win32_Process.Create`; parent `wmiprvse.exe`),
+  so it no longer dies with the Claude session, with `--stop-file <stage>\stop-request.txt` and
+  `--console-log <stage>\kernel.console.txt` (kernel 20261105 or later; `-Attached` for older builds).
+  `Stop-Multiphone.ps1` writes the kernel's PID to its stop file: the same shutdown as Ctrl+C, which a
+  detached kernel never receives. If a stop fails, the boards it left input-stopped go to
+  `input-stops.jsonl` with their generation.
+- `Bringup-Rack.ps1 [-Stage slots | -Rack A|B] [-PlanOnly]` (`rack_recovery.py bringup`): the ordered
+  reconnect in `bringup-plan.json`: B20 from a crafted survey, B19 down surveyed on B20, rack A 2/5/6, A20
+  crafted (row n at cy 226 + 63(n-1)), the XRs 19 down surveyed on A20. Wakes Home-button phones, retries
+  once, resumes input only for a board the ledger says we stopped and nothing touched since (never
+  'Stopped by operator.'), and writes `bringup-<time>\report.json`.
+- `Watch-Rack.ps1 [-Stage slots | -Rack A|B]` (`rack_recovery.py watch`): if the recorded kernel died, it
+  stops that kernel's leftover receivers, withdraws their names, starts the kernel and runs the
+  bring-up. A deliberately stopped kernel (no record) is left alone, as is a live one whose API is
+  silent (reported). At most 3 restarts an hour. `watchdog-pause` beside the preparation pauses it.
+- Tests: `python -m unittest test_rack_recovery`; `python offrack/offrack_recovery_trial.py --kernel
+  <exe>` (detached start, stop-file stop, watchdog restart after a killed sandbox kernel, idle, pause).
+
 ## Mistake recorded
 
 On the earlier live windows (same day), `archive_attempt.py` was run in parallel with

@@ -188,6 +188,13 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(rk.read_snapshot('﻿{"listeners": [9926]}'.encode('utf-8')), {'listeners': [9926]})
         self.assertEqual(rk.read_snapshot(b''), {})
 
+    def test_sandbox_waives_only_the_single_kernel_rule(self):
+        box = dict(self.b, sandbox=True, arguments=['http://127.0.0.1:9936/api/'] + self.b['arguments'][1:])
+        self.assertEqual(self.reasons(box, [kernel(1, 9916)], rack='B'), [])
+        self.assertTrue(self.reasons(box, [uxplay(2, 'iMouse2-CD51', 1)], rack='B'))
+        self.assertTrue(self.reasons(box, [kernel(1, 9936, 'B')], rack='B'))
+        with self.assertRaises(SystemExit): self.reasons(dict(self.b, sandbox=True), rack='B')   # on 9926: refused
+
     def test_rack_and_preparation_must_agree(self):
         with self.assertRaises(SystemExit): self.reasons(self.a, rack='B')
         with self.assertRaises(SystemExit): self.reasons(self.a)

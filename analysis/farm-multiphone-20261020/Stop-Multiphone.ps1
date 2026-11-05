@@ -1,5 +1,8 @@
 # Stops a multi-phone kernel with Ctrl+C (it then ends each receiver it started), confirms nothing of it
-# remains, and withdraws its receivers' AirPlay names. Never force-kills anything.
+# remains, and withdraws its receivers' AirPlay names. Never force-kills anything. A detached kernel
+# (Start-Multiphone.ps1 since 5 Nov) stops through its stop file; an attached one gets Ctrl+C. If the
+# stop fails, the boards whose input it left stopped go to input-stops.jsonl, so Bringup-Rack.ps1
+# resumes exactly those (never an operator's stop).
 #   -Stage held|slots  the single kernel: afterwards no kernel, receiver or listener may remain at all.
 #   -Rack A|B          one rack's kernel: afterwards none of this rack's kernel, receivers or listeners may
 #                      remain; the other rack's kernel and phones keep running.
@@ -17,10 +20,34 @@ if([string]$taskPrep.rack -cne $Rack){throw "The preparation's rack ('$($taskPre
 $taskApi=([string]$taskPrep.arguments[0]).TrimEnd('/')
 $taskProcs=Get-Content -LiteralPath (Join-Path $taskDir 'processes.json') -Raw | ConvertFrom-Json
 $taskHelper=Join-Path $PSScriptRoot '..\..\tools\kernel-window\Stop-ConsoleProcessGracefully.ps1'
-if(Get-Process -Id $taskProcs.kernel.pid -ErrorAction SilentlyContinue){
-    # The helper detaches from its console, so it runs in its own PowerShell process.
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $taskHelper -ProcessId $taskProcs.kernel.pid -ExpectedPath $taskPrep.kernel
-    if($LASTEXITCODE){throw "Graceful stop reported exit $LASTEXITCODE; inspect before doing anything else."}
+$taskPid=[int]$taskProcs.kernel.pid
+$taskRunning=Get-CimInstance Win32_Process -Filter "ProcessId=$taskPid"
+if($taskRunning -and $taskRunning.ExecutablePath -ne $taskPrep.kernel){throw "PID $taskPid is no longer the prepared kernel; nothing was stopped."}
+if($taskRunning){
+    # Input state before the stop: if the stop fails, the boards it left stopped go to the ledger.
+    $taskBefore=Join-Path $taskDir 'input-before-stop.json'
+    # Best effort: a snapshot that cannot be taken never blocks the stop (only the ledger is lost).
+    $taskSnapped=$false
+    try{
+        $ErrorActionPreference='Continue'
+        & $taskPy (Join-Path $PSScriptRoot 'rack_recovery.py') snapshot --api $taskApi --out $taskBefore *> $null
+        $taskSnapped=($LASTEXITCODE -eq 0)
+    }catch{}finally{$ErrorActionPreference='Stop'}
+    if($taskProcs.stopFile){
+        # A detached kernel: write its PID to its stop file; it runs its Ctrl+C shutdown and consumes the file.
+        [IO.File]::WriteAllText([string]$taskProcs.stopFile,[string]$taskPid)
+        $taskDeadline=[datetime]::UtcNow.AddSeconds(45)
+        while((Get-Process -Id $taskPid -ErrorAction SilentlyContinue) -and [datetime]::UtcNow -lt $taskDeadline){Start-Sleep -Milliseconds 500}
+        $taskStopExit=if(Get-Process -Id $taskPid -ErrorAction SilentlyContinue){3}else{0}
+    }else{
+        # An attached kernel: the helper detaches from its console, so it runs in its own PowerShell process.
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $taskHelper -ProcessId $taskPid -ExpectedPath $taskPrep.kernel
+        $taskStopExit=$LASTEXITCODE
+    }
+    if($taskStopExit){
+        if($taskSnapped){& $taskPy (Join-Path $PSScriptRoot 'rack_recovery.py') ledger --api $taskApi --before $taskBefore --by 'Stop-Multiphone' --ledger (Join-Path $taskDir 'input-stops.jsonl')}
+        throw "Graceful stop reported exit $taskStopExit; nothing was killed. Inspect before doing anything else."
+    }
 }
 $taskSnap=@{
     processes=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('iMouse2.Kernel.exe','uxplay.exe') } | ForEach-Object { @{Name=$_.Name;ProcessId=$_.ProcessId;CommandLine=$_.CommandLine} })

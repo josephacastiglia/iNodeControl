@@ -16,6 +16,7 @@ prove its receivers were untouched. The only network traffic is the AirPlay good
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import socket
 import subprocess
@@ -104,6 +105,7 @@ def main():
     kernel = Path(parser.parse_args().kernel).resolve()
 
     # --- Safety: nothing this trial uses may belong to the live rack. ---
+    if os.environ.get('IMOUSE_FARM_DATA'): raise SystemExit('IMOUSE_FARM_DATA is set: the sandbox scripts would use the real data folder.')
     used = [p for p in [PORT] + [q for b in BOARDS for q in range(RECEIVER_PORTS[b], RECEIVER_PORTS[b] + 3)] if not port_free(p)]
     if used: raise SystemExit(f'Trial ports in use: {used}; nothing started.')
     before = live_snapshot()
@@ -135,10 +137,11 @@ def main():
     # Sandbox: the real scripts, at the same relative layout, seeing only this trial's preparation.
     box = run / 'sandbox' / 'analysis' / 'rack'
     box.mkdir(parents=True)
-    for script in ('Start-Multiphone.ps1', 'Stop-Multiphone.ps1', 'Release-Receiver.ps1', 'Restart-Receiver.ps1', 'rack_kernels.py'):
+    for script in ('Start-Multiphone.ps1', 'Stop-Multiphone.ps1', 'Release-Receiver.ps1', 'Restart-Receiver.ps1', 'rack_kernels.py', 'rack_recovery.py'):
         shutil.copy2(RACK / script, box / script)
     (run / 'sandbox/tools/kernel-window').mkdir(parents=True)
     shutil.copy2(ROOT / 'tools/mdns_goodbye.py', run / 'sandbox/tools/mdns_goodbye.py')
+    shutil.copy2(ROOT / 'tools/farm_paths.py', run / 'sandbox/tools/farm_paths.py')
     shutil.copy2(ROOT / 'tools/kernel-window/Stop-ConsoleProcessGracefully.ps1', run / 'sandbox/tools/kernel-window/')
     rack_b = box / 'rack-b'; rack_b.mkdir()
     arguments = [f'http://127.0.0.1:{PORT}/api/', '--data-dir', str(data), '--input-pid', '0F01', '--receivers', str(data / 'receivers.json'),

@@ -6,7 +6,11 @@
 #                      receivers' names or ports, its listeners, the single kernel (and, for rack A, the farm
 #                      console/backends). The other rack's kernel and phones are left alone.
 # Prepared receivers start held; Release-Receiver.ps1 advertises one at a time.
-param([ValidateSet('','held','slots')][string]$Stage='',[ValidateSet('','A','B')][string]$Rack='')
+# The kernel is launched detached (WMI Win32_Process.Create, parent outside this session), so it survives
+# the Claude app or session restarting; it stops gracefully through its stop file (Stop-Multiphone.ps1),
+# and its console output goes to kernel.console.txt. -Attached keeps the old Start-Process child (a
+# kernel build before 5 Nov has no --stop-file).
+param([ValidateSet('','held','slots')][string]$Stage='',[ValidateSet('','A','B')][string]$Rack='',[switch]$Attached)
 $ErrorActionPreference='Stop'
 # State (preparations, process records, logs) sits beside this script in a checkout; installed, Farm.ps1 sets
 # IMOUSE_FARM_DATA and the state is in the data folder. Python: IMOUSE_FARM_PYTHON when installed, else PATH.
@@ -37,15 +41,32 @@ foreach($taskName in 'devices.json','receivers.json','pointer-calibration.json')
     if((Get-FileHash -LiteralPath (Join-Path $taskPrep.runDirectory "data\$taskName") -Algorithm SHA256).Hash.ToLowerInvariant() -cne $taskPrep.dataSha256.$taskName){throw "Prepared $taskName changed."}
 }
 function Quote-TaskArguments($taskValues){ foreach($v in $taskValues){if($v.Contains('"')){throw 'Unexpected quote.'}}; (($taskValues | ForEach-Object {'"'+$_+'"'}) -join ' ') }
-$taskValidator=Start-Process -FilePath $taskPrep.kernel -ArgumentList (Quote-TaskArguments (@($taskPrep.arguments)+@('--validate-startup'))) -WorkingDirectory ([IO.Path]::GetDirectoryName($taskPrep.kernel)) -WindowStyle Hidden -PassThru -Wait -RedirectStandardOutput (Join-Path $taskDir 'kernel-validation.stdout.txt') -RedirectStandardError (Join-Path $taskDir 'kernel-validation.stderr.txt')
-if($taskValidator.ExitCode -ne 0){throw 'Offline kernel startup validation failed; nothing was started.'}
-$taskKernel=Start-Process -FilePath $taskPrep.kernel -ArgumentList (Quote-TaskArguments $taskPrep.arguments) -WorkingDirectory ([IO.Path]::GetDirectoryName($taskPrep.kernel)) -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $taskDir 'kernel.stdout.txt') -RedirectStandardError (Join-Path $taskDir 'kernel.stderr.txt')
-@{utc=[datetime]::UtcNow.ToString('o');kernel=@{pid=$taskKernel.Id;path=$taskPrep.kernel};rack=$Rack;api=$taskApi;phoneInput=$false} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $taskProcessFile -Encoding utf8
+$taskStopFile=Join-Path $taskDir 'stop-request.txt'
+$taskConsoleLog=Join-Path $taskDir 'kernel.console.txt'
+$taskArgs=if($Attached){@($taskPrep.arguments)}else{@($taskPrep.arguments)+@('--stop-file',$taskStopFile,'--console-log',$taskConsoleLog)}
+$taskValidator=Start-Process -FilePath $taskPrep.kernel -ArgumentList (Quote-TaskArguments (@($taskArgs)+@('--validate-startup'))) -WorkingDirectory ([IO.Path]::GetDirectoryName($taskPrep.kernel)) -WindowStyle Hidden -PassThru -Wait -RedirectStandardOutput (Join-Path $taskDir 'kernel-validation.stdout.txt') -RedirectStandardError (Join-Path $taskDir 'kernel-validation.stderr.txt')
+if($taskValidator.ExitCode -ne 0){
+    if(!$Attached -and (Get-Content -LiteralPath (Join-Path $taskDir 'kernel-validation.stderr.txt') -Raw) -match 'Unknown kernel option: --stop-file'){throw 'This kernel build has no --stop-file; use -Attached (or a build from 5 Nov or later). Nothing was started.'}
+    throw 'Offline kernel startup validation failed; nothing was started.'
+}
+if($Attached){
+    $taskKernelId=(Start-Process -FilePath $taskPrep.kernel -ArgumentList (Quote-TaskArguments $taskArgs) -WorkingDirectory ([IO.Path]::GetDirectoryName($taskPrep.kernel)) -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $taskDir 'kernel.stdout.txt') -RedirectStandardError (Join-Path $taskDir 'kernel.stderr.txt')).Id
+}else{
+    if(Test-Path -LiteralPath $taskStopFile){Remove-Item -LiteralPath $taskStopFile}
+    $taskStartup=New-CimInstance -ClassName Win32_ProcessStartup -ClientOnly -Property @{ShowWindow=[uint16]0}
+    $taskCreated=Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
+        CommandLine=('"'+$taskPrep.kernel+'" '+(Quote-TaskArguments $taskArgs)); CurrentDirectory=[IO.Path]::GetDirectoryName($taskPrep.kernel); ProcessStartupInformation=$taskStartup}
+    if($taskCreated.ReturnValue -ne 0){throw "Detached kernel launch failed (Win32_Process.Create $($taskCreated.ReturnValue)); nothing was started."}
+    $taskKernelId=[int]$taskCreated.ProcessId
+}
+$taskRecord=@{utc=[datetime]::UtcNow.ToString('o');kernel=@{pid=$taskKernelId;path=$taskPrep.kernel};rack=$Rack;api=$taskApi;phoneInput=$false;launch=$(if($Attached){'attached'}else{'detached'})}
+if(!$Attached){$taskRecord.stopFile=$taskStopFile; $taskRecord.consoleLog=$taskConsoleLog}
+$taskRecord | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $taskProcessFile -Encoding utf8
 $taskDeadline=[datetime]::UtcNow.AddSeconds(40)
 do{
     Start-Sleep -Milliseconds 500
     try{$taskStatus=(Invoke-RestMethod "$taskApi/kernel/status" -TimeoutSec 3).data}catch{$taskStatus=$null}
-    if($taskKernel.HasExited){throw 'Kernel exited. Preserve its logs.'}
+    if(!(Get-Process -Id $taskKernelId -ErrorAction SilentlyContinue)){throw 'Kernel exited. Preserve its logs.'}
 }while((!$taskStatus -or @($taskStatus.receivers | Where-Object {$_.receiver_pid -gt 0}).Count -ne $taskExpected -or @($taskStatus.receivers | Where-Object {$_.receiver_state -eq 'held'}).Count -ne $taskHeld.Count) -and [datetime]::UtcNow -lt $taskDeadline)
 $taskStatus | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath (Join-Path $taskDir 'receivers-ready.json') -Encoding utf8
 if(!$taskStatus -or $taskStatus.build_identity.sha256 -cne $taskPrep.kernelSha256 -or @($taskStatus.allowed).Count -ne @($taskPrep.inputEnabled).Count){throw 'Kernel identity or allow-list differs.'}

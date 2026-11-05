@@ -17,6 +17,33 @@ internal static class KernelStartupTests
         var defaults = KernelOptions.Parse([]);
         check(defaults.Rack == "" && KernelOptions.Parse(["--rack", "b"]).Rack == "B", "--rack labels one rack's kernel; the single kernel has none");
         Reject(() => KernelOptions.Parse(["--rack", "A B"]), "--rack refuses labels with spaces or symbols");
+        string tmpFolder = Path.GetTempPath();
+        var detached = KernelOptions.Parse(["--stop-file", Path.Combine(tmpFolder, "stop.txt"), "--console-log", Path.Combine(tmpFolder, "kernel.log")]);
+        check(detached.StopFile == Path.Combine(Path.GetFullPath(tmpFolder), "stop.txt") && detached.ConsoleLog!.EndsWith("kernel.log"),
+            "--stop-file and --console-log take full paths in an existing folder");
+        Reject(() => KernelOptions.Parse(["--stop-file", Path.Combine(tmpFolder, "no-such-tmpFolder-" + Guid.NewGuid().ToString("N"), "stop.txt")]),
+            "--stop-file refuses a missing tmpFolder");
+        Reject(() => KernelOptions.Parse(["--stop-file", Path.Combine(tmpFolder, "x.txt"), "--console-log", Path.Combine(tmpFolder, "x.txt")]),
+            "--stop-file and --console-log cannot be one file");
+        string stopPath = Path.Combine(tmpFolder, "imouse-stop-" + Guid.NewGuid().ToString("N") + ".txt");
+        var stopFile = new KernelStopFile(stopPath, 4242);
+        check(!stopFile.Requested(), "No stop file: no stop");
+        File.WriteAllText(stopPath, "999");
+        check(!stopFile.Requested() && File.Exists(stopPath), "A stop file naming another process never stops this kernel");
+        File.WriteAllText(stopPath, "not a pid");
+        check(!stopFile.Requested(), "A malformed stop file never stops this kernel");
+        File.WriteAllText(stopPath, "\uFEFF4242\r\n");
+        check(stopFile.Requested() && !File.Exists(stopPath), "A stop file naming this PID (BOM and newline allowed) stops it once and is consumed");
+        using (var watched = new CancellationTokenSource())
+        {
+            File.WriteAllText(stopPath, "1");   // Stale request from an earlier kernel: removed, ignored.
+            var watch = stopFile.WatchAsync(watched, TimeSpan.FromMilliseconds(10));
+            await Task.Delay(60);
+            check(!watched.IsCancellationRequested && !File.Exists(stopPath), "A stale stop request is removed at start and ignored");
+            File.WriteAllText(stopPath, "4242");
+            await watch.WaitAsync(TimeSpan.FromSeconds(5));
+            check(watched.IsCancellationRequested, "The stop watcher cancels the kernel exactly as Ctrl+C does");
+        }
         Reject(() => KernelOptions.Parse(["--rack", "A", "--hid-caps"]), "--rack is refused with a raw hardware command");
         check(defaults.ReplyBoards.Length == 0, "HID reply observation is off unless explicitly scoped at startup");
         check(defaults.AbsoluteProbeBoard is null && defaults.Navigation == NavigationSequence.Vendor,
