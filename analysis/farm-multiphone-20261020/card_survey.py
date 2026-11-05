@@ -17,6 +17,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 from auto_connect import BASE, OCR, control_center, read_screen  # noqa: E402
 from farm_mirroring import CLOSE, TILE, browse  # noqa: E402
 from identify_phone import acquire, post, request  # noqa: E402
@@ -70,7 +72,7 @@ def main():
     device = next(d for d in request(BASE, 'GET', '/device/get', timeout=8)['list'] if d.get('pid', '').upper() == board)
     status = next(r for r in request(BASE, 'GET', '/kernel/status', timeout=8)['receivers'] if r['deviceid'] == device['deviceid'])
     if not status['live']: raise SystemExit(f"{status['name']} is not mirroring; its card cannot be read.")
-    folder = HERE / 'card-survey' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"; folder.mkdir(parents=True)
+    folder = STATE / 'card-survey' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"; folder.mkdir(parents=True)
     # The card's layout depends on how many receivers it lists, so the advertised set is kept with it.
     record = dict(board=board, advertised=sorted(browse()[0]), scroll=args.scroll, small=args.small, nudge=args.nudge, steps=[])
     token = acquire(BASE, device['deviceid'])
@@ -121,7 +123,7 @@ def main():
     finally:
         record['release'] = post(BASE, '/input/release', dict(id=device['deviceid'], token=token)).get('code')
         (folder / 'record.json').write_text(json.dumps(record, indent=2), encoding='utf-8')
-    print(json.dumps(dict(folder=str(folder.relative_to(HERE)), closed=record.get('controlCenterClosed'),
+    print(json.dumps(dict(folder=str(folder.relative_to(STATE)), closed=record.get('controlCenterClosed'),
                           lines=[(l['y'], l['x'], l['text']) for l in record.get('lines', [])])))
 
 

@@ -24,6 +24,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 from farm_mirroring import CLOSE, COLLATIONS, ROWS, TILE, browse  # noqa: E402
 from farm_observations import WindowsOcr  # noqa: E402
 from identify_phone import acquire, post, request  # noqa: E402
@@ -34,7 +36,7 @@ BASE = 'http://127.0.0.1:9916/api'   # The single kernel, or rack A's (rack_kern
 
 def rack_api(rack):
     """The API of one rack's own kernel, from its preparation (rack_kernels.py prepare)."""
-    prep = json.loads((HERE / f'rack-{rack.lower()}' / 'preparation.json').read_text(encoding='utf-8-sig'))
+    prep = json.loads((STATE / f'rack-{rack.lower()}' / 'preparation.json').read_text(encoding='utf-8-sig'))
     if prep.get('rack') != rack.upper() or not prep.get('api', '').startswith('http://127.0.0.1:'):
         raise SystemExit(f'rack-{rack.lower()}/preparation.json is not a rack {rack.upper()} kernel preparation.')
     return prep['api']
@@ -142,7 +144,7 @@ def main():
     else:
         row = row_of(status['name'], names)
         point = ROWS[row]
-    folder = HERE / 'autoconnect'; folder.mkdir(exist_ok=True)
+    folder = STATE / 'autoconnect'; folder.mkdir(exist_ok=True)
     record = dict(board=board, receiver=status['name'], phoneIp=args.phone_ip, advertised=sorted(names), row=row + 1, steps=[],
                   utc=datetime.now(timezone.utc).isoformat())
     watcher = Watcher(lan_address())

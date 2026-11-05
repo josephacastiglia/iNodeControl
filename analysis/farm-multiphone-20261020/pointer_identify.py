@@ -20,6 +20,8 @@ from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 from identify_phone import acquire, post, request  # noqa: E402
 
 BASE = 'http://127.0.0.1:9916/api'
@@ -57,7 +59,7 @@ WATCH_STEP_S = 0.08
 
 def page(board, device_id):
     """Reset, then one swipe from right to left across the middle of the home screen."""
-    folder = HERE / 'identify' / f"{board}-page-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
+    folder = STATE / 'identify' / f"{board}-page-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
     folder.mkdir(parents=True)
     row = next(p for p in request(BASE, 'GET', '/input/status', timeout=5)['phones'] if p['id'] == device_id)
     if row['stopped'] and device_id.startswith('pending-'):
@@ -77,7 +79,7 @@ def page(board, device_id):
 
 def watch(board, device_id, home=False):
     """Pointer moves only, for the operator's eyes: about 15 s of the square, then the lease goes."""
-    folder = HERE / 'identify' / f"{board}-watch-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
+    folder = STATE / 'identify' / f"{board}-watch-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
     folder.mkdir(parents=True)
     record = dict(board=board, mode='watch', moves=[], phoneInput='pointer moves only')
     # An added board stopped by an earlier timed-out move (never an operator stop: these phones
@@ -134,7 +136,7 @@ def main():
     receivers = {r['deviceid']: r for r in request(BASE, 'GET', '/kernel/status', timeout=8)['receivers']}
     others = [d for d in receivers if d != device['deviceid'] and receivers[d]['live'] and d not in ('*', '')]
     if not receivers.get(device['deviceid'], {}).get('live'): raise SystemExit(f'{board} is not mirroring.')
-    folder = HERE / 'identify' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
+    folder = STATE / 'identify' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
     folder.mkdir(parents=True)
     record = dict(board=board, deviceId=device['deviceid'], moves=[], frames=[], phoneInput='pointer moves only')
 
@@ -171,7 +173,7 @@ def main():
     (folder / 'record.json').write_text(json.dumps(record, indent=2), encoding='utf-8')
     print(json.dumps(dict(board=board, ownChange=round(record['ownChange'], 5),
                           otherChange={k[-5:]: round(v, 5) for k, v in record['otherChange'].items()},
-                          ownScreenMoved=record['ownScreenMoved'], folder=str(folder.relative_to(HERE)))))
+                          ownScreenMoved=record['ownScreenMoved'], folder=str(folder.relative_to(STATE)))))
 
 
 if __name__ == '__main__':

@@ -48,11 +48,15 @@ $env:IMOUSE_FARM_KERNEL = Join-Path $version 'kernel\iMouse2.Kernel.exe'
 $env:IMOUSE_FARM_RECEIVER = Join-Path $version 'receiver\uxplay.exe'
 $env:IMOUSE_FARM_RECEIVER_RUNTIME = Join-Path $version 'receiver\runtime'
 $env:IMOUSE_FARM_PYTHON = $python
+# Bytecode caches go to the data folder, never into the version folder (which must stay byte-identical to
+# release.json): PYTHONPYCACHEPREFIX for the Pythons the rack scripts start, -X pycache_prefix for -E runs.
+$pycache = Join-Path $data 'cache\pycache'
+$env:PYTHONPYCACHEPREFIX = $pycache
 $extra = @($spec.args | Where-Object { $_ })
 Push-Location -LiteralPath $data
 try {
     switch ($spec.kind) {
-        'python' { if (!$python) { throw 'No Python recorded; reinstall with --python.' }; & $python -E $entry @extra @Rest }
+        'python' { if (!$python) { throw 'No Python recorded; reinstall with --python.' }; & $python -E -X "pycache_prefix=$pycache" $entry @extra @Rest }
         'powershell' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $entry @extra @Rest }
         'exe' { & $entry --data-dir (Join-Path $data 'console') @extra @Rest }
         default { throw "Unknown command kind '$($spec.kind)'." }

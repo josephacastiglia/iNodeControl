@@ -353,6 +353,7 @@ public static class SelfTests
         var passed = new List<string>();
         void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
         async Task Reject(string name, Func<Task> action) { try { await action(); } catch (Exception ex) when (ex is ApiException or HttpRequestException or OperationCanceledException or ArgumentException) { passed.Add(name); return; } throw new Exception("Expected failure: " + name); }
+        RunInstallLayoutTests(Check);
         Check("Default service endpoint", ApiClient.NormalizeEndpoint("localhost").ToString() == "http://localhost:9911/api");
         Check("Explicit custom port", ApiClient.NormalizeEndpoint("http://localhost:1234/api").Port == 1234);
         Check("Explicit standard port retained", ApiClient.NormalizeEndpoint("http://localhost:80").Port == 80);
@@ -641,8 +642,45 @@ public static class SelfTests
         await FarmDraftRunWindow.CheckHeadlessAsync(Check);
         await FarmPreparationWindow.CheckHeadlessAsync(Check);
 
-        var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+        var qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
         File.WriteAllText(Path.Combine(qa, "self-tests.json"), JsonSerializer.Serialize(new { passed = passed.Count, tests = passed, allCommandsUsedMockTransport = true, at = DateTime.Now }, new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    // Build folder (no IMOUSE_FARM_DATA): every answer is the one before the install layout existed.
+    // Installed: run files in <data>\console, the farm server from IMOUSE_FARM_HOME, Python from IMOUSE_FARM_PYTHON.
+    private static void RunInstallLayoutTests(Action<string, bool> check)
+    {
+        string[] names = { "IMOUSE_FARM_DATA", "IMOUSE_FARM_HOME", "IMOUSE_FARM_PYTHON" };
+        var saved = names.ToDictionary(n => n, Environment.GetEnvironmentVariable);
+        var root = Path.Combine(Path.GetTempPath(), "imouse-install-layout-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            foreach (var n in names) Environment.SetEnvironmentVariable(n, null);
+            check("Build folder: run files beside iMouse2.exe", InstallLayout.RunFiles == AppContext.BaseDirectory && !InstallLayout.Installed);
+            check("Build folder: Python from PATH", InstallLayout.Python == "python");
+            check("Build folder: no installed farm server", InstallLayout.InstalledFarmServer is null);
+            var script = Path.Combine(root, "checkout", "tools", "imouse_farm_server.py");
+            check("Build folder: farm state beside tools\\", InstallLayout.FarmStateRoot(script) == Path.Combine(root, "checkout"));
+
+            var data = Path.Combine(root, "data");
+            var home = Path.Combine(root, "versions", "v1", "farm");
+            Directory.CreateDirectory(Path.Combine(home, "tools"));
+            File.WriteAllText(Path.Combine(home, "tools", "imouse_farm_server.py"), "# stand-in");
+            Environment.SetEnvironmentVariable("IMOUSE_FARM_DATA", data);
+            Environment.SetEnvironmentVariable("IMOUSE_FARM_HOME", home);
+            Environment.SetEnvironmentVariable("IMOUSE_FARM_PYTHON", @"C:\Python311\python.exe");
+            check("Installed: run files in the data folder, never the version folder",
+                InstallLayout.RunFiles == Path.Combine(data, "console") && Directory.Exists(Path.Combine(data, "console")));
+            check("Installed: the current version's farm server", InstallLayout.InstalledFarmServer == Path.Combine(home, "tools", "imouse_farm_server.py")
+                && IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath(Path.GetTempPath()) == InstallLayout.InstalledFarmServer);
+            check("Installed: the recorded Python", InstallLayout.Python == @"C:\Python311\python.exe");
+            check("Installed: farm state in the data folder", InstallLayout.FarmStateRoot(InstallLayout.InstalledFarmServer!) == data);
+        }
+        finally
+        {
+            foreach (var n in names) Environment.SetEnvironmentVariable(n, saved[n]);
+            try { Directory.Delete(root, true); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+        }
     }
 
     private static void RunFarmAutomationWindowTests(Action<string, bool> check)

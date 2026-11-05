@@ -30,13 +30,15 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from farm_creation_runs import MEDIA_PORTS, creation_config  # noqa: E402
 from farm_paths import RACK  # noqa: E402  (the main folder's rack, also from a lane worktree)
+import farm_paths  # noqa: E402
+STATE, RUNS = farm_paths.rack_state(HERE), farm_paths.run_root(ROOT)  # windows/ and output/: the data folder when installed
 from farm_phone_identity import PhoneIdentity  # noqa: E402
 from farm_reel_test_media import render, colour_code  # noqa: E402
 from farm_video import VideoDrafts, VideoTransferPackage  # noqa: E402
 from farm_image import ImageDrafts, SLIDES, render_test_images  # noqa: E402
 from farm_media_transfer import TransferPackage  # noqa: E402
 
-PC_LAN = '192.168.4.26'
+PC_LAN = farm_paths.lan_address('192.168.4.26')  # release-lint: dev-fallback (installed: machine.json lanAddress or the one private IPv4)
 BACKEND_PORTS = {18: 9915, 20: 9925, 17: 9935, 16: 9945}
 PLATFORMS = {   # format, caption, label, route, capability key, whether a fixed signed-in account is required
     'reel': ('ig_reel', 'Fresh reel acceptance', 'REEL DRAFT TEST', 'reel-creations', 'reelCreation', True),
@@ -81,9 +83,9 @@ def main():
         raise SystemExit(f'Board {board} has no single phone and receiver.')
     phone = PhoneIdentity(board=board, device_id=device[0]['deviceid'], receiver=receiver[0]['Name'], slot=args.slot)
 
-    window = HERE / 'windows' / f'{args.platform}-slot{args.slot}'
-    run = next(ROOT / f'output/candidate-runs/farm-{args.platform}-slot{args.slot}-{date.today():%Y%m%d}-{n}' for n in range(1, 100)
-               if not (ROOT / f'output/candidate-runs/farm-{args.platform}-slot{args.slot}-{date.today():%Y%m%d}-{n}').exists())
+    window = STATE / 'windows' / f'{args.platform}-slot{args.slot}'
+    run = next(RUNS / f'output/candidate-runs/farm-{args.platform}-slot{args.slot}-{date.today():%Y%m%d}-{n}' for n in range(1, 100)
+               if not (RUNS / f'output/candidate-runs/farm-{args.platform}-slot{args.slot}-{date.today():%Y%m%d}-{n}').exists())
     if (window / 'preparation.json').exists(): raise SystemExit('This window is prepared; archive it before preparing again.')
     window.mkdir(parents=True, exist_ok=True)
     config = dict(version=2, api='http://127.0.0.1:9916/api', kernelSha256=rack['kernelSha256'], expectedUid=device[0]['uid'],
@@ -124,7 +126,7 @@ def main():
                        downloadName=parsed.download_name, backendSourceHash=source_hash,
                        serviceStarted=False, phoneInput=False)
     (window / 'preparation.json').write_text(json.dumps(preparation, indent=2), encoding='utf-8')
-    print(json.dumps(dict(prepared=True, window=str(window.relative_to(HERE)), phone=phone.receiver, board=board,
+    print(json.dumps(dict(prepared=True, window=str(window.relative_to(STATE)), phone=phone.receiver, board=board,
                           backendPort=preparation['backendPort'], mediaPort=preparation['mediaPort'], caption=caption)))
 
 

@@ -18,7 +18,7 @@ _FORMATS = {
         platform='instagram', name='Instagram carousel', level='integrated_live', draftMechanism='observed',
         supervised='Three numbered slides with an exact multiline caption (analysis/farm-phone-transfer-20261017/README.md).',
         offline='Native creation and saved-draft inspection; retained-layout fault matrix (analysis/farm-recovery-20261019/README.md).',
-        live='Priority 1/2 on C24C @xs.halle.xo: three distinct slides, short visible ASCII caption, one layout '
+        live='Priority 1/2 on C24C (its v1 candidate account): three distinct slides, short visible ASCII caption, one layout '
              '(analysis/farm-new-draft-20261019/README.md, analysis/farm-recovery-live-20261019/README.md).',
         remaining='Other slide counts, wrapped or hidden captions, ambiguous media, other accounts and phones.'),
     UploadFormat.IG_REEL: dict(

@@ -31,6 +31,8 @@ import threading
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 from farm_draft_runs import account_of, allowed_of, phone_of  # noqa: E402
 from farm_draft_transport import CreationKernel  # noqa: E402
 from farm_draft_workflow import atomic_json, references  # noqa: E402
@@ -120,7 +122,7 @@ def main():
     parser.add_argument('--attempt', type=int, required=True)
     parser.add_argument('--check', type=int, required=True, help='2 for the first re-check; never reused.')
     args = parser.parse_args()
-    window = HERE / 'windows' / args.window
+    window = STATE / 'windows' / args.window
     prep = json.loads((window / 'preparation.json').read_text(encoding='utf-8'))
     if prep['platform'] not in ('reel', 'x', 'youtube', 'tiktok', *IMAGE_PLATFORMS): raise SystemExit('No verifier for this window.')
     run = json.loads((window / f'attempt-{args.attempt}' / 'result.json').read_text(encoding='utf-8'))['run']

@@ -19,6 +19,8 @@ import sys
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 from farm_draft_workflow import atomic_json  # noqa: E402
 from close_app import close  # noqa: E402
 from verify_window import verify  # noqa: E402
@@ -49,7 +51,7 @@ def main():
     p.add_argument('--check', type=int, required=True, help='1 for the first relaunch check; never reused.')
     args = p.parse_args()
     # A window name, or a path under this folder for an archived window (the 22 Oct Reel: windows-archive/...).
-    window = HERE / 'windows' / args.window if (HERE / 'windows' / args.window).is_dir() else HERE / args.window
+    window = STATE / 'windows' / args.window if (STATE / 'windows' / args.window).is_dir() else STATE / args.window
     prep = json.loads((window / 'preparation.json').read_text(encoding='utf-8'))
     if not Path(prep['config']).exists():   # An archived window keeps its config beside its record.
         prep['config'] = str(window / 'creation-config.json')

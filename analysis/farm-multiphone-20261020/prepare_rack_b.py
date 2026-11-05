@@ -25,8 +25,14 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-OUT = HERE / 'slots'
-KERNEL = ROOT / 'output/multiphone-kernel-20261029/iMouse2.Kernel.exe'
+sys.path.insert(0, str(ROOT / 'tools'))
+import farm_paths  # noqa: E402
+STATE = farm_paths.rack_state(HERE)  # slots/ and the rack B maps: here in a checkout, the data folder when installed
+RUNS = farm_paths.run_root(ROOT)
+OUT = STATE / 'slots'
+KERNEL = farm_paths.installed('kernel', ROOT / 'output/multiphone-kernel-20261029/iMouse2.Kernel.exe')  # release-lint: dev-fallback
+# Installed: new preparations name this version's receiver and runtime (Farm.ps1 sets them).
+RECEIVER, RECEIVER_RUNTIME = farm_paths.installed('receiver'), farm_paths.installed('receiver_runtime')
 PLACEHOLDER = '3848'   # A rack A board still on its placeholder: its device and calibration rows are the template.
 FIRST_PORT = 7300
 sys.path.insert(0, str(HERE))
@@ -58,14 +64,14 @@ def main():
         raise SystemExit('Usage: prepare_rack_b.py pending|bound slots/preparation-<archived>.json')
     step = sys.argv[1]
     if (OUT / 'preparation.json').exists(): raise SystemExit('slots/preparation.json exists; archive it first.')
-    base_path = HERE / sys.argv[2]
+    base_path = STATE / sys.argv[2]
     base = load(base_path)
     source = Path(base['runDirectory']) / 'data'
     for name, digest in base['dataSha256'].items():
         if sha(source / name) != digest: raise SystemExit(f'Base {name} changed.')
     devices, receivers = load(source / 'devices.json'), load(source / 'receivers.json')
     calibration = load(source / 'pointer-calibration.json')
-    rack_b = [b['board'].upper() for b in load(HERE / 'rack-b-boards.json')['boards']]
+    rack_b = [b['board'].upper() for b in load(STATE / 'rack-b-boards.json')['boards']]
     if len(rack_b) != 20 or len(set(rack_b)) != 20: raise SystemExit('Expected 20 distinct rack B boards.')
     learned = {}
     if step == 'pending':
@@ -81,7 +87,7 @@ def main():
     else:
         # The base may itself be a bound step (30 Oct: 12 phones bound, 8 learned afterwards); a board
         # already bound keeps its binding.
-        slots = {v['board']: int(k) for k, v in load(HERE / 'rack-b-slots.json')['slots'].items()}
+        slots = {v['board']: int(k) for k, v in load(STATE / 'rack-b-slots.json')['slots'].items()}
         for board in rack_b:
             d = next(x for x in devices if x['pid'] == board)
             r = next(x for x in receivers if x['BoardPid'] == board)
@@ -102,7 +108,7 @@ def main():
     if len(receivers) > 40: raise SystemExit(f'{len(receivers)} receivers; the kernel takes forty.')
     for key in ('Port', 'Name', 'Pipe', 'Mac', 'BoardPid', 'DeviceId'):
         if len({str(r[key]).upper() for r in receivers}) != len(receivers): raise SystemExit(f'Receiver {key}s collide.')
-    run = ROOT / f"output/candidate-runs/multiphone-racks-ab-{step}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
+    run = RUNS / f"output/candidate-runs/multiphone-racks-ab-{step}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
     data = run / 'data'; data.mkdir(parents=True)
     for name, rows in (('devices.json', devices), ('receivers.json', receivers), ('pointer-calibration.json', calibration)):
         (data / name).write_text(json.dumps(rows, indent=2), encoding='utf-8')
@@ -112,16 +118,18 @@ def main():
         if a == str(source): a = str(data)
         elif a == str(source / 'receivers.json'): a = str(data / 'receivers.json')
         elif previous in ('--input-pid', '--hold-receivers'): a = ','.join(enabled)
+        elif previous == '--receiver' and RECEIVER: a = str(RECEIVER)
+        elif previous == '--receiver-runtime' and RECEIVER_RUNTIME: a = str(RECEIVER_RUNTIME)
         arguments.append(a); previous = a
     if str(source) in ' '.join(arguments): raise SystemExit('Kernel arguments were not rewritten.')
     preparation = dict(base, runDirectory=str(run), kernel=str(KERNEL), kernelSha256=sha(KERNEL.with_suffix('.dll')),
                        arguments=arguments, inputEnabled=enabled, held=enabled, boards=enabled,
                        receivers=[dict(board=r['BoardPid'], name=r['Name'], port=r['Port']) for r in receivers],
-                       derivedFrom=str(base_path.relative_to(HERE)).replace('\\', '/'), rackB=rack_b, rackBStep=step,
+                       derivedFrom=str(base_path.relative_to(STATE)).replace('\\', '/'), rackB=rack_b, rackBStep=step,
                        rackBLearned=learned,
                        dataSha256={n: sha(data / n) for n in ('devices.json', 'receivers.json', 'pointer-calibration.json')})
     (OUT / 'preparation.json').write_text(json.dumps(preparation, indent=2), encoding='utf-8')
-    print(json.dumps(dict(step=step, boards=len(enabled), bound=len(learned), run=str(run.relative_to(ROOT)))))
+    print(json.dumps(dict(step=step, boards=len(enabled), bound=len(learned), run=str(run.relative_to(RUNS)))))
 
 
 if __name__ == '__main__':

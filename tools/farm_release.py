@@ -53,7 +53,9 @@ RACK_SCRIPT_GLOBS = ('*.py', '*.ps1')
 # One-off rack probes and bring-up helpers with machine-specific values (phone IPs, a fixed path): not
 # packaged unless an operator script names them.
 DEV_ONLY = {'identify_rack_b.py', 'connect_xr.ps1', 'connect_small.ps1', 'learn_rack_b.ps1', 'board_probe.py',
-            'one_tap.py', 'switcher_probe.py', 'open_app_look.py'}
+            'one_tap.py', 'switcher_probe.py', 'open_app_look.py',
+            # 20 Oct one-shot preparations: fixed run names, they refuse to run again (superseded by prepare_rack_a/b, rack_kernels).
+            'prepare_multiphone.py', 'prepare_slots.py'}
 
 # Never packaged, whatever references them. Matched against the package-relative path (case-insensitive).
 PRIVATE_PATTERNS = (
@@ -83,11 +85,11 @@ LINT_RULES = (
     ('blocker', 'dev folder name', re.compile(r'Desktop[\\/]+Claude Code|iMouseXP-2\.0(?:-combined-candidate|-evidence-archive)?(?![\w-])', re.I)),
     ('blocker', 'lane worktree discovery (.worktrees)', re.compile(r'\.worktrees')),
     ('blocker', 'pinned interpreter path', re.compile(r'Python3\d+[\\/]+python\.exe', re.I)),
-    ('blocker', 'state under the code folder (output/)', re.compile(r'''(?:MAIN|ROOT|REPO|HERE|taskRoot|taskMain|parents\[\d\])[^\n]{0,40}['"]output(?:[\\/]|['"])''')),
+    ('blocker', 'state under the code folder (output/)', re.compile(r'''(?:ROOT|REPO|HERE|taskRoot|taskMain|parents\[\d\])[^\n]{0,40}['"]output(?:[\\/]|['"])''')),
     ('info', 'cwd-relative state (lands in the data folder: Farm.ps1 runs there)', re.compile(r'''^[^#\n]*Path\(\s*['"](?:output|config)[\\/]''')),
     ('blocker', 'state beside the rack scripts ($PSScriptRoot)', re.compile(r'''Join-Path\s+\$PSScriptRoot\s+(?:\$Stage|\$Rack|\(?['"](?:windows|slots|held|rack-|processes|preparation|receivers-ready|identify|autoconnect|measure|look))''', re.I)),
-    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|parent|FOLDER|folder)\s*/\s*['"](?:windows|slots|held|rack-[ab]|identify|autoconnect|measure|look)['"/-]''')),
-    ('blocker', 'rack folder via repo layout', re.compile(r'''(?:ROOT|REPO|MAIN|HERE)[^\n]{0,10}['"]analysis[\\/]+farm-multiphone-20261020['"]''')),
+    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|FOLDER|folder)\s*/\s*f?['"](?:windows|slots|held|rack-|identify|autoconnect|card-survey|measure|look|phone-slots)''')),
+    ('blocker', 'rack folder via repo layout', re.compile(r'''(?:ROOT|REPO|HERE)[^\n]{0,10}['"]analysis[\\/]+farm-multiphone-20261020['"]''')),
     ('blocker', 'rack state via repo layout', re.compile(r'''['"]analysis[\\/]+farm-multiphone-20261020[\\/]+(?:slots|held|windows|rack-)''', re.I)),
     ('info', 'hard-coded kernel port', re.compile(r'127\.0\.0\.1:99(?:13|16|26)')),
     ('info', 'repo-relative root (parents[N] / ..\\..)', re.compile(r'''parents\[[1-9]\]|Join-Path\s+\$PSScriptRoot\s+['"]\.\.[\\/]\.\.''')),
@@ -225,15 +227,34 @@ def server_hash_names(server_source):
 # ---------------------------------------------------------------- lint
 
 def lint_text(name, text):
+    """Per-line findings. Comment and docstring lines are marked 'comment' (never block). A line marked
+    '# release-lint: dev-fallback' is today's dev-checkout path, used only while IMOUSE_FARM_DATA is unset
+    (Farm.ps1 always sets it); '# release-lint: code' names code, not state. Both are reported as info."""
     findings = []
+    docs = _docstring_lines(text) if name.endswith('.py') else set()
     for number, line in enumerate(text.splitlines(), 1):
         stripped = line.strip()
+        marker = re.search(r'release-lint: (dev-fallback|code)\b', line)
         for level, rule, pattern in LINT_RULES:
             if pattern.search(line):
-                findings.append({'file': name, 'line': number, 'level': level, 'rule': rule,
-                                 'comment': stripped.startswith(('#', '"""', "'''")) })
-    # The multi-line rule ('state under the code folder') is line-based too; keep the result per line.
+                findings.append({'file': name, 'line': number, 'level': 'info' if marker else level,
+                                 'rule': rule + (f' ({marker.group(1)})' if marker else ''),
+                                 'comment': number in docs or stripped.startswith(('#', '"""', "'''"))})
     return findings
+
+
+def _docstring_lines(text):
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return set()
+    lines = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.body:
+            first = node.body[0]
+            if isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) and isinstance(first.value.value, str):
+                lines.update(range(first.lineno, first.end_lineno + 1))
+    return lines
 
 
 def lint(files):
@@ -278,13 +299,10 @@ def _closure_of(entry, files):
     return seen
 
 
-# Blockers the text lint cannot see (compiled code). Cleared by hand once the source changes.
-MANUAL_BLOCKERS = {
-    'console': ['src/iMouse.Console App.xaml.cs/MainWindow.xaml.cs: startup-state.json, startup-validation.json, failure '
-                'files and qa\\ are written beside iMouse2.exe (AppContext.BaseDirectory), i.e. into the installed version',
-                'src/iMouse.Console FarmAutomationWindow.cs ResolveFarmServerScriptPath: looks for tools\\imouse_farm_server.py '
-                'above its own folder and starts "python" from PATH with that folder as working directory'],
-}
+# Blockers the text lint cannot see (compiled code), as {command: [reason]}. Cleared by hand once the
+# source changes. Console cleared 5 Nov: src/iMouse.Console/InstallLayout.cs (run files in <data>\console,
+# the farm server from IMOUSE_FARM_HOME; its self-tests cover both layouts).
+MANUAL_BLOCKERS = {}
 
 
 # Launcher commands (install/Farm.ps1). 'kind' says how Farm.ps1 runs the entry.
@@ -359,6 +377,22 @@ def privacy_tokens(archive=None):
             [h.lstrip('@') for h in lines(handles) if len(h.lstrip('@')) >= 4])
 
 
+def account_labels(archive=None):
+    """Account labels kept in per-machine private data (<archive>/privacy/farm-accounts.json). Values never printed."""
+    if archive is None:
+        try:
+            sys.path.insert(0, str(REPO / 'tools'))
+            from farm_paths import ARCHIVE as archive  # noqa: N811
+        except Exception:
+            return []
+    path = Path(archive) / 'privacy' / 'farm-accounts.json'
+    try:
+        values = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return []
+    return [v for k, v in values.items() if k != 'note' and isinstance(v, str) and len(v) >= 4]
+
+
 def git_identity(repo):
     try:
         head = subprocess.run(['git', '-C', str(repo), 'rev-parse', 'HEAD'], capture_output=True, text=True, timeout=10, check=True).stdout.strip()
@@ -406,7 +440,9 @@ def plan(repo, kernel, console, receiver_exe, receiver_runtime):
     return copies
 
 
-def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=None, make_zip=False, tokens=None, now=None):
+def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=None, make_zip=False, tokens=None, now=None, accounts=None):
+    """accounts: account labels from private data; packaged files still naming one are listed in the
+    manifest's 'account_labels_in' for review (not refused while a lane's file still names one)."""
     repo, out = Path(repo).resolve(), Path(out).resolve()
     if out.exists():
         raise ValueError('output already exists; packages are never overwritten')
@@ -425,6 +461,9 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
             problems.append(f'{hit}: {name}')
     if problems:
         raise ValueError('private content refused: ' + '; '.join(problems))
+    labels = [a.casefold() for a in (accounts or ())]
+    account_hits = sorted(n for n, src in copies.items() if labels and not n.startswith('receiver/') and Path(src).suffix.lower() in TEXT_SUFFIXES
+                          and any(a in Path(src).read_text(encoding='utf-8', errors='replace').casefold() for a in labels))
     frameworks = {c: _framework_check(c, copies[f'{c}/{n}']) for c, n in
                   (('kernel', 'iMouse2.Kernel.runtimeconfig.json'), ('console', 'iMouse2.runtimeconfig.json'))}
     pins = _requirements(copies['farm/tools/requirements-farm.txt'])
@@ -459,6 +498,7 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
         'data_layout': 'farm_install.py DATA_DIRS; private state stays in the per-machine data folder',
         'excluded': {'patterns': list(PRIVATE_PATTERNS), 'referenced_private_files': private_refs},
         'dev_path_findings': {'blockers': len(blockers(findings)), 'total': len(findings)},
+        'account_labels_in': account_hits,
         'files': dict(sorted(rows.items())),
     }
     partial = out.with_name(out.name + '.partial')
@@ -576,8 +616,11 @@ def main(argv=None):
         if tokens is None and not args.no_privacy_lists:
             print('Refused: the withheld-value list was not found; pass --no-privacy-lists only for synthetic builds.')
             return 2
-        m = build(args.repo, args.out, args.kernel, args.console, args.receiver_exe, args.receiver_runtime, args.version, args.zip, tokens)
+        m = build(args.repo, args.out, args.kernel, args.console, args.receiver_exe, args.receiver_runtime, args.version, args.zip, tokens,
+                  accounts=None if args.no_privacy_lists else account_labels())
         print(f"Built {m['version']}: {len(m['files'])} files; dev-path blockers {m['dev_path_findings']['blockers']}. Nothing was started.")
+        if m['account_labels_in']:
+            print('REVIEW: an account label from private data is still in: ' + ', '.join(m['account_labels_in']))
         return 0
     except (ValueError, OSError, KeyError) as error:
         print(f'Refused: {error}')

@@ -178,7 +178,7 @@ public partial class MainWindow : Window
         // trackPointer is written back only when the file named it, so a file without it is
         // rewritten exactly as before.
         var warning = SettingsPersistence.Save(_dataPath,
-            _mirrorLocal ? Path.Combine(AppContext.BaseDirectory, "data") : null,
+            _mirrorLocal && !InstallLayout.Installed ? Path.Combine(AppContext.BaseDirectory, "data") : null,
             AddressBox.Text, Theme.IsNight, _savedTrackPointer is null ? null : TrackPointer.IsChecked == true);
         if (warning is not null) Log(warning, true);
     }
@@ -2009,7 +2009,7 @@ public partial class MainWindow : Window
             }).ToList());
         }
 
-        var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+        var qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
         File.WriteAllText(Path.Combine(qa, "mirror.json"),
             JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
     }
@@ -2114,7 +2114,7 @@ public partial class MainWindow : Window
         await SendInputAsync("WallTest Home", "/key/sendkey", new() { ["fn_key"] = "Home" }, quiet: true);
 
         var gaps = _jitter.Summary();
-        var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+        var qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
         File.WriteAllText(Path.Combine(qa, $"wall-{_tilePeriodMs}.json"), JsonSerializer.Serialize(new
         {
             phonesOnWall = _wall.Count,
@@ -2175,7 +2175,7 @@ public partial class MainWindow : Window
         double worst = ordered.Count > 0 ? ordered[0] : 0;
         double median = ordered.Count > 0 ? ordered[ordered.Count / 2] : 0;
 
-        var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+        var qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
         File.WriteAllText(Path.Combine(qa, "fps.json"), JsonSerializer.Serialize(new
         {
             device = Selected?.DisplayName,
@@ -2222,7 +2222,7 @@ public partial class MainWindow : Window
         await Task.Delay(900);
         content.UpdateLayout();
         var bitmap = new RenderTargetBitmap(1370, 880, 96, 96, PixelFormats.Pbgra32); bitmap.Render(content);
-        var qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+        var qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
         using (var stream = File.Create(Path.Combine(qa, fake ? "ui-preview.png" : "live-offline.png"))) { var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap)); encoder.Save(stream); }
         if (fake)
         {

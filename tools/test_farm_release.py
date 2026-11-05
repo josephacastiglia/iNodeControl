@@ -159,6 +159,14 @@ class Build(Base):
         with self.assertRaisesRegex(ValueError, 'withheld value'):
             build_package(self.base, repo=repo, tokens=['WithheldValue1234'])
 
+    def test_account_labels_are_listed_for_review(self):
+        repo = make_repo(self.base)
+        (repo / 'tools/farm_lane_runs.py').write_text('START = "on @somelabel\'s profile"\n', encoding='utf-8')
+        manifest, _, _ = build_package(self.base, repo=repo, accounts=['SomeLabel'])
+        self.assertEqual(manifest['account_labels_in'], ['farm/tools/farm_lane_runs.py'])
+        manifest, _, _ = build_package(self.base / 'clean', accounts=['SomeLabel'])
+        self.assertEqual(manifest['account_labels_in'], [])
+
     def test_wrong_framework_unpinned_requirement_and_missing_hashed_file(self):
         repo = make_repo(self.base)
         kernel, console, receiver, runtime = make_builds(self.base / 'b')
@@ -224,7 +232,8 @@ class Lint(Base):
         self.assertIn(('Start-Window.ps1', 'absolute user path'), rules)
         self.assertIn(('Start-Window.ps1', 'pinned interpreter path'), rules)
         self.assertIn(('farm_paths.py', 'lane worktree discovery (.worktrees)'), rules)
-        self.assertIn(('farm_schedule_cli.py', 'state under the code folder (output/)'), rules)
+        self.assertNotIn(('farm_schedule_cli.py', 'state under the code folder (output/)'), rules, 'MAIN is the data-aware state root')
+        self.assertIn(('prepare_window.py', 'state beside the rack scripts (__file__)'), rules)
         self.assertIn(('Start-Multiphone.ps1', 'state beside the rack scripts ($PSScriptRoot)'), rules)
         self.assertIn(('run_window.py', 'state beside the rack scripts (__file__)'), rules)
         infos = {(f['file'].split('/')[-1], f['rule']) for f in findings if f['level'] == 'info'}
@@ -235,6 +244,14 @@ class Lint(Base):
         self.assertIn(f'farm/{RACK}/Start-Multiphone.ps1', ready['start-rack']['blocked_by'])
         self.assertFalse(ready['schedule']['ready'], 'farm_paths blocks the schedule CLI')
         self.assertTrue(ready['server']['ready'])
+
+    def test_dev_fallback_marker_and_docstrings_do_not_block(self):
+        text = ('def f():\n    """Lives in C:\\Users\\x\\Desktop\\Claude Code\n    over lines."""\n'
+                'A = ".worktrees"  # release-lint: dev-fallback\n')
+        findings = fr.lint_text('farm/tools/x.py', text)
+        self.assertTrue(findings)
+        self.assertEqual(fr.blockers(findings), [])
+        self.assertTrue(any(f['level'] == 'info' and 'dev-fallback' in f['rule'] for f in findings))
 
     def test_comment_lines_do_not_block(self):
         findings = fr.lint_text('farm/x.ps1', "# C:\\Users\\someone\\Desktop\\Claude Code\\notes\n$a=1\n")
