@@ -50,11 +50,12 @@ OUT_ROOT = REPO / 'output/scale-gate-20261104'
 
 NEVER = frozenset({'B3', 'B5', 'B7', 'B10', 'B17'})
 ALLOWED_FUNS = frozenset({'/input/acquire', '/input/renew', '/input/release', '/input/status',
-                          '/mouse/reset', '/mouse/move', '/key/sendkey'})
+                          '/input/stop', '/input/resume', '/mouse/reset', '/mouse/move', '/key/sendkey'})
 HOME_SPACING_S = 3.0
 LEASE_MS = 30_000
 RENEW_EVERY_S = 6.0
 MAX_AGE_MS = 1500.0
+SETTLE_S = 0.25          # landing is measured on a frame this long after the move completed
 # 4.7-inch phones letterboxed in the 500 x 1080 frame from y 95 (500 x 889 visible).
 SCREEN_TOP, SCREEN_BOTTOM = 95, 984
 STATUS_BAR = (SCREEN_TOP, SCREEN_TOP + 30)
@@ -465,21 +466,59 @@ class Run:
             self.event(kind='recovery_home_refused', slot=slot, why=str(refused))
         self.drop(slot, 'screen changed from its home-screen baseline')
 
-    def fresh_after(self, slot, sent_at, target, prev, budget_s=3.0):
-        """Poll one phone until a frame newer than the command shows the dot at target."""
-        polls = 0
+    def fresh_after(self, slot, sent_at, done_at, target, prev, budget_s=3.0):
+        """Poll one phone after a move.
+
+        first: the first frame newer than the command whose dot is within LAND_PX of target
+        (visible arrival); settled: a frame at least SETTLE_S after the command completed, on
+        which the landing error is measured (earlier frames can catch the pointer mid-walk)."""
+        polls, first, settled, last = 0, None, None, None
         deadline = time.perf_counter() + budget_s
-        last = None
         while time.perf_counter() < deadline:
             s = self.k.shot(slot)
             polls += 1
             last = s
             if s['arrival'] >= sent_at:
                 d = dot_near(prev['gray'], s['gray'], target, self.noise[slot])
-                if d:
-                    return s, d, polls
+                if d and first is None and math.hypot(d[0] - target[0], d[1] - target[1]) <= LAND_PX:
+                    first = (s, d)
+                if s['arrival'] >= done_at + SETTLE_S:
+                    settled = (s, d)
+                    if d or first is None and time.perf_counter() > deadline - 0.5:
+                        break
+                    if first is not None:
+                        break
             time.sleep(0.03)
-        return last, None, polls
+        return first, settled, last, polls
+
+    def sweep(self, slots, sent_at, done_at, target, prev, budget_s=4.0):
+        """Round-robin polling of every target phone, one frame each per sweep, so no phone's
+        arrival time waits on another phone being settled first (resolution: one sweep)."""
+        state = {slot: dict(first=None, settled=None, last=None, polls=0) for slot in slots}
+        order = list(slots)
+        self.rng.shuffle(order)            # no phone is always polled first
+        deadline = time.perf_counter() + budget_s
+        while time.perf_counter() < deadline:
+            pending = [slot for slot in order if not state[slot].get('done')]
+            if not pending:
+                break
+            for slot in pending:
+                st = state[slot]
+                s = self.k.shot(slot)
+                st['polls'] += 1
+                st['last'] = s
+                if s['arrival'] < sent_at:
+                    continue
+                d = dot_near(prev[slot]['gray'], s['gray'], target, self.noise[slot])
+                if d and st['first'] is None and math.hypot(d[0] - target[0], d[1] - target[1]) <= LAND_PX:
+                    st['first'] = (s, d)
+                if s['arrival'] >= done_at + SETTLE_S:
+                    st['settled'] = (s, d)
+                    if d or st['first'] is not None:
+                        st['done'] = True
+            order = order[1:] + order[:1]  # rotate the start of the next sweep
+            time.sleep(0.02)
+        return {slot: (st['first'], st['settled'], st['last'], st['polls']) for slot, st in state.items()}
 
     def move_and_check(self, targets_slots, target, label, observe):
         """One /mouse/move to targets_slots; check landing on them and no change on the other observed phones."""
@@ -490,19 +529,21 @@ class Run:
         acks = {self.k.slot_of[r['id']]: r.get('code') for r in reply.get('results') or []}
         row = dict(label=label, target=target, group=len(targets_slots), code=reply.get('code'), rtt_ms=round(rtt, 1),
                    acks=acks, phones={})
-        order = list(targets_slots)
-        self.rng.shuffle(order)            # no phone is always polled first
-        for slot in order:
-            s, d, polls = self.fresh_after(slot, sent, target, prev[slot])
+        found = self.sweep(targets_slots, sent, done, target, prev)
+        for slot in targets_slots:
+            first, settled, s, polls = found[slot]
+            d = settled[1] if settled else None
             err = math.hypot(d[0] - target[0], d[1] - target[1]) if d else None
             row['phones'][slot] = dict(ack=acks.get(slot), landed=bool(d and err <= LAND_PX),
                                        found=bool(d), error_px=round(err, 1) if err is not None else None,
                                        dot=[round(d[0]), round(d[1])] if d else None,
-                                       visible_ms=round((s['arrival'] - sent) * 1000, 1) if d else None,
-                                       after_done_ms=round((s['arrival'] - done) * 1000, 1) if d else None,
-                                       age_ms=round(s['age_ms'], 1), polls=polls, fresh=s['arrival'] >= sent)
-            if not d:
-                self.keep(slot, f'miss-{label}', s)
+                                       arrived=first is not None,
+                                       visible_ms=round((first[0]['arrival'] - sent) * 1000, 1) if first else None,
+                                       after_done_ms=round((first[0]['arrival'] - done) * 1000, 1) if first else None,
+                                       age_ms=round(s['age_ms'], 1), polls=polls, fresh=s['arrival'] >= sent,
+                                       settled_frame=settled is not None)
+            if not (d and err <= LAND_PX):   # keep every frame the landing check could not confirm
+                self.keep(slot, f'miss-{label}', settled[0] if settled else s)
             self.last[slot] = s
         # isolation: phones observed but not sent to must not change
         for slot in observe:
@@ -647,6 +688,86 @@ class Run:
         self.save()
 
 
+class CancelRun(Run):
+    """Gate 8 stop control: a long group pointer walk is stopped mid-way; the pointers must halt
+    short of the target and stay there (no replay), and input must resume cleanly with a new lease."""
+
+    def run(self, stop_after_s=0.25, target=(390, 880)):
+        result = {}
+        try:
+            self.preflight()
+            group = [s for s in self.group if s in self.live]
+            reply, rtt = self.k.acquire(group)
+            result['acquire'] = dict(code=reply.get('code'), rtt_ms=round(rtt, 1), phones=len(group))
+            if reply.get('code') != 0:
+                raise RuntimeError(f'Acquire refused: {reply}')
+            reply, _ = self.k.send('/mouse/reset', group)
+            result['reset'] = reply.get('code')
+            for s in group:
+                self.pointer[s] = (0, SCREEN_TOP)
+            time.sleep(0.8)
+            result['screens_before'] = self.screens_ok('cancel-before')
+            box = {}
+
+            def walk():
+                box['t0'] = time.perf_counter()
+                box['reply'], box['rtt'] = self.k.send('/mouse/move', group, x=target[0], y=target[1])
+                box['t1'] = time.perf_counter()
+            thread = threading.Thread(target=walk)
+            thread.start()
+            time.sleep(stop_after_s)
+            t_stop = time.perf_counter()
+            stop, stop_rtt = self.k.post('/input/stop', {'id': ','.join(self.k.ids[s] for s in group)})
+            t_stopped = time.perf_counter()
+            thread.join(timeout=15)
+            result['walk'] = dict(codes={self.k.slot_of[r['id']]: (r.get('code'), r.get('message')) for r in box['reply'].get('results') or []},
+                                  rtt_ms=round(box['rtt'], 1), stop_sent_after_ms=round((t_stop - box['t0']) * 1000, 1),
+                                  walk_returned_after_stop_ms=round((box['t1'] - t_stop) * 1000, 1))
+            result['stop'] = dict(code=stop.get('code'), message=stop.get('message'), rtt_ms=round(stop_rtt, 1),
+                                  stop_to_released_ms=round((t_stopped - t_stop) * 1000, 1))
+            self.k.tokens.clear()            # stop revokes every token
+            status = self.k.input_status()
+            result['status_after_stop'] = {s: dict(owned=status[s]['owned'], stopped=status[s]['stopped'],
+                                                   release_failed=status[s]['release_failed']) for s in group}
+            # Where did each pointer halt, and does it stay there (no replay)?
+            time.sleep(0.6)
+            halted = {}
+            first = {s: self.k.shot(s) for s in group}
+            time.sleep(2.0)
+            later = {s: self.k.shot(s) for s in group}
+            for s in group:
+                dots = blobs(self.last[s]['gray'], first[s]['gray'], self.noise[s])
+                moved = blobs(first[s]['gray'], later[s]['gray'], self.noise[s])
+                at_target = dot_near(self.last[s]['gray'], first[s]['gray'], target, self.noise[s])
+                halted[s] = dict(dots=[(round(x), round(y)) for x, y, _ in dots], reached_target=bool(at_target),
+                                 moved_after_stop=[(round(x), round(y)) for x, y, _ in moved])
+                self.keep(s, 'cancel-halted', first[s])
+            result['halted'] = halted
+            reply, _ = self.k.post('/input/resume', {'id': ','.join(self.k.ids[s] for s in group)})
+            result['resume'] = dict(code=reply.get('code'), message=reply.get('message'))
+            reply, rtt = self.k.acquire(group)
+            result['reacquire'] = dict(code=reply.get('code'), rtt_ms=round(rtt, 1))
+            reply, _ = self.k.send('/mouse/move', group, x=250, y=470)
+            result['move_after_resume'] = dict(code=reply.get('code'),
+                                               acks={self.k.slot_of[r['id']]: r.get('code') for r in reply.get('results') or []})
+            time.sleep(0.8)
+            result['screens_after'] = self.screens_ok('cancel-after')
+        except Exception as error:
+            self.event(kind='error', why=repr(error))
+            result['error'] = repr(error)
+        finally:
+            try:
+                reply, _ = self.k.release(list(self.k.tokens))
+                result['release'] = dict(code=reply.get('code'), message=reply.get('message'))
+            except Exception as error:
+                result['release'] = dict(error=repr(error))
+            result['call_log'] = self.k.calls
+            self.record['result'] = result
+            self.record['finished'] = now_iso()
+            self.save()
+        return self.record
+
+
 def metrics(record):
     """Numbers the gate is judged on, from a run record."""
     res = record.get('result') or {}
@@ -667,6 +788,7 @@ def metrics(record):
                          acked=sum(1 for _, _, p in t if p.get('ack') == 0),
                          landed=sum(1 for _, _, p in t if p.get('landed')),
                          found=sum(1 for _, _, p in t if p.get('found')),
+                         arrived=sum(1 for _, _, p in t if p.get('arrived')),
                          misses=sorted({f'{row["label"]}:{s}' for row, s, p in t if not p.get('landed')}),
                          error_px=summary([p.get('error_px') for _, _, p in t]),
                          visible_ms=summary([p.get('visible_ms') for _, _, p in t]),
@@ -696,7 +818,7 @@ def metrics(record):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('mode', choices=('preflight', 'run'))
+    p.add_argument('mode', choices=('preflight', 'run', 'cancel'))
     p.add_argument('--slots', required=True)
     p.add_argument('--group', default='')
     p.add_argument('--name', default=None)
@@ -705,8 +827,12 @@ def main():
     slots = [s.strip() for s in a.slots.split(',') if s.strip()]
     group = [s.strip() for s in a.group.split(',') if s.strip()] or slots
     name = a.name or f'{a.mode}-{datetime.now().strftime("%H%M%S")}'
-    run = Run(slots, group, OUT_ROOT / name, rounds=a.rounds)
-    if a.mode == 'preflight':
+    run = (CancelRun if a.mode == 'cancel' else Run)(slots, group, OUT_ROOT / name, rounds=a.rounds)
+    if a.mode == 'cancel':
+        record = run.run()
+        print(json.dumps({k: v for k, v in record['result'].items() if k != 'call_log'}, indent=1))
+        print('folder:', run.folder)
+    elif a.mode == 'preflight':
         rows = run.preflight()
         print(json.dumps(rows, indent=1))
         print('folder:', run.folder)

@@ -1,0 +1,6581 @@
+{
+ "tool": "scale_gate",
+ "started": "2026-11-05T02:07:32.029+00:00",
+ "finished": "2026-11-05T02:09:02.264+00:00",
+ "slots": [
+  "B1",
+  "B2",
+  "B4",
+  "B8",
+  "B9",
+  "B11",
+  "B12",
+  "B13",
+  "B14",
+  "B15",
+  "B16",
+  "B18",
+  "B20"
+ ],
+ "group": [
+  "B1",
+  "B2",
+  "B4",
+  "B8",
+  "B9",
+  "B11",
+  "B12",
+  "B13"
+ ],
+ "controls": [
+  "B14",
+  "B15",
+  "B16",
+  "B18",
+  "B20"
+ ],
+ "clicks_sent": 0,
+ "swipes_sent": 0,
+ "other_keys_sent": 0,
+ "events": [],
+ "preflight": {
+  "kernel_status_ms": 11.9,
+  "phones": {
+   "B1": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 38.3157,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     4.5,
+     33.7,
+     37.5,
+     42.3
+    ],
+    "seqs": [
+     254407,
+     254420,
+     254432,
+     254444
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.065,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B2": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 59.4977,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     45.8,
+     15.6,
+     3.3,
+     8.6
+    ],
+    "seqs": [
+     284736,
+     284751,
+     284768,
+     284784
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.065,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B4": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 33.8801,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     0.8,
+     12.8,
+     4.5,
+     28.6
+    ],
+    "seqs": [
+     259658,
+     259670,
+     259685,
+     259699
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.066,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B8": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 30.845,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     15.4,
+     39.0,
+     45.6,
+     60.8
+    ],
+    "seqs": [
+     252363,
+     252375,
+     252387,
+     252399
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.067,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B9": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 18.8723,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     7.2,
+     15.0,
+     19.7,
+     24.6
+    ],
+    "seqs": [
+     264335,
+     264348,
+     264361,
+     264373
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.069,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B11": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 50.577,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     988.3,
+     5.3,
+     21.6,
+     12.7
+    ],
+    "seqs": [
+     268188,
+     268223,
+     268236,
+     268251
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.065,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B12": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 49.6021,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     11.0,
+     502.1,
+     122.8,
+     24.7
+    ],
+    "seqs": [
+     230619,
+     230622,
+     230642,
+     230654
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.069,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B13": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 29.6613,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     16.6,
+     43.7,
+     47.9,
+     4.9
+    ],
+    "seqs": [
+     273267,
+     273280,
+     273292,
+     273305
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.069,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B14": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 10.8554,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     35.6,
+     39.5,
+     45.8,
+     51.4
+    ],
+    "seqs": [
+     267169,
+     267181,
+     267193,
+     267205
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.065,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B15": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 21.7121,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     44.1,
+     5.5,
+     54.1,
+     67.1
+    ],
+    "seqs": [
+     279730,
+     279745,
+     279756,
+     279768
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.065,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B16": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 65.8616,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     31.6,
+     29.2,
+     42.4,
+     3.1
+    ],
+    "seqs": [
+     273262,
+     273276,
+     273289,
+     273303
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.065,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B18": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 23.9555,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     27.2,
+     2.2,
+     7.4,
+     32.9
+    ],
+    "seqs": [
+     276250,
+     276264,
+     276276,
+     276289
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.065,
+    "shape": [
+     1080,
+     500
+    ]
+   },
+   "B20": {
+    "live": true,
+    "delivery": "flowing",
+    "status_age_ms": 27.5404,
+    "restarts": 0,
+    "input_free": true,
+    "input_message": "Controller released.",
+    "shot_ages_ms": [
+     35.5,
+     10.8,
+     16.7,
+     20.6
+    ],
+    "seqs": [
+     280895,
+     280909,
+     280921,
+     280933
+    ],
+    "seq_advanced": true,
+    "noise_fraction": 0.065,
+    "shape": [
+     1080,
+     500
+    ]
+   }
+  },
+  "other_receivers_live": 6
+ },
+ "metrics": {
+  "per_phone": {
+   "commands": 13,
+   "deliveries": 13,
+   "acked": 13,
+   "landed": 13,
+   "found": 13,
+   "arrived": 13,
+   "misses": [],
+   "error_px": {
+    "n": 13,
+    "min": 2.8,
+    "median": 3.6,
+    "p95": 6.1,
+    "max": 6.1
+   },
+   "visible_ms": {
+    "n": 13,
+    "min": 326.6,
+    "median": 922.3,
+    "p95": 2118.3,
+    "max": 2118.3
+   },
+   "visible_within_500": 1,
+   "rtt_ms": {
+    "n": 13,
+    "min": 263.8,
+    "median": 655.3,
+    "p95": 2106.4,
+    "max": 2106.4
+   },
+   "spread_ms": {
+    "n": 0
+   },
+   "control_checks": 156,
+   "isolation_failures": [],
+   "after_done_ms": {
+    "n": 13,
+    "min": 9.8,
+    "median": 187.5,
+    "p95": 490.4,
+    "max": 490.4
+   },
+   "stray_px": {
+    "n": 156,
+    "min": 0,
+    "median": 21.0,
+    "p95": 43,
+    "max": 48
+   }
+  },
+  "group": {
+   "commands": 13,
+   "deliveries": 104,
+   "acked": 104,
+   "landed": 104,
+   "found": 104,
+   "arrived": 104,
+   "misses": [],
+   "error_px": {
+    "n": 104,
+    "min": 1.0,
+    "median": 3.6,
+    "p95": 5.0,
+    "max": 5.8
+   },
+   "visible_ms": {
+    "n": 104,
+    "min": 349.3,
+    "median": 1033.5,
+    "p95": 2321.1,
+    "max": 2478.0
+   },
+   "visible_within_500": 5,
+   "rtt_ms": {
+    "n": 13,
+    "min": 290.6,
+    "median": 478.8,
+    "p95": 1112.1,
+    "max": 1112.1
+   },
+   "spread_ms": {
+    "n": 13,
+    "min": 105.7,
+    "median": 339.0,
+    "p95": 856.0,
+    "max": 856.0
+   },
+   "control_checks": 65,
+   "isolation_failures": [],
+   "after_done_ms": {
+    "n": 104,
+    "min": -0.6,
+    "median": 588.8,
+    "p95": 1215.9,
+    "max": 1365.9
+   },
+   "stray_px": {
+    "n": 65,
+    "min": 0,
+    "median": 28,
+    "p95": 45,
+    "max": 49
+   }
+  },
+  "frame_age_ms": {
+   "n": 338,
+   "min": 0.1,
+   "median": 23.2,
+   "p95": 64.8,
+   "max": 598.1
+  },
+  "frame_age_over_1500": 0,
+  "cpu": {
+   "n": 42,
+   "min": 20.6,
+   "median": 39.1,
+   "p95": 73.0,
+   "max": 81.4
+  },
+  "kernel_status_ms": {
+   "n": 42,
+   "min": 8.9,
+   "median": 12.2,
+   "p95": 27.2,
+   "max": 329.8
+  },
+  "kernel_errors": 0,
+  "sampled_age_ms": {
+   "n": 546,
+   "min": 0.1,
+   "median": 29.8,
+   "p95": 763.9,
+   "max": 1027.2
+  },
+  "other_receivers_live": {
+   "n": 42,
+   "min": 6,
+   "median": 6.0,
+   "p95": 6,
+   "max": 6
+  },
+  "renewals": {
+   "n": 7,
+   "ok": 7,
+   "rtt_ms": {
+    "n": 7,
+    "min": 1.4,
+    "median": 1.7,
+    "p95": 2.7,
+    "max": 2.7
+   },
+   "min_remaining_ms": 23969
+  },
+  "dropped": {}
+ },
+ "acquire": {
+  "code": 0,
+  "message": null,
+  "rtt_ms": 9.2,
+  "phones": 13,
+  "tokens": 13
+ },
+ "lease_tests": {
+  "second_acquire": {
+   "code": 409,
+   "message": "A target is owned, stopped, or recovering. No leases acquired.",
+   "rtt_ms": 14.1,
+   "refused": true
+  },
+  "wrong_token": {
+   "code": 409,
+   "message": "A valid per-phone input lease is required.",
+   "refused": true
+  },
+  "lease_kept": true,
+  "status_after": {
+   "owned": true,
+   "active": false,
+   "stopped": false,
+   "generation": 5,
+   "lease_remaining_ms": 29969
+  }
+ },
+ "home_1": {
+  "code": 0,
+  "rtt_ms": 685.4,
+  "acks": {
+   "B1": 0,
+   "B2": 0,
+   "B4": 0,
+   "B8": 0,
+   "B9": 0,
+   "B11": 0,
+   "B12": 0,
+   "B13": 0,
+   "B14": 0,
+   "B15": 0,
+   "B16": 0,
+   "B18": 0,
+   "B20": 0
+  }
+ },
+ "reset": {
+  "code": 0,
+  "rtt_ms": 53.4
+ },
+ "screens_start": {
+  "B1": {
+   "age_ms": 764.2,
+   "seq": 255416,
+   "changed": 0.0001
+  },
+  "B2": {
+   "age_ms": 7.9,
+   "seq": 285840,
+   "changed": 0.0001
+  },
+  "B4": {
+   "age_ms": 3.3,
+   "seq": 260557,
+   "changed": 0.0001
+  },
+  "B8": {
+   "age_ms": 19.5,
+   "seq": 253131,
+   "changed": 0.0
+  },
+  "B9": {
+   "age_ms": 17.1,
+   "seq": 265090,
+   "changed": 0.0
+  },
+  "B11": {
+   "age_ms": 3.6,
+   "seq": 268902,
+   "changed": 0.0001
+  },
+  "B12": {
+   "age_ms": 67.8,
+   "seq": 231081,
+   "changed": 0.0
+  },
+  "B13": {
+   "age_ms": 28.4,
+   "seq": 273809,
+   "changed": 0.0
+  },
+  "B14": {
+   "age_ms": 24.4,
+   "seq": 267610,
+   "changed": 0.0
+  },
+  "B15": {
+   "age_ms": 45.7,
+   "seq": 280132,
+   "changed": 0.0
+  },
+  "B16": {
+   "age_ms": 28.8,
+   "seq": 273598,
+   "changed": 0.0
+  },
+  "B18": {
+   "age_ms": 36.5,
+   "seq": 276500,
+   "changed": 0.0
+  },
+  "B20": {
+   "age_ms": 49.6,
+   "seq": 281068,
+   "changed": 0.0
+  }
+ },
+ "screens_mid": {
+  "B1": {
+   "age_ms": 28.7,
+   "seq": 255824,
+   "changed": 0.0001
+  },
+  "B2": {
+   "age_ms": 48.0,
+   "seq": 286288,
+   "changed": 0.0
+  },
+  "B4": {
+   "age_ms": 21.5,
+   "seq": 260960,
+   "changed": 0.0
+  },
+  "B8": {
+   "age_ms": 22.3,
+   "seq": 253499,
+   "changed": 0.0
+  },
+  "B9": {
+   "age_ms": 39.8,
+   "seq": 265473,
+   "changed": 0.0
+  },
+  "B11": {
+   "age_ms": 5.1,
+   "seq": 269297,
+   "changed": 0.0001
+  },
+  "B12": {
+   "age_ms": 17.6,
+   "seq": 231431,
+   "changed": 0.0
+  },
+  "B13": {
+   "age_ms": 4.4,
+   "seq": 274192,
+   "changed": 0.0001
+  },
+  "B14": {
+   "age_ms": 62.1,
+   "seq": 267960,
+   "changed": 0.0
+  },
+  "B15": {
+   "age_ms": 68.1,
+   "seq": 280504,
+   "changed": 0.0
+  },
+  "B16": {
+   "age_ms": 3.7,
+   "seq": 273990,
+   "changed": 0.0
+  },
+  "B18": {
+   "age_ms": 5.4,
+   "seq": 276888,
+   "changed": 0.0
+  },
+  "B20": {
+   "age_ms": 23.7,
+   "seq": 281449,
+   "changed": 0.0
+  }
+ },
+ "screens_end": {
+  "B1": {
+   "age_ms": 16.5,
+   "seq": 256385,
+   "changed": 0.0001
+  },
+  "B2": {
+   "age_ms": 25.7,
+   "seq": 286873,
+   "changed": 0.0001
+  },
+  "B4": {
+   "age_ms": 12.3,
+   "seq": 261529,
+   "changed": 0.0001
+  },
+  "B8": {
+   "age_ms": 15.5,
+   "seq": 254039,
+   "changed": 0.0
+  },
+  "B9": {
+   "age_ms": 41.6,
+   "seq": 266040,
+   "changed": 0.0
+  },
+  "B11": {
+   "age_ms": 25.2,
+   "seq": 269851,
+   "changed": 0.0
+  },
+  "B12": {
+   "age_ms": 508.1,
+   "seq": 231852,
+   "changed": 0.0
+  },
+  "B13": {
+   "age_ms": 53.6,
+   "seq": 274751,
+   "changed": 0.0
+  },
+  "B14": {
+   "age_ms": 51.2,
+   "seq": 268399,
+   "changed": 0.0
+  },
+  "B15": {
+   "age_ms": 59.4,
+   "seq": 280979,
+   "changed": 0.0
+  },
+  "B16": {
+   "age_ms": 55.0,
+   "seq": 274465,
+   "changed": 0.0
+  },
+  "B18": {
+   "age_ms": 28.1,
+   "seq": 277356,
+   "changed": 0.0
+  },
+  "B20": {
+   "age_ms": 43.2,
+   "seq": 281934,
+   "changed": 0.0
+  }
+ },
+ "home_2": {
+  "code": 0,
+  "rtt_ms": 290.2,
+  "acks": {
+   "B1": 0,
+   "B2": 0,
+   "B4": 0,
+   "B8": 0,
+   "B9": 0,
+   "B11": 0,
+   "B12": 0,
+   "B13": 0,
+   "B14": 0,
+   "B15": 0,
+   "B16": 0,
+   "B18": 0,
+   "B20": 0
+  }
+ },
+ "screens_after_home": {
+  "B1": {
+   "age_ms": 67.2,
+   "seq": 256442,
+   "changed": 0.0001
+  },
+  "B2": {
+   "age_ms": 14.5,
+   "seq": 286935,
+   "changed": 0.0001
+  },
+  "B4": {
+   "age_ms": 22.8,
+   "seq": 261583,
+   "changed": 0.0001
+  },
+  "B8": {
+   "age_ms": 25.0,
+   "seq": 254089,
+   "changed": 0.0
+  },
+  "B9": {
+   "age_ms": 20.7,
+   "seq": 266099,
+   "changed": 0.0
+  },
+  "B11": {
+   "age_ms": 65.7,
+   "seq": 269909,
+   "changed": 0.0001
+  },
+  "B12": {
+   "age_ms": 11.7,
+   "seq": 231893,
+   "changed": 0.0
+  },
+  "B13": {
+   "age_ms": 34.3,
+   "seq": 274806,
+   "changed": 0.0
+  },
+  "B14": {
+   "age_ms": 30.3,
+   "seq": 268450,
+   "changed": 0.0
+  },
+  "B15": {
+   "age_ms": 37.8,
+   "seq": 281035,
+   "changed": 0.0
+  },
+  "B16": {
+   "age_ms": 43.3,
+   "seq": 274518,
+   "changed": 0.0
+  },
+  "B18": {
+   "age_ms": 26.6,
+   "seq": 277410,
+   "changed": 0.0
+  },
+  "B20": {
+   "age_ms": 25.3,
+   "seq": 281990,
+   "changed": 0.0
+  }
+ },
+ "release": {
+  "code": 0,
+  "message": "Input released; previous tokens revoked.",
+  "rtt_ms": 5.8,
+  "phones": 13,
+  "owned_after": [],
+  "old_token_after_release": {
+   "code": 409,
+   "message": "A valid per-phone input lease is required.",
+   "refused": true
+  }
+ },
+ "dropped": {},
+ "calls": 52,
+ "frames_saved": 13,
+ "per_phone": [
+  {
+   "label": "single-B1",
+   "target": [
+    110,
+    260
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 263.8,
+   "acks": {
+    "B1": 0
+   },
+   "phones": {
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 635.1,
+     "after_done_ms": 371.3,
+     "age_ms": 29.5,
+     "polls": 2,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 39,
+     "new_dots": [],
+     "age_ms": 10.5,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 33,
+     "new_dots": [],
+     "age_ms": 43.7,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 36,
+     "new_dots": [],
+     "age_ms": 0.2,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 27,
+     "new_dots": [],
+     "age_ms": 45.9,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 31,
+     "new_dots": [],
+     "age_ms": 40.2,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 10,
+     "new_dots": [],
+     "age_ms": 55.8,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 19.8,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 13,
+     "new_dots": [],
+     "age_ms": 16.7,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 17,
+     "new_dots": [],
+     "age_ms": 33.7,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 35,
+     "new_dots": [],
+     "age_ms": 35.0,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 3,
+     "new_dots": [],
+     "age_ms": 9.8,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 22.9,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 263.9,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B2",
+   "target": [
+    390,
+    260
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 631.2,
+   "acks": {
+    "B2": 0
+   },
+   "phones": {
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.5,
+     "dot": [
+      394,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 776.1,
+     "after_done_ms": 144.8,
+     "age_ms": 29.9,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 30,
+     "new_dots": [],
+     "age_ms": 66.2,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 24,
+     "new_dots": [],
+     "age_ms": 0.5,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 43,
+     "new_dots": [],
+     "age_ms": 29.2,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 27,
+     "new_dots": [],
+     "age_ms": 6.9,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 21,
+     "new_dots": [],
+     "age_ms": 60.8,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 15,
+     "new_dots": [],
+     "age_ms": 4.7,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 24.1,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 22,
+     "new_dots": [],
+     "age_ms": 21.9,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 17,
+     "new_dots": [],
+     "age_ms": 28.3,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 40,
+     "new_dots": [],
+     "age_ms": 34.5,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 8,
+     "new_dots": [],
+     "age_ms": 7.2,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 1,
+     "new_dots": [],
+     "age_ms": 24.0,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 631.3,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B4",
+   "target": [
+    250,
+    470
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 606.6,
+   "acks": {
+    "B4": 0
+   },
+   "phones": {
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 798.7,
+     "after_done_ms": 192.0,
+     "age_ms": 36.0,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 21,
+     "new_dots": [],
+     "age_ms": 20.1,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 21,
+     "new_dots": [],
+     "age_ms": 5.5,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 45,
+     "new_dots": [],
+     "age_ms": 3.6,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 30,
+     "new_dots": [],
+     "age_ms": 24.1,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 18,
+     "new_dots": [],
+     "age_ms": 47.1,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 13,
+     "new_dots": [],
+     "age_ms": 261.5,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 19.2,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 31,
+     "new_dots": [],
+     "age_ms": 21.1,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 20,
+     "new_dots": [],
+     "age_ms": 27.1,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 40,
+     "new_dots": [],
+     "age_ms": 31.2,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 16,
+     "new_dots": [],
+     "age_ms": 5.9,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 8,
+     "new_dots": [],
+     "age_ms": 39.6,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 606.6,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B8",
+   "target": [
+    110,
+    700
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 982.4,
+   "acks": {
+    "B8": 0
+   },
+   "phones": {
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 992.3,
+     "after_done_ms": 9.8,
+     "age_ms": 9.2,
+     "polls": 7,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 11,
+     "new_dots": [],
+     "age_ms": 25.2,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 16,
+     "new_dots": [],
+     "age_ms": 45.5,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 22,
+     "new_dots": [],
+     "age_ms": 20.0,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 36,
+     "new_dots": [],
+     "age_ms": 41.0,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 9,
+     "new_dots": [],
+     "age_ms": 22.5,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 9,
+     "new_dots": [],
+     "age_ms": 12.5,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 3,
+     "new_dots": [],
+     "age_ms": 66.8,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 36,
+     "new_dots": [],
+     "age_ms": 60.1,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 28,
+     "new_dots": [],
+     "age_ms": 39.5,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 37,
+     "new_dots": [],
+     "age_ms": 11.5,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 20,
+     "new_dots": [],
+     "age_ms": 31.2,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 19,
+     "new_dots": [],
+     "age_ms": 1.0,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 982.5,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B9",
+   "target": [
+    390,
+    700
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 979.1,
+   "acks": {
+    "B9": 0
+   },
+   "phones": {
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.9,
+     "dot": [
+      393,
+      702
+     ],
+     "arrived": true,
+     "visible_ms": 1079.8,
+     "after_done_ms": 100.5,
+     "age_ms": 31.0,
+     "polls": 7,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 9,
+     "new_dots": [],
+     "age_ms": 1.1,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 5,
+     "new_dots": [],
+     "age_ms": 15.3,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 13,
+     "new_dots": [],
+     "age_ms": 4.0,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 41,
+     "new_dots": [],
+     "age_ms": 9.9,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 20,
+     "new_dots": [],
+     "age_ms": 8.2,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 14,
+     "new_dots": [],
+     "age_ms": 27.2,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 10,
+     "new_dots": [],
+     "age_ms": 58.9,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 37,
+     "new_dots": [],
+     "age_ms": 2.3,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 37,
+     "new_dots": [],
+     "age_ms": 34.6,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 30,
+     "new_dots": [],
+     "age_ms": 23.1,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 21,
+     "new_dots": [],
+     "age_ms": 36.6,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 21,
+     "new_dots": [],
+     "age_ms": 59.2,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 979.2,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B11",
+   "target": [
+    250,
+    880
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 2106.4,
+   "acks": {
+    "B11": 0
+   },
+   "phones": {
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 2118.3,
+     "after_done_ms": 11.8,
+     "age_ms": 12.2,
+     "polls": 7,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 30.2,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 4,
+     "new_dots": [],
+     "age_ms": 24.0,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 6,
+     "new_dots": [],
+     "age_ms": 23.0,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 37,
+     "new_dots": [],
+     "age_ms": 29.6,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 25,
+     "new_dots": [],
+     "age_ms": 9.4,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 30,
+     "new_dots": [],
+     "age_ms": 1.9,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 11,
+     "new_dots": [],
+     "age_ms": 70.6,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 35,
+     "new_dots": [],
+     "age_ms": 1.1,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 37,
+     "new_dots": [],
+     "age_ms": 29.9,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 17,
+     "new_dots": [],
+     "age_ms": 9.4,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 32,
+     "new_dots": [],
+     "age_ms": 25.1,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 34,
+     "new_dots": [],
+     "age_ms": 50.5,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 2106.4,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B12",
+   "target": [
+    250,
+    190
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 409.9,
+   "acks": {
+    "B12": 0
+   },
+   "phones": {
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 900.4,
+     "after_done_ms": 490.4,
+     "age_ms": 1.2,
+     "polls": 10,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 8.1,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 64.2,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 36.0,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 28,
+     "new_dots": [],
+     "age_ms": 43.7,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 22,
+     "new_dots": [],
+     "age_ms": 6.2,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 47,
+     "new_dots": [],
+     "age_ms": 15.4,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 11,
+     "new_dots": [],
+     "age_ms": 14.4,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 34,
+     "new_dots": [],
+     "age_ms": 10.5,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 39,
+     "new_dots": [],
+     "age_ms": 31.2,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 14,
+     "new_dots": [],
+     "age_ms": 4.3,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 43,
+     "new_dots": [],
+     "age_ms": 44.2,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 48,
+     "new_dots": [],
+     "age_ms": 15.5,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 410.0,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B13",
+   "target": [
+    250,
+    620
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 865.3,
+   "acks": {
+    "B13": 0
+   },
+   "phones": {
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1110.3,
+     "after_done_ms": 245.0,
+     "age_ms": 24.6,
+     "polls": 6,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 8,
+     "new_dots": [],
+     "age_ms": 20.8,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 15.3,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 5,
+     "new_dots": [],
+     "age_ms": 30.2,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 27,
+     "new_dots": [],
+     "age_ms": 46.0,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 16,
+     "new_dots": [],
+     "age_ms": 43.7,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 45,
+     "new_dots": [],
+     "age_ms": 1.2,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 39,
+     "new_dots": [],
+     "age_ms": 41.3,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 27,
+     "new_dots": [],
+     "age_ms": 13.3,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 39,
+     "new_dots": [],
+     "age_ms": 91.4,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 24,
+     "new_dots": [],
+     "age_ms": 35.1,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 41,
+     "new_dots": [],
+     "age_ms": 64.8,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 43,
+     "new_dots": [],
+     "age_ms": 39.5,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 865.4,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B14",
+   "target": [
+    110,
+    260
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 278.7,
+   "acks": {
+    "B14": 0
+   },
+   "phones": {
+    "B14": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 326.6,
+     "after_done_ms": 47.9,
+     "age_ms": 7.3,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 40.3,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 5.9,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 17.5,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 20,
+     "new_dots": [],
+     "age_ms": 38.4,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 9,
+     "new_dots": [],
+     "age_ms": 15.1,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 40,
+     "new_dots": [],
+     "age_ms": 61.0,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 36,
+     "new_dots": [],
+     "age_ms": 113.4,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 27,
+     "new_dots": [],
+     "age_ms": 52.1,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 33,
+     "new_dots": [],
+     "age_ms": 38.9,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 30,
+     "new_dots": [],
+     "age_ms": 44.1,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 35,
+     "new_dots": [],
+     "age_ms": 25.6,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 38,
+     "new_dots": [],
+     "age_ms": 6.9,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 278.7,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B15",
+   "target": [
+    390,
+    260
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 655.3,
+   "acks": {
+    "B15": 0
+   },
+   "phones": {
+    "B15": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 6.1,
+     "dot": [
+      396,
+      261
+     ],
+     "arrived": true,
+     "visible_ms": 842.8,
+     "after_done_ms": 187.5,
+     "age_ms": 19.4,
+     "polls": 7,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 36.0,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 5,
+     "new_dots": [],
+     "age_ms": 33.6,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 15.2,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 7,
+     "new_dots": [],
+     "age_ms": 12.3,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 10,
+     "new_dots": [],
+     "age_ms": 37.8,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 45,
+     "new_dots": [],
+     "age_ms": 12.1,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 40,
+     "new_dots": [],
+     "age_ms": 95.0,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 34,
+     "new_dots": [],
+     "age_ms": 47.2,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 12,
+     "new_dots": [],
+     "age_ms": 38.5,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 36,
+     "new_dots": [],
+     "age_ms": 39.9,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 41,
+     "new_dots": [],
+     "age_ms": 9.0,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 46,
+     "new_dots": [],
+     "age_ms": 42.0,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 655.4,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B16",
+   "target": [
+    250,
+    470
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 636.8,
+   "acks": {
+    "B16": 0
+   },
+   "phones": {
+    "B16": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 922.3,
+     "after_done_ms": 285.4,
+     "age_ms": 5.3,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 46.5,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 46.3,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 22.2,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 5.1,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 6,
+     "new_dots": [],
+     "age_ms": 29.2,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 44,
+     "new_dots": [],
+     "age_ms": 69.0,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 39,
+     "new_dots": [],
+     "age_ms": 227.5,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 41,
+     "new_dots": [],
+     "age_ms": 47.6,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 13,
+     "new_dots": [],
+     "age_ms": 40.9,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 21,
+     "new_dots": [],
+     "age_ms": 49.8,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 39,
+     "new_dots": [],
+     "age_ms": 8.5,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 42,
+     "new_dots": [],
+     "age_ms": 33.0,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 636.9,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B18",
+   "target": [
+    110,
+    700
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 1032.8,
+   "acks": {
+    "B18": 0
+   },
+   "phones": {
+    "B18": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1275.1,
+     "after_done_ms": 242.2,
+     "age_ms": 6.2,
+     "polls": 6,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 13.1,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 26.8,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 13.4,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 14.1,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 1,
+     "new_dots": [],
+     "age_ms": 40.5,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 43,
+     "new_dots": [],
+     "age_ms": 11.6,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 38,
+     "new_dots": [],
+     "age_ms": 598.1,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 40,
+     "new_dots": [],
+     "age_ms": 54.0,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 21,
+     "new_dots": [],
+     "age_ms": 54.5,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 13,
+     "new_dots": [],
+     "age_ms": 13.1,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 33,
+     "new_dots": [],
+     "age_ms": 0.8,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 34,
+     "new_dots": [],
+     "age_ms": 18.8,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 1032.9,
+   "spread_ms": null
+  },
+  {
+   "label": "single-B20",
+   "target": [
+    390,
+    700
+   ],
+   "group": 1,
+   "code": 0,
+   "rtt_ms": 977.3,
+   "acks": {
+    "B20": 0
+   },
+   "phones": {
+    "B20": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1065.0,
+     "after_done_ms": 87.7,
+     "age_ms": 20.1,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "control": true,
+     "stray_px": 11,
+     "new_dots": [],
+     "age_ms": 51.7,
+     "fresh": true
+    },
+    "B2": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 1.6,
+     "fresh": true
+    },
+    "B4": {
+     "control": true,
+     "stray_px": 7,
+     "new_dots": [],
+     "age_ms": 9.8,
+     "fresh": true
+    },
+    "B8": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 16.9,
+     "fresh": true
+    },
+    "B9": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 11.1,
+     "fresh": true
+    },
+    "B11": {
+     "control": true,
+     "stray_px": 29,
+     "new_dots": [],
+     "age_ms": 50.2,
+     "fresh": true
+    },
+    "B12": {
+     "control": true,
+     "stray_px": 26,
+     "new_dots": [],
+     "age_ms": 4.7,
+     "fresh": true
+    },
+    "B13": {
+     "control": true,
+     "stray_px": 43,
+     "new_dots": [],
+     "age_ms": 23.6,
+     "fresh": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 32,
+     "new_dots": [],
+     "age_ms": 18.9,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 14,
+     "new_dots": [],
+     "age_ms": 29.0,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 36,
+     "new_dots": [],
+     "age_ms": 29.0,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 21,
+     "new_dots": [],
+     "age_ms": 0.2,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 977.3,
+   "spread_ms": null
+  }
+ ],
+ "group_rounds": [
+  {
+   "label": "group-r1",
+   "target": [
+    110,
+    700
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 826.9,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.8,
+     "dot": [
+      113,
+      705
+     ],
+     "arrived": true,
+     "visible_ms": 1999.7,
+     "after_done_ms": 1172.7,
+     "age_ms": 2.6,
+     "polls": 29,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      113,
+      704
+     ],
+     "arrived": true,
+     "visible_ms": 1955.6,
+     "after_done_ms": 1128.6,
+     "age_ms": 55.5,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1995.2,
+     "after_done_ms": 1168.3,
+     "age_ms": 23.8,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 2020.6,
+     "after_done_ms": 1193.7,
+     "age_ms": 7.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1713.6,
+     "after_done_ms": 886.7,
+     "age_ms": 323.1,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 2042.9,
+     "after_done_ms": 1215.9,
+     "age_ms": 1.5,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 2021.2,
+     "after_done_ms": 1194.3,
+     "age_ms": 32.1,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 2037.9,
+     "after_done_ms": 1210.9,
+     "age_ms": 36.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 43,
+     "new_dots": [],
+     "age_ms": 26.5,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 28,
+     "new_dots": [],
+     "age_ms": 3.3,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 30,
+     "new_dots": [],
+     "age_ms": 7.1,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 14,
+     "new_dots": [],
+     "age_ms": 26.7,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 16,
+     "new_dots": [],
+     "age_ms": 36.9,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 827.0,
+   "spread_ms": 329.3
+  },
+  {
+   "label": "group-r2",
+   "target": [
+    390,
+    700
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 458.3,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 487.2,
+     "after_done_ms": 28.8,
+     "age_ms": 27.7,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 742.7,
+     "after_done_ms": 284.3,
+     "age_ms": 23.3,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      392,
+      702
+     ],
+     "arrived": true,
+     "visible_ms": 757.0,
+     "after_done_ms": 298.6,
+     "age_ms": 17.8,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      393,
+      702
+     ],
+     "arrived": true,
+     "visible_ms": 773.2,
+     "after_done_ms": 314.8,
+     "age_ms": 11.7,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      392,
+      702
+     ],
+     "arrived": true,
+     "visible_ms": 769.3,
+     "after_done_ms": 311.0,
+     "age_ms": 24.3,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 791.9,
+     "after_done_ms": 333.5,
+     "age_ms": 21.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 564.6,
+     "after_done_ms": 106.2,
+     "age_ms": 1.6,
+     "polls": 14,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.9,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1315.0,
+     "after_done_ms": 856.6,
+     "age_ms": 43.0,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 45,
+     "new_dots": [],
+     "age_ms": 26.4,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 39,
+     "new_dots": [],
+     "age_ms": 28.9,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 21,
+     "new_dots": [],
+     "age_ms": 39.3,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 22,
+     "new_dots": [],
+     "age_ms": 9.0,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 17,
+     "new_dots": [],
+     "age_ms": 31.4,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 458.4,
+   "spread_ms": 827.8
+  },
+  {
+   "label": "group-r3",
+   "target": [
+    250,
+    880
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 291.4,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 355.3,
+     "after_done_ms": 63.9,
+     "age_ms": 0.3,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 604.6,
+     "after_done_ms": 313.1,
+     "age_ms": 6.8,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 1006.0,
+     "after_done_ms": 714.5,
+     "age_ms": 0.5,
+     "polls": 9,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 1030.8,
+     "after_done_ms": 739.4,
+     "age_ms": 6.5,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 1038.6,
+     "after_done_ms": 747.1,
+     "age_ms": 6.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 989.8,
+     "after_done_ms": 698.3,
+     "age_ms": 63.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 1033.1,
+     "after_done_ms": 741.6,
+     "age_ms": 28.1,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 1081.2,
+     "after_done_ms": 789.7,
+     "age_ms": 0.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 44,
+     "new_dots": [],
+     "age_ms": 15.2,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 38,
+     "new_dots": [],
+     "age_ms": 18.0,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 14,
+     "new_dots": [],
+     "age_ms": 17.4,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 31,
+     "new_dots": [],
+     "age_ms": 45.2,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 28,
+     "new_dots": [],
+     "age_ms": 64.2,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 291.5,
+   "spread_ms": 725.9
+  },
+  {
+   "label": "group-r4",
+   "target": [
+    250,
+    190
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 1111.8,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      247,
+      187
+     ],
+     "arrived": true,
+     "visible_ms": 1380.4,
+     "after_done_ms": 268.5,
+     "age_ms": 28.2,
+     "polls": 7,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 1831.6,
+     "after_done_ms": 719.8,
+     "age_ms": 21.4,
+     "polls": 10,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.2,
+     "dot": [
+      253,
+      191
+     ],
+     "arrived": true,
+     "visible_ms": 1803.3,
+     "after_done_ms": 691.4,
+     "age_ms": 57.7,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 1848.3,
+     "after_done_ms": 736.4,
+     "age_ms": 21.7,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 1866.6,
+     "after_done_ms": 754.7,
+     "age_ms": 12.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 1883.5,
+     "after_done_ms": 771.6,
+     "age_ms": 7.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 1843.9,
+     "after_done_ms": 732.0,
+     "age_ms": 55.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 1865.9,
+     "after_done_ms": 754.0,
+     "age_ms": 42.3,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 49,
+     "new_dots": [],
+     "age_ms": 16.9,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 41,
+     "new_dots": [],
+     "age_ms": 24.7,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 16,
+     "new_dots": [],
+     "age_ms": 16.2,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 39,
+     "new_dots": [],
+     "age_ms": 9.6,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 35,
+     "new_dots": [],
+     "age_ms": 15.0,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 1111.9,
+   "spread_ms": 503.1
+  },
+  {
+   "label": "group-r5",
+   "target": [
+    250,
+    620
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 694.7,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 846.4,
+     "after_done_ms": 151.6,
+     "age_ms": 26.0,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 990.5,
+     "after_done_ms": 295.7,
+     "age_ms": 17.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1012.5,
+     "after_done_ms": 317.7,
+     "age_ms": 4.4,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1013.6,
+     "after_done_ms": 318.8,
+     "age_ms": 12.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1033.9,
+     "after_done_ms": 339.1,
+     "age_ms": 0.7,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1023.6,
+     "after_done_ms": 328.8,
+     "age_ms": 31.4,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1055.3,
+     "after_done_ms": 360.5,
+     "age_ms": 8.0,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1074.3,
+     "after_done_ms": 379.5,
+     "age_ms": 10.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 45,
+     "new_dots": [],
+     "age_ms": 14.8,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 45,
+     "new_dots": [],
+     "age_ms": 22.1,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 25,
+     "new_dots": [],
+     "age_ms": 32.1,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 39,
+     "new_dots": [],
+     "age_ms": 34.7,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 37,
+     "new_dots": [],
+     "age_ms": 51.5,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 694.8,
+   "spread_ms": 227.9
+  },
+  {
+   "label": "group-r6",
+   "target": [
+    110,
+    260
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 587.8,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 697.1,
+     "after_done_ms": 109.2,
+     "age_ms": 5.9,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 848.8,
+     "after_done_ms": 260.9,
+     "age_ms": 38.4,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 892.0,
+     "after_done_ms": 304.1,
+     "age_ms": 5.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 892.0,
+     "after_done_ms": 304.1,
+     "age_ms": 15.0,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 883.0,
+     "after_done_ms": 295.1,
+     "age_ms": 33.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 904.8,
+     "after_done_ms": 316.9,
+     "age_ms": 21.5,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 933.1,
+     "after_done_ms": 345.2,
+     "age_ms": 3.0,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      112,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 942.3,
+     "after_done_ms": 354.4,
+     "age_ms": 21.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 34,
+     "new_dots": [],
+     "age_ms": 20.7,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 40,
+     "new_dots": [],
+     "age_ms": 29.4,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 28,
+     "new_dots": [],
+     "age_ms": 43.2,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 36,
+     "new_dots": [],
+     "age_ms": 15.6,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 30,
+     "new_dots": [],
+     "age_ms": 0.4,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 587.9,
+   "spread_ms": 245.2
+  },
+  {
+   "label": "group-r7",
+   "target": [
+    390,
+    260
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 470.6,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      393,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 513.8,
+     "after_done_ms": 43.1,
+     "age_ms": 0.1,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.5,
+     "dot": [
+      394,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 784.7,
+     "after_done_ms": 314.1,
+     "age_ms": 12.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.1,
+     "dot": [
+      395,
+      259
+     ],
+     "arrived": true,
+     "visible_ms": 796.6,
+     "after_done_ms": 326.0,
+     "age_ms": 10.8,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      393,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 772.6,
+     "after_done_ms": 301.9,
+     "age_ms": 41.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.5,
+     "dot": [
+      394,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 763.2,
+     "after_done_ms": 292.5,
+     "age_ms": 60.8,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.5,
+     "dot": [
+      394,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 805.4,
+     "after_done_ms": 334.8,
+     "age_ms": 28.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.5,
+     "dot": [
+      394,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 836.7,
+     "after_done_ms": 366.0,
+     "age_ms": 6.8,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.5,
+     "dot": [
+      394,
+      258
+     ],
+     "arrived": true,
+     "visible_ms": 828.5,
+     "after_done_ms": 357.9,
+     "age_ms": 24.8,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 28,
+     "new_dots": [],
+     "age_ms": 61.0,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 30,
+     "new_dots": [],
+     "age_ms": 58.1,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 35,
+     "new_dots": [],
+     "age_ms": 63.0,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 38,
+     "new_dots": [],
+     "age_ms": 8.7,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 35,
+     "new_dots": [],
+     "age_ms": 25.5,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 470.7,
+   "spread_ms": 322.9
+  },
+  {
+   "label": "group-r8",
+   "target": [
+    250,
+    470
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 371.0,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 404.0,
+     "after_done_ms": 32.9,
+     "age_ms": 11.4,
+     "polls": 7,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 660.5,
+     "after_done_ms": 289.5,
+     "age_ms": 33.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 687.3,
+     "after_done_ms": 316.3,
+     "age_ms": 15.8,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 751.6,
+     "after_done_ms": 380.6,
+     "age_ms": 2.4,
+     "polls": 2,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 752.1,
+     "after_done_ms": 381.0,
+     "age_ms": 13.3,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 771.7,
+     "after_done_ms": 400.6,
+     "age_ms": 4.0,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 775.1,
+     "after_done_ms": 404.1,
+     "age_ms": 11.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      253,
+      472
+     ],
+     "arrived": true,
+     "visible_ms": 749.4,
+     "after_done_ms": 378.3,
+     "age_ms": 66.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 27,
+     "new_dots": [],
+     "age_ms": 44.6,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 24,
+     "new_dots": [],
+     "age_ms": 29.1,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 33,
+     "new_dots": [],
+     "age_ms": 2.1,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 43,
+     "new_dots": [],
+     "age_ms": 1.6,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 40,
+     "new_dots": [],
+     "age_ms": 28.3,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 371.1,
+   "spread_ms": 371.1
+  },
+  {
+   "label": "group-r9",
+   "target": [
+    110,
+    700
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 371.9,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1184.8,
+     "after_done_ms": 812.8,
+     "age_ms": 74.8,
+     "polls": 3,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1351.1,
+     "after_done_ms": 979.1,
+     "age_ms": 52.1,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1466.7,
+     "after_done_ms": 1094.7,
+     "age_ms": 6.3,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      113,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1457.8,
+     "after_done_ms": 1085.8,
+     "age_ms": 26.5,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.3,
+     "dot": [
+      114,
+      704
+     ],
+     "arrived": true,
+     "visible_ms": 1474.2,
+     "after_done_ms": 1102.2,
+     "age_ms": 19.3,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1465.2,
+     "after_done_ms": 1093.3,
+     "age_ms": 54.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1466.7,
+     "after_done_ms": 1094.8,
+     "age_ms": 61.4,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      112,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1523.8,
+     "after_done_ms": 1151.8,
+     "age_ms": 12.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 16,
+     "new_dots": [],
+     "age_ms": 26.1,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 25,
+     "new_dots": [],
+     "age_ms": 99.4,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 36,
+     "new_dots": [],
+     "age_ms": 6.0,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 38,
+     "new_dots": [],
+     "age_ms": 43.9,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 33,
+     "new_dots": [],
+     "age_ms": 63.9,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 372.0,
+   "spread_ms": 339.0
+  },
+  {
+   "label": "group-r10",
+   "target": [
+    390,
+    700
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 478.8,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 478.3,
+     "after_done_ms": -0.6,
+     "age_ms": 4.6,
+     "polls": 8,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 771.6,
+     "after_done_ms": 292.7,
+     "age_ms": 67.1,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1265.9,
+     "after_done_ms": 787.1,
+     "age_ms": 1.3,
+     "polls": 9,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1221.0,
+     "after_done_ms": 742.1,
+     "age_ms": 56.1,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      393,
+      702
+     ],
+     "arrived": true,
+     "visible_ms": 1268.2,
+     "after_done_ms": 789.3,
+     "age_ms": 40.4,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1279.6,
+     "after_done_ms": 800.7,
+     "age_ms": 39.4,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 2.8,
+     "dot": [
+      392,
+      702
+     ],
+     "arrived": true,
+     "visible_ms": 1290.8,
+     "after_done_ms": 811.9,
+     "age_ms": 38.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.6,
+     "dot": [
+      392,
+      703
+     ],
+     "arrived": true,
+     "visible_ms": 1334.3,
+     "after_done_ms": 855.5,
+     "age_ms": 19.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 3,
+     "new_dots": [],
+     "age_ms": 38.7,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 16,
+     "new_dots": [],
+     "age_ms": 54.1,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 30,
+     "new_dots": [],
+     "age_ms": 59.6,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 27,
+     "new_dots": [],
+     "age_ms": 5.6,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 24,
+     "new_dots": [],
+     "age_ms": 20.8,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 478.9,
+   "spread_ms": 856.0
+  },
+  {
+   "label": "group-r11",
+   "target": [
+    250,
+    880
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 290.6,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 349.3,
+     "after_done_ms": 58.6,
+     "age_ms": 0.7,
+     "polls": 7,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 545.4,
+     "after_done_ms": 254.7,
+     "age_ms": 23.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 558.8,
+     "after_done_ms": 268.2,
+     "age_ms": 19.2,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 561.3,
+     "after_done_ms": 270.7,
+     "age_ms": 58.3,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 607.9,
+     "after_done_ms": 317.3,
+     "age_ms": 21.7,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 851.4,
+     "after_done_ms": 560.8,
+     "age_ms": 1.6,
+     "polls": 6,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 833.5,
+     "after_done_ms": 542.8,
+     "age_ms": 30.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 4.2,
+     "dot": [
+      253,
+      883
+     ],
+     "arrived": true,
+     "visible_ms": 874.5,
+     "after_done_ms": 583.8,
+     "age_ms": 18.6,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 44.7,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 6,
+     "new_dots": [],
+     "age_ms": 2.5,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 24,
+     "new_dots": [],
+     "age_ms": 10.7,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 22,
+     "new_dots": [],
+     "age_ms": 21.1,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 16,
+     "new_dots": [],
+     "age_ms": 30.6,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 290.7,
+   "spread_ms": 525.2
+  },
+  {
+   "label": "group-r12",
+   "target": [
+    250,
+    190
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 1112.1,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 1.0,
+     "dot": [
+      251,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 2250.5,
+     "after_done_ms": 1138.4,
+     "age_ms": 6.2,
+     "polls": 5,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.2,
+     "dot": [
+      253,
+      191
+     ],
+     "arrived": true,
+     "visible_ms": 2282.4,
+     "after_done_ms": 1170.3,
+     "age_ms": 7.4,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 2321.1,
+     "after_done_ms": 1209.0,
+     "age_ms": 10.7,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.2,
+     "dot": [
+      253,
+      191
+     ],
+     "arrived": true,
+     "visible_ms": 2375.6,
+     "after_done_ms": 1263.4,
+     "age_ms": 2.0,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.2,
+     "dot": [
+      253,
+      191
+     ],
+     "arrived": true,
+     "visible_ms": 2425.7,
+     "after_done_ms": 1313.5,
+     "age_ms": 5.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 2451.1,
+     "after_done_ms": 1338.9,
+     "age_ms": 6.5,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 2478.0,
+     "after_done_ms": 1365.9,
+     "age_ms": 17.4,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 3.0,
+     "dot": [
+      253,
+      190
+     ],
+     "arrived": true,
+     "visible_ms": 2418.4,
+     "after_done_ms": 1306.2,
+     "age_ms": 109.7,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 22.4,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 1,
+     "new_dots": [],
+     "age_ms": 7.2,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 17,
+     "new_dots": [],
+     "age_ms": 3.6,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 18,
+     "new_dots": [],
+     "age_ms": 38.9,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 17,
+     "new_dots": [],
+     "age_ms": 56.7,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 1112.2,
+   "spread_ms": 227.5
+  },
+  {
+   "label": "group-r13",
+   "target": [
+    250,
+    620
+   ],
+   "group": 8,
+   "code": 0,
+   "rtt_ms": 696.6,
+   "acks": {
+    "B1": 0,
+    "B2": 0,
+    "B4": 0,
+    "B8": 0,
+    "B9": 0,
+    "B11": 0,
+    "B12": 0,
+    "B13": 0
+   },
+   "phones": {
+    "B12": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1313.3,
+     "after_done_ms": 616.6,
+     "age_ms": 0.3,
+     "polls": 14,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B8": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1321.0,
+     "after_done_ms": 624.3,
+     "age_ms": 3.5,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B1": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1298.3,
+     "after_done_ms": 601.6,
+     "age_ms": 36.3,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B13": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1320.2,
+     "after_done_ms": 623.4,
+     "age_ms": 22.7,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B9": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1290.5,
+     "after_done_ms": 593.7,
+     "age_ms": 59.5,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B11": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1336.8,
+     "after_done_ms": 640.1,
+     "age_ms": 21.9,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B2": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1382.1,
+     "after_done_ms": 685.3,
+     "age_ms": 6.0,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B4": {
+     "ack": 0,
+     "landed": true,
+     "found": true,
+     "error_px": 5.0,
+     "dot": [
+      253,
+      624
+     ],
+     "arrived": true,
+     "visible_ms": 1396.2,
+     "after_done_ms": 699.4,
+     "age_ms": 1.3,
+     "polls": 1,
+     "fresh": true,
+     "settled_frame": true
+    },
+    "B14": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 63.0,
+     "fresh": true
+    },
+    "B15": {
+     "control": true,
+     "stray_px": 0,
+     "new_dots": [],
+     "age_ms": 37.8,
+     "fresh": true
+    },
+    "B16": {
+     "control": true,
+     "stray_px": 4,
+     "new_dots": [],
+     "age_ms": 39.8,
+     "fresh": true
+    },
+    "B18": {
+     "control": true,
+     "stray_px": 13,
+     "new_dots": [],
+     "age_ms": 26.3,
+     "fresh": true
+    },
+    "B20": {
+     "control": true,
+     "stray_px": 22,
+     "new_dots": [],
+     "age_ms": 42.2,
+     "fresh": true
+    }
+   },
+   "dispatch_done_ms": 696.7,
+   "spread_ms": 105.7
+  }
+ ],
+ "renewals": [
+  {
+   "at": "2026-11-05T02:08:22.318+00:00",
+   "slots": 13,
+   "code": 0,
+   "message": null,
+   "rtt_ms": 1.4,
+   "min_remaining_before_ms": 23984
+  },
+  {
+   "at": "2026-11-05T02:08:28.330+00:00",
+   "slots": 13,
+   "code": 0,
+   "message": null,
+   "rtt_ms": 2.7,
+   "min_remaining_before_ms": 24000
+  },
+  {
+   "at": "2026-11-05T02:08:34.340+00:00",
+   "slots": 13,
+   "code": 0,
+   "message": null,
+   "rtt_ms": 1.5,
+   "min_remaining_before_ms": 24000
+  },
+  {
+   "at": "2026-11-05T02:08:40.357+00:00",
+   "slots": 13,
+   "code": 0,
+   "message": null,
+   "rtt_ms": 1.7,
+   "min_remaining_before_ms": 23984
+  },
+  {
+   "at": "2026-11-05T02:08:46.376+00:00",
+   "slots": 13,
+   "code": 0,
+   "message": null,
+   "rtt_ms": 1.7,
+   "min_remaining_before_ms": 23984
+  },
+  {
+   "at": "2026-11-05T02:08:52.387+00:00",
+   "slots": 13,
+   "code": 0,
+   "message": null,
+   "rtt_ms": 1.9,
+   "min_remaining_before_ms": 24000
+  },
+  {
+   "at": "2026-11-05T02:08:58.413+00:00",
+   "slots": 13,
+   "code": 0,
+   "message": null,
+   "rtt_ms": 1.7,
+   "min_remaining_before_ms": 23969
+  }
+ ],
+ "samples": [
+  {
+   "at": "2026-11-05T02:07:34.049+00:00",
+   "cpu": 34.4,
+   "mem": 87.5,
+   "kernel_ms": 10.6,
+   "ages": {
+    "B1": 22.6,
+    "B2": 53.1,
+    "B4": 19.4,
+    "B8": 16.5,
+    "B9": 33.5,
+    "B11": 2.4,
+    "B12": 2.1,
+    "B13": 14.6,
+    "B14": 28.8,
+    "B15": 24.8,
+    "B16": 16.6,
+    "B18": 9.8,
+    "B20": 14.5
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:36.071+00:00",
+   "cpu": 31.7,
+   "mem": 87.5,
+   "kernel_ms": 8.9,
+   "ages": {
+    "B1": 42.7,
+    "B2": 27.8,
+    "B4": 39.4,
+    "B8": 37.0,
+    "B9": 55.0,
+    "B11": 23.1,
+    "B12": 21.4,
+    "B13": 33.9,
+    "B14": 16.5,
+    "B15": 12.3,
+    "B16": 5.1,
+    "B18": 28.4,
+    "B20": 34.2
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:38.799+00:00",
+   "cpu": 39.6,
+   "mem": 88.5,
+   "kernel_ms": 23.4,
+   "ages": {
+    "B1": 35.0,
+    "B2": 12.8,
+    "B4": 19.9,
+    "B8": 9.8,
+    "B9": 42.0,
+    "B11": 29.7,
+    "B12": 332.0,
+    "B13": 9.4,
+    "B14": 57.5,
+    "B15": 51.4,
+    "B16": 45.9,
+    "B18": 4.7,
+    "B20": 12.4
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:40.831+00:00",
+   "cpu": 30.0,
+   "mem": 88.7,
+   "kernel_ms": 10.9,
+   "ages": {
+    "B1": 4.4,
+    "B2": 37.0,
+    "B4": 7.1,
+    "B8": 31.2,
+    "B9": 16.0,
+    "B11": 47.9,
+    "B12": 249.8,
+    "B13": 23.8,
+    "B14": 9.2,
+    "B15": 5.1,
+    "B16": 14.9,
+    "B18": 24.1,
+    "B20": 29.8
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:42.843+00:00",
+   "cpu": 31.9,
+   "mem": 88.9,
+   "kernel_ms": 11.6,
+   "ages": {
+    "B1": 17.5,
+    "B2": 49.2,
+    "B4": 20.0,
+    "B8": 10.6,
+    "B9": 30.1,
+    "B11": 58.3,
+    "B12": 364.0,
+    "B13": 11.7,
+    "B14": 21.5,
+    "B15": 17.7,
+    "B16": 29.3,
+    "B18": 32.2,
+    "B20": 41.5
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:45.399+00:00",
+   "cpu": 38.8,
+   "mem": 88.6,
+   "kernel_ms": 12.3,
+   "ages": {
+    "B1": 9.2,
+    "B2": 4.7,
+    "B4": 12.7,
+    "B8": 0.7,
+    "B9": 15.7,
+    "B11": 15.9,
+    "B12": 19.2,
+    "B13": 60.7,
+    "B14": 44.1,
+    "B15": 42.0,
+    "B16": 38.6,
+    "B18": 56.3,
+    "B20": 59.9
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:47.416+00:00",
+   "cpu": 33.1,
+   "mem": 88.6,
+   "kernel_ms": 9.2,
+   "ages": {
+    "B1": 27.5,
+    "B2": 19.9,
+    "B4": 17.9,
+    "B8": 14.2,
+    "B9": 32.5,
+    "B11": 29.0,
+    "B12": 33.7,
+    "B13": 11.1,
+    "B14": 61.6,
+    "B15": 56.8,
+    "B16": 53.3,
+    "B18": 73.6,
+    "B20": 12.1
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:49.434+00:00",
+   "cpu": 26.3,
+   "mem": 88.5,
+   "kernel_ms": 18.8,
+   "ages": {
+    "B1": 1015.4,
+    "B2": 985.6,
+    "B4": 1017.5,
+    "B8": 1008.5,
+    "B9": 1027.2,
+    "B11": 987.9,
+    "B12": 994.6,
+    "B13": 1009.3,
+    "B14": 988.2,
+    "B15": 984.3,
+    "B16": 1007.6,
+    "B18": 993.6,
+    "B20": 997.9
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:51.459+00:00",
+   "cpu": 30.4,
+   "mem": 88.2,
+   "kernel_ms": 22.3,
+   "ages": {
+    "B1": 43.9,
+    "B2": 13.0,
+    "B4": 45.5,
+    "B8": 36.4,
+    "B9": 55.6,
+    "B11": 21.2,
+    "B12": 21.2,
+    "B13": 35.8,
+    "B14": 16.1,
+    "B15": 12.2,
+    "B16": 3.2,
+    "B18": 30.8,
+    "B20": 34.4
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:53.493+00:00",
+   "cpu": 22.1,
+   "mem": 88.1,
+   "kernel_ms": 9.1,
+   "ages": {
+    "B1": 63.8,
+    "B2": 6.9,
+    "B4": 0.1,
+    "B8": 57.7,
+    "B9": 11.5,
+    "B11": 10.9,
+    "B12": 3.4,
+    "B13": 55.0,
+    "B14": 37.0,
+    "B15": 32.8,
+    "B16": 19.6,
+    "B18": 50.9,
+    "B20": 55.3
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:55.861+00:00",
+   "cpu": 28.8,
+   "mem": 88.2,
+   "kernel_ms": 11.0,
+   "ages": {
+    "B1": 33.7,
+    "B2": 4.0,
+    "B4": 36.7,
+    "B8": 27.3,
+    "B9": 49.1,
+    "B11": 8.0,
+    "B12": 79.6,
+    "B13": 24.5,
+    "B14": 5.2,
+    "B15": 109.2,
+    "B16": 20.8,
+    "B18": 15.1,
+    "B20": 23.1
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:57.886+00:00",
+   "cpu": 20.6,
+   "mem": 88.2,
+   "kernel_ms": 9.0,
+   "ages": {
+    "B1": 54.9,
+    "B2": 27.3,
+    "B4": 55.8,
+    "B8": 49.2,
+    "B9": 1.2,
+    "B11": 3.4,
+    "B12": 103.5,
+    "B13": 47.1,
+    "B14": 29.9,
+    "B15": 26.8,
+    "B16": 23.2,
+    "B18": 36.3,
+    "B20": 40.5
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:07:59.903+00:00",
+   "cpu": 28.3,
+   "mem": 88.2,
+   "kernel_ms": 10.7,
+   "ages": {
+    "B1": 8.7,
+    "B2": 14.5,
+    "B4": 75.2,
+    "B8": 1.3,
+    "B9": 19.6,
+    "B11": 21.7,
+    "B12": 121.9,
+    "B13": 64.2,
+    "B14": 47.6,
+    "B15": 39.9,
+    "B16": 40.2,
+    "B18": 54.8,
+    "B20": 65.9
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:02.411+00:00",
+   "cpu": 29.1,
+   "mem": 88.3,
+   "kernel_ms": 10.2,
+   "ages": {
+    "B1": 17.2,
+    "B2": 13.5,
+    "B4": 18.5,
+    "B8": 10.1,
+    "B9": 24.9,
+    "B11": 30.0,
+    "B12": 630.5,
+    "B13": 7.9,
+    "B14": 55.3,
+    "B15": 51.8,
+    "B16": 47.2,
+    "B18": 60.5,
+    "B20": 3.8
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:04.434+00:00",
+   "cpu": 46.5,
+   "mem": 88.8,
+   "kernel_ms": 27.2,
+   "ages": {
+    "B1": 21.0,
+    "B2": 61.8,
+    "B4": 17.6,
+    "B8": 14.3,
+    "B9": 31.7,
+    "B11": 67.9,
+    "B12": 399.4,
+    "B13": 13.5,
+    "B14": 26.5,
+    "B15": 20.9,
+    "B16": 18.4,
+    "B18": 8.5,
+    "B20": 10.5
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:06.468+00:00",
+   "cpu": 44.0,
+   "mem": 89.0,
+   "kernel_ms": 13.5,
+   "ages": {
+    "B1": 32.2,
+    "B2": 2.7,
+    "B4": 43.7,
+    "B8": 33.3,
+    "B9": 52.4,
+    "B11": 13.6,
+    "B12": 488.7,
+    "B13": 32.5,
+    "B14": 12.9,
+    "B15": 2.3,
+    "B16": 6.0,
+    "B18": 29.3,
+    "B20": 32.8
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:09.424+00:00",
+   "cpu": 35.8,
+   "mem": 89.0,
+   "kernel_ms": 11.5,
+   "ages": {
+    "B1": 30.1,
+    "B2": 26.2,
+    "B4": 0.5,
+    "B8": 23.5,
+    "B9": 12.3,
+    "B11": 33.7,
+    "B12": 242.4,
+    "B13": 20.3,
+    "B14": 60.3,
+    "B15": 65.7,
+    "B16": 60.2,
+    "B18": 14.1,
+    "B20": 20.6
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:11.449+00:00",
+   "cpu": 42.7,
+   "mem": 88.0,
+   "kernel_ms": 24.6,
+   "ages": {
+    "B1": 34.3,
+    "B2": 4.4,
+    "B4": 36.7,
+    "B8": 26.6,
+    "B9": 45.8,
+    "B11": 4.8,
+    "B12": 279.6,
+    "B13": 26.0,
+    "B14": 5.7,
+    "B15": 3.3,
+    "B16": 27.0,
+    "B18": 18.3,
+    "B20": 24.1
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:13.480+00:00",
+   "cpu": 38.0,
+   "mem": 87.8,
+   "kernel_ms": 23.6,
+   "ages": {
+    "B1": 60.4,
+    "B2": 2.4,
+    "B4": 65.8,
+    "B8": 56.9,
+    "B9": 9.3,
+    "B11": 8.6,
+    "B12": 7.5,
+    "B13": 153.0,
+    "B14": 36.3,
+    "B15": 128.5,
+    "B16": 17.8,
+    "B18": 40.9,
+    "B20": 55.3
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:16.287+00:00",
+   "cpu": 49.6,
+   "mem": 87.9,
+   "kernel_ms": 11.3,
+   "ages": {
+    "B1": 11.3,
+    "B2": 29.1,
+    "B4": 62.8,
+    "B8": 53.3,
+    "B9": 19.5,
+    "B11": 39.7,
+    "B12": 106.3,
+    "B13": 51.9,
+    "B14": 32.4,
+    "B15": 33.2,
+    "B16": 19.8,
+    "B18": 42.8,
+    "B20": 50.3
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:18.313+00:00",
+   "cpu": 37.3,
+   "mem": 87.8,
+   "kernel_ms": 10.3,
+   "ages": {
+    "B1": 34.7,
+    "B2": 21.8,
+    "B4": 16.7,
+    "B8": 10.5,
+    "B9": 44.7,
+    "B11": 31.6,
+    "B12": 130.1,
+    "B13": 26.1,
+    "B14": 53.9,
+    "B15": 43.5,
+    "B16": 44.3,
+    "B18": 68.0,
+    "B20": 8.8
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:20.336+00:00",
+   "cpu": 33.9,
+   "mem": 87.6,
+   "kernel_ms": 169.2,
+   "ages": {
+    "B1": 763.9,
+    "B2": 768.0,
+    "B4": 764.9,
+    "B8": 758.4,
+    "B9": 10.6,
+    "B11": 738.5,
+    "B12": 745.8,
+    "B13": 752.7,
+    "B14": 737.1,
+    "B15": 727.3,
+    "B16": 741.1,
+    "B18": 744.0,
+    "B20": 753.4
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:22.506+00:00",
+   "cpu": 33.6,
+   "mem": 87.7,
+   "kernel_ms": 11.3,
+   "ages": {
+    "B1": 66.3,
+    "B2": 18.9,
+    "B4": 9.4,
+    "B8": 2.4,
+    "B9": 38.2,
+    "B11": 25.7,
+    "B12": 24.7,
+    "B13": 18.0,
+    "B14": 48.8,
+    "B15": 44.7,
+    "B16": 36.4,
+    "B18": 10.9,
+    "B20": 69.6
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:24.520+00:00",
+   "cpu": 50.5,
+   "mem": 87.9,
+   "kernel_ms": 21.2,
+   "ages": {
+    "B1": 1.0,
+    "B2": 10.6,
+    "B4": 2.1,
+    "B8": 26.7,
+    "B9": 9.1,
+    "B11": 45.3,
+    "B12": 43.9,
+    "B13": 39.3,
+    "B14": 2.5,
+    "B15": 67.4,
+    "B16": 50.5,
+    "B18": 35.9,
+    "B20": 18.4
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:26.552+00:00",
+   "cpu": 56.2,
+   "mem": 89.4,
+   "kernel_ms": 15.1,
+   "ages": {
+    "B1": 25.4,
+    "B2": 26.6,
+    "B4": 26.9,
+    "B8": 19.2,
+    "B9": 32.7,
+    "B11": 20.4,
+    "B12": 71.3,
+    "B13": 12.7,
+    "B14": 31.6,
+    "B15": 16.8,
+    "B16": 13.1,
+    "B18": 52.2,
+    "B20": 13.1
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:28.569+00:00",
+   "cpu": 73.0,
+   "mem": 89.7,
+   "kernel_ms": 13.3,
+   "ages": {
+    "B1": 40.2,
+    "B2": 46.7,
+    "B4": 44.3,
+    "B8": 33.4,
+    "B9": 40.1,
+    "B11": 26.2,
+    "B12": 88.8,
+    "B13": 30.9,
+    "B14": 13.7,
+    "B15": 36.8,
+    "B16": 48.8,
+    "B18": 24.3,
+    "B20": 26.2
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:30.594+00:00",
+   "cpu": 58.2,
+   "mem": 89.7,
+   "kernel_ms": 12.5,
+   "ages": {
+    "B1": 63.2,
+    "B2": 70.9,
+    "B4": 74.6,
+    "B8": 57.5,
+    "B9": 24.2,
+    "B11": 58.1,
+    "B12": 141.4,
+    "B13": 55.7,
+    "B14": 37.2,
+    "B15": 32.0,
+    "B16": 22.9,
+    "B18": 51.8,
+    "B20": 45.6
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:32.614+00:00",
+   "cpu": 36.0,
+   "mem": 88.7,
+   "kernel_ms": 10.7,
+   "ages": {
+    "B1": 14.6,
+    "B2": 11.1,
+    "B4": 16.0,
+    "B8": 26.3,
+    "B9": 15.5,
+    "B11": 25.7,
+    "B12": 65.4,
+    "B13": 73.4,
+    "B14": 54.6,
+    "B15": 129.9,
+    "B16": 41.2,
+    "B18": 16.6,
+    "B20": 67.0
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:34.627+00:00",
+   "cpu": 49.2,
+   "mem": 88.7,
+   "kernel_ms": 13.7,
+   "ages": {
+    "B1": 31.5,
+    "B2": 36.8,
+    "B4": 0.3,
+    "B8": 42.9,
+    "B9": 9.2,
+    "B11": 43.0,
+    "B12": 46.7,
+    "B13": 21.4,
+    "B14": 4.3,
+    "B15": 18.3,
+    "B16": 58.8,
+    "B18": 18.8,
+    "B20": 16.1
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:36.645+00:00",
+   "cpu": 81.4,
+   "mem": 88.6,
+   "kernel_ms": 12.2,
+   "ages": {
+    "B1": 32.3,
+    "B2": 42.9,
+    "B4": 15.9,
+    "B8": 7.0,
+    "B9": 22.6,
+    "B11": 57.4,
+    "B12": 62.1,
+    "B13": 3.2,
+    "B14": 19.3,
+    "B15": 33.5,
+    "B16": 22.8,
+    "B18": 6.8,
+    "B20": 7.8
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:38.664+00:00",
+   "cpu": 63.1,
+   "mem": 88.3,
+   "kernel_ms": 26.2,
+   "ages": {
+    "B1": 22.4,
+    "B2": 21.9,
+    "B4": 19.4,
+    "B8": 39.9,
+    "B9": 59.3,
+    "B11": 26.6,
+    "B12": 29.6,
+    "B13": 43.5,
+    "B14": 21.1,
+    "B15": 13.4,
+    "B16": 11.7,
+    "B18": 34.2,
+    "B20": 43.1
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:40.704+00:00",
+   "cpu": 67.5,
+   "mem": 87.0,
+   "kernel_ms": 26.1,
+   "ages": {
+    "B1": 10.8,
+    "B2": 28.2,
+    "B4": 15.8,
+    "B8": 15.2,
+    "B9": 21.0,
+    "B11": 21.6,
+    "B12": 21.1,
+    "B13": 17.1,
+    "B14": 60.7,
+    "B15": 55.3,
+    "B16": 48.1,
+    "B18": 6.1,
+    "B20": 14.0
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:42.732+00:00",
+   "cpu": 48.5,
+   "mem": 87.2,
+   "kernel_ms": 10.9,
+   "ages": {
+    "B1": 47.9,
+    "B2": 39.5,
+    "B4": 21.9,
+    "B8": 45.0,
+    "B9": 7.6,
+    "B11": 39.4,
+    "B12": 47.9,
+    "B13": 24.1,
+    "B14": 3.4,
+    "B15": 1.1,
+    "B16": 62.9,
+    "B18": 18.0,
+    "B20": 23.1
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:44.755+00:00",
+   "cpu": 34.4,
+   "mem": 87.2,
+   "kernel_ms": 12.0,
+   "ages": {
+    "B1": 35.6,
+    "B2": 64.3,
+    "B4": 46.7,
+    "B8": 14.9,
+    "B9": 32.2,
+    "B11": 14.4,
+    "B12": 65.8,
+    "B13": 29.1,
+    "B14": 29.4,
+    "B15": 22.9,
+    "B16": 14.0,
+    "B18": 0.1,
+    "B20": 8.3
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:46.771+00:00",
+   "cpu": 35.3,
+   "mem": 87.2,
+   "kernel_ms": 10.9,
+   "ages": {
+    "B1": 37.2,
+    "B2": 13.1,
+    "B4": 49.8,
+    "B8": 24.9,
+    "B9": 37.9,
+    "B11": 19.6,
+    "B12": 23.4,
+    "B13": 26.9,
+    "B14": 11.7,
+    "B15": 38.8,
+    "B16": 35.9,
+    "B18": 23.9,
+    "B20": 23.9
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:48.793+00:00",
+   "cpu": 42.8,
+   "mem": 87.6,
+   "kernel_ms": 11.0,
+   "ages": {
+    "B1": 29.8,
+    "B2": 41.4,
+    "B4": 62.3,
+    "B8": 6.2,
+    "B9": 37.4,
+    "B11": 9.6,
+    "B12": 12.2,
+    "B13": 52.0,
+    "B14": 30.5,
+    "B15": 1.9,
+    "B16": 21.4,
+    "B18": 42.8,
+    "B20": 44.6
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:50.813+00:00",
+   "cpu": 73.0,
+   "mem": 87.6,
+   "kernel_ms": 14.0,
+   "ages": {
+    "B1": 38.5,
+    "B2": 42.1,
+    "B4": 44.8,
+    "B8": 12.3,
+    "B9": 29.9,
+    "B11": 35.6,
+    "B12": 29.8,
+    "B13": 27.0,
+    "B14": 56.4,
+    "B15": 52.6,
+    "B16": 43.1,
+    "B18": 68.7,
+    "B20": 77.9
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:52.840+00:00",
+   "cpu": 39.4,
+   "mem": 87.7,
+   "kernel_ms": 14.9,
+   "ages": {
+    "B1": 3.3,
+    "B2": 40.9,
+    "B4": 10.6,
+    "B8": 2.7,
+    "B9": 16.1,
+    "B11": 55.7,
+    "B12": 12.2,
+    "B13": 29.6,
+    "B14": 15.9,
+    "B15": 10.0,
+    "B16": 66.4,
+    "B18": 3.2,
+    "B20": 6.9
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:54.859+00:00",
+   "cpu": 43.4,
+   "mem": 87.6,
+   "kernel_ms": 329.8,
+   "ages": {
+    "B1": 983.5,
+    "B2": 981.4,
+    "B4": 14.2,
+    "B8": 973.8,
+    "B9": 953.8,
+    "B11": 994.2,
+    "B12": 996.2,
+    "B13": 967.9,
+    "B14": 1018.2,
+    "B15": 1013.0,
+    "B16": 997.2,
+    "B18": 964.3,
+    "B20": 970.6
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:57.199+00:00",
+   "cpu": 43.4,
+   "mem": 87.5,
+   "kernel_ms": 15.2,
+   "ages": {
+    "B1": 3.5,
+    "B2": 7.4,
+    "B4": 4.5,
+    "B8": 65.5,
+    "B9": 13.9,
+    "B11": 9.8,
+    "B12": 10.6,
+    "B13": 58.9,
+    "B14": 41.8,
+    "B15": 35.4,
+    "B16": 28.3,
+    "B18": 58.0,
+    "B20": 63.6
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:08:59.221+00:00",
+   "cpu": 51.7,
+   "mem": 87.6,
+   "kernel_ms": 24.0,
+   "ages": {
+    "B1": 31.2,
+    "B2": 34.1,
+    "B4": 3.0,
+    "B8": 25.7,
+    "B9": 9.9,
+    "B11": 45.2,
+    "B12": 49.8,
+    "B13": 15.9,
+    "B14": 6.6,
+    "B15": 65.9,
+    "B16": 55.3,
+    "B18": 16.3,
+    "B20": 23.6
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  },
+  {
+   "at": "2026-11-05T02:09:01.257+00:00",
+   "cpu": 51.6,
+   "mem": 87.3,
+   "kernel_ms": 10.9,
+   "ages": {
+    "B1": 22.6,
+    "B2": 52.4,
+    "B4": 28.2,
+    "B8": 16.3,
+    "B9": 32.2,
+    "B11": 59.4,
+    "B12": 5.3,
+    "B13": 16.9,
+    "B14": 29.0,
+    "B15": 11.0,
+    "B16": 19.3,
+    "B18": 9.3,
+    "B20": 12.8
+   },
+   "delivery": {
+    "B1": "flowing",
+    "B2": "flowing",
+    "B4": "flowing",
+    "B8": "flowing",
+    "B9": "flowing",
+    "B11": "flowing",
+    "B12": "flowing",
+    "B13": "flowing",
+    "B14": "flowing",
+    "B15": "flowing",
+    "B16": "flowing",
+    "B18": "flowing",
+    "B20": "flowing"
+   },
+   "other_receivers_live": 6
+  }
+ ]
+}

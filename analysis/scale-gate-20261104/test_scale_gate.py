@@ -149,3 +149,33 @@ def test_summary_p95():
     s = g.summary(list(range(1, 101)))
     assert s['median'] == 50.5 and s['p95'] == 95 and s['max'] == 100
     assert g.summary([None]) == {'n': 0}
+
+
+class FrameKernel:
+    """Serves frames: the dot appears at target only after `lands_after` polls of that phone."""
+    def __init__(self, lands_after):
+        self.lands_after, self.polls, self.order = lands_after, {}, []
+
+    def shot(self, slot):
+        import time
+        self.polls[slot] = self.polls.get(slot, 0) + 1
+        self.order.append(slot)
+        dots = [(250, 540)] if self.polls[slot] > self.lands_after[slot] else []
+        t = time.perf_counter()
+        return dict(gray=frame(dots), raw=b'', seq=self.polls[slot], age_ms=0.0, t=t, arrival=t)
+
+
+def test_sweep_round_robin_and_settled_landing(tmp_path):
+    import time
+    run = g.Run.__new__(g.Run)
+    run.k = FrameKernel({'B1': 0, 'B2': 3})
+    run.noise = {'B1': quiet(), 'B2': quiet()}
+    run.rng = __import__('random').Random(1)
+    prev = {s: dict(gray=frame()) for s in ('B1', 'B2')}
+    now = time.perf_counter()
+    out = run.sweep(['B1', 'B2'], now, now - 1.0, (250, 540), prev, budget_s=2.0)
+    # B2 is polled between B1's polls: neither waits on the other
+    assert run.k.order[:2] in (['B1', 'B2'], ['B2', 'B1'])
+    first, settled, _, polls = out['B2']
+    assert first and settled and settled[1] and polls == 4
+    assert out['B1'][0] and out['B1'][3] == 1
