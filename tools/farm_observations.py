@@ -271,7 +271,8 @@ def classify(text, expected, frame=None):
         handles.extend(re.findall(r'(?<![\w.])@([A-Za-z0-9_.-]{1,50})(?![\w.])', line))
         if app == 'instagram' and state == 'profile' and re.fullmatch(r'[A-Za-z0-9_.]{1,30} [v⌄˅]', line):
             line = line[:-2]   # The header's account switcher chevron, read as a letter (A14, 5 Nov).
-        if app == 'instagram' and re.fullmatch(r'[A-Za-z0-9_.]{1,30}', line) and '.' in line:
+        # An Instagram username never ends with a period; the avatar's 'Note...' bubble does (A12, 5 Nov).
+        if app == 'instagram' and re.fullmatch(r'[A-Za-z0-9_.]{1,30}', line) and '.' in line and not line.endswith('.'):
             handles.append(line)
         elif app == 'instagram' and line.casefold() == expected['account'].casefold():
             handles.append(line)

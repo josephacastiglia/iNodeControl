@@ -260,6 +260,11 @@ class InstagramNewAccountProfileTests(unittest.TestCase):
                 self.assertFalse(instagram_new_account_profile(_profile(*lines)))
                 self.assertNotEqual('profile', classify(_profile(*lines), dict(platform='instagram', account='demo.account', caption=''))['screen'])
 
+    def test_the_note_bubble_is_not_a_handle(self):
+        text = _profile(('Note...', 35, 130, 43), *NEW_PROFILE)
+        result = classify(text, dict(platform='instagram', account='demo.account', caption=''))
+        self.assertEqual(('exact_text_match', ['demo.account']), (result['accountStatus'], result['observedHandles']))
+
     def test_chevron_only_dropped_on_a_profile(self):
         text = _profile(('demo.account v', 172, 78, 156), ('Search', 30, 500, 80))
         self.assertEqual('not_visible', classify(text, dict(platform='instagram', account='demo.account', caption=''))['accountStatus'])
