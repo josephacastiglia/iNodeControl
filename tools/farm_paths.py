@@ -55,6 +55,16 @@ def source_option(argv, default, flag='--source'):
     return Path(default)
 
 
+def account_label(key='v1CandidateAccount'):
+    """An account label kept in per-machine private data, never in code, Git or a package:
+    <evidence archive>/privacy/farm-accounts.json. '' when this machine has none (a check against it then fails)."""
+    import json
+    try:
+        return str(json.loads((ARCHIVE / 'privacy' / 'farm-accounts.json').read_text(encoding='utf-8'))[key])
+    except (OSError, ValueError, KeyError):
+        return ''
+
+
 def machine_config():
     """Installed: <data>/machine.json (per-machine settings the operator writes once); {} in a checkout or when absent."""
     if not DATA:

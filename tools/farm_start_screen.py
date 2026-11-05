@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from farm_carousel_inspection import InspectionStopped  # noqa: E402
 from farm_draft_transport import CreationKernel, allowed_tap  # noqa: E402
 from farm_observations import WindowsOcr, classify  # noqa: E402
+from farm_paths import account_label  # noqa: E402
 from farm_creation_layout import control, require  # noqa: E402
 from farm_draft_runs import phone_of  # noqa: E402
 from farm_phone_identity import own_receiver  # noqa: E402
@@ -184,7 +185,7 @@ class StartScreen:
         raise InspectionStopped(f'The {role} screen did not settle; no further input.')
 
     def instagram_profile(self, raw, text):
-        result = classify(text, dict(platform='instagram', account='xs.halle.xo', caption=''), raw)
+        result = classify(text, dict(platform='instagram', account=account_label(), caption=''), raw)  # private data, not code
         return result['screen'] == 'profile' and result['accountStatus'] == 'exact_text_match', result
 
     def control_center(self, text):

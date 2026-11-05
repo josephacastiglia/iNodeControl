@@ -377,6 +377,9 @@ def privacy_tokens(archive=None):
             [h.lstrip('@') for h in lines(handles) if len(h.lstrip('@')) >= 4])
 
 
+OCR_HANDLES = '20261019-farm-x-offline/ocr-20261017/31-x-account__after.json'
+
+
 def account_labels(archive=None):
     """Account labels kept in per-machine private data (<archive>/privacy/farm-accounts.json). Values never printed."""
     if archive is None:
@@ -385,12 +388,20 @@ def account_labels(archive=None):
             from farm_paths import ARCHIVE as archive  # noqa: N811
         except Exception:
             return []
-    path = Path(archive) / 'privacy' / 'farm-accounts.json'
+    labels = []
     try:
-        values = json.loads(path.read_text(encoding='utf-8'))
+        values = json.loads((Path(archive) / 'privacy' / 'farm-accounts.json').read_text(encoding='utf-8'))
+        labels += [v for k, v in values.items() if k != 'note' and isinstance(v, str) and len(v) >= 4]
     except (OSError, ValueError):
-        return []
-    return [v for k, v in values.items() if k != 'note' and isinstance(v, str) and len(v) >= 4]
+        pass
+    # The X handles privacy_scan_staged.py reads from the retained 17 Oct side-menu OCR. A package ships none,
+    # including the one the commit scan exempts because older code named it.
+    try:
+        ocr = json.loads((Path(archive) / OCR_HANDLES).read_text(encoding='utf-8'))
+        labels += sorted({m.group(1) for line in ocr['lines'] for m in re.finditer(r'@([A-Za-z0-9_.]{4,30})', line['text'])})
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    return labels
 
 
 def git_identity(repo):
@@ -431,6 +442,9 @@ def plan(repo, kernel, console, receiver_exe, receiver_runtime):
     for name in ('Preflight-Farm.ps1', 'Farm.ps1'):
         copies[f'install/{name}'] = here / 'release' / name
     copies['Install-Farm.ps1'] = here / 'release' / 'Install-Farm.ps1'
+    guide = repo / 'docs' / 'INSTALL-FARM.md'
+    if guide.is_file():
+        copies['INSTALL-FARM.md'] = guide  # the operator's one-page guide, at the package root
     for name in copies:
         safe_name(name)
         if is_private(name) and not name.startswith('receiver/runtime/'):
@@ -440,9 +454,11 @@ def plan(repo, kernel, console, receiver_exe, receiver_runtime):
     return copies
 
 
-def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=None, make_zip=False, tokens=None, now=None, accounts=None):
-    """accounts: account labels from private data; packaged files still naming one are listed in the
-    manifest's 'account_labels_in' for review (not refused while a lane's file still names one)."""
+def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=None, make_zip=False, tokens=None, now=None,
+          accounts=None, strict_privacy=True):
+    """accounts: account handles from private data (farm-accounts.json and the retained X OCR). With
+    strict_privacy (the default) a packaged file naming one refuses the build; without, it is only listed
+    in the manifest's 'account_labels_in' for review."""
     repo, out = Path(repo).resolve(), Path(out).resolve()
     if out.exists():
         raise ValueError('output already exists; packages are never overwritten')
@@ -464,6 +480,8 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
     labels = [a.casefold() for a in (accounts or ())]
     account_hits = sorted(n for n, src in copies.items() if labels and not n.startswith('receiver/') and Path(src).suffix.lower() in TEXT_SUFFIXES
                           and any(a in Path(src).read_text(encoding='utf-8', errors='replace').casefold() for a in labels))
+    if account_hits and strict_privacy:
+        raise ValueError('an account handle from private data is in: ' + ', '.join(account_hits) + ' (values not printed)')
     frameworks = {c: _framework_check(c, copies[f'{c}/{n}']) for c, n in
                   (('kernel', 'iMouse2.Kernel.runtimeconfig.json'), ('console', 'iMouse2.runtimeconfig.json'))}
     pins = _requirements(copies['farm/tools/requirements-farm.txt'])
@@ -519,7 +537,7 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
         raise ValueError('package failed its own verification: ' + '; '.join(issues))
     os.replace(partial, out)  # the complete package appears in one step
     if make_zip:
-        archive = out.with_suffix('.zip')
+        archive = out.with_name(out.name + '.zip')  # not with_suffix: versions hold dots (farm-2026.11.05-x)
         with zipfile.ZipFile(archive, 'x', zipfile.ZIP_DEFLATED) as z:
             for p in sorted(out.rglob('*')):
                 if p.is_file():
@@ -588,6 +606,8 @@ def main(argv=None):
     b.add_argument('--version')
     b.add_argument('--zip', action='store_true')
     b.add_argument('--no-privacy-lists', action='store_true', help='skip the evidence-archive withheld list (CI/synthetic)')
+    b.add_argument('--no-strict-privacy', dest='strict_privacy', action='store_false',
+                   help='list packaged files naming an account handle instead of refusing (review builds only)')
     v = sub.add_parser('verify')
     v.add_argument('--package', type=Path, required=True)
     li = sub.add_parser('lint')
@@ -617,7 +637,7 @@ def main(argv=None):
             print('Refused: the withheld-value list was not found; pass --no-privacy-lists only for synthetic builds.')
             return 2
         m = build(args.repo, args.out, args.kernel, args.console, args.receiver_exe, args.receiver_runtime, args.version, args.zip, tokens,
-                  accounts=None if args.no_privacy_lists else account_labels())
+                  accounts=None if args.no_privacy_lists else account_labels(), strict_privacy=args.strict_privacy)
         print(f"Built {m['version']}: {len(m['files'])} files; dev-path blockers {m['dev_path_findings']['blockers']}. Nothing was started.")
         if m['account_labels_in']:
             print('REVIEW: an account label from private data is still in: ' + ', '.join(m['account_labels_in']))

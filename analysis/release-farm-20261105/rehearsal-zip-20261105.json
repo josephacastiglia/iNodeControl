@@ -1,0 +1,218 @@
+{
+ "utc": "2026-11-05T18:06:59.790059+00:00",
+ "source": {
+  "head": "406e13c710c8e505c2836bf026e252568d338490",
+  "tracked_changes": false
+ },
+ "passed": true,
+ "checks": {
+  "release zip extracts and verifies": true,
+  "release zip names no account handle": true,
+  "packages verify": true,
+  "installed farm_paths point at the data folder": true,
+  "dev folder not read (imports)": true,
+  "dev folder not read (self-check)": true,
+  "self-check passed": true,
+  "guard refused nothing": true,
+  "every launcher command ready (0 dev-path blockers)": true,
+  "installed Start-Multiphone refuses beside the single kernel, starts nothing": true,
+  "sandbox kernel (installed build) up with stand-in receivers": true,
+  "installed Restart-Receiver restarts one stand-in, record in the data folder": true,
+  "installed Release-Receiver starts the held stand-in": true,
+  "installed Stop-Multiphone stops the sandbox kernel": true,
+  "nothing of the sandbox remains": true,
+  "rack state written only in the data folder": true,
+  "update switched": true,
+  "B has its change": true,
+  "dev folder not read (B imports)": true,
+  "launcher follows the switch": true,
+  "rollback switched": true,
+  "launcher follows the rollback": true,
+  "tampered version refused": true,
+  "install root removed": true,
+  "data folder kept; its earlier files unchanged": true,
+  "package carries no private state": true
+ },
+ "steps": [
+  {
+   "step": "build",
+   "utc": "2026-11-05T18:06:14.969272+00:00",
+   "A": {
+    "files": 237,
+    "bytes": 182519393
+   },
+   "B": {
+    "files": 236
+   },
+   "privacy_lists_used": true,
+   "dev_path_blockers": {
+    "blockers": 0,
+    "total": 57
+   },
+   "ready": [
+    "server",
+    "server-self-check",
+    "schedule",
+    "start-rack",
+    "stop-rack",
+    "release-receiver",
+    "restart-receiver",
+    "start-window",
+    "stop-window",
+    "prepare-window",
+    "run-window",
+    "verify-window",
+    "console"
+   ],
+   "blocked": []
+  },
+  {
+   "step": "install A",
+   "utc": "2026-11-05T18:06:20.631365+00:00",
+   "installed": true,
+   "schema_version": 1,
+   "data_root": "<clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm",
+   "python": "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+   "created_utc": "2026-11-05T18:06:20.620358+00:00",
+   "version": "2026.11.05-406e13c",
+   "previous": null,
+   "versions": [
+    "2026.11.05-406e13c"
+   ],
+   "leftover_partials": []
+  },
+  {
+   "step": "import every installed farm module (guarded)",
+   "utc": "2026-11-05T18:06:21.625912+00:00",
+   "exit": 0,
+   "seconds": 1.0,
+   "import_errors": null,
+   "forbidden_opened": [],
+   "forbidden_modules": [],
+   "forbidden_sys_path": [],
+   "refused": [],
+   "opened_count": 1136
+  },
+  {
+   "step": "farm server --self-check from the install (guarded)",
+   "utc": "2026-11-05T18:06:23.578510+00:00",
+   "exit": 0,
+   "seconds": 2.0,
+   "stdout_tail": "Farm-9914] 127.0.0.1 - \"POST /api/farm/scan-profile-views HTTP/1.1\" 200 -\n[iMouse-Farm-9914] 127.0.0.1 - \"POST /api/farm/calibrate-box HTTP/1.1\" 200 -\nOK - Simulated routes and media checks passed on http://127.0.0.1:11178; unavailable observations refused. No live app, OCR or messaging acceptance.\n",
+   "stderr_tail": "",
+   "error": null,
+   "forbidden_opened": [],
+   "forbidden_modules": [],
+   "forbidden_sys_path": [],
+   "refused": [],
+   "opened_count": 570
+  },
+  {
+   "step": "farm_paths as installed (guarded)",
+   "utc": "2026-11-05T18:06:23.668783+00:00",
+   "stdout": "MAIN <clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm\nARCHIVE <clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm\\evidence-archive\nRACK <clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm\\analysis\\farm-multiphone-20261020\\slots",
+   "exit": 0
+  },
+  {
+   "step": "Farm.ps1 status",
+   "utc": "2026-11-05T18:06:23.953843+00:00",
+   "exit": 0,
+   "stdout": "version  : 2026.11.05-406e13c\nprevious : \ndata     : %USERPROFILE%\\AppData\\Local\\Temp\\claude\\7fc4fe8448877b7f\\6d36affb-bbcf-48bf-ba56-a74bad833e4a\\scratchpad\\re\n           hearsal12\\clean-pc\\LocalAppData\\iMouseFarm\npython   : %USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\nready    : server, server-self-check, schedule, start-rack, stop-rack, release-receiver, restart-receiver, \n           start-window, stop-window, prepare-window, run-window, verify-window, console\nblocked  :"
+  },
+  {
+   "step": "Farm.ps1 preflight (read-only)",
+   "utc": "2026-11-05T18:06:27.371638+00:00",
+   "exit": 0,
+   "seconds": 3.4,
+   "not_ok": [
+    [
+     "network-profile",
+     "warn"
+    ],
+    [
+     "ports",
+     "warn"
+    ]
+   ]
+  },
+  {
+   "step": "Farm.ps1 start-rack -Rack B (installed Start-Multiphone, state in the data folder)",
+   "utc": "2026-11-05T18:06:36.114886+00:00",
+   "exit": 1,
+   "tail": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : OperationStopped: (Nothing was sto...1, 7972, 9956]}:String) [], RuntimeException\n    + FullyQualifiedErrorId : Nothing was stopped or started: {\"ok\": false, \"reasons\": [\"The single kernel (35232) is  \n   running; it already serves both racks.\"], \"ports\": [7950, 7951, 7952, 7960, 7961, 7962, 7970, 7971, 7972, 9956]}"
+  },
+  {
+   "step": "Farm.ps1 restart-receiver -Rack B -Board 0F11 (installed Restart-Receiver)",
+   "utc": "2026-11-05T18:06:40.816482+00:00",
+   "exit": 0,
+   "record": {
+    "code": 0,
+    "withdrawn": true,
+    "generation_after": 2,
+    "others_changed": [],
+    "state": "mirroring"
+   },
+   "tail": ""
+  },
+  {
+   "step": "Farm.ps1 stop-rack -Rack B (installed Stop-Multiphone)",
+   "utc": "2026-11-05T18:06:48.759608+00:00",
+   "exit": 0,
+   "tail": "e: 35780 powershell.exe, 37180 iMouse2.Kernel.exe\n13:06:43.825 PID 37180 exited; children still running: none\n{\"withdrawn\": [\"iMouse2-Y1\", \"iMouse2-Y2\", \"iMouse2-Y3\"], \"interfaces\": [\"192.168.110.1\", \"192.168.139.1\", \"192.168.4.26\"]}\nStopped rack B: none of its kernel, receivers or listeners remain."
+  },
+  {
+   "step": "sandbox rack state",
+   "utc": "2026-11-05T18:06:51.400758+00:00",
+   "data_rack_b": [
+    "preparation.json",
+    "processes-stopped-20261105T180648Z.json",
+    "releases.jsonl",
+    "restarts.jsonl"
+   ],
+   "install_issues": []
+  },
+  {
+   "step": "update to B",
+   "utc": "2026-11-05T18:06:56.934007+00:00",
+   "installed": true,
+   "schema_version": 1,
+   "data_root": "<clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm",
+   "python": "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+   "created_utc": "2026-11-05T18:06:20.620358+00:00",
+   "version": "rehearsal-b",
+   "previous": "2026.11.05-406e13c",
+   "versions": [
+    "2026.11.05-406e13c",
+    "rehearsal-b"
+   ],
+   "leftover_partials": []
+  },
+  {
+   "step": "roll back to A",
+   "utc": "2026-11-05T18:06:58.414948+00:00",
+   "installed": true,
+   "schema_version": 1,
+   "data_root": "<clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm",
+   "python": "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+   "created_utc": "2026-11-05T18:06:20.620358+00:00",
+   "version": "2026.11.05-406e13c",
+   "previous": "rehearsal-b",
+   "versions": [
+    "2026.11.05-406e13c",
+    "rehearsal-b"
+   ],
+   "leftover_partials": []
+  },
+  {
+   "step": "roll back to a tampered B (must refuse)",
+   "utc": "2026-11-05T18:06:59.333984+00:00",
+   "refused": "rehearsal-b failed verification: changed: farm/tools/farm_jobs.py"
+  },
+  {
+   "step": "uninstall",
+   "utc": "2026-11-05T18:06:59.781055+00:00",
+   "removed": "<clean-pc-tree>\\clean-pc\\LocalAppData\\Programs\\iMouseFarm",
+   "data_kept": "<clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm"
+  }
+ ]
+}

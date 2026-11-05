@@ -138,6 +138,15 @@ class Build(Base):
         self.assertTrue(manifest['commands']['server']['ready'])
         self.assertFalse(out.with_name(out.name + '.partial').exists())
 
+    def test_zip_is_named_after_the_whole_folder_and_holds_the_package(self):
+        import zipfile
+        manifest, out, _ = build_package(self.base, version='2026.11.05-abc', out=self.base / 'packages/farm-2026.11.05-abc', make_zip=True)
+        archive = self.base / 'packages/farm-2026.11.05-abc.zip'
+        self.assertTrue(archive.is_file(), sorted(p.name for p in archive.parent.iterdir()))
+        with zipfile.ZipFile(archive) as z:
+            self.assertIsNone(z.testzip())
+            self.assertEqual(set(z.namelist()), set(manifest['files']) | {'release.json'})
+
     def test_existing_output_and_checkout_output_rules(self):
         _, out, repo = build_package(self.base)
         kernel, console, receiver, runtime = make_builds(self.base / 'again')
@@ -159,10 +168,13 @@ class Build(Base):
         with self.assertRaisesRegex(ValueError, 'withheld value'):
             build_package(self.base, repo=repo, tokens=['WithheldValue1234'])
 
-    def test_account_labels_are_listed_for_review(self):
+    def test_account_handles_refuse_the_build_unless_review_only(self):
         repo = make_repo(self.base)
         (repo / 'tools/farm_lane_runs.py').write_text('START = "on @somelabel\'s profile"\n', encoding='utf-8')
-        manifest, _, _ = build_package(self.base, repo=repo, accounts=['SomeLabel'])
+        with self.assertRaisesRegex(ValueError, 'account handle .* farm/tools/farm_lane_runs.py'):
+            build_package(self.base, repo=repo, accounts=['SomeLabel'])
+        self.assertFalse((self.base / 'packages').exists(), 'nothing is written before the refusal')
+        manifest, _, _ = build_package(self.base / 'review', repo=repo, accounts=['SomeLabel'], strict_privacy=False)
         self.assertEqual(manifest['account_labels_in'], ['farm/tools/farm_lane_runs.py'])
         manifest, _, _ = build_package(self.base / 'clean', accounts=['SomeLabel'])
         self.assertEqual(manifest['account_labels_in'], [])

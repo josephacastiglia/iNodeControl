@@ -236,7 +236,7 @@ def sandbox_rack(root, data, scratch, env, launcher, step, checks):
     checks['rack state written only in the data folder'] = bool(stopped) and not issues
 
 
-def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=False):
+def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=False, package_zip=None):
     below_normal()
     work = Path(work)
     pc = work / 'clean-pc'
@@ -249,10 +249,26 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
         steps.append({'step': name, 'utc': datetime.now(timezone.utc).isoformat(), **value})
         return value
 
-    tokens = fr.privacy_tokens()
-    a = fr.build(REPO, packages / 'farm-A', kernel, console, receiver_exe, receiver_runtime, version='rehearsal-a', tokens=tokens or ())
+    tokens, accounts = fr.privacy_tokens(), fr.account_labels()
+    if package_zip:  # A = the real release zip, extracted as an operator would; never the tree
+        import zipfile
+        with zipfile.ZipFile(package_zip) as z:
+            bad = z.testzip()
+            if bad:
+                raise SystemExit(f'zip CRC failed: {bad}')
+            for name in z.namelist():
+                fr.safe_name(name)
+            z.extractall(packages / 'farm-A')
+        a = fr.load_json(packages / 'farm-A' / 'release.json')
+        checks['release zip extracts and verifies'] = not fr.verify(packages / 'farm-A')
+        checks['release zip names no account handle'] = not a.get('account_labels_in')
+    else:
+        a = fr.build(REPO, packages / 'farm-A', kernel, console, receiver_exe, receiver_runtime, version='rehearsal-a',
+                     tokens=tokens or (), accounts=accounts)
+    va = a['version']
     b_src = copy_sources(work / 'source-copy-B')
-    b = fr.build(b_src, packages / 'farm-B', kernel, console, receiver_exe, receiver_runtime, version='rehearsal-b', tokens=tokens or ())
+    b = fr.build(b_src, packages / 'farm-B', kernel, console, receiver_exe, receiver_runtime, version='rehearsal-b',
+                 tokens=tokens or (), accounts=accounts)
     step('build', {'A': {'files': len(a['files']), 'bytes': sum(r['bytes'] for r in a['files'].values())},
                    'B': {'files': len(b['files'])}, 'privacy_lists_used': tokens is not None,
                    'dev_path_blockers': a['dev_path_findings'], 'ready': [c for c, s in a['commands'].items() if s['ready']],
@@ -268,12 +284,12 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
     data_before = {p.relative_to(data).as_posix(): fr.sha256(p) for p in data.rglob('*') if p.is_file() and p.name != 'data.json'}
 
     step('install A', fi.install(packages / 'farm-A', root, data, python=sys.executable))
-    version_a = root / 'versions/rehearsal-a'
+    version_a = root / 'versions' / va
     guard = scratch / 'runtime_guard.py'
     shutil.copyfile(HERE / 'release/runtime_guard.py', guard)
     dev = REPO.parent.parent if REPO.parent.name.endswith('.worktrees') else REPO.parent  # ...\Desktop\Claude Code
 
-    env_a = farm_env(root, 'rehearsal-a', data, sys.executable)  # what Farm.ps1 sets for a command of version A
+    env_a = farm_env(root, va, data, sys.executable)  # what Farm.ps1 sets for a command of version A
     imports = guarded(sys.executable, guard, dev, scratch / 'imports-A.json', cwd=data, import_all=version_a / 'farm/tools', env=env_a)
     step('import every installed farm module (guarded)', {k: imports[k] for k in ('exit', 'seconds')} | {
         k: imports['report'].get(k) for k in ('imported', 'import_errors', 'forbidden_opened', 'forbidden_modules', 'forbidden_sys_path', 'refused', 'opened_count')})
@@ -309,7 +325,7 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
         sandbox_rack(root, data, scratch, env_a, launcher, step, checks)
 
     step('update to B', fi.update(packages / 'farm-B', root))
-    checks['update switched'] = fi.status(root)['version'] == 'rehearsal-b' and fi.status(root)['previous'] == 'rehearsal-a'
+    checks['update switched'] = fi.status(root)['version'] == 'rehearsal-b' and fi.status(root)['previous'] == va
     checks['B has its change'] = 'rehearsal B' in (root / 'versions/rehearsal-b/farm/tools/mdns_goodbye.py').read_text(encoding='utf-8')
     imports_b = guarded(sys.executable, guard, dev, scratch / 'imports-B.json', cwd=data, import_all=root / 'versions/rehearsal-b/farm/tools',
                         env=farm_env(root, 'rehearsal-b', data, sys.executable))
@@ -319,8 +335,8 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
 
     (version_a / 'console/startup-state.json').write_text('{"written by": "the console beside itself"}', encoding='utf-8')
     step('roll back to A', fi.rollback(root))
-    checks['rollback switched'] = fi.status(root)['version'] == 'rehearsal-a' and fi.status(root)['previous'] == 'rehearsal-b'
-    checks['launcher follows the rollback'] = 'rehearsal-a' in powershell(launcher, 'status', cwd=scratch)['stdout']
+    checks['rollback switched'] = fi.status(root)['version'] == va and fi.status(root)['previous'] == 'rehearsal-b'
+    checks['launcher follows the rollback'] = va in powershell(launcher, 'status', cwd=scratch)['stdout']
 
     tampered = root / 'versions/rehearsal-b/farm/tools/farm_jobs.py'
     tampered.write_bytes(tampered.read_bytes() + b'\n# tampered\n')
@@ -329,13 +345,13 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
         checks['tampered version refused'] = False
     except fi.Refused as error:
         step('roll back to a tampered B (must refuse)', {'refused': str(error)[:200]})
-        checks['tampered version refused'] = fi.status(root)['version'] == 'rehearsal-a'
+        checks['tampered version refused'] = fi.status(root)['version'] == va
 
     state = fi.read_json(data / 'data.json')
     step('uninstall', fi.uninstall(root))
     checks['install root removed'] = not root.exists()
     checks['data folder kept; its earlier files unchanged'] = (
-        all((data / n).is_file() and fr.sha256(data / n) == h for n, h in data_before.items()) and state['last_version'] == 'rehearsal-a')
+        all((data / n).is_file() and fr.sha256(data / n) == h for n, h in data_before.items()) and state['last_version'] == va)
     checks['package carries no private state'] = not [n for n in a['files'] if fr.is_private(n) and not n.startswith('receiver/runtime/')]
     return {'utc': datetime.now(timezone.utc).isoformat(), 'source': a['source'], 'passed': all(checks.values()),
             'checks': checks, 'steps': steps}
@@ -356,13 +372,14 @@ def main(argv=None):
     parser.add_argument('--work', type=Path, help='a new folder (default: a new temporary folder)')
     parser.add_argument('--report', type=Path, help='write the JSON report here (default: output/release-rehearsal-<utc>.json)')
     parser.add_argument('--keep', action='store_true', help='keep the temporary tree for inspection')
+    parser.add_argument('--package-zip', type=Path, help='install version A from this release zip instead of building it from the tree')
     parser.add_argument('--sandbox-rack', action='store_true', help='also drive an off-rack kernel (port 9956, stand-in receivers) with the installed rack scripts')
     args = parser.parse_args(argv)
     work = Path(args.work) if args.work else Path(tempfile.mkdtemp(prefix='farm-clean-pc-'))
     if args.work:
         work.mkdir(parents=True, exist_ok=False)
     try:
-        result = rehearse(args.kernel, args.console, args.receiver_exe, args.receiver_runtime, work, args.sandbox_rack)
+        result = rehearse(args.kernel, args.console, args.receiver_exe, args.receiver_runtime, work, args.sandbox_rack, args.package_zip)
     finally:
         if not args.keep:
             shutil.rmtree(work, ignore_errors=True)

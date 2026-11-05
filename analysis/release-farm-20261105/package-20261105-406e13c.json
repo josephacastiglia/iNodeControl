@@ -1,0 +1,23 @@
+{
+ "zip": "farm-2026.11.05-406e13c.zip",
+ "sha256": "323f73e032ff60f87db33f18f7b1254e888861f3059541f11b72f9ba1b109595",
+ "bytes": 69587024,
+ "version": "2026.11.05-406e13c",
+ "source": {
+  "head": "406e13c710c8e505c2836bf026e252568d338490",
+  "tracked_changes": false
+ },
+ "files": 237,
+ "release_json_sha256": "ba46a9f24f3816427efa9cabd55d85eaac4d1e144f329c37ea73b7c3e44175cb",
+ "inputs": {
+  "kernel": "output/rack-kernel-20261104 (main folder; live build)",
+  "console": "built from 8b43548 (console source unchanged since)",
+  "receiver": "output/candidate-runs/farm-new-draft-20261019 receiver + runtime (main folder)"
+ },
+ "account_labels_in": [],
+ "dev_path_findings": {
+  "blockers": 0,
+  "total": 57
+ },
+ "note": "Integrity record, not a signature. The zip stays outside Git (over 50 MB)."
+}
