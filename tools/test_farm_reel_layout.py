@@ -153,6 +153,26 @@ class SyntheticReelLayoutTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): reel.page_menu(ocr(*base, ('Allow', 120, 600), ("Don't Allow", 260, 600)))
 
 
+class DetailsRowsTests(unittest.TestCase):
+    """Reel details rows: audio below location (22 Oct), or the 'Add link' row that pushed audio
+    under the button bar (4 Nov, slot 18). Word boxes as Windows OCR reported them on those frames."""
+    @staticmethod
+    def text(*words):
+        return {'width': 500, 'height': 1080, 'lines': [{'text': w, 'words': [{'text': w, 'x': x, 'y': y, 'width': 60, 'height': 20}]}
+                                                        for w, x, y in words]}
+
+    def test_old_layout_audio_below_location(self):
+        self.assertEqual('audio', reel.details_rows(self.text(('location', 100, 807), ('original', 345, 865))))
+
+    def test_new_layout_link_row_stands_in_for_hidden_audio(self):
+        self.assertEqual('link', reel.details_rows(self.text(('location', 100, 805), ('link', 105, 860), ('meta', 140, 886))))
+
+    def test_missing_or_misplaced_rows_stop(self):
+        for words in ([('location', 100, 805)], [('original', 345, 865)], [('location', 100, 805), ('link', 105, 900)],
+                      [('location', 100, 805), ('link', 105, 815)]):
+            with self.subTest(words), self.assertRaises(InspectionStopped): reel.details_rows(self.text(*words))
+
+
 @unittest.skipUnless(PRIVATE, 'Retained private C24C Reel frames/OCR are not available in this checkout.')
 class RetainedReelLayoutTests(unittest.TestCase):
     CAPTION = 'IMOUSE-VlDEO-DRAFT-TEST-20261017'   # Exact OCR form in the retained frames.
