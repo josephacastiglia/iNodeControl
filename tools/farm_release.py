@@ -442,6 +442,9 @@ def plan(repo, kernel, console, receiver_exe, receiver_runtime):
     for name in ('Preflight-Farm.ps1', 'Farm.ps1'):
         copies[f'install/{name}'] = here / 'release' / name
     copies['Install-Farm.ps1'] = here / 'release' / 'Install-Farm.ps1'
+    guide = repo / 'docs' / 'INSTALL-FARM.md'
+    if guide.is_file():
+        copies['INSTALL-FARM.md'] = guide  # the operator's one-page guide, at the package root
     for name in copies:
         safe_name(name)
         if is_private(name) and not name.startswith('receiver/runtime/'):
