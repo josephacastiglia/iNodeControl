@@ -65,6 +65,7 @@ def main(argv=None, out=sys.stdout):
     run.add_argument('--slots', type=int, default=1, help='at most this many slot runs')
     run.add_argument('--wait', type=int, default=0, help='minutes to wait for the next slot to come due')
     run.add_argument('--recheck', action='store_true', help='rerun only the read-only verifier once when creation saved but its check stopped')
+    run.add_argument('--no-rack-lock', action='store_true', help='do not take the rack-wide run lock (farm_paths.RUN_LOCK)')
     abandon = sub.add_parser('abandon', help='a run whose end was never recorded -> stopped, after your review')
     abandon.add_argument('id', type=package_id); abandon.add_argument('--reason', required=True)
     account = sub.add_parser('account', help='per-account daily cap, spacing, platform caps, warmup ramp')
@@ -116,7 +117,10 @@ def main(argv=None, out=sys.stdout):
             steps = runner.WindowSteps(args.queue.parent / 'windows')
             log = lambda line: (out.write(line + '\n'), out.flush())
             with runner.phone_lock(args.queue.parent / f'phone-{args.phone}.lock'):
-                records = runner.SlotRunner(queue, steps, args.phone, recheck=args.recheck, log=log).run(args.slots, args.wait * 60)
+                from farm_rack_lock import rack_run_lock
+                lock = None if args.no_rack_lock else (lambda holder: rack_run_lock(holder))
+                records = runner.SlotRunner(queue, steps, args.phone, recheck=args.recheck, log=log,
+                                            rack_lock=lock).run(args.slots, args.wait * 60)
             if args.json: return show(records) or 0
             if not records: out.write(f'No slot was due on phone {args.phone}.\n')
         elif args.command == 'abandon':

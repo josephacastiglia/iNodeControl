@@ -26,6 +26,9 @@ else:
     ARCHIVE = MAIN.parent / 'iMouseXP-2.0-evidence-archive'  # release-lint: dev-fallback
 STATE = MAIN / 'analysis' / 'farm-multiphone-20261020'
 RACK = STATE / 'slots'
+# One phone run on the rack at a time, for the runs that opt in (farm_rack_lock.py; the slot runner does):
+# heavy OCR from parallel runs aged decisions past the 1.5 s frame limit (4 Nov).
+RUN_LOCK = MAIN / 'output' / 'farm-state' / 'rack-run.lock'
 
 
 def rack_state(default):
