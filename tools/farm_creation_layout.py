@@ -289,12 +289,18 @@ def search_clear(frame):
         return [430,988,462,1022]
 
 
+# Queries iOS restores in the app search that a run may clear (recognized only; nothing is opened). YouTube and
+# TikTok joined on 5 Nov: on phones without their icon on Home pages 1-2 (A14) they open from the app search, so
+# the next search shows their query again (youtube-slot14 attempt 1 stopped there).
+RESTORED_QUERIES=('Safari','Instagram','YouTube','TikTok')
+
+
 def restored_app_search(text):
     exact(text,'Top Hit',(10,65,180,125))
-    for name in ('Safari','Instagram'):
+    for name in RESTORED_QUERIES:
         try:return dict(app=name,target=app_target(text,name))
         except InspectionStopped:pass
-    raise InspectionStopped('Only the known Safari/Instagram app-search result can be dismissed.')
+    raise InspectionStopped('Only a known Safari/Instagram/YouTube/TikTok app-search result can be dismissed.')
 
 
 SUGGESTION_LABELS=(10,200,490,236)   # The Siri Suggestions app label row in the empty app search.
