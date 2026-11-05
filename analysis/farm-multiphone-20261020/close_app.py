@@ -4,7 +4,9 @@ YouTube on slot 16 stayed on its reopened draft's 'Processing' overlay for over 
 ignored its back arrow (23 Oct). Closing the app leaves the saved draft in YouTube's Drafts; nothing
 is saved, discarded or posted. Steps: App Switcher (Fn+Up); a fresh frame must show the app's own
 name once in the card label row (the app last used is the front card, at the right); one swipe up
-on that card; a fresh frame must no longer show that name; Home. One lease, released at the end.
+on that card; a fresh frame must no longer show that name, and the card's own pixels must be gone from the
+switcher (card_gone); Home. A name or header word that is simply not read again proves nothing: closing is
+reported only on that positive evidence, otherwise the run stops as not proven. One lease, released at the end.
 
 The farm's creation transport allows only Home, Enter, Escape and bounded text, so the switcher key
 and the swipe go to the kernel directly under the same lease, as auto_connect.py sends ControlBar.
@@ -36,6 +38,37 @@ CARD_WORDS = {'X': (('for you', 280, (200, 300)), ('cancel', 280, (195, 235))),
               'TikTok': (('following', 80, (280, 345)),),
               # Instagram's profile card shows its note bubble 'Make this space yours' (slot 18, 25 Oct).
               'Instagram': (('make this', 80, (225, 300)),)}
+
+
+# A swiped card is gone when its pre-swipe pixels are found nowhere in the switcher at any horizontal offset
+# (cards slide sideways). Calibrated 5 Nov on every retained close: real closes scored .229-.438, swipes that
+# left the card untouched .001-.004, including A20's 4 Nov check 4, which was reported closed only because
+# TikTok's 'Following' was not read again.
+CARD_ROWS = (220, 700)
+CARD_PRESENT, CARD_GONE = .05, .15
+
+
+def card_gone(before, after, left, width=200):
+    """'gone', 'present' or 'unclear', with the best match (mean grey difference) and its horizontal offset."""
+    import io
+    import numpy as np
+    from PIL import Image
+    def grey(raw):
+        with Image.open(io.BytesIO(raw)) as image: return np.asarray(image.convert('L')).astype(float) / 255
+    b, a = grey(before), grey(after)
+    if b.shape != a.shape: return dict(verdict='unclear', score=None, offset=None)
+    top, bottom = CARD_ROWS
+    x0 = max(0, int(left)); x1 = min(b.shape[1], x0 + width)
+    if x1 - x0 < 40: return dict(verdict='unclear', score=None, offset=None)
+    crop = b[top:bottom, x0:x1]
+    best = None
+    for dx in range(-b.shape[1], b.shape[1] + 1, 4):
+        c0, c1 = max(0, x0 + dx), min(b.shape[1], x1 + dx)
+        if c1 - c0 < max(40, (x1 - x0) // 2): continue   # A thin edge sliver could match plain background.
+        score = float(np.abs(a[top:bottom, c0:c1] - crop[:, c0 - x0 - dx:c1 - x0 - dx]).mean())
+        if best is None or score < best[0]: best = (score, dx)
+    verdict = 'present' if best[0] < CARD_PRESENT else 'gone' if best[0] > CARD_GONE else 'unclear'
+    return dict(verdict=verdict, score=round(best[0], 4), offset=best[1])
 
 
 def status_bar(text):
@@ -92,14 +125,14 @@ def close(config, folder, app, purpose='close-stuck-app'):
     try:
         raw('/key/sendkey', 'open-app-switcher', fn_key='AppSwitch')
         s.pause(1.5)
-        _, text, _, _ = s.fresh('switcher')
+        raw_frame, text, _, _ = s.fresh('switcher')
         if not any(named(name, a.app) for name, _ in labels(text)) and not card_by_content(text, a.app):
             if status_bar(text):
                 # The switcher key was ignored and the app is still full screen with its status bar
                 # (slot 16, 25 Oct): the key, which only opens the switcher, is sent once more.
                 raw('/key/sendkey', 'open-app-switcher-again', fn_key='AppSwitch')
             s.pause(1.0)   # The switcher can still be sliding in (slot 20, 24 Oct); read once more.
-            _, text, _, _ = s.fresh('switcher-again')
+            raw_frame, text, _, _ = s.fresh('switcher-again')
         found = [x for name, x in labels(text) if named(name, a.app)]
         s.record['labels'] = [name for name, _ in labels(text)]
         if not found:
@@ -108,16 +141,26 @@ def close(config, folder, app, purpose='close-stuck-app'):
         # On slot 16 (26 Oct) about half the swipes left the switcher frame unchanged, the card untouched,
         # with or without a pointer reset first (switcher_probe.py swipe-1..4). An unchanged card is swiped
         # again, at most SWIPES times, each on the app's own card found again in a fresh frame.
+        evidence = s.record.setdefault('cardEvidence', [])
         for attempt in range(1, SWIPES + 1):
             x = max(60, min(440, found[0] + 45))   # The card's middle, right of its icon and name.
+            before, left = raw_frame, found[0]
             s.command('/mouse/reset', 'reset-before-swipe')
             raw('/mouse/swipe', 'close-' + a.app.casefold(), x1=x, y1=650, x2=x, y2=120, duration=250)
             s.pause(1.5)
-            _, text, _, _ = s.fresh(f'after-swipe-{attempt}')
+            raw_frame, text, _, _ = s.fresh(f'after-swipe-{attempt}')
             s.record['after'] = [name for name, _ in labels(text)]
             found = [x for name, x in labels(text) if named(name, a.app)] or card_by_content(text, a.app)
-            if not found: break
-            if len(found) != 1: raise InspectionStopped(f'{a.app} is not one switcher card after a swipe; no further input.')
+            pixels = card_gone(before, raw_frame, left)
+            evidence.append(dict(attempt=attempt, read=bool(found), **pixels)); s.save()
+            if len(found) > 1: raise InspectionStopped(f'{a.app} is not one switcher card after a swipe; no further input.')
+            if found: continue   # Its name or header is still read: the card is there.
+            if pixels['verdict'] == 'gone': break
+            if pixels['verdict'] == 'present':
+                # Not read again, but its pixels are still in the switcher (A20, 4 Nov check 4): swipe it again there.
+                found = [left + pixels['offset']]; continue
+            raise InspectionStopped(f'Closing {a.app} is not proven: its card is not read and only partly matches '
+                                    f"(score {pixels['score']}); no further input.")
         else:
             raise InspectionStopped(f'{a.app} is still a switcher card after {SWIPES} swipes; no further input.')
         s.record['swipes'] = attempt

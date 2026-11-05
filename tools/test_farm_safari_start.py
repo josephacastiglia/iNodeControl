@@ -1032,5 +1032,79 @@ class TikTokGutterChainTests(unittest.TestCase):
         self.assertEqual((820, [326, 493, 657]), (bottom, [r['top'] for r in rows if r['complete']]))
 
 
+class CloseAppEvidenceTests(unittest.TestCase):
+    """close_app reports 'closed' only when the swiped card's pixels are gone (A20, 4 Nov check 4: three swipes
+    changed nothing, 'Following' was simply not read again, and it reported closed)."""
+    @staticmethod
+    def frames():
+        import io
+        import numpy as np
+        from PIL import Image
+        rng = np.random.default_rng(5)
+        base = np.full((1080, 500), 120, np.uint8)
+        card = rng.integers(0, 255, (560, 160), dtype=np.uint8)
+        def png(array):
+            out = io.BytesIO(); Image.fromarray(array).save(out, 'PNG'); return out.getvalue()
+        def at(x, alpha=1.0):
+            image = base.copy(); part = image[180:740, x:x+160].astype(float)
+            image[180:740, x:x+160] = (alpha*card[:, :500-x] + (1-alpha)*part).astype(np.uint8) if x+160 > 500 else (alpha*card + (1-alpha)*part).astype(np.uint8)
+            return png(image)
+        other = rng.integers(0, 255, (1080, 500), dtype=np.uint8)   # What the switcher shows once the card is gone.
+        return at, png(other)
+
+    def module(self):
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'analysis' / 'farm-multiphone-20261020'))
+        import close_app
+        return close_app
+
+    def test_card_pixels_decide_gone_present_or_unclear(self):
+        close_app = self.module(); at, empty = self.frames()
+        before = at(320)
+        self.assertEqual('present', close_app.card_gone(before, before, 320)['verdict'])
+        slid = close_app.card_gone(before, at(200), 320)
+        self.assertEqual(('present', -120), (slid['verdict'], slid['offset']))
+        self.assertEqual('gone', close_app.card_gone(before, empty, 320)['verdict'])
+        self.assertEqual('unclear', close_app.card_gone(before, at(320, .5), 320)['verdict'])
+
+    def run_close(self, after_frames, after_texts):
+        from unittest import mock
+        close_app = self.module(); at, _ = self.frames()
+        following = dict(text='Following', words=[dict(text='Following', x=453, y=300, width=40, height=12)])
+        texts = iter([dict(width=500, height=1080, lines=[following])] + after_texts)
+        frames = iter([at(320)] + after_frames)
+        sent = []
+        class Screen:
+            def __init__(self, folder, phone=None):
+                self.phone = mock.MagicMock(board='C214', device_id='d'); self.record = dict(commands=[])
+                self.kernel = mock.MagicMock(); self.kernel.acquire.return_value = {'C214': 't'}
+            def fresh(self, role): return next(frames), next(texts), 0, 0
+            def command(self, fun, purpose, **data): sent.append(purpose)
+            def pause(self, seconds): pass
+            def save(self): pass
+        def post(base, fun, data): sent.append(fun); return dict(code=0)
+        with mock.patch.object(close_app, 'StartScreen', Screen), mock.patch.object(close_app, 'post', post), \
+                mock.patch.object(close_app, 'phone_of', lambda config: None):
+            result = close_app.close(dict(), 'folder', 'TikTok')
+        return result, sent
+
+    def test_a_card_not_read_again_but_still_there_is_never_closed(self):
+        at, _ = self.frames(); blank = dict(width=500, height=1080, lines=[])
+        result, sent = self.run_close([at(320)] * 3, [blank] * 3)
+        self.assertEqual('stopped', result['state']); self.assertEqual(3, sent.count('/mouse/swipe'))
+        self.assertNotIn('home-after-close', sent)
+
+    def test_a_card_gone_from_the_switcher_is_closed(self):
+        _, empty = self.frames(); blank = dict(width=500, height=1080, lines=[])
+        result, sent = self.run_close([empty], [blank])
+        self.assertEqual('closed', result['state']); self.assertEqual(1, sent.count('/mouse/swipe')); self.assertIn('home-after-close', sent)
+
+    def test_a_partial_match_stops_as_not_proven(self):
+        at, _ = self.frames(); blank = dict(width=500, height=1080, lines=[])
+        result, sent = self.run_close([at(320, .5)], [blank])
+        self.assertEqual('stopped', result['state']); self.assertIn('not proven', result['error'])
+
+
 if __name__ == '__main__':
     unittest.main()
