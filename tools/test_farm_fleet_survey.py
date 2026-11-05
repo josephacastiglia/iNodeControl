@@ -24,9 +24,9 @@ XR_HOME = dict(lines=[line(n, 40 + 110 * (i % 4), 171 + 127 * (i // 4)) for i, n
 SMALL_HOME = dict(lines=[line(n, 46 + 116 * (i % 4), 225 + 117 * (i // 4)) for i, n in enumerate(
     ['Clock', 'Maps', 'TikTok', 'YouTube', 'Notes', 'Safari'])])
 CONTROL = dict(lines=[line('Focus', 40, 520), line('84%', 400, 100)])
-PROMPT = dict(lines=[line('"TikTok" Would Like to Send You Notifications', 60, 450, 380), line("Don't Allow", 90, 600, 100),
+PROMPT = dict(lines=[line('"TikTok" Would Like to Send You Notifications', 100, 450, 300), line("Don't Allow", 90, 600, 100),
                      line('Allow', 330, 600, 50)])
-UNKNOWN_PROMPT = dict(lines=[line('"TikTok" Would Like to Access Your Contacts', 60, 450, 380), line("Don't Allow", 90, 600, 100),
+UNKNOWN_PROMPT = dict(lines=[line('"TikTok" Would Like to Access Your Contacts', 100, 450, 300), line("Don't Allow", 90, 600, 100),
                              line('OK', 330, 600, 30)])
 
 
@@ -95,6 +95,30 @@ class Guards(unittest.TestCase):
         self.assertEqual(len(s.s.taps), 1)
         self.assertEqual(s.record['prompts'][0]['outcome'], 'answered')
         self.assertEqual(s.record['prompts'][0]['answer'], "Don't Allow")
+
+    def test_every_look_answers_a_photos_reminder_first(self):
+        reminder = dict(lines=[line('"Instagram" has been able to access your entire photo library for 6 months.', 100, 300, 300),
+                               line('Limit Access', 190, 752, 110), line('Allow Full Access', 170, 807, 150)] + XR_HOME['lines'])
+        s = self.survey([(frame(), reminder), (frame(), XR_HOME)])
+        raw, text = s.look('first')
+        self.assertIs(text, XR_HOME)
+        self.assertEqual([((245, 817), 'prompt-photos_reminder')], s.s.taps)
+        self.assertEqual(('photos_reminder', 'Allow Full Access', 'answered', 'Instagram'),
+                         tuple(s.record['prompts'][0][k] for k in ('kind', 'answer', 'outcome', 'promptApp')))
+
+    def test_alert_read_without_the_home_labels_behind_it(self):
+        # A11, 5 Nov 17:30: OCR lines (left, top) of Instagram's photos reminder over Home page 2.
+        rows = [('Fitness', 168, 170), ('"Instagram" has been able to', 112, 290), ('o Mail', 415, 297),
+                ('access your entire photo', 133, 316), ('library for 6 months. Do you', 118, 343),
+                ('want to continue to allow full', 114, 369), ('yah', 54, 392), ('access?', 212, 397), ('gram', 419, 426),
+                ('5 Photos, 6 Videos', 179, 620), ('Limit Access', 194, 747), ('Allow Full Access', 172, 800), ('Q Search', 218, 893)]
+        text = dict(lines=[line(t, x, y, w=min(len(t) * 9, 495 - x)) for t, x, y in rows])
+        import farm_permission_prompts as P
+        self.assertIsNone(P.detect(text))
+        prompt = P.detect(F.alert_only(text))
+        self.assertEqual(('photos_reminder', 'Instagram'), (prompt['kind'], prompt['app']))
+        self.assertIn('Allow Full Access', prompt['buttons'])
+        self.assertIs(XR_HOME, F.alert_only(XR_HOME))
 
     def test_ignored_prompt_stops(self):
         s = self.survey([(frame(), PROMPT)])

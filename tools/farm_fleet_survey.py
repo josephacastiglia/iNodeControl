@@ -121,6 +121,26 @@ def app_state(text, app):
     return 'unknown'
 
 
+ALERT_COLUMN = (85, 415)    # An iOS alert's x span in the mirror frame (A11 photos reminder: about 95-405).
+ALERT_HEIGHT = 600          # The tallest alert (photos reminder with thumbnails) is about 520 px above its last button.
+
+
+def alert_only(text):
+    """The OCR lines of a centred iOS alert, without the dimmed Home labels behind it. Over the Home screen the
+    labels interleave with the alert's sentence (A11, 5 Nov: '...allow full yah access?') and the shared
+    recognizer misses it. With no alert button read, the text is returned unchanged."""
+    import farm_permission_prompts as P
+    lines = [l for l in text.get('lines', []) if l.get('words')]
+    def box(l): return (min(w['x'] for w in l['words']), min(w['y'] for w in l['words']),
+                        max(w['x'] + w['width'] for w in l['words']), max(w['y'] + w['height'] for w in l['words']))
+    buttons = [box(l) for l in lines if any(' '.join(l['text'].replace('’', "'").split()).casefold() == b.casefold() for b in P.BUTTONS)]
+    if not buttons: return text
+    bottom = max(b[3] for b in buttons)
+    keep = [l for l in lines if ALERT_COLUMN[0] <= box(l)[0] and box(l)[2] <= ALERT_COLUMN[1]
+            and bottom - ALERT_HEIGHT <= box(l)[1] <= bottom]
+    return dict(text, lines=keep)
+
+
 def control_center(survey, text):
     import farm_small_layout as L
     return survey.control_center(text) or L.control_center(text)
@@ -134,9 +154,12 @@ class FleetSurvey:
         self.record.update(tool='farm_fleet_survey', phoneLabel=label, model=model, pages={}, apps={}, prompts=[],
                            homes=0, signIn=False)
 
-    def look(self, role):
+    def look(self, role, app=None):
+        """A fresh frame. An iOS prompt on it is answered first (A11, 5 Nov: Instagram's photos reminder came up
+        over the Home screen after Home, and the page swipes and Search pill tap behind it did nothing)."""
         raw, text, _, _ = self.s.fresh(role)
-        return raw, text
+        answered = self.answer_prompt(app or 'system', raw, text)
+        return answered if answered else (raw, text)
 
     def home(self, purpose, raw=None, text=None):
         """Home only after a look; never over Control Center; never on the Home screen itself. At most two."""
@@ -215,10 +238,10 @@ class FleetSurvey:
 
     def answer_prompt(self, app, raw, text):
         import farm_permission_prompts as P
-        prompt = P.detect(text)
+        prompt = P.detect(alert_only(text))
         if prompt is None: return None
         answer = P.POLICY.get(prompt['kind'])
-        entry = dict(app=app, kind=prompt['kind'], answer=answer, method=None, point=None, outcome=None)
+        entry = dict(app=app, promptApp=prompt.get('app'), kind=prompt['kind'], answer=answer, method=None, point=None, outcome=None)
         self.record['prompts'].append(entry)
         if prompt['kind'] not in P.ALWAYS_SAFE or answer is None or prompt.get('ambiguous') or answer not in prompt['buttons']:
             entry['outcome'] = 'stopped_not_in_policy'
@@ -227,8 +250,9 @@ class FleetSurvey:
         entry.update(method='pointer_tap', point=list(point))
         self.s.tap(raw, text, point, 'prompt', f"prompt-{prompt['kind']}")
         self.s.pause(1.5)
-        raw, text = self.look(f'{app.casefold()}-after-prompt')
-        again = P.detect(text)
+        raw, text, _, _ = self.s.fresh(f'{app.casefold()}-after-prompt')
+        entry['frame'] = self.record['observations'][-1]['frame']
+        again = P.detect(alert_only(text))
         entry['outcome'] = 'ignored' if again and again['kind'] == prompt['kind'] else 'answered'
         if entry['outcome'] == 'ignored': raise InspectionStopped(f"{app}: the {prompt['kind']} prompt ignored its tap.")
         return raw, text
@@ -239,9 +263,7 @@ class FleetSurvey:
         if not result['opened']: return raw, text
         state = 'unknown'
         for n in range(SETTLE_LOOKS):
-            raw, text = self.look(f'{app.casefold()}-{n}')
-            answered = self.answer_prompt(app, raw, text)
-            if answered: raw, text = answered
+            raw, text = self.look(f'{app.casefold()}-{n}', app)
             state = app_state(text, app)
             if state in ('signed_in', 'signed_out'): break
             self.s.pause(3)
@@ -262,14 +284,32 @@ class FleetSurvey:
         self.record['state'] = 'done'
 
 
+LEASE_MS = 30000
+RENEW_BELOW_MS = 20000
+
+
+def renewing(screen):
+    """StartScreen sends on one 30 s lease and never renews it: enough for one start screen, not for a survey
+    (A11, 5 Nov 17:28: the lease expired at the Instagram step and the kernel stopped that phone's input).
+    Every command renews first while less than 20 s remain."""
+    send = screen.command
+    def command(fun, purpose, **data):
+        screen.kernel.renew_if_needed(screen.tokens, RENEW_BELOW_MS)
+        return send(fun, purpose, **data)
+    screen.command = command
+    return screen
+
+
 def contact_sheet(folder, record):
     """Small side-by-side of the page and app frames, for the lane's own review (output only)."""
     from PIL import Image
-    names = [o['frame'] for o in record['observations'] if o.get('state') == 'fresh'
-             and (o['role'].startswith(('page-', 'back-to-page')) or o['frame'] in
-                  {a.get('frame') for a in record['apps'].values()})]
+    fresh = [o for o in record['observations'] if o.get('state') == 'fresh']
+    names = [o['frame'] for o in fresh if o['role'].startswith(('page-', 'back-to-page'))][-3:]
+    for app in APPS:   # Each app's last look (also when the survey stopped there).
+        looks = [o['frame'] for o in fresh if re.fullmatch(app.casefold() + r'-(\d|after-prompt)', o['role'])]
+        names += looks[-1:]
     if not names: return None
-    tiles = [Image.open(folder / n).convert('RGB').resize((200, 432)) for n in names[-8:]]
+    tiles = [Image.open(folder / n).convert('RGB').resize((200, 432)) for n in names]
     sheet = Image.new('RGB', (200 * len(tiles), 432), 'white')
     for i, tile in enumerate(tiles): sheet.paste(tile, (200 * i, 0))
     path = folder / 'sheet.png'; sheet.save(path)
@@ -298,18 +338,20 @@ def main():
     label, model = FLEET[board]
     folder = ROOT / (a.run or f'survey-{label}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}')
     screen = StartScreen(folder, phone=phone)
+    renewing(screen)
     survey = FleetSurvey(screen, label, model)
-    screen.tokens = screen.kernel.acquire([board], 30000)
+    screen.tokens = screen.kernel.acquire([board], LEASE_MS)
     try:
-        try: raw, text, _, _ = screen.fresh('first')
-        except InspectionStopped:
+        try: raw, text = survey.look('first')
+        except InspectionStopped as stop:
+            if not str(stop).startswith('No fresh frame'): raise   # A prompt stop is final (A11, 5 Nov 17:31).
             # An asleep phone sends no new frame for a pointer move. Wake it with one Home only when the last
             # frame is dark (never over Control Center, which a dark frame cannot show); else it is a stall.
             last, _ = screen.kernel.shot(board)
             if not dark(last): raise InspectionStopped('No fresh frame and the screen is not dark: mirror stall; no input.')
             screen.command('/key/sendkey', 'wake-home', fn_key='Home'); survey.record['homes'] += 1
             screen.pause(2)
-            raw, text, _, _ = screen.fresh('after-wake')
+            raw, text = survey.look('after-wake')
         if survey.model is None: survey.model = survey.record['model'] = model_of(raw)
         survey.run(apps)
     except Exception as error:   # Every stop is recorded; nothing further is sent.
