@@ -1,0 +1,179 @@
+{
+ "utc": "2026-11-05T17:08:28.394994+00:00",
+ "source": {
+  "head": "f9f7145e2eba6749ea2c5a1b97c3e2536d344cab",
+  "tracked_changes": false
+ },
+ "passed": true,
+ "checks": {
+  "packages verify": true,
+  "dev folder not read (imports)": true,
+  "dev folder not read (self-check)": true,
+  "self-check passed": true,
+  "guard refused nothing": true,
+  "launcher refuses a blocked command": true,
+  "update switched": true,
+  "B has its change": true,
+  "dev folder not read (B imports)": true,
+  "launcher follows the switch": true,
+  "rollback switched": true,
+  "launcher follows the rollback": true,
+  "tampered version refused": true,
+  "install root removed": true,
+  "data folder kept and unchanged": true,
+  "package carries no private state": true
+ },
+ "steps": [
+  {
+   "step": "build",
+   "utc": "2026-11-05T17:08:10.030111+00:00",
+   "A": {
+    "files": 237,
+    "bytes": 182473856
+   },
+   "B": {
+    "files": 237
+   },
+   "privacy_lists_used": true,
+   "dev_path_blockers": {
+    "blockers": 56,
+    "total": 104
+   },
+   "ready": [
+    "server",
+    "server-self-check"
+   ],
+   "blocked": [
+    "schedule",
+    "start-rack",
+    "stop-rack",
+    "release-receiver",
+    "restart-receiver",
+    "start-window",
+    "stop-window",
+    "prepare-window",
+    "run-window",
+    "verify-window",
+    "console"
+   ]
+  },
+  {
+   "step": "install A",
+   "utc": "2026-11-05T17:08:15.004062+00:00",
+   "installed": true,
+   "schema_version": 1,
+   "data_root": "<clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm",
+   "python": "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+   "created_utc": "2026-11-05T17:08:14.993050+00:00",
+   "version": "rehearsal-a",
+   "previous": null,
+   "versions": [
+    "rehearsal-a"
+   ],
+   "leftover_partials": []
+  },
+  {
+   "step": "import every installed farm module (guarded)",
+   "utc": "2026-11-05T17:08:15.514780+00:00",
+   "exit": 0,
+   "seconds": 0.5,
+   "import_errors": null,
+   "forbidden_opened": [],
+   "forbidden_modules": [],
+   "forbidden_sys_path": [],
+   "refused": [],
+   "opened_count": 466
+  },
+  {
+   "step": "farm server --self-check from the install (guarded)",
+   "utc": "2026-11-05T17:08:17.367336+00:00",
+   "exit": 0,
+   "seconds": 1.9,
+   "stdout_tail": "Farm-9914] 127.0.0.1 - \"POST /api/farm/scan-profile-views HTTP/1.1\" 200 -\n[iMouse-Farm-9914] 127.0.0.1 - \"POST /api/farm/calibrate-box HTTP/1.1\" 200 -\nOK - Simulated routes and media checks passed on http://127.0.0.1:48189; unavailable observations refused. No live app, OCR or messaging acceptance.\n",
+   "stderr_tail": "",
+   "error": null,
+   "forbidden_opened": [],
+   "forbidden_modules": [],
+   "forbidden_sys_path": [],
+   "refused": [],
+   "opened_count": 544
+  },
+  {
+   "step": "farm_paths as installed (guarded)",
+   "utc": "2026-11-05T17:08:17.457590+00:00",
+   "stdout": "MAIN <clean-pc-tree>\\clean-pc\\LocalAppData\\Programs\\iMouseFarm\\versions\\rehearsal-a\\farm\nARCHIVE <clean-pc-tree>\\clean-pc\\LocalAppData\\Programs\\iMouseFarm\\versions\\rehearsal-a\\iMouseXP-2.0-evidence-archive\nRACK <clean-pc-tree>\\clean-pc\\LocalAppData\\Programs\\iMouseFarm\\versions\\rehearsal-a\\farm\\analysis\\farm-multiphone-20261020\\slots",
+   "exit": 0
+  },
+  {
+   "step": "Farm.ps1 status",
+   "utc": "2026-11-05T17:08:17.723961+00:00",
+   "exit": 0,
+   "stdout": "version  : rehearsal-a\nprevious : \ndata     : %USERPROFILE%\\AppData\\Local\\Temp\\claude\\7fc4fe8448877b7f\\6d36affb-bbcf-48bf-ba56-a74bad833e4a\\scratchpad\\re\n           hearsal6\\clean-pc\\LocalAppData\\iMouseFarm\npython   : %USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python311\\python.exe\nready    : server, server-self-check\nblocked  : schedule, start-rack, stop-rack, release-receiver, restart-receiver, start-window, stop-window, \n           prepare-window, run-window, verify-window, console"
+  },
+  {
+   "step": "Farm.ps1 preflight (read-only)",
+   "utc": "2026-11-05T17:08:20.633191+00:00",
+   "exit": 0,
+   "seconds": 2.9,
+   "not_ok": [
+    [
+     "network-profile",
+     "warn"
+    ],
+    [
+     "ports",
+     "warn"
+    ]
+   ]
+  },
+  {
+   "step": "Farm.ps1 start-rack (blocked: must refuse, start nothing)",
+   "utc": "2026-11-05T17:08:20.919996+00:00",
+   "exit": 1,
+   "stderr": "current.vers ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : OperationStopped: ('start-rack' is...ng was started.:String) [], RuntimeException\n    + FullyQualifiedErrorId : 'start-rack' is not ready in version rehearsal-a: its code still reads the dev folder or \n    keeps state in the install (farm/analysis/farm-multiphone-20261020/Start-Multiphone.ps1, farm/analysis/farm-multi  \n  phone-20261020/rack_kernels.py). Nothing was started."
+  },
+  {
+   "step": "update to B",
+   "utc": "2026-11-05T17:08:25.807669+00:00",
+   "installed": true,
+   "schema_version": 1,
+   "data_root": "<clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm",
+   "python": "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+   "created_utc": "2026-11-05T17:08:14.993050+00:00",
+   "version": "rehearsal-b",
+   "previous": "rehearsal-a",
+   "versions": [
+    "rehearsal-a",
+    "rehearsal-b"
+   ],
+   "leftover_partials": []
+  },
+  {
+   "step": "roll back to A",
+   "utc": "2026-11-05T17:08:27.158289+00:00",
+   "installed": true,
+   "schema_version": 1,
+   "data_root": "<clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm",
+   "python": "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+   "created_utc": "2026-11-05T17:08:14.993050+00:00",
+   "version": "rehearsal-a",
+   "previous": "rehearsal-b",
+   "versions": [
+    "rehearsal-a",
+    "rehearsal-b"
+   ],
+   "leftover_partials": []
+  },
+  {
+   "step": "roll back to a tampered B (must refuse)",
+   "utc": "2026-11-05T17:08:27.987831+00:00",
+   "refused": "rehearsal-b failed verification: changed: farm/tools/farm_jobs.py"
+  },
+  {
+   "step": "uninstall",
+   "utc": "2026-11-05T17:08:28.387206+00:00",
+   "removed": "<clean-pc-tree>\\clean-pc\\LocalAppData\\Programs\\iMouseFarm",
+   "data_kept": "<clean-pc-tree>\\clean-pc\\LocalAppData\\iMouseFarm"
+  }
+ ]
+}
