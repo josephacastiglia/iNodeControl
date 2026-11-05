@@ -79,7 +79,7 @@ public partial class CarouselTransferWindow
             using (var draw = background.RenderOpen()) draw.DrawRectangle(window.Background, null, new Rect(0, 0, 640, 700));
             bitmap.Render(background); bitmap.Render(content);
             var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
-            string qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+            string qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
             using (var output = File.Create(Path.Combine(qa, "carousel-transfer-headless.png"))) encoder.Save(output);
             check("Transfer view renders without desktop control or a native window", content.IsArrangeValid && new WindowInteropHelper(window).Handle == IntPtr.Zero && !window.IsVisible);
             await reopened.RunAsync(reopened.StopAsync);

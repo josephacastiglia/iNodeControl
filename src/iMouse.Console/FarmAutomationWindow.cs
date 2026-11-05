@@ -75,6 +75,9 @@ public sealed class FarmAutomationWindow : Window
 
     public static string? ResolveFarmServerScriptPath(string? startDirectory = null)
     {
+        // Installed: the current version's farm code (Farm.ps1 sets IMOUSE_FARM_HOME); never a folder above it.
+        if (InstallLayout.InstalledFarmServer is string installed)
+            return installed;
         var roots = new List<string>();
         if (!string.IsNullOrWhiteSpace(startDirectory))
             roots.Add(startDirectory!);
@@ -310,9 +313,9 @@ public sealed class FarmAutomationWindow : Window
         string? scriptPath = ResolveFarmServerScriptPath();
         if (scriptPath != null && File.Exists(scriptPath))
         {
-            _managedServerProcess = Process.Start(new ProcessStartInfo("python", $"\"{scriptPath}\" --no-browser")
+            _managedServerProcess = Process.Start(new ProcessStartInfo(InstallLayout.Python, $"\"{scriptPath}\" --no-browser")
             {
-                WorkingDirectory = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(scriptPath)) ?? AppContext.BaseDirectory,
+                WorkingDirectory = InstallLayout.FarmStateRoot(scriptPath),
                 UseShellExecute = false,
                 CreateNoWindow = true
             });

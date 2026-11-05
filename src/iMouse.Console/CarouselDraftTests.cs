@@ -85,7 +85,7 @@ public partial class CarouselDraftWindow
             bitmap.Render(background);
             bitmap.Render(content);
             var png = new PngBitmapEncoder(); png.Frames.Add(BitmapFrame.Create(bitmap));
-            string qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+            string qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
             using (var output = File.Create(Path.Combine(qa, "carousel-editor-headless.png"))) png.Save(output);
             check("Carousel editor renders at desktop size without a window", content.IsMeasureValid && bitmap.PixelWidth == 1000 && new WindowInteropHelper(reopened).Handle == IntPtr.Zero);
             reopened.CaptionBox.Text = new string('x', 2201);

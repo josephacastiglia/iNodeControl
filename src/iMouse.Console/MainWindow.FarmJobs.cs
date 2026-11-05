@@ -241,7 +241,7 @@ public partial class MainWindow
             if (_farmExecutionMode is not ("simulate" or "live")) throw new InvalidOperationException("Connect to the farm backend first.");
             string? script = IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath();
             if (script is null) throw new InvalidOperationException("The farm workspace was not found.");
-            string folder = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(script))!, "output", "media-stage", "v2", _farmExecutionMode, "C24C");
+            string folder = System.IO.Path.Combine(InstallLayout.FarmStateRoot(script), "output", "media-stage", "v2", _farmExecutionMode, "C24C");
             string review = System.IO.Path.Combine(folder, "review.html");
             if (!System.IO.File.Exists(review)) throw new InvalidOperationException("Create content first. There is no draft to review yet.");
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(review) { UseShellExecute = true });

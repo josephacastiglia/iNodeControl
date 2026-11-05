@@ -31,7 +31,7 @@ public partial class App : Application
         await _testWindow.CloseSafelyAsync();
         // The isolated profile is removed on exit. Keep cleanup evidence with the
         // test results, including when the test itself failed before normal closure.
-        string qa = Path.Combine(AppContext.BaseDirectory, "qa");
+        string qa = Path.Combine(InstallLayout.RunFiles, "qa");
         Directory.CreateDirectory(qa);
         foreach (string name in new[] { "last-input-cleanup.json", "last-input-cleanup-warning.json" })
             if (_testData is not null && File.Exists(Path.Combine(_testData, name)))
@@ -43,7 +43,7 @@ public partial class App : Application
     {
         try { await FinishTestWindowAsync(); }
         catch (Exception cleanup) { failure = new AggregateException(failure, cleanup); }
-        File.WriteAllText(Path.Combine(AppContext.BaseDirectory, file), failure.ToString());
+        File.WriteAllText(Path.Combine(InstallLayout.RunFiles, file), failure.ToString());
         Shutdown(1);
     }
 
@@ -126,7 +126,7 @@ public partial class App : Application
 
     private void FailStartup(string message)
     {
-        try { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "startup-failure.txt"), message); } catch { }
+        try { File.WriteAllText(Path.Combine(InstallLayout.RunFiles, "startup-failure.txt"), message); } catch { }
         MessageBox.Show(message, "iMouse 2.0");
         Shutdown(2);
     }
@@ -144,13 +144,13 @@ public partial class App : Application
         DispatcherUnhandledException += (_, args) =>
         {
             args.Handled = true;
-            try { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "unhandled-error.txt"), args.Exception.ToString()); } catch { }
+            try { File.WriteAllText(Path.Combine(InstallLayout.RunFiles, "unhandled-error.txt"), args.Exception.ToString()); } catch { }
             MessageBox.Show("The console encountered an error:\n" + args.Exception.Message, "iMouse 2.0");
         };
         if (e.Args.Contains("--validate-startup"))
         {
             // Offline preflight for candidate launchers: no window, connection or settings write.
-            string report = Path.Combine(AppContext.BaseDirectory, "startup-validation.json");
+            string report = Path.Combine(InstallLayout.RunFiles, "startup-validation.json");
             try
             {
                 string folder = DataDirArgument(e.Args) ?? throw new ArgumentException("Startup validation requires an explicit --data-dir.");
@@ -173,12 +173,12 @@ public partial class App : Application
             try
             {
                 // With --data-dir, report that folder without touching %APPDATA% or creating anything.
-                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "data-path.txt"), DataDirArgument(e.Args) ?? global::IMouse2.MainWindow.ResolveDataPath());
+                File.WriteAllText(Path.Combine(InstallLayout.RunFiles, "data-path.txt"), DataDirArgument(e.Args) ?? global::IMouse2.MainWindow.ResolveDataPath());
                 Shutdown(0);
             }
             catch (Exception ex)
             {
-                try { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "data-path-failure.txt"), ex.ToString()); } catch { }
+                try { File.WriteAllText(Path.Combine(InstallLayout.RunFiles, "data-path-failure.txt"), ex.ToString()); } catch { }
                 Shutdown(1);
             }
             return;
@@ -186,7 +186,7 @@ public partial class App : Application
         if (e.Args.Contains("--self-test"))
         {
             try { await SelfTests.RunAsync(); Shutdown(0); }
-            catch (Exception ex) { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "self-test-failure.txt"), ex.ToString()); Shutdown(1); }
+            catch (Exception ex) { File.WriteAllText(Path.Combine(InstallLayout.RunFiles, "self-test-failure.txt"), ex.ToString()); Shutdown(1); }
             return;
         }
         if (e.Args.Contains("--wall-test"))
@@ -265,6 +265,6 @@ public partial class App : Application
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         main.Show();
         await main.ConnectAsync();
-        try { File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "startup-state.json"), System.Text.Json.JsonSerializer.Serialize(new { visible = main.IsVisible, loaded = main.IsLoaded, visibility = main.Visibility.ToString(), title = main.Title, handle = new System.Windows.Interop.WindowInteropHelper(main).Handle.ToInt64() })); } catch { }
+        try { File.WriteAllText(Path.Combine(InstallLayout.RunFiles, "startup-state.json"), System.Text.Json.JsonSerializer.Serialize(new { visible = main.IsVisible, loaded = main.IsLoaded, visibility = main.Visibility.ToString(), title = main.Title, handle = new System.Windows.Interop.WindowInteropHelper(main).Handle.ToInt64() })); } catch { }
     }
 }

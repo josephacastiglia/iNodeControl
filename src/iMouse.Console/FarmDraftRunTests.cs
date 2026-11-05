@@ -114,7 +114,7 @@ internal sealed partial class FarmDraftRunWindow
             var image = new RenderTargetBitmap(840, 820, 96, 96, PixelFormats.Pbgra32);
             var background = new DrawingVisual(); using (var drawing = background.RenderOpen()) drawing.DrawRectangle(restarted.Background, null, new Rect(0, 0, 840, 820));
             image.Render(background); image.Render(content); var png = new PngBitmapEncoder(); png.Frames.Add(BitmapFrame.Create(image));
-            using (var file = System.IO.File.Create(System.IO.Path.Combine(AppContext.BaseDirectory, "qa", "farm-draft-run-headless.png"))) png.Save(file);
+            using (var file = System.IO.File.Create(System.IO.Path.Combine(InstallLayout.RunFiles, "qa", "farm-draft-run-headless.png"))) png.Save(file);
             check("Phone draft review renders without creating a desktop window", content.IsArrangeValid && new WindowInteropHelper(restarted).Handle == IntPtr.Zero);
 
             handler.Id = null; handler.Terminal = handler.Verified = false; handler.Enabled = true;
@@ -158,7 +158,7 @@ internal sealed partial class FarmDraftRunWindow
             var inspectionBackground = new DrawingVisual(); using (var drawing = inspectionBackground.RenderOpen()) drawing.DrawRectangle(inspectionReopened.Background, null, new Rect(0, 0, 840, 820));
             inspectionImage.Render(inspectionBackground);
             inspectionImage.Render(inspectionContent); var inspectionPng = new PngBitmapEncoder(); inspectionPng.Frames.Add(BitmapFrame.Create(inspectionImage));
-            using (var file = System.IO.File.Create(System.IO.Path.Combine(AppContext.BaseDirectory, "qa", "farm-draft-recovery-headless.png"))) inspectionPng.Save(file);
+            using (var file = System.IO.File.Create(System.IO.Path.Combine(InstallLayout.RunFiles, "qa", "farm-draft-recovery-headless.png"))) inspectionPng.Save(file);
             check("Saved draft inspection renders without desktop control or a native window", inspectionContent.IsArrangeValid && new WindowInteropHelper(inspectionReopened).Handle == IntPtr.Zero);
             handler.Inspection = false; handler.EligibleCreationId = null;
             handler.Id = null; handler.Terminal = handler.Verified = false;
@@ -199,7 +199,7 @@ internal sealed partial class FarmDraftRunWindow
             var reelImage = new RenderTargetBitmap(840, 820, 96, 96, PixelFormats.Pbgra32);
             var reelBackground = new DrawingVisual(); using (var drawing = reelBackground.RenderOpen()) drawing.DrawRectangle(reel.Background, null, new Rect(0, 0, 840, 820));
             reelImage.Render(reelBackground); reelImage.Render(reelContent); var reelPng = new PngBitmapEncoder(); reelPng.Frames.Add(BitmapFrame.Create(reelImage));
-            using (var file = System.IO.File.Create(System.IO.Path.Combine(AppContext.BaseDirectory, "qa", "farm-reel-draft-headless.png"))) reelPng.Save(file);
+            using (var file = System.IO.File.Create(System.IO.Path.Combine(InstallLayout.RunFiles, "qa", "farm-reel-draft-headless.png"))) reelPng.Save(file);
             check("Reel creation renders without desktop control or a native window", reelContent.IsArrangeValid && new WindowInteropHelper(reel).Handle == IntPtr.Zero);
             handler.Reel = false;
 

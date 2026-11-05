@@ -82,7 +82,7 @@ internal sealed partial class VideoDraftWindow
             var bitmap = new RenderTargetBitmap(650, 740, 96, 96, PixelFormats.Pbgra32);
             var background = new DrawingVisual(); using (var draw = background.RenderOpen()) draw.DrawRectangle(window.Background, null, new Rect(0, 0, 650, 740));
             bitmap.Render(background); bitmap.Render(content); var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
-            string qa = Path.Combine(AppContext.BaseDirectory, "qa"); Directory.CreateDirectory(qa);
+            string qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
             using (var file = File.Create(Path.Combine(qa, "video-draft-headless.png"))) encoder.Save(file);
             check("Video draft view renders without desktop control or a native window", content.IsArrangeValid && new WindowInteropHelper(window).Handle == IntPtr.Zero && !window.IsVisible);
             check("Preparing a video never calls phone, publishing or messaging routes", handler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
