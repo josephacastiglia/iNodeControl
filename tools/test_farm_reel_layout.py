@@ -168,6 +168,17 @@ class TypedAddressTests(unittest.TestCase):
         # OCR confusions in small type: I/l/1, 0/O.
         self.assertTrue(reel.typed_transfer_address(self.field('68.4.26:99l7/t/UUl-uxM76j8_6mfMfHGXwfCw'), self.URL)['addressTyped'])
 
+    def test_a_cut_first_glyph_and_a_slash_read_as_l_pass(self):
+        # A19, 5 Nov: the field scrolled, its first visible '9' cut by the edge (read '3'), the final '/' read 'l'.
+        url = 'http://192.168.4.26:9797/t/zp2d8nq76ydz6ss7h8wpn3qf/'
+        self.assertTrue(reel.typed_transfer_address(self.field('3797/t/zp2d8nq76ydz6ss7h8wpn3qfl'), url)['addressTyped'])
+        for shown in ('3797/t/zp2d8nq76ydz6ss7h8wpn3qxl',      # A different last character is still refused.
+                      '3797/t/zp2d8nq76ydz6ssh8wpn3qfl',       # A dropped character too.
+                      'zz7/t/zp2d8nq76ydz6ss7h8wpn3qfl'):      # Only one cut glyph is forgiven.
+            with self.subTest(shown), self.assertRaises(InspectionStopped):
+                reel.typed_transfer_address(self.field(shown), url)
+        with self.assertRaises(InspectionStopped): reel.typed_transfer_address(self.field('wpn3qfl' * 3), url)   # Too little.
+
     def test_previous_or_damaged_addresses_stop_before_enter(self):
         for shown in ('192.168.4.26:9917/t/H8iV9agHEpUc1',           # The previous transfer (4 Nov frame).
                       '192.168.4.26:9917j8_6mfMfHGXwfCw/',          # A chunk dropped.

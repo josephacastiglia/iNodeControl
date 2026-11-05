@@ -616,6 +616,10 @@ def typed_transfer_address(text, url):
     require(len(rows) == 1, 'The Safari address field is not readable.')
     shown = ''.join(w['text'] for w in rows[0]['words'])
     expected = re.sub(r'^https?://', '', url)
+    # A19 (5 Nov, also seen on A18): the final '/' beside the caret reads as 'l', and when the field is scrolled its
+    # first visible glyph is cut by the field's edge ('9' read '3'). Transfer paths never contain l, I or 1.
+    if len(shown) >= 2 and shown[-1] in 'l|I1': shown = shown[:-1] + '/'
+    if len(shown.rstrip('/')) < len(expected.rstrip('/')): shown = shown[1:]
     require(len(shown.rstrip('/')) >= 24, 'The Safari address field shows too little of the address.')
     require(_address_fold(expected.rstrip('/')).endswith(_address_fold(shown.rstrip('/'))),
             'The Safari address field does not show this transfer address. Enter was not pressed.')
