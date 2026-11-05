@@ -376,3 +376,29 @@ class A19CreateSheetTests(unittest.TestCase):
             with self.subTest(label):
                 text = dict(self.text, lines=[l for l in self.text['lines'] if ' '.join(l['text'].casefold().split()) != label])
                 self.assertIsNone(_rl.create_rows(self.frame, text))
+
+
+@unittest.skipUnless((_A19/'reel-editor.png').exists(), 'A19 frames of 5 Nov are not available in this checkout.')
+class A19EditorTests(unittest.TestCase):
+    """A19's editor (5 Nov): seven tools under the video, a Suggested audio pill and a swipe hint over it."""
+    @classmethod
+    def setUpClass(cls):
+        cls.ref = _rl.VideoReference((_A19/'reel-package.mp4').read_bytes())
+
+    def setUp(self):
+        self.frame = (_A19/'reel-editor.png').read_bytes()
+        self.text = json.loads((_A19/'reel-editor.json').read_text(encoding='utf-8'))
+
+    def test_the_seven_tool_editor_shows_the_package_video(self):
+        found = _rl.reel_editor(self.frame, self.text, self.ref)
+        self.assertEqual((444, 993), found['target'])
+        self.assertTrue(found['media']['matched'])
+
+    def test_edit_video_is_still_required(self):
+        text = dict(self.text, lines=[l for l in self.text['lines'] if l['text'] != 'Edit video'])
+        with self.assertRaises(InspectionStopped): _rl.reel_editor(self.frame, text, self.ref)
+
+    def test_too_few_tools_stop(self):
+        from unittest.mock import patch
+        with patch.object(_rl, 'toolbar_words', return_value=[('text', 33, 57), ('audio', 168, 202)]):
+            with self.assertRaisesRegex(InspectionStopped, 'toolbar'): _rl.reel_editor(self.frame, self.text, self.ref)

@@ -371,6 +371,7 @@ def reel_selected(frame, text, reference, cell):
 EDITOR_TOOLBAR = (('audio', (45, 902, 108, 942)), ('voice', (222, 902, 282, 942)),
                   ('captions', (298, 902, 380, 942)), ('overlay', (390, 902, 465, 942)))
 TOOLBAR_BAND, TOOLBAR_SCALE = (30, 905, 475, 940), 4
+SEVEN_TOOLS = (('text', (20, 70)), ('sticker', (85, 145)), ('audio', (160, 210)), ('effects', (295, 355)), ('photo', (370, 420)))
 
 
 def band_words(frame, band, scale=4):
@@ -400,9 +401,16 @@ def reel_editor(frame, text, reference):
         # Full-frame OCR can miss the small light labels over a light video (22 Oct, slot 18).
         enlarged = toolbar_words(frame)
         toolbar = [[w for w in enlarged if w[0] == name and box[0] <= w[1] and w[2] <= box[2]] for name, box in EDITOR_TOOLBAR]
-    require(sum(bool(t) for t in toolbar) >= 3, 'The Reel editor toolbar is not recognized.')
+    seven = False
+    if sum(bool(t) for t in toolbar) < 3:
+        # A19 (5 Nov): a seven-tool row (Text, Sticker, Audio, Add clips, Effects, Photo, Overlay) under the video,
+        # a 'Suggested audio' pill on top and a 'Swipe up to edit' hint. Only Edit video and Next are near any target.
+        enlarged = toolbar_words(frame)
+        seven = sum(any(w[0] == name and box[0] <= w[1] and w[2] <= box[1] for w in enlarged) for name, box in SEVEN_TOOLS) >= 4
+    require(seven or sum(bool(t) for t in toolbar) >= 3, 'The Reel editor toolbar is not recognized.')
     require(words_at(text, 'next', (405, 975, 470, 1008)) or present(frame, 'next_pill'), 'The editor Next control is not verified.')
-    media = video_match(frame, (0, 56, 500, 945), reference, ignore=((0, 56, 80, 120), (0, 880, 500, 945)))
+    ignore = ((0, 56, 80, 120), (0, 880, 500, 945)) + (((130, 60, 370, 130), (0, 815, 500, 880)) if seven else ())
+    media = video_match(frame, (0, 56, 500, 945), reference, ignore=ignore)
     require(media['matched'], 'The Reel editor shows different media.')
     return dict(media=media, target=(444, 993))
 
