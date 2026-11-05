@@ -95,6 +95,12 @@ public partial class MainWindow
         }
         catch (Exception ex) { AppendFarmLog("Preparation schedule: " + ex.Message); }
     }
+    // Approve or reject prepared packages; the window never plans, commits or runs a slot.
+    private void FarmScheduleQueue_Click(object sender, RoutedEventArgs e)
+    {
+        try { new FarmScheduleQueueWindow(FarmApi) { Owner = this }.ShowDialog(); }
+        catch (Exception ex) { AppendFarmLog("Review queue: " + ex.Message); }
+    }
     private async void FarmObservation_Click(object sender, RoutedEventArgs e)
     {
         try
