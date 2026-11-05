@@ -59,6 +59,14 @@ def frames_agree(a_raw, b_raw, only=None):
     return mean <= .003 or (mean <= .012 and strong <= .0005)
 
 
+def result_band(point):
+    """What an app_result tap is confirmed on: the target's own row and the search field. Spotlight's other
+    rows may animate ('Create wallpaper' with its moving thumbnail over the blurred wallpaper, A18 5 Nov:
+    mean .0048 between still frames, y 280-440), so they are left out; the limit itself is unchanged."""
+    x, y = point
+    return ((0, max(65, y - 70), 500, min(1080, y + 70)), (0, 960, 500, 1060))
+
+
 def pointer_blob(a, b, mask):
     """The pointer still settling from its reset spot, which differs per phone (C24C about (106, 70),
     724E about (172, 111), 22 Oct): one changed blob no larger than the dot, grey in one frame."""
@@ -345,7 +353,7 @@ class StartScreen:
                 self.pause(1.5)
                 raw, text, _, _ = self.fresh('app_result')
                 point = app_target(text, name, raw)
-        self.tap(raw, text, point, 'app_result', 'open-' + name.casefold())
+        self.tap(raw, text, point, 'app_result', 'open-' + name.casefold(), only=result_band(point))
         self.pause(2.5)
         return self.fresh('after-open')
 
@@ -382,7 +390,7 @@ class StartScreen:
             self.pause(1.5)
             raw, text, _, _ = self.fresh('app_result')
             point = app_target(text, name, raw)
-        self.tap(raw, text, point, 'app_result', 'open-' + name.casefold())
+        self.tap(raw, text, point, 'app_result', 'open-' + name.casefold(), only=result_band(point))
         self.pause(2.5)
         return self.fresh('after-open')
 
