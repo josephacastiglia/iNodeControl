@@ -3,6 +3,33 @@
 Branch `sb/chat-release`. Off the rack throughout: no kernel, receiver, backend or phone was started,
 stopped or called; nothing was installed system-wide. The rehearsal ran in a temporary folder tree.
 
+## Update, 5 Nov late: strict privacy, the real zip, the operator guide
+
+- **No handle ships.** `farm_start_screen.py:187` now reads the Instagram profile's account through
+  `farm_paths.account_label()`, the same private `farm-accounts.json`. That file is not in the server's
+  `sourceHash`, so prepared windows stay valid. The Small phone tests pass (`test_farm_small_shared`,
+  `test_farm_small_layout`, `test_farm_safari_start`: 104 OK).
+- **Strict privacy is the default.** Any handle in a packaged file refuses the build. The handles come
+  from `farm-accounts.json` and the retained X OCR, with no exemption. `--no-strict-privacy` makes a
+  review build that only lists them.
+- **The real package** is `farm-2026.11.05-406e13c.zip`: 237 files, 69.6 MB, SHA-256 `323f73e0…`. Its
+  record is `package-20261105-406e13c.json`. It was built from tip 406e13c with no tracked changes,
+  0 dev-path blockers and 0 handles. Inputs:
+  - the kernel: `rack-kernel-20261104`, the live build;
+  - the console: built from 8b43548 (its source is unchanged since);
+  - the receiver and runtime: `farm-new-draft-20261019`.
+
+  The zip stays out of Git (over 50 MB).
+- **The rehearsal from that zip passed 26/26** (`rehearsal-zip-20261105.json`).
+  - Version A is the extracted zip: CRC checked, safe names, verify passed, no handle.
+  - Then the guarded imports and self-check, then the sandbox rack through the installed `Farm.ps1`
+    (:9956, stand-ins, :9916 untouched).
+  - Then update, rollback, tamper refusal and uninstall, with a strict verify of the version folder.
+- **Fixed:** the zip had been named `farm-2026.11.zip`, because `with_suffix` cut the dotted version;
+  it is now tested.
+- **Operator guide:** `docs/INSTALL-FARM.md`, one page, admin steps marked. It ships at the package
+  root as `INSTALL-FARM.md`.
+
 ## Update, 5 Nov evening: dev-path blockers removed
 
 **Lint: 56 blocker lines before (2f26ed8), 0 after.** Every launcher command is now ready from an
