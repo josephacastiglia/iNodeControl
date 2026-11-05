@@ -42,11 +42,12 @@ connects only the phones the running lanes need. Rack B phones get lanes once th
 
 | Phone | Board | Platform / account | Lane |
 |---|---|---|---|
-| A16 | F215 | YouTube | Photos cleanup |
-| A17 | 724E | X (first account) | X image |
-| A18 | C24C | Instagram Reel | (free: Reel series later) |
-| A20 | C214 | TikTok | TikTok photo |
-| B1-B20 | own | own accounts | Bound and connectable (30 Oct); assigned here once accounts are named |
+| A16 | F215 | YouTube | (not connected 4 Nov) |
+| A17 | 724E | X (first account) | Repeatability |
+| A18 | C24C | Instagram Reel | Scheduler |
+| A20 | C214 | TikTok | Repeatability |
+| B5 | CD51 | Social apps (iPhone 6s); accounts not yet cleared by the operator | Small phone |
+| Other rack B | own | No marketing apps (most carry dating apps, which the farm never opens) | Scale gate (home screen only) |
 
 Rack A has 19 boards (one hub port is empty); the other 14 phones are in the September full-rack
 config (`iMouseXP-2.0/analysis/full-rack-config`, device IDs known) but not yet in the farm.
@@ -70,11 +71,14 @@ phones are on:
 
 | Lane | Work (tracker priority) | Owns |
 |---|---|---|
-| Rack | Restart one phone's receiver without stopping the kernel; backend and media ports for any slot (today fixed for A16-A20); rack B bring-up with names that can't collide with rack A's (slot numbers repeat); the 8- and 19-phone gates (7, release gates) | `src/iMouse.Kernel/`, `analysis/farm-multiphone-20261020/` rack scripts (`*Multiphone*.ps1`, `Release-Receiver.ps1`, `auto_connect.py`, `prepare_slots.py`, `prepare_multiphone.py`, `phone-slots.json`), the port tables in `prepare_window.py` and `tools/farm_creation_runs.py` |
+| Rack | Restart one phone's receiver without stopping the kernel; backend and media ports for any slot (today fixed for A16-A20); rack B bring-up with names that can't collide with rack A's (slot numbers repeat); a kernel per rack (7). Built and tested off the live kernel; live trials only when the orchestrator schedules them | `src/iMouse.Kernel/`, `analysis/farm-multiphone-20261020/` rack scripts (`*Multiphone*.ps1`, `Release-Receiver.ps1`, `auto_connect.py`, `prepare_slots.py`, `prepare_multiphone.py`, `phone-slots.json`), the port tables in `prepare_window.py` and `tools/farm_creation_runs.py` |
 | TikTok photo | TikTok photo post with its sound kept, to a verified draft (3) | `tools/farm_tiktok_*`, their tests |
 | X image | X image post to a verified draft (3) | `tools/farm_x_*`, their tests |
 | Photos cleanup | Match each test video in Photos to its package; move only those to Recently Deleted, after the operator's OK per run (2) | new `tools/farm_photos_*` and tests |
-| Scheduler | Review queue, scheduled runs, daily budgets, unattended restart; local first, no phones (4) | `tools/farm_preparation_schedule.py`, new `tools/farm_schedule*`, their tests |
+| Scheduler | Review queue, scheduled runs, daily budgets, unattended restart; local layer merged 4 Nov; now running approved slots on A18 (4) | `tools/farm_preparation_schedule.py`, new `tools/farm_schedule*`, their tests |
+| Repeatability | Back-to-back X image (A17) and TikTok photo (A20) runs; the open shared fixes (`farm_observations.classify` Likes on A20, `farm_creation_layout.app_target` enlarged Spotlight reread, verifier `accountHistory`) (2, 3) | `tools/farm_x_*`, `tools/farm_tiktok_*`, and, cleared 4 Nov, `farm_observations.py` and `tools/farm_creation_layout.py` in small commits |
+| Small phone | B5 (iPhone 6s): read-only sign-in survey, then the verified formats on a 4.7-inch phone once the operator clears its accounts (3, 7) | new `tools/farm_small_*` and tests; 4.7-inch additions elsewhere described, not made |
+| Scale gate | The 8- and 19-phone gates on rack B's home screens: mirroring and input only, no app ever opened (release gates) | new `analysis/scale-gate-20261104/` |
 
 **Shared (orchestrator's OK first):** `tools/farm_screen_layout.py`, `farm_observations.py`,
 `farm_start_screen.py`, `farm_carousel_inspection.py`, `farm_creation_runs.py`, `farm_paths.py`,
