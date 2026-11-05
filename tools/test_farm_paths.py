@@ -71,6 +71,29 @@ class FarmPaths(unittest.TestCase):
             self.assertEqual(got['kernel'], str(Path('Y:/v1/kernel/k.exe')))
             self.assertNotIn('proj', got['MAIN'] + got['ARCHIVE'])
 
+    def test_lan_address_unset_configured_and_refused(self):
+        code = ('import sys; sys.path.insert(0, sys.argv[1]); import farm_paths as p\n'
+                'try: print(p.lan_address("10.0.0.9"))\nexcept SystemExit as e: print("REFUSED", e)\n')
+        with tempfile.TemporaryDirectory() as tmp:
+            module = self.layout(Path(tmp), True)
+            data = Path(tmp) / 'data'
+            data.mkdir()
+
+            def run(env):
+                clean = {k: v for k, v in os.environ.items() if not k.startswith('IMOUSE_FARM_')}
+                return subprocess.run([sys.executable, '-E', '-c', code, str(module.parent)], capture_output=True, text=True,
+                                      timeout=60, env=clean | env, check=True).stdout.strip()
+            self.assertEqual(run({}), '10.0.0.9', 'a checkout keeps its address')
+            (data / 'machine.json').write_text('{"lanAddress": "192.168.50.2"}')
+            self.assertEqual(run({'IMOUSE_FARM_DATA': str(data)}), '192.168.50.2')
+            self.assertEqual(run({'IMOUSE_FARM_DATA': str(data), 'IMOUSE_FARM_LAN': '192.168.60.3'}), '192.168.60.3')
+            (data / 'machine.json').write_text('{"lanAddress": "192.168.50"}')
+            with self.assertRaises(subprocess.CalledProcessError):
+                run({'IMOUSE_FARM_DATA': str(data)})
+            (data / 'machine.json').unlink()
+            out = run({'IMOUSE_FARM_DATA': str(data)})
+            self.assertTrue(out.startswith('REFUSED') or out.count('.') == 3, out)
+
     def test_data_layout_matches_the_installer(self):
         import farm_install
         self.assertIn('analysis/farm-multiphone-20261020/slots', farm_install.DATA_DIRS)

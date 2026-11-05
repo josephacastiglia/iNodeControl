@@ -38,7 +38,7 @@ from farm_video import VideoDrafts, VideoTransferPackage  # noqa: E402
 from farm_image import ImageDrafts, SLIDES, render_test_images  # noqa: E402
 from farm_media_transfer import TransferPackage  # noqa: E402
 
-PC_LAN = '192.168.4.26'
+PC_LAN = farm_paths.lan_address('192.168.4.26')  # release-lint: dev-fallback (installed: machine.json lanAddress or the one private IPv4)
 BACKEND_PORTS = {18: 9915, 20: 9925, 17: 9935, 16: 9945}
 PLATFORMS = {   # format, caption, label, route, capability key, whether a fixed signed-in account is required
     'reel': ('ig_reel', 'Fresh reel acceptance', 'REEL DRAFT TEST', 'reel-creations', 'reelCreation', True),

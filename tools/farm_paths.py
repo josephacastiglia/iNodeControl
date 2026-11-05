@@ -55,6 +55,36 @@ def source_option(argv, default, flag='--source'):
     return Path(default)
 
 
+def machine_config():
+    """Installed: <data>/machine.json (per-machine settings the operator writes once); {} in a checkout or when absent."""
+    if not DATA:
+        return {}
+    import json
+    path = MAIN / 'machine.json'
+    return json.loads(path.read_text(encoding='utf-8-sig')) if path.is_file() else {}
+
+
+def lan_address(default):
+    """The PC's farm-network IPv4 address, which window media servers bind and phones fetch from.
+    Checkout: `default`, as today. Installed: IMOUSE_FARM_LAN, else machine.json "lanAddress", else the one
+    private IPv4 address this PC has; with none or several, stop and list them (the operator picks one)."""
+    if not DATA:
+        return default
+    import ipaddress
+    import socket
+    chosen = os.environ.get('IMOUSE_FARM_LAN') or machine_config().get('lanAddress')
+    if chosen:
+        ipaddress.IPv4Address(chosen)  # a typo stops here, not when a phone cannot connect
+        return chosen
+    found = sorted({i[4][0] for i in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET)})
+    private = [a for a in found if ipaddress.ip_address(a).is_private and not ipaddress.ip_address(a).is_loopback
+               and not ipaddress.ip_address(a).is_link_local]
+    if len(private) == 1:
+        return private[0]
+    raise SystemExit('Set the farm network address: write {"lanAddress": "<address>"} to ' + str(MAIN / 'machine.json')
+                     + ' (this PC has: ' + (', '.join(private) or 'no private IPv4 address') + ').')
+
+
 def installed(name, default=None):
     """An installed component Farm.ps1 names (IMOUSE_FARM_KERNEL, _RECEIVER, _RECEIVER_RUNTIME, _PYTHON):
     that path when installed and set, else `default`."""
