@@ -232,6 +232,15 @@ class PhoneReadyTests(unittest.TestCase):
         for status, phones, expected in cases:
             with self.subTest(expected): self.assertIn(expected, runner.phone_ready(status, phones, PREP))
 
+    def test_start_screen_summary_decides_not_its_exit_code(self):
+        ok = '{"state": "at_start", "error": null}'
+        self.assertIsNone(runner.start_screen_problem(0, ok))
+        self.assertIsNone(runner.start_screen_problem(0, '{"state": "already_at_start", "error": null}'))
+        stopped = '{"state": "stopped", "error": "InspectionStopped: No fresh frame matching the recognized reel_editor screen"}'
+        self.assertIn('reel_editor', runner.start_screen_problem(0, stopped))
+        self.assertIn('no summary', runner.start_screen_problem(0, 'Traceback'))
+        self.assertIn('start screen', runner.start_screen_problem(1, ok))
+
     def test_outcome_of(self):
         self.assertEqual('verified', runner.outcome_of(run())[0])
         self.assertEqual(('stopped', 'review_required: OCR'), runner.outcome_of(run('review_required', False, error='OCR')))

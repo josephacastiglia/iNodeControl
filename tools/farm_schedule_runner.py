@@ -76,6 +76,15 @@ def phone_ready(kernel_status, input_status, prep):
     return None
 
 
+def start_screen_problem(code, last_line):
+    """farm_start_screen.py exits 0 even when it stops; its summary line says what happened (4 Nov, slot 18)."""
+    if code != 0: return f'start screen: {last_line}'
+    try: summary = json.loads(last_line)
+    except ValueError: return f'start screen gave no summary: {last_line}'
+    if summary.get('state') in ('at_start', 'already_at_start'): return None
+    return f'start screen {summary.get("state")}: {summary.get("error")}'[:300]
+
+
 def outcome_of(run):
     """(outcome, reason) for run_window's retained run."""
     if run.get('terminal') and run.get('savedDraftVerified') is True: return VERIFIED, run.get('reason') or 'verified'
@@ -168,7 +177,7 @@ class WindowSteps:
         argv = [self.python, str(ROOT / 'tools/farm_start_screen.py'), PLATFORMS[prep['platform']][1],
                 str(window / 'start-screen-1'), str(window / 'creation-config.json')]
         code, tail = self._run(package_id, 'start-screen', argv, 240)
-        return None if code == 0 else f'start screen: {tail}'
+        return start_screen_problem(code, tail)
 
     def create(self, package_id, name):
         """run_window.py attempt 1; returns (run or None, problem)."""
