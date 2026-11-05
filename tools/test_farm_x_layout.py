@@ -134,5 +134,15 @@ class MenuWithMoneyRowTests(unittest.TestCase):
                     with self.assertRaises(InspectionStopped): xl.x_feed(b'', text)
 
 
+class PickerBadgeTests(unittest.TestCase):
+    def test_only_system_blue_is_a_selection_badge(self):
+        # A17, 4 Nov prep 5: a test image's sky-blue corner block read as a selection badge.
+        import numpy as np
+        tile = (0, 201, 166, 367)
+        for colour, badge in (((9, 123, 250), True), ((14, 165, 233), False), ((21, 101, 192), False), ((29, 155, 240), False)):
+            image = np.full((1080, 500, 3), 255, np.uint8); image[201:367, 0:166] = colour
+            with self.subTest(colour=colour): self.assertEqual(badge, xl._badge(image, tile))
+
+
 if __name__ == '__main__':
     unittest.main()

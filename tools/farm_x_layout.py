@@ -243,8 +243,13 @@ def _picker_tiles(image):
 
 
 def _badge(image, tile):
+    """The picker's numbered selection badge: iOS system blue (about (9, 123, 250)) over most of its box.
+    The farm's own test images carry sky-blue (14, 165, 233) and dark-blue (21, 101, 192) blocks, and a sky-blue
+    block in a tile's corner passed the wider X-blue test (A17, 4 Nov, prep 5); neither reaches B 240 with G 145 or less."""
     left, top, right, bottom = tile
-    return blue_fraction(image, (right-30, bottom-31, right-8, bottom-9)) > .5
+    part = image[bottom-31:bottom-9, right-30:right-8].astype(int)
+    system_blue = (part[..., 2] >= 240) & (part[..., 0] <= 60) & (part[..., 1] >= 90) & (part[..., 1] <= 145)
+    return float(system_blue.mean()) > .5
 
 
 def _tile(frame, tile, reference, image):
