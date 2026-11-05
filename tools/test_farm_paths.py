@@ -94,6 +94,19 @@ class FarmPaths(unittest.TestCase):
             out = run({'IMOUSE_FARM_DATA': str(data)})
             self.assertTrue(out.startswith('REFUSED') or out.count('.') == 3, out)
 
+    def test_account_label_from_private_data(self):
+        code = 'import sys; sys.path.insert(0, sys.argv[1]); import farm_paths as p; print(repr(p.account_label()))'
+        with tempfile.TemporaryDirectory() as tmp:
+            module = self.layout(Path(tmp), True)
+            data = Path(tmp) / 'data'
+            clean = {k: v for k, v in os.environ.items() if not k.startswith('IMOUSE_FARM_')}
+            run = lambda: subprocess.run([sys.executable, '-E', '-c', code, str(module.parent)], capture_output=True, text=True,
+                                         timeout=60, env=clean | {'IMOUSE_FARM_DATA': str(data)}, check=True).stdout.strip()
+            self.assertEqual(run(), "''", 'no private file: no label, so no account check can pass')
+            (data / 'evidence-archive/privacy').mkdir(parents=True)
+            (data / 'evidence-archive/privacy/farm-accounts.json').write_text('{"v1CandidateAccount": "label.one"}')
+            self.assertEqual(run(), "'label.one'")
+
     def test_data_layout_matches_the_installer(self):
         import farm_install
         self.assertIn('analysis/farm-multiphone-20261020/slots', farm_install.DATA_DIRS)
