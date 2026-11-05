@@ -226,3 +226,38 @@ class CoveredFeedHeaderTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+import farm_paths as _paths  # noqa: E402
+
+_A14 = _paths.ARCHIVE/'20261105-fleet-a14'
+
+
+@unittest.skipUnless((_A14/'tt-profile.bmp').exists(), 'A14 frames of 5 Nov are not available in this checkout.')
+class A14CentredProfileTests(unittest.TestCase):
+    """A14's newer TikTok profile: avatar on top, handle centred at y 267, counters at y 324, a navy + button."""
+    def setUp(self):
+        self.frame = (_A14/'tt-profile.bmp').read_bytes()
+        self.text = json.loads((_A14/'tt-profile.json').read_text(encoding='utf-8'))
+        self.account = (_A14/'tt-account.txt').read_text(encoding='utf-8').strip()
+
+    def test_the_centred_profile_is_the_exact_account(self):
+        found = tt.tiktok_profile(self.frame, self.text, self.account)
+        self.assertEqual((250, 1009), found['createTarget'])
+        self.assertIsNone(found['draftsCount'])   # No drafts yet on A14.
+
+    def test_another_account_is_refused(self):
+        with self.assertRaises(InspectionStopped): tt.tiktok_profile(self.frame, self.text, 'someone.else')
+
+    def test_the_layouts_are_never_mixed(self):
+        # The handle read where A20 shows it, over this frame's centred counters, is not a profile:
+        # A20's counter row (and its enlarged reread) is empty here.
+        moved = json.loads(json.dumps(self.text))
+        for line in moved['lines']:
+            if line['text'].startswith('@'):
+                for w in line['words']: w['x'], w['y'] = 40, 175
+        with self.assertRaises(InspectionStopped): tt.tiktok_profile(self.frame, moved, self.account)
+
+    def test_the_slot20_create_template_does_not_fit_a14(self):
+        self.assertFalse(tt.present(self.frame, 'tt_nav_create'))
+        self.assertTrue(tt.present(self.frame, 'tt_nav_create_centred'))

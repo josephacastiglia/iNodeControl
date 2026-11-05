@@ -92,7 +92,24 @@ def safari_blank(text):
     return dict(safari_address_empty(text), browser='safari', startPage=True)
 
 
+# Templates accepted for one control. instagram_logo: the current wordmark (A18) or the older script one (A12, 5 Nov).
+CONTROL_VARIANTS={'instagram_logo':('instagram_logo','instagram_logo_script')}
+
+
 def control(frame,name):
+    """The control's box when its template (or an accepted variant) matches; otherwise stops naming the control."""
+    if not _matches(frame,name):
+        for variant in CONTROL_VARIANTS.get(name,())[1:]:
+            if _matches(frame,variant):return _control(frame,variant)
+    return _control(frame,name)
+
+
+def _matches(frame,name):
+    try:_control(frame,name);return True
+    except InspectionStopped:return False
+
+
+def _control(frame,name):
     row=json.loads(Path(__file__).with_name('farm_creation_controls.json').read_text(encoding='utf-8'))[name]
     raw=base64.b64decode(row['png'],validate=True)
     require(hashlib.sha256(raw).hexdigest()==row['sha256'], 'Creation control reference is damaged.')
@@ -323,7 +340,7 @@ def restored_app_search(text):
     for name in RESTORED_QUERIES:
         try:return dict(app=name,target=app_target(text,name))
         except InspectionStopped:pass
-    raise InspectionStopped('Only a known Safari/Instagram/YouTube/TikTok app-search result can be dismissed.')
+    raise InspectionStopped('Only the known Safari/Instagram/YouTube/TikTok app-search result can be dismissed.')   # X image matches this prefix.
 
 
 SUGGESTION_LABELS=(10,200,490,236)   # The Siri Suggestions app label row in the empty app search.

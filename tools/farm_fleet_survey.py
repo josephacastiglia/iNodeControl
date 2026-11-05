@@ -43,10 +43,13 @@ SETTLE_LOOKS = 4
 
 # What each app shows (OCR, case-folded). Signed out: farm_small_layout.SIGNED_OUT plus the XR wording.
 SIGNED_OUT = {
-    'Instagram': ('username, email or mobile number', 'create new account', 'log into another account', 'i already have an account'),
-    'TikTok': ('log in to tiktok', 'sign up for tiktok', 'use phone / email / username', "don't have an account? sign up"),
+    'Instagram': ('username, email or mobile number', 'create new account', 'log into another account', 'i already have an account',
+                  "you've been logged out", 'your session has expired'),   # A10, 5 Nov: over the feed, 'Your story' behind.
+    'TikTok': ('log in to tiktok', 'sign up for tiktok', 'use phone / email / username', "don't have an account? sign up",
+               'your account was logged out'),   # A19, 5 Nov: 'Account status' alert over the feed.
     'X': ("see what's happening in the world right now", 'create account', 'have an account already? log in'),
-    'YouTube': ('welcome to youtube', 'sign in with google', 'use youtube signed out', "you're not signed in"),
+    'YouTube': ('welcome to youtube', 'sign in with google', 'use youtube signed out', "you're not signed in",
+                'select another account'),   # A13, 5 Nov: a 'Sign in as ...' sheet over an empty home.
 }
 # Signed in: the platform's own logged-in chrome. Anything else is 'unknown' (never read as signed in).
 SIGNED_IN = {
@@ -117,7 +120,9 @@ def app_state(text, app):
     if any(phrase in joined for phrase in SIGNED_OUT[app]): return 'signed_out'
     if app == 'TikTok' and all(part in joined for part in SPLASH): return 'splash'
     need, extra = SIGNED_IN[app]
-    if all(n in folds or n in joined for n in need) and any(e in folds for e in extra): return 'signed_in'
+    # A tab label can carry its unread badge ('94 Inbox', A13, 5 Nov): a fold ending in the label counts.
+    if all(any(f == n or f.endswith(' ' + n) for f in folds) or n in joined for n in need) and any(e in folds for e in extra):
+        return 'signed_in'
     return 'unknown'
 
 
@@ -251,7 +256,10 @@ class FleetSurvey:
         answer = P.POLICY.get(prompt['kind'])
         entry = dict(app=app, promptApp=prompt.get('app'), kind=prompt['kind'], answer=answer, method=None, point=None, outcome=None)
         self.record['prompts'].append(entry)
-        if prompt['kind'] not in P.ALWAYS_SAFE or answer is None or prompt.get('ambiguous') or answer not in prompt['buttons']:
+        # Families whose answer changes nothing are answered anywhere; while an app is being read, its own prompt's
+        # declining answer too (A13, 5 Nov: TikTok's Find contacts card, Don't allow). Never an answer that grants.
+        declines = app != 'system' and answer in P.CANCEL_ANSWERS and answer == P.SAFE_ANSWER.get(prompt['kind'])
+        if not (prompt['kind'] in P.ALWAYS_SAFE or declines) or answer is None or prompt.get('ambiguous') or answer not in prompt['buttons']:
             entry['outcome'] = 'stopped_not_in_policy'
             raise InspectionStopped(f"{app}: a {prompt['kind']} prompt has no policy answer here; nothing was tapped.")
         point = prompt['buttons'][answer]
@@ -410,6 +418,7 @@ def main():
     p.add_argument('--instagram-profile', action='store_true', help='only bring Instagram to its own profile (Reel window start)')
     p.add_argument('--tiktok-profile', action='store_true', help='only bring TikTok to its own Profile tab (to read its handle)')
     p.add_argument('--measure', help='x,y: move the pointer there (never click) and record where it lands')
+    p.add_argument('--front-app', choices=APPS, help='the app a previous stop left in front (its own declining answer may be tapped on the first look)')
     a = p.parse_args()
     board = a.board.upper()
     if board not in FLEET: raise SystemExit(f'{board} is not a Fleet lane phone; refused.')
@@ -437,7 +446,7 @@ def main():
             pointer_landing(screen, tuple(int(v) for v in a.measure.split(',')), survey.record)
             survey.record['state'] = 'done'
             raise _Measured()
-        try: raw, text = survey.look('first')
+        try: raw, text = survey.look('first', a.front_app)
         except InspectionStopped as stop:
             if not str(stop).startswith('No fresh frame'): raise   # A prompt stop is final (A11, 5 Nov 17:31).
             # An asleep phone sends no new frame for a pointer move. Wake it with one Home only when the last

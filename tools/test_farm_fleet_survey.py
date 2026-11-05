@@ -26,8 +26,8 @@ SMALL_HOME = dict(lines=[line(n, 46 + 116 * (i % 4), 225 + 117 * (i // 4)) for i
 CONTROL = dict(lines=[line('Focus', 40, 520), line('84%', 400, 100)])
 PROMPT = dict(lines=[line('"TikTok" Would Like to Send You Notifications', 100, 450, 300), line("Don't Allow", 90, 600, 100),
                      line('Allow', 330, 600, 50)])
-UNKNOWN_PROMPT = dict(lines=[line('"TikTok" Would Like to Access Your Contacts', 100, 450, 300), line("Don't Allow", 90, 600, 100),
-                             line('OK', 330, 600, 30)])
+UNKNOWN_PROMPT = dict(lines=[line('"TikTok" Would Like to Access Your Photos', 100, 450, 300), line('Limit Access...', 90, 600, 120),
+                             line('Allow Full Access', 90, 650, 150), line("Don't Allow", 90, 700, 100)])   # Policy answer grants.
 
 
 class FakeScreen:
@@ -127,8 +127,18 @@ class Guards(unittest.TestCase):
 
     def test_prompt_outside_safe_families_is_not_tapped(self):
         s = self.survey([])
-        with self.assertRaises(InspectionStopped): s.answer_prompt('TikTok', frame(), UNKNOWN_PROMPT)
+        with self.assertRaises(InspectionStopped): s.answer_prompt('TikTok', frame(), UNKNOWN_PROMPT)   # Its policy answer grants access.
         self.assertEqual(s.s.taps, [])
+
+    def test_an_apps_own_declining_answer_is_tapped_but_not_from_home(self):
+        contacts = dict(lines=[line('"TikTok" Would Like to Access Your Contacts', 100, 450, 300), line("Don't Allow", 90, 600, 100),
+                               line('Open settings', 290, 600, 110)])
+        s = self.survey([(frame(), dict(lines=[line('Inbox', 300, 1000)]))])
+        s.answer_prompt('TikTok', frame(), contacts)
+        self.assertEqual(("Don't Allow", 'answered'), (s.record['prompts'][0]['answer'], s.record['prompts'][0]['outcome']))
+        home = self.survey([])
+        with self.assertRaises(InspectionStopped): home.answer_prompt('system', frame(), contacts)
+        self.assertEqual(home.s.taps, [])
 
     def test_small_phone_app_off_pages_is_not_searched(self):
         s = self.survey([], model='small'); s.pages = {1: {'clock': (76, 225)}, 2: {}}; s.current = 1

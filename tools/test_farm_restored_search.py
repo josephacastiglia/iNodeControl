@@ -36,3 +36,11 @@ class RestoredSearch(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class RestoredSearchMessage(unittest.TestCase):
+    def test_the_stop_keeps_the_prefix_x_image_matches(self):
+        # farm_x_image_creation recognizes a restored 'X' query only after this stop, by its 'Only the known' prefix
+        # (9089bfe reworded it and A13's X image run stopped there, 5 Nov).
+        with self.assertRaises(InspectionStopped) as stop: restored_app_search(spotlight('Settings'))
+        self.assertTrue(str(stop.exception).startswith('Only the known'))
