@@ -40,6 +40,9 @@ ICON_DROP = {'xr': 62, 'small': 50}      # Label top -> icon centre.
 SWIPE_MS = {'xr': 250, 'small': 100}     # 4.7-inch: slower swipes count as a long press (icons wiggle, 30 Oct).
 SWIPE_Y = {'xr': 500, 'small': 560}
 SETTLE_LOOKS = 4
+# Instagram's 'Start over?' dialog, title and message only: the video plays around it and its rows highlight under the
+# pointer resting on the target before the click (A19, 5 Nov), so neither can be compared.
+DIALOG_INSIDE = (100, 385, 400, 510)
 SHEET_DIM = (250, 300)   # The dimmed profile above Instagram's Create sheet; no row or button there.
 
 # What each app shows (OCR, case-folded). Signed out: farm_small_layout.SIGNED_OUT plus the XR wording.
@@ -301,6 +304,22 @@ class FleetSurvey:
         from farm_start_screen import PROFILE_TAB, FEED_BARS
         raw, text = self.home('home')
         raw, text, _, _ = self.s.open_from_home('Instagram')
+        # A stopped run's Reel editor or New reel picker: the start screen's own route out ('Start over', never Save draft).
+        # Its dialog check compares a strip around the dialog, where A19's video keeps playing (5 Nov), so an open dialog
+        # or an editor is answered here, comparing only the dialog's inside.
+        target = self.s.start_over_dialog(text)
+        if not target and self.s.reel_editor(text):
+            from farm_start_screen import EDITOR_BAR, NEW_REEL_CLOSE
+            self.s.tap(raw, text, NEW_REEL_CLOSE, 'reel_editor', 'close-reel-editor', only=EDITOR_BAR)
+            self.s.pause(1.5)
+            raw, text = self.look('after-reel-editor', 'Instagram')
+            target = self.s.start_over_dialog(text)
+        if target:
+            self.s.tap(raw, text, target, 'start_over_dialog', 'start-over', only=(DIALOG_INSIDE,))
+            self.s.pause(1.5)
+            raw, text = self.look('after-start-over', 'Instagram')
+            if self.s.start_over_dialog(text): raise InspectionStopped('The Start over dialog ignored its tap; no tap is repeated.')
+        raw, text = self.s.close_new_reel(raw, text)
         own_profile = lambda: {'edit profile', 'share profile'} <= {r['fold'] for r in rows(text)}
         import farm_reel_layout as reel
         if reel.create_rows(raw, text):
