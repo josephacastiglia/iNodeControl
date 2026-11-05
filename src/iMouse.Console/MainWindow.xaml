@@ -303,6 +303,7 @@
               <Button Content="Video drafts" Click="FarmVideoDraft_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Read C24C screen" Click="FarmObservation_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Preparation schedule" Click="FarmPreparation_Click" MinHeight="30" Padding="10,5"/>
+              <Button Content="Review queue" Click="FarmScheduleQueue_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Feature readiness" Click="FarmReadiness_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Check job" Click="FarmCheckJob_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Resume simulation" Click="FarmResumeSimulation_Click" MinHeight="30" Padding="10,5"/>
