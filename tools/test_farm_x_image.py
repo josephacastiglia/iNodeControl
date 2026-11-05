@@ -242,6 +242,39 @@ class RetainedC24CTests(unittest.TestCase):
         self.assertEqual('three_rows', xl.x_save_sheet(text)['layout'])
 
 
+class PhotosReminderTests(unittest.TestCase):
+    """A17's prep 5 (4 Nov) stopped on iOS's full-access reminder; the run now answers it once by one tap."""
+    def reminder(self, app='X'):
+        import farm_permission_prompts as pp
+        rows = [(f'"{app}" has been able to access', 110, 290), ('your entire photo library.', 110, 312),
+                ('Do you want to continue to', 110, 334), ('allow full access?', 110, 356),
+                ('Limit Access', 120, 760), ('Allow Full Access', 120, 820)]
+        return pp.detect(dict(width=500, height=1080, lines=[dict(text=t, words=[dict(text=t, x=x, y=y, width=len(t)*9, height=16)])
+                                                              for t, x, y in rows]))
+
+    def test_the_reminder_is_answered_by_one_tap_keeping_the_setting(self):
+        import farm_permission_prompts as pp
+        found = self.reminder()
+        decision = pp.plan(found, app_expected='X', validated=xic.XImageCreationWorkflow.validated_prompt_methods)
+        self.assertEqual(('answer', 'Allow Full Access', 'pointer_tap'), (decision['action'], decision['answer'], decision['method']))
+        self.assertEqual(found['buttons']['Allow Full Access'], decision['target'])
+        self.assertEqual(1, xic.XImageCreationWorkflow.PROMPT_LIMIT)
+        self.assertIs(xic.XImageCreationWorkflow.validated_prompt_methods, xic.XImageVerification.validated_prompt_methods)
+
+    def test_only_one_reminder_per_run_and_no_other_prompt(self):
+        flow = xic.XImageCreationWorkflow.__new__(xic.XImageCreationWorkflow)
+        reminder = dict(kind='photos_reminder', answer='Allow Full Access')
+        for actions, decision in (([dict(label='answer-photos-reminder-prompt-1')], reminder),
+                                  ([], dict(kind='photos', answer='Allow Full Access')),
+                                  ([], dict(kind='photos_reminder', answer='Limit Access'))):
+            with self.subTest(decision=decision, actions=actions),                     patch('farm_reel_creation.ReelCreationWorkflow.answer_prompt') as answered, self.assertRaises(InspectionStopped):
+                flow.record = dict(actions=actions); flow.answer_prompt(decision, 'xi_page')
+            answered.assert_not_called()
+        with patch('farm_reel_creation.ReelCreationWorkflow.answer_prompt') as answered:
+            flow.record = dict(actions=[]); flow.answer_prompt(reminder, 'xi_page')
+            answered.assert_called_once_with(reminder, 'xi_page')
+
+
 class FakeKernel:
     _is_live_http = False
     phone = MagicMock(board=BOARD, device_id=PHONE['deviceId'])

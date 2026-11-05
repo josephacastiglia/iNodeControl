@@ -71,6 +71,18 @@ def x_top_hit(frame, text):
 
 class XImageCreationWorkflow(xc.XCreationWorkflow):
     """One package image -> Photos -> one X draft on the account signed in first."""
+    # Operator's standing instruction (4 Nov), as on A20's TikTok photo route: iOS's full-access photos
+    # reminder (which stopped A17's prep 5) is answered with the policy answer ('Allow Full Access', keeps
+    # the current setting) by one pointer tap at the recognized button, then the screen is read again; the
+    # run's journal is the evidence. Once per run: a reminder that returns, or any other prompt, stops.
+    validated_prompt_methods = {('photos_reminder', 'pointer_tap'): ('validated', 'operator instruction for A17, 4 Nov 2026')}
+    PROMPT_LIMIT = 1
+
+    def answer_prompt(self, decision, role):
+        require(decision['kind'] == 'photos_reminder' and decision['answer'] == 'Allow Full Access'
+                and not any(a['label'].startswith('answer-') for a in self.record['actions']),
+                'Only one photos reminder per run is answered automatically; review the phone.')
+        super().answer_prompt(decision, role)
 
     def __init__(self, folder, kernel, store, images, caption, templates, expected_hash, expected_uid, *,
                  transfer_url, package_name, slides, transfer_title=xil.PAGE_TITLE, account=None, **kwargs):
