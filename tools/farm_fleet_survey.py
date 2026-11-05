@@ -353,6 +353,37 @@ def renewing(screen):
     return screen
 
 
+def pointer_landing(screen, point, record):
+    """Where the pointer actually lands for `point`: moves only, never a click. The parked frame and the frame with
+    the pointer at `point` differ only in the pointer's dot; its centroid near `point` is the landing (orchestrator,
+    5 Nov: check an 'ignored' tap against the button's OCR box before blaming iOS; 26 Oct a tap was 33 px off)."""
+    import numpy as np
+    from PIL import Image
+    def grab(role):
+        raw, _, _, _ = screen.fresh(role)   # fresh() itself moves the pointer to (480|450, 300) first.
+        return raw
+    screen.command('/mouse/reset', 'measure-reset')
+    parked = grab('measure-parked')
+    before = screen.kernel.kernel_status()
+    screen.command('/mouse/move', 'measure-move', x=point[0], y=point[1])
+    screen.pause(1.5)
+    raw, headers = screen.kernel.shot(screen.phone.board)
+    (screen.folder / 'measure-at-point.bmp').write_bytes(raw)
+    a = np.asarray(Image.open(io.BytesIO(parked)).convert('L'), dtype=float)
+    b = np.asarray(Image.open(io.BytesIO(raw)).convert('L'), dtype=float)
+    diff = np.abs(a - b) > 40
+    diff[250:350, 400:500] = False   # The parked pointer's own spot.
+    window = np.zeros_like(diff); x, y = point
+    window[max(0, y - 120):y + 120, max(0, x - 120):x + 120] = True
+    ys, xs = np.nonzero(diff & window)
+    landing = (int(xs.mean()), int(ys.mean())) if len(xs) >= 20 else None
+    record['measure'] = dict(point=list(point), landing=list(landing) if landing else None, pixels=int(len(xs)),
+                             offset=[landing[0] - x, landing[1] - y] if landing else None,
+                             frameSequence=headers.get('X-iMouse-Frame-Sequence'))
+    screen.command('/mouse/move', 'measure-park', x=480, y=300)
+    return record['measure']
+
+
 def contact_sheet(folder, record):
     """Small side-by-side of the page and app frames, for the lane's own review (output only)."""
     from PIL import Image
@@ -369,11 +400,16 @@ def contact_sheet(folder, record):
     return path
 
 
+class _Measured(Exception):
+    pass
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('board'); p.add_argument('--run'); p.add_argument('--apps', default=','.join(APPS))
     p.add_argument('--instagram-profile', action='store_true', help='only bring Instagram to its own profile (Reel window start)')
     p.add_argument('--tiktok-profile', action='store_true', help='only bring TikTok to its own Profile tab (to read its handle)')
+    p.add_argument('--measure', help='x,y: move the pointer there (never click) and record where it lands')
     a = p.parse_args()
     board = a.board.upper()
     if board not in FLEET: raise SystemExit(f'{board} is not a Fleet lane phone; refused.')
@@ -397,6 +433,10 @@ def main():
     survey = FleetSurvey(screen, label, model)
     screen.tokens = screen.kernel.acquire([board], LEASE_MS)
     try:
+        if a.measure:   # Moves only: no prompt is answered, nothing is tapped.
+            pointer_landing(screen, tuple(int(v) for v in a.measure.split(',')), survey.record)
+            survey.record['state'] = 'done'
+            raise _Measured()
         try: raw, text = survey.look('first')
         except InspectionStopped as stop:
             if not str(stop).startswith('No fresh frame'): raise   # A prompt stop is final (A11, 5 Nov 17:31).
@@ -415,6 +455,7 @@ def main():
             if survey.model != 'xr': raise InspectionStopped('TikTok windows run on XR phones only.')
             survey.to_tiktok_profile()
         else: survey.run(apps)
+    except _Measured: pass
     except Exception as error:   # Every stop is recorded; nothing further is sent.
         survey.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
     finally:
@@ -425,7 +466,7 @@ def main():
     r = survey.record
     print(json.dumps(dict(board=board, phone=label, model=r.get('model'), state=r['state'], error=r.get('error'),
                           pages=r.get('pages'), apps={k: {x: v.get(x) for x in ('route', 'state')} for k, v in r['apps'].items()},
-                          prompts=r['prompts'], homes=r['homes'], leaseReleased=r.get('leaseReleased'),
+                          prompts=r['prompts'], homes=r['homes'], leaseReleased=r.get('leaseReleased'), measure=r.get('measure'),
                           folder=str(folder.relative_to(HERE.parent)), sheet=bool(sheet))))
     if r['state'] != 'done': raise SystemExit(1)
 
