@@ -137,6 +137,24 @@ def tiktok_likes_label(frame):
                and left <= x0 and x1 <= right and top <= y0 and y1 <= bottom) == 1
 
 
+def instagram_new_account_profile(text):
+    """A new Instagram account's own profile (A14, 5 Nov): no posts/followers/following row, so the counts the
+    usual rule needs are absent. Requires the own-profile buttons as two separate lines on one row, Edit profile
+    left and Share profile right, in the upper half, and a centred header line (the account) near the top."""
+    width, height = text['width'], text['height']
+    def box(line):
+        words = line['words']
+        return (min(w['x'] for w in words), min(w['y'] for w in words), max(w['x']+w['width'] for w in words))
+    lines = [(' '.join(str(l['text']).casefold().split()), box(l)) for l in text.get('lines', []) if l.get('words')]
+    edit = [b for n, b in lines if n == 'edit profile']
+    share = [b for n, b in lines if n == 'share profile']
+    if len(edit) != 1 or len(share) != 1: return False
+    (el, et, er), (sl, st, sr) = edit[0], share[0]
+    if not (abs(et - st) <= .012*height and er < width/2 < sl and .2*height <= et <= .45*height): return False
+    header = [b for n, b in lines if b[1] <= .12*height and abs((b[0]+b[2])/2 - width/2) <= .12*width and len(n) >= 3]
+    return len(header) >= 1
+
+
 def classify(text, expected, frame=None):
     """Conservative English UI patterns; matches are observations, not app authenticity."""
     width, height = text['width'], text['height']
@@ -189,6 +207,10 @@ def classify(text, expected, frame=None):
         state, app = 'profile', 'tiktok'
     elif has('edit profile') and has('share profile') and has('posts') and has('following'):
         state, app = 'profile', 'instagram'
+    elif instagram_new_account_profile(text):
+        # A new account's own profile shows no posts/followers/following row (A14, 5 Nov).
+        state, app, layout = 'profile', 'instagram', 'new_account_profile'
+        layout_evidence = 'Edit profile and Share profile side by side under a centred header line'
     elif has('download grok') and has('communities') and has('following'):
         state, app = 'account_menu', 'x'
     elif has('view channel') and has('your videos') and has('youtube premium'):
@@ -247,6 +269,8 @@ def classify(text, expected, frame=None):
     handles = []
     for line in account_lines:
         handles.extend(re.findall(r'(?<![\w.])@([A-Za-z0-9_.-]{1,50})(?![\w.])', line))
+        if app == 'instagram' and state == 'profile' and re.fullmatch(r'[A-Za-z0-9_.]{1,30} [v⌄˅]', line):
+            line = line[:-2]   # The header's account switcher chevron, read as a letter (A14, 5 Nov).
         if app == 'instagram' and re.fullmatch(r'[A-Za-z0-9_.]{1,30}', line) and '.' in line:
             handles.append(line)
         elif app == 'instagram' and line.casefold() == expected['account'].casefold():

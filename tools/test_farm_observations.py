@@ -216,3 +216,58 @@ class ObservationTests(unittest.TestCase):
 
 
 if __name__ == '__main__': unittest.main()
+
+
+import farm_paths as _paths  # noqa: E402
+from farm_observations import instagram_new_account_profile  # noqa: E402
+
+A14 = _paths.ARCHIVE/'20261105-fleet-a14'
+
+
+def _line(text, x, y, w, h=20):
+    return dict(text=text, words=[dict(text=text, x=x, y=y, width=w, height=h)])
+
+
+def _profile(*lines):
+    return dict(width=500, height=1080, lines=[_line(*l) for l in lines])
+
+
+# A14's new-account profile geometry (5 Nov): header handle, name, Add banners, Edit profile | Share profile.
+NEW_PROFILE = (('demo.account v', 172, 78, 156), ('Demo', 150, 143, 40), ('+ Add banners', 31, 271, 107),
+               ('Edit profile', 90, 318, 87), ('Share profile', 315, 318, 103))
+
+
+class InstagramNewAccountProfileTests(unittest.TestCase):
+    def test_new_account_profile_and_chevron(self):
+        text = _profile(*NEW_PROFILE)
+        result = classify(text, dict(platform='instagram', account='demo.account', caption=''))
+        self.assertEqual(('profile', 'new_account_profile', 'exact_text_match'),
+                         (result['screen'], result['layout'], result['accountStatus']))
+        other = classify(text, dict(platform='instagram', account='other.account', caption=''))
+        self.assertEqual('different_text', other['accountStatus'])
+
+    def test_near_misses_are_not_profiles(self):
+        cases = {
+            'stacked buttons': (NEW_PROFILE[0], ('Edit profile', 90, 318, 87), ('Share profile', 90, 380, 103)),
+            'no header': NEW_PROFILE[1:],
+            'buttons low': (NEW_PROFILE[0], ('Edit profile', 90, 700, 87), ('Share profile', 315, 700, 103)),
+            'edit only (X)': (NEW_PROFILE[0], ('Edit profile', 350, 318, 90)),
+            'tiktok Edit': (NEW_PROFILE[0], ('Edit', 230, 318, 40), ('Share profile', 315, 318, 103)),
+            'swapped': (NEW_PROFILE[0], ('Share profile', 90, 318, 103), ('Edit profile', 315, 318, 87)),
+        }
+        for name, lines in cases.items():
+            with self.subTest(name):
+                self.assertFalse(instagram_new_account_profile(_profile(*lines)))
+                self.assertNotEqual('profile', classify(_profile(*lines), dict(platform='instagram', account='demo.account', caption=''))['screen'])
+
+    def test_chevron_only_dropped_on_a_profile(self):
+        text = _profile(('demo.account v', 172, 78, 156), ('Search', 30, 500, 80))
+        self.assertEqual('not_visible', classify(text, dict(platform='instagram', account='demo.account', caption=''))['accountStatus'])
+
+    @unittest.skipUnless((A14/'ig-profile.bmp').exists(), 'A14 frames of 5 Nov are not available in this checkout.')
+    def test_a14_frame(self):
+        text = json.loads((A14/'ig-profile.json').read_text(encoding='utf-8'))
+        account = (A14/'ig-account.txt').read_text(encoding='utf-8').strip()
+        result = classify(text, dict(platform='instagram', account=account, caption=''), (A14/'ig-profile.bmp').read_bytes())
+        self.assertEqual(('profile', 'new_account_profile', 'exact_text_match'),
+                         (result['screen'], result['layout'], result['accountStatus']))
