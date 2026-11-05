@@ -52,10 +52,15 @@ class CreationOwnership(OwnedCaptureRun):
 # Home and Spotlight screens: every click there is settled (moved to first) and refused in icon-edit mode.
 HOME_INPUT_ROLES = ('home', 'search', 'restored_search', 'app_search_entry', 'app_result')
 STILL_SCREENS = ('home', 'search', 'restored_search', 'app_result', 'profile', 'address_selected')   # Address: slot 20, 22 Oct.
+# Aged decisions there stopped runs under load (A18, 4 Nov: 'safari_or_blank' 1740 ms before dispatch, and
+# 'instagram_navigation' with no recent frame); a newer matching frame now carries them, the 1.5 s limit unchanged.
+STILL_SCREENS += ('safari_or_blank', 'instagram_navigation')
 POINTER_PARK = (420, 270, 500, 330)   # The fresh-frame challenge moves the pointer here.
 # Screens whose lower part may still rearrange while the decided target holds still: Spotlight
 # reorders the sections below its Top Hit after the first render (slot 17, 22 Oct).
-ONLY_REGIONS = {'app_result': ((0, 65, 500, 260),)}   # The search field is translucent over the list.
+ONLY_REGIONS = {'app_result': ((0, 65, 500, 260),),   # The search field is translucent over the list.
+                # Instagram's feed autoplays between its header and tab bar; the profile tab is in the bar.
+                'instagram_navigation': ((0, 65, 500, 120), (0, 982, 500, 1045))}
 
 
 def still_compare(role):
