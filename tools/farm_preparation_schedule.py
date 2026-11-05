@@ -112,6 +112,10 @@ class PreparationSchedule:
         return self.status()
 
     def tick(self):
+        # No schedule enabled: nothing to do, and the operation lock stays free. Taking it every second just to
+        # find that out made a run request landing in that moment fail with 'already running' (A18, 5 Nov 16:24).
+        with self.connect() as db:
+            if not self.config(db).get('enabled'): return
         # Shares the same boundary as manual jobs. Never compete with an active render.
         if not self.operation_lock.acquire(blocking=False): return
         try:
