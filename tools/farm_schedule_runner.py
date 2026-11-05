@@ -78,7 +78,7 @@ def phone_ready(kernel_status, input_status, prep):
 
 
 def start_screen_problem(code, last_line):
-    """farm_start_screen.py exits 0 even when it stops; its summary line says what happened (4 Nov, slot 18)."""
+    """The start screen's summary state decides; since 5d35b76 it also exits 1 on any stop (4 Nov it exited 0)."""
     if code != 0: return f'start screen: {last_line}'[:300]
     try: summary = json.loads(last_line)
     except ValueError: return f'start screen gave no summary: {last_line}'[:300]

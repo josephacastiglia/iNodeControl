@@ -548,6 +548,32 @@ def reel_transfer_page(text, download):
                 copyTarget=(round((copy[0]+copy[2])/2), round((copy[1]+copy[3])/2)))
 
 
+# OCR reads these alike in the address field's small type; a match folds them together.
+_ADDRESS_FOLD = str.maketrans({'0': 'o', '1': 'l', 'i': 'l', '|': 'l', '5': 's', '8': 'b', '-': '_'})
+
+
+def _address_fold(value): return value.casefold().translate(_ADDRESS_FOLD)
+
+
+def typed_transfer_address(text, url):
+    """Safari's address field, still being edited, shows this transfer's address before Enter.
+
+    4 Nov (slot 18, 22:33): after the address was typed, Enter loaded an address the transfer server
+    did not know (one 404, no page request) and Safari stayed on the previous transfer page, so no
+    download could start. The field (left of its mic and clear buttons) shows the end of what was
+    typed; that end must be the end of this transfer's own address. A previous transfer's address
+    differs in its random path, so its end never matches. Recognition only."""
+    rows = [line for line in text.get('lines', []) if line.get('words')
+            and all(25 <= w['x'] and w['x'] + w['width'] <= 395 and 925 <= w['y'] and w['y'] + w['height'] <= 985 for w in line['words'])]
+    require(len(rows) == 1, 'The Safari address field is not readable.')
+    shown = ''.join(w['text'] for w in rows[0]['words'])
+    expected = re.sub(r'^https?://', '', url)
+    require(len(shown.rstrip('/')) >= 24, 'The Safari address field shows too little of the address.')
+    require(_address_fold(expected.rstrip('/')).endswith(_address_fold(shown.rstrip('/'))),
+            'The Safari address field does not show this transfer address. Enter was not pressed.')
+    return dict(addressTyped=True, shownChars=len(shown))
+
+
 def caption_copied(text):
     # The phone wraps the confirmation ("... text in" / "Instagram."); the exact sentence may span rows.
     require('Caption copied. Verify the pasted text in Instagram.' in ' '.join(rows_between(text, 80, 1000)),

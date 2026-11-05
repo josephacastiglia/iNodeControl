@@ -60,6 +60,8 @@ from farm_tiktok_runs import TikTokCreationRuns
 from farm_x_runs import XCreationRuns
 from farm_youtube_runs import YouTubeCreationRuns
 from farm_preparation_schedule import PreparationSchedule
+from farm_schedule_queue import ReviewQueue
+from farm_paths import MAIN as FARM_MAIN
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 9914
@@ -152,6 +154,9 @@ class FarmBackendRuntime:
             stage_root=self.stage_root,
             rng=self.rng,
         )
+        # The operator's review queue (farm_schedule_cli.py uses the same file). Review only here:
+        # nothing in this server runs a planned slot on a phone.
+        self.schedule_queue_path = FARM_MAIN / 'output/farm-schedule/queue.json'
         self.preparation = PreparationSchedule(db_path.parent / 'preparation-schedule.db',
             lambda: self.prepare_local_content('C24C'),
             lambda: self.db.get_persona('C24C'), self.operation_lock)
@@ -596,6 +601,14 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
             return
 
+        if path == '/api/farm/schedule-queue':
+            if not self._transfer_access_allowed():
+                self._send_json(403, {'error': 'The review queue is local-only.'}); return
+            queue = ReviewQueue(RUNTIME.schedule_queue_path)
+            self._send_json(200, {'scheduleQueue': {'schedule': queue.schedule(), 'plan': queue.plan(), 'pending': queue.pending()},
+                                  'startsRuns': False, 'phoneInput': False, 'publishing': False})
+            return
+
         if path == '/api/farm/preparation-schedule':
             if not self._transfer_access_allowed():
                 self._send_json(403, {'error': 'Preparation schedule is local-only.'}); return
@@ -787,7 +800,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/")
-        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/draft-verifications', '/api/farm/carousel-inspections', '/api/farm/draft-rehearsals', '/api/farm/draft-runs', '/api/farm/draft-creations', '/api/farm/draft-recoveries', '/api/farm/reel-creations', '/api/farm/tiktok-creations', '/api/farm/x-creations', '/api/farm/youtube-creations', '/api/farm/x-image-creations', '/api/farm/tiktok-photo-creations')) and not self._transfer_access_allowed():
+        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/schedule-queue', '/api/farm/draft-verifications', '/api/farm/carousel-inspections', '/api/farm/draft-rehearsals', '/api/farm/draft-runs', '/api/farm/draft-creations', '/api/farm/draft-recoveries', '/api/farm/reel-creations', '/api/farm/tiktok-creations', '/api/farm/x-creations', '/api/farm/youtube-creations', '/api/farm/x-image-creations', '/api/farm/tiktok-photo-creations')) and not self._transfer_access_allowed():
             self.close_connection = True
             self._send_json(403, {"error": "Media, observation and preparation controls are local-only."})
             return
@@ -916,6 +929,18 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             self._send_json(200, {'verification': RUNTIME.verifications.create(data)}); return
         if path == '/api/farm/preparation-schedule':
             self._send_json(200, {'preparationSchedule': RUNTIME.preparation.configure(data)}); return
+        if path in ('/api/farm/schedule-queue/approve', '/api/farm/schedule-queue/reject'):
+            # Review decisions only; a slot runs only from the operator's runner (farm_schedule_cli.py run).
+            package = data.get('id')
+            if isinstance(package, str) and package.isdigit(): package = int(package)
+            queue = ReviewQueue(RUNTIME.schedule_queue_path)
+            if path.endswith('/approve'):
+                if set(data) - {'id', 'account'}: raise ValueError('Approve takes only id and account.')
+                result = queue.approve(package, data.get('account'))
+            else:
+                if set(data) - {'id', 'reason'}: raise ValueError('Reject takes only id and reason.')
+                result = queue.reject(package, str(data.get('reason', '')))
+            self._send_json(200, {'package': result, 'startsRuns': False, 'phoneInput': False}); return
         if path == '/api/farm/preparation-schedule/pause':
             self._send_json(200, {'preparationSchedule': RUNTIME.preparation.pause(data.get('cancel_request_id'))}); return
         if path == '/api/farm/observations':

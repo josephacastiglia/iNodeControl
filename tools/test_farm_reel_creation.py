@@ -14,6 +14,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from farm_carousel_inspection import InspectionStopped
 import uuid
 from unittest.mock import patch
 
@@ -98,6 +99,15 @@ class Screens:
         self.frames['reel_copied'] = png(copied)
         self.texts['reel_copied'] = dict(width=500, height=1080, lines=[line(t, x, y) for t, x, y in rows]
                                          + [line('Caption copied. Verify the pasted text in', 30, 450), line('Instagram.', 30, 478)])   # Wrapped as on C24C.
+        # The address field after the transfer address was typed (read back before Enter, 4 Nov).
+        with Image.open(io.BytesIO(self.frames['address'])) as base:
+            image = base.convert('RGB'); draw = ImageDraw.Draw(image)
+            draw.rectangle((30, 938, 385, 975), fill='white'); draw.text((34, 948), URL[7:], fill='black')
+            self.frames['address_typed'] = png(image)
+        text = copy.deepcopy(self.texts['address'])
+        text['lines'] = [row for row in text['lines'] if not any(925 <= w['y'] <= 985 for w in row['words'])]
+        text['lines'].append(line(URL[7:], 34, 945, 330))
+        self.texts['address_typed'] = text
         # Paste callout over the blank caption sheet (shape observed on the carousel sheet).
         with Image.open(io.BytesIO(self.frames['caption_blank'])) as base:
             image = base.convert('RGB'); draw = ImageDraw.Draw(image)
@@ -180,6 +190,7 @@ class FixtureKernel:
         if self.screen == 'home': return 'home_' + self.leg
         if self.screen == 'search': return 'search_' + self.leg
         if self.screen == 'saved_picker' and self.scenario == 'no_drafts_chip': return 'picker'
+        if self.screen == 'address' and self.typed: return 'address_typed'
         return self.screen
 
     def shot(self, phone):
@@ -423,5 +434,76 @@ class ReelProtocolTests(unittest.TestCase):
         self.assertTrue(set(COMMITTING) <= labels, set(COMMITTING) - labels)
 
 
+
+class TransferAddressTests(unittest.TestCase):
+    """enter_transfer_address on a stub: Enter only after the field shows this address."""
+    def stub(self, results):
+        from farm_reel_creation import ReelCreationWorkflow
+        calls, record = [], {}
+        class Stub:
+            ADDRESS_TRIES = ReelCreationWorkflow.ADDRESS_TRIES
+            url = 'http://h/t/x/'
+            def __init__(s): s.record = record
+            def save(s): pass
+            def pause(s, seconds): pass
+            def tap(s, label, role, point): calls.append(label)
+            def step(s, label, role, **kw): calls.append(label)
+            def command(s, fun, purpose, **kw): calls.append(purpose)
+            def observe(s, role):
+                calls.append(role); result = results.pop(0)
+                if isinstance(result, Exception): raise result
+                return {'id': 'obs'}, None
+        stub = Stub()
+        return (lambda entry: ReelCreationWorkflow.enter_transfer_address(stub, entry)), calls, record
+
+    def test_matching_address_types_once(self):
+        run, calls, record = self.stub([None])
+        run({'addressSelected': True})
+        self.assertEqual(['enter-transfer-url', 'transfer_address_typed'], calls)
+        self.assertTrue(record['addressChecks'][0]['matched'])
+
+    def test_mismatch_escapes_and_types_once_more(self):
+        run, calls, _ = self.stub([InspectionStopped('does not show this transfer address'), None])
+        run({})
+        self.assertEqual(['focus-safari-address', 'enter-transfer-url', 'transfer_address_typed', 'cancel-transfer-url',
+                          'focus-safari-address-2', 'enter-transfer-url-2', 'transfer_address_typed'], calls)
+
+    def test_second_mismatch_stops_without_enter(self):
+        run, calls, record = self.stub([InspectionStopped('a'), InspectionStopped('b')])
+        with self.assertRaises(InspectionStopped): run({'addressSelected': True})
+        self.assertEqual('cancel-transfer-url-2', calls[-1]); self.assertNotIn('load-transfer-url', calls)
+        self.assertEqual([False, False], [c['matched'] for c in record['addressChecks']])
+
 if __name__ == '__main__':
     unittest.main()
+
+
+class DownloadBadgeWaitTests(unittest.TestCase):
+    """await_download_badge reads frames only, until the finished downloads icon shows."""
+    def run_with(self, outcomes):
+        from unittest import mock
+        import farm_reel_creation as creation
+        record, shots = {}, []
+        class Kernel:
+            def shot(s, board): shots.append(board); return b'frame', {'X-iMouse-Frame-Sequence': str(len(shots))}
+        class Stub:
+            BADGE_POLLS = creation.ReelCreationWorkflow.BADGE_POLLS
+            kernel = Kernel()
+            class phone: board = 'B18'
+            def __init__(s): s.record = record
+            def pause(s, seconds): pass
+        def badge(raw):
+            outcome = outcomes.pop(0) if outcomes else 'ring'
+            if outcome == 'ring': raise InspectionStopped('Reel control changed: safari_download_outline')
+            return {'target': (91, 955)}
+        with mock.patch.object(creation.reel, 'download_badge', badge):
+            creation.ReelCreationWorkflow.await_download_badge(Stub())
+        return record['downloadBadgeWait'], shots
+
+    def test_waits_through_the_progress_ring(self):
+        waits, shots = self.run_with(['ring', 'ring', 'done'])
+        self.assertEqual(3, len(shots)); self.assertTrue(waits[-1]['shown'])
+
+    def test_gives_up_quietly_and_leaves_the_decision_to_the_tap(self):
+        waits, shots = self.run_with([])
+        self.assertEqual(10, len(shots)); self.assertFalse(any(w.get('shown') for w in waits))
