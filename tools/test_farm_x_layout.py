@@ -158,3 +158,28 @@ class PickerBadgeTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+import farm_paths as _paths  # noqa: E402
+import farm_x_layout as _xl  # noqa: E402
+
+_A14 = _paths.ARCHIVE/'20261105-fleet-a14'
+
+
+@unittest.skipUnless((_A14/'x-feed.bmp').exists(), 'A14 frames of 5 Nov are not available in this checkout.')
+class A14SpreadHeaderTests(unittest.TestCase):
+    """A14's timeline header: three evenly spaced tabs, 'For you' at x 74-138 (5 Nov)."""
+    def setUp(self):
+        self.frame = (_A14/'x-feed.bmp').read_bytes()
+        self.text = json.loads((_A14/'x-feed.json').read_text(encoding='utf-8'))
+
+    def edited(self, keep):
+        return dict(self.text, lines=[l for l in self.text['lines'] if keep(' '.join(l['text'].casefold().split()))])
+
+    def test_the_spread_header_is_the_timeline(self):
+        self.assertEqual(dict(menuTarget=(45, 85), composeTarget=(454, 935)), _xl.x_feed(self.frame, self.text))
+
+    def test_the_whole_set_is_required(self):
+        for missing in ('following', 'add +', 'for you'):
+            with self.subTest(missing=missing), self.assertRaises(InspectionStopped):
+                _xl.x_feed(self.frame, self.edited(lambda t: not t.startswith(missing)))

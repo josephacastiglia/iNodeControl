@@ -64,7 +64,13 @@ def x_feed(frame, text):
         ' '.join(r['text'].casefold().split()).endswith('add +') and 150 <= min(w['x'] for w in r['words'])
         and max(w['x']+w['width'] for w in r['words']) <= 340 and 120 <= min(w['y'] for w in r['words']) <= 160
         for r in text.get('lines', []) if r.get('words')))
-    require(tabs and line_at(text, 'for you', (30, 120, 130, 160)), 'The X timeline header is not recognized.')
+    # Three evenly spaced tabs (A14, 5 Nov): 'For you' at x 74-138, 'Following' at 211-297, 'Add +' from x 371.
+    # Recognized only as that whole set; a 'For you' outside the usual box with anything else still stops.
+    spread = (line_at(text, 'for you', (60, 120, 150, 160)) and words_at(text, 'following', (195, 120, 315, 160))
+              and any(' '.join(r['text'].casefold().split()).startswith('add +') and 350 <= min(w['x'] for w in r['words'])
+                      and max(w['x']+w['width'] for w in r['words']) <= 465 and 115 <= min(w['y'] for w in r['words']) <= 160
+                      for r in text.get('lines', []) if r.get('words')))
+    require((tabs and line_at(text, 'for you', (30, 120, 130, 160))) or spread, 'The X timeline header is not recognized.')
     image = pixels(frame, exact=True)
     require(blue_fraction(image, (428, 909, 480, 961)) > .5, 'The X compose button is not where it was observed.')
     no_overlay({**text, 'lines': [r for r in text.get('lines', []) if not r.get('words')
