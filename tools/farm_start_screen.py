@@ -6,9 +6,9 @@ under a held lease; nothing is sent blind, and an uncertain answer is never
 repeated. It refuses on any screen it does not recognize. Supported now: the
 Instagram profile scrolled to the top (one tap on the active profile tab).
 
-Usage: python farm_start_screen.py instagram-profile <journal folder>
+Usage: python farm_start_screen.py instagram-profile|tiktok-profile|x-timeline|youtube-home <journal folder> <config>
 Writes a private journal (frames and OCR stay in that folder); prints a summary
-without OCR text.
+without OCR text as its last line, and exits 1 when it stopped (0 at the start screen).
 """
 import hashlib
 import json
@@ -514,12 +514,15 @@ def main():
         elif target == 'x-timeline': tool.to_x_timeline()
         elif target == 'youtube-home': tool.to_youtube_home()
         else: tool.to_instagram_profile_top()
-    except InspectionStopped: pass
+    except Exception as error:   # Each route records its own stop; anything else is recorded here.
+        if tool.record.get('state') != 'stopped': tool.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
     r = tool.record
     print(json.dumps(dict(state=r['state'], error=r.get('error'), before=r.get('before'), after=r.get('after'),
                           commands=[(c['purpose'], c['state']) for c in r['commands'] if c['purpose'] != 'fresh_frame_challenge'],
                           challenges=sum(c['purpose'] == 'fresh_frame_challenge' for c in r['commands']),
                           leaseReleased=r.get('leaseReleased'))))
+    # Callers read the summary line above; the exit code says the same thing (it was 0 on a stop until 5 Nov).
+    if r['state'] not in ('at_start', 'already_at_start'): raise SystemExit(1)
 
 
 if __name__ == '__main__':

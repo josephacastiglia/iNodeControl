@@ -706,6 +706,31 @@ class StartScreenSpotlightTests(unittest.TestCase):
         self.assertEqual((446, 1005), taps[1][1])
 
 
+class StartScreenExitTests(unittest.TestCase):
+    def test_a_stop_prints_its_summary_and_exits_non_zero(self):
+        import io, json, sys, tempfile
+        from contextlib import redirect_stdout
+        from pathlib import Path
+        from unittest import mock
+        import farm_start_screen as fs
+        class Tool:
+            outcome = None
+            def __init__(self, folder, phone=None): self.record = dict(state='started', commands=[])
+            def to_x_timeline(self):
+                if Tool.outcome == 'at_start': self.record['state'] = 'at_start'; return self.record
+                if Tool.outcome == 'stopped': self.record.update(state='stopped', error='InspectionStopped: x'); raise InspectionStopped('x')
+                raise ConnectionError('kernel gone')
+        with tempfile.TemporaryDirectory() as folder:
+            config = Path(folder) / 'c.json'; config.write_text('{}', encoding='utf-8')
+            for outcome, code, state in (('at_start', None, 'at_start'), ('stopped', 1, 'stopped'), ('error', 1, 'stopped')):
+                Tool.outcome = outcome; out = io.StringIO()
+                with self.subTest(outcome=outcome), mock.patch.object(fs, 'StartScreen', Tool), mock.patch.object(fs, 'phone_of', lambda c: None),                         mock.patch.object(sys, 'argv', ['x', 'x-timeline', folder, str(config)]), redirect_stdout(out):
+                    try: fs.main(); got = None
+                    except SystemExit as exit: got = exit.code
+                    self.assertEqual(code, got)
+                    self.assertEqual(state, json.loads(out.getvalue().strip().splitlines()[-1])['state'])
+
+
 class AppHomeStartScreenTests(unittest.TestCase):
     def start(self, screens):
         from types import SimpleNamespace
