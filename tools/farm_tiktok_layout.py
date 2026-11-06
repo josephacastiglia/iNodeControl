@@ -384,9 +384,9 @@ def tray_colours(image, reference):
     return tile_colours(image, (18, 882, 90, 956), reference)
 
 
-def tile_colours(image, box, reference, model='square'):
+def tile_colours(image, box, reference, model='square', blocks=(0, 2, 3, 4)):
     """Square-crop thumbnail (tray or picker tile), or a 3:4 drafts cover with model='portrait': the
-    uncovered test-media tiles' colour proportions."""
+    uncovered test-media tiles' colour proportions. blocks: which of the six are uncovered."""
     left, top, right, bottom = box
     size, targets = reference.models[model]
     observed = np.asarray(Image.fromarray(image[top:bottom, left:right]).resize(size, Image.Resampling.LANCZOS), dtype=float)/255
@@ -398,7 +398,7 @@ def tile_colours(image, box, reference, model='square'):
                 block = rgb[cy-h//12:cy+h//12, cx-w//8:cx+w//8].reshape(-1, 3).mean(axis=0)
                 rows.append(block/max(float(block.sum()), 1e-6))
         return np.array(rows)
-    worst = float(np.abs(grid3x2(observed) - grid3x2(targets[0])).max(axis=1)[[0, 2, 3, 4]].max())
+    worst = float(np.abs(grid3x2(observed) - grid3x2(targets[0])).max(axis=1)[list(blocks)].max())
     return dict(matched=worst <= .06, status='tile_colour_match' if worst <= .06 else 'different', worstTile=worst)
 
 
@@ -544,6 +544,7 @@ def tiktok_paste_menu(frame, text):
 DRAFT_COLUMNS = ((0, 163), (169, 331), (337, 500))
 DRAFT_ROWS = ((238, 453), (459, 674), (680, 895))
 DRAFT_SHIFTS = (0, -50)
+MONTHS = ('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec')
 TOAST = ({'draft saved'}, (190, 135, 310, 170))
 
 
@@ -572,7 +573,8 @@ def tiktok_drafts(frame, text, reference):
     tiles = []
     for top, bottom in ((t + shift, b + shift) for t, b in DRAFT_ROWS):
         for left, right in DRAFT_COLUMNS:
-            if (image[top+10:bottom-10, left+10:right-10].min(axis=2) > 235).mean() > .97: continue   # empty slot
+            # An empty slot; A13's floating circle and the pointer can sit over one (5 Nov), a cover fills its slot.
+            if (image[top+10:bottom-10, left+10:right-10].min(axis=2) > 235).mean() > .85: continue
             for a, b in ((left-6, left), (right, right+6)):
                 if 0 <= a and b <= 500:
                     require((image[top+5:bottom-5, a:b].min(axis=2) > 235).mean() > .97, 'TikTok drafts grid geometry changed.')
@@ -586,8 +588,12 @@ def tiktok_drafts(frame, text, reference):
                         key=lambda m: (not m['matched'], m['mean'] if m['mean'] is not None else 9))
             if not match['matched'] and match['mean'] is not None and match['mean'] <= .1:
                 # A narrow miss on slot 20's rounded, shaded cover (.068, 24 Oct) is decided by its colour blocks.
-                match = dict(match, **tile_colours(image, (left+2, top+2, right-2, bottom-2), reference, 'portrait'))
-            label = rows_between(text, bottom-50, bottom, left, right)
+                # A13's covers carry a date badge over the top-left block (5 Nov: '5' above 'Nov'); the block beside it counts instead.
+                dated = any(words_at(text, month, (left+12, top+30, left+62, top+62)) for month in MONTHS)
+                match = dict(match, **tile_colours(image, (left+2, top+2, right-2, bottom-2), reference, 'portrait',
+                                                   blocks=(1, 2, 3, 4) if dated else (0, 2, 3, 4)))
+            # Digits alone there are the test video's own counter, burned into the cover, not a sound's name (A13, 5 Nov).
+            label = [row for row in rows_between(text, bottom-50, bottom, left, right) if not row.strip().isdigit()]
             tiles.append(dict(tile=[left, top, right, bottom], match=match, soundLabel=label[0] if label else None))
     require(tiles, 'No TikTok drafts are recognized.')
     matched = [t for t in tiles if t['match']['matched']]
