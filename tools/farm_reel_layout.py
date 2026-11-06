@@ -467,7 +467,9 @@ def reel_details(frame, text, reference, caption=None, *, reopened=False):
     exact(text, 'New reel', (190, 62, 310, 100))
     require(words_at(text, 'preview', (185, 150, 268, 188)) and line_at(text, 'edit cover', (182, 405, 292, 445)),
             'The Reel cover card is not recognized.')
-    for name, box in (('poll', (180, 605, 235, 640)), ('prompt', (245, 605, 350, 640))):
+    # A12 (5 Nov): a 'Link a reel' chip after Hashtags moves Poll and Prompt right; never targets either way.
+    linked = line_at(text, 'link a reel', (195, 605, 285, 640))
+    for name, box in (('poll', (340, 605, 390, 640)), ('prompt', (410, 605, 500, 640))) if linked else (('poll', (180, 605, 235, 640)), ('prompt', (245, 605, 350, 640))):
         require(words_at(text, name, box), 'Reel details field missing: ' + name)
     details_rows(text)
     exact(text, 'Save draft', (80, 980, 190, 1012))

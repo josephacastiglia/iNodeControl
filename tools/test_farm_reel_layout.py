@@ -349,6 +349,27 @@ class A12EditorTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): _rl.reel_editor(self.frame, text, self.reference)
 
 
+@unittest.skipUnless((_A12/'reel-details-link-chip.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
+class A12DetailsTests(unittest.TestCase):
+    """A12's details (6 Nov frame): Hashtags, Link a reel, Poll, Prompt across the chip row."""
+    def setUp(self):
+        self.frame = (_A12/'reel-details-link-chip.png').read_bytes()
+        self.text = json.loads((_A12/'reel-details-link-chip.json').read_text(encoding='utf-8'))
+        self.reference = _tt.TikTokReference((_A12/'reel-details-package.mp4').read_bytes())
+
+    def test_the_moved_chips_are_the_blank_details(self):
+        self.assertIn('captionTarget', _rl.reel_details(self.frame, self.text, self.reference))
+
+    def test_without_link_a_reel_the_moved_chips_do_not_count(self):
+        text = dict(self.text, lines=[l for l in self.text['lines'] if l['text'] != 'Link a reel'])
+        with self.assertRaisesRegex(InspectionStopped, 'poll'): _rl.reel_details(self.frame, text, self.reference)
+
+    def test_every_chip_is_still_needed(self):
+        for label in ('Poll', 'Q Prompt'):
+            text = dict(self.text, lines=[l for l in self.text['lines'] if l['text'] != label])
+            with self.subTest(label), self.assertRaises(InspectionStopped): _rl.reel_details(self.frame, text, self.reference)
+
+
 @unittest.skipUnless((_A12/'reel-create.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
 class A12CreateSheetTests(unittest.TestCase):
     """A12's Create sheet (5 Nov): no Instants row, every row 53 px apart from 'Create' at y 569."""
