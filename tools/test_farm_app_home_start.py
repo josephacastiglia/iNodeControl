@@ -1,4 +1,4 @@
-"""The YouTube start screen on A14 (5 Nov): the lease is renewed before the launch waits; the bare gallery closes."""
+"""The start screen on A14 and A12 (5 Nov): every input renews the lease first; the bare gallery closes."""
 import json
 import os
 from pathlib import Path
@@ -26,23 +26,24 @@ def screen():
     return s
 
 
-class LaunchWaitTests(unittest.TestCase):
-    def test_the_lease_is_renewed_before_each_launch_wait(self):
-        s, order = screen(), []
-        s.kernel.renew_if_needed.side_effect = lambda tokens, least: order.append(('renew', least))
-        reads = iter(('before', 'after-launch-1', 'after-launch-2'))
-        def fresh(role): order.append(role); next(reads); return b'', {'at': role}, 0, 0
-        s.fresh = fresh; s.open_from_home = lambda name: (b'', {'at': 'opened'}, 0, 0)
-        def check(raw, text):
-            if text['at'] != 'after-launch-2': raise InspectionStopped('Not yet.')
-        s.to_app_home('YouTube', 'youtube_home', check)
-        self.assertEqual(['before', ('renew', 20000), 'after-launch-1', ('renew', 20000), 'after-launch-2'], order)
-        self.assertEqual('at_start', s.record['state'])
+class LeaseTests(unittest.TestCase):
+    def built(self):
+        s = StartScreen.__new__(StartScreen)
+        s.record = {'commands': []}; s.save = lambda: None; s.pointer = None; s.tokens = {'B': 'token'}
+        s.kernel = mock.Mock(); s.phone = mock.Mock(board='B')
+        return s
 
-    def test_no_renew_when_the_app_is_already_open(self):
-        s = screen(); s.fresh = lambda role: (b'', {}, 0, 0)
-        s.to_app_home('YouTube', 'youtube_home', lambda raw, text: None)
-        s.kernel.renew_if_needed.assert_not_called()
+    def test_every_input_renews_the_lease_first(self):
+        s, order = self.built(), []
+        s.kernel.renew_if_needed.side_effect = lambda tokens, least: order.append(('renew', tokens, least))
+        s.kernel.send.side_effect = lambda board, token, fun, **data: order.append(('send', fun))
+        s.command('/mouse/move', 'fresh_frame_challenge', x=1, y=2)
+        self.assertEqual([('renew', {'B': 'token'}, 20000), ('send', '/mouse/move')], order)
+
+    def test_a_lost_lease_sends_and_records_nothing(self):
+        s = self.built(); s.kernel.renew_if_needed.side_effect = RuntimeError('Renew failed')
+        with self.assertRaises(RuntimeError): s.command('/mouse/click', 'open', x=1, y=2, button=1)
+        s.kernel.send.assert_not_called(); self.assertEqual([], s.record['commands'])
 
 
 class BackOutTests(unittest.TestCase):

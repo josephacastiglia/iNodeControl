@@ -149,6 +149,9 @@ class StartScreen:
         (self.folder / 'start-screen.json').write_text(json.dumps(self.record, indent=2), encoding='utf-8')
 
     def command(self, fun, purpose, **data):
+        # A route can outlast one 30 s lease on any step (A14 launch wait, A12 after the profile tap, 5 Nov: 409 about
+        # 30 s in), so every input renews it first when under 20 s remain. A lease already lost stops here, unsent.
+        self.kernel.renew_if_needed(self.tokens, 20000)
         item = dict(fun=fun, purpose=purpose, data=data, state='outcome_unknown')
         self.record['commands'].append(item); self.record['phoneInput'] = True; self.save()
         self.kernel.send(self.phone.board, self.tokens[self.phone.board], fun, **data)
@@ -555,8 +558,6 @@ class StartScreen:
             raw, text, _, _ = self.open_from_home(name)
             for wait in range(3):   # A relaunched app can still be drawing its first screen.
                 if ready(raw, text): break
-                # Home, search and open can use up the 30 s lease by here (A14 5 Nov: 409 on the challenge move, 30 s in).
-                self.kernel.renew_if_needed(self.tokens, 20000)
                 self.pause(1.5)
                 raw, text, _, _ = self.fresh(f'after-launch-{wait + 1}')
             done = set()   # Each back-out tap at most once, on a recognized screen; none is repeated.
@@ -564,8 +565,6 @@ class StartScreen:
                 move = back_out(raw, text)
                 if move is None or move[2] in done: break
                 point, role, purpose, only = move; done.add(purpose)
-                # Several back-outs outlast one 30 s lease (26 Oct: the lease expired mid-tap); renew first.
-                self.kernel.renew_if_needed(self.tokens, 20000)
                 self.tap(raw, text, point, role, purpose, only=only)
                 for wait in range(3):
                     self.pause(1.5)
