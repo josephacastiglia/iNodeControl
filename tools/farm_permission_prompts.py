@@ -136,6 +136,36 @@ def button_boxes(text):
     return boxes
 
 
+# Fallback for a correctly placed click that was ignored (tools/farm_prompt_press.py): one settled press held on the
+# policy answer. Only these families; on any other screen a hold this long is a long press. Shortest hold first:
+# 800 ms answered A12's reminder (5 Nov, one trial), 80 and 300 ms did nothing, 400 and 600 ms are not yet known.
+SLOW_PRESS = ('photos_reminder',)
+SLOW_PRESS_HOLDS_MS = (400, 600, 800)
+# Any of these in a row means the alert is still on the screen. The pointer's dot can hide the answer's own label
+# ("Allow F' Access", A12, 5 Nov), so that label's absence proves nothing.
+ALERT_ROWS = {'photos_reminder': ('has been able to', 'access your entire photo', 'continue to allow full', 'limit access', 'allow f')}
+
+
+def slow_press_plan(prompt, *, click_ignored=False):
+    """Whether this alert may take the held press, and on what. Needs a click already ignored and the policy answer read."""
+    kind = prompt['kind']
+    answer = POLICY.get(kind)
+    reason = None
+    if kind not in SLOW_PRESS: reason = 'This prompt has no slow-press fallback.'
+    elif not click_ignored: reason = 'A correctly placed click comes first.'
+    elif prompt.get('ambiguous'): reason = 'Two identical buttons were read.'
+    elif answer not in prompt['buttons']: reason = 'The policy answer is not visible on this prompt.'
+    elif "Don't Allow" in prompt['buttons']: reason = "A full-access reminder has no Don't Allow; this alert needs review."
+    if reason: return dict(action='stop', kind=kind, reason=reason)
+    return dict(action='press', kind=kind, answer=answer, target=prompt['buttons'][answer], holdsMs=SLOW_PRESS_HOLDS_MS)
+
+
+def alert_reads(text, kind):
+    """Whether any row of this family's alert still reads."""
+    rows = [r['text'].casefold() for r in _rows(text)]
+    return any(fragment in row for row in rows for fragment in ALERT_ROWS.get(kind, ()))
+
+
 def window_problems(entry):
     """Why a validation-window entry cannot count as evidence. An empty list means it is complete."""
     if not isinstance(entry, dict): return ['A window entry must be a record.']

@@ -149,6 +149,9 @@ class StartScreen:
         (self.folder / 'start-screen.json').write_text(json.dumps(self.record, indent=2), encoding='utf-8')
 
     def command(self, fun, purpose, **data):
+        # A route can outlast one 30 s lease on any step (A14 launch wait, A12 after the profile tap, 5 Nov: 409 about
+        # 30 s in), so every input renews it first when under 20 s remain. A lease already lost stops here, unsent.
+        self.kernel.renew_if_needed(self.tokens, 20000)
         item = dict(fun=fun, purpose=purpose, data=data, state='outcome_unknown')
         self.record['commands'].append(item); self.record['phoneInput'] = True; self.save()
         self.kernel.send(self.phone.board, self.tokens[self.phone.board], fun, **data)
@@ -530,6 +533,10 @@ class StartScreen:
                 return (44, 77), 'youtube_drafts', 'close-drafts-list', ((0, 60, 500, 175),)
             try: return yl.yt_gallery(raw, text)['closeTarget'], 'youtube_gallery', 'close-gallery', ((0, 60, 500, 205),)
             except InspectionStopped: pass
+            try:   # A14's gallery (5 Nov, no drafts yet): no Create video or Drafts row; the same X closes it.
+                if yl._picker_header(raw, text, 'yt_picker')[1] == yl.BARE_DY:
+                    return yl.GALLERY_CLOSE, 'youtube_gallery', 'close-gallery', ((0, 60, 500, 205),)
+            except InspectionStopped: pass
             try: yl.yt_camera(raw, text)
             except InspectionStopped: return None
             # Only the X's corner and the mode labels: the bar beside them animates (26 Oct).
@@ -558,8 +565,6 @@ class StartScreen:
                 move = back_out(raw, text)
                 if move is None or move[2] in done: break
                 point, role, purpose, only = move; done.add(purpose)
-                # Several back-outs outlast one 30 s lease (26 Oct: the lease expired mid-tap); renew first.
-                self.kernel.renew_if_needed(self.tokens, 20000)
                 self.tap(raw, text, point, role, purpose, only=only)
                 for wait in range(3):
                     self.pause(1.5)

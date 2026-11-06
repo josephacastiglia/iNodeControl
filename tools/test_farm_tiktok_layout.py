@@ -292,6 +292,54 @@ class A13ShopNavTests(unittest.TestCase):
                 if word['text'] == 'Shop': word['y'] = 900
         with self.assertRaises(InspectionStopped): tt.tiktok_feed(frame, moved)
 
+    def test_the_editor_with_the_avatar_joined_to_story(self):
+        frame = (_A13/'tt-editor.png').read_bytes()
+        text = json.loads((_A13/'tt-editor.json').read_text(encoding='utf-8'))
+        reference = tt.TikTokReference((_A13/'tt-package.mp4').read_bytes())
+        found = tt.tiktok_editor(frame, text, reference)
+        self.assertEqual(('attached', (367, 1006)), (found['sound'], found['nextTarget']))
+        self.assertLess(abs(found['removeTarget'][0] - 339), 5)
+        for word in ('Story', '24h'):
+            with self.subTest(word), self.assertRaises(InspectionStopped):
+                tt.tiktok_editor(frame, self.without(text, word), reference)
+
+    def test_the_editor_with_the_avatar_joined_to_your_story(self):
+        frame = (_A13/'tt-editor-your-story.png').read_bytes()
+        text = json.loads((_A13/'tt-editor-your-story.json').read_text(encoding='utf-8'))
+        reference = tt.TikTokReference((_A13/'tt-package-your-story.mp4').read_bytes())
+        self.assertEqual('attached', tt.tiktok_editor(frame, text, reference)['sound'])
+        for word in ('Your', 'Story'):
+            with self.subTest(word), self.assertRaises(InspectionStopped):
+                tt.tiktok_editor(frame, self.without(text, word), reference)
+
+    def drafts_frame(self):
+        return (_A13/'tt-drafts-badge.png').read_bytes(), json.loads((_A13/'tt-drafts-badge.json').read_text(encoding='utf-8'))
+
+    def test_the_dated_draft_cover_is_the_package(self):
+        frame, text = self.drafts_frame()
+        found = tt.tiktok_drafts(frame, text, tt.TikTokReference((_A13/'tt-drafts-package.mp4').read_bytes()))
+        self.assertEqual((1, None, 'tile_colour_match'), (found['tiles'], found['tile']['soundLabel'], found['tile']['match']['status']))
+
+    def test_another_package_is_not_this_dated_cover(self):
+        frame, text = self.drafts_frame()
+        with self.assertRaises(InspectionStopped):
+            tt.tiktok_drafts(frame, text, tt.TikTokReference((_A13/'tt-drafts-other-package.mp4').read_bytes()))
+
+    def test_without_the_date_the_covered_block_still_counts(self):
+        frame, text = self.drafts_frame()
+        with self.assertRaises(InspectionStopped):
+            tt.tiktok_drafts(frame, self.without(text, 'NOV'), tt.TikTokReference((_A13/'tt-drafts-package.mp4').read_bytes()))
+
+    def test_a_named_sound_on_the_cover_is_still_read(self):
+        frame, text = self.drafts_frame()
+        named = json.loads(json.dumps(text))
+        for line in named['lines']:
+            if line['text'] == '00':
+                line['text'] = 'Copper Street'
+                line['words'] = [dict(line['words'][0], text='Copper Street')]
+        found = tt.tiktok_drafts(frame, named, tt.TikTokReference((_A13/'tt-drafts-package.mp4').read_bytes()))
+        self.assertEqual('Copper Street', found['tile']['soundLabel'])
+
     def test_tiktoks_contacts_dialog_over_the_variant_still_stops(self):
         frame, text = self.load('tt-feed-contacts')
         self.assertTrue(tt.shop_nav(text))

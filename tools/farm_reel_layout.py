@@ -358,7 +358,12 @@ def reel_selected(frame, text, reference, cell):
     # Each word on its own: OCR may join the button's icon to the label ('t-g First draft', 22 Oct).
     found = all(words_at(text, word, (290, 975, 395, 1012)) for word in ('first', 'draft'))
     if not found:   # Full-frame OCR can miss the white pill over a dark tray (A18, 5 Nov 16:54); that band alone, enlarged.
-        found = {'first', 'draft'} <= {w[0].casefold() for w in band_words(frame, (280, 970, 400, 1016))}
+        band = {w[0].casefold() for w in band_words(frame, (280, 970, 400, 1016))}
+        found = {'first', 'draft'} <= band
+        # A12's new account (5 Nov) shows no First draft button at all: that band reads nothing and Next reads in its pill.
+        # White on blue reads only in the whole tray's band, not in the pill's own.
+        found = found or (not band and any(w[0].casefold() == 'next' and 405 <= w[1] and w[3] <= 490 and 975 <= w[2] and w[4] <= 1015
+                                           for w in band_words(frame, (0, 960, 500, 1050))))
     require(found, 'Exact visible label missing: First draft')
     reel_control(frame, 'next_pill')
     # The tray thumbnail carries a remove X at its top-right; it is never tapped.
@@ -396,6 +401,21 @@ def toolbar_words(frame):
     return [(t.casefold(), x0, x1) for t, x0, _, x1, _ in band_words(frame, TOOLBAR_BAND, TOOLBAR_SCALE)]
 
 
+def icon_row(frame):
+    """The editor's unlabelled tool row: at least seven evenly spaced grey tiles along their top edge, above the glyphs."""
+    try: image = pixels(frame, exact=True)
+    except (OSError, ValueError, InspectionStopped): return False   # An unreadable frame shows no row.
+    grey = np.abs(image[890:893].astype(int).mean(axis=0) - 128).max(axis=1) < 45
+    runs, start = [], None
+    for x, on in enumerate(list(grey) + [False]):
+        if on and start is None: start = x
+        elif not on and start is not None:
+            if 44 <= x - start <= 64: runs.append((start + x) // 2)
+            start = None
+    gaps = [b - a for a, b in zip(runs, runs[1:])]
+    return len(runs) >= 7 and max(gaps) - min(gaps) <= 6
+
+
 def reel_editor(frame, text, reference):
     no_overlay(text)
     exact(text, 'Edit video', (25, 975, 125, 1008))
@@ -410,6 +430,8 @@ def reel_editor(frame, text, reference):
         # a 'Suggested audio' pill on top and a 'Swipe up to edit' hint. Only Edit video and Next are near any target.
         enlarged = toolbar_words(frame)
         seven = sum(any(w[0] == name and box[0] <= w[1] and w[2] <= box[1] for w in enlarged) for name, box in SEVEN_TOOLS) >= 4
+        # A12 (5 Nov): the same row with no labels, a chevron above it. Only the row of icon tiles is there to read.
+        seven = seven or icon_row(frame)
     require(seven or sum(bool(t) for t in toolbar) >= 3, 'The Reel editor toolbar is not recognized.')
     require(words_at(text, 'next', (405, 975, 470, 1008)) or present(frame, 'next_pill'), 'The editor Next control is not verified.')
     ignore = ((0, 56, 80, 120), (0, 880, 500, 945)) + (((130, 60, 370, 130), (0, 815, 500, 880)) if seven else ())
