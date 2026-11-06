@@ -972,6 +972,12 @@ class SheetPending(InspectionStopped):
 
 def share_sheet(text, download, frame=None):
     name, shift = share_header(text, re.escape(download))
+    if name is None:
+        # OCR can split the name in the sheet's header ('imouse-reel-axka', 'kd', A12, 6 Nov): one row, the same letters.
+        split = [line for line in text.get('lines', []) if len(line.get('words', [])) > 1 and ''.join(w['text'] for w in line['words']) == download
+                 and all(60 <= w['x'] and w['x']+w['width'] <= 320 and SHARE_HEADER_TOP + SHARE_SHIFT[0] - 9 <= w['y']
+                         and w['y']+w['height'] <= SHARE_HEADER_TOP + SHARE_SHIFT[1] + 24 for w in line['words'])]
+        if len(split) == 1: name, shift = download, round(split[0]['words'][0]['y'] - SHARE_HEADER_TOP)
     if name is None and line_at(text, download, (60, 60, 330, 110)) and line_at(text, 'done', (410, 60, 490, 110)):
         raise SheetPending('The share sheet has not opened yet; capture again without input.')
     require(name is not None, 'The share sheet is not for this download.')

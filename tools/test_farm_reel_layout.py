@@ -399,6 +399,20 @@ class A12DownloadsTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): _rl.downloads_list(self.text, 'imouse-reel-yfwmrx', 31000)
 
 
+@unittest.skipUnless((_A12/'share-split-name.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
+class A12ShareSheetTests(unittest.TestCase):
+    """A12's share sheet (6 Nov frame): the header's file name read with a space inside it."""
+    def setUp(self):
+        self.frame = (_A12/'share-split-name.png').read_bytes()
+        self.text = json.loads((_A12/'share-split-name.json').read_text(encoding='utf-8'))
+
+    def test_the_split_name_is_this_download(self):
+        self.assertIn('target', _rl.share_sheet(self.text, 'imouse-reel-axkakd', self.frame))
+
+    def test_another_download_is_not(self):
+        with self.assertRaises(InspectionStopped): _rl.share_sheet(self.text, 'imouse-reel-axkakx', self.frame)
+
+
 @unittest.skipUnless((_A12/'reel-create.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
 class A12CreateSheetTests(unittest.TestCase):
     """A12's Create sheet (5 Nov): no Instants row, every row 53 px apart from 'Create' at y 569."""
