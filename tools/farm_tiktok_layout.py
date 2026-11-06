@@ -574,7 +574,7 @@ def tiktok_drafts(frame, text, reference):
     for top, bottom in ((t + shift, b + shift) for t, b in DRAFT_ROWS):
         for left, right in DRAFT_COLUMNS:
             # An empty slot; A13's floating circle and the pointer can sit over one (5 Nov), a cover fills its slot.
-            if (image[top+10:bottom-10, left+10:right-10].min(axis=2) > 235).mean() > .85: continue
+            if (image[top+10:bottom-10, left+10:right-10].min(axis=2) > 235).mean() > .75: continue
             for a, b in ((left-6, left), (right, right+6)):
                 if 0 <= a and b <= 500:
                     require((image[top+5:bottom-5, a:b].min(axis=2) > 235).mean() > .97, 'TikTok drafts grid geometry changed.')
