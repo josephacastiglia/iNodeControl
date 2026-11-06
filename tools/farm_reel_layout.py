@@ -499,11 +499,13 @@ def reel_caption(frame, text, *, blank):
     """Top caption sheet over details. OK only closes it; it never saves."""
     exact(text, 'Caption', (200, 62, 300, 100))
     control(frame, 'ok')
-    # With A12's 'Link a reel' chip Poll and Prompt sit further right, as on its details screen. No frame of this sheet yet.
-    moved = line_at(text, 'link a reel', (195, 240, 285, 278))
-    for name, box in (('hashtags', (25, 240, 145, 278)), ('poll', (340, 240, 390, 278) if moved else (178, 240, 238, 278)),
-                      ('prompt', (410, 240, 500, 278) if moved else (265, 240, 350, 278))):
-        require(words_at(text, name, box), 'The Reel caption sheet is not recognized.')
+    # A12 (6 Nov): a 'Link a reel' chip moves Poll right and Prompt to the screen's edge, where the parked pointer covers
+    # most of it ('pt'). Link and reel read as words beside the chip's icon, so the moved chips count only with both.
+    moved = words_at(text, 'link', (195, 240, 240, 278)) and words_at(text, 'reel', (240, 240, 285, 278))
+    require(words_at(text, 'hashtags', (25, 240, 145, 278)), 'The Reel caption sheet is not recognized.')
+    require(words_at(text, 'poll', (340, 240, 390, 278) if moved else (178, 240, 238, 278)), 'The Reel caption sheet is not recognized.')
+    require((words_at(text, 'prompt', (410, 240, 500, 278)) or words_at(text, 'pt', (470, 240, 500, 278))) if moved
+            else words_at(text, 'prompt', (265, 240, 350, 278)), 'The Reel caption sheet is not recognized.')
     empty = present(frame, 'caption_placeholder')
     if blank: require(empty, 'The Reel caption field is not empty and focused.')
     else: require(not empty and rows_between(text, 115, 235, 10, 490), 'The pasted caption is not visible in the editor.')
