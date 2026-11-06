@@ -89,6 +89,37 @@ def pointer_blob(a, b, mask):
     return ignore
 
 
+def hover_tint(a, b, near):
+    """The box of the control tinted by the pointer resting on it, or None. A19 5 Nov: the Start over row lifts by
+    about 20 levels under the settled pointer (mean .013), so its confirmation failed and nothing was tapped.
+    Only an even tint around the target counts: one flat shift across a control-sized box, with anything stronger
+    only where the pointer itself sits. A changed label or a new screen is not an even tint and still stops."""
+    import numpy as np
+    x, y = near; height, width = a.shape[:2]
+    if not (0 <= x < width and 0 <= y < height): return None
+    shift = b - a; lit = np.abs(shift).max(axis=2) > 6 / 255
+    beside = lit[:, max(0, x - 25):x + 25].mean(axis=1) > .5
+    if not beside[y]: return None
+    top, bottom = y, y + 1
+    while top > 0 and beside[top - 1]: top -= 1
+    while bottom < height and beside[bottom]: bottom += 1
+    if not 20 <= bottom - top <= 110: return None
+    across = lit[top:bottom].mean(axis=0) > .5
+    if not across[x]: return None
+    left, right = x, x + 1
+    while left > 0 and across[left - 1]: left -= 1
+    while right < width and across[right]: right += 1
+    if right - left < 40: return None
+    box = shift[top:bottom, left:right]
+    level = np.median(box.reshape(-1, 3), axis=0)
+    if not (np.all(level > 0) or np.all(level < 0)) or not 4 / 255 <= np.abs(level).max() <= 40 / 255: return None
+    residual = np.abs(box - level).max(axis=2)
+    if float((residual <= 8 / 255).mean()) < .8: return None
+    ys, xs = np.nonzero(residual > 35 / 255)
+    if len(ys) and (np.abs(xs + left - x).max() > 30 or np.abs(ys + top - y).max() > 34): return None
+    return int(left), int(top), int(right), int(bottom)
+
+
 class StartScreen:
     def __init__(self, folder, kernel=None, ocr=None, clock=time.monotonic, pause=time.sleep, phone=None):
         self.folder = Path(folder); self.folder.mkdir(parents=True, exist_ok=True)
@@ -174,13 +205,18 @@ class StartScreen:
                 keep = np.zeros(a.shape[:2], dtype=bool)
                 for left, top, right, bottom in only: keep[top:bottom, left:right] = True
                 mask &= keep
+            hover = hover_tint(a, b, near) if near is not None and a.shape == b.shape else None
+            if hover:   # The target's own highlight under the resting pointer; the rest of the screen must still match.
+                mask[hover[1]:hover[3], hover[0]:hover[2]] = False
             if a.shape == b.shape: mask &= ~pointer_blob(a, b, mask)
-            mean = float(np.abs(a - b)[mask].mean()) if a.shape == b.shape else 1.0
+            same = a.shape == b.shape and bool(mask.any())   # Nothing left to compare is not a match.
+            mean = float(np.abs(a - b)[mask].mean()) if same else 1.0
             # A live camera view adds low-amplitude sensor noise everywhere (TikTok camera, 22 Oct: mean
             # .005, no pixel off by 35 levels); real screen changes move pixels strongly.
-            strong = float((np.abs(a - b).max(axis=2)[mask] > 35 / 255).mean()) if a.shape == b.shape else 1.0
+            strong = float((np.abs(a - b).max(axis=2)[mask] > 35 / 255).mean()) if same else 1.0
             entry = dict(role=role + '-confirm', attempt=attempt, sequence=sequence, ageMs=age, before=before, mean=mean,
                          frame=f'{len(self.record["observations"])+1:02d}-{role}-confirm.bmp', frameSha256=hashlib.sha256(raw).hexdigest())
+            if hover: entry['hoverBox'] = list(hover)
             (self.folder / entry['frame']).write_bytes(raw)
             self.record['observations'].append(entry); self.save()
             if sequence > before and age <= MAX_AGE_MS and (mean <= .003 or (mean <= .012 and strong <= .0005)):
@@ -596,7 +632,7 @@ def main():
         raise SystemExit('Supported start screens: instagram-profile, tiktok-profile, x-timeline, youtube-home')
     settings = json.loads(config.read_text(encoding='utf-8-sig'))
     from farm_rack_lock import hold_rack
-    with hold_rack(f'farm_start_screen {target} {phone_of(settings).receiver}'):
+    with hold_rack(f'farm_start_screen {target} {folder.name}'):
         tool = StartScreen(folder, phone=phone_of(settings))
         try:
             if target == 'tiktok-profile': tool.to_tiktok_profile(settings['account'])
