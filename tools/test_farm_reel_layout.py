@@ -299,6 +299,32 @@ import farm_paths as _paths  # noqa: E402
 import farm_reel_layout as _rl  # noqa: E402
 
 _A12 = _paths.ARCHIVE/'20261105-fleet-a12'
+import farm_tiktok_layout as _tt  # noqa: E402
+
+
+@unittest.skipUnless((_A12/'reel-selected-no-first-draft.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
+class A12SelectedTests(unittest.TestCase):
+    """A12's selected picker (5 Nov): no First draft button; Next on the right, white on blue."""
+    def setUp(self):
+        self.frame = (_A12/'reel-selected-no-first-draft.png').read_bytes()
+        self.text = json.loads((_A12/'reel-selected-no-first-draft.json').read_text(encoding='utf-8'))
+        self.reference = _tt.TikTokReference((_A12/'reel-selected-package.mp4').read_bytes())
+
+    def test_next_alone_is_enough_here(self):
+        self.assertEqual((444, 993), _rl.reel_selected(self.frame, self.text, self.reference, (0, 1))['target'])
+
+    def test_another_cell_is_not_selected(self):
+        with self.assertRaises(InspectionStopped): _rl.reel_selected(self.frame, self.text, self.reference, (0, 2))
+
+    def test_another_word_where_first_draft_sits_stops(self):
+        from unittest import mock
+        with mock.patch.object(_rl, 'band_words', side_effect=[[('Other', 300, 985, 340, 1000)], [('Next', 418, 988, 450, 1000)]]):
+            with self.assertRaises(InspectionStopped): _rl.reel_selected(self.frame, self.text, self.reference, (0, 1))
+
+    def test_next_elsewhere_stops(self):
+        from unittest import mock
+        with mock.patch.object(_rl, 'band_words', side_effect=[[], [('Next', 100, 988, 140, 1000)]]):
+            with self.assertRaises(InspectionStopped): _rl.reel_selected(self.frame, self.text, self.reference, (0, 1))
 
 
 @unittest.skipUnless((_A12/'reel-create.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
