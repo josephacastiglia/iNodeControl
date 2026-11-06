@@ -354,11 +354,18 @@ def yt_picker_selected(frame, text, reference, tile):
     if not match['matched']: match = _veiled_match(frame, tile, reference, image)
     require(match['matched'], 'The selected YouTube picker item shows different media.')
     # The tray holds exactly one small thumbnail; it is too dark to compare, so only its count is read.
-    require((image[884:942, 16:74].max(axis=2) > 12).mean() > .9, 'The YouTube selection tray is empty.')
-    require((image[878:950, 84:490].max(axis=2) < 12).mean() > .97, 'The YouTube selection tray holds more than one item.')
-    exact(text, 'Next', (335, 980, 400, 1012)); control(frame, 'yt_picker_next')
-    label = _duration(text, (16, 884, 74, 942))
-    return dict(tile=list(tile), tileMatch=match, trayDurationRead=label[0] if label else None, target=(367, 997))
+    bare = dy == BARE_DY   # A14 (5 Nov): the tray sits under the covered third row; Next is a short pill at the right.
+    tray = (16, 901, 74, 955) if bare else (16, 884, 74, 942)
+    beside = (84, 895, 490, 965) if bare else (84, 878, 490, 950)
+    require((image[tray[1]:tray[3], tray[0]:tray[2]].max(axis=2) > 12).mean() > .9, 'The YouTube selection tray is empty.')
+    require((image[beside[1]:beside[3], beside[0]:beside[2]].max(axis=2) < 12).mean() > .97, 'The YouTube selection tray holds more than one item.')
+    if bare:
+        exact(text, 'Next', (410, 980, 472, 1020))
+        require(white_fraction(image, (412, 982, 470, 990), 200) > .9, 'The YouTube Next button is not active.')
+    else:
+        exact(text, 'Next', (335, 980, 400, 1012)); control(frame, 'yt_picker_next')
+    label = _duration(text, tray)
+    return dict(tile=list(tile), tileMatch=match, trayDurationRead=label[0] if label else None, target=(441, 1000) if bare else (367, 997))
 
 
 # ---- Trim review and editor -------------------------------------------------------------------

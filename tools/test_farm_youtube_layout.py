@@ -198,6 +198,28 @@ class A14GalleryTests(unittest.TestCase):
         frame, text = a14('yt-gallery')
         with self.assertRaises(InspectionStopped): yl.yt_gallery(frame, text)
 
+    def test_the_selected_bare_gallery(self):
+        frame, text = a14('yt-selected')
+        reference = tt.TikTokReference((A14/'yt-selected-package.mp4').read_bytes())
+        found = yl.yt_picker_selected(frame, text, reference, [0, 112, 164, 403])
+        self.assertEqual((441, 1000), found['target'])
+        # Another tile, nothing shown as selected there.
+        with self.assertRaises(InspectionStopped): yl.yt_picker_selected(frame, text, reference, [168, 112, 332, 403])
+
+    def test_the_selected_bare_gallery_needs_its_tray_and_active_next(self):
+        from PIL import Image
+        frame, text = a14('yt-selected')
+        reference = tt.TikTokReference((A14/'yt-selected-package.mp4').read_bytes())
+        def painted(box, fill):
+            image = Image.open(io.BytesIO(frame)).convert('RGB'); image.paste(fill, box)
+            out = io.BytesIO(); image.save(out, 'PNG'); return out.getvalue()
+        for reason, box, fill in (('tray is empty', (10, 895, 80, 965), (0, 0, 0)), ('more than one', (100, 901, 158, 955), (90, 90, 90)),
+                                  ('Next button', (403, 979, 480, 1022), (60, 60, 60))):
+            with self.subTest(reason), self.assertRaisesRegex(InspectionStopped, reason):
+                yl.yt_picker_selected(painted(box, fill), text, reference, [0, 112, 164, 403])
+        no_next = dict(text, lines=[l for l in text['lines'] if l['text'] != 'Next'])
+        with self.assertRaises(InspectionStopped): yl.yt_picker_selected(frame, no_next, reference, [0, 112, 164, 403])
+
     def test_the_slot16_offset_does_not_fit_this_grid(self):
         frame, text = a14('yt-gallery')
         image = yl.pixels(frame, exact=True)
