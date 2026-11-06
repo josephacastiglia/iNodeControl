@@ -303,6 +303,15 @@ class A13ShopNavTests(unittest.TestCase):
             with self.subTest(word), self.assertRaises(InspectionStopped):
                 tt.tiktok_editor(frame, self.without(text, word), reference)
 
+    def test_the_editor_with_the_avatar_joined_to_your_story(self):
+        frame = (_A13/'tt-editor-your-story.png').read_bytes()
+        text = json.loads((_A13/'tt-editor-your-story.json').read_text(encoding='utf-8'))
+        reference = tt.TikTokReference((_A13/'tt-package-your-story.mp4').read_bytes())
+        self.assertEqual('attached', tt.tiktok_editor(frame, text, reference)['sound'])
+        for word in ('Your', 'Story'):
+            with self.subTest(word), self.assertRaises(InspectionStopped):
+                tt.tiktok_editor(frame, self.without(text, word), reference)
+
     def test_tiktoks_contacts_dialog_over_the_variant_still_stops(self):
         frame, text = self.load('tt-feed-contacts')
         self.assertTrue(tt.shop_nav(text))

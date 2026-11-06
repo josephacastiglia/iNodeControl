@@ -440,9 +440,9 @@ EDITOR_IGNORE = ((0, 65, 500, 95), (0, 90, 70, 140), (150, 90, 360, 140), (425, 
 def tiktok_editor(frame, text, reference):
     """Editor with the package video. Your Story publishes and is never a target; reports the sound control."""
     # The Story button reads 'Your Story' or, newer, 'Story 24h' (slot 20, 22 Oct); either way it is never a target.
-    # OCR can join the avatar to the label ('e Story 24h', A13, 5 Nov), so 'Story' and '24h' are also read word by word.
-    story = (90, 990, 210, 1025)
-    require(line_at(text, 'your story', story) or line_at(text, 'story 24h', story) or (words_at(text, 'story', story) and words_at(text, '24h', story)),
+    # OCR can join the avatar to the label ('e Story 24h', 'e Your Story', A13, 5 Nov), so the words are read one by one too.
+    story = (85, 990, 215, 1025)
+    require(words_at(text, 'story', story) and (words_at(text, 'your', story) or words_at(text, '24h', story)),
             'The TikTok editor is not recognized.')
     control(frame, 'tt_editor_next')
     # The white back arrow cannot be seen over a white video (slot 20, 22 Oct); it is checked only
