@@ -13,7 +13,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import farm_start_screen as start  # noqa: E402
 from farm_paths import MAIN  # noqa: E402
-from farm_start_screen import InspectionStopped, hover_tint  # noqa: E402
+from farm_start_screen import InspectionStopped, hover_tint, resting_pointer  # noqa: E402
 
 TARGET = (250, 556)
 FRAMES = Path(os.environ.get('IMOUSE_HOVER_FRAMES', Path(MAIN).parent / 'iMouseXP-2.0-evidence-archive' / '20261105-hover-tint'))
@@ -68,6 +68,38 @@ class HoverTintTests(unittest.TestCase):
         self.assertIsNone(hover_tint(dialog(), tinted(dialog(), top=588, bottom=655), TARGET))
 
 
+class RestingPointerTests(unittest.TestCase):
+    """The dot itself on a label, which is not grey there (A19 Done, 5 Nov)."""
+    def bar(self):
+        frame = np.full((1080, 500, 3), .78); frame[78:92, 425:475:2] = [.1, .45, .85]
+        return frame
+
+    def dot(self, frame, x=450, y=85):
+        out = frame.copy(); yy, xx = np.ogrid[:1080, :500]; spot = (xx - x) ** 2 + (yy - y) ** 2 <= 15 ** 2
+        out[spot] = out[spot] * .45
+        return out
+
+    def only(self):
+        mask = np.zeros((1080, 500), dtype=bool); mask[60:110] = True
+        return mask
+
+    def test_the_dot_at_rest_and_nudged_is_ignored(self):
+        for y in (85, 89):
+            ignored = resting_pointer(self.bar(), self.dot(self.bar(), y=y), (450, 85), self.only())
+            self.assertTrue(ignored[y, 450]); self.assertFalse(ignored[85, 300])
+
+    def test_a_dot_away_from_the_target_is_not_the_pointer_at_rest(self):
+        self.assertFalse(resting_pointer(self.bar(), self.dot(self.bar(), x=380), (450, 85), self.only()).any())
+
+    def test_a_second_change_is_not_ignored(self):
+        b = self.dot(self.bar()); b[80:90, 100:120] = 0
+        self.assertFalse(resting_pointer(self.bar(), b, (450, 85), self.only()).any())
+
+    def test_a_wider_change_is_not_the_pointer(self):
+        b = self.bar(); b[78:92, 420:480] = 0
+        self.assertFalse(resting_pointer(self.bar(), b, (450, 85), self.only()).any())
+
+
 class ConfirmTests(unittest.TestCase):
     """confirm_unchanged end to end with a fake kernel."""
     def confirm(self, later, near=TARGET, only=((80, 360, 420, 720),)):
@@ -103,6 +135,15 @@ class ConfirmTests(unittest.TestCase):
 
 @unittest.skipUnless(FRAMES.is_dir(), 'The A19 frames are private and kept outside Git.')
 class A19FrameTests(unittest.TestCase):
+    def test_the_done_frames_that_stopped_now_match(self):
+        load = lambda name: np.asarray(Image.open(FRAMES / name).convert('RGB'), dtype=float) / 255
+        a = load('A19-done-before.bmp')
+        for name in ('A19-done-confirm-at-rest.bmp', 'A19-done-confirm-nudged.bmp'):
+            b = load(name)
+            mask = np.zeros(a.shape[:2], dtype=bool); mask[65:110] = True
+            mask &= ~resting_pointer(a, b, (450, 85), mask)
+            self.assertLessEqual(float(np.abs(a - b)[mask].mean()), .003, name)
+
     def test_the_frames_that_stopped_now_match_outside_the_row(self):
         load = lambda name: np.asarray(Image.open(FRAMES / name).convert('RGB'), dtype=float) / 255
         for run in ('A19-10', 'A19-11'):

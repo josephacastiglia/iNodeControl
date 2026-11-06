@@ -89,6 +89,20 @@ def pointer_blob(a, b, mask):
     return ignore
 
 
+def resting_pointer(a, b, near, mask):
+    """The pointer itself on its target: all that changed strongly is one pointer-sized blob centred where it rests
+    (the target, or 4 px below it for the confirmation nudge). pointer_blob wants a grey dot; over a label the dot is
+    not grey (A19 5 Nov, Done: blue text under it, mean .005, nothing tapped). Anything else changed still stops."""
+    import numpy as np
+    ignore = np.zeros(mask.shape, dtype=bool)
+    ys, xs = np.nonzero((np.abs(a - b).max(axis=2) > 35 / 255) & mask)
+    if not len(ys) or ys.max() - ys.min() > 36 or xs.max() - xs.min() > 36: return ignore
+    x, y = near; middle_x, middle_y = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2
+    if abs(middle_x - x) > 6 or not y - 6 <= middle_y <= y + 10: return ignore
+    ignore[max(0, ys.min() - 4):ys.max() + 5, max(0, xs.min() - 4):xs.max() + 5] = True
+    return ignore
+
+
 def hover_tint(a, b, near):
     """The box of the control tinted by the pointer resting on it, or None. A19 5 Nov: the Start over row lifts by
     about 20 levels under the settled pointer (mean .013), so its confirmation failed and nothing was tapped.
@@ -209,6 +223,7 @@ class StartScreen:
             if hover:   # The target's own highlight under the resting pointer; the rest of the screen must still match.
                 mask[hover[1]:hover[3], hover[0]:hover[2]] = False
             if a.shape == b.shape: mask &= ~pointer_blob(a, b, mask)
+            if near is not None and a.shape == b.shape: mask &= ~resting_pointer(a, b, near, mask)
             same = a.shape == b.shape and bool(mask.any())   # Nothing left to compare is not a match.
             mean = float(np.abs(a - b)[mask].mean()) if same else 1.0
             # A live camera view adds low-amplitude sensor noise everywhere (TikTok camera, 22 Oct: mean
