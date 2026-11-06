@@ -292,6 +292,17 @@ class A13ShopNavTests(unittest.TestCase):
                 if word['text'] == 'Shop': word['y'] = 900
         with self.assertRaises(InspectionStopped): tt.tiktok_feed(frame, moved)
 
+    def test_the_editor_with_the_avatar_joined_to_story(self):
+        frame = (_A13/'tt-editor.png').read_bytes()
+        text = json.loads((_A13/'tt-editor.json').read_text(encoding='utf-8'))
+        reference = tt.TikTokReference((_A13/'tt-package.mp4').read_bytes())
+        found = tt.tiktok_editor(frame, text, reference)
+        self.assertEqual(('attached', (367, 1006)), (found['sound'], found['nextTarget']))
+        self.assertLess(abs(found['removeTarget'][0] - 339), 5)
+        for word in ('Story', '24h'):
+            with self.subTest(word), self.assertRaises(InspectionStopped):
+                tt.tiktok_editor(frame, self.without(text, word), reference)
+
     def test_tiktoks_contacts_dialog_over_the_variant_still_stops(self):
         frame, text = self.load('tt-feed-contacts')
         self.assertTrue(tt.shop_nav(text))
