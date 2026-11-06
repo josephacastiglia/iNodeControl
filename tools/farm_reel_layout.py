@@ -189,6 +189,7 @@ def reel_compare(role):
 # ---- Instagram ----------------------------------------------------------------
 
 CREATE_ROWS = ('reel', 'edits', 'post', 'story', 'highlights', 'live', 'fundraiser')
+CREATE_OPTIONAL = ('live',)
 REEL_ICON_Y = 576   # reel_row_icon's centre on A18's sheet.
 
 
@@ -208,9 +209,10 @@ def create_rows(frame, text):
     found = {}
     for label in CREATE_ROWS:
         hits = [b for t, b in rows if t == label and 55 <= b[0] <= 90 and top < b[1] < 1000]
+        if label in CREATE_OPTIONAL and not hits: continue   # A19 (5 Nov) has no Live row; the spacing below still holds.
         if len(hits) != 1: return None
         found[label] = hits[0]
-    ys = [found[label][1] for label in CREATE_ROWS]
+    ys = [found[label][1] for label in CREATE_ROWS if label in found]
     if not 35 <= ys[0] - top <= 70 or not all(44 <= b - a <= 62 for a, b in zip(ys, ys[1:])): return None
     image = pixels(frame, exact=True)
     for left, upper, right, lower in ((180, ys[0] - 10, 400, ys[-1] + 30), (30, ys[-1] + 45, 470, min(ys[-1] + 95, 1040))):
@@ -252,14 +254,17 @@ def _picker_frame(frame, text):
     no_overlay(text, (PICKER_PILL,))
     exact(text, 'New reel', (190, 70, 310, 112))
     require(words_at(text, 'recents', (12, 205, 130, 245)), 'The Reel Recents grid is not visible.')
-    require(words_at(text, 'templates', (40, 140, 270, 175)), 'The Reel picker toolbar is not recognized.')
+    # A19 (5 Nov): with a draft saved the toolbar row reads Edits, Drafts, Templates, moving Templates to x 270-343 and
+    # the Drafts chip to x 110-225. Those wider boxes count only when Edits starts that row.
+    three_chips = bool(words_at(text, 'edits', (20, 135, 120, 175)))
+    require(words_at(text, 'templates', (40, 140, 350 if three_chips else 270, 175)), 'The Reel picker toolbar is not recognized.')
     reel_control(frame, 'picker_close')
     image = pixels(frame, exact=True)
     # Black gutters fix the three-column grid; a sheet over the grid fails here.
     for x in (166, 333):
         require((image[262:550, x].max(axis=1) < 40).mean() > .9, 'Reel picker grid geometry changed.')
     require((image[248:258, :].max(axis=2) < 40).mean() > .9, 'Reel picker grid geometry changed.')
-    chip = words_at(text, 'drafts', (20, 135, 140, 175))
+    chip = words_at(text, 'drafts', (20, 135, 240 if three_chips else 140, 175))
     count = None
     if chip:
         # The count is supplementary evidence; an unreadable digit stays unknown.
@@ -369,6 +374,7 @@ def reel_selected(frame, text, reference, cell):
 EDITOR_TOOLBAR = (('audio', (45, 902, 108, 942)), ('voice', (222, 902, 282, 942)),
                   ('captions', (298, 902, 380, 942)), ('overlay', (390, 902, 465, 942)))
 TOOLBAR_BAND, TOOLBAR_SCALE = (30, 905, 475, 940), 4
+SEVEN_TOOLS = (('text', (20, 70)), ('sticker', (85, 145)), ('audio', (160, 210)), ('effects', (295, 355)), ('photo', (370, 420)))
 
 
 def band_words(frame, band, scale=4):
@@ -398,9 +404,16 @@ def reel_editor(frame, text, reference):
         # Full-frame OCR can miss the small light labels over a light video (22 Oct, slot 18).
         enlarged = toolbar_words(frame)
         toolbar = [[w for w in enlarged if w[0] == name and box[0] <= w[1] and w[2] <= box[2]] for name, box in EDITOR_TOOLBAR]
-    require(sum(bool(t) for t in toolbar) >= 3, 'The Reel editor toolbar is not recognized.')
+    seven = False
+    if sum(bool(t) for t in toolbar) < 3:
+        # A19 (5 Nov): a seven-tool row (Text, Sticker, Audio, Add clips, Effects, Photo, Overlay) under the video,
+        # a 'Suggested audio' pill on top and a 'Swipe up to edit' hint. Only Edit video and Next are near any target.
+        enlarged = toolbar_words(frame)
+        seven = sum(any(w[0] == name and box[0] <= w[1] and w[2] <= box[1] for w in enlarged) for name, box in SEVEN_TOOLS) >= 4
+    require(seven or sum(bool(t) for t in toolbar) >= 3, 'The Reel editor toolbar is not recognized.')
     require(words_at(text, 'next', (405, 975, 470, 1008)) or present(frame, 'next_pill'), 'The editor Next control is not verified.')
-    media = video_match(frame, (0, 56, 500, 945), reference, ignore=((0, 56, 80, 120), (0, 880, 500, 945)))
+    ignore = ((0, 56, 80, 120), (0, 880, 500, 945)) + (((130, 60, 370, 130), (0, 815, 500, 880)) if seven else ())
+    media = video_match(frame, (0, 56, 500, 945), reference, ignore=ignore)
     require(media['matched'], 'The Reel editor shows different media.')
     return dict(media=media, target=(444, 993))
 
@@ -624,7 +637,13 @@ def typed_transfer_address(text, url):
     if len(shown) >= 2 and shown[-1] in 'l|I1': shown = shown[:-1] + '/'
     if len(shown.rstrip('/')) < len(expected.rstrip('/')): shown = shown[1:]
     require(len(shown.rstrip('/')) >= 24, 'The Safari address field shows too little of the address.')
-    require(_address_fold(expected.rstrip('/')).endswith(_address_fold(shown.rstrip('/'))),
+    want, read = _address_fold(expected.rstrip('/')), _address_fold(shown.rstrip('/'))
+    # The glyphs beside the caret are the least reliable (A19, 5 Nov: 'qbyw/' read 'qbyv•d'): without its last three,
+    # the read must still be one unbroken run of 20 or more, ending within the address's last three. A previous
+    # transfer's path or a dropped chunk never fits; a wrong last character would 404 and stop on the next page check.
+    core = read[:-3]
+    near_end = len(core) >= 20 and core in want and want.rindex(core) + len(core) >= len(want) - 3
+    require(want.endswith(read) or near_end,
             'The Safari address field does not show this transfer address. Enter was not pressed.')
     return dict(addressTyped=True, shownChars=len(shown))
 
@@ -852,6 +871,7 @@ SHARE_ROWS = (('Copy', (40, 755, 120, 795)), ('Save Video', (40, 828, 175, 863))
               ('Save to Files', (40, 950, 185, 985)), ('Add to Shared Album', (40, 1012, 265, 1046)))
 
 
+SHARE_SWAP = {'Add Tags': (950, 985), 'Save to Files': (890, 928)}   # Each row's top and bottom when the two swap places.
 SHARE_HEADER_TOP = 521      # The file name's top in the sheet header, as on 21-22 Oct.
 SHARE_SHIFT = (-10, 60)     # iOS also settled the whole sheet 35 px lower (22 Oct, slot 18).
 
@@ -881,7 +901,12 @@ def share_rows(text, shift, frame=None):
         else:
             # OCR can clip a neighbour's first letter into its icon ('ave to Files', slot 17, 22 Oct).
             try: rows[label] = exact(text, label, box)
-            except InspectionStopped: pass
+            except InspectionStopped:
+                # A19 (5 Nov) lists Save to Files before Add Tags: either of the two may hold the other's row.
+                other = SHARE_SWAP.get(label)
+                if other and other[1] + shift <= 1046:
+                    try: rows[label] = exact(text, label, (left, other[0] + shift, max(right, 190), other[1] + shift))
+                    except InspectionStopped: pass
     require(len(rows) >= 3, 'The share sheet actions are not recognized.')
     return rows
 

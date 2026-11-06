@@ -123,7 +123,7 @@ class FirstDraftLabelTests(unittest.TestCase):
         from unittest import mock
         import farm_reel_layout as reel
         stubs = dict(_picker_frame=lambda f, t: (None, None, None), numbered_one=lambda i, c: True, selected_disk=lambda i, c: False,
-                     reel_control=lambda f, n: None, video_match=lambda *a, **k: dict(matched=True))
+                     reel_control=lambda f, n: None, video_match=lambda *a, **k: dict(matched=True), band_words=lambda f, b: [])
         with mock.patch.multiple(reel, **stubs):
             joined = text(('t-g First draft', 285, 985, 379, 1003))
             joined['lines'][0]['words'] = [dict(text=t, x=x0, y=y0, width=x1-x0, height=y1-y0) for t, x0, y0, x1, y1 in

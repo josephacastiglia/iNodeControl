@@ -172,7 +172,10 @@ class TypedAddressTests(unittest.TestCase):
         # A19, 5 Nov: the field scrolled, its first visible '9' cut by the edge (read '3'), the final '/' read 'l'.
         url = 'http://192.168.4.26:9797/t/zp2d8nq76ydz6ss7h8wpn3qf/'
         self.assertTrue(reel.typed_transfer_address(self.field('3797/t/zp2d8nq76ydz6ss7h8wpn3qfl'), url)['addressTyped'])
-        for shown in ('3797/t/zp2d8nq76ydz6ss7h8wpn3qxl',      # A different last character is still refused.
+        # The glyphs beside the caret may be misread ('qbyw/' read 'qbyv•d', A19, 5 Nov).
+        self.assertTrue(reel.typed_transfer_address(self.field('9797/t/nmpskdu286qcj2pgvrskqbyv•d'),
+                                                    'http://192.168.4.26:9797/t/nmpskdu286qcj2pgvrskqbyw/')['addressTyped'])
+        for shown in ('3797/t/zp2d8nq76ydz6ss7x8wpn3qfl',      # A different character inside the path is still refused.
                       '3797/t/zp2d8nq76ydz6ssh8wpn3qfl',       # A dropped character too.
                       'zz7/t/zp2d8nq76ydz6ss7h8wpn3qfl'):      # Only one cut glyph is forgiven.
             with self.subTest(shown), self.assertRaises(InspectionStopped):
@@ -331,3 +334,89 @@ class A12CreateSheetTests(unittest.TestCase):
             if ' '.join(line['text'].casefold().split()) == 'reel':
                 for w in line['words']: w['y'] += 10
         with self.assertRaises(InspectionStopped): _rl.reel_create(self.frame, moved)
+
+
+_A19 = _paths.ARCHIVE/'20261105-fleet-a19'
+
+
+@unittest.skipUnless((_A19/'share-sheet.png').exists(), 'A19 frames of 5 Nov are not available in this checkout.')
+class A19ShareSheetTests(unittest.TestCase):
+    """A19's share sheet (5 Nov): Copy, Save Video, then Save to Files before Add Tags."""
+    def setUp(self):
+        self.frame = (_A19/'share-sheet.png').read_bytes()
+        self.text = json.loads((_A19/'share-sheet.json').read_text(encoding='utf-8'))
+        self.name = (_A19/'share-name.txt').read_text(encoding='utf-8')
+
+    def without(self, *labels):
+        return dict(self.text, lines=[l for l in self.text['lines'] if l['text'].strip() not in labels])
+
+    def test_save_video_is_the_target(self):
+        found = _rl.share_sheet(self.text, self.name, self.frame)
+        self.assertLess(abs(found['target'][1] - 877), 8)
+
+    def test_a_third_row_is_still_required(self):
+        with self.assertRaises(InspectionStopped): _rl.share_rows(self.without('Save to Files', 'Add Tags'), 30)
+        self.assertEqual({'Copy', 'Save Video', 'Add Tags'}, set(_rl.share_rows(self.without('Save to Files'), 30)))
+
+
+@unittest.skipUnless((_A19/'reel-create.png').exists(), 'A19 frames of 5 Nov are not available in this checkout.')
+class A19CreateSheetTests(unittest.TestCase):
+    """A19's Create sheet (5 Nov): no Live row; 'Create' at y 622, rows 53 px apart."""
+    def setUp(self):
+        self.frame = (_A19/'reel-create.png').read_bytes()
+        self.text = json.loads((_A19/'reel-create.json').read_text(encoding='utf-8'))
+
+    def test_the_reel_row_read_by_ocr_is_the_target(self):
+        found = _rl.reel_create(self.frame, self.text)
+        self.assertEqual('ocr_rows_sheet_and_reel_icon', found['method'])
+        self.assertLess(abs(found['target'][1] - 681), 5)
+
+    def test_only_live_may_be_absent(self):
+        for label in ('create', 'reel', 'edits', 'post', 'story', 'highlights', 'fundraiser'):
+            with self.subTest(label):
+                text = dict(self.text, lines=[l for l in self.text['lines'] if ' '.join(l['text'].casefold().split()) != label])
+                self.assertIsNone(_rl.create_rows(self.frame, text))
+
+
+@unittest.skipUnless((_A19/'reel-editor.png').exists(), 'A19 frames of 5 Nov are not available in this checkout.')
+class A19EditorTests(unittest.TestCase):
+    """A19's editor (5 Nov): seven tools under the video, a Suggested audio pill and a swipe hint over it."""
+    @classmethod
+    def setUpClass(cls):
+        cls.ref = _rl.VideoReference((_A19/'reel-package.mp4').read_bytes())
+
+    def setUp(self):
+        self.frame = (_A19/'reel-editor.png').read_bytes()
+        self.text = json.loads((_A19/'reel-editor.json').read_text(encoding='utf-8'))
+
+    def test_the_seven_tool_editor_shows_the_package_video(self):
+        found = _rl.reel_editor(self.frame, self.text, self.ref)
+        self.assertEqual((444, 993), found['target'])
+        self.assertTrue(found['media']['matched'])
+
+    def test_edit_video_is_still_required(self):
+        text = dict(self.text, lines=[l for l in self.text['lines'] if l['text'] != 'Edit video'])
+        with self.assertRaises(InspectionStopped): _rl.reel_editor(self.frame, text, self.ref)
+
+    def test_too_few_tools_stop(self):
+        from unittest.mock import patch
+        with patch.object(_rl, 'toolbar_words', return_value=[('text', 33, 57), ('audio', 168, 202)]):
+            with self.assertRaisesRegex(InspectionStopped, 'toolbar'): _rl.reel_editor(self.frame, self.text, self.ref)
+
+
+@unittest.skipUnless((_A19/'reel-saved-picker.png').exists(), 'A19 frames of 5 Nov are not available in this checkout.')
+class A19SavedPickerTests(unittest.TestCase):
+    """A19's picker after Save draft (5 Nov): the toolbar row reads Edits, Drafts, Templates."""
+    def setUp(self):
+        self.frame = (_A19/'reel-saved-picker.png').read_bytes()
+        self.text = json.loads((_A19/'reel-saved-picker.json').read_text(encoding='utf-8'))
+
+    def test_the_drafts_chip_is_found(self):
+        found = _rl.reel_saved_picker(self.frame, self.text)
+        self.assertLess(abs(found['chipTarget'][0] - 170), 30)
+
+    def test_the_wider_boxes_need_edits_on_that_row(self):
+        text = json.loads(json.dumps(self.text))
+        for line in text['lines']:
+            line['words'] = [w for w in line.get('words', []) if w['text'].casefold() != 'edits']
+        with self.assertRaises(InspectionStopped): _rl.reel_saved_picker(self.frame, text)
