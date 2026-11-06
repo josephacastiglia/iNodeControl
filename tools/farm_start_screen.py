@@ -530,6 +530,10 @@ class StartScreen:
                 return (44, 77), 'youtube_drafts', 'close-drafts-list', ((0, 60, 500, 175),)
             try: return yl.yt_gallery(raw, text)['closeTarget'], 'youtube_gallery', 'close-gallery', ((0, 60, 500, 205),)
             except InspectionStopped: pass
+            try:   # A14's gallery (5 Nov, no drafts yet): no Create video or Drafts row; the same X closes it.
+                if yl._picker_header(raw, text, 'yt_picker')[1] == yl.BARE_DY:
+                    return yl.GALLERY_CLOSE, 'youtube_gallery', 'close-gallery', ((0, 60, 500, 205),)
+            except InspectionStopped: pass
             try: yl.yt_camera(raw, text)
             except InspectionStopped: return None
             # Only the X's corner and the mode labels: the bar beside them animates (26 Oct).
@@ -551,6 +555,8 @@ class StartScreen:
             raw, text, _, _ = self.open_from_home(name)
             for wait in range(3):   # A relaunched app can still be drawing its first screen.
                 if ready(raw, text): break
+                # Home, search and open can use up the 30 s lease by here (A14 5 Nov: 409 on the challenge move, 30 s in).
+                self.kernel.renew_if_needed(self.tokens, 20000)
                 self.pause(1.5)
                 raw, text, _, _ = self.fresh(f'after-launch-{wait + 1}')
             done = set()   # Each back-out tap at most once, on a recognized screen; none is repeated.
