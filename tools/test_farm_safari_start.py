@@ -770,7 +770,7 @@ class StartScreenSpotlightTests(unittest.TestCase):
 class StartScreenExitTests(unittest.TestCase):
     def test_a_stop_prints_its_summary_and_exits_non_zero(self):
         import io, json, sys, tempfile
-        from contextlib import redirect_stdout
+        from contextlib import nullcontext, redirect_stdout
         from pathlib import Path
         from unittest import mock
         import farm_start_screen as fs
@@ -785,7 +785,7 @@ class StartScreenExitTests(unittest.TestCase):
             config = Path(folder) / 'c.json'; config.write_text('{}', encoding='utf-8')
             for outcome, code, state in (('at_start', None, 'at_start'), ('stopped', 1, 'stopped'), ('error', 1, 'stopped')):
                 Tool.outcome = outcome; out = io.StringIO()
-                with self.subTest(outcome=outcome), mock.patch.object(fs, 'StartScreen', Tool), mock.patch.object(fs, 'phone_of', lambda c: None),                         mock.patch.object(sys, 'argv', ['x', 'x-timeline', folder, str(config)]), redirect_stdout(out):
+                with self.subTest(outcome=outcome), mock.patch.object(fs, 'StartScreen', Tool), mock.patch.object(fs, 'phone_of', lambda c: None), mock.patch('farm_rack_lock.hold_rack', lambda holder: nullcontext()),                         mock.patch.object(sys, 'argv', ['x', 'x-timeline', folder, str(config)]), redirect_stdout(out):
                     try: fs.main(); got = None
                     except SystemExit as exit: got = exit.code
                     self.assertEqual(code, got)
