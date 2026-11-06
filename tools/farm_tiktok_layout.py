@@ -168,9 +168,19 @@ FEED_HEADER = (90, 62, 360, 108)
 FEED_TABS = {'following', 'shop', 'community', 'explore', 'friends'}   # The feed's own header tabs.
 
 
+def shop_nav(text):
+    """A13's feed (5 Nov): Shop in Friends' nav slot, Inbox sometimes read 'Inb ox'. Only this whole variant accepts
+    either: Home, Shop, Inbox and Profile in the nav bar under the feed's own 'Following' and 'For You' header tabs."""
+    inbox = NAV[2][1]
+    return bool(words_at(text, 'home', NAV[0][1]) and words_at(text, 'shop', NAV[1][1]) and words_at(text, 'profile', NAV[3][1])
+                and (words_at(text, 'inbox', inbox) or (words_at(text, 'inb', inbox) and words_at(text, 'ox', inbox)))
+                and words_at(text, 'following', (150, 60, 300, 110)) and words_at(text, 'for', (360, 60, 400, 110))
+                and words_at(text, 'you', (395, 60, 440, 110)))
+
+
 def tiktok_feed(frame, text):
     """For You feed (TikTok's landing screen after Drafts). Content and captions are arbitrary; never a target."""
-    for name, box in NAV: require(words_at(text, name, box), 'The TikTok navigation bar is not recognized.')
+    require(all(words_at(text, name, box) for name, box in NAV) or shop_nav(text), 'The TikTok navigation bar is not recognized.')
     if not words_at(text, 'following', (150, 60, 300, 110)):
         # A video's own title can cover the light header (slot 20, 22 Oct); the header row is read
         # again alone, enlarged, and 'Following' must sit in the same place.

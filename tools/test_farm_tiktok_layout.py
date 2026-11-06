@@ -230,6 +230,61 @@ if __name__ == '__main__':
 
 import farm_paths as _paths  # noqa: E402
 
+_A13 = _paths.ARCHIVE/'20261105-fleet-a13'
+
+
+@unittest.skipUnless((_A13/'tt-feed-split.bmp').exists(), 'A13 frames of 5 Nov are not available in this checkout.')
+class A13ShopNavTests(unittest.TestCase):
+    """A13's feed: Shop where A20 shows Friends; Inbox read whole or as 'Inb ox'."""
+    def load(self, name):
+        return (_A13/f'{name}.bmp').read_bytes(), json.loads((_A13/f'{name}.json').read_text(encoding='utf-8'))
+
+    @staticmethod
+    def without(text, *labels):
+        out = json.loads(json.dumps(text))
+        for line in out['lines']: line['words'] = [w for w in line['words'] if w['text'] not in labels]
+        out['lines'] = [l for l in out['lines'] if l['words']]
+        return out
+
+    def test_both_reads_of_the_feed(self):
+        frame, text = self.load('tt-feed-split')
+        self.assertEqual((450, 1005), tt.tiktok_feed(frame, text)['profileTarget'])
+        whole = json.loads(json.dumps(text))   # Inbox read as one word (A13's frames that read it so had the dialog up).
+        for line in whole['lines']:
+            for word in line['words']:
+                if word['text'] == 'Inb': word['text'] = 'Inbox'
+            line['words'] = [w for w in line['words'] if w['text'] != 'ox']
+        self.assertEqual((450, 1005), tt.tiktok_feed(frame, whole)['profileTarget'])
+
+    def test_every_label_of_the_variant_is_needed(self):
+        frame, text = self.load('tt-feed-split')
+        for labels in (('Home',), ('Shop',), ('Profile',), ('Inb',), ('ox',), ('Following',), ('For',), ('You',)):
+            with self.subTest(labels), self.assertRaises(InspectionStopped):
+                tt.tiktok_feed(frame, self.without(text, *labels))
+
+    def test_a_split_inbox_is_not_accepted_with_friends(self):
+        # A20's nav with 'Inb ox' stays refused: the split read belongs to the Shop variant only.
+        frame, text = self.load('tt-feed-split')
+        changed = json.loads(json.dumps(text))
+        for line in changed['lines']:
+            for word in line['words']:
+                if word['text'] == 'Shop': word['text'] = 'Friends'
+        with self.assertRaises(InspectionStopped): tt.tiktok_feed(frame, changed)
+
+    def test_shop_only_in_the_nav_slot(self):
+        frame, text = self.load('tt-feed-split')
+        moved = json.loads(json.dumps(text))
+        for line in moved['lines']:
+            for word in line['words']:
+                if word['text'] == 'Shop': word['y'] = 900
+        with self.assertRaises(InspectionStopped): tt.tiktok_feed(frame, moved)
+
+    def test_tiktoks_contacts_dialog_over_the_variant_still_stops(self):
+        frame, text = self.load('tt-feed-contacts')
+        self.assertTrue(tt.shop_nav(text))
+        with self.assertRaises(InspectionStopped): tt.tiktok_feed(frame, text)
+
+
 _A14 = _paths.ARCHIVE/'20261105-fleet-a14'
 
 
