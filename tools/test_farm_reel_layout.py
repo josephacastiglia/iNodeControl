@@ -351,6 +351,16 @@ class A12EditorTests(unittest.TestCase):
 
 @unittest.skipUnless((_A12/'reel-details-link-chip.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
 class A12DetailsTests(unittest.TestCase):
+    def test_the_caption_sheet_chips_move_only_with_link_a_reel(self):
+        from unittest import mock
+        def row(label, x): return dict(text=label, words=[dict(text=w, x=x + 12 * i, y=250, width=10 * len(w), height=18) for i, w in enumerate(label.split())])
+        title = dict(text='Caption', words=[dict(text='Caption', x=215, y=72, width=70, height=20)])
+        moved = dict(width=500, height=1080, lines=[title, row('Hashtags', 60), row('Link a reel', 200), row('Poll', 347), row('Prompt', 430)])
+        plain = dict(width=500, height=1080, lines=[title, row('Hashtags', 60), row('Poll', 347), row('Prompt', 430)])
+        with mock.patch.object(_rl, 'control'), mock.patch.object(_rl, 'present', return_value=True):
+            self.assertTrue(_rl.reel_caption(None, moved, blank=True)['blank'])
+            with self.assertRaises(InspectionStopped): _rl.reel_caption(None, plain, blank=True)
+
     """A12's details (6 Nov frame): Hashtags, Link a reel, Poll, Prompt across the chip row."""
     def setUp(self):
         self.frame = (_A12/'reel-details-link-chip.png').read_bytes()
