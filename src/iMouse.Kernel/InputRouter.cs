@@ -201,7 +201,7 @@ public sealed class InputRouter : IDisposable
         if (fun == "/key/sendkey")
         {
             string key = Text(data,"fn_key"), value = Text(data,"key");
-            if (key.Length > 0 && key is not ("Home" or "Enter" or "ENTER" or "Backspace" or "BACKSPACE" or "Tab" or "Escape" or "AppSwitch" or "ControlBar"))
+            if (key.Length > 0 && key is not ("Home" or "Enter" or "ENTER" or "Backspace" or "BACKSPACE" or "Tab" or "Escape" or "Up" or "Down" or "Left" or "Right" or "AppSwitch" or "ControlBar"))
                 throw new ArgumentException("Function key has not been verified: " + key);
             if (value.Length > 1000 || (key.Length == 0 && value.Length == 0)) throw new ArgumentException("Provide a key or 1–1000 ASCII characters.");
             foreach (char ch in value) _ = HidProtocol.Ascii(ch);
@@ -274,7 +274,7 @@ public sealed class InputRouter : IDisposable
                         await FnStroke(state,(byte)(fn=="AppSwitch"?0x52:6));
                         state.Known=false;
                     }
-                    else if (fn.Length>0) await Stroke(state,0,fn switch {"Enter" or "ENTER"=>40,"Backspace" or "BACKSPACE"=>42,"Tab"=>43,"Escape"=>41,_=>throw new ArgumentException(fn)});
+                    else if (fn.Length>0) await Stroke(state,0,fn switch {"Enter" or "ENTER"=>40,"Backspace" or "BACKSPACE"=>42,"Tab"=>43,"Escape"=>41,"Right"=>79,"Left"=>80,"Down"=>81,"Up"=>82,_=>throw new ArgumentException(fn)});
                     else foreach (char ch in Text(data,"key")) { var (modifier,usage)=HidProtocol.Ascii(ch); await Stroke(state,modifier,usage); }
                     break;
                 default: throw new ArgumentException("Unsupported input operation.");

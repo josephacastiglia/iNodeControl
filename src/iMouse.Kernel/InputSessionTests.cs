@@ -140,6 +140,44 @@ internal static class InputSessionTests
                     && Code(await command) != 0 && held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release })
                     && !held.Reports.Contains(tab), "Stop releases a held Fn prefix/chord without inserting Tab: " + blockedReport);
             }
+            // Arrow keys (5 Nov): plain usages through Stroke, the Tab/Escape path, with no Fn field.
+            foreach (var (arrow, report) in new[] { ("Right", "A2004F0000000000"), ("Left", "A200500000000000"),
+                ("Down", "A200510000000000"), ("Up", "A200520000000000") })
+            {
+                var t = new Transport();
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => t);
+                await using var sessions = new InputSessions(store, input);
+                await Rejected(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", fn_key = arrow })));
+                check(t.Reports.IsEmpty, arrow + " needs ownership before any report");
+                string token = Lease(sessions, "one");
+                check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = arrow }))) == 0
+                    && t.Reports.SequenceEqual(new[] { release, report, release }), arrow + " is one press and one release, exact reports");
+                await sessions.DispatchAsync("/mouse/reset", Data(new { id = "one", token }));
+                await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = arrow }));
+                await sessions.DispatchAsync("/mouse/click", Data(new { id = "one", token, x = 14, y = 14 }));
+                check(t.Reports.Count(r => r == "A100818100000000") == 4, arrow + " keeps the pointer estimate: no second corner reset");
+
+                var held = new Transport { Block = hex => hex == report };
+                using var heldInput = new InputRouter(store, ["C24C"], [calibration], _ => held);
+                await using var heldSessions = new InputSessions(store, heldInput);
+                string heldToken = Lease(heldSessions, "one");
+                var command = heldSessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token = heldToken, fn_key = arrow }));
+                await held.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+                check(Code(await heldSessions.StopAsync(Data(new { id = "one" })).WaitAsync(TimeSpan.FromSeconds(2))) == 0
+                    && Code(await command) != 0 && held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release }),
+                    "Stop during a held " + arrow + " still sends the key release");
+            }
+            foreach (string wrong in new[] { "UP", "down", "ArrowDown", "PageDown" })
+            {
+                var t = new Transport();
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => t);
+                await using var sessions = new InputSessions(store, input);
+                string token = Lease(sessions, "one");
+                bool refused = false;
+                try { await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = wrong })); }
+                catch (ArgumentException) { refused = true; }
+                check(refused && t.Reports.IsEmpty, "Unverified key name is refused and sends nothing: " + wrong);
+            }
             check(Convert.ToHexString(HidProtocol.AbsoluteProbe(0, 0, 500, 1080)) == "A000000000000000"
                 && Convert.ToHexString(HidProtocol.AbsoluteProbe(250, 540, 500, 1080)) == "A000FF3FFF3F0000"
                 && Convert.ToHexString(HidProtocol.AbsoluteProbe(499, 1079, 500, 1080)) == "A000BD7FE07F0000",
