@@ -380,6 +380,25 @@ class A12DetailsTests(unittest.TestCase):
             with self.subTest(label), self.assertRaises(InspectionStopped): _rl.reel_details(self.frame, text, self.reference)
 
 
+@unittest.skipUnless((_A12/'downloads-clipped-newest.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
+class A12DownloadsTests(unittest.TestCase):
+    """A12's Downloads list (6 Nov frame): full-frame OCR reads only 'mouse' on the newest row."""
+    def setUp(self):
+        self.frame = (_A12/'downloads-clipped-newest.png').read_bytes()
+        self.text = json.loads((_A12/'downloads-clipped-newest.json').read_text(encoding='utf-8'))
+
+    def test_the_newest_row_read_alone_is_the_package(self):
+        found = _rl.downloads_list(self.text, 'imouse-reel-yfwmrx', 31000, self.frame)
+        self.assertEqual('31 KB', found['size'])
+        self.assertLess(abs(found['target'][1] - 595), 25)
+
+    def test_a_name_the_newest_row_does_not_read_stops(self):
+        with self.assertRaises(InspectionStopped): _rl.downloads_list(self.text, 'imouse-reel-zzqqkk', 31000, self.frame)
+
+    def test_without_the_frame_it_still_stops(self):
+        with self.assertRaises(InspectionStopped): _rl.downloads_list(self.text, 'imouse-reel-yfwmrx', 31000)
+
+
 @unittest.skipUnless((_A12/'reel-create.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
 class A12CreateSheetTests(unittest.TestCase):
     """A12's Create sheet (5 Nov): no Instants row, every row 53 px apart from 'Create' at y 569."""

@@ -768,6 +768,9 @@ def code_similarity(name, code):
     return difflib.SequenceMatcher(None, tail, code).ratio()
 
 
+NEWEST_DOWNLOAD = (85, 570, 430, 635)
+
+
 def downloads_list(text, download, byte_count, frame=None):
     exact(text, 'Downloads', (185, 512, 315, 548)); exact(text, 'Done', (18, 512, 90, 548)); exact(text, 'Clear', (415, 512, 490, 548))
     # The name's last part is this package's own six-letter code (no look-alike letters), so the
@@ -785,6 +788,11 @@ def downloads_list(text, download, byte_count, frame=None):
         close = [row for score, row in scored if score >= .8]
         exact_read = (len(close) == 1 and close[0] is scored[0][1] and all(score <= .5 for score, row in scored[1:]))
         names = [close[0][:4]] if exact_read else []
+    if not exact_read and frame is not None:
+        # Full-frame OCR can lose the newest row's code altogether ('mouse' alone, A12, 5 Nov, a long list). That row
+        # alone, enlarged, must then read this exact name; no other row is reread.
+        whole = [w[1:] for w in band_words(frame, NEWEST_DOWNLOAD) if w[0] == download]
+        exact_read, names = len(whole) == 1, whole
     require(exact_read, 'The package download is absent or ambiguous.')
     x0, y0, x1, y1 = names[0]
     sizes = rows_between(text, y1+4, y1+30, 85, 400)
