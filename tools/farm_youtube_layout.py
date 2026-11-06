@@ -132,6 +132,10 @@ def yt_home(frame, text, *, saved=False):
     or five labelled ones (Home, Shorts, +, Subscriptions, You; slot 16, 22 Oct). Feed content is
     arbitrary and never a target. saved: the home shown right after Save draft, where slot 16's
     'Draft saved' toast slides down over the + (23 Oct); no input follows there, so the + may be hidden."""
+    # A14, 5 Nov: 'You're offline' above a normal nav bar. The run went on to the editor, whose Next then ignored every
+    # correctly placed tap, leaving a test video behind. Stop here, before any media is moved.
+    require(not any("you're offline" in ' '.join(str(l.get('text', '')).replace('’', "'").casefold().split()) for l in text.get('lines', [])),
+            'YouTube reports it is offline; nothing further is sent.')
     require(words_at(text, 'youtube', (50, 65, 140, 105)), 'The YouTube home header is not recognized.')
     for name in ('yt_home_logo', 'yt_home_actions'): control(frame, name)
     if all(words_at(text, label, box) for label, box in LABELLED_NAV):

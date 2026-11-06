@@ -220,6 +220,10 @@ class A14GalleryTests(unittest.TestCase):
         no_next = dict(text, lines=[l for l in text['lines'] if l['text'] != 'Next'])
         with self.assertRaises(InspectionStopped): yl.yt_picker_selected(frame, no_next, reference, [0, 112, 164, 403])
 
+    def test_an_offline_home_stops_the_run(self):
+        frame, text = a14('yt-home-offline')
+        with self.assertRaisesRegex(InspectionStopped, 'offline'): yl.yt_home(frame, text)
+
     def test_the_slot16_offset_does_not_fit_this_grid(self):
         frame, text = a14('yt-gallery')
         image = yl.pixels(frame, exact=True)
