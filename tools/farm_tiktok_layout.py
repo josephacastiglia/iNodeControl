@@ -169,18 +169,17 @@ FEED_TABS = {'following', 'shop', 'community', 'explore', 'friends'}   # The fee
 
 
 def shop_nav(text):
-    """A13's feed (5 Nov): Shop in Friends' nav slot, Inbox sometimes read 'Inb ox'. Only this whole variant accepts
-    either: Home, Shop, Inbox and Profile in the nav bar under the feed's own 'Following' and 'For You' header tabs."""
+    """A13's nav bar (5 Nov): Shop in Friends' slot, Inbox sometimes read 'Inb ox'. Either is accepted only as this
+    whole variant: Home, Shop, Inbox and Profile. tiktok_feed still needs the feed's header or its Create button."""
     inbox = NAV[2][1]
     return bool(words_at(text, 'home', NAV[0][1]) and words_at(text, 'shop', NAV[1][1]) and words_at(text, 'profile', NAV[3][1])
-                and (words_at(text, 'inbox', inbox) or (words_at(text, 'inb', inbox) and words_at(text, 'ox', inbox)))
-                and words_at(text, 'following', (150, 60, 300, 110)) and words_at(text, 'for', (360, 60, 400, 110))
-                and words_at(text, 'you', (395, 60, 440, 110)))
+                and (words_at(text, 'inbox', inbox) or (words_at(text, 'inb', inbox) and words_at(text, 'ox', inbox))))
 
 
 def tiktok_feed(frame, text):
     """For You feed (TikTok's landing screen after Drafts). Content and captions are arbitrary; never a target."""
-    require(all(words_at(text, name, box) for name, box in NAV) or shop_nav(text), 'The TikTok navigation bar is not recognized.')
+    labelled = all(words_at(text, name, box) for name, box in NAV)
+    require(labelled or shop_nav(text), 'The TikTok navigation bar is not recognized.')
     if not words_at(text, 'following', (150, 60, 300, 110)):
         # A video's own title can cover the light header (slot 20, 22 Oct); the header row is read
         # again alone, enlarged, and 'Following' must sit in the same place.
@@ -190,7 +189,9 @@ def tiktok_feed(frame, text):
         # A video's own caption box can cover the whole header (A20 after a cold start, 4 Nov: no tab read even
         # enlarged). The four nav labels (required above) and TikTok's Create button on the dark feed nav bar then
         # mark the feed.
-        require(any(w in FEED_TABS for w in words) or feed_create_button(frame), 'The TikTok feed header is not recognized.')
+        # With Shop in the nav bar, 'Shop' read in the header is not evidence of the feed.
+        tabs = FEED_TABS if labelled else FEED_TABS - {'shop'}
+        require(any(w in tabs for w in words) or feed_create_button(frame), 'The TikTok feed header is not recognized.')
     # Feed captions and comments sit in this band; a dialog elsewhere still stops.
     no_overlay({**text, 'lines': [r for r in text.get('lines', []) if not r.get('words')
                                   or not 780 <= min(w['y'] for w in r['words']) < 1000]})

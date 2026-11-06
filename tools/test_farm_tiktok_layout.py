@@ -258,9 +258,22 @@ class A13ShopNavTests(unittest.TestCase):
 
     def test_every_label_of_the_variant_is_needed(self):
         frame, text = self.load('tt-feed-split')
-        for labels in (('Home',), ('Shop',), ('Profile',), ('Inb',), ('ox',), ('Following',), ('For',), ('You',)):
+        for labels in (('Home',), ('Shop',), ('Profile',), ('Inb',), ('ox',)):
             with self.subTest(labels), self.assertRaises(InspectionStopped):
                 tt.tiktok_feed(frame, self.without(text, *labels))
+
+    def test_a_caption_covering_the_header_needs_the_create_button(self):
+        from unittest import mock
+        frame, text = self.load('tt-feed-covered')
+        self.assertEqual((450, 1005), tt.tiktok_feed(frame, text)['profileTarget'])
+        with mock.patch.object(tt, 'feed_create_button', return_value=False), self.assertRaises(InspectionStopped):
+            tt.tiktok_feed(frame, text)
+
+    def test_shop_in_the_header_is_not_the_feed_with_shop_in_the_nav(self):
+        from unittest import mock
+        frame, text = self.load('tt-feed-covered')
+        with mock.patch.object(tt, 'feed_create_button', return_value=False),                 mock.patch.object(tt, 'band_words', return_value=[('Shop', 150, 77, 190, 95)]), self.assertRaises(InspectionStopped):
+            tt.tiktok_feed(frame, text)
 
     def test_a_split_inbox_is_not_accepted_with_friends(self):
         # A20's nav with 'Inb ox' stays refused: the split read belongs to the Shop variant only.
