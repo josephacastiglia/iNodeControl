@@ -111,7 +111,8 @@ Left Alt (4) and the right-side modifier bits are not emitted.
 | 43 | Tab | Tab, `\t`, and the prefix of Home / ControlBar / AppSwitch |
 | 44 | Spacebar | space. Hold is 90 ms, not 60 |
 | 45–49, 51–56 | punctuation pairs in the table above | plain and shifted symbols |
-| 82 (`0x52`) | Up Arrow | AppSwitch chord |
+| 79–81 (`0x4F`–`0x51`) | Right, Left, Down Arrow | `fn_key` only |
+| 82 (`0x52`) | Up Arrow | `fn_key` Up; AppSwitch chord |
 
 ## Function keys
 
@@ -126,12 +127,13 @@ Left Alt (4) and the right-side modifier bits are not emitted.
 | Backspace | `BACKSPACE` | Stroke usage 42, modifier 0 | unchanged |
 | Tab | | Stroke usage 43, modifier 0 | unchanged |
 | Escape | | Stroke usage 41, modifier 0 | unchanged |
+| Right, Left, Down, Up | | Stroke usage 79, 80, 81, 82, modifier 0, no byte-7 prefix (added 5 Nov; names are case-sensitive) | unchanged |
 
 Console buttons that send unverified names (`WIN+v` Paste, `TAB+b`, `TAB+l`, `OPENKeyboard`, `SwitchIme`) hit the rejection above. They must not be treated as success.
 
 ## Timing and limits
 
-Each `Stroke` (every character, and Enter / Backspace / Tab / Escape / the Tab and GUI+H of Home):
+Each `Stroke` (every character, and Enter / Backspace / Tab / Escape / the arrows / the Tab and GUI+H of Home):
 
 1. Clear: `A2 00 00 00 00 00 00 00`, then 45 ms.
 2. Down: `A2 modifier usage 00 00 00 00 00`, held 60 ms, or 90 ms when usage is 44 (Space).
