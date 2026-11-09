@@ -467,7 +467,9 @@ def reel_details(frame, text, reference, caption=None, *, reopened=False):
     exact(text, 'New reel', (190, 62, 310, 100))
     require(words_at(text, 'preview', (185, 150, 268, 188)) and line_at(text, 'edit cover', (182, 405, 292, 445)),
             'The Reel cover card is not recognized.')
-    for name, box in (('poll', (180, 605, 235, 640)), ('prompt', (245, 605, 350, 640))):
+    # A12 (5 Nov): a 'Link a reel' chip after Hashtags moves Poll and Prompt right; never targets either way.
+    linked = line_at(text, 'link a reel', (195, 605, 285, 640))
+    for name, box in (('poll', (340, 605, 390, 640)), ('prompt', (410, 605, 500, 640))) if linked else (('poll', (180, 605, 235, 640)), ('prompt', (245, 605, 350, 640))):
         require(words_at(text, name, box), 'Reel details field missing: ' + name)
     details_rows(text)
     exact(text, 'Save draft', (80, 980, 190, 1012))
@@ -497,8 +499,13 @@ def reel_caption(frame, text, *, blank):
     """Top caption sheet over details. OK only closes it; it never saves."""
     exact(text, 'Caption', (200, 62, 300, 100))
     control(frame, 'ok')
-    for name, box in (('hashtags', (25, 240, 145, 278)), ('poll', (178, 240, 238, 278)), ('prompt', (265, 240, 350, 278))):
-        require(words_at(text, name, box), 'The Reel caption sheet is not recognized.')
+    # A12 (6 Nov): a 'Link a reel' chip moves Poll right and Prompt to the screen's edge, where the parked pointer covers
+    # most of it ('pt'). Link and reel read as words beside the chip's icon, so the moved chips count only with both.
+    moved = words_at(text, 'link', (195, 240, 240, 278)) and words_at(text, 'reel', (240, 240, 285, 278))
+    require(words_at(text, 'hashtags', (25, 240, 145, 278)), 'The Reel caption sheet is not recognized.')
+    require(words_at(text, 'poll', (340, 240, 390, 278) if moved else (178, 240, 238, 278)), 'The Reel caption sheet is not recognized.')
+    require((words_at(text, 'prompt', (410, 240, 500, 278)) or words_at(text, 'pt', (470, 240, 500, 278))) if moved
+            else words_at(text, 'prompt', (265, 240, 350, 278)), 'The Reel caption sheet is not recognized.')
     empty = present(frame, 'caption_placeholder')
     if blank: require(empty, 'The Reel caption field is not empty and focused.')
     else: require(not empty and rows_between(text, 115, 235, 10, 490), 'The pasted caption is not visible in the editor.')
@@ -763,6 +770,9 @@ def code_similarity(name, code):
     return difflib.SequenceMatcher(None, tail, code).ratio()
 
 
+NEWEST_DOWNLOAD = (85, 570, 430, 635)
+
+
 def downloads_list(text, download, byte_count, frame=None):
     exact(text, 'Downloads', (185, 512, 315, 548)); exact(text, 'Done', (18, 512, 90, 548)); exact(text, 'Clear', (415, 512, 490, 548))
     # The name's last part is this package's own six-letter code (no look-alike letters), so the
@@ -780,6 +790,11 @@ def downloads_list(text, download, byte_count, frame=None):
         close = [row for score, row in scored if score >= .8]
         exact_read = (len(close) == 1 and close[0] is scored[0][1] and all(score <= .5 for score, row in scored[1:]))
         names = [close[0][:4]] if exact_read else []
+    if not exact_read and frame is not None:
+        # Full-frame OCR can lose the newest row's code altogether ('mouse' alone, A12, 5 Nov, a long list). That row
+        # alone, enlarged, must then read this exact name; no other row is reread.
+        whole = [w[1:] for w in band_words(frame, NEWEST_DOWNLOAD) if w[0] == download]
+        exact_read, names = len(whole) == 1, whole
     require(exact_read, 'The package download is absent or ambiguous.')
     x0, y0, x1, y1 = names[0]
     sizes = rows_between(text, y1+4, y1+30, 85, 400)
@@ -959,6 +974,12 @@ class SheetPending(InspectionStopped):
 
 def share_sheet(text, download, frame=None):
     name, shift = share_header(text, re.escape(download))
+    if name is None:
+        # OCR can split the name in the sheet's header ('imouse-reel-axka', 'kd', A12, 6 Nov): one row, the same letters.
+        split = [line for line in text.get('lines', []) if len(line.get('words', [])) > 1 and ''.join(w['text'] for w in line['words']) == download
+                 and all(60 <= w['x'] and w['x']+w['width'] <= 320 and SHARE_HEADER_TOP + SHARE_SHIFT[0] - 9 <= w['y']
+                         and w['y']+w['height'] <= SHARE_HEADER_TOP + SHARE_SHIFT[1] + 24 for w in line['words'])]
+        if len(split) == 1: name, shift = download, round(split[0]['words'][0]['y'] - SHARE_HEADER_TOP)
     if name is None and line_at(text, download, (60, 60, 330, 110)) and line_at(text, 'done', (410, 60, 490, 110)):
         raise SheetPending('The share sheet has not opened yet; capture again without input.')
     require(name is not None, 'The share sheet is not for this download.')

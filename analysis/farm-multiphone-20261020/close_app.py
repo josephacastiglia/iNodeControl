@@ -37,7 +37,8 @@ CARD_WORDS = {'X': (('for you', 280, (200, 300)), ('cancel', 280, (195, 235))),
               # its profile's 'Following' counter label marks it.
               'TikTok': (('following', 80, (280, 345)),),
               # Instagram's profile card shows its note bubble 'Make this space yours' (slot 18, 25 Oct).
-              'Instagram': (('make this', 80, (225, 300)),)}
+              # An open Reel editor as the front card, its name cut off at the right edge (A12, 5 Nov): 'Edit video'.
+              'Instagram': (('make this', 80, (225, 300)), ('edit video', 280, (820, 870)))}
 
 
 # A swiped card is gone when its pre-swipe pixels are found nowhere in the switcher at any horizontal offset

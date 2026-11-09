@@ -349,6 +349,70 @@ class A12EditorTests(unittest.TestCase):
         with self.assertRaises(InspectionStopped): _rl.reel_editor(self.frame, text, self.reference)
 
 
+@unittest.skipUnless((_A12/'reel-details-link-chip.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
+class A12DetailsTests(unittest.TestCase):
+    def test_the_real_caption_sheet_with_moved_chips(self):
+        frame = (_A12/'reel-caption-link-chip.png').read_bytes()
+        text = json.loads((_A12/'reel-caption-link-chip.json').read_text(encoding='utf-8'))
+        self.assertTrue(_rl.reel_caption(frame, text, blank=True)['blank'])
+        for word in ('Link', 'reel', 'poll', 'pt'):
+            changed = json.loads(json.dumps(text))
+            for line in changed['lines']: line['words'] = [w for w in line['words'] if not (w['text'] == word and 240 <= w['y'] <= 278)]
+            changed['lines'] = [l for l in changed['lines'] if l['words']]
+            with self.subTest(word), self.assertRaises(InspectionStopped): _rl.reel_caption(frame, changed, blank=True)
+
+    """A12's details (6 Nov frame): Hashtags, Link a reel, Poll, Prompt across the chip row."""
+    def setUp(self):
+        self.frame = (_A12/'reel-details-link-chip.png').read_bytes()
+        self.text = json.loads((_A12/'reel-details-link-chip.json').read_text(encoding='utf-8'))
+        self.reference = _tt.TikTokReference((_A12/'reel-details-package.mp4').read_bytes())
+
+    def test_the_moved_chips_are_the_blank_details(self):
+        self.assertIn('captionTarget', _rl.reel_details(self.frame, self.text, self.reference))
+
+    def test_without_link_a_reel_the_moved_chips_do_not_count(self):
+        text = dict(self.text, lines=[l for l in self.text['lines'] if l['text'] != 'Link a reel'])
+        with self.assertRaisesRegex(InspectionStopped, 'poll'): _rl.reel_details(self.frame, text, self.reference)
+
+    def test_every_chip_is_still_needed(self):
+        for label in ('Poll', 'Q Prompt'):
+            text = dict(self.text, lines=[l for l in self.text['lines'] if l['text'] != label])
+            with self.subTest(label), self.assertRaises(InspectionStopped): _rl.reel_details(self.frame, text, self.reference)
+
+
+@unittest.skipUnless((_A12/'downloads-clipped-newest.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
+class A12DownloadsTests(unittest.TestCase):
+    """A12's Downloads list (6 Nov frame): full-frame OCR reads only 'mouse' on the newest row."""
+    def setUp(self):
+        self.frame = (_A12/'downloads-clipped-newest.png').read_bytes()
+        self.text = json.loads((_A12/'downloads-clipped-newest.json').read_text(encoding='utf-8'))
+
+    def test_the_newest_row_read_alone_is_the_package(self):
+        found = _rl.downloads_list(self.text, 'imouse-reel-yfwmrx', 31000, self.frame)
+        self.assertEqual('31 KB', found['size'])
+        self.assertLess(abs(found['target'][1] - 595), 25)
+
+    def test_a_name_the_newest_row_does_not_read_stops(self):
+        with self.assertRaises(InspectionStopped): _rl.downloads_list(self.text, 'imouse-reel-zzqqkk', 31000, self.frame)
+
+    def test_without_the_frame_it_still_stops(self):
+        with self.assertRaises(InspectionStopped): _rl.downloads_list(self.text, 'imouse-reel-yfwmrx', 31000)
+
+
+@unittest.skipUnless((_A12/'share-split-name.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
+class A12ShareSheetTests(unittest.TestCase):
+    """A12's share sheet (6 Nov frame): the header's file name read with a space inside it."""
+    def setUp(self):
+        self.frame = (_A12/'share-split-name.png').read_bytes()
+        self.text = json.loads((_A12/'share-split-name.json').read_text(encoding='utf-8'))
+
+    def test_the_split_name_is_this_download(self):
+        self.assertIn('target', _rl.share_sheet(self.text, 'imouse-reel-axkakd', self.frame))
+
+    def test_another_download_is_not(self):
+        with self.assertRaises(InspectionStopped): _rl.share_sheet(self.text, 'imouse-reel-axkakx', self.frame)
+
+
 @unittest.skipUnless((_A12/'reel-create.png').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
 class A12CreateSheetTests(unittest.TestCase):
     """A12's Create sheet (5 Nov): no Instants row, every row 53 px apart from 'Create' at y 569."""

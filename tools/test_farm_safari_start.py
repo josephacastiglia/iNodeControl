@@ -1,5 +1,10 @@
 """Safari's Start Page (no tab open) and its focused, empty address field. OCR rows from C24C, 21 Oct."""
+import json
+import sys
+from pathlib import Path
 import unittest
+
+import farm_paths
 
 from farm_carousel_inspection import InspectionStopped
 from farm_creation_layout import safari_address_empty, safari_blank, safari_start_page
@@ -130,6 +135,34 @@ class FirstDraftLabelTests(unittest.TestCase):
                                            (('t-g', 285, 985, 303, 1003), ('First', 309, 988, 340, 1000), ('draft', 345, 988, 379, 1000))]
             self.assertEqual((444, 993), reel.reel_selected(None, joined, None, (0, 1))['target'])   # 22 Oct, slot 18.
             with self.assertRaises(InspectionStopped): reel.reel_selected(None, text(('First', 309, 988, 340, 1000)), None, (0, 1))
+
+
+A12_FRAMES = farm_paths.ARCHIVE/'20261105-fleet-a12'
+
+
+@unittest.skipUnless((A12_FRAMES/'switcher-reel-editor.json').exists(), 'A12 frames of 5 Nov are not available in this checkout.')
+class CloseAppInstagramCardTests(unittest.TestCase):
+    """A12 (5 Nov): Instagram's front card shows a Reel editor, its name cut off at the right edge."""
+    def setUp(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'analysis/farm-multiphone-20261020'))
+
+    def load(self, name): return json.loads((A12_FRAMES/name).read_text(encoding='utf-8'))
+
+    def test_the_reel_editor_marks_the_front_card(self):
+        import close_app
+        text = self.load('switcher-reel-editor.json')
+        self.assertFalse([name for name, _ in close_app.labels(text) if close_app.named(name, 'Instagram')])   # The name is cut off.
+        self.assertEqual(1, len(close_app.card_by_content(text, 'Instagram')))
+
+    def test_only_on_that_card(self):
+        import close_app
+        text = self.load('switcher-reel-editor.json')
+        self.assertEqual([], close_app.card_by_content(text, 'TikTok'))
+        moved = json.loads(json.dumps(text))
+        for line in moved['lines']:
+            if line['text'].strip().casefold().startswith('edit video'):
+                for word in line['words']: word['y'] = 500
+        self.assertEqual([], close_app.card_by_content(moved, 'Instagram'))
 
 
 class PreviewReconfirmTests(unittest.TestCase):
