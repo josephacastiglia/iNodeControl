@@ -69,7 +69,9 @@ def copy_sources(dest):
     for rel in ('tools', fr.RACK_DIR):
         shutil.copytree(REPO / rel, dest / rel, ignore=shutil.ignore_patterns(
             '__pycache__', '*.pyc', 'slots', 'windows', 'windows-archive', 'identify', 'autoconnect',
-            'measure', 'look', 'card-survey', 'airplay', 'protocol-deps', '*.png', '*.jpg', '*.bmp', '*.log', '*.jsonl'))
+            'measure', 'card-survey', 'protocol-deps', '*.png', '*.jpg', '*.bmp', '*.log', '*.jsonl',
+            # tools/airplay is the receiver's source and ships; its downloaded toolchain and build output do not.
+            'msys64', 'build-imouse', '*.tar.*'))
     marker = dest / 'tools' / 'mdns_goodbye.py'
     marker.write_text(marker.read_text(encoding='utf-8') + '\n# rehearsal B: this line marks the updated version\n', encoding='utf-8')
     return dest
@@ -357,7 +359,7 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
     checks['install root removed'] = not root.exists()
     checks['data folder kept; its earlier files unchanged'] = (
         all((data / n).is_file() and fr.sha256(data / n) == h for n, h in data_before.items()) and state['last_version'] == va)
-    checks['package carries no private state'] = not [n for n in a['files'] if fr.is_private(n) and not n.startswith('receiver/runtime/')]
+    checks['package carries no private state'] = not [n for n in a['files'] if fr.is_private(n) and not n.startswith(fr.THIRD_PARTY)]
     return {'utc': datetime.now(timezone.utc).isoformat(), 'source': a['source'], 'passed': all(checks.values()),
             'checks': checks, 'steps': steps}
 

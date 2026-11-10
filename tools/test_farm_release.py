@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import farm_release as fr
+from test_managed_symbols import fixture as symbol_pair   # a synthetic .dll/.pdb pair that belongs together
 
 RACK = fr.RACK_DIR
 FAKE_UDID = '0000' + 'A1B2-' + '0011223344556677'  # UDID-shaped, built at run time so this file holds none
@@ -54,17 +55,29 @@ def make_repo(base):
     (rack / 'preparation.json').write_text('{"kernel": "C:\\\\dev\\\\kernel.exe"}', encoding='utf-8')
     (rack / 'slots/preparation.json').write_text('{}', encoding='utf-8')
     (rack / 'windows/reel-slot18/preparation.json').write_text('{}', encoding='utf-8')
+    # The receiver's source, with what a developer's checkout also holds there and must never ship.
+    airplay = tools / 'airplay'
+    for name, text in (('UPSTREAM.md', 'UxPlay, GPL 3. Changes: patches/0001-frame-pipe.patch\n'), ('build-receiver.sh', 'cmake -S . -B build-imouse\n'),
+                       ('patches/0001-frame-pipe.patch', '--- /dev/null\n'), ('uxplay/LICENSE', 'GNU GENERAL PUBLIC LICENSE Version 3\n'),
+                       ('uxplay/CMakeLists.txt', 'project(uxplay)\n'), ('uxplay/uxplay.cpp', 'int main() {}\n'),
+                       ('uxplay/lib/CMakeLists.txt', '# lib\n'), ('uxplay/lib/playfair/LICENSE.md', 'GPL 3\n'),
+                       ('uxplay/lib/llhttp/LICENSE-MIT', 'MIT\n'), ('uxplay/renderers/imouse_frame_pipe.h', '/* frame pipe */\n'),
+                       ('uxplay/build-imouse/uxplay.exe', 'build output'), ('msys64/ucrt64/bin/gcc.exe', 'toolchain'),
+                       ('uxplay-source.tar.gz', 'download')):
+        (airplay / name).parent.mkdir(parents=True, exist_ok=True)
+        (airplay / name).write_text(text, encoding='utf-8')
     return repo
 
 
 def make_builds(base):
     base = Path(base)
     kernel, console, runtime = base / 'kernel build', base / 'console build', base / 'receiver runtime'
-    for folder, names, frameworks in ((kernel, fr.KERNEL_FILES, ['Microsoft.NETCore.App']),
-                                      (console, fr.CONSOLE_FILES, ['Microsoft.NETCore.App', 'Microsoft.WindowsDesktop.App'])):
+    for seed, (folder, names, frameworks) in enumerate(((kernel, fr.KERNEL_FILES, ['Microsoft.NETCore.App']),
+                                                        (console, fr.CONSOLE_FILES, ['Microsoft.NETCore.App', 'Microsoft.WindowsDesktop.App'])), 1):
         (folder / 'data').mkdir(parents=True)
+        dll, pdb = symbol_pair(seed)
         for n in names:
-            (folder / n).write_bytes(b'binary ' + n.encode())
+            (folder / n).write_bytes(dll if n.endswith('.dll') else pdb if n.endswith('.pdb') else b'binary ' + n.encode())
         config = next(n for n in names if n.endswith('.runtimeconfig.json'))
         (folder / config).write_text(json.dumps({'runtimeOptions': {'frameworks': [{'name': f, 'version': '8.0.0'} for f in frameworks]}}))
         (folder / 'data/devices.json').write_text('{"private": "bindings"}')  # never packaged
@@ -138,6 +151,40 @@ class Build(Base):
         self.assertFalse(manifest['commands']['start-rack']['ready'])
         self.assertTrue(manifest['commands']['server']['ready'])
         self.assertFalse(out.with_name(out.name + '.partial').exists())
+
+    def test_the_receiver_ships_with_its_licence_notice_and_source(self):
+        manifest, out, repo = build_package(self.base)
+        names = set(manifest['files'])
+        for need in fr.RECEIVER_SOURCE_REQUIRED + ('receiver/source/patches/0001-frame-pipe.patch',):
+            self.assertIn(need, names)
+        self.assertEqual((out / 'receiver/LICENSE').read_bytes(), (repo / 'tools/airplay/uxplay/LICENSE').read_bytes())
+        self.assertEqual((out / 'receiver/NOTICE.md').read_bytes(), (repo / 'tools/airplay/UPSTREAM.md').read_bytes())
+        self.assertFalse([n for n in names if 'build-imouse' in n or 'msys64' in n or n.endswith('.tar.gz')],
+                         'build output, the toolchain and downloads are not source')
+        receiver = manifest['components']['receiver']
+        self.assertEqual((receiver['licence'], receiver['notice'], receiver['source']), ('receiver/LICENSE', 'receiver/NOTICE.md', 'receiver/source'))
+        self.assertEqual(receiver['sha256'], manifest['files']['receiver/uxplay.exe']['sha256'])
+
+    def test_a_receiver_without_its_licence_source_or_a_named_patch_refuses_the_build(self):
+        for gone in ('uxplay/LICENSE', 'UPSTREAM.md', 'uxplay/uxplay.cpp', 'build-receiver.sh', 'patches/0001-frame-pipe.patch'):
+            base = self.base / gone.replace('/', '-')
+            repo = make_repo(base)
+            (repo / 'tools/airplay' / gone).unlink()
+            with self.assertRaisesRegex(ValueError, 'licence, notice and source must ship'):
+                build_package(base, repo=repo)
+            self.assertFalse((base / 'packages').exists(), 'nothing is written before the refusal')
+
+    def test_a_pdb_that_is_not_its_dlls_refuses_the_build(self):
+        repo = make_repo(self.base)
+        kernel, console, receiver, runtime = make_builds(self.base / 'b')
+        (console / 'iMouse2.pdb').write_bytes((kernel / 'iMouse2.Kernel.pdb').read_bytes())   # well formed, another build's
+        with self.assertRaisesRegex(ValueError, r'console: iMouse2\.pdb does not belong to iMouse2\.dll'):
+            fr.build(repo, self.base / 'p1', kernel, console, receiver, runtime, version='x')
+        kernel, console, receiver, runtime = make_builds(self.base / 'c')
+        (kernel / 'iMouse2.Kernel.pdb').write_bytes(b'not a pdb')
+        with self.assertRaisesRegex(ValueError, 'kernel: iMouse2.Kernel.pdb does not belong'):
+            fr.build(repo, self.base / 'p2', kernel, console, receiver, runtime, version='x')
+        self.assertFalse((self.base / 'p1').exists() or (self.base / 'p2').exists())
 
     def test_zip_is_named_after_the_whole_folder_and_holds_the_package(self):
         import zipfile
@@ -222,6 +269,17 @@ class Verify(Base):
         relaxed = fr.verify(out, allow_unrecorded=True)
         self.assertNotIn('unrecorded: console/startup-state.json', relaxed)
         self.assertIn('changed: farm/tools/farm_jobs.py', relaxed)
+
+    def test_a_package_without_the_receivers_licence_fails_verification(self):
+        _, out, _ = build_package(self.base)
+        manifest = json.loads((out / 'release.json').read_text())
+        for name in ('receiver/LICENSE', 'receiver/source/uxplay/uxplay.cpp'):
+            manifest['files'].pop(name)
+            (out / name).unlink()
+        (out / 'release.json').write_text(json.dumps(manifest))
+        issues = fr.verify(out)
+        self.assertIn('required file absent: receiver/LICENSE', issues)
+        self.assertIn('required file absent: receiver/source/uxplay/uxplay.cpp', issues)
 
     def test_manifest_tampering(self):
         _, out, _ = build_package(self.base)
