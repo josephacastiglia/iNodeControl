@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -11,14 +10,13 @@ internal sealed class KernelOptions
 {
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
-    private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid", "--precise-delay",
+    private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid",
         "--home-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hold-receivers", "--rack", "--stop-file", "--console-log"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
     internal string? HardwareMode { get; private set; }
     internal string[] HardwareArguments { get; private set; } = [];
     internal bool ValidateOnly => _flags.Contains("--validate-startup");
     internal HomeSequence Home { get; private set; }
-    internal int PreciseDelayMs { get; private set; } = 7;
     internal string[] Allowed { get; private set; } = [];
     internal string[] HeldReceivers { get; private set; } = [];
     // A label for one rack's kernel ("A", "B"); empty for the single kernel. Reported in status only.
@@ -49,7 +47,7 @@ internal sealed class KernelOptions
                 if (string.IsNullOrWhiteSpace(value) || value.StartsWith("--")) throw new ArgumentException(name + " needs a value.");
                 result._values.Add(name, value); continue;
             }
-            if (item is "--legacy" or "--validate-startup")
+            if (item is "--validate-startup")
             {
                 if (!result._flags.Add(item)) throw new ArgumentException("Repeated option: " + item);
                 continue;
@@ -65,20 +63,10 @@ internal sealed class KernelOptions
                     throw new ArgumentException("Invalid hardware command arguments.");
                 continue;
             }
-            throw new ArgumentException(item == "--precise-movement"
-                ? "--precise-movement is deprecated. Use --precise-delay <ms> or default."
-                : "Unknown kernel option: " + item);
+            throw new ArgumentException("Unknown kernel option: " + item);
         }
         if (result.ValidateOnly && result.HardwareMode is not null) throw new ArgumentException("Startup validation cannot include a hardware command.");
         result.Home = InputRouter.ParseHomeSequence(result.Value("--home-sequence", "vendor"));
-        if (result._values.TryGetValue("--precise-delay", out string? timing))
-        {
-            if (result._flags.Contains("--legacy")) throw new ArgumentException("Choose --precise-delay or --legacy, not both.");
-            if (!int.TryParse(timing, NumberStyles.None, CultureInfo.InvariantCulture, out int delay) || delay is < 1 or > 15)
-                throw new ArgumentException("--precise-delay must be an integer from 1 through 15 milliseconds.");
-            result.PreciseDelayMs = delay;
-        }
-        else if (result._flags.Contains("--legacy")) result.PreciseDelayMs = 0;
         if (result._values.TryGetValue("--input-pid", out string? ids))
         {
             result.Allowed = ids.Split(',', StringSplitOptions.TrimEntries);
@@ -145,7 +133,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         if (calibrations.Any(c => !KernelOptions.BoardId(c.Pid))) throw new ArgumentException("Invalid calibration board PID.");
         // Reuse the router's arithmetic and duplicate-calibration checks. Its constructor
         // and disposal never open transport; connections are created only on dispatch.
-        using (var check = new InputRouter(store, options.Allowed, calibrations, preciseDelayMs: options.PreciseDelayMs)) { }
+        using (var check = new InputRouter(store, options.Allowed, calibrations)) { }
 
         List<ReceiverConfig> receivers;
         if (options.Value("--receivers") is { Length: > 0 } file) receivers = ReadList<ReceiverConfig>(Path.GetFullPath(file));
@@ -183,7 +171,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         valid = true, scope = "saved configuration only", hardware_accessed = false, listener_started = false,
         receivers_started = false, settings_written = false, build = KernelDiagnostics.BuildIdentity,
         data_directory = Options.DataDir, address = Options.Prefix, allowed = Options.Allowed,
-        precise_delay_ms = Options.PreciseDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
+        precise_delay_ms = InputRouter.MoveDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
         rack = Options.Rack, stop_file = Options.StopFile, console_log = Options.ConsoleLog, receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
         bindings_complete = Receivers.All(r => r.DeviceId is not ("*" or "") && !r.DeviceId.StartsWith("unbound-", StringComparison.OrdinalIgnoreCase)),
         limitations = new[] { "Physical bindings, targeting and mirroring are not assessed.",

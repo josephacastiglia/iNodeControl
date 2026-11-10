@@ -86,34 +86,29 @@ public static class SelfTests
         writes.FailAt=2;
         Check(Code(await router.DispatchAsync("/mouse/reset",Data(new{id="test-one"})))==33,"Transport failure is reported");
         Check(writes.Disposed && writes.Reports.TakeLast(2).SequenceEqual(new[]{"A100000000000000","A200000000000000"}),"Failure releases inputs and discards handle");
-        foreach (bool precise in new[]{false,true})
         {
             var firstTransport=new RecordingTransport();var recoveredTransport=new RecordingTransport();
             int opened=0;
             using var recovery=new InputRouter(new DeviceStore(file),["C24C"],
-                [new("C24C",500,1080,14,14,5.12,5.09)],_=>++opened==1?firstTransport:recoveredTransport,preciseDelayMs: precise ? 7 : 0);
+                [new("C24C",500,1080,14,14,5.12,5.09)],_=>++opened==1?firstTransport:recoveredTransport);
             await recovery.DispatchAsync("/mouse/move",Data(new{id="test-one",x=14,y=14}));
             firstTransport.FailAt=firstTransport.Reports.Count+2;
             Check(Code(await recovery.DispatchAsync("/mouse/move",Data(new{id="test-one",x=40,y=40})))==33,
-                $"Movement failure is surfaced (precise={precise})");
+                "Movement failure is surfaced");
             await recovery.DispatchAsync("/mouse/move",Data(new{id="test-one",x=24,y=14}));
             Check(opened==2 && recoveredTransport.Reports.Take(6).Count(r=>r=="A100818100000000")==4,
-                $"Movement failure forces a new connection and corner reset (precise={precise})");
+                "Movement failure forces a new connection and corner reset");
         }
-        var legacyPackets=new RecordingTransport();var precisePackets=new RecordingTransport();
-        foreach(var setting in new[]{(Precise:false,Transport:legacyPackets),(Precise:true,Transport:precisePackets)})
+        var cornerResets=new RecordingTransport();
+        using(var sample=new InputRouter(new DeviceStore(file),["C24C"],[new("C24C",500,1080,14,14,5.12,5.09)],_=>cornerResets))
         {
-            using var sample=new InputRouter(new DeviceStore(file),["C24C"],
-                [new("C24C",500,1080,14,14,5.12,5.09)],_=>setting.Transport,preciseDelayMs: setting.Precise ? 7 : 0);
             await sample.DispatchAsync("/mouse/click",Data(new{id="test-one",x=100,y=200}));
             await sample.DispatchAsync("/key/sendkey",Data(new{id="test-one",fn_key="Home"}));
             await sample.DispatchAsync("/mouse/click",Data(new{id="test-one",x=100,y=200}));
             await sample.DispatchAsync("/mouse/swipe",Data(new{id="test-one",x1=100,y1=200,x2=120,y2=200,duration=100}));
         }
-        Check(legacyPackets.Reports.SequenceEqual(precisePackets.Reports),
-            "Precise pacing preserves all reset, movement, keyboard, click and swipe packets");
-        Check(precisePackets.Reports.Count(r=>r=="A100818100000000")==8,
-            "Precise clicks retain both cold-start and post-Home corner resets");
+        Check(cornerResets.Reports.Count(r=>r=="A100818100000000")==8,
+            "Clicks retain both cold-start and post-Home corner resets");
         // Lower-screen reach (27 Sep): the emitted movement must cover the whole calibrated
         // height, from a corner reset and from a known position. Sums the relative steps
         // after the last corner-reset report; says nothing about where iOS puts the pointer.
@@ -165,7 +160,7 @@ public static class SelfTests
             var initial = Status();
             int diagnosticWrites = writes.Reports.Count;
             var inputConfiguration = Status().GetProperty("input_configuration");
-            Check(inputConfiguration.GetProperty("precise_movement_delay_ms").GetInt32() == 0
+            Check(inputConfiguration.GetProperty("precise_movement_delay_ms").GetInt32() == InputRouter.MoveDelayMs
                 && inputConfiguration.GetProperty("calibrations")[0].GetProperty("pixels_per_unit_x").GetDouble() == 5.12
                 && inputConfiguration.GetProperty("calibrations")[0].GetProperty("enabled").GetBoolean()
                 && writes.Reports.Count == diagnosticWrites,

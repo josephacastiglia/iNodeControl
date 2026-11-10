@@ -84,11 +84,11 @@ if (options.ConsoleLog is { } consoleLog)
 }
 Console.WriteLine("Kernel pid " + Environment.ProcessId + " started " + DateTime.UtcNow.ToString("o") + ".");
 Directory.CreateDirectory(options.DataDir);
-using var input = new InputRouter(config.Store, options.Allowed, config.Calibrations, preciseDelayMs: options.PreciseDelayMs)
+using var input = new InputRouter(config.Store, options.Allowed, config.Calibrations)
     { Home = options.Home };
 Console.WriteLine("Direct HID input enabled only for: " + string.Join(",", input.Allowed));
 Console.WriteLine("Home sequence: " + input.HomeSequenceName + (options.Home == HomeSequence.Vendor ? "" : " (test option; not the release default)"));
-Console.WriteLine("Pointer movement pacing: " + (options.PreciseDelayMs > 0 ? $"high-resolution {options.PreciseDelayMs} ms; reset/drag/settle unchanged" : "legacy Task.Delay"));
+Console.WriteLine($"Pointer movement pacing: high-resolution {InputRouter.MoveDelayMs} ms; reset/drag/settle unchanged");
 Console.WriteLine("Video waits on an independent AirPlay receiver.");
 var fleet = new ReceiverFleet(config.Receivers, config.Store, config.ReceiverPath, config.RuntimePath, options.DataDir);
 var server = new ApiServer(options.Prefix, config.Store, input, fleet.Sessions.Select(s => (s.Config.Name, s.Frames)))

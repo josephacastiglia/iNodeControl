@@ -53,20 +53,16 @@ internal static class KernelStartupTests
             new[] { "--hold-receivers", "Phone5" },
             new[] { "--hold-receivers", "C214", "--hid-caps" } })
             Reject(() => KernelOptions.Parse(args), "Invalid receiver hold refused: " + string.Join(' ', args));
-        check(defaults.PreciseDelayMs == 7 && defaults.Home == HomeSequence.Vendor && defaults.Allowed.Length == 0
-            && defaults.Prefix == "http://127.0.0.1:9913/api/", "Startup defaults retain pacing, Home and no enabled boards");
-        check(KernelOptions.Parse(["--legacy"]).PreciseDelayMs == 0, "Legacy timing requires its explicit flag");
-        var explicitOptions = KernelOptions.Parse(["http://localhost:12345/api", @"--data-dir=C:\candidate with spaces", "--precise-delay", "12", "--input-pid=C24C, C241", "--home-sequence", "command-h"]);
-        check(explicitOptions.PreciseDelayMs == 12 && explicitOptions.DataDir == @"C:\candidate with spaces"
+        check(defaults.Home == HomeSequence.Vendor && defaults.Allowed.Length == 0
+            && defaults.Prefix == "http://127.0.0.1:9913/api/", "Startup defaults retain Home and no enabled boards");
+        var explicitOptions = KernelOptions.Parse(["http://localhost:12345/api", @"--data-dir=C:\candidate with spaces", "--input-pid=C24C, C241", "--home-sequence", "command-h"]);
+        check(explicitOptions.DataDir == @"C:\candidate with spaces"
             && explicitOptions.Allowed.SequenceEqual(new[] { "C24C", "C241" }) && explicitOptions.Home == HomeSequence.CommandH,
             "Explicit startup values and paths with spaces are retained");
         foreach (var invalid in new[] {
-            new[] { "--precise-delay", "0" }, new[] { "--precise-delay", "16" }, new[] { "--precise-delay", "bad" },
-            new[] { "--precise-delay", "1.5" }, new[] { "--precise-delay", "999999999999" },
-            new[] { "--precise-delay" }, new[] { "--precise-delay", "--legacy" }, new[] { "--precise-delay", "7", "--legacy" },
             new[] { "--data-dir=" }, new[] { "--data-dir", "one", "--data-dir=two" }, new[] { "--recievers", "file" },
             new[] { "--input-pid", "C24C," }, new[] { "--input-pid", "C24C,c24c" }, new[] { "--input-pid", "../" },
-            new[] { "--home-sequence", "bad" }, new[] { "--precise-movement" },
+            new[] { "--home-sequence", "bad" },
             new[] { "http://localhost/api" }, new[] { "http://localhost:0/api/" }, new[] { "http://localhost:9913/api/?secret=x" },
             new[] { "http://localhost:9913/api/", "http://localhost:9914/api/" },
             new[] { "--validate-startup", "--hid-caps" }, new[] { "--hid-send", "C24C" },

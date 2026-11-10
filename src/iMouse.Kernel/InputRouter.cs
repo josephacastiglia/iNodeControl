@@ -21,7 +21,9 @@ public sealed class InputRouter : IDisposable
     private readonly Dictionary<string, PointerCalibration> _calibrations;
     private readonly HashSet<string> _allowed;
     private readonly Func<string,IHidTransport> _open;
-    private readonly int _preciseDelayMs;
+    /// <summary>Delay per one-unit step of a plain pointer move, on a high-resolution timer.
+    /// Task.Delay(3) rounds near 15 ms on Windows. Reset, held-button movement and settle keep their own timing.</summary>
+    internal const int MoveDelayMs = 7;
     private readonly ConcurrentDictionary<string, BoardState> _states = new(StringComparer.OrdinalIgnoreCase);
     private sealed class BoardState
     {
@@ -36,10 +38,9 @@ public sealed class InputRouter : IDisposable
         public Exception? ReleaseFailure;
     }
     public InputRouter(DeviceStore store, IEnumerable<string> allowed, IEnumerable<PointerCalibration> calibrations,
-        Func<string,IHidTransport>? open=null, int preciseDelayMs=0)
+        Func<string,IHidTransport>? open=null)
     {
         _store = store;
-        _preciseDelayMs = preciseDelayMs;
         _allowed = new(allowed, StringComparer.OrdinalIgnoreCase);
         _open = open ?? (pid => new HidConnection(pid));
         _calibrations = calibrations.ToDictionary(c => c.Pid, StringComparer.OrdinalIgnoreCase);
@@ -57,14 +58,11 @@ public sealed class InputRouter : IDisposable
         return double.IsFinite(first) && double.IsFinite(last)
             && first > int.MinValue && last < int.MaxValue;
     }
-    public InputRouter(DeviceStore store, IEnumerable<string> allowed, IEnumerable<PointerCalibration> calibrations,
-        Func<string,IHidTransport>? open, bool preciseMovement)
-        : this(store, allowed, calibrations, open, preciseMovement ? 8 : 0) {}
     public bool Enabled(string pid) => _allowed.Contains(pid) && _calibrations.ContainsKey(pid);
     public string[] Allowed => _allowed.ToArray();
     internal object DiagnosticConfiguration() => new
     {
-        precise_movement_delay_ms = _preciseDelayMs,
+        precise_movement_delay_ms = MoveDelayMs,
         calibrations = _calibrations.Values.Select(c => new { pid = c.Pid, enabled = Enabled(c.Pid),
             width = c.Width, height = c.Height, origin_x = c.OriginX, origin_y = c.OriginY,
             pixels_per_unit_x = c.PixelsPerUnitX, pixels_per_unit_y = c.PixelsPerUnitY }).ToArray()
@@ -297,10 +295,9 @@ public sealed class InputRouter : IDisposable
         int ty=Math.Max(0,(int)Math.Round((y-c.OriginY)/c.PixelsPerUnitY));
         int sx=state.X,sy=state.Y,steps=Math.Max(Math.Abs(tx-sx),Math.Abs(ty-sy));
         // Keep one-unit reports and calibration. Task.Delay(3) rounds near 15 ms on
-        // this Windows host; opt-in precise pacing fixes that without skipping reset.
+        // this Windows host; the high-resolution timer fixes that without skipping reset.
         // Held-button movement keeps its established gesture timing.
-        using var pacing = _preciseDelayMs > 0 && duration == 0 && state.Buttons == 0 && steps > 0
-            ? new MovementDelay() : null;
+        using var pacing = duration == 0 && state.Buttons == 0 && steps > 0 ? new MovementDelay() : null;
         int sendMs = 0, delayMs = 0;
         for(int i=1;i<=steps;i++)
         {
@@ -312,7 +309,7 @@ public sealed class InputRouter : IDisposable
             var delayAt = Stopwatch.StartNew();
             int delay = Math.Max(3,duration/Math.Max(1,steps));
             if (pacing is null) await Task.Delay(delay, state.Cancellation);
-            else await pacing.WaitAsync(_preciseDelayMs, state.Cancellation);
+            else await pacing.WaitAsync(MoveDelayMs, state.Cancellation);
             delayMs += (int)delayAt.ElapsedMilliseconds;
         }
         return (resetMs, steps, sendMs, delayMs);
