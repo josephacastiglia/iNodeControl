@@ -320,6 +320,7 @@ public static class SelfTests
         await RealProcessTests.RunAsync(Case);
         await ReceiverFleetTests.RunAsync(Check, file, router, validBmp);
         await InputSessionTests.RunAsync(Check);
+        await InputSessionTests.StopReasonAsync(Check);
         await InputSessionTests.HomeSequenceAsync(Check);
         await InputSessionTests.NavigationAsync(Check);
         await KernelStartupTests.RunAsync(Check);

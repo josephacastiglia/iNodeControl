@@ -103,12 +103,19 @@ public sealed class InputRouter : IDisposable
         foreach (var phone in targets) ValidateCommand(fun, data, phone.pid);
         var results = await Task.WhenAll(targets.Select(async phone =>
         {
-            try { await ExecuteAsync(phone.pid, fun, data, cancellation); return new { id = phone.deviceid, code = 0, message = "ok" }; }
-            catch (OperationCanceledException) { return new { id = phone.deviceid, code = 499, message = "Input cancelled" }; }
-            catch (Exception ex) { return new { id = phone.deviceid, code = 33, message = ex.Message }; }
+            // reason is for InputSessions, which turns it into the phone's stop_reason. "cancelled" means
+            // the caller's token fired. A cancellation without it is the transport's own write limit.
+            try { await ExecuteAsync(phone.pid, fun, data, cancellation); return new { id = phone.deviceid, code = 0, message = "ok", reason = "" }; }
+            catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { return new { id = phone.deviceid, code = 499, message = "Input cancelled", reason = "cancelled" }; }
+            catch (OperationCanceledException) { return new { id = phone.deviceid, code = 499, message = "Input cancelled", reason = StopReasons.BoardUnavailable }; }
+            catch (Exception ex) { return new { id = phone.deviceid, code = 33, message = ex.Message, reason = BoardFailure(ex) ? StopReasons.BoardUnavailable : StopReasons.CommandFailed }; }
         }));
         return new { code = results.All(r => r.code == 0) ? 0 : 33, results };
     }
+
+    // The board is not enumerated (HidConnection throws KeyNotFoundException), cannot be opened, or a write to it failed.
+    private static bool BoardFailure(Exception ex) => ex is KeyNotFoundException or System.ComponentModel.Win32Exception
+        or IOException or UnauthorizedAccessException or ObjectDisposedException;
 
     public void ValidateCommand(string fun, JsonElement data, string pid)
     {

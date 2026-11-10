@@ -10,6 +10,7 @@ internal static class InputSessionTests
         public ConcurrentQueue<string> Reports = new();
         public Func<string, bool>? Block;
         public Func<string, bool>? Fail;
+        public Func<string, Exception?>? Throw;
         public TaskCompletionSource Entered = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public TaskCompletionSource Unblock = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public bool Disposed;
@@ -19,6 +20,7 @@ internal static class InputSessionTests
             string hex = Convert.ToHexString(data);
             Reports.Enqueue(hex);
             if (Fail?.Invoke(hex) == true) throw new IOException("Test release failure");
+            if (Throw?.Invoke(hex) is { } failure) throw failure;
             if (Block?.Invoke(hex) == true) { Entered.TrySetResult(); await Unblock.Task.WaitAsync(ct); }
         }
         public void Dispose() => Disposed = true;
@@ -35,6 +37,123 @@ internal static class InputSessionTests
     {
         try { await action(); } catch (InvalidOperationException) { return; }
         throw new Exception("Expected ownership rejection");
+    }
+    /// <summary>
+    /// /input/status says why each phone stopped in a fixed word a script can branch on, beside the
+    /// existing stopped flag and message, which keep their values.
+    /// </summary>
+    public static async Task StopReasonAsync(Action<bool, string> check)
+    {
+        var store = new DeviceStore([new Phone { deviceid = "one", pid = "C24C" }, new Phone { deviceid = "two", pid = "C241" }]);
+        PointerCalibration[] calibrations = [new("C24C", 500, 1080, 14, 14, 5, 5), new("C241", 500, 1080, 14, 14, 5, 5)];
+        static JsonElement Row(InputSessions s, string id) => Data(s.Status()).GetProperty("phones").EnumerateArray().Single(p => p.GetProperty("id").GetString() == id);
+        static string Reason(InputSessions s, string id) => Row(s, id).GetProperty("stop_reason").GetString()!;
+        static bool Is(InputSessions s, string id, string reason, string message, bool releaseFailed = false)
+        {
+            var row = Row(s, id);
+            return row.GetProperty("stop_reason").GetString() == reason && row.GetProperty("stopped").GetBoolean() == (reason.Length > 0)
+                && row.GetProperty("message").GetString() == message && row.GetProperty("release_failed").GetBoolean() == releaseFailed;
+        }
+        const string mouseUp = "A100000000000000";
+
+        {
+            var one = new Transport(); var two = new Transport(); long now = 0;
+            using var input = new InputRouter(store, ["C24C", "C241"], calibrations, pid => pid == "C24C" ? one : two);
+            await using var sessions = new InputSessions(store, input, () => Interlocked.Read(ref now));
+            check(Row(sessions, "one").EnumerateObject().Select(p => p.Name).SequenceEqual(new[] { "id", "owned", "active", "stopped", "releasing",
+                    "release_failed", "message", "generation", "lease_remaining_ms", "stop_reason" }),
+                "Status keeps every existing field in place and adds stop_reason after them");
+            check(Is(sessions, "one", "", ""), "A phone that has not stopped has an empty stop_reason");
+
+            string token = Lease(sessions, "one");
+            check(Is(sessions, "one", "", ""), "A leased, running phone has an empty stop_reason");
+            await sessions.StopAsync(Data(new { id = "one" }));
+            check(Is(sessions, "one", "operator_stop", "Stopped by operator."), "Stop is reported as operator_stop, with its message unchanged");
+            check(Code(sessions.Resume(Data(new { id = "one" }))) == 0 && Is(sessions, "one", "", ""), "Resume clears stop_reason with the stopped flag");
+
+            token = Lease(sessions, "one");
+            check(Code(await sessions.StopAsync(Data(new { id = "one", token }), release: true)) == 0 && Is(sessions, "one", "", "Controller released."),
+                "A clean release is not a stop and has no stop_reason");
+
+            // Stop while a command is running: the command then reports "Input cancelled", which
+            // replaces the message as it always did. The reason must still say who stopped it.
+            token = Lease(sessions, "one");
+            one.Block = hex => hex == "A200040000000000";
+            var held = sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, key = "a" }));
+            await one.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            await sessions.StopAsync(Data(new { id = "one" })).WaitAsync(TimeSpan.FromSeconds(2));
+            check(Code(await held) != 0 && Is(sessions, "one", "operator_stop", "Input cancelled"),
+                "Stop during a running command stays operator_stop after the command reports its cancellation");
+            one.Block = null; sessions.Resume(Data(new { id = "one" }));
+
+            // Lease expiry, noticed by the watchdog with no further request.
+            token = Lease(sessions, "two");
+            Interlocked.Exchange(ref now, 31_000);
+            for (int n = 0; n < 200 && Reason(sessions, "two").Length == 0; n++) await Task.Delay(10);
+            check(Is(sessions, "two", "lease_expired", "Controller lease expired."), "An expired lease is reported as lease_expired");
+            // An operator's Stop is a deliberate hands-off and always becomes the reason.
+            await sessions.StopAsync(Data(new { id = "two" }));
+            check(Is(sessions, "two", "operator_stop", "Stopped by operator."), "Stop pressed on a phone that had already stopped replaces the earlier reason");
+
+            // Any other later cause leaves the first one standing.
+            token = Lease(sessions, "one");
+            Interlocked.Exchange(ref now, 62_000);
+            for (int n = 0; n < 200 && Reason(sessions, "one").Length == 0; n++) await Task.Delay(10);
+            await sessions.DisposeAsync();
+            check(Is(sessions, "one", "lease_expired", "Kernel shutting down."), "Shutdown after an expiry keeps lease_expired as the reason");
+        }
+        {
+            var one = new Transport();
+            using var input = new InputRouter(store, ["C24C"], calibrations, _ => one);
+            var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            await sessions.DispatchAsync("/mouse/down", Data(new { id = "one", token }));
+            await sessions.DisposeAsync();
+            check(Is(sessions, "one", "kernel_shutdown", "Kernel shutting down."), "A phone stopped by kernel shutdown is reported as kernel_shutdown");
+        }
+        {
+            // The release reports themselves fail.
+            var one = new Transport(); var two = new Transport();
+            using var input = new InputRouter(store, ["C24C", "C241"], calibrations, pid => pid == "C24C" ? one : two);
+            await using var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            await sessions.DispatchAsync("/mouse/down", Data(new { id = "one", token }));
+            one.Fail = hex => hex == mouseUp;
+            check(Code(await sessions.StopAsync(Data(new { id = "one", token }), release: true)) == 33
+                && Is(sessions, "one", "release_failed", "Input release could not be confirmed.", releaseFailed: true),
+                "A release whose reports fail stops the phone with release_failed");
+            token = Lease(sessions, "two");
+            await sessions.DispatchAsync("/mouse/down", Data(new { id = "two", token }));
+            two.Fail = hex => hex == mouseUp;
+            check(Code(await sessions.StopAsync(Data(new { id = "two" }))) == 33
+                && Is(sessions, "two", "operator_stop", "Input release could not be confirmed.", releaseFailed: true),
+                "Stop whose release fails stays operator_stop; release_failed is still true beside it");
+        }
+        // The board is not there, cannot be opened, or does not take a report.
+        foreach (var (label, opening, writing) in new (string, Exception?, Exception?)[] {
+            ("is not plugged in (not enumerated)", new KeyNotFoundException("Board C24C"), null),
+            ("cannot be opened", new System.ComponentModel.Win32Exception(5), null),
+            ("fails a write", null, new IOException("The device is not connected.")),
+            ("does not take a report within the transport's own two seconds", null, new OperationCanceledException()) })
+        {
+            var one = new Transport { Throw = _ => writing };
+            using var input = new InputRouter(store, ["C24C"], calibrations, _ => opening is null ? one : throw opening);
+            await using var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            var result = Data(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Enter" })));
+            // When the writes fail the release reports fail too: release_failed is set beside the reason.
+            check(result.GetProperty("code").GetInt32() == 33 && Reason(sessions, "one") == "board_unavailable" && Row(sessions, "one").GetProperty("stopped").GetBoolean()
+                && Row(sessions, "one").GetProperty("release_failed").GetBoolean() == (writing is not null),
+                "A board that " + label + " is reported as board_unavailable");
+        }
+        {
+            var one = new Transport { Throw = _ => new InvalidOperationException("Unexpected") };
+            using var input = new InputRouter(store, ["C24C"], calibrations, _ => one);
+            await using var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Enter" }));
+            check(Reason(sessions, "one") == "command_failed", "Any other command failure is reported as command_failed");
+        }
     }
     /// <summary>
     /// --home-sequence: each option's exact reports, and that every option still needs the phone's
@@ -340,6 +459,10 @@ internal static class InputSessionTests
             check(Code(await cut.WaitAsync(TimeSpan.FromSeconds(12))) != 0 && two.Reports.TakeLast(2).SequenceEqual(lifted) && two.Disposed,
                 "A drag move cut by the 8 s command deadline lifts the held button without /mouse/up");
             check(Code(drag.Acquire(Data(new { id = "two" }))) == 409, "A drag move cut by the deadline latches Stop until Resume");
+            static string Why(InputSessions s, string id) => Data(s.Status()).GetProperty("phones").EnumerateArray()
+                .Single(p => p.GetProperty("id").GetString() == id).GetProperty("stop_reason").GetString()!;
+            check(Why(drag, "two") == "command_timeout" && Why(drag, "one") == "board_unavailable",
+                "A command cut by the 8 s deadline is reported as command_timeout, a failed write as board_unavailable");
 
             check(Code(drag.Resume(Data(new { id = "one,two" }))) == 0, "Both phones resume after cleanup");
             Reset(one); Reset(two);
