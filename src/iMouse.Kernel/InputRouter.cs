@@ -25,7 +25,6 @@ public sealed class InputRouter : IDisposable
     private readonly int _preciseDelayMs;
     private readonly ConcurrentDictionary<string, HidReplyTelemetry> _replyTelemetry = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _replyBoards;
-    private readonly string? _absoluteProbeBoard;
     private readonly ConcurrentDictionary<string, BoardState> _states = new(StringComparer.OrdinalIgnoreCase);
     private sealed class BoardState
     {
@@ -38,32 +37,21 @@ public sealed class InputRouter : IDisposable
         public byte Buttons;
         public CancellationToken Cancellation;
         public Exception? ReleaseFailure;
-        // This mode never presses a button. Re-sending an A0 on cleanup would
-        // repeat a possibly failed move; do not retry or fall back to A1.
-        public bool AbsoluteProbe;
     }
     public InputRouter(DeviceStore store, IEnumerable<string> allowed, IEnumerable<PointerCalibration> calibrations,
-        Func<string,IHidTransport>? open=null, int preciseDelayMs=0, IEnumerable<string>? replyBoards=null,
-        string? absoluteProbeBoard=null)
+        Func<string,IHidTransport>? open=null, int preciseDelayMs=0, IEnumerable<string>? replyBoards=null)
     {
         _store = store;
         _preciseDelayMs = preciseDelayMs;
         _allowed = new(allowed, StringComparer.OrdinalIgnoreCase);
         _replyBoards = new(replyBoards ?? [], StringComparer.OrdinalIgnoreCase);
         if (!_replyBoards.IsSubsetOf(_allowed)) throw new ArgumentException("Reply diagnostics require an enabled input board.");
-        _absoluteProbeBoard = absoluteProbeBoard;
-        if (absoluteProbeBoard is not null && (_allowed.Count != 1 || !_allowed.Contains(absoluteProbeBoard)
-            || !_replyBoards.Contains(absoluteProbeBoard)))
-            throw new ArgumentException("Absolute probe needs one enabled board with reply observation.");
         _open = open ?? (pid => new HidConnection(pid, _replyBoards.Contains(pid)
             ? _replyTelemetry.GetOrAdd(pid, _ => new()) : null));
         _calibrations = calibrations.ToDictionary(c => c.Pid, StringComparer.OrdinalIgnoreCase);
         if (_calibrations.Values.Any(c => !ValidAxis(c.Width,c.OriginX,c.PixelsPerUnitX)
             || !ValidAxis(c.Height,c.OriginY,c.PixelsPerUnitY)))
             throw new ArgumentException("Invalid pointer calibration.");
-        if (absoluteProbeBoard is not null && (!_calibrations.TryGetValue(absoluteProbeBoard, out var probe)
-            || probe.Width > 65535 || probe.Height > 65535))
-            throw new ArgumentException("Absolute probe needs a recorded image no larger than 65535 pixels per axis.");
     }
     private static bool ValidAxis(int size,double origin,double pixelsPerUnit)
     {
@@ -84,7 +72,6 @@ public sealed class InputRouter : IDisposable
     {
         precise_movement_delay_ms = _preciseDelayMs,
         hid_reply_boards = _replyBoards.OrderBy(p => p).ToArray(),
-        absolute_probe_board = _absoluteProbeBoard,
         navigation_sequence = NavigationSequenceName,
         calibrations = _calibrations.Values.Select(c => new { pid = c.Pid, enabled = Enabled(c.Pid),
             width = c.Width, height = c.Height, origin_x = c.OriginX, origin_y = c.OriginY,
@@ -105,8 +92,6 @@ public sealed class InputRouter : IDisposable
         home_sequence = HomeSequenceName, home_sends_tab = Home == HomeSequence.Vendor,
         navigation_sequence = NavigationSequenceName, navigation_sends_tab = Navigation == NavigationSequence.Vendor,
         app_switcher = "Fn+Up; uses the phone's Full Keyboard Access assignment. FKA-Off support is not established.",
-        absolute_probe_board = _absoluteProbeBoard,
-        absolute_probe = _absoluteProbeBoard is null ? "off" : "experimental moves only; hardware support unverified; clicks, drags and keys refused",
         phone_setting_detection = false
     };
     public static HomeSequence ParseHomeSequence(string value) => value switch
@@ -151,9 +136,6 @@ public sealed class InputRouter : IDisposable
         if (fun is not ("/mouse/reset" or "/mouse/move" or "/mouse/down" or "/mouse/up" or "/mouse/click" or "/mouse/swipe" or "/key/sendkey"))
             throw new ArgumentException("Unsupported input operation.");
         if (!Enabled(pid)) throw new ArgumentException("Target needs an enabled, calibrated board.");
-        if (string.Equals(pid, _absoluteProbeBoard, StringComparison.OrdinalIgnoreCase)
-            && fun is not ("/mouse/reset" or "/mouse/move"))
-            throw new ArgumentException("Absolute probe permits pointer moves and reset only. No click, drag or keyboard input was sent.");
         Validate(fun, data, _calibrations[pid]);
     }
 
@@ -180,7 +162,7 @@ public sealed class InputRouter : IDisposable
     private static async Task ReleaseReportsAsync(BoardState state)
     {
         Exception? failure = null;
-        try { if (!state.AbsoluteProbe) await state.Connection!.SendAsync(HidProtocol.Mouse(), CancellationToken.None); }
+        try { await state.Connection!.SendAsync(HidProtocol.Mouse(), CancellationToken.None); }
         catch (Exception ex) { failure = ex; }
         try { await state.Connection!.SendAsync(HidProtocol.Key(), CancellationToken.None); }
         catch (Exception ex) { failure ??= ex; }
@@ -220,18 +202,8 @@ public sealed class InputRouter : IDisposable
         {
             state.Cancellation = cancellation;
             cancellation.ThrowIfCancellationRequested();
-            state.AbsoluteProbe = string.Equals(pid, _absoluteProbeBoard, StringComparison.OrdinalIgnoreCase);
             state.Connection ??= _open(pid);
             var calibration = _calibrations[pid];
-            if (string.Equals(pid, _absoluteProbeBoard, StringComparison.OrdinalIgnoreCase))
-            {
-                int x = fun == "/mouse/reset" ? 0 : Number(data, "x");
-                int y = fun == "/mouse/reset" ? 0 : Number(data, "y");
-                await Send(state, HidProtocol.AbsoluteProbe(x, y, calibration.Width, calibration.Height));
-                // No wait for an uncorrelated reply and no automatic retry/fallback.
-                state.Known = false;
-                return;
-            }
             switch (fun)
             {
                 case "/mouse/reset": await ResetAsync(state); break;

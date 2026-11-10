@@ -85,13 +85,12 @@ if (options.ConsoleLog is { } consoleLog)
 Console.WriteLine("Kernel pid " + Environment.ProcessId + " started " + DateTime.UtcNow.ToString("o") + ".");
 Directory.CreateDirectory(options.DataDir);
 using var input = new InputRouter(config.Store, options.Allowed, config.Calibrations, preciseDelayMs: options.PreciseDelayMs,
-    replyBoards: options.ReplyBoards, absoluteProbeBoard: options.AbsoluteProbeBoard)
+    replyBoards: options.ReplyBoards)
     { Home = options.Home, Navigation = options.Navigation };
 Console.WriteLine("Direct HID input enabled only for: " + string.Join(",", input.Allowed));
 Console.WriteLine("HID reply diagnostics: " + (options.ReplyBoards.Length == 0 ? "off" : string.Join(",", options.ReplyBoards) + " (observation only)"));
 Console.WriteLine("Home sequence: " + input.HomeSequenceName + (options.Home == HomeSequence.Vendor ? "" : " (test option; not the release default)"));
 Console.WriteLine("Navigation sequence: " + input.NavigationSequenceName + (options.Navigation == NavigationSequence.Vendor ? "" : " (test option; phone compatibility unverified)"));
-if (options.AbsoluteProbeBoard is not null) Console.WriteLine("EXPERIMENTAL absolute probe on " + options.AbsoluteProbeBoard + ": moves only; clicks, drags and keys refused.");
 Console.WriteLine("Pointer movement pacing: " + (options.PreciseDelayMs > 0 ? $"high-resolution {options.PreciseDelayMs} ms; reset/drag/settle unchanged" : "legacy Task.Delay"));
 Console.WriteLine("Video waits on an independent AirPlay receiver.");
 var fleet = new ReceiverFleet(config.Receivers, config.Store, config.ReceiverPath, config.RuntimePath, options.DataDir);
