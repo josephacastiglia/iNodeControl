@@ -80,7 +80,7 @@ A phone joins a rack the way these did:
 | Scale gate | The 8- and 19-phone gates on rack B's home screens: mirroring and input only, no app ever opened (release gates) | new `analysis/scale-gate-20261104/` |
 
 **Shared (orchestrator's OK first):** `tools/farm_screen_layout.py`, `farm_observations.py`,
-`farm_start_screen.py`, `farm_carousel_inspection.py`, `farm_creation_runs.py`, `farm_paths.py`,
+`farm_start_screen.py`, `farm_owned_capture.py`, `farm_creation_runs.py`, `farm_paths.py`,
 `imouse_farm_server.py`, `privacy_scan_staged.py`, and `analysis/farm-multiphone-20261020/`
 `run_window.py`, `verify_window.py`, `relaunch_check.py`, `close_app.py`, `prepare_window.py`,
 `Start-Window.ps1`, `Stop-Window.ps1`.

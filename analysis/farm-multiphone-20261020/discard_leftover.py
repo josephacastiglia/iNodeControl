@@ -22,7 +22,7 @@ import sys
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
-from farm_carousel_inspection import InspectionStopped  # noqa: E402
+from farm_owned_capture import InspectionStopped  # noqa: E402
 from farm_draft_runs import phone_of  # noqa: E402
 from farm_start_screen import MAX_AGE_MS, StartScreen  # noqa: E402
 

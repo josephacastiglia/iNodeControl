@@ -40,7 +40,7 @@ class SourceHashTests(unittest.TestCase):
 
     def test_nothing_outside_the_backend_is_hashed(self):
         self.assertFalse([name for name in self.files if name.startswith('test_')])
-        for name in ('farm_test_network.py', 'farm_carousel_inspection.py', 'farm_release.py', 'farm_install.py'):
+        for name in ('farm_test_network.py', 'farm_release.py', 'farm_install.py'):
             self.assertNotIn(name, self.files)
         self.assertTrue(all((TOOLS / name).is_file() for name in self.files))
 

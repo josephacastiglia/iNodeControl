@@ -221,12 +221,20 @@ public partial class MainWindow
                 RefreshInputOwnershipUi();
             }
             await cancellation;
-            await FarmApi.SendAsync("/api/farm/emergency-stop", new { device_id = "C24C" });
-            AppendFarmLog("C24C Stop confirmed. Job cleanup may still be finishing.");
+            // The backend stops its own window's phone, if it has one, and says so; it ignores any device in the request.
+            var reply = await FarmApi.SendAsync("/api/farm/emergency-stop", new { });
+            AppendFarmLog(FarmStopMessage(reply));
             await PollFarmJobAsync();
         }
         catch (Exception ex) { AppendFarmLog("Stop not confirmed: " + ex.Message); }
     }
+
+    /// <summary>What the backend's emergency-stop reply means for a phone: only its own word that it stopped one counts.</summary>
+    internal static string FarmStopMessage(System.Text.Json.JsonElement reply) =>
+        reply.TryGetProperty("phoneStopped", out var phone) && phone.ValueKind == System.Text.Json.JsonValueKind.True
+        && reply.TryGetProperty("stopped", out var board) && board.ValueKind == System.Text.Json.JsonValueKind.String
+            ? $"The farm backend stopped input on board {board.GetString()}. Job cleanup may still be finishing."
+            : "The farm backend cancelled its job. It drives no phone, so it stopped none. Job cleanup may still be finishing.";
 
     private async void FarmPreview_Down(object sender, MouseButtonEventArgs e)
     {

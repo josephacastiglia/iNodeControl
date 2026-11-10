@@ -19,6 +19,12 @@ internal static class FarmApiTests
         using var good = new HttpClient(new Handler(HttpStatusCode.OK, "{\"protocolVersion\":2,\"status\":\"ok\"}"));
         var response = await new FarmApiClient(good, "http://localhost:9915").SendAsync("/health");
         check("Farm API accepts the matching protocol", response.GetProperty("status").GetString() == "ok");
+        static System.Text.Json.JsonElement Reply(string json) { using var d = System.Text.Json.JsonDocument.Parse(json); return d.RootElement.Clone(); }
+        check("A backend that stopped its phone is reported by its board",
+            MainWindow.FarmStopMessage(Reply("{\"status\":\"ok\",\"stopped\":\"0F01\",\"phoneStopped\":true}")).Contains("stopped input on board 0F01"));
+        foreach (var noPhone in new[] { "{\"status\":\"ok\",\"stopped\":null,\"phoneStopped\":false}", "{\"status\":\"ok\"}", "{\"status\":\"ok\",\"stopped\":\"0F01\",\"phoneStopped\":false}" })
+            check("A backend that stopped no phone is never reported as a phone stop: " + noPhone,
+                MainWindow.FarmStopMessage(Reply(noPhone)).Contains("it stopped none") && !MainWindow.FarmStopMessage(Reply(noPhone)).Contains("on board"));
         foreach (var scenario in new[] {
             (HttpStatusCode.BadRequest, "{\"error\":\"Invalid device\"}", "Farm API surfaces HTTP failure instead of logging completion"),
             (HttpStatusCode.OK, "{\"error\":\"No action performed\"}", "Farm API surfaces application failure even on HTTP 200"),
