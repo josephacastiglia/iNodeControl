@@ -1,17 +1,12 @@
-"""The live evidence probe cannot issue input, even through the base client API."""
+"""The read-only kernel client cannot issue input, even through the base client API."""
 from farm_phone_identity import LEGACY_C24C
 import copy
-import hashlib
 import io
 import json
-from pathlib import Path
-import tempfile
 import unittest
-import urllib.parse
 
 from PIL import Image
-from farm_live_verification import ReadOnlyKernel, validate_runtime, capture_once, check_retained_expiry
-from farm_observations import ObservationStore
+from farm_live_verification import ReadOnlyKernel, validate_runtime, idle
 from imouse_social_automation import LIVE_TEST_DEVICE_ID, KernelSafetyError
 
 HASH = 'a' * 64
@@ -50,36 +45,10 @@ class Fixture:
         return json.dumps(dict(status=200, data=value)).encode(), {}
 
 
-class Clock:
-    def __init__(self): self.now = 1000
-    def __call__(self): return self.now
-    def wait(self, delay): self.now += delay
-
-
-class ProbeTests(unittest.TestCase):
+class ReadOnlyKernelTests(unittest.TestCase):
     def setUp(self):
         self.fixture = Fixture()
         self.kernel = ReadOnlyKernel(URL, transport=self.fixture.wire, phone=LEGACY_C24C)
-        self.clock = Clock()
-        self.temp = tempfile.TemporaryDirectory(prefix='farm-probe-test-')
-        self.addCleanup(self.temp.cleanup)
-        class Ocr:
-            def read(_, raw):
-                return dict(width=500, height=1080, lines=[], frameSha256=hashlib.sha256(raw).hexdigest())
-        self.store = ObservationStore(Path(self.temp.name) / 'observations.db', ocr=Ocr(),
-                                      clock=self.clock, monotonic=self.clock)
-
-    def capture(self):
-        return capture_once(self.kernel, self.store, dict(platform='instagram', account='test.account'), HASH, UID)
-
-    def test_valid_probe_uses_real_observer_without_inferring_draft_success(self):
-        result = self.capture()
-        self.assertTrue(result['metadataUsableAtCheck'])
-        self.assertFalse(result['automaticInputAllowed'])
-        self.assertFalse(result['savedDraftVerified'])
-        self.assertEqual('unknown', result['observation']['result']['screen'])
-        self.assertTrue(all(body is None or body == {'fun': '/input/status', 'data': {}}
-                            for _, _, body in self.fixture.calls))
 
     def test_input_and_other_targets_blocked_before_transport(self):
         for method, target, body in (
@@ -101,54 +70,24 @@ class ProbeTests(unittest.TestCase):
                          'http://user:pass@127.0.0.1:9916/api', 'https://127.0.0.1:9916/api'):
             with self.subTest(endpoint=endpoint), self.assertRaises(KernelSafetyError): ReadOnlyKernel(endpoint, phone=LEGACY_C24C)
 
-    def test_wrong_build_and_extra_phone_refused_without_screenshot(self):
+    def test_wrong_build_and_extra_phone_are_refused(self):
+        def check(): return validate_runtime(self.kernel.kernel_status(), self.kernel.devices(), HASH, UID, self.kernel.phone)
+        self.assertEqual((10, '2026-10-18T20:00:00Z'), check())
         for key, value in (('build_identity', dict(sha256='c'*64)), ('allowed', ['C24C','C241']),
                            ('input_leases_required', False), ('process', dict(pid=0))):
             original = copy.deepcopy(self.fixture.status)
             self.fixture.status[key] = value
-            with self.subTest(key=key), self.assertRaises(KernelSafetyError): self.capture()
+            with self.subTest(key=key), self.assertRaises(KernelSafetyError): check()
             self.fixture.status = original
         self.fixture.devices[0]['uid'] = 'wrong-board'
-        with self.assertRaises(KernelSafetyError): self.capture()
+        with self.assertRaises(KernelSafetyError): check()
         self.assertFalse(any('/pic/screenshot?' in url for _, url, _ in self.fixture.calls))
 
-    def test_owned_phone_refused_without_screenshot(self):
-        self.fixture.state['owned'] = True
-        with self.assertRaises(KernelSafetyError): self.capture()
-        self.assertFalse(any('/pic/screenshot?' in url for _, url, _ in self.fixture.calls))
-
-    def test_missing_metadata_never_passes(self):
-        self.fixture.missing_headers = True
-        value = self.capture()
-        self.assertFalse(value['metadataUsableAtCheck'])
-        self.assertEqual('unavailable', value['observation']['freshness'])
-
-    def test_kernel_replacement_refused(self):
-        self.fixture.after_shot = lambda: self.fixture.status['process'].update(pid=12)
-        with self.assertRaises(KernelSafetyError): self.capture()
-
-    def test_ownership_change_refused(self):
-        self.fixture.after_shot = lambda: self.fixture.state.update(generation=2)
-        with self.assertRaises(KernelSafetyError): self.capture()
-
-    def test_retained_expiry_does_not_recapture(self):
-        value = self.capture()
-        calls = len(self.fixture.calls)
-        expiry = check_retained_expiry(self.store, value['observation']['id'], wait=self.clock.wait)
-        self.assertTrue(expiry['expired'])
-        self.assertFalse(expiry['recaptured'])
-        self.assertEqual(calls, len(self.fixture.calls))
-
-    def test_final_identity_read_consumes_frame_age_budget(self):
-        original = self.kernel.devices
-        count = 0
-        def devices():
-            nonlocal count
-            count += 1
-            if count == 2: self.clock.wait(2)
-            return original()
-        self.kernel.devices = devices
-        self.assertFalse(self.capture()['metadataUsableAtCheck'])
+    def test_idle_means_free_and_settled(self):
+        self.assertTrue(idle(self.kernel.input_status()[LIVE_TEST_DEVICE_ID]))
+        for flag in ('owned', 'active', 'stopped', 'releasing', 'release_failed'):
+            with self.subTest(flag=flag): self.assertFalse(idle({**self.fixture.state, flag: True}))
+        self.assertFalse(idle({**self.fixture.state, 'generation': None})); self.assertFalse(idle(None))
 
 
 if __name__ == '__main__': unittest.main()
