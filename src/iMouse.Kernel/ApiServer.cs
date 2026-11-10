@@ -17,8 +17,6 @@ public sealed class ApiServer : IDisposable
     public Func<string,object>? AdvertiseReceiver { get; init; }
     // Restarts or withdraws one receiver by board PID; null when the kernel runs no receivers.
     public ReceiverFleet? Receivers { get; init; }
-    // This kernel's rack label ("" for the single kernel), so a script can confirm it reached the right one.
-    public string Rack { get; init; } = "";
 
     public ApiServer(string prefix,DeviceStore store,InputRouter input,IEnumerable<(string Name,FrameStore Frames)> sessions)
         : this(prefix,store,input,sessions,null) { }
@@ -116,7 +114,7 @@ public sealed class ApiServer : IDisposable
     // Every receiver reports its own state; there is no single-receiver summary at the top level.
     internal object KernelStatus()
     {
-        return new { code = 0, rack = Rack, input = "direct-hid", input_protocol = 1, input_leases_required = true,
+        return new { code = 0, input = "direct-hid", input_protocol = 1, input_leases_required = true,
             build_identity = KernelDiagnostics.BuildIdentity, process = KernelDiagnostics.ProcessSnapshot(),
             input_configuration = _input.DiagnosticConfiguration(),
             control_compatibility = _input.ControlCompatibility(),

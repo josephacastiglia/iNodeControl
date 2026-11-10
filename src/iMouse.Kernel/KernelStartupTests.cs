@@ -15,8 +15,7 @@ internal static class KernelStartupTests
             check(refused, label);
         }
         var defaults = KernelOptions.Parse([]);
-        check(defaults.Rack == "" && KernelOptions.Parse(["--rack", "b"]).Rack == "B", "--rack labels one rack's kernel; the single kernel has none");
-        Reject(() => KernelOptions.Parse(["--rack", "A B"]), "--rack refuses labels with spaces or symbols");
+        Reject(() => KernelOptions.Parse(["--rack", "A"]), "--rack is not a kernel option: one kernel serves every configured board");
         string tmpFolder = Path.GetTempPath();
         var detached = KernelOptions.Parse(["--stop-file", Path.Combine(tmpFolder, "stop.txt"), "--console-log", Path.Combine(tmpFolder, "kernel.log")]);
         check(detached.StopFile == Path.Combine(Path.GetFullPath(tmpFolder), "stop.txt") && detached.ConsoleLog!.EndsWith("kernel.log"),

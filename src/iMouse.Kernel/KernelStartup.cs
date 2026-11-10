@@ -11,14 +11,12 @@ internal sealed class KernelOptions
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
     private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid",
-        "--home-sequence", "--receiver", "--receivers", "--receiver-runtime", "--hold-receivers", "--rack", "--stop-file", "--console-log"];
+        "--home-sequence", "--receiver", "--receivers", "--receiver-runtime", "--hold-receivers", "--stop-file", "--console-log"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
     internal bool ValidateOnly => _flags.Contains("--validate-startup");
     internal HomeSequence Home { get; private set; }
     internal string[] Allowed { get; private set; } = [];
     internal string[] HeldReceivers { get; private set; } = [];
-    // A label for one rack's kernel ("A", "B"); empty for the single kernel. Reported in status only.
-    internal string Rack { get; private set; } = "";
     // Detached launch (Start-Multiphone through WMI): a stop request file and a console log file.
     internal string? StopFile { get; private set; }
     internal string? ConsoleLog { get; private set; }
@@ -65,12 +63,6 @@ internal sealed class KernelOptions
             if (result.HeldReceivers.Any(id => !BoardId(id))
                 || result.HeldReceivers.Distinct(StringComparer.OrdinalIgnoreCase).Count() != result.HeldReceivers.Length)
                 throw new ArgumentException("--hold-receivers needs distinct four-digit hexadecimal board IDs.");
-        }
-        if (result._values.TryGetValue("--rack", out string? rack))
-        {
-            if (!Regex.IsMatch(rack, "^[A-Za-z0-9]{1,8}$"))
-                throw new ArgumentException("--rack needs a short letters-and-digits label.");
-            result.Rack = rack.ToUpperInvariant();
         }
         foreach (var (name, set) in new (string, Action<string>)[] { ("--stop-file", v => result.StopFile = v), ("--console-log", v => result.ConsoleLog = v) })
             if (result._values.TryGetValue(name, out string? file))
@@ -152,7 +144,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         receivers_started = false, settings_written = false, build = KernelDiagnostics.BuildIdentity,
         data_directory = Options.DataDir, address = Options.Prefix, allowed = Options.Allowed,
         precise_delay_ms = InputRouter.MoveDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
-        rack = Options.Rack, stop_file = Options.StopFile, console_log = Options.ConsoleLog, receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
+        stop_file = Options.StopFile, console_log = Options.ConsoleLog, receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
         bindings_complete = Receivers.All(r => r.DeviceId is not ("*" or "") && !r.DeviceId.StartsWith("unbound-", StringComparison.OrdinalIgnoreCase)),
         limitations = new[] { "Physical bindings, targeting and mirroring are not assessed.",
             "Available ports, URL permissions and dependency loading are not tested.",
