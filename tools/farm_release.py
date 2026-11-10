@@ -258,10 +258,33 @@ def receiver_source(repo):
     return out
 
 
-def server_hash_names(server_source):
-    """The file names the farm server hashes into its sourceHash (Start-Window.ps1 compares it)."""
-    match = re.search(r'for name in \(((?:\s*"[^"]+",?)+)\s*\)\)\)\.hexdigest', server_source)
-    return re.findall(r'"([^"]+)"', match.group(1)) if match else []
+def server_hash_names(tools):
+    """The file names the farm server in `tools` hashes into its sourceHash (Start-Window.ps1 compares it), found
+    the way imouse_farm_server.source_files finds them: the server, every module beside it that it imports
+    directly or through another, and the .json and .ps1 files beside them that those modules name. The server
+    is not imported here; a test compares the two on this checkout."""
+    tools = Path(tools)
+    found, waiting = set(), ['imouse_farm_server.py']
+    while waiting:
+        name = waiting.pop()
+        if name in found:
+            continue
+        found.add(name)
+        if not name.endswith('.py'):
+            continue
+        for node in ast.walk(ast.parse((tools / name).read_bytes(), name)):
+            if isinstance(node, ast.Import):
+                modules = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                modules = [node.module] if node.module and not node.level else []
+            elif isinstance(node, ast.Constant) and isinstance(node.value, str) and re.fullmatch(r'[\w.-]+\.(json|ps1)', node.value):
+                modules = []
+                if (tools / node.value).is_file():
+                    waiting.append(node.value)
+            else:
+                continue
+            waiting += [m.split('.')[0] + '.py' for m in modules if (tools / (m.split('.')[0] + '.py')).is_file()]
+    return sorted(found)
 
 
 # ---------------------------------------------------------------- lint
@@ -535,11 +558,11 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
     frameworks = {c: _framework_check(c, copies[f'{c}/{n}']) for c, n in
                   (('kernel', 'iMouse2.Kernel.runtimeconfig.json'), ('console', 'iMouse2.runtimeconfig.json'))}
     pins = _requirements(copies['farm/tools/requirements-farm.txt'])
-    server = copies['farm/tools/imouse_farm_server.py'].read_text(encoding='utf-8-sig')
-    hashed = server_hash_names(server)
+    # Every file the server hashes must ship, or the installed backend reports another sourceHash than this checkout.
+    hashed = server_hash_names(copies['farm/tools/imouse_farm_server.py'].parent)
     absent = [n for n in hashed if f'farm/tools/{n}' not in copies]
-    if not hashed or absent:
-        raise ValueError('farm server source-hash files missing from the package: ' + (', '.join(absent) or 'list not found'))
+    if absent:
+        raise ValueError('farm server source-hash files missing from the package: ' + ', '.join(absent))
     farm = {n: p for n, p in copies.items() if n.startswith('farm/')}
     _, private_refs = farm_files(repo)
     findings = lint(farm)

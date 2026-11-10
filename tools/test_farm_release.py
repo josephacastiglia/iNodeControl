@@ -239,9 +239,15 @@ class Build(Base):
         with self.assertRaisesRegex(ValueError, 'not pinned'):
             fr.build(repo, self.base / 'p2', kernel, console, receiver, runtime, version='x')
         (repo / 'tools/requirements-farm.txt').write_text('Pillow==9.5.0\n')
-        (repo / 'tools/farm_controls.json').unlink()
-        with self.assertRaisesRegex(ValueError, 'source-hash files missing'):
+        # The server hashes what it loads and names (imouse_farm_server.source_files). A file it hashes that a
+        # package never carries (here: a private name) would give the installed backend another sourceHash.
+        (repo / 'tools/farm_settings.json').write_text('{}', encoding='utf-8')
+        server = repo / 'tools/imouse_farm_server.py'
+        server.write_text(server.read_text(encoding='utf-8') + 'SETTINGS = "farm_settings.json"\n', encoding='utf-8')
+        self.assertIn('farm_settings.json', fr.server_hash_names(repo / 'tools'))
+        with self.assertRaisesRegex(ValueError, 'source-hash files missing from the package: farm_settings.json'):
             fr.build(repo, self.base / 'p3', kernel, console, receiver, runtime, version='x')
+        self.assertFalse((self.base / 'p3').exists())
 
     def test_a_runtime_missing_any_file_the_kernel_requires_refuses_the_build(self):
         repo = make_repo(self.base)
@@ -404,6 +410,16 @@ class ThisCheckout(unittest.TestCase):
         findings = fr.lint(files)
         self.assertEqual([f"{f['file']}:{f['line']} {f['rule']}" for f in fr.blockers(findings)], [])
         self.assertEqual([c for c, s in fr.command_readiness(fr.COMMANDS, findings, files).items() if not s['ready']], [])
+
+    def test_the_builder_finds_the_servers_hashed_files_as_the_server_does_and_all_of_them_ship(self):
+        # farm_release.build refuses a package without a file the server hashes. It reads that set from source
+        # (it never imports the server); the server computes it itself. They must be the same list.
+        import imouse_farm_server as server
+        hashed = fr.server_hash_names(fr.REPO / 'tools')
+        self.assertEqual(hashed, list(server.source_files()))
+        self.assertGreater(len(hashed), 40)
+        files, _ = fr.farm_files(fr.REPO)
+        self.assertEqual([n for n in hashed if f'farm/tools/{n}' not in files], [])
 
 
 if __name__ == '__main__':
