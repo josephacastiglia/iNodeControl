@@ -7,6 +7,7 @@ import time
 import unittest
 import uuid
 
+from farm_draft_runs import ACCOUNT   # This machine's private default account.
 from farm_draft_workflow import atomic_json
 from farm_drafts import DraftConflict
 from farm_jobs import FarmJobs
@@ -70,7 +71,7 @@ class TikTokServiceTests(unittest.TestCase, TikTokVideoFixture):
         self.assertIn('TikTok draft creation is disabled', capability['reason'])
         with self.assertRaises(KernelSafetyError): service.start(dict(self.spec, store_id=service.store_id))
         enabled = self.service.capability()
-        self.assertTrue(enabled['enabled']); self.assertIn("@xs.halle.xo's TikTok profile", enabled['reason'])
+        self.assertTrue(enabled['enabled']); self.assertIn("@" + ACCOUNT + "'s TikTok profile", enabled['reason'])
 
     def test_supported_content_is_one_short_ascii_line_and_never_truncated(self):
         self.assertTrue(self.service.eligibility(self.draft['id'], 1)['eligible'])

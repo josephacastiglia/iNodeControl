@@ -22,7 +22,7 @@ from farm_owned_capture import InspectionStopped
 from farm_creation_runs import CreationRuns, creation_config
 from farm_draft_creation import CreationOwnership, CreationWorkflow
 from farm_draft_transport import CreationKernel, StepKernel
-from farm_draft_runs import API,source_content,DraftRuns
+from farm_draft_runs import ACCOUNT,API,source_content,DraftRuns
 from farm_drafts import CarouselDrafts,DraftConflict
 from farm_draft_workflow import atomic_json
 from farm_jobs import FarmJobs
@@ -306,7 +306,7 @@ class CreationTests(unittest.TestCase):
 
     def imported_value(self):
         return dict(terminal=True,state='review_required',request=self.spec,
-            workflow=dict(state='review_required',source='candidate_phone_workflow',account='xs.halle.xo',
+            workflow=dict(state='review_required',source='candidate_phone_workflow',account=ACCOUNT,
                 cleanup='confirmed',evidenceExport='confirmed',mediaDelivery=dict(stopped=True),
                 commands=[dict(purpose='save-photo-'+str(i),state='answered') for i in (1,2,3)],
                 actions=[dict(label='save-photo-'+str(i),state='answered') for i in (1,2,3)],

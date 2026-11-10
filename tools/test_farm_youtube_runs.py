@@ -10,6 +10,7 @@ import uuid
 import json
 
 from farm_creation_runs import creation_config
+from farm_draft_runs import ACCOUNT   # This machine's private default account.
 from farm_draft_workflow import atomic_json
 from farm_drafts import DraftConflict
 from farm_jobs import FarmJobs
@@ -81,7 +82,7 @@ class YouTubeServiceTests(unittest.TestCase, YouTubeVideoFixture):
         self.assertEqual((False, False, False), (capability['publishing'], capability['messaging'], capability['automaticResume']))
         for fixed in (ReelCreationRuns, TikTokCreationRuns):
             other = fixed(self.root/fixed.__name__, self.videos, self.jobs, CONFIG).capability()
-            self.assertEqual(('xs.halle.xo', 'fixed'), (other['account'], other['accountPolicy']))
+            self.assertEqual((ACCOUNT, 'fixed'), (other['account'], other['accountPolicy']))
         disabled = YouTubeCreationRuns(self.root/'disabled', self.videos, self.jobs).capability()
         self.assertFalse(disabled['enabled']); self.assertIn('YouTube draft creation is disabled', disabled['reason'])
         self.assertIsNone(disabled['phone'])

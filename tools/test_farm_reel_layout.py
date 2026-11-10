@@ -251,7 +251,7 @@ class RetainedReelLayoutTests(unittest.TestCase):
         reel.reel_selected(f, t, self.ref, (0, 1))
         f, t = self.load('164-instagram-reel-drafts-library'); self.assertEqual((66, 169), reel.reels_drafts(f, t, self.ref)['target'])
         f, t = self.load('165-instagram-reel-reopen'); reel.reel_details(f, t, self.ref, self.CAPTION, reopened=True)
-        f, t = self.load('166-instagram-reel-playback'); self.assertTrue(reel.reel_preview(f, t, self.ref, 'xs.halle.xo', self.CAPTION)['accountVerified'])
+        f, t = self.load('166-instagram-reel-playback'); self.assertTrue(reel.reel_preview(f, t, self.ref, farm_paths.account_label(), self.CAPTION)['accountVerified'])
         f, t = self.load('77-download-test-video', 'before'); self.assertEqual((161, 940), reel.link_menu(t)['target'])
         f, t = self.load('78-downloads-menu', 'before'); reel.download_badge(f)
         f, t = self.load('79-downloads-list', 'before'); reel.page_menu(t)
@@ -283,7 +283,7 @@ class RetainedReelLayoutTests(unittest.TestCase):
                 ('158-instagram-reel-edit', 'after', lambda f, t, r: reel.reel_editor(f, t, r)),
                 ('159-instagram-reel-details', 'after', lambda f, t, r: reel.reel_details(f, t, r)),
                 ('164-instagram-reel-drafts-library', 'after', lambda f, t, r: reel.reels_drafts(f, t, r)),
-                ('166-instagram-reel-playback', 'after', lambda f, t, r: reel.reel_preview(f, t, r, 'xs.halle.xo', self.CAPTION)),
+                ('166-instagram-reel-playback', 'after', lambda f, t, r: reel.reel_preview(f, t, r, farm_paths.account_label(), self.CAPTION)),
                 ('89-video-test-home', 'before', lambda f, t, r: reel.quicklook(f, t, 'imouse-draft', r))]:
             with self.subTest(step=step):
                 frame, text = self.load(step, which)

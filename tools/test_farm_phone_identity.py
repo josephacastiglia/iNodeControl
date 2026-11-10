@@ -10,10 +10,11 @@ from farm_draft_runs import load_config, phone_of
 from farm_live_verification import validate_runtime
 from farm_phone_identity import LEGACY_C24C, PhoneIdentity, PhoneIdentityError, own_receiver
 from imouse_social_automation import IMouseKernel, KernelSafetyError
+# Fixture device IDs (locally administered addresses), not real phones; slot 18 is the pre-rack C24C identity.
 
-SLOT20 = PhoneIdentity(board='C214', device_id='8A:23:B5:71:35:8D', receiver='iMouse2-20', slot=20)
-SLOT18 = PhoneIdentity(board='C24C', device_id='86:1D:4A:04:2F:F6', receiver='iMouse2-18', slot=18)
-SLOT17 = PhoneIdentity(board='724E', device_id='3A:DC:15:FB:DD:EC', receiver='iMouse2-17', slot=17)
+SLOT20 = PhoneIdentity(board='C214', device_id='02:00:00:00:00:20', receiver='iMouse2-20', slot=20)
+SLOT18 = PhoneIdentity(board='C24C', device_id=LEGACY_C24C.device_id, receiver='iMouse2-18', slot=18)
+SLOT17 = PhoneIdentity(board='724E', device_id='02:00:00:00:00:17', receiver='iMouse2-17', slot=17)
 ALLOWED = ['C24C', 'C214', '724E', 'F215']
 HASH = 'a' * 64
 
@@ -32,7 +33,7 @@ def rack_devices():
 class IdentityTests(unittest.TestCase):
     def test_identity_is_strict(self):
         for bad in (dict(board='c214', device_id=SLOT20.device_id, receiver='iMouse2-20', slot=20),
-                    dict(board='C214', device_id='8a:23:b5:71:35:8d', receiver='iMouse2-20', slot=20),
+                    dict(board='C214', device_id='02:00:00:00:00:2a', receiver='iMouse2-20', slot=20),   # Lower case.
                     dict(board='C214', device_id=SLOT20.device_id, receiver='iMouse2-18', slot=20),
                     dict(board='C214', device_id=SLOT20.device_id, receiver='iMouse2-20', slot=21)):
             with self.subTest(bad=bad), self.assertRaises(PhoneIdentityError): PhoneIdentity(**bad)
@@ -73,7 +74,7 @@ class KernelGateTests(unittest.TestCase):
         k, _ = self.kernel(SLOT20)
         self.assertEqual(SLOT20.device_id, k.resolve_device_id('C214'))
         with self.assertRaises(KernelSafetyError): k.resolve_device_id('C24C')
-        k17, _ = self.kernel(PhoneIdentity(board='F215', device_id='D6:5E:EE:14:38:88', receiver='iMouse2-16', slot=16))
+        k17, _ = self.kernel(PhoneIdentity(board='F215', device_id='02:00:00:00:00:16', receiver='iMouse2-16', slot=16))
         with self.assertRaises(KernelSafetyError): k17.resolve_device_id('F215')   # Its receiver is not in this status.
 
     def test_step_kernel_for_one_phone_never_forwards_another(self):
@@ -96,7 +97,7 @@ class RuntimeTests(unittest.TestCase):
         with self.assertRaises(KernelSafetyError): validate_runtime(rack_status(), rack_devices(), HASH, 'C24CUID', SLOT20, ALLOWED)
         clash = rack_devices() + [dict(deviceid=SLOT20.device_id, pid='F215', uid='x')]
         with self.assertRaises(KernelSafetyError): validate_runtime(rack_status(), clash, HASH, 'C214UID', SLOT20, ALLOWED)
-        twin = rack_status(rack_status()['receivers'] + [dict(deviceid='D6:5E:EE:14:38:88', name='iMouse2-20')])
+        twin = rack_status(rack_status()['receivers'] + [dict(deviceid='02:00:00:00:00:16', name='iMouse2-20')])
         with self.assertRaises(KernelSafetyError): validate_runtime(twin, rack_devices(), HASH, 'C214UID', SLOT20, ALLOWED)
 
     def test_single_phone_kernel_still_validates_as_before(self):

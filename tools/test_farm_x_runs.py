@@ -7,6 +7,7 @@ import time
 import unittest
 import uuid
 
+from farm_draft_runs import ACCOUNT   # This machine's private default account.
 from farm_draft_workflow import atomic_json
 from farm_drafts import DraftConflict
 from farm_jobs import FarmJobs
@@ -70,7 +71,7 @@ class XServiceTests(unittest.TestCase, XVideoFixture):
         self.assertIn('signed in first', capability['reason'])
         for fixed in (ReelCreationRuns, TikTokCreationRuns):
             other = fixed(self.root/fixed.__name__, self.videos, self.jobs, CONFIG).capability()
-            self.assertEqual(('xs.halle.xo', 'fixed'), (other['account'], other['accountPolicy']))
+            self.assertEqual((ACCOUNT, 'fixed'), (other['account'], other['accountPolicy']))
         disabled = XCreationRuns(self.root/'disabled', self.videos, self.jobs).capability()
         self.assertFalse(disabled['enabled']); self.assertIn('X draft creation is disabled', disabled['reason'])
         with self.assertRaises(KernelSafetyError):

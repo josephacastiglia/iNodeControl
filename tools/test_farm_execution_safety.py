@@ -11,8 +11,8 @@ import imouse_farm_server as server
 import imouse_social_automation as engine
 
 
-C24C = "86:1D:4A:04:2F:F6"
-C241 = "FE:A9:BC:D7:A0:44"
+C24C = engine.LIVE_TEST_DEVICE_ID
+C241 = "02:00:00:00:C2:41"   # Another phone: a fixture ID, not a real device.
 
 
 class FarmExecutionSafetyTests(unittest.TestCase):
