@@ -1,6 +1,0 @@
-C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\tools\candidate-launcher\Start-iMouse2Candidate.ps1 
-: The term 'Get-FileHash' is not recognized as the name of a cmdlet, function, script file, or operable program. Check 
-the spelling of the name, or if a path was included, verify that the path is correct and try again.
-    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
-    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Start-iMouse2Candidate.ps1
- 

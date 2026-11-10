@@ -1,9 +1,0 @@
-  Determining projects to restore...
-  Restored C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\persistence-20261012\controls\negative-binding-publish\PersistenceChecks.csproj (in 42 ms).
-  PersistenceChecks -> C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\persistence-20261012\controls\negative-binding-publish\bin\Release\net8.0-windows\PersistenceChecks.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:01.74

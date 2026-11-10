@@ -1,8 +1,0 @@
-{
-  "pid": 14052,
-  "exeSha256": "1c5c1d7968a3bc6db30420e5fc2c06659785556c7cef1dba22a56ff91edbe192",
-  "utc": "2026-10-19T06:20:03.4502596Z",
-  "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\farm-recovery-native-probe-20261019\\NativeProbe.exe",
-  "managedSha256": "ae9d01f646d9a7de7e0f6a1e3980095068c9e4593bb3f6b5728945fb7cb8f0fa",
-  "options": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\analysis\\farm-recovery-live-20261019\\native-options-4.json"
-}

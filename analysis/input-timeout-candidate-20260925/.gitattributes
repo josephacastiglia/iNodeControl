@@ -1,3 +1,0 @@
-# Keep recorded patches byte-exact so their SHA-256 values in README.md stay verifiable.
-*.patch -text
-*.diff -text

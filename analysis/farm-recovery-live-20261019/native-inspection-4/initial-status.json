@@ -1,3 +1,0 @@
-{
-  "status": "Checks a possibly saved three-slide draft without repeating Save, imports or caption entry. Start on @xs.halle.xo\u0027s profile. Finishes on the draft details screen; no app-restart claim.\n\nA separate inspection can check the saved library. It cannot finish an unsaved editor or repeat an uncertain Save.\n\nThe interface integration still needs a fresh phone acceptance run. An offline pass is not a saved Instagram draft."
-}

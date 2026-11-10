@@ -1,1 +1,0 @@
-Prepared C24C-only configuration and isolated hover-off console; both exact binaries validated offline and final launcher check passed. No window, listener, receiver or hardware input.

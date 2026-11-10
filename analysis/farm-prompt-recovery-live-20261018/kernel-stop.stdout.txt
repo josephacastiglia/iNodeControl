@@ -1,3 +1,0 @@
-23:16:01.949 stopping PID 18156 (iMouse2.Kernel.exe); children: 47312 conhost.exe, 16408 uxplay.exe
-23:16:02.174 processes attached to PID 18156's console: 50808 powershell.exe, 18156 iMouse2.Kernel.exe
-23:16:02.747 PID 18156 exited; children still running: none

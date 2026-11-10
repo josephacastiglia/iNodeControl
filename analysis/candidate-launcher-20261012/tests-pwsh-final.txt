@@ -1,1 +1,0 @@
-49 candidate launcher checks passed; no real process or network calls.

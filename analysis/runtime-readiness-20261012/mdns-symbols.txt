@@ -1,3 +1,0 @@
-[1854](sec -2)(fl 0x00)(ty    0)(scl 103) (nx 1) 0x0000000000000762 dnssd_mdnsd.c
-[1918](sec  1)(fl 0x00)(ty   20)(scl   2) (nx 1) 0x0000000000035ee0 mdnsd_start
-[1924](sec  1)(fl 0x00)(ty   20)(scl   2) (nx 1) 0x0000000000036800 mdnsd_announce

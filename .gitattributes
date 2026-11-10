@@ -3,64 +3,8 @@
 # the backup's SHA256SUMS.txt - so it can no longer be checked against the archive.
 # This only governs files someone deliberately tracks; it does not track anything.
 analysis/**/*.jsonl -text
-# Imported October evidence must also retain its recorded bytes through checkout.
-analysis/offline-backlog-20261011/** -text
-analysis/receiver-memory-20261012/** -text
+# Imported evidence must also retain its recorded bytes through checkout.
 analysis/accuracy-recovery-20261012/** -text
-analysis/frame-freshness-20261012/** -text
-analysis/preview-freshness-20261012/** -text
-analysis/wall-freshness-20261012/** -text
-analysis/release-staging-20261012/** -text
-analysis/combined-candidate-20261012/** -text
-analysis/receiver-logging-20261012/** -text
-analysis/runtime-readiness-20261012/** -text
-analysis/runtime-capsule-20261012/** -text
-analysis/console-diagnostics-20261012/** -text
-analysis/candidate-launcher-20261012/** -text
-analysis/kernel-startup-20261012/** -text
-analysis/persistence-20261012/** -text
-analysis/binding-policy-20261012/** -text
-analysis/pointer-queue-20261012/** -text
-analysis/drag-ordering-20261012/** -text
-analysis/input-cleanup-20261012/** -text
-analysis/runtime-provenance-20261012/** -text
-analysis/candidate-acceptance-20261012/** -text
-analysis/cleanup-diagnostics-20261012/** -text
-analysis/scope-release-20261012/** -text
-analysis/candidate-live-20261013/** -text
-analysis/runtime-startup-guard-20261013/** -text
-analysis/candidate-retry-20261013/** -text
-analysis/launcher-startup-errors-20261013/** -text
-analysis/screenshot-backpressure-20261013/** -text
-analysis/receiver-retry-status-20261013/** -text
-analysis/receiver-process-cleanup-20261013/** -text
-analysis/consolidated-package-20261013/** -text
-analysis/screenshot-client-20261013/** -text
-analysis/fleet-shutdown-20261013/** -text
-analysis/combined-shutdown-package-20261013/** -text
-analysis/gate6-failure-handling-20261013/** -text
-analysis/response-timing-20261013/** -text
-analysis/gate6-console-cleanup-20261013/** -text
-analysis/gate6-preflight-20261013/** -text
-analysis/combined-timing-package-20261013/** -text
-# Preserve the new live validation manifests and recorded hashes through checkout.
-analysis/farm-live-transitions-20261018/*.json -text
-analysis/farm-live-final-20261018/** -text
-analysis/farm-interface-integration-20261018/** -text
-analysis/farm-interface-live-20261018/** -text
-analysis/farm-prompt-recovery-20261018/** -text
-analysis/farm-prompt-recovery-live-20261018/** -text
-analysis/farm-new-draft-20261019/** -text
-analysis/farm-recovery-20261019/** -text
-analysis/farm-recovery-live-20261019/** -text
-analysis/github-sync-20261019/** -text
-analysis/farm-reel-draft-20261019/** -text
-analysis/farm-tiktok-draft-20261019/** -text
-analysis/farm-x-draft-20261019/** -text
-analysis/farm-permission-prompts-20261020/** -text
-analysis/farm-live-windows-20261020/** -text
-analysis/farm-youtube-draft-20261020/** -text
-analysis/farm-prompt-validation-20261020/** -text
 # The receiver's patches must apply to upstream's LF files, and its build script runs under bash.
 tools/airplay/patches/*.patch -text
 tools/airplay/build-receiver.sh text eol=lf
