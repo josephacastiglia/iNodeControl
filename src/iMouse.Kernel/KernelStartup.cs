@@ -13,8 +13,6 @@ internal sealed class KernelOptions
     private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid",
         "--home-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hold-receivers", "--rack", "--stop-file", "--console-log"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
-    internal string? HardwareMode { get; private set; }
-    internal string[] HardwareArguments { get; private set; } = [];
     internal bool ValidateOnly => _flags.Contains("--validate-startup");
     internal HomeSequence Home { get; private set; }
     internal string[] Allowed { get; private set; } = [];
@@ -52,20 +50,8 @@ internal sealed class KernelOptions
                 if (!result._flags.Add(item)) throw new ArgumentException("Repeated option: " + item);
                 continue;
             }
-            if (item is "--hid-send" or "--hid-replay" or "--hid-caps")
-            {
-                if (result.HardwareMode is not null) throw new ArgumentException("Choose only one hardware command.");
-                result.HardwareMode = item;
-                int count = item == "--hid-caps" ? 0 : 2;
-                if (args.Length - i - 1 < count) throw new ArgumentException(item + " needs a board PID and payload.");
-                result.HardwareArguments = args.Skip(i + 1).Take(count).ToArray(); i += count;
-                if (count > 0 && (!BoardId(result.HardwareArguments[0]) || string.IsNullOrWhiteSpace(result.HardwareArguments[1]) || result.HardwareArguments[1].StartsWith("--")))
-                    throw new ArgumentException("Invalid hardware command arguments.");
-                continue;
-            }
             throw new ArgumentException("Unknown kernel option: " + item);
         }
-        if (result.ValidateOnly && result.HardwareMode is not null) throw new ArgumentException("Startup validation cannot include a hardware command.");
         result.Home = InputRouter.ParseHomeSequence(result.Value("--home-sequence", "vendor"));
         if (result._values.TryGetValue("--input-pid", out string? ids))
         {
@@ -76,20 +62,19 @@ internal sealed class KernelOptions
         if (result._values.TryGetValue("--hold-receivers", out string? held))
         {
             result.HeldReceivers = held.Split(',', StringSplitOptions.TrimEntries);
-            if (result.HardwareMode is not null || result.HeldReceivers.Any(id => !BoardId(id))
+            if (result.HeldReceivers.Any(id => !BoardId(id))
                 || result.HeldReceivers.Distinct(StringComparer.OrdinalIgnoreCase).Count() != result.HeldReceivers.Length)
-                throw new ArgumentException("--hold-receivers needs distinct four-digit hexadecimal board IDs and normal service mode.");
+                throw new ArgumentException("--hold-receivers needs distinct four-digit hexadecimal board IDs.");
         }
         if (result._values.TryGetValue("--rack", out string? rack))
         {
-            if (result.HardwareMode is not null || !Regex.IsMatch(rack, "^[A-Za-z0-9]{1,8}$"))
-                throw new ArgumentException("--rack needs a short letters-and-digits label and normal service mode.");
+            if (!Regex.IsMatch(rack, "^[A-Za-z0-9]{1,8}$"))
+                throw new ArgumentException("--rack needs a short letters-and-digits label.");
             result.Rack = rack.ToUpperInvariant();
         }
         foreach (var (name, set) in new (string, Action<string>)[] { ("--stop-file", v => result.StopFile = v), ("--console-log", v => result.ConsoleLog = v) })
             if (result._values.TryGetValue(name, out string? file))
             {
-                if (result.HardwareMode is not null) throw new ArgumentException(name + " needs normal service mode.");
                 string full;
                 try { full = Path.GetFullPath(file); } catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException) { throw new ArgumentException(name + " is not a valid path."); }
                 if (!Directory.Exists(Path.GetDirectoryName(full))) throw new ArgumentException(name + " needs an existing folder.");
@@ -97,7 +82,7 @@ internal sealed class KernelOptions
             }
         if (result.StopFile is not null && result.StopFile.Equals(result.ConsoleLog, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("--stop-file and --console-log must be different files.");
-        _ = result.DataDir; // Check path syntax before any hardware work.
+        _ = result.DataDir; // Check path syntax before anything is opened.
         return result;
     }
 

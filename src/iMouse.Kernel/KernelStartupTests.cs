@@ -44,14 +44,12 @@ internal static class KernelStartupTests
             await watch.WaitAsync(TimeSpan.FromSeconds(5));
             check(watched.IsCancellationRequested, "The stop watcher cancels the kernel exactly as Ctrl+C does");
         }
-        Reject(() => KernelOptions.Parse(["--rack", "A", "--hid-caps"]), "--rack is refused with a raw hardware command");
         check(defaults.HeldReceivers.Length == 0 && KernelOptions.Parse(["--hold-receivers", "C214, 724e"]).HeldReceivers.SequenceEqual(new[] { "C214", "724e" }),
             "Receivers start advertised unless explicitly held");
         foreach (var args in new[] {
             new[] { "--hold-receivers", "C214,c214" },
             new[] { "--hold-receivers", "C214," },
-            new[] { "--hold-receivers", "Phone5" },
-            new[] { "--hold-receivers", "C214", "--hid-caps" } })
+            new[] { "--hold-receivers", "Phone5" } })
             Reject(() => KernelOptions.Parse(args), "Invalid receiver hold refused: " + string.Join(' ', args));
         check(defaults.Home == HomeSequence.Vendor && defaults.Allowed.Length == 0
             && defaults.Prefix == "http://127.0.0.1:9913/api/", "Startup defaults retain Home and no enabled boards");
@@ -64,10 +62,11 @@ internal static class KernelStartupTests
             new[] { "--input-pid", "C24C," }, new[] { "--input-pid", "C24C,c24c" }, new[] { "--input-pid", "../" },
             new[] { "--home-sequence", "bad" },
             new[] { "http://localhost/api" }, new[] { "http://localhost:0/api/" }, new[] { "http://localhost:9913/api/?secret=x" },
-            new[] { "http://localhost:9913/api/", "http://localhost:9914/api/" },
-            new[] { "--validate-startup", "--hid-caps" }, new[] { "--hid-send", "C24C" },
-            new[] { "--hid-caps", "--hid-replay", "C24C", "file" } })
+            new[] { "http://localhost:9913/api/", "http://localhost:9914/api/" } })
             Reject(() => KernelOptions.Parse(invalid), "Invalid startup arguments refused: " + string.Join(' ', invalid));
+        // The kernel executable has no way to write to a board outside the leased API.
+        foreach (var raw in new[] { new[] { "--hid-send", "C24C", "A100000000000000" }, new[] { "--hid-replay", "C24C", "file.json" }, new[] { "--hid-caps" } })
+            Reject(() => KernelOptions.Parse(raw), "Raw board commands are not kernel options: " + raw[0]);
 
         string folder = Path.Combine(Path.GetTempPath(), "imouse-startup-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(folder);

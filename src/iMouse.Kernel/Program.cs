@@ -6,14 +6,14 @@ _ = KernelDiagnostics.BuildIdentity; // Capture before any listener or hardware 
 if (args.Contains("--self-test")) return await SelfTests.RunAsync();
 
 KernelOptions options;
-KernelConfiguration? configuration = null;
+KernelConfiguration config;
 try
 {
     options = KernelOptions.Parse(args);
-    if (options.HardwareMode is null) configuration = KernelConfiguration.Load(options);
+    config = KernelConfiguration.Load(options);
     if (options.ValidateOnly)
     {
-        Console.WriteLine(JsonSerializer.Serialize(configuration!.ValidationReport(), new JsonSerializerOptions { WriteIndented = true }));
+        Console.WriteLine(JsonSerializer.Serialize(config.ValidationReport(), new JsonSerializerOptions { WriteIndented = true }));
         return 0;
     }
 }
@@ -27,55 +27,6 @@ using var cts = new CancellationTokenSource();
 using var timerResolution = new TimerResolution();
 Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
 
-// Raw hardware tools remain explicit modes; normal service startup binds first.
-if (options.HardwareMode == "--hid-send")
-{
-    byte[] report = Convert.FromHexString(options.HardwareArguments[1]);
-    if (report.Length != 8 || report[0] is not (0xA1 or 0xA2))
-        throw new ArgumentException("Only the observed eight-byte mouse/keyboard report families are accepted.");
-    using var board = new HidConnection(options.HardwareArguments[0]);
-    await board.SendAsync(report, cts.Token);
-    Console.WriteLine("Output completed on " + options.HardwareArguments[0] + ": " + Convert.ToHexString(report));
-    return 0;
-}
-if (options.HardwareMode == "--hid-replay")
-{
-    var sequence = System.Text.Json.JsonSerializer.Deserialize<List<ReplayReport>>(File.ReadAllText(options.HardwareArguments[1]))!;
-    var validated = sequence.Select(step => (Bytes: Convert.FromHexString(step.Hex), step.DelayMs)).ToArray();
-    if (validated.Any(step => step.Bytes.Length != 8 || step.Bytes[0] is not (0xA1 or 0xA2)
-        || step.DelayMs is < 0 or > 5000) || validated.Length > 5000)
-        throw new ArgumentException("Invalid observed report sequence.");
-    using var board = new HidConnection(options.HardwareArguments[0]);
-    try
-    {
-        foreach (var step in validated)
-        {
-            await board.SendAsync(step.Bytes, cts.Token);
-            if (step.DelayMs > 0) await Task.Delay(step.DelayMs, cts.Token);
-        }
-    }
-    finally
-    {
-        await board.SendAsync([0xA1,0,0,0,0,0,0,0], CancellationToken.None);
-        await board.SendAsync([0xA2,0,0,0,0,0,0,0], CancellationToken.None);
-    }
-    Console.WriteLine($"Completed {validated.Length} reports on {options.HardwareArguments[0]}; buttons and keys released.");
-    return 0;
-}
-if (options.HardwareMode == "--hid-caps")
-{
-    var boards = HidHost.Enumerate();
-    foreach (var b in boards)
-    {
-        var c = HidHost.Describe(b);
-        Console.WriteLine($"{c.Pid}  {c.Open}  page=0x{c.UsagePage:X4} usage=0x{c.Usage:X4}  in={c.InputLen} out={c.OutputLen} feat={c.FeatureLen}");
-        if (c.OutputFields.Length > 0) Console.WriteLine("    out: " + c.OutputFields);
-        if (c.ReportDescriptorHex.Length > 0) Console.WriteLine("    desc: " + c.ReportDescriptorHex);
-    }
-    return 0;
-}
-
-var config = configuration!;
 if (options.ConsoleLog is { } consoleLog)
 {
     // Detached (WMI) launch has no redirected console: write what the console would show to a file.
@@ -129,5 +80,3 @@ finally
     }
 }
 return exitCode;
-
-record ReplayReport(string Hex, int DelayMs);
