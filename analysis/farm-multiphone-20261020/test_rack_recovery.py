@@ -243,6 +243,47 @@ class ActionsTests(unittest.TestCase):
                 self.assertIn('41', got)
 
 
+class ReportPrivacyTests(unittest.TestCase):
+    """The bring-up report is read and passed around; a phone's device ID must never be in it."""
+    MAC, UDID, OLD_UDID = '02:00:5A:00:0F:01', '0000A1B2-' + '0011223344556677', 'a1' * 20   # shaped like the real things
+
+    def test_device_ids_are_replaced_wherever_they_sit(self):
+        ids = {'dev-0C6D-private': '0C6D', self.MAC: '24B7'}
+        dirty = dict(n=3, ok=False, rows=[dict(result=f"Screen Mirroring tile: {{'code': 41, 'id': '{self.MAC}'}}", board='24B7'),
+                                         dict(result='wake refused: dev-0C6D-private is leased'),
+                                         dict(result=f'other phone {self.MAC.lower()} and {self.UDID} and {self.OLD_UDID}')])
+        clean = rr.without_device_ids(dirty, ids)
+        text = json.dumps(clean).casefold()
+        for secret in (self.MAC, 'dev-0C6D-private', self.UDID, self.OLD_UDID):
+            self.assertNotIn(secret.casefold(), text)
+        self.assertEqual((clean['n'], clean['ok'], clean['rows'][0]['board']), (3, False, '24B7'))
+        self.assertIn('<phone on board 0C6D>', clean['rows'][1]['result'])
+        self.assertEqual(rr.without_device_ids('iMouse2-B19 row 2, board 24B7, api http://127.0.0.1:9916/api', ids),
+                         'iMouse2-B19 row 2, board 24B7, api http://127.0.0.1:9916/api')   # names, boards and addresses stay
+
+    def test_the_written_report_and_the_printed_summary_hold_no_device_id(self):
+        leak = f"stopped: lease renewal: {{'code': 41, 'message': 'phone {self.MAC} is not leased'}}"
+
+        class Kernel(FakeKernel):
+            def __init__(self, api): super().__init__(); self.api = api
+            def alive(self): return True
+            def devices(self): return {ReportPrivacyTests.MAC: '636D', 'dev-24B7-private': '24B7'}
+
+        class Leaky(FakeActions):
+            def __init__(self, kernel, folder): super().__init__(results={'636D': [leak], '24B7': ['stopped: dev-24B7-private refused']})
+            def wake(self, board): return 'wake refused: dev-24B7-private is leased'
+
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(rr, 'Kernel', Kernel), mock.patch.object(rr, 'Actions', Leaky), \
+                mock.patch.object(rr, 'planned_phones', lambda folder, plan: (dict(arguments=['http://127.0.0.1:1/api/']),
+                                                                             rr.build_plan(PLAN, rr.slot_boards(A_SLOTS, B_SLOTS), PREP))):
+            result = rr.run_bringup(d, 'plan.json')
+            written = Path(result['report']).read_text(encoding='utf-8')
+        for text in (written, json.dumps(result)):
+            self.assertNotIn(self.MAC, text); self.assertNotIn('dev-24B7-private', text)
+        self.assertIn('<phone on board 636D>', written)
+        self.assertFalse(result['ok'])
+
+
 def row(result, slot='B1'): return dict(slot=slot, board='0F01', result=result)
 
 

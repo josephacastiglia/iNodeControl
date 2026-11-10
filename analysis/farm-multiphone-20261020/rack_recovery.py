@@ -1,5 +1,8 @@
 """Unattended rack recovery: who stopped which board's input, the ordered bring-up, and the watchdog.
 
+The bring-up report and summary never hold a phone's device ID (without_device_ids); the phone
+addresses of the plan are left out of both.
+
   python rack_recovery.py snapshot --api URL --out FILE
       Input state per board (stopped, generation, message; boards only, never device IDs).
   python rack_recovery.py ledger --api URL --before FILE --by NAME --ledger FILE
@@ -76,6 +79,25 @@ class Kernel:
     def alive(self):
         try: self.status(); return True
         except (OSError, ValueError, KeyError): return False
+
+
+# What a phone's device ID looks like when the kernel does not list it: the MAC-style AirPlay ID, a UDID.
+DEVICE_ID_SHAPES = re.compile(r'(?i)(?<![0-9a-f:])(?:[0-9a-f]{2}:){5}[0-9a-f]{2}(?![0-9a-f:])'
+                              r'|\b[0-9a-f]{8}-[0-9a-f]{16}\b|(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])')
+
+
+def without_device_ids(value, ids):
+    """`value` (text, list or dict) with no phone device ID left in any string. An ID the kernel knows
+    ({device ID: board}) becomes '<phone on board XXXX>'; anything else shaped like one becomes
+    '<device id>'. Kernel replies and tool output are quoted into results, and they can name the phone.
+    Receiver names, board IDs, placeholder IDs ('pending-<board>') and loopback addresses stay."""
+    if isinstance(value, dict): return {k: without_device_ids(v, ids) for k, v in value.items()}
+    if isinstance(value, (list, tuple)): return [without_device_ids(v, ids) for v in value]
+    if not isinstance(value, str): return value
+    for device, board in sorted(ids.items(), key=lambda item: -len(item[0])):
+        if len(device) >= 6 and not device.startswith('pending-'):
+            value = re.sub(re.escape(device), f'<phone on board {board}>', value, flags=re.I)
+    return DEVICE_ID_SHAPES.sub('<device id>', value)
 
 
 def snapshot(kernel):
@@ -328,7 +350,10 @@ def run_bringup(folder, plan_path, attempts=2):
     if not kernel.alive(): raise SystemExit(f'No kernel answers on {api}.')
     run = folder / f'bringup-{stamp()}'; run.mkdir()
     report = bring_up(phones, Actions(kernel, run), folder / 'input-stops.jsonl', attempts)
-    result = dict(utc=utc(), api=api, summary=summary(report), phones=[{k: v for k, v in r.items() if k != 'phone_ip'} for r in report])
+    try: ids = kernel.devices()
+    except (OSError, ValueError, KeyError): ids = {}   # The kernel went away: the shapes are still removed.
+    result = without_device_ids(dict(utc=utc(), api=api, summary=summary(report),
+                                     phones=[{k: v for k, v in r.items() if k != 'phone_ip'} for r in report]), ids)
     (run / 'report.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
     return dict(report=str(run / 'report.json'), **result['summary'])
 
