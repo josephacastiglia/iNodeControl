@@ -11,6 +11,8 @@ namespace IMouse2;
 
 internal sealed partial class FarmDraftRunWindow
 {
+    // The account these fixtures are pinned to. A real one is per-machine private data, never in the program.
+    private const string Account = "fixture.account";
     private sealed class TestHandler : HttpMessageHandler
     {
         internal string StoreId = Guid.NewGuid().ToString(), DraftId = Guid.NewGuid().ToString();
@@ -41,7 +43,7 @@ internal sealed partial class FarmDraftRunWindow
                 BookmarkBeforePost = BookmarkPath is not null && System.IO.File.ReadAllText(BookmarkPath).Contains(Id!);
                 throw new HttpRequestException("Response lost after admission");
             }
-            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false }, reelCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "ig_reel" }, tiktokCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = "xs.halle.xo", publishing = false, messaging = false, format = "tt_video" }, xCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = XFixedAccount ? "xs.halle.xo" : null, accountPolicy = XFixedAccount ? "fixed" : "first_signed_in", publishing = false, messaging = false, format = "x_video" }, youtubeCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = YouTubeNoPhone ? null : "F215", phone = YouTubeNoPhone ? null : new { board = "F215", receiver = "iMouse2-16", slot = 16 }, account = YouTubeFixedAccount ? "xs.halle.xo" : null, accountPolicy = YouTubeFixedAccount ? "fixed" : "first_signed_in", publishing = false, messaging = false, format = "yt_short" } });
+            if (route == "/health") return Response(new { protocolVersion = 2, executionMode = Enabled ? "live" : "simulate", draftCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = Account, publishing = false, messaging = false }, reelCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = Account, publishing = false, messaging = false, format = "ig_reel" }, tiktokCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = Account, publishing = false, messaging = false, format = "tt_video" }, xCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = "C24C", account = XFixedAccount ? Account : null, accountPolicy = XFixedAccount ? "fixed" : "first_signed_in", publishing = false, messaging = false, format = "x_video" }, youtubeCreation = new { version = 1, storeId = StoreId, enabled = Enabled, device = YouTubeNoPhone ? null : "F215", phone = YouTubeNoPhone ? null : new { board = "F215", receiver = "iMouse2-16", slot = 16 }, account = YouTubeFixedAccount ? Account : null, accountPolicy = YouTubeFixedAccount ? "fixed" : "first_signed_in", publishing = false, messaging = false, format = "yt_short" } });
             if (route.EndsWith("/eligibility"))
             {
                 EligibilityCalls++;
@@ -65,13 +67,22 @@ internal sealed partial class FarmDraftRunWindow
         var windows = new List<FarmDraftRunWindow>();
         FarmDraftRunWindow New(int revision = 3)
         {
-            var next = new FarmDraftRunWindow(api, folder, handler.DraftId, revision, "Labelled three-slide test", DraftRunKind.Carousel); windows.Add(next); return next;
+            var next = new FarmDraftRunWindow(api, folder, handler.DraftId, revision, "Labelled three-slide test", DraftRunKind.Carousel, Account); windows.Add(next); return next;
         }
         try
         {
             var window = New(); handler.BookmarkPath = window._bookmarkPath;
             await window.RunAsync(window.InitializeAsync);
             check("Phone draft window opens read-only and requires explicit Start", handler.Starts == 0 && window._start.IsEnabled && window._status.Text.Contains("acceptance"));
+            check("The window names the account this PC is configured for", window.DescriptionText.StartsWith("C24C · Instagram @" + Account + "\n"));
+            var otherAccount = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Other account", DraftRunKind.Carousel, "someone.else"); windows.Add(otherAccount);
+            await otherAccount.RunAsync(otherAccount.InitializeAsync);
+            check("A backend pinned to another account than this PC's is refused before any request to start",
+                !otherAccount._start.IsEnabled && otherAccount._status.Text.Contains("designated C24C account") && handler.Starts == 0);
+            var noAccount = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "No account", DraftRunKind.Carousel, ""); windows.Add(noAccount);
+            await noAccount.RunAsync(noAccount.InitializeAsync);
+            check("On a PC with no configured account the run cannot start and the window says why",
+                !noAccount._start.IsEnabled && handler.Starts == 0 && noAccount.DescriptionText.Contains("no account is configured on this PC"));
             await window.RunAsync(window.StartAsync); window._poll.Stop();
             check("Phone draft request is saved before POST and retained after a lost response", handler.BookmarkBeforePost && handler.Starts == 1 && window._pending?.Id == handler.Id && !window._start.IsEnabled);
             handler.Missing = true; await window.RunAsync(window.RecoverAsync);
@@ -109,7 +120,7 @@ internal sealed partial class FarmDraftRunWindow
             System.IO.File.Delete(window._bookmarkPath);   // the damaged bookmark above; the next window starts clean
 
             handler.Id = null; handler.Terminal = handler.Verified = false; handler.Enabled = true;
-            var creation = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", DraftRunKind.Carousel); windows.Add(creation);
+            var creation = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", DraftRunKind.Carousel, Account); windows.Add(creation);
             handler.BookmarkPath = creation._bookmarkPath;
             await creation.RunAsync(creation.InitializeAsync);
             check("New draft creation uses its own capability, route and pending bookmark", creation._start.IsEnabled && creation._capability == "draftCreation"
@@ -125,7 +136,7 @@ internal sealed partial class FarmDraftRunWindow
             handler.CreationConfirmed = true; await creation.RunAsync(creation.RecoverAsync);
             check("New draft completion needs confirmed creation and stopped media delivery", creation._pending is null && creation._status.Text.Contains("NEW PHONE DRAFT CREATED AND VERIFIED"));
             handler.Id = null; handler.Terminal = handler.Verified = false;
-            var retryWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", DraftRunKind.Carousel); windows.Add(retryWindow);
+            var retryWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", DraftRunKind.Carousel, Account); windows.Add(retryWindow);
             handler.BookmarkPath = retryWindow._bookmarkPath; await retryWindow.RunAsync(retryWindow.InitializeAsync);
             await retryWindow.RunAsync(retryWindow.StartAsync); retryWindow._poll.Stop();
             string previousId = handler.Id!;
@@ -139,13 +150,13 @@ internal sealed partial class FarmDraftRunWindow
             await retryWindow.RunAsync(retryWindow.StartAsync); retryWindow._poll.Stop();
             check("Continuation origin is durable before admission and included in the request", handler.Id != previousId && handler.ImportedFrom == previousId && retryWindow._pending?.ImportedFrom == previousId && handler.BookmarkBeforePost);
             int continuationStarts = handler.Starts; handler.ContinueImported = false;
-            var recoveredCreation = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", DraftRunKind.Carousel); windows.Add(recoveredCreation);
+            var recoveredCreation = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Fresh carousel", DraftRunKind.Carousel, Account); windows.Add(recoveredCreation);
             await recoveredCreation.RunAsync(recoveredCreation.InitializeAsync); recoveredCreation._poll.Stop();
             check("A lost continuation reply recovers the same request and import provenance", recoveredCreation._pending?.Id == handler.Id && recoveredCreation._pending?.ImportedFrom == previousId && handler.Starts == continuationStarts && !recoveredCreation._start.IsEnabled);
 
             handler.Id = null; handler.Terminal = handler.Verified = handler.RetryBeforeImport = false; handler.EligibleImportedFrom = null; handler.Reel = true;
             int routesBefore = handler.Routes.Count;
-            var reel = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Reel acceptance", DraftRunKind.Reel); windows.Add(reel);
+            var reel = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "Reel acceptance", DraftRunKind.Reel, Account); windows.Add(reel);
             handler.BookmarkPath = reel._bookmarkPath; await reel.RunAsync(reel.InitializeAsync);
             check("Reel creation opens with its own capability, route and bookmark and sends nothing", reel._start.IsEnabled && reel._route == "/api/farm/reel-creations"
                 && reel._bookmarkPath.EndsWith("farm-pending-reel-creation.json") && reel._bookmarkPath != creation._bookmarkPath && handler.Starts == continuationStarts && reel._status.Text.Contains("acceptance"));
@@ -168,7 +179,7 @@ internal sealed partial class FarmDraftRunWindow
 
             handler.Id = null; handler.Terminal = handler.Verified = false; handler.TikTok = true;
             int tiktokStarts = handler.Starts, tiktokRoutes = handler.Routes.Count;
-            var tiktok = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "TikTok acceptance", DraftRunKind.TikTok); windows.Add(tiktok);
+            var tiktok = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "TikTok acceptance", DraftRunKind.TikTok, Account); windows.Add(tiktok);
             handler.BookmarkPath = tiktok._bookmarkPath; await tiktok.RunAsync(tiktok.InitializeAsync);
             check("TikTok creation opens with its own capability, route and bookmark and sends nothing", tiktok._start.IsEnabled && tiktok._route == "/api/farm/tiktok-creations"
                 && tiktok._bookmarkPath.EndsWith("farm-pending-tiktok-creation.json") && tiktok._bookmarkPath != reel._bookmarkPath && handler.Starts == tiktokStarts
@@ -186,11 +197,11 @@ internal sealed partial class FarmDraftRunWindow
 
             handler.Id = null; handler.Terminal = handler.Verified = false; handler.X = true; handler.XFixedAccount = true;
             int xStarts = handler.Starts, xRoutes = handler.Routes.Count;
-            var pinnedX = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "X acceptance", DraftRunKind.X); windows.Add(pinnedX);
+            var pinnedX = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "X acceptance", DraftRunKind.X, Account); windows.Add(pinnedX);
             await pinnedX.RunAsync(pinnedX.InitializeAsync);
             check("An X backend with a fixed account is refused; X binds the account signed in first", !pinnedX._start.IsEnabled && pinnedX._status.Text.Contains("designated") && handler.Starts == xStarts);
             handler.XFixedAccount = false;
-            var xWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "X acceptance", DraftRunKind.X); windows.Add(xWindow);
+            var xWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "X acceptance", DraftRunKind.X, Account); windows.Add(xWindow);
             handler.BookmarkPath = xWindow._bookmarkPath; await xWindow.RunAsync(xWindow.InitializeAsync);
             check("X creation opens with its own capability, route and bookmark and sends nothing", xWindow._start.IsEnabled && xWindow._route == "/api/farm/x-creations" && xWindow._capability == "xCreation"
                 && xWindow._bookmarkPath.EndsWith("farm-pending-x-creation.json") && xWindow._bookmarkPath != tiktok._bookmarkPath && handler.Starts == xStarts
@@ -209,15 +220,15 @@ internal sealed partial class FarmDraftRunWindow
 
             handler.Id = null; handler.Terminal = handler.Verified = false; handler.YouTube = true; handler.YouTubeFixedAccount = true;
             int ytStarts = handler.Starts, ytRoutes = handler.Routes.Count;
-            var pinnedYouTube = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "YouTube acceptance", DraftRunKind.YouTube); windows.Add(pinnedYouTube);
+            var pinnedYouTube = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "YouTube acceptance", DraftRunKind.YouTube, Account); windows.Add(pinnedYouTube);
             await pinnedYouTube.RunAsync(pinnedYouTube.InitializeAsync);
             check("A YouTube backend with a fixed account is refused; YouTube binds the signed-in channel", !pinnedYouTube._start.IsEnabled && pinnedYouTube._status.Text.Contains("designated") && handler.Starts == ytStarts);
             handler.YouTubeFixedAccount = false; handler.YouTubeNoPhone = true;
-            var phoneless = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "YouTube acceptance", DraftRunKind.YouTube); windows.Add(phoneless);
+            var phoneless = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "YouTube acceptance", DraftRunKind.YouTube, Account); windows.Add(phoneless);
             await phoneless.RunAsync(phoneless.InitializeAsync);
             check("A YouTube backend that names no phone is refused; there is no default phone", !phoneless._start.IsEnabled && phoneless._status.Text.Contains("designated") && handler.Starts == ytStarts);
             handler.YouTubeNoPhone = false;
-            var ytWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "YouTube acceptance", DraftRunKind.YouTube); windows.Add(ytWindow);
+            var ytWindow = new FarmDraftRunWindow(api, folder, handler.DraftId, 3, "YouTube acceptance", DraftRunKind.YouTube, Account); windows.Add(ytWindow);
             handler.BookmarkPath = ytWindow._bookmarkPath; await ytWindow.RunAsync(ytWindow.InitializeAsync);
             check("YouTube creation opens with its own capability, route and bookmark and sends nothing", ytWindow._start.IsEnabled && ytWindow._route == "/api/farm/youtube-creations" && ytWindow._capability == "youtubeCreation"
                 && ytWindow._bookmarkPath.EndsWith("farm-pending-youtube-creation.json") && ytWindow._bookmarkPath != xWindow._bookmarkPath && handler.Starts == ytStarts

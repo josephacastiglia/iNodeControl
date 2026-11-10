@@ -389,7 +389,13 @@ public static class SelfTests
         void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
         async Task Reject(string name, Func<Task> action) { try { await action(); } catch (Exception ex) when (ex is ApiException or HttpRequestException or OperationCanceledException or ArgumentException) { passed.Add(name); return; } throw new Exception("Expected failure: " + name); }
         RunInstallLayoutTests(Check);
-        Check("Default service endpoint", ApiClient.NormalizeEndpoint("localhost").ToString() == "http://localhost:9911/api");
+        // The kernel's own default is http://127.0.0.1:9913/api/ (KernelOptions.Prefix). 9911 was the vendor service.
+        Check("An address without a port gets the kernel's default port", ApiClient.NormalizeEndpoint("localhost").ToString() == "http://localhost:9913/api");
+        Check("The address offered first is the kernel's default address",
+            ApiClient.DefaultAddress == "http://127.0.0.1:9913" && ApiClient.NormalizeEndpoint(ApiClient.DefaultAddress).ToString() == "http://127.0.0.1:9913/api");
+        string addressHint = "";
+        try { ApiClient.NormalizeEndpoint("ftp://127.0.0.1"); } catch (ArgumentException ex) { addressHint = ex.Message; }
+        Check("A refused address suggests the kernel's default address, not the vendor port", addressHint.Contains(ApiClient.DefaultAddress) && !addressHint.Contains("9911"));
         Check("Explicit custom port", ApiClient.NormalizeEndpoint("http://localhost:1234/api").Port == 1234);
         Check("Explicit standard port retained", ApiClient.NormalizeEndpoint("http://localhost:80").Port == 80);
         await Reject("Reject credentials in endpoint", () => { ApiClient.NormalizeEndpoint("http://name:secret@localhost"); return Task.CompletedTask; });
@@ -708,6 +714,35 @@ public static class SelfTests
                 && InstallLayout.ResolveFarmServerScriptPath(Path.GetTempPath()) == InstallLayout.InstalledFarmServer);
             check("Installed: the recorded Python", InstallLayout.Python == @"C:\Python311\python.exe");
             check("Installed: farm state in the data folder", InstallLayout.FarmStateRoot(InstallLayout.InstalledFarmServer!) == data);
+
+            // The account label is per-machine private data, in the file tools/farm_paths.py account_label reads.
+            void Accounts(string archive, string json)
+            {
+                Directory.CreateDirectory(Path.Combine(archive, "privacy"));
+                File.WriteAllText(Path.Combine(archive, "privacy", "farm-accounts.json"), json);
+            }
+            Accounts(Path.Combine(data, "evidence-archive"), "{\"v1CandidateAccount\":\"installed.account\",\"other\":\"second.account\"}");
+            check("Installed: the account label comes from <data>\\evidence-archive\\privacy\\farm-accounts.json",
+                InstallLayout.FarmAccountLabel() == "installed.account" && InstallLayout.FarmAccountLabel("other") == "second.account");
+            foreach (var n in names) Environment.SetEnvironmentVariable(n, null);
+            string Checkout(string folder)
+            {
+                Directory.CreateDirectory(Path.Combine(folder, "tools", "deeper"));
+                File.WriteAllText(Path.Combine(folder, "tools", "imouse_farm_server.py"), "# stand-in");
+                return Path.Combine(folder, "tools", "deeper");
+            }
+            string main = Checkout(Path.Combine(root, "dev", "Product-2.0"));
+            string lane = Checkout(Path.Combine(root, "dev", "Product-2.0.worktrees", "lane-a"));
+            string alone = Checkout(Path.Combine(root, "elsewhere", "Product-2.0"));
+            Accounts(Path.Combine(root, "dev", "iMouseXP-2.0-evidence-archive"), "{\"v1CandidateAccount\":\"checkout.account\"}");
+            check("Checkout: the account label comes from the evidence archive beside the main folder", InstallLayout.FarmAccountLabel(startDirectory: main) == "checkout.account");
+            check("Checkout: a lane's worktree reads the main folder's archive", InstallLayout.FarmAccountLabel(startDirectory: lane) == "checkout.account");
+            check("A PC with no account file has no account label", InstallLayout.FarmAccountLabel(startDirectory: alone) == "");
+            check("A key the file does not hold has no label", InstallLayout.FarmAccountLabel("absent", main) == "");
+            Accounts(Path.Combine(root, "elsewhere", "iMouseXP-2.0-evidence-archive"), "{broken");
+            check("A damaged account file has no account label", InstallLayout.FarmAccountLabel(startDirectory: alone) == "");
+            Accounts(Path.Combine(root, "elsewhere", "iMouseXP-2.0-evidence-archive"), "{\"v1CandidateAccount\":12}");
+            check("A label that is not text is not used", InstallLayout.FarmAccountLabel(startDirectory: alone) == "");
         }
         finally
         {
@@ -750,7 +785,8 @@ public static class SelfTests
             apiUnsupported.InputNotice += m => notice = m;
             await Reject("Unsupported kernel refused before sending input", () =>
                 apiUnsupported.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 100, ["y"] = 200 }));
-            Check("Unsupported kernel refusal provides explanatory message", notice.Contains("ownership-enabled kernel"));
+            Check("Unsupported kernel refusal provides explanatory message", notice.Contains("kernel with input leases") && notice.Contains("Input was not sent"));
+            Check("That message no longer points at the vendor's desktop app", !notice.Contains("validated desktop app") && !notice.Contains("paired validation"));
             Check("Unsupported kernel sends zero mouse or key requests",
                 !hUnsupported.Commands.Any(c => c.GetProperty("fun").GetString()!.StartsWith("/mouse/") || c.GetProperty("fun").GetString() == "/key/sendkey"));
         }

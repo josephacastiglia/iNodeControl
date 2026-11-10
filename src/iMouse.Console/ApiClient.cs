@@ -193,14 +193,18 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         _input.Notice += message => InputNotice?.Invoke(message);
         _input.Cleaned += cleanup => InputCleaned?.Invoke(cleanup);
     }
+    /// <summary>The kernel's own default listener (KernelOptions.Prefix is http://127.0.0.1:9913/api/).
+    /// 9911 was the vendor's service, which this console no longer talks to.</summary>
+    public const int DefaultPort = 9913;
+    public const string DefaultAddress = "http://127.0.0.1:9913";
     public static Uri NormalizeEndpoint(string address)
     {
         if (!address.Contains("://")) address = "http://" + address;
         if (!Uri.TryCreate(address, UriKind.Absolute, out var uri) || (uri.Scheme != "http" && uri.Scheme != "https") || string.IsNullOrWhiteSpace(uri.Host) || uri.UserInfo.Length > 0 || uri.Query.Length > 0 || uri.Fragment.Length > 0)
-            throw new ArgumentException("Enter a service address such as http://127.0.0.1:9911.");
+            throw new ArgumentException("Enter a service address such as " + DefaultAddress + ".");
         if (uri.AbsolutePath.Trim('/') is not ("" or "api")) throw new ArgumentException("Use the service address, optionally ending in /api.");
         var b = new UriBuilder(uri) { Path = "/api", Query = "", Fragment = "" };
-        if (uri.IsDefaultPort && !address.Contains(":" + uri.Port)) b.Port = 9911;
+        if (uri.IsDefaultPort && !address.Contains(":" + uri.Port)) b.Port = DefaultPort;
         return b.Uri;
     }
     public async Task<JsonElement> GetAsync(string function, CancellationToken ct = default)
@@ -209,6 +213,7 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         response.EnsureSuccessStatusCode();
         return ReadResult(await response.Content.ReadAsStringAsync(ct));
     }
+    private const string NotALeaseKernel = "This console needs an iMouse 2.0 kernel with input leases, and the service at this address is not one or did not answer. Input was not sent. Check the service address.";
     private async Task VerifyOwnershipAsync(CancellationToken ct)
     {
         if (_ownershipVerified) return;
@@ -216,10 +221,10 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         try { status = await GetAsync("/kernel/status", ct).ConfigureAwait(false); }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new ApiException("This console needs the ownership-enabled kernel. Input was not sent; keep using the validated desktop app until paired validation.");
+            throw new ApiException(NotALeaseKernel);
         }
         if (JsonValue.Int(status, "input_protocol") != 1 || !status.TryGetProperty("input_leases_required", out var required) || required.ValueKind != JsonValueKind.True)
-            throw new ApiException("This console needs the ownership-enabled kernel. Input was not sent; keep using the validated desktop app until paired validation.");
+            throw new ApiException(NotALeaseKernel);
         _ownershipVerified = true;
     }
     /// <summary>Sends one input command (/mouse/* or /key/sendkey) under the target phones' leases.

@@ -18,20 +18,21 @@ internal sealed partial class FarmDraftRunWindow : Window
 {
     // Everything that differs between the five creation windows. Format is the saved copy's format
     // the backend must offer (none for a carousel); BindsAccount means the run binds whichever
-    // account is signed in instead of a configured one.
+    // account is signed in instead of a configured one. {account} in a description is the account
+    // this PC is configured for, which is private per-machine data and never written here.
     private sealed record Mode(string Name, string App, string Route, string Capability, string Bookmark, string? Format,
         string Title, string Heading, string Start, string Verified, string Description, bool BindsAccount = false);
     private static readonly Dictionary<DraftRunKind, Mode> Modes = new()
     {
         [DraftRunKind.Carousel] = new("carousel", "Instagram", "/api/farm/draft-creations", "draftCreation", "farm-pending-draft-creation.json", null,
             "Create a verified C24C draft", "Create a new verified phone draft", "Create and verify new draft on C24C", "NEW PHONE DRAFT CREATED AND VERIFIED",
-            "C24C · Instagram @xs.halle.xo\nImports this saved revision into Photos, selects each slide in order, copies and pastes the exact caption, saves a draft and checks it after reopening. Start on the account profile. This replaces the phone clipboard. Three slides and a short visible caption are supported. Nothing is published or messaged."),
+            "C24C · Instagram {account}\nImports this saved revision into Photos, selects each slide in order, copies and pastes the exact caption, saves a draft and checks it after reopening. Start on the account profile. This replaces the phone clipboard. Three slides and a short visible caption are supported. Nothing is published or messaged."),
         [DraftRunKind.Reel] = new("Reel", "Instagram", "/api/farm/reel-creations", "reelCreation", "farm-pending-reel-creation.json", "ig_reel",
             "Create a verified C24C Reel draft", "Create a new verified Reel draft", "Create and verify Reel draft on C24C", "NEW REEL DRAFT CREATED AND VERIFIED",
-            "C24C · Instagram @xs.halle.xo\nSafari downloads this saved video and Files saves it to Photos. Instagram then selects that exact video for a new Reel, the one-line caption is pasted and Save draft is pressed once. A separate check reopens the draft, plays it and keeps it in Reels drafts. Start on the account profile. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced. Nothing is shared, published or messaged."),
+            "C24C · Instagram {account}\nSafari downloads this saved video and Files saves it to Photos. Instagram then selects that exact video for a new Reel, the one-line caption is pasted and Save draft is pressed once. A separate check reopens the draft, plays it and keeps it in Reels drafts. Start on the account profile. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced. Nothing is shared, published or messaged."),
         [DraftRunKind.TikTok] = new("TikTok", "TikTok", "/api/farm/tiktok-creations", "tiktokCreation", "farm-pending-tiktok-creation.json", "tt_video",
             "Create a verified C24C TikTok draft", "Create a new verified TikTok draft", "Create and verify TikTok draft on C24C", "NEW TIKTOK DRAFT CREATED AND VERIFIED",
-            "C24C · TikTok @xs.halle.xo\nSafari downloads this saved video and Files saves it to Photos. TikTok then selects that exact video, removes a suggested sound if one is attached, pastes the one-line description and presses Drafts once. A separate check reopens the draft, requires it silent with the exact description and keeps it in Drafts. Start on the account’s TikTok profile. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced. Nothing is posted, shared or messaged."),
+            "C24C · TikTok {account}\nSafari downloads this saved video and Files saves it to Photos. TikTok then selects that exact video, removes a suggested sound if one is attached, pastes the one-line description and presses Drafts once. A separate check reopens the draft, requires it silent with the exact description and keeps it in Drafts. Start on the account’s TikTok profile. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced. Nothing is posted, shared or messaged."),
         [DraftRunKind.X] = new("X", "X", "/api/farm/x-creations", "xCreation", "farm-pending-x-creation.json", "x_video",
             "Create a verified C24C X draft", "Create a new verified X draft", "Create and verify X draft on C24C", "NEW X DRAFT CREATED AND VERIFIED",
             "C24C · X · the account signed in first\nBefore any other input the run reads the signed-in handle from the X side menu and binds this draft to it; later screens and the separate check must show the same handle. Safari downloads this saved video and Files saves it to Photos. X then gets the one-line text by paste and the exact video from the photo picker, and Save to drafts is pressed once. A separate check reopens the draft with the exact text, plays it and keeps it in Drafts. Start on the X home timeline. The video stays in Photos and Safari Downloads, and the phone clipboard is replaced. Nothing is posted or messaged.", BindsAccount: true),
@@ -65,8 +66,13 @@ internal sealed partial class FarmDraftRunWindow : Window
     internal string Route => _route; internal string Capability => _capability; internal string BookmarkPath => _bookmarkPath;
     internal string DraftId => _draftId;
 
-    internal FarmDraftRunWindow(FarmApiClient api, string dataFolder, string draftId, int revision, string title, DraftRunKind kind)
+    // The account a pinned run must be for: this PC's private account label unless a test names one.
+    private readonly string _account;
+    internal string DescriptionText { get; }
+    internal FarmDraftRunWindow(FarmApiClient api, string dataFolder, string draftId, int revision, string title, DraftRunKind kind, string? account = null)
     {
+        _account = account ?? InstallLayout.FarmAccountLabel();
+        DescriptionText = Modes[kind].Description.Replace("{account}", _account.Length > 0 ? "@" + _account : "(no account is configured on this PC, so this cannot start)");
         _api = api; _draftId = draftId; _revision = revision; _kind = kind; _mode = Modes[kind];
         _route = _mode.Route; _capability = _mode.Capability;
         _bookmarkPath = Path.Combine(dataFolder, _mode.Bookmark);
@@ -76,7 +82,7 @@ internal sealed partial class FarmDraftRunWindow : Window
         var panel = new StackPanel { Margin = new Thickness(24) };
         panel.Children.Add(new TextBlock { Text = _mode.Heading, FontSize = 24, FontWeight = FontWeights.SemiBold });
         _subtitle.Text = $"{title} · saved revision {revision}"; panel.Children.Add(_subtitle);
-        panel.Children.Add(new TextBlock { Text = _mode.Description, TextWrapping = TextWrapping.Wrap });
+        panel.Children.Add(new TextBlock { Text = DescriptionText, TextWrapping = TextWrapping.Wrap });
         var buttons = new WrapPanel { Margin = new Thickness(0, 16, 0, 16) };
         buttons.Children.Add(_start); buttons.Children.Add(_recover); buttons.Children.Add(_stop); panel.Children.Add(buttons);
         panel.Children.Add(new TextBlock { Text = "Saved checks", FontWeight = FontWeights.SemiBold });
@@ -178,7 +184,7 @@ internal sealed partial class FarmDraftRunWindow : Window
     {
         var account = capability.GetProperty("account");
         if (_mode.BindsAccount) return account.ValueKind == JsonValueKind.Null && capability.TryGetProperty("accountPolicy", out var policy) && policy.GetString() == "first_signed_in";
-        return account.ValueKind == JsonValueKind.String && account.GetString() == "xs.halle.xo";
+        return account.ValueKind == JsonValueKind.String && _account.Length > 0 && account.GetString() == _account;
     }
     private async Task HistoryAsync()
     {

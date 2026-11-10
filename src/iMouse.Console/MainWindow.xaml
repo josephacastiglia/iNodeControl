@@ -22,7 +22,7 @@
             <Button x:Name="RackViewTabButton" Content="Rack View" Click="RackViewTab_Click" Margin="0,0,4,0" MinHeight="28" Padding="12,5"
                     Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}"/>
             <Button x:Name="FarmTabButton" Content="Marketing Farm (Test Tab)" Click="FarmTab_Click" Margin="0,0,8,0" MinHeight="28" Padding="12,5"
-                    ToolTip="Switch to 19-iPhone Marketing Farm &amp; Social Automation Test Tab"/>
+                    ToolTip="Marketing Farm: content, drafts, the schedule and the C24C test phone"/>
             <Rectangle Width="1" Height="20" Fill="{DynamicResource EdgeBrush}" Margin="4,0,8,0"/>
             <Button x:Name="ControlsButton" Content="Controls" Click="OpenControls_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
             <Button x:Name="SettingsButton" Content="Settings" Click="OpenSettings_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
@@ -387,7 +387,7 @@
 
               <StackPanel x:Name="SettingsPane" Visibility="Collapsed">
                 <TextBlock Text="SERVICE" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
-                <TextBox x:Name="AddressBox" Text="http://127.0.0.1:9911" AutomationProperties.Name="iMouse service address"/>
+                <TextBox x:Name="AddressBox" Text="http://127.0.0.1:9913" AutomationProperties.Name="iMouse service address"/>
                 <WrapPanel Margin="0,6,0,0">
                   <Button x:Name="ConnectButton" Content="_Connect" Click="Connect_Click" Style="{StaticResource Primary}"/>
                   <Button x:Name="DisconnectButton" Content="Disconnect" Click="Disconnect_Click"/>

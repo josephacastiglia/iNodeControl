@@ -13,6 +13,7 @@ public partial class MainWindow
 {
     public async Task RunSmokeAsync(bool fake, TestHandler? handler = null)
     {
+        _offeredAddress = AddressBox.Text;
         await ConnectAsync();
         _refreshTimer.Stop();
         if (!_connected) throw new Exception("Smoke test could not connect to the service.");
@@ -39,10 +40,16 @@ public partial class MainWindow
         if (fake && handler is not null) await CheckInteractionsAsync(handler, qa);
     }
 
+    private string _offeredAddress = "";
     private async Task CheckInteractionsAsync(TestHandler handler, string qa)
     {
         var passed = new List<string>();
         void Check(string name, bool value) { if (!value) throw new Exception("UI check failed: " + name); passed.Add(name); }
+        // This window has a new, empty data folder; unless the test was given --address, the box holds the built-in default.
+        if (!Environment.GetCommandLineArgs().Any(a => a.StartsWith("--address=", StringComparison.Ordinal)))
+            Check("With no saved settings the console offers the kernel's default address", _offeredAddress == "http://127.0.0.1:9913");
+        Check("The Farm tab's tooltip no longer describes a 19-iPhone automation tab",
+            FarmTabButton.ToolTip is string tip && !tip.Contains("19-iPhone") && !tip.Contains("Automation") && tip.Contains("draft"));
         static string Fun(JsonElement command) => command.GetProperty("fun").GetString() ?? "";
         static string Ids(JsonElement command) => command.GetProperty("data").GetProperty("id").GetString() ?? "";
         // What the console sent to phones, in order. Lease traffic (/input/acquire, /input/release,
