@@ -15,7 +15,9 @@ import uuid
 from unittest.mock import patch
 
 from PIL import Image,ImageDraw
-from farm_creation_layout import source_match, selected_badges, caption_editor, control, empty_search, test_video_preview
+from farm_creation_layout import source_match, selected_badges, caption_editor, control, empty_search
+# Under another name: pytest collects a module attribute called test_* as a test of its own.
+from farm_creation_layout import test_video_preview as video_preview
 from farm_carousel_inspection import InspectionStopped
 from farm_creation_runs import CreationRuns, creation_config
 from farm_draft_creation import CreationOwnership, CreationWorkflow
@@ -250,9 +252,9 @@ class CreationTests(unittest.TestCase):
     def test_only_known_readonly_test_preview_has_a_done_navigation_target(self):
         text=dict(width=500,height=1080,lines=[word('imouse-draft',172,76,125),word('Done',425,76,50),
             word('Open in VLC',130,1004,130),word('END OF TEST VIDEO',57,308,240)])
-        self.assertFalse(test_video_preview(text)['accountVerified'])
+        self.assertFalse(video_preview(text)['accountVerified'])
         changed=copy.deepcopy(text);changed['lines'][0]['text']='Unrelated document'
-        with self.assertRaises(InspectionStopped):test_video_preview(changed)
+        with self.assertRaises(InspectionStopped):video_preview(changed)
 
     def test_app_navigation_reuses_a_matching_restored_query_without_typing(self):
         labels=['Instagram','TikTok','YouTube','Bluesky','Gmail','Zoho Mail','Expo Go','Proton VPN']
