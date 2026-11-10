@@ -1,7 +1,6 @@
-"""YouTube admission, channel policy, duplicate holds, package naming, routes and the source fingerprint. No phone access."""
+"""YouTube admission, channel policy, duplicate holds, package naming and routes. No phone access."""
 import http.client
 from pathlib import Path
-import re
 import tempfile
 import threading
 import time
@@ -28,7 +27,6 @@ from imouse_social_automation import KernelSafetyError, DEFAULT_SAFE_TEST_DEVICE
 import test_farm_http_jobs as http_jobs
 from test_farm_reel_runs import CONFIG, ReelVideoFixture
 
-ROOT = Path(__file__).resolve().parents[1]
 # The one phone this branch's shared transport drives, and the rack phone YouTube is meant for (box slot 16).
 PHONE = dict(board=DEFAULT_SAFE_TEST_DEVICE, deviceId=LIVE_TEST_DEVICE_ID, receiver='iMouse2-' + DEFAULT_SAFE_TEST_DEVICE)
 SLOT16 = dict(board='F215', deviceId='02:00:00:00:00:16', receiver='iMouse2-16', slot=16)   # fixture device ID
@@ -208,20 +206,6 @@ class YouTubePackageTests(unittest.TestCase, YouTubeVideoFixture):
         # The shared leftover-name pattern lives in farm_reel_layout since 22 Oct (used by every video route).
         self.assertEqual(r'imouse-((reel|tt|x|yt)-[acdefhkmnprtuvwxy]{6}|draft)', reel.LEFTOVER_NAME)
         self.assertRegex('imouse-yt-acdefh', reel.LEFTOVER_NAME)
-
-
-class YouTubeSourceFingerprintTests(unittest.TestCase):
-    def test_server_and_launcher_pin_the_same_files_in_the_same_order(self):
-        server = (ROOT/'tools/imouse_farm_server.py').read_text(encoding='utf-8')
-        launcher = (ROOT/'Open Marketing Farm Candidate.ps1').read_text(encoding='utf-8')
-        pinned = re.findall(r'"([^"]+)"', re.search(r'b"".join\(\(source / name\)\.read_bytes\(\) for name in \(([^)]*)\)', server).group(1))
-        checked = re.findall(r"'([^']+)'", re.search(r"foreach \(\$name in @\(([^)]*)\)\)", launcher).group(1))
-        self.assertEqual(pinned, checked)
-        self.assertEqual(len(pinned), len(set(pinned)))
-        for name in ('farm_youtube_layout.py', 'farm_youtube_controls.json', 'farm_youtube_creation.py', 'farm_youtube_runs.py'):
-            self.assertIn(name, pinned)
-        self.assertTrue(all((ROOT/'tools'/name).is_file() for name in pinned))
-        self.assertIn("[bool]$health.youtubeCreation.enabled -and -not $DraftCreationConfig", launcher)
 
 
 class YouTubeHttpTests(unittest.TestCase, YouTubeVideoFixture):

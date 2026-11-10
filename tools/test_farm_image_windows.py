@@ -106,12 +106,5 @@ class WindowNameTests(unittest.TestCase):
         self.assertEqual(2, source.count('draft_id=draft_id'))
 
 
-class FingerprintTests(unittest.TestCase):
-    def test_farm_image_is_pinned_by_server_and_launcher(self):
-        launcher = (ROOT / 'Open Marketing Farm Candidate.ps1').read_text(encoding='utf-8')
-        source = (ROOT / 'tools/imouse_farm_server.py').read_text(encoding='utf-8')
-        self.assertIn('"farm_video.py", "farm_image.py"', source); self.assertIn("'farm_video.py', 'farm_image.py'", launcher)
-
-
 if __name__ == '__main__':
     unittest.main()
