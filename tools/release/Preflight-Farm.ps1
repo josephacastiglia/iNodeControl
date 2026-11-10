@@ -122,7 +122,7 @@ Invoke-Probe {
 } 'usb-boards'
 Invoke-Probe {
     $vendor = Get-Service -Name 'iMouseService' -ErrorAction SilentlyContinue
-    if ($vendor -and $vendor.Status -eq 'Running') { Add-Check 'vendor-service' 'fail' 'the vendor iMouseService is running and can hold the boards' '(admin) Stop the vendor service and set it to Disabled (services.msc > iMouseService). Keep the vendor software installed; tools/restore_vendor_services.ps1 restores it.' }
+    if ($vendor -and $vendor.Status -eq 'Running') { Add-Check 'vendor-service' 'fail' 'the vendor iMouseService is running and can hold the boards' '(admin) Stop the vendor service and set it to Disabled (services.msc > iMouseService). Keep the vendor software installed: to use it again later, set the service back to Automatic there and start it.' }
     elseif ($vendor) { Add-Check 'vendor-service' 'ok' "vendor iMouseService present, $($vendor.Status)" }
     else { Add-Check 'vendor-service' 'ok' 'no vendor iMouseService' }
 } 'vendor-service'

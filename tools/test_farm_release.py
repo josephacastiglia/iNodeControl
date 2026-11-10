@@ -373,6 +373,18 @@ class ReceiverSourceRecord(unittest.TestCase):
                       'upstream still guards -march=native with this option')
 
 
+class OperatorInstructions(unittest.TestCase):
+    def test_every_tool_the_shipped_scripts_and_the_guide_name_is_in_the_package(self):
+        # An operator on an installed PC has the package and nothing else: an instruction that names a
+        # tools/ file must name one that ships.
+        files, _ = fr.farm_files(fr.REPO)
+        shipped = {n[len('farm/'):] for n in files}
+        for doc in ('tools/release/Preflight-Farm.ps1', 'tools/release/Farm.ps1', 'tools/release/Install-Farm.ps1', 'docs/INSTALL-FARM.md'):
+            text = (fr.REPO / doc).read_text(encoding='utf-8')
+            for path in re.findall(r'(?<![\w.-])(tools[\\/][\w./\\-]+\.(?:ps1|py|txt|json))', text):
+                self.assertIn(path.replace('\\', '/'), shipped, f'{doc} names {path}, which a package does not contain')
+
+
 class ThisCheckout(unittest.TestCase):
     def test_no_packaged_file_reads_state_from_the_code_folder(self):
         # The rehearsal's 'every launcher command ready' check, without building a package: one blocker line
