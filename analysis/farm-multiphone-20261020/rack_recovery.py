@@ -1,23 +1,37 @@
 """Unattended rack recovery: who stopped which board's input, the ordered bring-up, and the watchdog.
 
+The bring-up report and summary never hold a phone's device ID (without_device_ids); the phone
+addresses of the plan are left out of both.
+
   python rack_recovery.py snapshot --api URL --out FILE
       Input state per board (stopped, generation, message; boards only, never device IDs).
   python rack_recovery.py ledger --api URL --before FILE --by NAME --ledger FILE
       Appends a ledger entry for every board whose input became stopped since FILE: what we stopped,
       with the generation it left, so a later bring-up resumes exactly those and nothing else.
-  python rack_recovery.py bringup [--stage slots | --rack A|B] [--plan bringup-plan.json] [--plan-only]
-      The ordered reconnect (Bringup-Rack.ps1). Writes bringup-<time>.json beside the preparation.
-  python rack_recovery.py watch [--stage slots | --rack A|B] [--interval 30] [--no-bringup] [--once]
-      The watchdog (Watch-Rack.ps1): when the recorded kernel has died, stops its orphaned receivers,
-      withdraws their names, starts the kernel again (Start-Multiphone.ps1) and runs the bring-up.
-      A kernel stopped on purpose (Stop-Multiphone.ps1 renames its record) is never restarted.
+  python rack_recovery.py bringup [--plan bringup-plan.json] [--plan-only] [--attempts 2]
+      The ordered reconnect of the rack's phones. Wakes Home-button phones, retries once, and writes
+      bringup-<time>/report.json beside the preparation. Drives phones (taps, Home): run it only when
+      no lane is on a phone. Exit 0 only when every phone in the plan mirrors; 3 when one was
+      skipped or failed (the printed summary and the report say which).
+  python rack_recovery.py watch [--interval 30] [--no-bringup] [--once] [--max-restarts 3]
+      The watchdog, for the operator to leave running. Every interval it checks the kernel in
+      processes.json. When that kernel has died it stops the receivers it left (useless without it and
+      holding its ports), withdraws their names, starts the kernel again (Start-Multiphone.ps1) and
+      runs the bring-up. It never touches a kernel that is running, even one whose API is silent (it
+      reports that), and never restarts a kernel stopped on purpose (Stop-Multiphone.ps1 marks the stop
+      in stopping.json before it begins and renames the record when it is done) or one that is still
+      starting (processes-starting.json). At most --max-restarts an hour, then it stops and says so. Pause it without stopping
+      it: create watchdog-pause beside the preparation. Log: watchdog.jsonl beside the preparation.
+      Exit 3 when it gives up, or when a --once check restarted the kernel and the start or the
+      bring-up fell short ('ok': false in the log line).
 
 Bring-up order (5 Nov, the orchestrator's live findings; bringup-plan.json): the 4.7-inch card shows
 three rows and numeric names sort ahead of 'iMouse2-B..', so rack B goes first, from B20 alone
 (crafted one-row survey) then B19 down surveyed on B20, then rack A's small phones, then A20
 (crafted XR survey, row n at cy 226 + 63(n-1)), then the XRs from 19 down surveyed on A20. A crafted
 survey's 'advertised' is the PC's Bonjour browse (its cache keeps withdrawn names), its row the
-receiver's natural-order rank among the receivers the kernel actually advertises.
+receiver's natural-order rank among the receivers the kernel actually advertises. A crafted row is
+refused while the PC's browse lists an AirPlay receiver that is not this kernel's (a TV, another PC).
 
 Input resumes only boards the ledger says we stopped and that nothing has touched since (same
 generation). 'Stopped by operator.' is never resumed. Every phone action takes its own lease.
@@ -36,6 +50,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from rack_kernels import STATE, kernel_folder  # noqa: E402  (beside this script)
 OPERATOR_STOP = 'Stopped by operator.'
 SMALL_ROW1, SMALL_PITCH, SMALL_ROWS = 483, 69, 3      # The 4.7-inch card: three visible rows (card_survey.py).
 XR_ROW1, XR_PITCH, XR_ROWS = 226, 63, 9               # The XR card, unscrolled.
@@ -43,23 +59,7 @@ XR_ROW1, XR_PITCH, XR_ROWS = 226, 63, 9               # The XR card, unscrolled.
 
 def utc(): return datetime.now(timezone.utc).isoformat()
 def stamp(): return datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
-def natural(name): return [int(p) if p.isdigit() else p for p in re.split(r'(\d+)', name.casefold())]
 def load(path): return json.loads(Path(path).read_text(encoding='utf-8-sig'))
-
-
-def state_root():
-    try:
-        sys.path.insert(0, str(ROOT / 'tools'))
-        import farm_paths
-        return Path(farm_paths.rack_state(HERE))
-    except Exception:   # noqa: BLE001 - a checkout without the release lane's helper keeps state here
-        return HERE
-
-
-def stage_dir(stage=None, rack=None, root=None):
-    root = Path(root) if root else state_root()
-    if stage and rack: raise SystemExit('Choose --stage or --rack, not both.')
-    return root / (f'rack-{rack.lower()}' if rack else (stage or 'slots'))
 
 
 # ---------------------------------------------------------------- kernel access
@@ -81,6 +81,25 @@ class Kernel:
     def alive(self):
         try: self.status(); return True
         except (OSError, ValueError, KeyError): return False
+
+
+# What a phone's device ID looks like when the kernel does not list it: the MAC-style AirPlay ID, a UDID.
+DEVICE_ID_SHAPES = re.compile(r'(?i)(?<![0-9a-f:])(?:[0-9a-f]{2}:){5}[0-9a-f]{2}(?![0-9a-f:])'
+                              r'|\b[0-9a-f]{8}-[0-9a-f]{16}\b|(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])')
+
+
+def without_device_ids(value, ids):
+    """`value` (text, list or dict) with no phone device ID left in any string. An ID the kernel knows
+    ({device ID: board}) becomes '<phone on board XXXX>'; anything else shaped like one becomes
+    '<device id>'. Kernel replies and tool output are quoted into results, and they can name the phone.
+    Receiver names, board IDs, placeholder IDs ('pending-<board>') and loopback addresses stay."""
+    if isinstance(value, dict): return {k: without_device_ids(v, ids) for k, v in value.items()}
+    if isinstance(value, (list, tuple)): return [without_device_ids(v, ids) for v in value]
+    if not isinstance(value, str): return value
+    for device, board in sorted(ids.items(), key=lambda item: -len(item[0])):
+        if len(device) >= 6 and not device.startswith('pending-'):
+            value = re.sub(re.escape(device), f'<phone on board {board}>', value, flags=re.I)
+    return DEVICE_ID_SHAPES.sub('<device id>', value)
 
 
 def snapshot(kernel):
@@ -164,17 +183,27 @@ def build_plan(plan, slots, prep, addresses=None):
     return out
 
 
-def crafted_survey(receiver, card, advertised_by_kernel, pc_browse):
+def crafted_survey(receiver, card, advertised_by_kernel, pc_browse, kernel_names):
     """The anchor phone's survey with no mirroring phone to read the card on: its row is its
     natural-order rank among what the kernel advertises; 'advertised' is the PC's browse (its
-    Bonjour cache keeps withdrawn names, and auto_connect compares against that)."""
+    Bonjour cache keeps withdrawn names, and auto_connect compares against that).
+
+    The row is computed, not seen, so it is refused when the PC's browse lists any AirPlay receiver
+    that is not one of this kernel's (`kernel_names`: all of them, advertised or not). The phone's card
+    lists that receiver too: every row below it shifts, and a tap on its row would mirror the phone
+    to it. The PC cannot see what only the phone sees, so a clean browse is necessary, not proof."""
+    from farm_mirroring import natural   # The order iOS lists receivers in, as auto_connect.py reads a surveyed card.
+    foreign = sorted(set(pc_browse) - set(kernel_names))
+    if foreign:
+        return None, ('refused: the network lists %d AirPlay receiver(s) that are not this kernel\'s (%s); a computed row cannot be trusted'
+                      % (len(foreign), ', '.join(foreign[:3]) + (', ...' if len(foreign) > 3 else '')))
     listed = sorted(set(advertised_by_kernel) | {receiver}, key=natural)
     n = listed.index(receiver) + 1
     row1, pitch, rows = (SMALL_ROW1, SMALL_PITCH, SMALL_ROWS) if card == 'small' else (XR_ROW1, XR_PITCH, XR_ROWS)
     if n > rows: return None, f'{receiver} would be row {n}; the unscrolled card shows {rows}.'
     lines = [dict(text=receiver, cy=row1 + pitch * (n - 1))]
     lines.append(dict(text='Stop Mirroring', cy=729) if card == 'small' else dict(text='Screen Mirroring', cy=162))
-    return dict(advertised=sorted(set(pc_browse)), scroll=False, small=card == 'small', lines=lines, crafted=True, row=n), None
+    return dict(advertised=sorted(set(pc_browse)), small=card == 'small', lines=lines, crafted=True, row=n), None
 
 
 # ---------------------------------------------------------------- bring-up run
@@ -187,7 +216,8 @@ def last_json(text):
 
 
 class Actions:
-    """Real phone actions: release through the kernel, wake/survey/connect through the existing tools."""
+    """Real phone actions, each through the one tool that does it: Release-Receiver.ps1, card_survey.py,
+    auto_connect.py. `folder` is this bring-up's own folder inside the kernel's."""
 
     def __init__(self, kernel, folder):
         self.kernel, self.folder = kernel, Path(folder)
@@ -197,14 +227,23 @@ class Actions:
         return {r['name'] for r in self.kernel.status()['receivers'] if r['receiver_pid'] > 0}
 
     def receivers(self): return {r['name']: r for r in self.kernel.status()['receivers']}
-    def release(self, board): return self.kernel.post('/device/airplay/connect', dict(pid=board))
+    def release(self, board):
+        """Advertises the board's receiver through Release-Receiver.ps1: it checks that the prepared kernel is
+        the one running, waits for the receiver process and records the outcome in releases.jsonl, which is
+        read back here (no parsing of what the script printed)."""
+        releases = self.folder.parent / 'releases.jsonl'
+        before = len(read_ledger(releases))
+        code = powershell('Release-Receiver.ps1', '-Board', board, log=self.folder / 'release-output.txt')
+        if code == 0: return dict(code=0)
+        mine = [r for r in read_ledger(releases)[before:] if r.get('board') == board]
+        return dict(code=code, message=(mine[-1].get('problem') if mine else '') or 'Release-Receiver.ps1 failed; see release-output.txt')
+
     def resume(self, board, generation, device_id):
         return self.kernel.post('/input/resume', dict(id=device_id, expected_generations={device_id: generation}))
     def device_id(self, board): return next(d for d, b in self.kernel.devices().items() if b == board)
     def snapshot(self): return snapshot(self.kernel)
 
     def browse(self):
-        sys.path.insert(0, str(ROOT / 'tools'))
         from farm_mirroring import browse
         return set(browse(4)[0])
 
@@ -214,18 +253,23 @@ class Actions:
         return run.stdout
 
     def wake(self, board):
-        """Home, pause, Home: wakes a passcode-less Home-button phone and opens it (spaced so two
-        presses are never read as a double press). One lease, released at the end."""
+        """Home, pause, Home (card_survey.home_twice): wakes a passcode-less Home-button phone and opens
+        it. One lease, renewed before each key and released at the end."""
+        from card_survey import home_twice
         device = self.device_id(board)
         lease = self.kernel.post('/input/acquire', dict(id=device, lease_ms=15000))
         if lease.get('code') != 0: return f"wake refused: {lease.get('message')}"
         token = lease['leases'][0]['token']
+        answers = []
+
+        def send(fun, purpose, **data):
+            self.kernel.post('/input/renew', dict(id=device, token=token))
+            answers.append(self.kernel.post(fun, dict(id=device, token=token, **data)))
+
         try:
-            for _ in (1, 2):
-                self.kernel.post('/input/renew', dict(id=device, token=token))
-                got = self.kernel.post('/key/sendkey', dict(id=device, token=token, fn_key='Home'))
-                time.sleep(1.8)
-            return f"woken ({got.get('code')})"
+            home_twice(send, 'wake', 'open the home screen', pause=1.8)
+            refused = [f"code {a.get('code')}: {a.get('message') or 'no message'}" for a in answers if a.get('code') != 0]
+            return 'woken' if not refused else 'wake failed (' + '; '.join(refused) + ')'
         finally:
             self.kernel.post('/input/release', dict(id=device, token=token))
 
@@ -233,7 +277,7 @@ class Actions:
         out = self._run('card_survey.py', '--board', board, *(['--small'] if small else []))
         got = last_json(out)
         if not got or not got.get('folder'): return None, 'survey failed: ' + (out.strip().splitlines() or [''])[-1][-200:]
-        return state_root() / got['folder'] / 'record.json', 'surveyed'
+        return STATE / got['folder'] / 'record.json', 'surveyed'
 
     def write_survey(self, board, survey):
         path = self.folder / f'crafted-{board}-{stamp()}.json'
@@ -277,7 +321,7 @@ def bring_up(phones, actions, ledger_path, attempts=2):
             actions.sleep(3)
             if phone['card'] == 'small': tried['wake'] = actions.wake(phone['board'])
             if phone['survey_board'] is None:
-                survey, why = crafted_survey(phone['receiver'], phone['card'], actions.advertised(), actions.browse())
+                survey, why = crafted_survey(phone['receiver'], phone['card'], actions.advertised(), actions.browse(), set(receivers))
                 path = actions.write_survey(phone['board'], survey) if survey else None
                 tried['survey'] = 'crafted row %s' % survey['row'] if survey else why
             else:
@@ -288,13 +332,41 @@ def bring_up(phones, actions, ledger_path, attempts=2):
                 break
             before = actions.snapshot()
             tried['result'] = actions.connect(phone['board'], path, phone['card'] == 'small', phone.get('phone_ip'))
-            mine = ledger_entries(before, actions.snapshot(), 'Bringup-Rack')   # our own lease expiring, if any
+            mine = ledger_entries(before, actions.snapshot(), 'bringup')   # our own lease expiring, if any
             append_ledger(ledger_path, mine); ledger += mine
             row['result'] = tried['result']
             if tried['result'].startswith('mirroring') or 'already mirroring' in tried['result']: break
             if not retryable(tried['result']): break
             actions.sleep(3)
     return report
+
+
+def planned_phones(folder, plan_path):
+    """(preparation, ordered phones) for the kernel this folder prepares."""
+    prep = load(Path(folder) / 'preparation.json')
+    learned = Path(prep['runDirectory']) / 'learned-addresses.json'
+    # The slot maps are this PC's private state: beside this script in a checkout, in the data folder when installed.
+    return prep, build_plan(load(plan_path), slot_boards(load(STATE / 'phone-slots.json'), load(STATE / 'rack-b-slots.json')), prep,
+                            load(learned) if learned.exists() else None)
+
+
+def run_bringup(folder, plan_path, attempts=2):
+    """The ordered reconnect against the kernel this folder records. Writes bringup-<time>/report.json and
+    returns its path with the summary."""
+    folder = Path(folder)
+    prep, phones = planned_phones(folder, plan_path)
+    record = load(folder / 'processes.json') if (folder / 'processes.json').exists() else {}
+    api = record.get('api') or prep['arguments'][0].rstrip('/')
+    kernel = Kernel(api)
+    if not kernel.alive(): raise SystemExit(f'No kernel answers on {api}.')
+    run = folder / f'bringup-{stamp()}'; run.mkdir()
+    report = bring_up(phones, Actions(kernel, run), folder / 'input-stops.jsonl', attempts)
+    try: ids = kernel.devices()
+    except (OSError, ValueError, KeyError): ids = {}   # The kernel went away: the shapes are still removed.
+    result = without_device_ids(dict(utc=utc(), api=api, summary=summary(report),
+                                     phones=[{k: v for k, v in r.items() if k != 'phone_ip'} for r in report]), ids)
+    (run / 'report.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
+    return dict(report=str(run / 'report.json'), **result['summary'])
 
 
 def survey_retry(message): return message.startswith('survey failed')
@@ -306,21 +378,40 @@ def retryable(result):
 
 
 def summary(report):
+    """Counts for a caller; 'ok' only when every phone in the plan mirrors (a skipped phone is not connected either)."""
     done = [r for r in report if r.get('result', '').startswith('mirroring') or r.get('result') == 'already mirroring']
-    return dict(phones=len(report), mirroring=len(done), skipped=sum(1 for r in report if r.get('result', '').startswith('skipped')),
+    return dict(ok=len(done) == len(report), phones=len(report), mirroring=len(done),
+                skipped=sum(1 for r in report if r.get('result', '').startswith('skipped')),
                 failed=[dict(slot=r['slot'], result=r.get('result', '')) for r in report if r not in done and not r.get('result', '').startswith('skipped')])
 
 
 # ---------------------------------------------------------------- watchdog
 
-def decide(record, kernel_alive, api_alive, paused, recent_restarts, max_restarts=3):
+def decide(record, kernel_alive, api_alive, paused, recent_restarts, max_restarts=3, stopping=False):
     """What the watchdog does now. Restarting is only for a kernel that is recorded as running
-    and is gone; a stopped kernel (no record) and a hung one (alive, API silent) are left alone."""
+    and is gone; a stopped kernel (no record), one being stopped on purpose (`stopping`) and a hung
+    one (alive, API silent) are left alone."""
     if paused: return 'paused'
     if record is None: return 'idle'                   # Stopped on purpose, or never started.
     if kernel_alive: return 'healthy' if api_alive else 'unresponsive'
+    if stopping: return 'stopping'                     # Gone because Stop-Multiphone.ps1 asked; its record is renamed last.
     if recent_restarts >= max_restarts: return 'give-up'
     return 'restart'
+
+
+def stop_requested(folder, record):
+    """True when Stop-Multiphone.ps1 has marked this record's kernel as being stopped on purpose
+    (stopping.json names its PID; the script writes it before the kernel is asked to exit)."""
+    try: return bool(record) and int(load(Path(folder) / 'stopping.json')['pid']) == int(record['kernel']['pid'])
+    except (OSError, ValueError, KeyError, TypeError): return False
+
+
+def tick_ok(entry):
+    """False when a watchdog check ended badly: it gave up, the kernel did not start again, or the bring-up
+    after the restart left a phone unconnected (or could not run)."""
+    if entry['action'] == 'give-up': return False
+    if entry['action'] != 'restart': return True
+    return entry.get('start') == 0 and ('bringup' not in entry or bool(entry['bringup'].get('ok')))
 
 
 def receiver_exe(prep):
@@ -336,11 +427,6 @@ def orphans(processes, kernel_pid, names, exe='uxplay.exe'):
         m = re.search(r'(?:^|\s)-n\s+"?([^\s"]+)', p.get('CommandLine') or '')
         if p.get('ParentProcessId') == kernel_pid or (m and m.group(1) in names): out.append(p['ProcessId'])
     return out
-
-
-def python_scope(scope_args):
-    """['-Stage', 'slots'] -> ['--stage', 'slots']; ['-Rack', 'B'] -> ['--rack', 'B']."""
-    return ['--' + scope_args[0].lstrip('-').lower(), scope_args[1]]
 
 
 def powershell(script, *args, log=None):
@@ -363,7 +449,7 @@ def kernel_running(record, procs):
     return any(p['ProcessId'] == pid and (p.get('ExecutablePath') or '').lower() == path.lower() for p in procs)
 
 
-def watch(folder, scope_args, interval, bringup, once, max_restarts=3, window=3600):
+def watch(folder, interval, bringup, once, max_restarts=3, window=3600):
     folder = Path(folder)
     log = folder / 'watchdog.jsonl'
     restarts = []
@@ -378,7 +464,10 @@ def watch(folder, scope_args, interval, bringup, once, max_restarts=3, window=36
         api = Kernel(record.get('api') or prep['arguments'][0]).alive() if alive else False
         misses = misses + 1 if alive and not api else 0
         restarts = [t for t in restarts if time.time() - t < window]
-        action = decide(record, alive, api or misses < 3, (folder / 'watchdog-pause').exists(), len(restarts), max_restarts)
+        # Read after the process snapshot above: a stop writes its marker before the kernel exits, so a kernel
+        # seen gone on purpose always has its marker by now.
+        stopping = stop_requested(folder, record)
+        action = decide(record, alive, api or misses < 3, (folder / 'watchdog-pause').exists(), len(restarts), max_restarts, stopping)
         entry = dict(utc=utc(), action=action)
         if action == 'restart':
             restarts.append(time.time())
@@ -397,15 +486,16 @@ def watch(folder, scope_args, interval, bringup, once, max_restarts=3, window=36
                                       '--status-url', (record.get('api') or prep['arguments'][0].rstrip('/')) + '/kernel/status', *boards],
                                      stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=120)
             entry['goodbye'] = goodbye.returncode
-            entry['start'] = powershell('Start-Multiphone.ps1', *scope_args, log=folder / 'watchdog-start.txt')
+            entry['start'] = powershell('Start-Multiphone.ps1', log=folder / 'watchdog-start.txt')
             if entry['start'] == 0: pending.unlink(missing_ok=True)
             if entry['start'] == 0 and bringup:
-                entry['bringup'] = subprocess.run([sys.executable, str(HERE / 'rack_recovery.py'), 'bringup', *python_scope(scope_args)],
-                                                  stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=7200).returncode
+                try: entry['bringup'] = run_bringup(folder, HERE / 'bringup-plan.json')
+                except (Exception, SystemExit) as error: entry['bringup'] = dict(error=str(error)[-300:])   # noqa: BLE001 - the watchdog keeps watching
+        entry['ok'] = tick_ok(entry)
         if action != 'healthy' or once:
             with open(log, 'a', encoding='utf-8') as f: f.write(json.dumps(entry) + '\n')
             print(json.dumps(entry), flush=True)
-        if once or action == 'give-up': return action
+        if once or action == 'give-up': return entry
         time.sleep(interval)
 
 
@@ -417,12 +507,9 @@ def main():
     s = sub.add_parser('snapshot'); s.add_argument('--api', required=True); s.add_argument('--out', required=True)
     l = sub.add_parser('ledger'); l.add_argument('--api', required=True); l.add_argument('--before', required=True)
     l.add_argument('--by', required=True); l.add_argument('--ledger', required=True)
-    for name in ('bringup', 'watch'):
-        c = sub.add_parser(name)
-        c.add_argument('--stage', choices=['held', 'slots']); c.add_argument('--rack', choices=['A', 'B', 'a', 'b'])
-    b = sub.choices['bringup']; b.add_argument('--plan', default=str(HERE / 'bringup-plan.json')); b.add_argument('--plan-only', action='store_true')
+    b = sub.add_parser('bringup'); b.add_argument('--plan', default=str(HERE / 'bringup-plan.json')); b.add_argument('--plan-only', action='store_true')
     b.add_argument('--attempts', type=int, default=2)
-    w = sub.choices['watch']; w.add_argument('--interval', type=int, default=30); w.add_argument('--no-bringup', action='store_true')
+    w = sub.add_parser('watch'); w.add_argument('--interval', type=int, default=30); w.add_argument('--no-bringup', action='store_true')
     w.add_argument('--once', action='store_true'); w.add_argument('--max-restarts', type=int, default=3)
     args = parser.parse_args()
     if args.command == 'snapshot':
@@ -430,26 +517,15 @@ def main():
     if args.command == 'ledger':
         entries = ledger_entries(load(args.before), snapshot(Kernel(args.api)), args.by)
         append_ledger(args.ledger, entries); print(json.dumps(dict(recorded=[e['board'] for e in entries]))); return
-    rack = args.rack.upper() if args.rack else None
-    folder = stage_dir(args.stage, rack)
-    scope = ['-Rack', rack] if rack else ['-Stage', args.stage or 'slots']
+    folder = kernel_folder()
     if args.command == 'watch':
-        watch(folder, scope, args.interval, not args.no_bringup, args.once, args.max_restarts); return
-    prep = load(folder / 'preparation.json')
-    record = load(folder / 'processes.json') if (folder / 'processes.json').exists() else {}
-    api = record.get('api') or prep['arguments'][0].rstrip('/')
-    learned = Path(prep['runDirectory']) / 'learned-addresses.json'
-    phones = build_plan(load(args.plan), slot_boards(load(HERE / 'phone-slots.json'), load(HERE / 'rack-b-slots.json')), prep,
-                        load(learned) if learned.exists() else None)
+        if not tick_ok(watch(folder, args.interval, not args.no_bringup, args.once, args.max_restarts)): raise SystemExit(3)
+        return
     if args.plan_only:
-        print(json.dumps([{k: v for k, v in p.items() if k != 'phone_ip'} for p in phones], indent=2)); return
-    kernel = Kernel(api)
-    if not kernel.alive(): raise SystemExit(f'No kernel answers on {api}.')
-    run = folder / f'bringup-{stamp()}'; run.mkdir()
-    report = bring_up(phones, Actions(kernel, run), folder / 'input-stops.jsonl', args.attempts)
-    result = dict(utc=utc(), api=api, summary=summary(report), phones=[{k: v for k, v in r.items() if k != 'phone_ip'} for r in report])
-    (run / 'report.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
-    print(json.dumps(dict(report=str(run / 'report.json'), **result['summary'])))
+        print(json.dumps([{k: v for k, v in p.items() if k != 'phone_ip'} for p in planned_phones(folder, args.plan)[1]], indent=2)); return
+    result = run_bringup(folder, args.plan, args.attempts)
+    print(json.dumps(result))
+    if not result['ok']: raise SystemExit(3)   # A phone in the plan is not mirroring: say so to whoever only reads the exit code.
 
 
 if __name__ == '__main__':

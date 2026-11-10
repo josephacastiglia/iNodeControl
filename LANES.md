@@ -20,14 +20,13 @@ Every lane reads this file first. Started 27 Oct 2026.
 - **Only your phones.** Drive only the slots listed for your lane below. The kernel's leases should
   refuse a phone another lane holds (not yet proven with two lanes at once); if yours is refused,
   stop and report, don't take it.
-- **Never touch the rack** (kernel, receivers, `Start-/Stop-Multiphone.ps1`, `Release-Receiver.ps1`,
-  `auto_connect.py`) unless you are the Rack lane: one restart stops every lane's phones. A stalled
-  mirror or a dropped board: stop and report it to the orchestrator.
+- **Never touch the rack** (kernel, receivers, `Start-/Stop-Multiphone.ps1`, `Release-`/`Restart-Receiver.ps1`,
+  `rack_recovery.py`, `auto_connect.py`) unless you are the Rack lane: one restart stops every lane's
+  phones. A stalled mirror or a dropped board: stop and report it to the orchestrator.
 - **Only your files.** Change the files your lane owns. Shared modules (below) change only with the
   orchestrator's OK, in a small commit it merges at once. `MARKETING-SUITE-TRACKER.md` and the
   farm README are the orchestrator's: put what they should say in your summary.
-- Never run legacy `tools/setup_imouse_farm.py` or `Open Marketing Farm.ps1`. Verifiers are
-  read-only; a check number is never reused.
+- Verifiers are read-only; a check number is never reused.
 - Phone work from a lane folder works as from the main folder: `tools/farm_paths.py` finds the main
   folder's rack state and the private evidence archive. Tests whose fixtures sit untracked in the
   main folder (`analysis/farm-platform-drafts-20261017`) skip in a lane folder; run those from the
@@ -37,41 +36,41 @@ Every lane reads this file first. Started 27 Oct 2026.
 
 Rack A is the first 20-slot box (slots numbered by the operator, 1 = far left). Rack B is the second
 box of 20 phones, each with its own board and accounts, on this PC. Both racks run on one kernel
-(:9916, up to 40 receivers); all 36 phones were connected from the PC on 30 Oct, and the orchestrator
-connects only the phones the running lanes need. Rack B phones get lanes once their accounts are named.
+(:9916, up to 40 receivers). Its preparation holds 36 phones: 16 in rack A (slots 2, 5-8 and 10-20;
+10-20 are iPhone XRs, the others 4.7-inch) and all 20 in rack B (4.7-inch). Which board sits in which
+slot is in `analysis/farm-multiphone-20261020/phone-slots.json` and `rack-b-slots.json`. The
+orchestrator starts the kernel and brings the phones up (the rack runbook in that folder). What is
+connected and verified on a given day is in `MARKETING-SUITE-TRACKER.md`, not here. Rack B phones get
+lanes once their accounts are named.
 
 | Phone | Board | Platform / account | Lane |
 |---|---|---|---|
-| A16 | F215 | YouTube | (not connected 4 Nov) |
+| A16 | F215 | YouTube | none assigned |
 | A17 | 724E | X (first account) | Repeatability |
 | A18 | C24C | Instagram Reel | Scheduler |
 | A20 | C214 | TikTok | Repeatability |
 | B5 | CD51 | Social apps (iPhone 6s); accounts not yet cleared by the operator | Small phone |
 | Other rack B | own | No marketing apps (most carry dating apps, which the farm never opens) | Scale gate (home screen only) |
 
-Rack A has 19 boards (one hub port is empty); the other 14 phones are in the September full-rack
-config (`iMouseXP-2.0/analysis/full-rack-config`, device IDs known) but not yet in the farm.
+Rack A has 19 boards (one hub port is empty); three of them drive no phone the operator could find and have no
+slot. Rack B's 20 boards are on their own USB host controller, listed with their hub ports in
+`analysis/farm-multiphone-20261020/rack-b-boards.json`. USB hub and port order is not slot order.
 
-**Rack B** (plugged in 28 Oct 22:32): 20 boards on its own USB host controller, listed with their
-hub ports in `analysis/farm-multiphone-20261020/rack-b-boards.json`. Its phones were flat and
-charging through their boards; the boards dropped on and off USB for the first minutes, then all
-20 stayed present (every 10 s, 22:40-23:01; rack A's 19 never dropped). Bring-up, once the
-phones are on:
-1. Each phone: on, unlocked, on the farm Wi-Fi, with the pointer settings rack A uses
-   (AssistiveTouch on, 'Always Show Menu' off). The operator does this on the phones.
-2. Per board, held mode, one at a time: a receiver that accepts any phone (as F215's did on
-   20 Oct), connected from the board itself; the receiver log names the phone's device ID and
-   model; lock the receiver to it.
-3. `pointer_identify.py`: the operator names the physical slot (1 = far left) as the pointer
-   circles; `pointer_measure.py` calibrates the model. USB hub/port order is not slot order.
-4. Names `iMouse2-B<slot>` and console names `Phone B<slot>`; backend and media ports per slot.
-5. The operator names each phone's platform and account (handles stay out of Git).
+A phone joins a rack the way these did:
+1. The operator turns it on, unlocked, on the farm Wi-Fi, with the pointer settings every rack phone
+   has (AssistiveTouch on, 'Always Show Menu' off).
+2. Its board is bound to it from the device ID its receiver logs (`prepare_rack_a.py`,
+   `prepare_rack_b.py`); `pointer_identify.py` shows which slot a board drives, and
+   `pointer_measure.py` measures the calibration of a new model.
+3. Rack A receivers are named `iMouse2-<slot>`, rack B's `iMouse2-B<slot>`; backend and media ports
+   go by slot (`tools/farm_creation_runs.py`).
+4. The operator names its platform and account (handles stay out of Git).
 
 ## Lanes
 
 | Lane | Work (tracker priority) | Owns |
 |---|---|---|
-| Rack | Restart one phone's receiver without stopping the kernel; backend and media ports for any slot (today fixed for A16-A20); rack B bring-up with names that can't collide with rack A's (slot numbers repeat); a kernel per rack (7). Built and tested off the live kernel; live trials only when the orchestrator schedules them | `src/iMouse.Kernel/`, `analysis/farm-multiphone-20261020/` rack scripts (`*Multiphone*.ps1`, `Release-Receiver.ps1`, `auto_connect.py`, `prepare_slots.py`, `prepare_multiphone.py`, `phone-slots.json`), the port tables in `prepare_window.py` and `tools/farm_creation_runs.py` |
+| Rack | The kernel and everything that starts, stops and connects it: receivers, the bring-up, the watchdog (7). Built and tested off the live kernel (the off-rack trials); live trials only when the orchestrator schedules them | `src/iMouse.Kernel/`, the rack scripts in `analysis/farm-multiphone-20261020/` (`Start-`/`Stop-Multiphone.ps1`, `Release-`/`Restart-Receiver.ps1`, `RackState.ps1`, `rack_kernels.py`, `rack_recovery.py`, `auto_connect.py`, `card_survey.py`, `prepare_rack_a.py`, `prepare_rack_b.py`, the slot maps, `offrack/`), the port tables in `prepare_window.py` and `tools/farm_creation_runs.py` |
 | TikTok photo | TikTok photo post with its sound kept, to a verified draft (3) | `tools/farm_tiktok_*`, their tests |
 | X image | X image post to a verified draft (3) | `tools/farm_x_*`, their tests |
 | Photos cleanup | Match each test video in Photos to its package; move only those to Recently Deleted, after the operator's OK per run (2) | new `tools/farm_photos_*` and tests |

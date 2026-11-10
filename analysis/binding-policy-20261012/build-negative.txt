@@ -1,9 +1,0 @@
-  Determining projects to restore...
-  Restored C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\binding-policy-20261012\negative-unguarded\iMouse.Console.csproj (in 43 ms).
-  iMouse.Console -> C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\binding-policy-20261012\negative-build\iMouse2.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:02.39

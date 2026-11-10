@@ -1,8 +1,0 @@
-{
-  "launch_allowed": false,
-  "package": "output/staging/combined-input-cleanup-20261012",
-  "status": "review_only",
-  "stage_verified": true,
-  "files": 565,
-  "source": "tested console and unchanged recorded kernel/receiver/runtime"
-}

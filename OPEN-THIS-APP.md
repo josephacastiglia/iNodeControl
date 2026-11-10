@@ -25,7 +25,8 @@ or send phone input. If this console is already open, use its taskbar window.
 
 There are seven historical console builds under `release/`; they are retained.
 The former `iMOUSE 2.exe - Shortcut` pointed to the old `release/iMouse2/iMouse2.exe`.
-Its original shortcut is backed up in `analysis/app-identification/`.
+Its original shortcut is backed up in `analysis/app-identification/` at tag `evidence-20261109`
+(see [docs/EVIDENCE.md](docs/EVIDENCE.md)).
 
 For development: the current console path is
 `release/iMouse2-two-phone-candidate/iMouse2.exe`. Update the single launcher

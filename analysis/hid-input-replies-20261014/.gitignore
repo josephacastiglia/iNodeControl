@@ -1,7 +1,0 @@
-/capture-build/
-/kernel-build/
-/live-*/
-/preflight-processes.json
-/kernel-status.json
-/input-status.json
-/device-list.json

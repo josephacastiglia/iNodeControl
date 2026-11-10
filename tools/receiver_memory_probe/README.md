@@ -90,7 +90,8 @@ normalization. They launch no native process.
 Keep synthetic results separate from live acceptance. Never copy a scratch
 receiver over the working installation or restart receivers as part of these
 checks. The 12 October investigation is recorded in
-`analysis/receiver-memory-20261012/REPORT.md`.
+`analysis/receiver-memory-20261012/REPORT.md` at tag `evidence-20261109` (`docs/EVIDENCE.md`); the fix
+it led to is `tools/airplay/patches/0003-free-periodic-report-plist.patch`.
 # Offline runtime file audit
 
 `runtime_audit.py` uses an explicitly selected `objdump` to read x64 PE import

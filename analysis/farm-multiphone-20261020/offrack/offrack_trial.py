@@ -1,10 +1,13 @@
-"""Off-rack trial of per-receiver restart and the per-rack scripts, safe to run while the live rack runs.
+"""Off-rack trial of the rack scripts and per-receiver restart, safe to run while the live rack runs.
 
-A second kernel ('rack B' label) on 127.0.0.1:9936 with three stand-in receivers (offrack-receiver.exe:
+A sandbox kernel on 127.0.0.1:9936 with three stand-in receivers (offrack-receiver.exe:
 no AirPlay, no mDNS advertisement; it holds its port and feeds BMP frames to the kernel's pipe), test
 names iMouse2-Z1..Z3, ports 7900-7922, and board IDs that no WCH board on this PC has, so no input
 board is ever opened. The real scripts run from a sandbox copy (output/offrack-rack-<time>/sandbox/),
-so they only ever see this trial's preparation and process record.
+so they only ever see this trial's preparation and process record. The preparation starts as a real one,
+so Start-Multiphone.ps1 must refuse it while any other kernel runs; the trial then marks it a sandbox
+("sandbox": true: checked only against its own kernel, receivers and ports) and, where the script refused,
+starts the kernel attached by hand, which also exercises Stop-Multiphone.ps1's Ctrl+C branch.
 
 Before starting it refuses if any trial port is in use, a trial name is on the live kernel, or a trial
 board ID is present. The live kernel (:9916) is only read (GET /kernel/status) before and after, to
@@ -35,9 +38,8 @@ API = f'http://127.0.0.1:{PORT}/api'
 BOARDS = ('0F01', '0F02', '0F03')
 NAMES = {b: f'iMouse2-Z{i + 1}' for i, b in enumerate(BOARDS)}
 RECEIVER_PORTS = {b: 7900 + 10 * i for i, b in enumerate(BOARDS)}
-RUNTIME_FILES = ('libexec/gstreamer-1.0/gst-plugin-scanner.exe',) + tuple(f'lib/gstreamer-1.0/libgst{n}.dll' for n in (
-    'app', 'coreelements', 'libav', 'videoparsersbad', 'videoconvertscale', 'playback', 'autodetect', 'audioconvert',
-    'audioresample', 'volume', 'level'))
+sys.path.insert(0, str(ROOT / 'tools'))
+from farm_release import RECEIVER_RUNTIME_REQUIRED as RUNTIME_FILES  # noqa: E402  (what the kernel insists a runtime holds)
 results = []
 
 
@@ -99,6 +101,16 @@ def wait(predicate, seconds=20):
 def last_record(path): return json.loads(Path(path).read_text(encoding='utf-8-sig').strip().splitlines()[-1])
 
 
+def stand_ins(build=None):
+    """Running stand-in receivers; with a build folder, only the ones started from it (this run's own)."""
+    out = subprocess.run(['powershell.exe', '-NoProfile', '-Command',
+                          "@(Get-CimInstance Win32_Process -Filter \"Name='offrack-receiver.exe'\" | Select-Object ProcessId,ParentProcessId,ExecutablePath) | ConvertTo-Json -Compress"],
+                         stdin=subprocess.DEVNULL, capture_output=True, text=True, errors='replace', timeout=120).stdout.strip()
+    got = json.loads(out) if out else []
+    got = got if isinstance(got, list) else [got]
+    return [p for p in got if build is None or (p.get('ExecutablePath') or '').lower().startswith(str(build).lower())]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--kernel', required=True)
@@ -137,53 +149,55 @@ def main():
     # Sandbox: the real scripts, at the same relative layout, seeing only this trial's preparation.
     box = run / 'sandbox' / 'analysis' / 'rack'
     box.mkdir(parents=True)
-    for script in ('Start-Multiphone.ps1', 'Stop-Multiphone.ps1', 'Release-Receiver.ps1', 'Restart-Receiver.ps1', 'rack_kernels.py', 'rack_recovery.py'):
+    for script in ('RackState.ps1', 'Start-Multiphone.ps1', 'Stop-Multiphone.ps1', 'Release-Receiver.ps1', 'Restart-Receiver.ps1', 'rack_kernels.py', 'rack_recovery.py'):
         shutil.copy2(RACK / script, box / script)
     (run / 'sandbox/tools/kernel-window').mkdir(parents=True)
     shutil.copy2(ROOT / 'tools/mdns_goodbye.py', run / 'sandbox/tools/mdns_goodbye.py')
     shutil.copy2(ROOT / 'tools/farm_paths.py', run / 'sandbox/tools/farm_paths.py')
     shutil.copy2(ROOT / 'tools/kernel-window/Stop-ConsoleProcessGracefully.ps1', run / 'sandbox/tools/kernel-window/')
-    rack_b = box / 'rack-b'; rack_b.mkdir()
+    slots = box / 'slots'; slots.mkdir()   # The kernel's one state folder, as on the rack.
     arguments = [f'http://127.0.0.1:{PORT}/api/', '--data-dir', str(data), '--input-pid', '0F01', '--receivers', str(data / 'receivers.json'),
-                 '--receiver', str(receiver_exe), '--receiver-runtime', str(runtime), '--hold-receivers', '0F03', '--rack', 'B']
-    prep = dict(runDirectory=str(run), kernel=str(kernel), kernelSha256=sha(kernel.with_suffix('.dll')), arguments=arguments, rack='B',
+                 '--receiver', str(receiver_exe), '--receiver-runtime', str(runtime), '--hold-receivers', '0F03']
+    prep = dict(runDirectory=str(run), kernel=str(kernel), kernelSha256=sha(kernel.with_suffix('.dll')), arguments=arguments,
                 api=API, held=['0F03'], boards=list(BOARDS), inputEnabled=['0F01'],
                 receivers=[dict(board=b, name=NAMES[b], port=RECEIVER_PORTS[b]) for b in BOARDS],
                 dataSha256={n: sha(data / n) for n in ('devices.json', 'receivers.json', 'pointer-calibration.json')},
                 offrackTrial=True, serviceStarted=False, phoneInput=False)
-    (rack_b / 'preparation.json').write_text(json.dumps(prep, indent=2), encoding='utf-8')
+    (slots / 'preparation.json').write_text(json.dumps(prep, indent=2), encoding='utf-8')
 
-    # --- Start through the real script. Beside the live single kernel it must refuse and start nothing. ---
-    code, out = ps(box / 'Start-Multiphone.ps1', '-Rack', 'B')
-    single_running = before is not None
-    if single_running:
-        check(code != 0 and 'single kernel' in out and not (rack_b / 'processes.json').exists() and port_free(PORT),
-              'Start-Multiphone -Rack B refuses beside the running single kernel and starts nothing')
-        # Start the trial kernel exactly as the script would, then write its process record.
+    # --- Start through the real script, as a real preparation: while any other kernel, receiver or farm
+    # process runs it must refuse and start nothing. ---
+    code, out = ps(box / 'Start-Multiphone.ps1')
+    refused = code != 0
+    # From here on the trial is a sandbox: the scripts look only at its own kernel, receivers and ports.
+    (slots / 'preparation.json').write_text(json.dumps(dict(prep, sandbox=True), indent=2), encoding='utf-8')
+    if refused:
+        check('Nothing was stopped or started' in out and not (slots / 'processes.json').exists() and port_free(PORT),
+              'Start-Multiphone refuses a real preparation while something of the farm runs, and starts nothing: ' + out[-200:].replace('\n', ' | '))
+        # Start the trial kernel attached (no stop file), then write its process record.
         # The kernel inherits its launcher's handles, so the launcher's output goes to a file, not a pipe.
-        pid_file = rack_b / 'trial-kernel-pid.txt'
+        pid_file = slots / 'trial-kernel-pid.txt'
         launch = ('$p=Start-Process -FilePath "{k}" -ArgumentList \'{a}\' -WorkingDirectory "{w}" -WindowStyle Hidden -PassThru '
                   '-RedirectStandardOutput "{o}" -RedirectStandardError "{e}"; Set-Content -LiteralPath "{f}" -Value $p.Id').format(
-            k=kernel, a=' '.join(f'"{x}"' for x in arguments), w=kernel.parent, o=rack_b / 'kernel.stdout.txt', e=rack_b / 'kernel.stderr.txt', f=pid_file)
+            k=kernel, a=' '.join(f'"{x}"' for x in arguments), w=kernel.parent, o=slots / 'kernel.stdout.txt', e=slots / 'kernel.stderr.txt', f=pid_file)
         subprocess.run(['powershell.exe', '-NoProfile', '-Command', launch], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                        stderr=subprocess.DEVNULL, timeout=60, check=True)
         pid = int(pid_file.read_text(encoding='utf-8-sig').strip())
-        (rack_b / 'processes.json').write_text(json.dumps(dict(utc=datetime.now(timezone.utc).isoformat(), kernel=dict(pid=pid, path=str(kernel)),
-                                                                rack='B', api=API, phoneInput=False)), encoding='utf-8')
+        (slots / 'processes.json').write_text(json.dumps(dict(utc=datetime.now(timezone.utc).isoformat(), kernel=dict(pid=pid, path=str(kernel)),
+                                                               api=API, phoneInput=False)), encoding='utf-8')
     else:
-        check(code == 0, 'Start-Multiphone -Rack B starts the trial kernel (no live kernel running): ' + out[-200:])
+        check((slots / 'processes.json').exists(), 'Start-Multiphone starts the trial kernel (nothing else of the farm running): ' + out[-200:].replace('\n', ' | '))
     try:
         check(wait(lambda: rows()['iMouse2-Z1']['receiver_pid'] > 0 and rows()['iMouse2-Z2']['receiver_pid'] > 0
                    and rows()['iMouse2-Z1']['live'] and rows()['iMouse2-Z2']['live']),
               'Trial kernel up: Z1 and Z2 running with live frames')
-        status = get(API + '/kernel/status')
-        check(status['rack'] == 'B' and rows()['iMouse2-Z3']['receiver_state'] == 'held', 'Status reports rack B, and Z3 held')
+        check(rows()['iMouse2-Z3']['receiver_state'] == 'held' and rows()['iMouse2-Z3']['receiver_pid'] == 0, 'Z3 starts held: no process, nothing advertised')
         start = rows()
 
         # --- Restart one receiver through Restart-Receiver.ps1. ---
         z2_frames = start['iMouse2-Z2']['frames']
-        code, out = ps(box / 'Restart-Receiver.ps1', '-Rack', 'B', '-Board', '0F01')
-        rec = last_record(rack_b / 'restarts.jsonl')
+        code, out = ps(box / 'Restart-Receiver.ps1', '-Board', '0F01')
+        rec = last_record(slots / 'restarts.jsonl')
         check(code == 0 and rec['code'] == 0 and rec['withdrawn'] and rec['generation_after'] == 2
               and rec['pid_after'] > 0 and rec['pid_after'] != rec['pid_before'] and rec['others_changed'] == [],
               'Restart-Receiver restarts Z1 alone: new child, generation 2, goodbye sent, others unchanged')
@@ -193,48 +207,48 @@ def main():
               and now['iMouse2-Z2']['live'], "Z2's child and frames ran on through Z1's restart")
 
         # --- Withdraw, then release again. ---
-        code, out = ps(box / 'Restart-Receiver.ps1', '-Rack', 'B', '-Board', '0F02', '-Withdraw')
-        rec = last_record(rack_b / 'restarts.jsonl')
+        code, out = ps(box / 'Restart-Receiver.ps1', '-Board', '0F02', '-Withdraw')
+        rec = last_record(slots / 'restarts.jsonl')
         check(code == 0 and rec['state'] == 'held' and rec['pid_after'] == 0 and rec['others_changed'] == [],
               'Restart-Receiver -Withdraw stops and withdraws Z2 alone')
         check(not port_free(RECEIVER_PORTS['0F01']) and port_free(RECEIVER_PORTS['0F02']), "Z2's port is released; Z1's is still held")
-        code, out = ps(box / 'Release-Receiver.ps1', '-Rack', 'B', '-Board', '0F02')
-        rel = last_record(rack_b / 'releases.jsonl')
-        check(code == 0 and rel['started'] and rel['receiver_pid'] > 0, 'Release-Receiver -Rack B advertises the withdrawn Z2 again')
-        code, out = ps(box / 'Release-Receiver.ps1', '-Rack', 'B', '-Board', '0F03')
-        check(code == 0 and last_record(rack_b / 'releases.jsonl')['receiver_pid'] > 0, 'Release-Receiver starts the held-at-start Z3')
-        code, out = ps(box / 'Restart-Receiver.ps1', '-Rack', 'B', '-Board', '0F03', '-Hold')
-        check(code == 0 and last_record(rack_b / 'restarts.jsonl')['state'] == 'held', 'Restart-Receiver -Hold leaves Z3 withdrawn')
+        code, out = ps(box / 'Release-Receiver.ps1', '-Board', '0F02')
+        rel = last_record(slots / 'releases.jsonl')
+        check(code == 0 and rel['started'] and rel['receiver_pid'] > 0, 'Release-Receiver advertises the withdrawn Z2 again')
+        code, out = ps(box / 'Release-Receiver.ps1', '-Board', '0F03')
+        check(code == 0 and last_record(slots / 'releases.jsonl')['receiver_pid'] > 0, 'Release-Receiver starts the held-at-start Z3')
+        code, out = ps(box / 'Restart-Receiver.ps1', '-Board', '0F03', '-Hold')
+        check(code == 0 and last_record(slots / 'restarts.jsonl')['state'] == 'held', 'Restart-Receiver -Hold leaves Z3 withdrawn')
 
         # --- The lease guard: a leased phone's receiver is not cut without that lease's token. ---
         lease = post(dict(fun='/input/acquire', data=dict(id='offrack-Z1', lease_ms=20000)))
         token = lease['leases'][0]['token']
         z1 = rows()['iMouse2-Z1']
-        code, out = ps(box / 'Restart-Receiver.ps1', '-Rack', 'B', '-Board', '0F01')
+        code, out = ps(box / 'Restart-Receiver.ps1', '-Board', '0F01')
         check(code != 0 and 'input lease' in out and rows()['iMouse2-Z1']['receiver_pid'] == z1['receiver_pid'],
               'Restart of a leased phone is refused without its token; nothing stopped')
-        code, out = ps(box / 'Restart-Receiver.ps1', '-Rack', 'B', '-Board', '0F01', '-Token', token)
-        check(code == 0 and last_record(rack_b / 'restarts.jsonl')['generation_after'] == 3, 'The lease holder can restart its own phone')
+        code, out = ps(box / 'Restart-Receiver.ps1', '-Board', '0F01', '-Token', token)
+        check(code == 0 and last_record(slots / 'restarts.jsonl')['generation_after'] == 3, 'The lease holder can restart its own phone')
         check(post(dict(fun='/input/renew', data=dict(id='offrack-Z1', token=token)))['code'] == 0, 'The lease is intact after the restart')
         check(post(dict(fun='/device/airplay/restart', data=dict(pid='0F09')))['code'] == 36, 'An unknown board is refused')
 
-        # --- A rack start beside its own running kernel is refused. ---
-        code, out = ps(box / 'Start-Multiphone.ps1', '-Rack', 'B')
-        check(code != 0 and 'process record' in out, 'Start-Multiphone refuses a second rack B kernel')
+        # --- A second start beside its own running kernel is refused. ---
+        code, out = ps(box / 'Start-Multiphone.ps1')
+        check(code != 0 and 'process record' in out, 'Start-Multiphone refuses to start the same kernel twice')
     finally:
-        # --- Stop through the real script: graceful stop, rack-scoped leftover check, goodbye. ---
-        code, out = ps(box / 'Stop-Multiphone.ps1', '-Rack', 'B')
-        check(code == 0 and 'Stopped rack B' in out, 'Stop-Multiphone -Rack B stops the trial kernel: ' + out[-300:].replace('\n', ' | '))
+        # --- Stop through the real script: graceful stop, leftover check, goodbye. ---
+        code, out = ps(box / 'Stop-Multiphone.ps1')
+        check(code == 0 and 'Stopped:' in out, 'Stop-Multiphone stops the trial kernel: ' + out[-300:].replace('\n', ' | '))
         if code != 0:
-            # Last resort, only this trial's own processes: the :9936 kernel and its stand-in receivers.
+            # Last resort, only this trial's own processes: the :9936 kernel and the stand-ins from this run's build.
             subprocess.run(['powershell.exe', '-NoProfile', '-Command',
-                            "Get-CimInstance Win32_Process | Where-Object { ($_.Name -eq 'iMouse2.Kernel.exe' -and $_.CommandLine -match '127\\.0\\.0\\.1:9936/') "
-                            "-or $_.Name -eq 'offrack-receiver.exe' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"],
+                            "Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'iMouse2.Kernel.exe' -and $_.CommandLine -match '127\\.0\\.0\\.1:9936/' } "
+                            "| ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"],
                            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60)
-        left = subprocess.run(['powershell.exe', '-NoProfile', '-Command',
-                               "@(Get-CimInstance Win32_Process -Filter \"Name='offrack-receiver.exe'\").Count"],
-                              capture_output=True, text=True, timeout=60).stdout.strip()
-        check(left == '0' and port_free(PORT) and all(port_free(p) for p in RECEIVER_PORTS.values()),
+            for p in stand_ins(fake):
+                subprocess.run(['powershell.exe', '-NoProfile', '-Command', f"Stop-Process -Id {p['ProcessId']} -Force"],
+                               stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60)
+        check(not stand_ins(fake) and port_free(PORT) and all(port_free(p) for p in RECEIVER_PORTS.values()),
               'No trial kernel, stand-in receiver or listener remains')
         after = live_snapshot()
         check(before == after, 'The live kernel on :9916 is as before (same receivers, PIDs and restart counts)'

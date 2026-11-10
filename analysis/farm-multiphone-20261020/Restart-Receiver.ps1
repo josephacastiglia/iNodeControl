@@ -1,22 +1,16 @@
-# Restarts or withdraws ONE receiver on a running multi-phone kernel (built 4 Nov or later), without
-# stopping the kernel or any other receiver. The kernel stops that board's UxPlay, confirms its exit,
-# sends the AirPlay goodbye a killed UxPlay never sends, then starts it again (default) or keeps it held.
+# Restarts or withdraws ONE receiver on the running kernel (built 4 Nov or later), without stopping the
+# kernel or any other receiver. The kernel stops that board's UxPlay, confirms its exit, sends the
+# AirPlay goodbye a killed UxPlay never sends, then starts it again (default) or keeps it held.
 # Sends no phone input. A phone whose input another controller leases is refused unless -Token is that
 # lease's token. After a restart the phone must choose the receiver again in Screen Mirroring.
-#   -Board C24C [-Stage slots | -Rack A|B] [-Hold] [-Withdraw] [-Token <lease token>]
+#   -Board C24C [-Hold] [-Withdraw] [-Token <lease token>]
 #   -Hold      stop and withdraw, start nothing (Release-Receiver.ps1 advertises it again)
 #   -Withdraw  same as -Hold, through /device/airplay/withdraw
-param([Parameter(Mandatory)][ValidatePattern('^[0-9A-Fa-f]{4}$')][string]$Board,[ValidateSet('','held','slots')][string]$Stage='',
-    [ValidateSet('','A','B')][string]$Rack='',[switch]$Hold,[switch]$Withdraw,[string]$Token='')
+param([Parameter(Mandatory)][ValidatePattern('^[0-9A-Fa-f]{4}$')][string]$Board,[switch]$Hold,[switch]$Withdraw,[string]$Token='')
 $ErrorActionPreference='Stop'
-# State (preparations, process records, logs) sits beside this script in a checkout; installed, Farm.ps1 sets
-# IMOUSE_FARM_DATA and the state is in the data folder. Python: IMOUSE_FARM_PYTHON when installed, else PATH.
-$taskState=if($env:IMOUSE_FARM_DATA){Join-Path $env:IMOUSE_FARM_DATA 'analysis\farm-multiphone-20261020'}else{$PSScriptRoot}
-if($Stage -and $Rack){throw 'Choose -Stage or -Rack, not both.'}
-if(!$Stage -and !$Rack){$Stage='slots'}
-$taskDir=if($Rack){Join-Path $taskState ('rack-'+$Rack.ToLowerInvariant())}else{Join-Path $taskState $Stage}
+. (Join-Path $PSScriptRoot 'RackState.ps1')
+$taskDir=Get-RackKernelFolder
 $taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json
-if([string]$taskPrep.rack -cne $Rack){throw "The preparation's rack ('$($taskPrep.rack)') is not -Rack '$Rack'."}
 $taskApi=([string]$taskPrep.arguments[0]).TrimEnd('/')
 $taskProcs=Get-Content -LiteralPath (Join-Path $taskDir 'processes.json') -Raw | ConvertFrom-Json
 $taskKernel=Get-CimInstance Win32_Process -Filter "ProcessId=$($taskProcs.kernel.pid)"
@@ -45,7 +39,7 @@ $taskMoved=@($taskBefore | Where-Object name -ne $taskName | ForEach-Object {
     $n=$_.name; $now=@($taskAfter | Where-Object name -eq $n)[0]
     if($now.receiver_pid -ne $_.receiver_pid -or $now.receiver_generation -ne $_.receiver_generation){$n}
 })
-$taskRecord=[pscustomobject]@{utc=[datetime]::UtcNow.ToString('o');rack=$Rack;board=$Board;receiver=$taskName;action=$taskFun;hold=$taskData.hold;
+$taskRecord=[pscustomobject]@{utc=[datetime]::UtcNow.ToString('o');board=$Board;receiver=$taskName;action=$taskFun;hold=$taskData.hold;
     code=$taskResult.code;message=$taskResult.message;withdrawn=$taskResult.withdrawn;started=$taskResult.started;
     pid_before=$taskOld.receiver_pid;pid_after=$taskRow.receiver_pid;generation_before=$taskOld.receiver_generation;generation_after=$taskRow.receiver_generation;
     state=$taskRow.receiver_state;others_changed=@($taskMoved)}

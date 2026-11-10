@@ -1,8 +1,0 @@
-Starting raw-discard (5s)
-{"raw-discard": {"status": "insufficient_samples"}}
-Starting raw-bridge (5s)
-{"raw-bridge": {"status": "insufficient_samples"}}
-Starting h264-discard (5s)
-{"h264-discard": {"status": "insufficient_samples"}}
-Starting h264-bridge (5s)
-{"h264-bridge": {"status": "insufficient_samples"}}

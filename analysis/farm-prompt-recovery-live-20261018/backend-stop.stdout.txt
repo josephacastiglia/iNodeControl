@@ -1,3 +1,0 @@
-23:16:00.393 stopping PID 43560 (python.exe); children: 47100 conhost.exe
-23:16:00.604 processes attached to PID 43560's console: 14392 powershell.exe, 43560 python.exe
-23:16:01.174 PID 43560 exited; children still running: none

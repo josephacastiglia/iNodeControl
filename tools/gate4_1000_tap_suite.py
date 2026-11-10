@@ -48,7 +48,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve()
 # Hashed with line endings folded to LF. With core.autocrlf a Windows checkout rewrites this file
 # as CRLF, which would otherwise give the same commit a different hash on every machine. Folded,
-# it equals the hash of the committed blob:  git show <commit>:tools/gate4_v2/gate4_suite.py | sha256sum
+# it equals the hash of the committed blob:  git show <commit>:tools/gate4_1000_tap_suite.py | sha256sum
 HARNESS_SHA256 = hashlib.sha256(HERE.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 CATEGORIES = ("after_home", "long_move", "after_app_switch", "after_swipe", "after_interruption")

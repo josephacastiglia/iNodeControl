@@ -1,13 +1,11 @@
 # Stops one window's backend (and only it). Leaves the kernel, receivers and other windows running.
 param([Parameter(Mandatory)][ValidatePattern('^[a-z]+(-[a-z]+)?-slot\d+$')][string]$Window)
 $ErrorActionPreference='Stop'
-# State (preparations, process records, logs) sits beside this script in a checkout; installed, Farm.ps1 sets
-# IMOUSE_FARM_DATA and the state is in the data folder. Python: IMOUSE_FARM_PYTHON when installed, else PATH.
-$taskState=if($env:IMOUSE_FARM_DATA){Join-Path $env:IMOUSE_FARM_DATA 'analysis\farm-multiphone-20261020'}else{$PSScriptRoot}
-$taskDir=Join-Path $taskState "windows\$Window"
+. (Join-Path $PSScriptRoot 'RackState.ps1')
+$taskDir=Get-RackState "windows\$Window"
 $taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json
 $taskProcs=Get-Content -LiteralPath (Join-Path $taskDir 'processes.json') -Raw | ConvertFrom-Json
-# The kernel the window's rack preparation starts (the single kernel's is :9916; a rack's own kernel has its own port).
+# The kernel API is the one the rack preparation starts (:9916 unless the preparation says otherwise).
 $taskApi='http://127.0.0.1:9916/api'
 if($taskPrep.rackPreparation -and (Test-Path -LiteralPath $taskPrep.rackPreparation)){$taskApi=([string](Get-Content -LiteralPath $taskPrep.rackPreparation -Raw | ConvertFrom-Json).arguments[0]).TrimEnd('/')}
 $taskBefore=(Invoke-RestMethod "$taskApi/" -Method Post -ContentType 'application/json' -Body '{"fun":"/input/status","data":{}}' -TimeoutSec 5).data

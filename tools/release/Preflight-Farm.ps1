@@ -122,7 +122,7 @@ Invoke-Probe {
 } 'usb-boards'
 Invoke-Probe {
     $vendor = Get-Service -Name 'iMouseService' -ErrorAction SilentlyContinue
-    if ($vendor -and $vendor.Status -eq 'Running') { Add-Check 'vendor-service' 'fail' 'the vendor iMouseService is running and can hold the boards' '(admin) Stop the vendor service and set it to Disabled (services.msc > iMouseService). Keep the vendor software installed; tools/restore_vendor_services.ps1 restores it.' }
+    if ($vendor -and $vendor.Status -eq 'Running') { Add-Check 'vendor-service' 'fail' 'the vendor iMouseService is running and can hold the boards' '(admin) Stop the vendor service and set it to Disabled (services.msc > iMouseService). Keep the vendor software installed: to use it again later, set the service back to Automatic there and start it.' }
     elseif ($vendor) { Add-Check 'vendor-service' 'ok' "vendor iMouseService present, $($vendor.Status)" }
     else { Add-Check 'vendor-service' 'ok' 'no vendor iMouseService' }
 } 'vendor-service'
@@ -189,10 +189,10 @@ Invoke-Probe {
     elseif ($drive) { Add-Check 'disk' 'ok' ("{0:N1} GB free" -f ($drive.Free / 1GB)) }
 } 'folders'
 
-# 10. Ports the farm listens on (loopback kernels and backends); in use now = a farm or another app runs
+# 10. Ports the farm listens on (the loopback kernel and backends); in use now = a farm or another app runs
 Invoke-Probe {
     $listen = @(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | ForEach-Object LocalPort | Sort-Object -Unique)
-    $busy = @(9916, 9926, 9915, 9925, 9935, 9945 | Where-Object { $_ -in $listen })
+    $busy = @(9916, 9915, 9925, 9935, 9945 | Where-Object { $_ -in $listen })
     if ($busy.Count) { Add-Check 'ports' 'warn' "in use now: $($busy -join ', ')" 'If no farm is running on this PC, find the program on those ports (Get-NetTCPConnection -LocalPort <port>) and close it.' }
     else { Add-Check 'ports' 'ok' 'kernel and backend ports are free' }
 } 'ports'

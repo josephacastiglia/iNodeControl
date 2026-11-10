@@ -1,3 +1,0 @@
-02:15:37.053 stopping PID 26976 (python.exe); children: 34136 conhost.exe
-02:15:37.344 processes attached to PID 26976's console: 27672 powershell.exe, 26976 python.exe
-02:15:38.145 PID 26976 exited; children still running: none

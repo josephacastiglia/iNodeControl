@@ -1,1 +1,0 @@
-Runtime bytes verified; local tests only, no installation or distribution approval.

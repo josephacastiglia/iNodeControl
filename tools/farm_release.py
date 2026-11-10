@@ -8,6 +8,7 @@ A package is a folder (and optionally a zip of it) with this layout:
   kernel/                              iMouse2.Kernel.{exe,dll,deps.json,runtimeconfig.json,pdb}
   console/                             iMouse2.{exe,dll,deps.json,runtimeconfig.json,pdb}
   receiver/uxplay.exe, receiver/runtime/**   patched UxPlay and its GStreamer/MSYS2 runtime
+  receiver/LICENSE, NOTICE.md, source/**     UxPlay's licence (GPL 3), what was changed, and the source it was built from
   farm/tools/**, farm/analysis/farm-multiphone-20261020/**   the farm's Python/PowerShell, same relative layout
 
 Private, per-machine state is never packaged: rack preparations and process records, phone-slot and
@@ -44,24 +45,37 @@ RACK_DIR = 'analysis/farm-multiphone-20261020'
 KERNEL_FILES = tuple('iMouse2.Kernel' + s for s in ('.exe', '.dll', '.deps.json', '.runtimeconfig.json', '.pdb'))
 CONSOLE_FILES = tuple('iMouse2' + s for s in ('.exe', '.dll', '.deps.json', '.runtimeconfig.json', '.pdb'))
 FRAMEWORKS = {'kernel': {'Microsoft.NETCore.App'}, 'console': {'Microsoft.NETCore.App', 'Microsoft.WindowsDesktop.App'}}
-RECEIVER_RUNTIME_REQUIRED = ('libexec/gstreamer-1.0/gst-plugin-scanner.exe',)
+# What the kernel refuses to start a receiver without (src/iMouse.Kernel/ReceiverRuntime.cs holds the same list;
+# a test compares them). The receiver's appsink/fakesink mode still checks playback and autodetect and builds
+# its AAC/ALAC audio pipelines, so these are needed although no PE import names them. The one Python list:
+# the runtime audit, the off-rack trials and the rehearsal's stand-in runtime all read it.
+RECEIVER_RUNTIME_REQUIRED = ('libexec/gstreamer-1.0/gst-plugin-scanner.exe',) + tuple(f'lib/gstreamer-1.0/libgst{n}.dll' for n in (
+    'app', 'coreelements', 'libav', 'videoparsersbad', 'videoconvertscale', 'playback', 'autodetect', 'audioconvert',
+    'audioresample', 'volume', 'level'))
+# The receiver is GPL 3 software. Wherever its binary goes, its licence, a notice of what was changed and
+# the source it was built from go with it: tools/airplay (upstream UxPlay, our patches, the build script).
+RECEIVER_SOURCE = 'tools/airplay'
+# Third-party files carried as they are: the private-path patterns (captures, logs, keys) do not apply to them.
+THIRD_PARTY = ('receiver/runtime/', 'receiver/source/')
+RECEIVER_SOURCE_FILES = ('UPSTREAM.md', 'build-receiver.sh')
+RECEIVER_SOURCE_FOLDERS = ('patches', 'uxplay')
+RECEIVER_BUILD_FOLDERS = ('build', 'build-imouse')   # CMake output inside uxplay/: never source
+RECEIVER_SOURCE_REQUIRED = ('receiver/LICENSE', 'receiver/NOTICE.md') + tuple('receiver/source/' + n for n in (
+    'UPSTREAM.md', 'build-receiver.sh', 'uxplay/LICENSE', 'uxplay/CMakeLists.txt', 'uxplay/uxplay.cpp', 'uxplay/lib/CMakeLists.txt',
+    'uxplay/lib/playfair/LICENSE.md', 'uxplay/lib/llhttp/LICENSE-MIT', 'uxplay/renderers/imouse_frame_pipe.h'))
 
 # Farm entry points. Their local imports and every tools/ or rack file they name are added too.
 ENTRIES = ('tools/imouse_farm_server.py', 'tools/farm_schedule_cli.py', 'tools/farm_schedule_runner.py',
            'tools/farm_photos_cleanup.py', 'tools/mdns_goodbye.py', 'tools/requirements-farm.txt')
 RACK_SCRIPT_GLOBS = ('*.py', '*.ps1')
-# One-off rack probes and bring-up helpers with machine-specific values (phone IPs, a fixed path): not
-# packaged unless an operator script names them.
-DEV_ONLY = {'identify_rack_b.py', 'connect_xr.ps1', 'connect_small.ps1', 'learn_rack_b.ps1', 'board_probe.py',
-            'one_tap.py', 'switcher_probe.py', 'open_app_look.py',
-            # 20 Oct one-shot preparations: fixed run names, they refuse to run again (superseded by prepare_rack_a/b, rack_kernels).
-            'prepare_multiphone.py', 'prepare_slots.py'}
+# Supervised one-off helpers a developer runs by hand: not packaged unless an operator script names them.
+DEV_ONLY = {'one_tap.py'}
 
 # Never packaged, whatever references them. Matched against the package-relative path (case-insensitive).
 PRIVATE_PATTERNS = (
     '*/preparation*.json', 'preparation*.json', '*/processes*.json', '*/receivers-ready.json',
     '*/phone-slots.json', '*/rack-b-boards.json', '*/rack-b-slots.json', '*/rack-*-slots.json',
-    '*/slots/*', '*/held/*', '*/windows/*', '*/windows-archive/*', '*/rack-a/*', '*/rack-b/*',
+    '*/slots/*', '*/windows/*', '*/windows-archive/*',
     '*/identify/*', '*/autoconnect/*', '*/measure/*', '*/look/*', '*/data/*', '*/output/*',
     '*devices.json', '*receivers.json', '*pointer-calibration.json', '*settings.json', '*startup-state.json',
     '*ui-boxes.json', '*imservice.json', '*.db', '*.db-*', '*.sqlite*', '*.log', '*.jsonl', '*.etl',
@@ -87,11 +101,11 @@ LINT_RULES = (
     ('blocker', 'pinned interpreter path', re.compile(r'Python3\d+[\\/]+python\.exe', re.I)),
     ('blocker', 'state under the code folder (output/)', re.compile(r'''(?:ROOT|REPO|HERE|taskRoot|taskMain|parents\[\d\])[^\n]{0,40}['"]output(?:[\\/]|['"])''')),
     ('info', 'cwd-relative state (lands in the data folder: Farm.ps1 runs there)', re.compile(r'''^[^#\n]*Path\(\s*['"](?:output|config)[\\/]''')),
-    ('blocker', 'state beside the rack scripts ($PSScriptRoot)', re.compile(r'''Join-Path\s+\$PSScriptRoot\s+(?:\$Stage|\$Rack|\(?['"](?:windows|slots|held|rack-|processes|preparation|receivers-ready|identify|autoconnect|measure|look))''', re.I)),
-    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|FOLDER|folder)\s*/\s*f?['"](?:windows|slots|held|rack-|identify|autoconnect|card-survey|measure|look|phone-slots)''')),
+    ('blocker', 'state beside the rack scripts ($PSScriptRoot)', re.compile(r'''Join-Path\s+\$PSScriptRoot\s+\(?['"](?:windows|slots|processes|preparation|receivers-ready|identify|autoconnect|measure)''', re.I)),
+    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|FOLDER|folder)\s*/\s*f?['"](?:windows|slots|identify|autoconnect|card-survey|measure|phone-slots)''')),
     ('blocker', 'rack folder via repo layout', re.compile(r'''(?:ROOT|REPO|HERE)[^\n]{0,10}['"]analysis[\\/]+farm-multiphone-20261020['"]''')),
-    ('blocker', 'rack state via repo layout', re.compile(r'''['"]analysis[\\/]+farm-multiphone-20261020[\\/]+(?:slots|held|windows|rack-)''', re.I)),
-    ('info', 'hard-coded kernel port', re.compile(r'127\.0\.0\.1:99(?:13|16|26)')),
+    ('blocker', 'rack state via repo layout', re.compile(r'''['"]analysis[\\/]+farm-multiphone-20261020[\\/]+(?:slots|windows)''', re.I)),
+    ('info', 'hard-coded kernel port', re.compile(r'127\.0\.0\.1:99(?:13|16)')),
     ('info', 'repo-relative root (parents[N] / ..\\..)', re.compile(r'''parents\[[1-9]\]|Join-Path\s+\$PSScriptRoot\s+['"]\.\.[\\/]\.\.''')),
 )
 
@@ -216,6 +230,29 @@ def farm_files(repo):
         files[name] = path
         pending += sorted(references(path, folders) - seen)
     return dict(sorted(files.items())), sorted(private_refs)
+
+
+def receiver_source(repo):
+    """{package name: source path} for the receiver's licence, notice and corresponding source. Refuses an
+    incomplete set: a package with the binary and without these may not be passed on."""
+    root = Path(repo).resolve() / RECEIVER_SOURCE
+    out = {f'receiver/source/{n}': root / n for n in RECEIVER_SOURCE_FILES if (root / n).is_file()}
+    for folder in RECEIVER_SOURCE_FOLDERS:
+        for path in sorted((root / folder).rglob('*')):
+            rel = path.relative_to(root)
+            if path.is_file() and not (folder == 'uxplay' and rel.parts[1] in RECEIVER_BUILD_FOLDERS):
+                out['receiver/source/' + rel.as_posix()] = path
+    for name, source in (('receiver/LICENSE', 'receiver/source/uxplay/LICENSE'), ('receiver/NOTICE.md', 'receiver/source/UPSTREAM.md')):
+        if source in out:
+            out[name] = out[source]
+    missing = [n for n in RECEIVER_SOURCE_REQUIRED if n not in out]
+    if 'receiver/NOTICE.md' in out:  # every patch the notice names must be in the package
+        notice = out['receiver/NOTICE.md'].read_text(encoding='utf-8')
+        missing += sorted({f'receiver/source/{p}' for p in re.findall(r'patches/[\w.-]+\.patch', notice)} - out.keys())
+    if missing:
+        raise ValueError('receiver: its licence, notice and source must ship with the binary (GPL 3); missing '
+                         + ', '.join(n.removeprefix('receiver/source/') for n in missing))
+    return out
 
 
 def server_hash_names(server_source):
@@ -434,6 +471,7 @@ def plan(repo, kernel, console, receiver_exe, receiver_runtime):
     for path in sorted(receiver_runtime.rglob('*')):
         if path.is_file():
             copies['receiver/runtime/' + path.relative_to(receiver_runtime).as_posix()] = path
+    copies.update(receiver_source(repo))
     farm, _ = farm_files(repo)
     copies.update(farm)
     here = Path(__file__).resolve().parent
@@ -447,7 +485,7 @@ def plan(repo, kernel, console, receiver_exe, receiver_runtime):
         copies['INSTALL-FARM.md'] = guide  # the operator's one-page guide, at the package root
     for name in copies:
         safe_name(name)
-        if is_private(name) and not name.startswith('receiver/runtime/'):
+        if is_private(name) and not name.startswith(THIRD_PARTY):
             raise ValueError(f'private path refused: {name}')
     if len({n.casefold() for n in copies}) != len(copies):
         raise ValueError('case-colliding package paths')
@@ -468,6 +506,15 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
     if out.is_relative_to(repo) and not out.is_relative_to(repo / 'output'):
         raise ValueError('inside the checkout, packages go under output/ only')
     copies = plan(repo, kernel, console, receiver_exe, receiver_runtime)
+    # Each .pdb must be the one its .dll was built with (identity and content checksum), or a crash report
+    # from the field cannot be read. Only a build checks this: an installed package's bytes are pinned by
+    # release.json.
+    import managed_symbols
+    for component, assembly in (('kernel', 'iMouse2.Kernel'), ('console', 'iMouse2')):
+        try:
+            managed_symbols.verify_pair(copies[f'{component}/{assembly}.dll'], copies[f'{component}/{assembly}.pdb'])
+        except (ValueError, OSError) as error:
+            raise ValueError(f'{component}: {assembly}.pdb does not belong to {assembly}.dll ({error})') from error
     rows = {name: row(src) for name, src in copies.items()}
     problems = []
     for name, src in copies.items():
@@ -502,10 +549,15 @@ def build(repo, out, kernel, console, receiver_exe, receiver_runtime, version=No
         'schema_version': SCHEMA, 'kind': KIND, 'version': version, 'data_schema': DATA_SCHEMA,
         'created_utc': now.isoformat(), 'source': identity,
         'components': {
-            'kernel': {'entry': 'kernel/iMouse2.Kernel.exe', 'frameworks': frameworks['kernel'], 'sha256': rows['kernel/iMouse2.Kernel.dll']['sha256']},
-            'console': {'entry': 'console/iMouse2.exe', 'frameworks': frameworks['console']},
-            'receiver': {'entry': 'receiver/uxplay.exe', 'runtime': 'receiver/runtime',
-                         'redistribution_cleared': False, 'note': 'GStreamer/MSYS2 runtime for this operator\'s own PCs; not cleared for redistribution.'},
+            'kernel': {'entry': 'kernel/iMouse2.Kernel.exe', 'frameworks': frameworks['kernel'], 'sha256': rows['kernel/iMouse2.Kernel.dll']['sha256'],
+                       'pdb_matches_dll': True},
+            'console': {'entry': 'console/iMouse2.exe', 'frameworks': frameworks['console'], 'pdb_matches_dll': True},
+            'receiver': {'entry': 'receiver/uxplay.exe', 'runtime': 'receiver/runtime', 'sha256': rows['receiver/uxplay.exe']['sha256'],
+                         'licence': 'receiver/LICENSE', 'notice': 'receiver/NOTICE.md', 'source': 'receiver/source',
+                         'redistribution_cleared': False,
+                         'note': 'uxplay.exe is GPL 3 software and ships with its licence, notice and source. The GStreamer/MSYS2 runtime '
+                                 'beside it is for this operator\'s own PCs: its licences and sources are not collected, so the package is '
+                                 'not cleared for redistribution.'},
             'farm': {'root': 'farm', 'python': '3.11', 'requirements': 'farm/tools/requirements-farm.txt', 'pins': pins,
                      'server_hash_files': len(hashed), 'external_tools': ['ffmpeg', 'ffprobe (libx264)']},
         },
@@ -588,9 +640,9 @@ def verify(package, allow_unrecorded=False):
     required = {f'kernel/{n}' for n in KERNEL_FILES} | {f'console/{n}' for n in CONSOLE_FILES} | {
         'receiver/uxplay.exe', 'farm/tools/imouse_farm_server.py', 'farm/tools/requirements-farm.txt',
         'install/farm_install.py', 'install/farm_release.py', 'install/Preflight-Farm.ps1', 'install/Farm.ps1', 'Install-Farm.ps1'}
-    required |= {f'receiver/runtime/{n}' for n in RECEIVER_RUNTIME_REQUIRED}
+    required |= {f'receiver/runtime/{n}' for n in RECEIVER_RUNTIME_REQUIRED} | set(RECEIVER_SOURCE_REQUIRED)
     issues += [f'required file absent: {n}' for n in sorted(required - expected.keys())]
-    issues += [f'private path in package: {n}' for n in expected if is_private(n) and not n.startswith('receiver/runtime/')]
+    issues += [f'private path in package: {n}' for n in expected if is_private(n) and not n.startswith(THIRD_PARTY)]
     if manifest.get('components', {}).get('kernel', {}).get('sha256') != expected.get('kernel/iMouse2.Kernel.dll', {}).get('sha256'):
         issues.append('kernel identity does not match its DLL')
     return issues

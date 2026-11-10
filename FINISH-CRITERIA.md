@@ -92,7 +92,7 @@ suite's isolation audit attributes all 18 to a baseline-capture race in the harn
 (the non-target phone photographed while still dismissing the previous trial), not
 to cross-phone input, which gives 0 unintended phone actions. The run and its audit
 were produced by the same agent and have not been independently reviewed
-(`ACCOUNT-HANDOFF.md` section 2, on branch `claude/input-timeout-integration`).
+(preserved as it was found, on branch `handoff/main-uncommitted-20260925`; see [docs/EVIDENCE.md](docs/EVIDENCE.md) section 2).
 
 *What the written criterion still requires:*
 
@@ -131,8 +131,7 @@ after the run finished (01:08) and after its isolation audit (01:48), and the au
 code the file no longer contains. No earlier version is in git or the 28 Sep backup.
 
 The revised harness originally preserved on `claude/gate4-harness-v2` is now
-consolidated into `tools/gate4_1000_tap_suite.py`; `tools/gate4_v2/gate4_suite.py`
-is a compatibility entry point to that same implementation. It addresses the
+consolidated into `tools/gate4_1000_tap_suite.py`. It addresses the
 isolation-baseline race with explicit settled-Home checks and stops when that
 baseline cannot be established. Its mock tests do not change this historical run.
 See [the current harness guide](tools/gate4_v2/README.md) and
@@ -258,7 +257,7 @@ components. It is not a measurement from a user's click in the delivered console
 
 Source reports:
 
-- [Two-phone status and evidence](TWO-PHONE-TEST.md)
+- Two-phone status and evidence: `TWO-PHONE-TEST.md` at tag `evidence-20261109` (see [docs/EVIDENCE.md](docs/EVIDENCE.md))
 - [Receiver restart and recovery](analysis/UXPLAY-AUTORESTART-TEST.md)
 - [Matched console comparison](analysis/console-compare-20260915/REPORT.md)
 - [Follow-up master-view measurements](analysis/c241-master-20260915/REPORT.md)
