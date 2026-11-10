@@ -325,6 +325,7 @@ public static class SelfTests
         await InputSessionTests.HomeSequenceAsync(Check);
         await InputSessionTests.NavigationAsync(Check);
         await KernelStartupTests.RunAsync(Check);
+        await ConsoleLogTests.RunAsync(Check);
         await ApiHttpTests.RunAsync(Check);
         await ApiHttpTests.StartupOrderAsync(Check);
         File.Delete(file);Directory.Delete(testDir);

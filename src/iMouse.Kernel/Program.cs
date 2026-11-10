@@ -30,7 +30,7 @@ Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
 if (options.ConsoleLog is { } consoleLog)
 {
     // Detached (WMI) launch has no redirected console: write what the console would show to a file.
-    var log = new StreamWriter(new FileStream(consoleLog, FileMode.Append, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete)) { AutoFlush = true };
+    var log = new ConsoleLogFile(consoleLog);
     Console.SetOut(log); Console.SetError(log);
 }
 Console.WriteLine("Kernel pid " + Environment.ProcessId + " started " + DateTime.UtcNow.ToString("o") + ".");
