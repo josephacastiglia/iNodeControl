@@ -18,8 +18,9 @@ addresses of the plan are left out of both.
       processes.json. When that kernel has died it stops the receivers it left (useless without it and
       holding its ports), withdraws their names, starts the kernel again (Start-Multiphone.ps1) and
       runs the bring-up. It never touches a kernel that is running, even one whose API is silent (it
-      reports that), and never restarts a kernel stopped on purpose (Stop-Multiphone.ps1 renames its
-      record). At most --max-restarts an hour, then it stops and says so. Pause it without stopping
+      reports that), and never restarts a kernel stopped on purpose (Stop-Multiphone.ps1 marks the stop
+      in stopping.json before it begins and renames the record when it is done) or one that is still
+      starting (processes-starting.json). At most --max-restarts an hour, then it stops and says so. Pause it without stopping
       it: create watchdog-pause beside the preparation. Log: watchdog.jsonl beside the preparation.
       Exit 3 when it gives up, or when a --once check restarted the kernel and the start or the
       bring-up fell short ('ok': false in the log line).
@@ -386,14 +387,23 @@ def summary(report):
 
 # ---------------------------------------------------------------- watchdog
 
-def decide(record, kernel_alive, api_alive, paused, recent_restarts, max_restarts=3):
+def decide(record, kernel_alive, api_alive, paused, recent_restarts, max_restarts=3, stopping=False):
     """What the watchdog does now. Restarting is only for a kernel that is recorded as running
-    and is gone; a stopped kernel (no record) and a hung one (alive, API silent) are left alone."""
+    and is gone; a stopped kernel (no record), one being stopped on purpose (`stopping`) and a hung
+    one (alive, API silent) are left alone."""
     if paused: return 'paused'
     if record is None: return 'idle'                   # Stopped on purpose, or never started.
     if kernel_alive: return 'healthy' if api_alive else 'unresponsive'
+    if stopping: return 'stopping'                     # Gone because Stop-Multiphone.ps1 asked; its record is renamed last.
     if recent_restarts >= max_restarts: return 'give-up'
     return 'restart'
+
+
+def stop_requested(folder, record):
+    """True when Stop-Multiphone.ps1 has marked this record's kernel as being stopped on purpose
+    (stopping.json names its PID; the script writes it before the kernel is asked to exit)."""
+    try: return bool(record) and int(load(Path(folder) / 'stopping.json')['pid']) == int(record['kernel']['pid'])
+    except (OSError, ValueError, KeyError, TypeError): return False
 
 
 def tick_ok(entry):
@@ -454,7 +464,10 @@ def watch(folder, interval, bringup, once, max_restarts=3, window=3600):
         api = Kernel(record.get('api') or prep['arguments'][0]).alive() if alive else False
         misses = misses + 1 if alive and not api else 0
         restarts = [t for t in restarts if time.time() - t < window]
-        action = decide(record, alive, api or misses < 3, (folder / 'watchdog-pause').exists(), len(restarts), max_restarts)
+        # Read after the process snapshot above: a stop writes its marker before the kernel exits, so a kernel
+        # seen gone on purpose always has its marker by now.
+        stopping = stop_requested(folder, record)
+        action = decide(record, alive, api or misses < 3, (folder / 'watchdog-pause').exists(), len(restarts), max_restarts, stopping)
         entry = dict(utc=utc(), action=action)
         if action == 'restart':
             restarts.append(time.time())

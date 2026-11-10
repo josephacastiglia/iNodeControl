@@ -7,10 +7,14 @@ nothing, test boards absent from USB, names iMouse2-Z1..Z3; the live kernel is o
   2. Stop-Multiphone.ps1 stops it gracefully through the stop file (no Ctrl+C), leaves no
      process or listener, and withdraws the names.
   3. Watchdog: start again, kill the sandbox kernel (simulated death; its stand-in receivers are left
-     behind), `rack_recovery.py watch --once --no-bringup` must stop exactly those orphans, start the
-     kernel again and report 'restart'; a second check says 'healthy'; after a deliberate stop it says
-     'idle' and starts nothing.
-  4. The live kernel's receivers, PIDs and restart counts are unchanged.
+     behind). While a stop marker names that kernel (as Stop-Multiphone.ps1 writes before it asks the
+     kernel to exit) `rack_recovery.py watch --once --no-bringup` must leave everything alone; without
+     the marker it must stop exactly those orphans, start the kernel again and report 'restart'; a
+     second check says 'healthy'; after a deliberate stop it says 'idle' and starts nothing.
+  4. A start that does not come up as prepared (the preparation says one receiver is held, the kernel
+     was told to run all three) must fail, leave no process record and no kernel, and keep its record
+     as processes-failed-<time>.json.
+  5. The live kernel's receivers, PIDs and restart counts are unchanged.
 
   python offrack/offrack_recovery_trial.py --kernel <candidate iMouse2.Kernel.exe>
 """
@@ -123,6 +127,13 @@ def main():
         dead = json.loads(record.read_text(encoding='utf-8-sig'))['kernel']['pid']
         powershell(f'Stop-Process -Id {dead} -Force')   # The sandbox kernel only: simulated death.
         t.check(t.wait(lambda: proc(dead) is None) and len(stand_ins()) == 3, 'Kernel killed; its three stand-in receivers are left behind')
+        marker = slots / 'stopping.json'
+        marker.write_text(json.dumps(dict(utc='trial', pid=dead)), encoding='ascii')   # As a stop in progress would have it.
+        entry = watch_once()
+        t.check(entry.get('action') == 'stopping' and len(stand_ins()) == 3 and t.port_free(t.PORT) and record.exists()
+                and not list(slots.glob('processes-died-*.json')),
+                f'While a stop marker names the dead kernel the watchdog restarts nothing and touches nothing: {entry}')
+        marker.unlink()
         entry = watch_once()
         t.check(entry.get('action') == 'restart' and entry.get('orphans_stopped') == 3 and entry.get('start') == 0,
                 f"Watchdog stops the dead kernel's three receivers and starts it again: {entry}")
@@ -136,8 +147,21 @@ def main():
         entry = watch_once()
         t.check(code == 0 and entry.get('action') == 'idle' and not record.exists() and t.port_free(t.PORT),
                 f'After a deliberate stop the watchdog stays idle and starts nothing ({entry})')
+        t.check(not (slots / 'stopping.json').exists() and len(list(slots.glob('processes-stopped-*.json'))) == 2,
+                'Each deliberate stop renamed its record and removed its stop marker')
         (slots / 'watchdog-pause').write_text('trial', encoding='utf-8')
         t.check(watch_once().get('action') == 'paused', 'A watchdog-pause file pauses it')
+        (slots / 'watchdog-pause').unlink()
+
+        # 4. A start that does not come up as prepared: one receiver is prepared as held, the kernel runs all three.
+        (slots / 'preparation.json').write_text(json.dumps(dict(prep, held=['0F03']), indent=2), encoding='utf-8')
+        code, out = t.ps(box / 'Start-Multiphone.ps1')
+        failed = list(slots.glob('processes-failed-*.json'))
+        t.check(code != 0 and 'Held receivers differ' in out and not record.exists() and not (slots / 'processes-starting.json').exists()
+                and len(failed) == 1, 'A kernel that did not come up as prepared is not recorded as started: ' + out[-160:].replace('\n', ' | '))
+        t.check(t.wait(lambda: t.port_free(t.PORT) and not stand_ins(), 10) and proc(json.loads(failed[0].read_text(encoding='utf-8-sig'))['kernel']['pid']) is None
+                if failed else False, 'and it was stopped again: no kernel, stand-in or listener of it remains')
+        t.check(watch_once().get('action') == 'idle', 'The watchdog does not restart a kernel whose start failed')
     finally:
         if record.exists():
             code, out = t.ps(box / 'Stop-Multiphone.ps1')

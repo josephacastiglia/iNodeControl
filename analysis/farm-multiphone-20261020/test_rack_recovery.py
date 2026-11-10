@@ -374,6 +374,35 @@ class WatchdogTests(unittest.TestCase):
         self.assertEqual(rr.decide(rec, False, False, False, 3), 'give-up')
         self.assertEqual(rr.decide(rec, False, False, True, 0), 'paused')
 
+    def test_a_kernel_being_stopped_on_purpose_is_never_restarted(self):
+        # Stop-Multiphone.ps1 renames the record last, after the kernel has gone; in between the record
+        # names a dead kernel. stopping.json, written before the stop begins, says that is on purpose.
+        rec = dict(kernel=dict(pid=4000000, path='k.exe'))
+        self.assertEqual(rr.decide(rec, False, False, False, 0, stopping=True), 'stopping')
+        self.assertEqual(rr.decide(rec, True, True, False, 0, stopping=True), 'healthy')        # still shutting down
+        self.assertEqual(rr.decide(rec, False, False, False, 0), 'restart')                    # no marker: it died
+        self.assertTrue(rr.tick_ok(dict(action='stopping')))
+
+        def boom(*a, **k): raise AssertionError('a kernel being stopped on purpose must not be touched')
+
+        with tempfile.TemporaryDirectory() as d, contextlib.ExitStack() as stack:
+            folder = Path(d)
+            (folder / 'preparation.json').write_text(json.dumps(dict(arguments=['http://127.0.0.1:1/api/'], runDirectory=d, receivers=[])), encoding='utf-8')
+            (folder / 'processes.json').write_text(json.dumps(rec), encoding='utf-8')
+            self.assertFalse(rr.stop_requested(folder, rec))
+            (folder / 'stopping.json').write_text(json.dumps(dict(pid=4000001)), encoding='utf-8')   # an earlier kernel's stop
+            self.assertFalse(rr.stop_requested(folder, rec))
+            (folder / 'stopping.json').write_text('\ufeff' + json.dumps(dict(utc='t', pid=4000000)), encoding='utf-8')   # as PowerShell writes it
+            self.assertTrue(rr.stop_requested(folder, rec))
+            stack.enter_context(mock.patch.object(rr, 'processes', lambda exe: []))
+            stack.enter_context(mock.patch.object(rr, 'powershell', boom))
+            stack.enter_context(mock.patch.object(rr.subprocess, 'run', boom))
+            stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+            entry = rr.watch(folder, 0, True, True)
+            self.assertEqual((entry['action'], entry['ok']), ('stopping', True))
+            self.assertTrue((folder / 'processes.json').exists())
+            self.assertFalse(list(folder.glob('processes-died-*')) + list(folder.glob('watchdog-pending.json')))
+
     def test_orphans_are_only_our_receivers(self):
         procs = [dict(Name='uxplay.exe', ProcessId=10, ParentProcessId=1, CommandLine='uxplay -n iMouse2-other -p 1'),
                  dict(Name='uxplay.exe', ProcessId=11, ParentProcessId=99, CommandLine='uxplay -n iMouse2-B5 -nh -p 7300'),

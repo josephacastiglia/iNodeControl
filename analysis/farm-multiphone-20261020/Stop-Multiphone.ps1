@@ -5,6 +5,11 @@
 # stopped go to input-stops.jsonl, so the bring-up (rack_recovery.py bringup) resumes exactly those
 # (never an operator's stop). Afterwards no kernel, receiver or listener may remain (rack_kernels.py
 # check-stopped; a sandbox preparation is checked only against its own).
+# Before the kernel is asked to exit, stopping.json records that this stop is on purpose. The record
+# (processes.json) is renamed only at the very end, after the leftover check and the goodbye; without
+# the marker a watchdog check in between would see a recorded kernel that is gone and start it again.
+# The marker is removed once the record is renamed. If the stop fails it stays, so a kernel that
+# finishes its shutdown late is still not restarted.
 [CmdletBinding()]param()
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'RackState.ps1')
@@ -18,6 +23,8 @@ $taskHelper=Join-Path $PSScriptRoot '..\..\tools\kernel-window\Stop-ConsoleProce
 $taskPid=[int]$taskProcs.kernel.pid
 $taskRunning=Get-CimInstance Win32_Process -Filter "ProcessId=$taskPid"
 if($taskRunning -and $taskRunning.ExecutablePath -ne $taskPrep.kernel){throw "PID $taskPid is no longer the prepared kernel; nothing was stopped."}
+$taskStopping=Join-Path $taskDir 'stopping.json'
+@{utc=[datetime]::UtcNow.ToString('o');pid=$taskPid} | ConvertTo-Json -Compress | Set-Content -LiteralPath $taskStopping -Encoding ascii
 if($taskRunning){
     # Input state before the stop: if the stop fails, the boards it left stopped go to the ledger.
     $taskBefore=Join-Path $taskDir 'input-before-stop.json'
@@ -56,4 +63,5 @@ $taskBoards=@($taskPrep.receivers | ForEach-Object {'--board'; $_.board})
 & $taskPy (Join-Path $PSScriptRoot '..\..\tools\mdns_goodbye.py') --receivers (Join-Path $taskPrep.runDirectory 'data\receivers.json') --status-url "$taskApi/kernel/status" @taskBoards
 if($LASTEXITCODE){throw 'Receivers stopped, but their AirPlay names were not withdrawn.'}
 Rename-Item -LiteralPath (Join-Path $taskDir 'processes.json') -NewName ('processes-stopped-' + [datetime]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '.json')
+Remove-Item -LiteralPath $taskStopping
 'Stopped: no kernel, receiver or listener of this preparation remains.'

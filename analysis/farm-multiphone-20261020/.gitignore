@@ -5,6 +5,7 @@ receivers-ready.json
 kernel*.txt
 input-before-stop.json
 stop-request.txt
+stopping.json
 watchdog-*
 bringup-*/
 windows/
