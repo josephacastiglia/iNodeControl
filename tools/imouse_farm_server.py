@@ -11,7 +11,7 @@ engages, and there is no simulated version of any of that.
   GET  /api/farm/state                 whether a job is running
   POST /api/farm/create-content        render one batch of review media from local templates (no phone)
   POST /api/farm/jobs, GET /api/farm/jobs/{id}, POST /api/farm/jobs/{id}/cancel
-  POST /api/farm/emergency-stop        cancel the job and pause preparation
+  POST /api/farm/emergency-stop        stop input on this window's phone, cancel the job, pause preparation
   /api/farm/drafts*, image-drafts*, video-drafts*, video-sources, transfers*
   /api/farm/draft-creations*, reel-creations*, tiktok-creations*, x-creations*, youtube-creations*,
             x-image-creations*, tiktok-photo-creations*    (enabled only with --draft-creation-config)
@@ -65,6 +65,7 @@ DEFAULT_PORT = 9914
 # The pre-rack single-phone kernel, read only by the observations route.
 KERNEL_BASE_URL = "http://127.0.0.1:9913/api"
 JOB_ACTIONS = {"create-content"}
+STOP_TIMEOUT_S = 5.0   # How long an emergency stop waits for the kernel's answer before saying it has none.
 
 
 class FarmControlServer(ThreadingHTTPServer):
@@ -171,6 +172,35 @@ class FarmBackendRuntime:
             raise ValueError("This profile is in warmup or paused; no content was generated.")
         return {"status": "ok", "slates": slate, "manifest": f"/stage/{device}/manifest.json",
                 "contentSource": "local_templates", "reviewRequired": True}
+
+    def stop_phone(self):
+        """Ask this window's own kernel to stop input on this window's own phone: (HTTP status, reply).
+
+        The phone and the kernel address come from the window's creation config, never from the request. The reply
+        says phoneStopped only when that kernel answered the stop with code 0. A kernel that cannot be reached, or
+        that answers anything else, is reported as exactly that: input may still be running."""
+        config = self.draft_creations.config
+        if config is None:
+            return 200, {"status": "ok", "stopped": None, "phoneStopped": False,
+                         "message": "This backend has no phone. No phone stop was sent."}
+        phone = phone_of(config)
+        failed = {"stopped": None, "phoneStopped": False, "device": phone.board}
+        request = urllib.request.Request(config["api"].rstrip("/") + "/", method="POST", headers={"Content-Type": "application/json"},
+                                         data=json.dumps({"fun": "/input/stop", "data": {"id": phone.device_id}}).encode("utf-8"))
+        try:
+            with urllib.request.build_opener(urllib.request.ProxyHandler({})).open(request, timeout=STOP_TIMEOUT_S) as response:
+                envelope = json.loads(response.read(1024 * 1024).decode("utf-8"))
+        except Exception as error:
+            return 502, {**failed, "status": "kernel_unreachable",
+                         "error": f"The kernel did not answer the stop for {phone.board} ({type(error).__name__}: {error}). "
+                                  "Input may still be running: stop it at the console or the board."}
+        reply = envelope.get("data") if isinstance(envelope, dict) and "data" in envelope else envelope
+        if (isinstance(reply, dict) and reply.get("code") == 0
+                and all(isinstance(row, dict) and row.get("code") == 0 for row in reply.get("results") or [])):
+            return 200, {"status": "ok", "stopped": phone.board, "phoneStopped": True, "device": phone.board, "kernel_response": reply}
+        return 502, {**failed, "status": "kernel_refused", "kernel_response": reply,
+                     "error": f"The kernel did not confirm the stop for {phone.board}. Input may still be running: "
+                              "stop it at the console or the board."}
 
     def submit_job(self, request_id, action, payload):
         if action not in JOB_ACTIONS or not isinstance(payload, dict):
@@ -542,20 +572,27 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             self._send_json(200, RUNTIME.create_content(data))
             return
         if path == "/api/farm/emergency-stop":
-            RUNTIME.jobs.cancel_active()
-            if RUNTIME.draft_creations.config is not None:
-                status, payload = 409, {"status": "safety_refused", "error": "This isolated draft candidate exposes only its bounded draft workflow. General rack commands are unavailable."}
-            else:
-                status, payload = 200, {"status": "ok", "stopped": None, "phoneStopped": False}
+            # The phone first: its stop never waits behind the job journal or the schedule store.
+            status, payload = RUNTIME.stop_phone()
+            problems = []
+            try:
+                job = RUNTIME.jobs.cancel_active()
+                payload['cancelledJob'] = job['id'] if job else None
+            except Exception as ex:
+                payload['cancelledJob'] = None
+                payload['jobCancelError'] = str(ex)
+                problems.append('the running job could not be cancelled')
             try:
                 RUNTIME.preparation.pause()
                 payload['preparationPaused'] = True
             except Exception as ex:
                 payload['preparationPaused'] = False
                 payload['preparationPauseError'] = str(ex)
-                if status == 200:
-                    status = 500
-                    payload.update(status='partial', error='The job was cancelled, but recurring preparation could not be paused. Check its status.')
+                problems.append('recurring preparation could not be paused')
+            if problems and status == 200:
+                status = 500
+                payload.update(status='partial', error=('Phone stop completed, but ' if payload['phoneStopped'] else 'No phone to stop, but ')
+                               + ' and '.join(problems) + '. Check their status.')
             self._send_json(status, payload)
             return
 
