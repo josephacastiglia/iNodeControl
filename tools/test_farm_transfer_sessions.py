@@ -239,6 +239,22 @@ class TransferSessionTests(unittest.TestCase):
         finally:
             client.close()
 
+    def test_a_media_listener_is_never_given_a_control_port(self):
+        import farm_transfers
+        opened = []
+        def listener(package, bind, port, client, **options):
+            opened.append(port); raise OSError('fixture: no listener is opened in this test')
+        with patch.object(farm_transfers, 'MediaTransferServer', side_effect=listener):
+            for port in (9911, 9913, 9914, 9915, 9916):   # Vendor service, the kernel's API ports, the farm backends.
+                with self.subTest(port=port), self.assertRaisesRegex(ValueError, 'separate from control services'):
+                    self.manager.start({**self.request, 'id': str(uuid.uuid4()), 'port': port})
+            self.assertEqual([], opened)
+            unnamed = {key: value for key, value in self.request.items() if key != 'port'}
+            session = self.manager.start({**unnamed, 'id': str(uuid.uuid4())})
+        self.assertEqual([9917], opened); self.assertEqual(9917, session['port'])
+        self.assertEqual(9917, farm_transfers.DEFAULT_MEDIA_PORT); self.assertNotIn(farm_transfers.DEFAULT_MEDIA_PORT, farm_transfers.RESERVED_PORTS)
+        self.assertIn(9916, farm_transfers.RESERVED_PORTS)
+
     def test_control_server_refuses_lan_binding(self):
         with self.assertRaisesRegex(ValueError, 'loopback'):
             backend.FarmControlServer(('0.0.0.0', 0), backend.FarmRequestHandler)
