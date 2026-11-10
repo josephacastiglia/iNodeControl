@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 from farm_observations import WindowsOcr, classify
-from farm_screen_layout import NEXT_BOX, NEXT_LABEL_BOX, NEXT_LABEL_SCALE, NEXT_CROP_SIZE, editor_controls, next_crop, next_label, picker_controls, picker_stability
+from farm_screen_layout import NEXT_BOX, NEXT_LABEL_BOX, NEXT_LABEL_SCALE, NEXT_CROP_SIZE, editor_controls, next_crop, next_label, save_prompt, picker_controls, picker_stability
 
 
 def encoded(image):
@@ -218,6 +218,13 @@ class LayoutTests(unittest.TestCase):
         frame,text=screen('editor'); crop_proof(frame,text)
         text['controlOcr']['next'].update(bounds=list(NEXT_BOX),width=246,height=156)
         self.assertIsNone(next_label(frame,text))
+
+    def test_save_prompt_needs_complete_geometry_and_no_duplicate_buttons(self):
+        from test_farm_observations import ocr_lines
+        text=ocr_lines(('If you go back now, your edits will be discarded.',793),('Discard',858),('Save draft',925),('Cancel',1002))
+        self.assertTrue(save_prompt(text))
+        missing=copy.deepcopy(text); missing['lines'].pop(0); self.assertFalse(save_prompt(missing))
+        text['lines'].append(copy.deepcopy(text['lines'][2])); self.assertFalse(save_prompt(text))
 
 
 if __name__=='__main__': unittest.main()

@@ -50,7 +50,6 @@ from farm_image import ImageDrafts
 from farm_observations import ObservationStore
 from farm_draft_verification import DraftVerifications
 from farm_carousel_inspection import CarouselInspections
-from farm_draft_rehearsal import DraftRehearsals
 from farm_draft_runs import DraftRuns, load_config, phone_of
 from farm_creation_runs import CreationRuns, creation_config
 from farm_reel_runs import ReelCreationRuns
@@ -112,7 +111,7 @@ class FarmBackendRuntime:
         self.operation_lock = threading.RLock()
         source = Path(__file__).resolve().parent
         import hashlib
-        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_video.py", "farm_image.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py", "farm_draft_media.py", "farm_carousel_inspection.py", "farm_draft_rehearsal.py", "farm_screen_layout.py", "farm_transitions.py", "farm_live_verification.py", "farm_draft_transport.py", "farm_draft_workflow.py", "farm_draft_runs.py", "farm_draft_anchors.json", "farm_draft_creation.py", "farm_creation_runs.py", "farm_creation_layout.py", "farm_home_edit.py", "farm_creation_badges.json", "farm_creation_browser.json", "farm_creation_controls.json", "farm_reel_layout.py", "farm_reel_controls.json", "farm_reel_creation.py", "farm_reel_runs.py", "farm_tiktok_layout.py", "farm_tiktok_controls.json", "farm_tiktok_creation.py", "farm_tiktok_runs.py", "farm_permission_prompts.py", "farm_x_layout.py", "farm_x_creation.py", "farm_x_runs.py", "farm_youtube_layout.py", "farm_youtube_controls.json", "farm_youtube_creation.py", "farm_youtube_runs.py"))).hexdigest()
+        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_video.py", "farm_image.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py", "farm_draft_media.py", "farm_carousel_inspection.py", "farm_screen_layout.py", "farm_transitions.py", "farm_live_verification.py", "farm_draft_transport.py", "farm_draft_workflow.py", "farm_draft_runs.py", "farm_draft_anchors.json", "farm_draft_creation.py", "farm_creation_runs.py", "farm_creation_layout.py", "farm_home_edit.py", "farm_creation_badges.json", "farm_creation_browser.json", "farm_creation_controls.json", "farm_reel_layout.py", "farm_reel_controls.json", "farm_reel_creation.py", "farm_reel_runs.py", "farm_tiktok_layout.py", "farm_tiktok_controls.json", "farm_tiktok_creation.py", "farm_tiktok_runs.py", "farm_permission_prompts.py", "farm_x_layout.py", "farm_x_creation.py", "farm_x_runs.py", "farm_youtube_layout.py", "farm_youtube_controls.json", "farm_youtube_creation.py", "farm_youtube_runs.py"))).hexdigest()
         db_path = db_path or Path("output/farm-data/v2") / execution_mode / "imouse_farm.db"
         stage_root = stage_root or Path("output/media-stage/v2") / execution_mode
         self.calibration_path = db_path.parent / "ui-boxes.json"
@@ -128,7 +127,6 @@ class FarmBackendRuntime:
         self.observations = ObservationStore(db_path.parent / 'observations.db')
         self.verifications = DraftVerifications(db_path.parent / 'draft-verifications.db', self.observations, self.drafts)
         self.inspections = CarouselInspections(db_path.parent / 'carousel-inspections.db', self.observations, self.drafts)
-        self.rehearsals = DraftRehearsals(db_path.parent / 'draft-rehearsals.db', self.drafts)
         self.draft_runs = DraftRuns(db_path.parent / 'draft-runs', self.drafts, self.jobs, draft_config)
         self.draft_creations = CreationRuns(db_path.parent / 'draft-creations', self.drafts, self.jobs, create_config)
         # Same explicit isolated kernel/media configuration as carousel creation.
@@ -528,22 +526,6 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
             return
 
-        if path == '/api/farm/draft-rehearsals' or path.startswith('/api/farm/draft-rehearsals/'):
-            if not self._transfer_access_allowed():
-                self._send_json(403, {'error': 'Rehearsal evidence is local-only.'}); return
-            try:
-                parts=path.split('/')
-                if path == '/api/farm/draft-rehearsals':
-                    draft_id=urllib.parse.parse_qs(parsed.query).get('draft_id',[''])[0]
-                    self._send_json(200, {'rehearsals': RUNTIME.rehearsals.list(draft_id)})
-                elif len(parts)==7 and parts[5]=='frames':
-                    import base64
-                    self._send_json(200, {'frame': base64.b64encode(RUNTIME.rehearsals.frame(parts[4],parts[6])).decode('ascii')})
-                elif len(parts)==5: self._send_json(200, {'rehearsal': RUNTIME.rehearsals.get(parts[4])})
-                else: raise ValueError('Unknown rehearsal route.')
-            except (ValueError,KeyError) as error: self._send_json(404, {'error': str(error)})
-            return
-
         if path.startswith('/api/farm/carousel-inspections/'):
             if not self._transfer_access_allowed():
                 self._send_json(403, {'error': 'Inspection evidence is local-only.'}); return
@@ -674,8 +656,6 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "videoDraftsVersion": 1,
                     "observationsVersion": 2,
                     "draftVerificationVersion": 2,
-                    "draftRehearsalVersion": 1,
-                    "draftRehearsalLiveEnabled": False,
                     "draftWorkflow": RUNTIME.draft_runs.capability(),
                     "draftCreation": RUNTIME.draft_creations.capability(),
                     "reelCreation": RUNTIME.reel_creations.capability(),
@@ -772,7 +752,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/")
-        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/schedule-queue', '/api/farm/draft-verifications', '/api/farm/carousel-inspections', '/api/farm/draft-rehearsals', '/api/farm/draft-runs', '/api/farm/draft-creations', '/api/farm/reel-creations', '/api/farm/tiktok-creations', '/api/farm/x-creations', '/api/farm/youtube-creations', '/api/farm/x-image-creations', '/api/farm/tiktok-photo-creations')) and not self._transfer_access_allowed():
+        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/schedule-queue', '/api/farm/draft-verifications', '/api/farm/carousel-inspections', '/api/farm/draft-runs', '/api/farm/draft-creations', '/api/farm/reel-creations', '/api/farm/tiktok-creations', '/api/farm/x-creations', '/api/farm/youtube-creations', '/api/farm/x-image-creations', '/api/farm/tiktok-photo-creations')) and not self._transfer_access_allowed():
             self.close_connection = True
             self._send_json(403, {"error": "Media, observation and preparation controls are local-only."})
             return
@@ -806,7 +786,6 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         interrupt = path == "/api/farm/emergency-stop" or (path.startswith("/api/farm/jobs/") and path.endswith("/cancel"))
         interrupt = interrupt or (path.startswith("/kernel-proxy") and data.get("fun") == "/input/stop")
         interrupt = interrupt or path == '/api/farm/preparation-schedule/pause'
-        interrupt = interrupt or (path.startswith('/api/farm/draft-rehearsals/') and path.endswith('/cancel'))
         interrupt = interrupt or (path.startswith(('/api/farm/draft-runs/','/api/farm/draft-creations/','/api/farm/reel-creations/','/api/farm/tiktok-creations/','/api/farm/x-creations/','/api/farm/youtube-creations/','/api/farm/x-image-creations/','/api/farm/tiktok-photo-creations/')) and path.endswith('/cancel'))
         interrupt = interrupt or (path.startswith('/api/farm/carousel-inspections/') and path.endswith('/cancel'))
         if interrupt or path == "/api/farm/jobs" or (path.startswith("/api/farm/transfers/") and path.endswith("/stop")):
@@ -876,14 +855,6 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             if len(parts) != 6 or set(data) != {'store_id'} or data['store_id'] != RUNTIME.draft_runs.store_id:
                 raise ValueError('Stop needs this candidate store and the original request ID.')
             self._send_json(200, {'job': RUNTIME.draft_runs.cancel(parts[4])}); return
-        if path == '/api/farm/draft-rehearsals':
-            if RUNTIME.execution_mode != 'simulate':
-                raise ValueError('Draft rehearsals require the simulation backend; no phone action is available.')
-            self._send_json(200, {'rehearsal': RUNTIME.rehearsals.run(data)}); return
-        if path.startswith('/api/farm/draft-rehearsals/') and path.endswith('/cancel'):
-            parts=path.split('/')
-            if len(parts)!=6 or data: raise ValueError('Cancel requires only the rehearsal ID in its route.')
-            self._send_json(200, RUNTIME.rehearsals.cancel(parts[4])); return
         if path == '/api/farm/carousel-inspections':
             self._send_json(200, {'inspection': RUNTIME.inspections.run(data, RUNTIME.get_kernel())}); return
         if path.startswith('/api/farm/carousel-inspections/') and path.endswith('/cancel'):
