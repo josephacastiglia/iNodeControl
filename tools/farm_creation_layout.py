@@ -1,6 +1,7 @@
 """Recognizers for importing a saved carousel. No input or guessed OCR repair."""
 import io
 import base64
+import functools
 import hashlib
 import json
 import re
@@ -15,6 +16,29 @@ from farm_screen_layout import pixels, words_at, line_at, overlay_present
 def require(value, reason):
     if not value: raise InspectionStopped(reason)
     return value
+
+
+@functools.lru_cache(maxsize=None)
+def _control_file(file_name):
+    return json.loads(Path(__file__).with_name(file_name).read_text(encoding='utf-8'))
+
+
+@functools.lru_cache(maxsize=None)
+def _template(file_name, name):
+    row = _control_file(file_name)[name]
+    raw = base64.b64decode(row['png'], validate=True)
+    return tuple(row['box']), raw, hashlib.sha256(raw).hexdigest() == row['sha256']
+
+
+def template(file_name, name, damaged):
+    """One control template from a controls file beside this module: (box, PNG bytes).
+
+    Every platform's matcher reads its templates here. A file is read and a template decoded once per process
+    (they are part of the code: a window's backend is restarted to change them). A template whose bytes do not
+    match its recorded hash stops with `damaged`, at every use."""
+    box, raw, intact = _template(file_name, name)
+    require(intact, damaged)
+    return list(box), raw
 
 
 def exact(text, label, box):
@@ -110,16 +134,14 @@ def _matches(frame,name):
 
 
 def _control(frame,name):
-    row=json.loads(Path(__file__).with_name('farm_creation_controls.json').read_text(encoding='utf-8'))[name]
-    raw=base64.b64decode(row['png'],validate=True)
-    require(hashlib.sha256(raw).hexdigest()==row['sha256'], 'Creation control reference is damaged.')
-    left,top,right,bottom=row['box'];image=pixels(frame,exact=True)
+    box,raw=template('farm_creation_controls.json',name,'Creation control reference is damaged.')
+    left,top,right,bottom=box;image=pixels(frame,exact=True)
     with Image.open(io.BytesIO(raw)) as reference:
         delta=np.abs(image[top:bottom,left:right].astype(float)-np.asarray(reference.convert('RGB')).astype(float))/255
     valid=np.ones(delta.shape[:2],dtype=bool)
     if name=='empty_ios_search':valid[:,32:40]=False  # Fixed blinking caret; all label/magnifier pixels remain checked.
     require(delta[valid].mean()<.02 and (delta[valid].max(axis=1)>35/255).mean()<.04,'Creation control changed: '+name)
-    return row['box']
+    return box
 
 
 def source_match(frame, raw, box, *, square=False, badge=False, prepared=None):

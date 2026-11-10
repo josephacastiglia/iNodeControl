@@ -12,18 +12,14 @@ checks compare frames decoded from the immutable package under fixed crops; a
 match is visual evidence, not byte identity or proof that YouTube kept a draft.
 Unknown or ambiguous screens stop.
 """
-import base64
-import hashlib
 import io
-import json
-from pathlib import Path
 import re
 
 import numpy as np
 from PIL import Image
 
 from farm_owned_capture import InspectionStopped
-from farm_creation_layout import require, exact
+from farm_creation_layout import require, exact, template
 from farm_screen_layout import pixels, words_at, line_at
 from farm_reel_layout import UNIQUE_MARGIN, POINTER, band_words, no_overlay, rows_between, reel_paste_menu
 from farm_tiktok_layout import media_match
@@ -43,10 +39,8 @@ def caption_supported(caption):
 
 
 def _reference(name):
-    row = json.loads(Path(__file__).with_name('farm_youtube_controls.json').read_text(encoding='utf-8'))[name]
-    raw = base64.b64decode(row['png'], validate=True)
-    require(hashlib.sha256(raw).hexdigest() == row['sha256'], 'YouTube control reference is damaged.')
-    with Image.open(io.BytesIO(raw)) as reference: return row['box'], np.asarray(reference.convert('RGB')).astype(float)
+    box, raw = template('farm_youtube_controls.json', name, 'YouTube control reference is damaged.')
+    with Image.open(io.BytesIO(raw)) as reference: return box, np.asarray(reference.convert('RGB')).astype(float)
 
 
 def control(frame, name, *, offset=(0, 0), ignore=()):

@@ -5,10 +5,8 @@ steps 94-113). Video checks compare frames decoded from the immutable package;
 a match is visual evidence, not byte identity, app authenticity or proof that
 TikTok persisted a draft. Unknown or ambiguous screens stop.
 """
-import base64
 import hashlib
 import io
-import json
 from pathlib import Path
 import re
 import tempfile
@@ -17,7 +15,7 @@ import numpy as np
 from PIL import Image
 
 from farm_owned_capture import InspectionStopped
-from farm_creation_layout import require, exact
+from farm_creation_layout import require, exact, template
 from farm_screen_layout import pixels, words_at, line_at
 from farm_reel_layout import (MATCH_MEAN, MATCH_BLOCK, UNIQUE_MARGIN, POINTER, SAMPLE_FPS, FILL, SQUARE,
                               no_overlay, rows_between, duration_label, reel_paste_menu, present as reel_present, band_words)
@@ -101,10 +99,8 @@ GLYPH_CONTROLS = {'tt_sound_remove', 'tt_sound_note'}
 
 def control(frame, name, *, offset=(0, 0)):
     """Fixed control template; same thresholds as the Reel and carousel controls."""
-    row = json.loads(Path(__file__).with_name('farm_tiktok_controls.json').read_text(encoding='utf-8'))[name]
-    raw = base64.b64decode(row['png'], validate=True)
-    require(hashlib.sha256(raw).hexdigest() == row['sha256'], 'TikTok control reference is damaged.')
-    left, top, right, bottom = row['box']; dx, dy = offset
+    (left, top, right, bottom), raw = template('farm_tiktok_controls.json', name, 'TikTok control reference is damaged.')
+    dx, dy = offset
     require(0 <= left+dx and right+dx <= 500 and 0 <= top+dy and bottom+dy <= 1080, 'TikTok control is outside the frame.')
     image = pixels(frame, exact=True)
     with Image.open(io.BytesIO(raw)) as reference:
