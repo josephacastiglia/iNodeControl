@@ -959,7 +959,7 @@ class IMouseKernel:
 
     def _require_live_target(self, pid: str) -> None:
         if self._is_live_http and not self.phone.targets(pid):
-            raise KernelSafetyError(f"Live farm control is restricted to {self.phone.board}; target {pid!r} is not approved. Use explicit simulation for other phones.")
+            raise KernelSafetyError(f"Live farm control is restricted to {self.phone.board}; target {pid!r} is not approved.")
 
     def _validate_post_target(self, fun: str, data: Dict[str, Any]) -> None:
         if not self._is_live_http or fun == "/input/status":

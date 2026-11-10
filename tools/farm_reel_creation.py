@@ -48,8 +48,8 @@ class ReelCreationWorkflow(CreationWorkflow):
     MEDIA_ROLES = ('reel_picker',)           # The app's own media picker opens here.
     PASTE_ROLES = ('reel_caption_pasted',)   # Directly after this run's own Paste.
     PROMPT_LIMIT = 2                         # Prompts answered per observation, at most.
-    # Proven (family, method) pairs from a validation window; none yet, so every
-    # recognized prompt stops the run with its one-time request.
+    # (family, method) pairs proven on this lane's phone; none here, so every recognized
+    # prompt stops the run with its one-time request. A lane that has proven one names it.
     validated_prompt_methods = None
     _prompt_role = None                      # Screen whose context an answered prompt keeps.
 
