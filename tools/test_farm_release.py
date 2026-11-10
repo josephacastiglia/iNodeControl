@@ -271,5 +271,15 @@ class Lint(Base):
         self.assertEqual(fr.blockers(findings), [])
 
 
+class ThisCheckout(unittest.TestCase):
+    def test_no_packaged_file_reads_state_from_the_code_folder(self):
+        # The rehearsal's 'every launcher command ready' check, without building a package: one blocker line
+        # in a file a command pulls in makes Farm.ps1 refuse that command on an installed PC.
+        files, _ = fr.farm_files(fr.REPO)
+        findings = fr.lint(files)
+        self.assertEqual([f"{f['file']}:{f['line']} {f['rule']}" for f in fr.blockers(findings)], [])
+        self.assertEqual([c for c, s in fr.command_readiness(fr.COMMANDS, findings, files).items() if not s['ready']], [])
+
+
 if __name__ == '__main__':
     unittest.main()

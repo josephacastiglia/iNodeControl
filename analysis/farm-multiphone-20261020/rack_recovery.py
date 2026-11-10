@@ -421,7 +421,8 @@ def main():
     record = load(folder / 'processes.json') if (folder / 'processes.json').exists() else {}
     api = record.get('api') or prep['arguments'][0].rstrip('/')
     learned = Path(prep['runDirectory']) / 'learned-addresses.json'
-    phones = build_plan(load(args.plan), slot_boards(load(HERE / 'phone-slots.json'), load(HERE / 'rack-b-slots.json')), prep,
+    # The slot maps are this PC's private state: beside this script in a checkout, in the data folder when installed.
+    phones = build_plan(load(args.plan), slot_boards(load(STATE / 'phone-slots.json'), load(STATE / 'rack-b-slots.json')), prep,
                         load(learned) if learned.exists() else None)
     if args.plan_only:
         print(json.dumps([{k: v for k, v in p.items() if k != 'phone_ip'} for p in phones], indent=2)); return
