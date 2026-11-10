@@ -25,7 +25,7 @@ Test suites, all passing: `iMouse2.exe --self-test` (40 checks, mock transport),
 `--ui-test` (17 interaction checks, mock transport), `--smoke-test` (live, read-only).
 Results land in `qa/` next to the executable.
 
-**Test build 1 is implemented and compiled.** Launch `release/iMouse2/iMouse2.exe` on this PC. The editable WPF/C# source is in `src/iMouse.Console/`. Read `TESTING.md` for setup, features, and known limits.
+**Test build 1 is implemented and compiled.** Launch `release/iMouse2/iMouse2.exe` on this PC. The editable WPF/C# source is in `src/iMouse.Console/`.
 
 This new console connects to the existing iMouse XP service. It provides device search/group filtering, single and explicit batch controls, screen-cast commands, screenshot-based previews, mouse click/drag, navigation, and ASCII text entry. It is an initial working console, not full feature parity with the original application.
 

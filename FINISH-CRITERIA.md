@@ -92,7 +92,7 @@ suite's isolation audit attributes all 18 to a baseline-capture race in the harn
 (the non-target phone photographed while still dismissing the previous trial), not
 to cross-phone input, which gives 0 unintended phone actions. The run and its audit
 were produced by the same agent and have not been independently reviewed
-(`ACCOUNT-HANDOFF.md` section 2, on branch `claude/input-timeout-integration`).
+(preserved as it was found, on branch `handoff/main-uncommitted-20260925`; see [docs/EVIDENCE.md](docs/EVIDENCE.md) section 2).
 
 *What the written criterion still requires:*
 
@@ -258,7 +258,7 @@ components. It is not a measurement from a user's click in the delivered console
 
 Source reports:
 
-- [Two-phone status and evidence](TWO-PHONE-TEST.md)
+- Two-phone status and evidence: `TWO-PHONE-TEST.md` at tag `evidence-20261109` (see [docs/EVIDENCE.md](docs/EVIDENCE.md))
 - [Receiver restart and recovery](analysis/UXPLAY-AUTORESTART-TEST.md)
 - [Matched console comparison](analysis/console-compare-20260915/REPORT.md)
 - [Follow-up master-view measurements](analysis/c241-master-20260915/REPORT.md)
