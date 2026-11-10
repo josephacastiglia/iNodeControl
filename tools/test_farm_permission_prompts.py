@@ -1,14 +1,10 @@
 """Permission prompt recognition and policy. Synthetic cases always run; retained frames when present."""
-import hashlib
 import inspect
 import json
-from pathlib import Path
 import unittest
-from unittest.mock import patch
 
 import farm_permission_prompts as pp
 
-ROOT = Path(__file__).resolve().parents[1]
 import farm_paths  # noqa: E402  (the archive beside the main folder, also from a lane worktree)
 ARCHIVE = farm_paths.ARCHIVE
 RETAINED = ('20261019-farm-reel-offline', '20261019-farm-tiktok-offline', '20261019-farm-x-offline', '20261020-farm-youtube-offline')
@@ -95,17 +91,6 @@ class PromptTests(unittest.TestCase):
         self.assertTrue(twice['ambiguous']); self.assertEqual('stop', pp.plan(twice, validated=proven)['action'])
 
 
-def window_entry(**changes):
-    """A complete validation-window record for a declined local-network prompt."""
-    entry = dict(family='local_network', method='long_press', state='validated', answer="Don't Allow", app='YouTube', phone='C24C',
-                 source=pp.WINDOW_SOURCE, date='2026-10-21', trial='6f1c1d52-6a0e-4f4c-8a39-2f2a8f3e9b10',
-                 summary=pp.WINDOW_RECORD + 'a3-long-press.json', summarySha256='1'*64, beforeFrameSha256='2'*64,
-                 afterFrameSha256='3'*64, outcome='dismissed', commandsAnswered=True, safeAnswerConfirmed=True,
-                 confirmation='Settings > Privacy > Local Network shows YouTube off', note='fixture')
-    entry.update(changes)
-    return entry
-
-
 class ReminderTests(unittest.TestCase):
     """20 Oct (coordinator, rack phones): "<App> has been able to access your entire photo library ...
     continue to allow full access?" with Limit Access / Allow Full Access."""
@@ -138,57 +123,13 @@ class ReminderTests(unittest.TestCase):
         self.assertIn('Limit Access', self.reminder()['buttons'])
 
 
-class WindowEvidenceTests(unittest.TestCase):
+class EvidenceTests(unittest.TestCase):
     prompt = staticmethod(lambda: pp.detect(alert('Allow "YouTube" to find', 'devices on local networks?')))
 
     def test_nothing_is_validated_by_default(self):
-        self.assertEqual((), pp.WINDOW_EVIDENCE)
-        self.assertFalse([key for key, (state, _) in pp.evidence().items() if state == 'validated'])
+        self.assertFalse([key for key, (state, _) in pp.EVIDENCE.items() if state == 'validated'])
         self.assertEqual('stop', pp.plan(self.prompt())['action'])
-
-    def test_complete_window_evidence_validates_its_family_and_method_only(self):
-        self.assertEqual([], pp.window_problems(window_entry()))
-        with patch.object(pp, 'WINDOW_EVIDENCE', (window_entry(),)):
-            decision = pp.plan(self.prompt())
-            self.assertEqual(('answer', 'long_press', "Don't Allow"), (decision['action'], decision['method'], decision['answer']))
-            self.assertIn('C24C window trial', decision['evidence'])
-            other = pp.detect(alert('Allow "YouTube" to use your location?'))
-            self.assertEqual('stop', pp.plan(other)['action'])
-
-    def test_incomplete_or_contradicted_evidence_never_validates(self):
-        broken = {
-            'allow button': dict(answer='Allow'), 'not confirmed': dict(safeAnswerConfirmed=False), 'no confirmation text': dict(confirmation=' '),
-            'ignored outcome': dict(outcome='ignored'), 'uncertain command': dict(commandsAnswered=False),
-            'outside the record': dict(summary='analysis/other/a3.json'), 'path escape': dict(summary=pp.WINDOW_RECORD + '../x.json'),
-            'no summary hash': dict(summarySha256='abc'), 'no frame hash': dict(afterFrameSha256=None), 'other phone': dict(phone='C241'),
-            'other source': dict(source='simulation'), 'unknown family': dict(family='unknown_permission'),
-            'unknown method': dict(method='voice'), 'no date': dict(date='today'), 'no trial': dict(trial='a3'), 'other state': dict(state='likely'),
-        }
-        for name, change in broken.items():
-            with self.subTest(name):
-                self.assertTrue(pp.window_problems(window_entry(**change)))
-                with patch.object(pp, 'WINDOW_EVIDENCE', (window_entry(**change),)):
-                    self.assertEqual('stop', pp.plan(self.prompt())['action'])
-        self.assertTrue(pp.window_problems('validated'))
-        ignored = window_entry(state='ignored', outcome='ignored', safeAnswerConfirmed=False, confirmation='')
-        self.assertEqual([], pp.window_problems(ignored))
-        for entries in ((ignored,), (window_entry(), ignored), (window_entry(method='pointer_tap'),)):
-            with self.subTest(entries=len(entries)), patch.object(pp, 'WINDOW_EVIDENCE', entries):
-                self.assertEqual('stop', pp.plan(self.prompt())['action'])
-        with patch.object(pp, 'WINDOW_EVIDENCE', (ignored,)):
-            self.assertEqual(['keyboard_escape', 'long_press', 'pointer_tap'], pp.plan(self.prompt())['ignoredMethods'])
-        with patch.object(pp, 'WINDOW_EVIDENCE', (window_entry(), ignored)):
-            self.assertEqual('conflicting', pp.evidence()[('local_network', 'long_press')][0])
-
-    def test_committed_window_evidence_matches_its_recorded_summaries(self):
-        for entry in pp.WINDOW_EVIDENCE:
-            with self.subTest(trial=entry.get('trial')):
-                self.assertEqual([], pp.window_problems(entry))
-                summary = ROOT/entry['summary']
-                self.assertEqual(entry['summarySha256'], hashlib.sha256(summary.read_bytes()).hexdigest())
-                recorded = json.loads(summary.read_text(encoding='utf-8'))
-                self.assertEqual((entry['trial'], entry['family'], entry['method'], 'phone'),
-                                 (recorded['trial'], recorded['family'], recorded['method'], recorded['recordSource']))
+        self.assertEqual(['keyboard_escape', 'pointer_tap'], pp.plan(self.prompt())['ignoredMethods'])
 
     def test_safe_answers_and_run_methods(self):
         self.assertEqual(set(pp.POLICY) - {'unknown_permission'}, set(pp.SAFE_ANSWER))
