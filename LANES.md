@@ -17,6 +17,9 @@ Every lane reads this file first. Started 27 Oct 2026.
   never `git add -A` or `git add .`; then `python tools/privacy_scan_staged.py` before every commit.
   Device IDs, screen captures, phone frames and account handles never go into Git. Run output stays
   under `output/` and `windows/`, which are not committed. Never push; the orchestrator does.
+- **Never resume a stopped board.** No lane calls `/input/resume`. A stopped board or a cancelled send may be the
+  operator's stop: stop, leave the board as it is, and report it. The kernel's `/input/status` gives a
+  `stop_reason` per phone (9 Nov); it is for the report, not a licence to resume.
 - **Only your phones.** Drive only the slots listed for your lane below. The kernel's leases should
   refuse a phone another lane holds (not yet proven with two lanes at once); if yours is refused,
   stop and report, don't take it.
@@ -78,6 +81,8 @@ A phone joins a rack the way these did:
 | Repeatability | Back-to-back X image (A17) and TikTok photo (A20) runs; the open shared fixes (`farm_observations.classify` Likes on A20, `farm_creation_layout.app_target` enlarged Spotlight reread, verifier `accountHistory`) (2, 3) | `tools/farm_x_*`, `tools/farm_tiktok_*`, and, cleared 4 Nov, `farm_observations.py` and `tools/farm_creation_layout.py` in small commits |
 | Small phone | B5 (iPhone 6s): read-only sign-in survey, then the verified formats on a 4.7-inch phone once the operator clears its accounts (3, 7) | new `tools/farm_small_*` and tests; 4.7-inch additions elsewhere described, not made |
 | Scale gate | The 8- and 19-phone gates on rack B's home screens: mirroring and input only, no app ever opened (release gates) | new `analysis/scale-gate-20261104/` |
+| Fleet | Rack A's other phones into the farm: read-only sign-in survey, then the verified flows with per-phone layout variants (3, 7) | `tools/farm_fleet_*`, `tools/farm_prompt_press.py`, their tests |
+| Release | The installable package, installer, preflight and their rehearsal (7) | `tools/farm_release.py`, `tools/farm_install.py`, `tools/farm_release_rehearsal.py`, `tools/release/`, `docs/INSTALL-FARM.md` |
 
 **Shared (orchestrator's OK first):** `tools/farm_screen_layout.py`, `farm_observations.py`,
 `farm_start_screen.py`, `farm_owned_capture.py`, `farm_creation_runs.py`, `farm_paths.py`,
