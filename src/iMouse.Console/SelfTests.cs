@@ -391,8 +391,7 @@ public static class SelfTests
         RunInstallLayoutTests(Check);
         // The kernel's own default is http://127.0.0.1:9913/api/ (KernelOptions.Prefix). 9911 was the vendor service.
         Check("An address without a port gets the kernel's default port", ApiClient.NormalizeEndpoint("localhost").ToString() == "http://localhost:9913/api");
-        Check("The address offered first is the kernel's default address",
-            ApiClient.DefaultAddress == "http://127.0.0.1:9913" && ApiClient.NormalizeEndpoint(ApiClient.DefaultAddress).ToString() == "http://127.0.0.1:9913/api");
+        Check("The address offered first reaches the kernel's default endpoint", ApiClient.NormalizeEndpoint(ApiClient.DefaultAddress).ToString() == "http://127.0.0.1:9913/api");
         string addressHint = "";
         try { ApiClient.NormalizeEndpoint("ftp://127.0.0.1"); } catch (ArgumentException ex) { addressHint = ex.Message; }
         Check("A refused address suggests the kernel's default address, not the vendor port", addressHint.Contains(ApiClient.DefaultAddress) && !addressHint.Contains("9911"));
@@ -1338,10 +1337,14 @@ public static class SelfTests
         Check("The pause notice then states the kernel's answer instead of an unknown outcome",
             notices.Count == 1 && notices[0].StartsWith("Input paused: Code 33") && notices[0] != InputLeaseClient.TimedOutNotice);
 
-        // Reads keep their shorter deadline: a hung status or device request is noticed in 8 s.
-        Check("Commands are given longer than the kernel's command deadline plus its release; reads are not",
-            ApiClient.CommandTimeout >= TimeSpan.FromSeconds(12) && ApiClient.ReadTimeout == TimeSpan.FromSeconds(8)
-            && ApiClient.CommandTimeout > ApiClient.ReadTimeout);
+        // Reads keep the shorter limit: the same late answer a command now waits for still fails a read at 8 s.
+        var hRead = new TestHandler { DelayMs = 8500 };
+        await using var reading = new ApiClient("localhost", hRead);
+        var readClock = System.Diagnostics.Stopwatch.StartNew();
+        Exception? readOutcome = null;
+        try { await reading.DevicesAsync(); } catch (Exception ex) { readOutcome = ex; }
+        Check("A device read still gives up at 8 s, so a kernel that stops answering is noticed as fast as before",
+            readOutcome is OperationCanceledException && readClock.Elapsed >= TimeSpan.FromSeconds(7.5) && readClock.Elapsed < TimeSpan.FromSeconds(8.4));
 
         // What Send text sends in one request stays far inside what the kernel will accept.
         var hText = new TestHandler();

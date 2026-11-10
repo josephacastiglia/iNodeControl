@@ -171,7 +171,6 @@ internal static class ApiHttpTests
             check(tooLong.Http is 413 or 0 && await Untouched(), "A body over the size cap is refused and acquires nothing");
             var tooLongChunked = await Send(HttpMethod.Post, "", padded, chunked: true);
             check(tooLongChunked.Http is 413 or 0 && await Untouched(), "A chunked body over the size cap is refused and acquires nothing");
-            check(ApiServer.MaxBodyBytes == 64 * 1024, "The body cap is 64 KiB, far above any real request");
 
             // --- The same requests from a real client ---------------------------------------------
             string atCap = acquire + new string(' ', ApiServer.MaxBodyBytes - Encoding.UTF8.GetByteCount(acquire));

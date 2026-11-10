@@ -416,8 +416,11 @@ internal static class InputSessionTests
             check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "two", token = second, fn_key = "Enter" }))) == 0,
                 "Stopping one phone preserves other phone ownership");
             check(Code(sessions.Resume(Data(new { id = "one" }))) == 0, "Explicit resume allows fresh ownership");
-            await Rejected(() => sessions.DispatchAsync("/mouse/click", Data(new { id = "one", token = first, x = 14, y = 14 })));
-            check(true, "Old tokens cannot replay input after resume");
+            int replayOpened = opened, replayReports = a.Reports.Count;
+            bool replayRefused = false;
+            try { await sessions.DispatchAsync("/mouse/click", Data(new { id = "one", token = first, x = 14, y = 14 })); }
+            catch (InvalidOperationException) { replayRefused = true; }
+            check(replayRefused && opened == replayOpened && a.Reports.Count == replayReports, "Old tokens cannot replay input after resume");
 
             a.Block = null; a.Reports.Clear();
             first = Lease(sessions, "one");

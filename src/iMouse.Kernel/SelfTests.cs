@@ -221,8 +221,9 @@ public static class SelfTests
         }
         var twoConfigs=new[]{new ReceiverConfig("test-one","C24C","iMouse2-C24C","test-pipe-one",7110,"02:49:4D:32:C2:4C"),
             new ReceiverConfig("test-two","C214","iMouse2-C214","test-pipe-two",7120,"02:49:4D:32:C2:14")};
-        ReceiverFleet.Validate(twoConfigs,new DeviceStore(file).All());
-        Check(true,"Two receivers accept distinct bindings, ports and identities");
+        bool twoAccepted=true;
+        try {ReceiverFleet.Validate(twoConfigs,new DeviceStore(file).All());}catch(ArgumentException){twoAccepted=false;}
+        Check(twoAccepted,"Two receivers accept distinct bindings, ports and identities");
         foreach(var badConfig in new[]{twoConfigs[1] with {Port=7111},twoConfigs[1] with {Pipe="test-pipe-one"},
             twoConfigs[1] with {Mac=twoConfigs[0].Mac},twoConfigs[1] with {BoardPid="C241"}})
         {

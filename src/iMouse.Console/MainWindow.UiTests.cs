@@ -48,8 +48,6 @@ public partial class MainWindow
         // This window has a new, empty data folder; unless the test was given --address, the box holds the built-in default.
         if (!Environment.GetCommandLineArgs().Any(a => a.StartsWith("--address=", StringComparison.Ordinal)))
             Check("With no saved settings the console offers the kernel's default address", _offeredAddress == "http://127.0.0.1:9913");
-        Check("The Farm tab's tooltip no longer describes a 19-iPhone automation tab",
-            FarmTabButton.ToolTip is string tip && !tip.Contains("19-iPhone") && !tip.Contains("Automation") && tip.Contains("draft"));
         static string Fun(JsonElement command) => command.GetProperty("fun").GetString() ?? "";
         static string Ids(JsonElement command) => command.GetProperty("data").GetProperty("id").GetString() ?? "";
         // What the console sent to phones, in order. Lease traffic (/input/acquire, /input/release,

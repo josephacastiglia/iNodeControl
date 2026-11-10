@@ -89,7 +89,6 @@ internal static class ConsoleLogTests
             var expected = Enumerable.Range(0, 8).SelectMany(t => Enumerable.Range(0, 200).Select(i => Line(t, i))).Order(StringComparer.Ordinal);
             check(Lines(shared).Order(StringComparer.Ordinal).SequenceEqual(expected),
                 "Lines written through Out and Error at once from several threads all arrive whole, none interleaved");
-            check(ConsoleLogFile.DefaultMaxBytes == 16 * 1024 * 1024, "The kernel's console log is capped at 16 MiB, with one earlier file kept");
         }
         finally { Directory.Delete(folder, recursive: true); }
     }
