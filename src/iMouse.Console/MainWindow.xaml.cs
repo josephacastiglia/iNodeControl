@@ -39,13 +39,11 @@ public partial class MainWindow : Window
     /// (the box then shows the built-in default, the vendor service on 9911).</summary>
     internal string? SavedAddress { get; private set; }
     private bool? _savedTrackPointer;
-    private readonly ResponseTiming? _responseTiming;
 
     // dataPath is for test modes and --data-dir: they must never load or overwrite the
     // operator's %APPDATA%\iMouse2, which every console build on this machine shares.
-    public MainWindow(Func<string, ApiClient>? factory = null, string? dataPath = null, ResponseTiming? responseTiming = null)
+    public MainWindow(Func<string, ApiClient>? factory = null, string? dataPath = null)
     {
-        _responseTiming = responseTiming ?? ResponseTiming.FromSetting(Environment.GetEnvironmentVariable("IMOUSE_RESPONSE_TIMING"));
         _inputActions = new(context => CancelledHere(context.Connection, context.Control));
         _dataPath = dataPath ?? ResolveDataPath();
         _mirrorLocal = dataPath is null;
@@ -54,7 +52,6 @@ public partial class MainWindow : Window
         InitializeComponent();
         BuildIdentity.Text = ConsoleBuildInfo.Current.Label + " · Independent AirPlay";
         BuildIdentity.ToolTip = ConsoleBuildInfo.Current.Detail;
-        InputTrace.AttachIfRequested(this);
         RestoreFarmJob();
         ActivityList.ItemsSource = _activity;
         PhoneWall.ItemsSource = _wall;
@@ -558,7 +555,6 @@ public partial class MainWindow : Window
         if (FarmPhoneImage is not null) FarmPhoneImage.Source = null;
         _live.Reset(); _rate.Reset(); _jitter.Reset(); _frameEpoch++; _lastFrameAt = DateTime.MinValue; _lastDelivered = DateTime.MinValue; _idleStreak = 0; _errorStreak = 0;
         _previewFreshness.Reset(_frameEpoch);
-        _responseTiming?.Reset(_frameEpoch);
         PreparedFrame? obsolete;
         lock (_pendingLock) { obsolete = _pending; _pending = null; }
         _live.Recycle(obsolete);
@@ -786,8 +782,6 @@ public partial class MainWindow : Window
         {
             if (!ReferenceEquals(PhoneImage.Source, _live.Source)) PhoneImage.Source = _live.Source;
             SyncFarmPhoneImage();
-            _responseTiming?.BitmapApplied(_frameEpoch, Selected?.Id ?? "", frame.PreviewStamp,
-                frame.Width, frame.Height, "pump");
             PreviewPlaceholder.Visibility = Visibility.Collapsed;
             if (frame.PreviewStamp is { } shownStamp) _previewFreshness.Presented(shownStamp);
             _rate.Mark(); _jitter.Mark();
@@ -846,7 +840,6 @@ public partial class MainWindow : Window
                 {
                     if (!ReferenceEquals(PhoneImage.Source, _live.Source)) PhoneImage.Source = _live.Source;
                     SyncFarmPhoneImage();
-                    _responseTiming?.BitmapApplied(epoch, device.Id, stamp, prepared.Width, prepared.Height, "manual");
                 }
                 _live.Recycle(prepared);
             }
@@ -857,7 +850,6 @@ public partial class MainWindow : Window
                 decoded.BeginInit(); decoded.CacheOption = BitmapCacheOption.OnLoad; decoded.StreamSource = stream; decoded.EndInit(); decoded.Freeze();
                 PhoneImage.Source = decoded;
                 SyncFarmPhoneImage();
-                _responseTiming?.BitmapApplied(epoch, device.Id, stamp, decoded.PixelWidth, decoded.PixelHeight, "manual_decoded");
             }
             _previewFreshness.Presented(stamp);
             PreviewPlaceholder.Visibility = Visibility.Collapsed;
@@ -1006,7 +998,7 @@ public partial class MainWindow : Window
         // A tap lands where the button went DOWN, not where it came up. Using the release
         // point meant a few pixels of drift moved the tap, and a release a hair outside the
         // picture rejected the coordinate and sent nothing.
-        await SendInputAsync("Tap", "/mouse/click", new() { ["x"] = gesture.Value.X, ["y"] = gesture.Value.Y }, origin: "preview_gesture_handler");
+        await SendInputAsync("Tap", "/mouse/click", new() { ["x"] = gesture.Value.X, ["y"] = gesture.Value.Y });
     }
 
     /// <summary>
@@ -1594,19 +1586,15 @@ public partial class MainWindow : Window
     /// negotiates its own AirPlay session) but wrong for input, where the whole point is
     /// that every phone receives the same event as close to simultaneously as possible.
     /// </summary>
-    private async Task SendInputAsync(string label, string function, Dictionary<string, object> data, bool quiet = false, string origin = "internal")
+    private async Task SendInputAsync(string label, string function, Dictionary<string, object> data, bool quiet = false)
     {
-        // Capture before the queue/HTTP round trip. UIA and physical input can both
-        // reach this handler; the trace must not describe either as a physical click.
+        // Capture the targets before the queue/HTTP round trip.
         var ids = InputTargetIds();
-        var timed = _responseTiming?.Begin(_frameEpoch, ids, origin,
-            ResponseTiming.Operation(function, data.GetValueOrDefault("fn_key")));
-        void Finish(string outcome) { if (timed is not null) _responseTiming!.End(timed, outcome); }
-        if (!_controlReady) { Finish("not_ready"); return; }
+        if (!_controlReady) return;
         var lifetime = _lifetime.Token; var control = _controlCancellation;
         var api = _api;
-        if (api is null || !_connected || ids.Length == 0) { Finish("unavailable"); return; }
-        if (api.UnavailableCommandReason(function) is { } reason) { Finish("unsupported"); Log(reason, true); return; }
+        if (api is null || !_connected || ids.Length == 0) return;
+        if (api.UnavailableCommandReason(function) is { } reason) { Log(reason, true); return; }
         int count = ids.Count(c => c == ',') + 1;
         try
         {
@@ -1615,18 +1603,13 @@ public partial class MainWindow : Window
             var context = new InputContext(api, ids, lifetime, control);
             var payload = new Dictionary<string, object>(data) { ["id"] = ids };
             _pointerMoves.ClearPending();
-            await _inputActions.Enqueue(context, ct =>
-            {
-                if (timed is not null) _responseTiming!.CommandStarted(timed);
-                return api.CommandAsync(function, payload, ct);
-            }).ConfigureAwait(false);
-            Finish("command_completed");
+            await _inputActions.Enqueue(context, ct => api.CommandAsync(function, payload, ct)).ConfigureAwait(false);
             if (!quiet) LogAsync(count > 1 ? $"{label} -> {count} phones" : label);
         }
-        catch (OperationCanceledException) when (CancelledHere(lifetime, control)) { Finish("cancelled"); }
-        catch (InputNotSentException ex) { Finish("not_sent"); LogAsync($"{label}: {ex.Message}", true); }
+        catch (OperationCanceledException) when (CancelledHere(lifetime, control)) { }
+        catch (InputNotSentException ex) { LogAsync($"{label}: {ex.Message}", true); }
         // A cancellation nobody here asked for is HttpClient's timeout: logged, not swallowed.
-        catch (Exception ex) { Finish("failed"); LogAsync($"{label} failed: {Friendly(ex)}", true); }
+        catch (Exception ex) { LogAsync($"{label} failed: {Friendly(ex)}", true); }
     }
 
     private List<Device> Targets() => BatchMode.IsChecked == true ? _devices.Where(x => x.IsChecked).ToList() : Selected is { } d ? [d] : [];
@@ -1645,7 +1628,7 @@ public partial class MainWindow : Window
             default: return;
         }
         if (parts[0] == "cast") { await ExecuteAsync(button.Content.ToString()!, function, data, targets, true); return; }
-        await SendInputAsync(button.Content.ToString()!, function, data, origin: "button_handler");
+        await SendInputAsync(button.Content.ToString()!, function, data);
     }
     /// <summary>
     /// Temporary cap on one Send text, not a chunking requirement: chunks bound the work per command,

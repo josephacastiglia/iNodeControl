@@ -622,8 +622,7 @@ public static class SelfTests
         await DiagnosticsTests.RunAsync(Check);
         await CleanupDiagnosticsTests.RunAsync(Check);
         await MainWindow.CheckCleanupDiagnosticWindowAsync(Check);
-        ResponseTimingTests.Register((name, run) => { run(); Check(name, true); });
-        await MainWindow.CheckResponseTimingAsync(Check);
+        await MainWindow.CheckPresenterAsync(Check);
         SettingsPersistenceTests.Run(Check);
         await ServicePolicyTests.RunAsync(Check);
         await PointerMovePumpTests.RunAsync(Check);
