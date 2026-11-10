@@ -1,5 +1,6 @@
 """Synthetic files only: the release builder must not launch anything, read rack state or package it."""
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -269,6 +270,42 @@ class Lint(Base):
         findings = fr.lint_text('farm/x.ps1', "# C:\\Users\\someone\\Desktop\\Claude Code\\notes\n$a=1\n")
         self.assertTrue(findings and all(f['comment'] for f in findings))
         self.assertEqual(fr.blockers(findings), [])
+
+
+class ReceiverSourceRecord(unittest.TestCase):
+    """tools/airplay: the receiver's source is upstream UxPlay plus the recorded patches (UPSTREAM.md)."""
+    AIRPLAY = fr.REPO / 'tools' / 'airplay'
+
+    def test_every_patch_describes_the_tracked_source(self):
+        patches = sorted((self.AIRPLAY / 'patches').glob('*.patch'))
+        self.assertEqual(len(patches), 3)
+        for patch in patches:
+            text = patch.read_bytes().decode('utf-8')
+            self.assertNotIn('\r', text, f'{patch.name} must keep LF line endings to apply to upstream')
+            target = re.search(r'^\+\+\+ b/(\S+)', text, re.M).group(1)
+            tracked = (self.AIRPLAY / 'uxplay' / target).read_bytes().decode('utf-8').replace('\r\n', '\n')
+            hunks = re.split(r'^@@ .* @@.*\n', text, flags=re.M)[1:]
+            self.assertTrue(hunks, patch.name)
+            for hunk in hunks:
+                lines = [l for l in hunk.split('\n') if l]
+                self.assertFalse([l for l in lines if l.startswith('-')], f'{patch.name} only adds lines')
+                after = '\n'.join(l[1:] for l in lines if l[0] in ' +')
+                self.assertIn(after, tracked, f'{patch.name}: {target} no longer holds this change')
+
+    def test_the_record_names_upstream_the_patches_and_the_licences(self):
+        record = (self.AIRPLAY / 'UPSTREAM.md').read_text(encoding='utf-8')
+        for need in ('github.com/FDH2/UxPlay', '44024fe', 'General Public License', *[p.name for p in (self.AIRPLAY / 'patches').glob('*.patch')]):
+            self.assertIn(need, record)
+        for licence in ('uxplay/LICENSE', 'uxplay/lib/playfair/LICENSE.md', 'uxplay/lib/llhttp/LICENSE-MIT'):
+            self.assertTrue((self.AIRPLAY / licence).is_file(), licence)
+            self.assertIn(licence, record)
+        self.assertEqual(fr.scan_private_content(self.AIRPLAY / 'UPSTREAM.md'), [], 'the notice ships in every package')
+
+    def test_the_build_script_does_not_tune_the_binary_to_the_build_pc(self):
+        script = (self.AIRPLAY / 'build-receiver.sh').read_text(encoding='utf-8')
+        self.assertIn('-DNO_MARCH_NATIVE=ON', script)
+        self.assertIn('NOT NO_MARCH_NATIVE', (self.AIRPLAY / 'uxplay/lib/CMakeLists.txt').read_text(encoding='utf-8'),
+                      'upstream still guards -march=native with this option')
 
 
 class ThisCheckout(unittest.TestCase):

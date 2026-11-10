@@ -61,3 +61,7 @@ analysis/farm-permission-prompts-20261020/** -text
 analysis/farm-live-windows-20261020/** -text
 analysis/farm-youtube-draft-20261020/** -text
 analysis/farm-prompt-validation-20261020/** -text
+# The receiver's patches must apply to upstream's LF files, and its build script runs under bash.
+tools/airplay/patches/*.patch -text
+tools/airplay/build-receiver.sh text eol=lf
+tools/airplay/UPSTREAM.md text eol=lf
