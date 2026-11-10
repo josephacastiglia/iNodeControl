@@ -11,7 +11,12 @@ YouTube (23 Oct, slot 16): creation pressed Save draft once, a following frame s
 the verifier never ran. That exact case runs the YouTube verifier once on the channel creation
 bound: Create -> Drafts -> the one exact-title draft -> play -> Save draft (keeps it) -> Drafts.
 
+Reel (A19, 5 Nov): a Reel run can stop the same way, right after its one answered Save draft with a
+later frame showing 'Draft saved' (the saved picker's toolbar was not recognized yet). That case runs
+the Reel verifier once against the admitted package; nothing is reopened or saved.
+
   python verify_window.py --window reel-slot18 --attempt 1 --check 2
+  python verify_window.py --window reel-slot19 --attempt 3 --check 2
   python verify_window.py --window x-slot17 --attempt 1 --check 2
   python verify_window.py --window youtube-slot16 --attempt 1 --check 1
   python verify_window.py --window x-image-slot17 --attempt 1 --check 2
@@ -124,10 +129,13 @@ def main():
     workflow = run['workflow']
     folder = Path(prep['backendData']) / prep['route'] / run['id']
     child = folder / f'verification-{args.check}'
-    if prep['platform'] == 'youtube' and 'verification' not in workflow:
-        if not saved_then_stopped(run):
-            raise SystemExit('This attempt is not a saved YouTube draft whose creation stopped after Draft saved. Nothing was sent.')
-        if child.exists() or (folder / 'verification').exists(): raise SystemExit('This check exists. Never replay a check.')
+    if prep['platform'] in SAVED_THEN_STOPPED and 'verification' not in workflow:
+        if not saved_then_stopped(run, prep['platform']):
+            raise SystemExit(f"This attempt is not a saved {SAVED_THEN_STOPPED[prep['platform']][0]} draft whose creation stopped "
+                             'after Draft saved. Nothing was sent.')
+        if prep['platform'] == 'youtube':
+            if child.exists() or (folder / 'verification').exists(): raise SystemExit('This check exists. Never replay a check.')
+        elif args.check < 2 or child.exists(): raise SystemExit('This check exists or is reserved. Never replay a check.')
     else:   # Every platform, YouTube included once its own verifier ran and stopped (run 70, 26 Oct).
         if not (run['terminal'] and workflow.get('creationState') == 'created_unverified' and not run['savedDraftVerified']
                 and workflow.get('cleanup') == 'confirmed' and isinstance(workflow.get('verification'), dict)):
@@ -139,17 +147,28 @@ def main():
     print(summary(args, result))
 
 
-def saved_then_stopped(run):
+# Platforms whose creation can stop right after its one answered Save draft, before its verifier ran:
+# (name in messages, the save action's label).
+SAVED_THEN_STOPPED = {'youtube': ('YouTube', 'save-youtube-draft-once'), 'reel': ('Reel', 'save-reel-draft-once')}
+
+
+def saved_then_stopped(run, platform='youtube'):
     """Creation answered its one Save draft, a later frame showed 'Draft saved', and nothing ran after."""
     workflow = run['workflow']
     actions = workflow.get('actions') or []
     if not (run['terminal'] and run['state'] == 'review_required' and not run['savedDraftVerified']
-            and workflow.get('cleanup') == 'confirmed' and 'verification' not in workflow and workflow.get('account')
-            and actions and actions[-1]['label'] == 'save-youtube-draft-once' and actions[-1]['state'] == 'answered'):
+            and workflow.get('cleanup') == 'confirmed' and 'verification' not in workflow
+            and (platform != 'youtube' or workflow.get('account'))   # YouTube's verifier needs the channel creation bound.
+            and actions and actions[-1]['label'] == SAVED_THEN_STOPPED[platform][1] and actions[-1]['state'] == 'answered'):
         return False
-    saved = next(i for i, o in enumerate(workflow['observations']) if o.get('observationId') == actions[-1]['observationId'])
-    return any(line['text'].strip().casefold() == 'draft saved' for o in workflow['observations'][saved+1:]
-               if o['role'] in ('yt_home', 'yt_home_saved') for line in o['observation']['text'].get('lines', []))
+    if platform == 'youtube':   # The toast is read on YouTube's home only.
+        saved = next(i for i, o in enumerate(workflow['observations']) if o.get('observationId') == actions[-1]['observationId'])
+        return any(line['text'].strip().casefold() == 'draft saved' for o in workflow['observations'][saved+1:]
+                   if o['role'] in ('yt_home', 'yt_home_saved') for line in o['observation']['text'].get('lines', []))
+    observations = workflow['observations']
+    saved = next((i for i, o in enumerate(observations) if o.get('observationId') == actions[-1]['observationId']), None)
+    return saved is not None and any(line['text'].strip().casefold() == 'draft saved' for o in observations[saved+1:]
+                                     for line in (o.get('observation') or {}).get('text', {}).get('lines', []))
 
 
 if __name__ == '__main__':
