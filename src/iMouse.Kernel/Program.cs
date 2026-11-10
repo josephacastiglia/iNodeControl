@@ -53,6 +53,10 @@ try
 {
     await server.RunAsync(cts.Token, () =>
     {
+        // The listener is claimed, so no other kernel serves this address, and no request is read
+        // until this returns: let go of anything a killed kernel left held before input is accepted.
+        foreach (var released in input.ReleaseAtStartupAsync().GetAwaiter().GetResult())
+            Console.WriteLine("Start-up release " + released.Pid + ": " + released.Message);
         var boards = HidHost.Enumerate();
         Console.WriteLine($"iMouse 2.0 kernel. {boards.Count} WCH boards (VID_{HidHost.VendorId}).");
         fleet.Start(cts.Token, options.HeldReceivers);

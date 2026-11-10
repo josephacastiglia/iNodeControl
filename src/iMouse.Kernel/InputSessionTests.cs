@@ -39,6 +39,54 @@ internal static class InputSessionTests
         throw new Exception("Expected ownership rejection");
     }
     /// <summary>
+    /// Start-up release: a kernel that is killed cannot lift a button or key it was holding. The next
+    /// kernel sends every enabled board the two release reports once, before it accepts input.
+    /// </summary>
+    public static async Task StartupReleaseAsync(Action<bool, string> check)
+    {
+        var store = new DeviceStore([new Phone { deviceid = "one", pid = "C24C" }, new Phone { deviceid = "two", pid = "C241" },
+            new Phone { deviceid = "three", pid = "C242" }, new Phone { deviceid = "four", pid = "C243" }]);
+        PointerCalibration Calibration(string pid) => new(pid, 500, 1080, 14, 14, 5, 5);
+        string[] release = ["A100000000000000", "A200000000000000"];
+        check(release.SequenceEqual(new[] { Convert.ToHexString(HidProtocol.Mouse()), Convert.ToHexString(HidProtocol.Key()) }),
+            "The release reports are the protocol's button-up and key-up: A100000000000000, A200000000000000");
+        {
+            // C242 is allowed but has no calibration, C243 is calibrated but not allowed: neither is enabled.
+            var boards = new ConcurrentDictionary<string, Transport>(); var opened = new ConcurrentQueue<string>();
+            using var input = new InputRouter(store, ["C24C", "C241", "C242"], [Calibration("C24C"), Calibration("C241"), Calibration("C243")],
+                pid => { opened.Enqueue(pid); return boards[pid] = new Transport(); });
+            var results = await input.ReleaseAtStartupAsync();
+            check(opened.OrderBy(p => p, StringComparer.Ordinal).SequenceEqual(new[] { "C241", "C24C" }), "Start-up release opens each enabled board once and no board that is not enabled");
+            check(boards.Count == 2 && boards.Values.All(t => t.Reports.SequenceEqual(release)), "Each enabled board is sent exactly button-up then key-up, and nothing else");
+            check(boards.Values.All(t => t.Disposed), "Each board is closed again after its start-up release");
+            check(results.Select(r => r.Pid).SequenceEqual(new[] { "C241", "C24C" }) && results.All(r => r.Sent), "Every enabled board is reported as released");
+
+            // What a normal release sends, for comparison, and input afterwards is as it was.
+            await using var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            await sessions.DispatchAsync("/mouse/down", Data(new { id = "one", token }));
+            var live = boards["C24C"];
+            await sessions.StopAsync(Data(new { id = "one", token }), release: true);
+            check(live.Reports.TakeLast(2).SequenceEqual(release) && opened.Count(p => p == "C24C") == 2 && opened.Count == 3,
+                "They are the same two reports every release sends, and the first command afterwards opens its board as before");
+        }
+        {
+            // A board that is absent, or fails, is reported and holds up nothing.
+            var good = new Transport(); var bad = new Transport { Fail = hex => hex == "A100000000000000" };
+            using var input = new InputRouter(store, ["C24C", "C241", "C243"], [Calibration("C24C"), Calibration("C241"), Calibration("C243")],
+                pid => pid switch { "C24C" => good, "C241" => bad, _ => throw new KeyNotFoundException("Board " + pid) });
+            var results = (await input.ReleaseAtStartupAsync()).ToDictionary(r => r.Pid);
+            check(results.Count == 3 && good.Reports.SequenceEqual(release) && results["C24C"].Sent, "A working board is released when others are absent or failing");
+            check(bad.Reports.SequenceEqual(release) && bad.Disposed && !results["C241"].Sent && results["C241"].Message.Contains("not confirmed"),
+                "A board whose button-up fails is still sent key-up, is closed, and is reported as not confirmed");
+            check(!results["C243"].Sent && results["C243"].Message.Contains("not present"), "A board that is not plugged in is reported as not present");
+        }
+        {
+            using var none = new InputRouter(store, [], [Calibration("C24C")], _ => throw new Exception("Unexpected HID access"));
+            check((await none.ReleaseAtStartupAsync()).Length == 0, "With no enabled board the start-up release opens nothing");
+        }
+    }
+    /// <summary>
     /// /input/status says why each phone stopped in a fixed word a script can branch on, beside the
     /// existing stopped flag and message, which keep their values.
     /// </summary>

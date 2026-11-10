@@ -321,10 +321,12 @@ public static class SelfTests
         await ReceiverFleetTests.RunAsync(Check, file, router, validBmp);
         await InputSessionTests.RunAsync(Check);
         await InputSessionTests.StopReasonAsync(Check);
+        await InputSessionTests.StartupReleaseAsync(Check);
         await InputSessionTests.HomeSequenceAsync(Check);
         await InputSessionTests.NavigationAsync(Check);
         await KernelStartupTests.RunAsync(Check);
         await ApiHttpTests.RunAsync(Check);
+        await ApiHttpTests.StartupOrderAsync(Check);
         File.Delete(file);Directory.Delete(testDir);
         Console.WriteLine($"{passed} tests passed; no real HID transport opened.");
         return 0;

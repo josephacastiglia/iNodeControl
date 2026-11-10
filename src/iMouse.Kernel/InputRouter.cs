@@ -15,6 +15,9 @@ public sealed record PointerCalibration(string Pid, int Width, int Height, doubl
 /// </summary>
 public enum HomeSequence { Vendor, CommandH }
 
+/// <summary>What the start-up release did for one enabled board.</summary>
+public sealed record StartupRelease(string Pid, bool Sent, string Message);
+
 public sealed class InputRouter : IDisposable
 {
     private readonly DeviceStore _store;
@@ -124,6 +127,30 @@ public sealed class InputRouter : IDisposable
         if (!Enabled(pid)) throw new ArgumentException("Target needs an enabled, calibrated board.");
         Validate(fun, data, _calibrations[pid]);
     }
+
+    /// <summary>
+    /// Start-up only, before any command is accepted. A kernel that is killed cannot lift a button
+    /// or key it was holding, and the board goes on holding it. This sends every enabled board the
+    /// same button-up and key-up reports every release sends, once. Each board is opened, written
+    /// and closed again, so the first command opens it exactly as before. A board that is absent or
+    /// fails is reported and holds up nothing: the kernel starts with boards missing today.
+    /// </summary>
+    public Task<StartupRelease[]> ReleaseAtStartupAsync() =>
+        Task.WhenAll(_allowed.Where(Enabled).OrderBy(pid => pid, StringComparer.Ordinal).Select(async pid =>
+        {
+            var state = _states.GetOrAdd(pid, _ => new());
+            await state.Gate.WaitAsync();
+            try
+            {
+                state.Connection = _open(pid);
+                try { await ReleaseReportsAsync(state); }
+                finally { state.Connection.Dispose(); state.Connection = null; }
+                return new StartupRelease(pid, true, "button and keys released");
+            }
+            catch (KeyNotFoundException) { return new StartupRelease(pid, false, "board not present; nothing sent"); }
+            catch (Exception ex) { return new StartupRelease(pid, false, "release not confirmed: " + ex.Message); }
+            finally { state.Gate.Release(); }
+        }));
 
     // Cleanup deliberately ignores the cancelled command token. Transport writes have
     // their own two-second deadline. Never open an otherwise unused board just to stop it.

@@ -16,11 +16,60 @@ internal static class ApiHttpTests
     private sealed class Board : IHidTransport
     {
         public readonly ConcurrentQueue<string> Reports = new();
-        public Task SendAsync(byte[] data, CancellationToken ct)
+        /// <summary>When set, every write waits for it: a board that is slow to take a report.</summary>
+        public Task? Gate;
+        public async Task SendAsync(byte[] data, CancellationToken ct)
         {
-            ct.ThrowIfCancellationRequested(); Reports.Enqueue(Convert.ToHexString(data)); return Task.CompletedTask;
+            ct.ThrowIfCancellationRequested(); Reports.Enqueue(Convert.ToHexString(data));
+            if (Gate is not null) await Gate;
         }
         public void Dispose() { }
+    }
+
+    /// <summary>
+    /// The kernel runs its start-up release in the step between claiming the listener and reading
+    /// the first request (Program.cs). This is that step over a real listener: a request that arrives
+    /// while the release is still being written is answered only after it, never before.
+    /// </summary>
+    public static async Task StartupOrderAsync(Action<bool, string> check)
+    {
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var board = new Board { Gate = gate.Task };
+        var store = new DeviceStore([new Phone { deviceid = "one", pid = "C24C", uid = "A" }]);
+        using var input = new InputRouter(store, ["C24C"], [new PointerCalibration("C24C", 500, 1080, 14, 14, 5, 5)], _ => board);
+        using var frames = new FrameStore("api-startup-tests-never-opened", "one");
+        string root = "http://127.0.0.1:" + UnusedLoopbackPort() + "/api/";
+        using var stop = new CancellationTokenSource();
+        using var server = new ApiServer(root, store, input, [("Test receiver", frames)]);
+        var claimed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        StartupRelease[] released = [];
+        var run = Task.Run(() => server.RunAsync(stop.Token, () =>
+        {
+            claimed.TrySetResult();
+            released = input.ReleaseAtStartupAsync().GetAwaiter().GetResult();
+        }));
+        try
+        {
+            await await Task.WhenAny(claimed.Task, run);
+            using var http = new HttpClient(new SocketsHttpHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(10) };
+            using var body = new StringContent(JsonSerializer.Serialize(new { fun = "/input/acquire", data = new { id = "one" } }), Encoding.UTF8, "application/json");
+            var early = http.PostAsync(root, body);
+            for (int i = 0; i < 2000 && board.Reports.IsEmpty; i++) await Task.Delay(1);
+            await Task.Delay(300);
+            check(!early.IsCompleted && board.Reports.SequenceEqual(new[] { "A100000000000000" }),
+                "A request that arrives during the start-up release is not answered while the release is being written");
+            gate.SetResult();
+            using var answer = await early;
+            using var doc = JsonDocument.Parse(await answer.Content.ReadAsStringAsync());
+            check(doc.RootElement.GetProperty("data").GetProperty("code").GetInt32() == 0
+                && board.Reports.SequenceEqual(new[] { "A100000000000000", "A200000000000000" }) && released is [{ Pid: "C24C", Sent: true }],
+                "It is answered once the release has finished, and the board saw button-up and key-up first");
+        }
+        finally
+        {
+            gate.TrySetResult(); stop.Cancel();
+            try { await run; } catch (OperationCanceledException) { }
+        }
     }
 
     /// <summary>A loopback port nothing is listening on, and never one the product uses.</summary>
