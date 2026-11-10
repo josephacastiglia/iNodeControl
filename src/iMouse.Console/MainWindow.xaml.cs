@@ -19,7 +19,7 @@ public partial class MainWindow : Window
     private CancellationTokenSource _lifetime = new();
     private int _session;
     private int _refreshSession = -1;
-    private bool _connected, _closing, _filtering;
+    private bool _connected, _closing;
     private List<Device> _devices = [];
     private readonly ObservableCollection<string> _activity = [];
     private readonly DispatcherTimer _refreshTimer = new() { Interval = TimeSpan.FromSeconds(5) };
@@ -34,9 +34,6 @@ public partial class MainWindow : Window
     private readonly string _dataPath;
     private readonly bool _mirrorLocal;
     private Device? Selected => DeviceList.SelectedItem as Device;
-    /// <summary>The address the data folder's settings.json named, or null when it named none
-    /// (the box then shows the built-in default, the vendor service on 9911).</summary>
-    internal string? SavedAddress { get; private set; }
     private bool? _savedTrackPointer;
 
     // dataPath is for test modes and --data-dir: they must never load or overwrite the
@@ -55,16 +52,12 @@ public partial class MainWindow : Window
         ActivityList.ItemsSource = _activity;
         PhoneWall.ItemsSource = _wall;
         PhoneWall.DataContext = this;
-        GroupFilter.ItemsSource = new[] { "All groups" };
-        GroupFilter.SelectedIndex = 0;
         try
         {
             var file = Path.Combine(_dataPath, "settings.json");
             if (File.Exists(file))
             {
                 using var d = JsonDocument.Parse(File.ReadAllText(file));
-                var saved = JsonValue.Text(d.RootElement, "address");
-                if (!string.IsNullOrWhiteSpace(saved)) SavedAddress = saved;
                 AddressBox.Text = JsonValue.Text(d.RootElement, "address", AddressBox.Text);
                 if (JsonValue.Text(d.RootElement, "theme") == "night") ApplyTheme(true);
                 // Optional and absent by default, so hover tracking stays on unless a settings file
@@ -381,11 +374,6 @@ public partial class MainWindow : Window
             {
                 foreach (var item in fresh) { item.IsChecked = checkedIds.Contains(item.Id); item.PropertyChanged += (_, _) => UpdateControls(); }
                 _devices = fresh;
-                var group = GroupFilter.SelectedItem as string;
-                _filtering = true;
-                GroupFilter.ItemsSource = new[] { "All groups" }.Concat(_devices.Select(x => x.Group).Distinct().Order()).ToArray();
-                GroupFilter.SelectedItem = (GroupFilter.ItemsSource as string[])!.Contains(group ?? "") ? group : "All groups";
-                _filtering = false;
                 ApplyFilter(oldId);
             }
             // Control and video are separate channels. A phone can be attached to a
@@ -434,14 +422,12 @@ public partial class MainWindow : Window
     }
     private static string Signature(IEnumerable<Device> items) => JsonSerializer.Serialize(items.Select(x => new { x.Id, x.Name, x.Model, x.Group, x.Os, x.Hardware, x.Online, x.VideoState, x.ReceiverName, x.Width, x.Height }));
 
-    private void Filter_Changed(object sender, RoutedEventArgs e) { if (IsInitialized && !_filtering) ApplyFilter(Selected?.Id); }
-    private void Group_Changed(object sender, SelectionChangedEventArgs e) { if (IsInitialized && !_filtering) ApplyFilter(Selected?.Id); }
+    private void Filter_Changed(object sender, RoutedEventArgs e) { if (IsInitialized) ApplyFilter(Selected?.Id); }
     private void ApplyFilter(string? selectedId)
     {
         if (DeviceList is null || SearchBox is null) return;
-        var query = SearchBox.Text.Trim(); var group = GroupFilter.SelectedItem as string;
+        var query = SearchBox.Text.Trim();
         var visible = _devices.Where(d => (OnlineOnly.IsChecked != true || d.Online) &&
-            (group is null or "All groups" || d.Group == group) &&
             (query.Length == 0 || string.Join(" ", d.DisplayName, d.Model, d.Id, d.Group).Contains(query, StringComparison.OrdinalIgnoreCase))).ToList();
         DeviceList.ItemsSource = visible;
         // Keep the caller's selection if it survived the filter; otherwise fall to the
@@ -592,7 +578,6 @@ public partial class MainWindow : Window
         UpdatePreviewFreshness();
         UpdateWallFreshness();
     }
-    private async void Preview_Click(object sender, RoutedEventArgs e) => await GrabOneAsync();
 
     // ---- live view ----
     //
@@ -809,15 +794,14 @@ public partial class MainWindow : Window
     private void UpdateFrameStatus()
     {
         UpdatePreviewFreshness();
-        if (FrameStatus is null || Selected is not { } device || PhoneImage.Source is not BitmapSource shown) return;
-        var target = TargetSize(device, shown);
+        if (FrameStatus is null || Selected is null || PhoneImage.Source is not BitmapSource shown) return;
         // The gap between frames actually reaching the screen, and how many of the last
         // few seconds' intervals ran long. Those are the numbers that move when smoothness
         // moves; an fps average cannot see judder, because 7/60/7/60 averages the same as
         // a steady 33.
         var gaps = _jitter.Summary();
         string pacing = gaps.P50 > 0 ? $" \u00b7 {gaps.P50:0}/{gaps.P95:0} ms p50/p95" + (gaps.Long > 0 ? $" \u00b7 {gaps.Long} slow" : "") : "";
-        FrameStatus.Text = $"{_previewFreshness.Status.Text} \u00b7 {_rate.Fps:0.#} updates/s \u00b7 {shown.PixelWidth} \u00d7 {shown.PixelHeight} \u00b7 taps in {(CoordinateSpaceIsImage ? "image pixels" : "iOS points")} {target.W} \u00d7 {target.H}{pacing}";
+        FrameStatus.Text = $"{_previewFreshness.Status.Text} \u00b7 {_rate.Fps:0.#} updates/s \u00b7 {shown.PixelWidth} \u00d7 {shown.PixelHeight} \u00b7 taps in image pixels{pacing}";
     }
 
     /// <summary>Single frame on demand, for the Refresh button and for the smoke test.</summary>
@@ -865,27 +849,14 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>
-    /// The service reports two different geometries per phone: the mirror stream
-    /// in pixels (imgw/imgh) and the iOS logical screen in points (width/height).
-    /// Image search results come back in image pixels, so that is the default for
-    /// taps; the selector exists because the documentation does not state which
-    /// space /mouse/click expects, and a wrong guess puts taps in the wrong place.
-    /// </summary>
-    private bool CoordinateSpaceIsImage => (CoordSpace?.SelectedItem as ComboBoxItem)?.Tag as string != "points";
-    private (int W, int H) TargetSize(Device d, BitmapSource image)
-    {
-        if (CoordinateSpaceIsImage) return (image.PixelWidth, image.PixelHeight);
-        int w = d.Width, h = d.Height;
-        if (w <= 0 || h <= 0) return (image.PixelWidth, image.PixelHeight);
-        if ((image.PixelWidth > image.PixelHeight) != (w > h)) (w, h) = (h, w);
-        return (w, h);
-    }
+    // Taps and gestures are sent in mirror-image pixels, the space the kernel's calibration uses.
+    private static (int W, int H) TargetSize(BitmapSource image) => (image.PixelWidth, image.PixelHeight);
+
     /// <summary>MapPreview, but pulls an outside point to the nearest edge. For gestures.</summary>
     private (int X, int Y)? MapPreviewClamped(Point point)
     {
         if (Selected is not { Online: true } d || PhoneImage.Source is not BitmapSource image || _frameId != d.Id) return null;
-        var size = TargetSize(d, image);
+        var size = TargetSize(image);
         return CoordinateMapper.MapClamped(point.X, point.Y, PhoneImage.ActualWidth, PhoneImage.ActualHeight,
                                            image.PixelWidth, image.PixelHeight, size.W, size.H);
     }
@@ -893,7 +864,7 @@ public partial class MainWindow : Window
     private (int X, int Y)? MapPreview(Point point)
     {
         if (Selected is not { Online: true } d || PhoneImage.Source is not BitmapSource image || _frameId != d.Id || (DateTime.UtcNow - _frameAt).TotalSeconds > 10) return null;
-        var size = TargetSize(d, image);
+        var size = TargetSize(image);
         return CoordinateMapper.Map(point.X, point.Y, PhoneImage.ActualWidth, PhoneImage.ActualHeight, image.PixelWidth, image.PixelHeight, size.W, size.H);
     }
     // ---- pointer input ----
@@ -942,7 +913,7 @@ public partial class MainWindow : Window
         if (PointerEnabled.IsChecked != true || !_connected || Selected is null || PhoneImage.Source is not BitmapSource image) return;
         var mapped = MapPreview(point);
         if (mapped is null) { Log("Refresh the preview before controlling the phone.", true); return; }
-        var size = TargetSize(Selected, image);
+        var size = TargetSize(image);
         ReleaseCurrentGesture();
         _gesture = (Selected.Id, _session, mapped.Value.X, mapped.Value.Y, point, size.W, size.H);
         // Stop hover tracking. A queued hover move that lands after the button goes down
@@ -995,7 +966,7 @@ public partial class MainWindow : Window
         PhoneImage.ReleaseMouseCapture();
         if (PointerEnabled.IsChecked != true || Selected?.Id != gesture.Value.Id || _session != gesture.Value.Session) return;
         if (PhoneImage.Source is not BitmapSource image) return;
-        if (TargetSize(Selected, image) != (gesture.Value.W, gesture.Value.H)) { Log("Phone orientation changed. Try again.", true); return; }
+        if (TargetSize(image) != (gesture.Value.W, gesture.Value.H)) { Log("Phone orientation changed. Try again.", true); return; }
         // A tap lands where the button went DOWN, not where it came up. Using the release
         // point meant a few pixels of drift moved the tap, and a release a hair outside the
         // picture rejected the coordinate and sent nothing.

@@ -235,7 +235,7 @@ public partial class MainWindow
             SelectedFarmInputPhone() is not { Online: true } device || _frameId != device.Id ||
             (DateTime.UtcNow - _frameAt).TotalSeconds > 10) return;
         var pt = e.GetPosition(FarmTapCanvas);
-        var size = TargetSize(device, image);
+        var size = TargetSize(image);
         var mapped = CoordinateMapper.Map(pt.X, pt.Y, FarmTapCanvas.ActualWidth, FarmTapCanvas.ActualHeight,
             image.PixelWidth, image.PixelHeight, size.W, size.H);
         if (mapped is not { } position) return;

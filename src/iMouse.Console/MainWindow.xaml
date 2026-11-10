@@ -67,7 +67,6 @@
               <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <TextBox x:Name="SearchBox" TextChanged="Filter_Changed" AutomationProperties.Name="Search devices" MinHeight="26" Padding="6,3" FontSize="12"/>
               <CheckBox x:Name="OnlineOnly" Grid.Column="1" Content="Online" Checked="Filter_Changed" Unchecked="Filter_Changed" Margin="7,0,0,0" FontSize="11.5" VerticalAlignment="Center"/>
-              <ComboBox x:Name="GroupFilter" SelectionChanged="Group_Changed" AutomationProperties.Name="Filter by group" Visibility="Collapsed"/>
             </Grid>
             <!-- One switch that puts every phone under the master. Unticking it releases
                  them again, which is the fast way out if a mirrored action goes wrong. -->
@@ -382,9 +381,6 @@
                   <CheckBox x:Name="PointerEnabled" IsChecked="True" Unchecked="PointerTrackingDisabled"><TextBlock Text="Click / drag to control" TextWrapping="Wrap"/></CheckBox>
                   <CheckBox x:Name="TrackPointer" IsChecked="True" Unchecked="PointerTrackingDisabled" Margin="0,3,0,0"><TextBlock Text="Move phone pointer with mouse" TextWrapping="Wrap"/></CheckBox>
                   <CheckBox x:Name="AutoPreview" IsChecked="True" Margin="0,3,0,0" Checked="Live_Changed" Unchecked="Live_Changed"><TextBlock Text="Live view" TextWrapping="Wrap"/></CheckBox>
-                  <ComboBox x:Name="CoordSpace" SelectedIndex="0" Margin="0,6,0,0" AutomationProperties.Name="Coordinate space used for taps">
-                    <ComboBoxItem Content="Taps: image pixels" Tag="image"/><ComboBoxItem Content="Taps: iOS points" Tag="points"/>
-                  </ComboBox>
                   <Button Content="Reset pointer" Tag="reset|mouse" Click="Action_Click" HorizontalAlignment="Stretch" Margin="0,6,0,0"/>
                 </StackPanel>
               </StackPanel>
