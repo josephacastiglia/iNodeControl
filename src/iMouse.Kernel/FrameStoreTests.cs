@@ -226,7 +226,7 @@ internal static class FrameStoreTests
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
         while (!ready()) await Task.Delay(1, timeout.Token);
     }
-    private static byte[] Bmp()
+    internal static byte[] Bmp()
     {
         var b = new byte[70]; b[0] = (byte)'B'; b[1] = (byte)'M';
         BinaryPrimitives.WriteInt32LittleEndian(b.AsSpan(2), b.Length);
@@ -237,7 +237,7 @@ internal static class FrameStoreTests
         BinaryPrimitives.WriteInt16LittleEndian(b.AsSpan(26), 1);
         BinaryPrimitives.WriteInt16LittleEndian(b.AsSpan(28), 24); return b;
     }
-    private static byte[] Packet(byte[] bmp)
+    internal static byte[] Packet(byte[] bmp)
     {
         var packet = new byte[bmp.Length + 4]; BinaryPrimitives.WriteInt32LittleEndian(packet, bmp.Length);
         bmp.CopyTo(packet, 4); return packet;
@@ -272,7 +272,7 @@ internal static class FrameStoreTests
         }
         public async ValueTask DisposeAsync() { Cancel.Cancel(); await Run; Store.Dispose(); Pipe.Dispose(); Cancel.Dispose(); }
     }
-    private sealed class Feed : Stream
+    internal sealed class Feed : Stream
     {
         private readonly Channel<byte[]> _data = Channel.CreateUnbounded<byte[]>();
         private byte[] _current = []; private int _at;

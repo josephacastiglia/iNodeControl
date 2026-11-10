@@ -323,6 +323,7 @@ public static class SelfTests
         await InputSessionTests.HomeSequenceAsync(Check);
         await InputSessionTests.NavigationAsync(Check);
         await KernelStartupTests.RunAsync(Check);
+        await ApiHttpTests.RunAsync(Check);
         File.Delete(file);Directory.Delete(testDir);
         Console.WriteLine($"{passed} tests passed; no real HID transport opened.");
         return 0;

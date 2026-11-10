@@ -6,6 +6,9 @@ namespace IMouse2.Kernel;
 
 public sealed class ApiServer : IDisposable
 {
+    /// <summary>The largest request body read. A command for forty phones with their tokens is about 3 KiB.</summary>
+    internal const int MaxBodyBytes = 64 * 1024;
+    private sealed class BodyTooLargeException : Exception;
     private readonly HttpListener _http = new();
     private readonly Action _startListening;
     private readonly DeviceStore _store;
@@ -54,6 +57,11 @@ public sealed class ApiServer : IDisposable
         try
         {
             var req = ctx.Request;
+            if (Refusal(req) is { } refusal)
+            {
+                Write(ctx, Envelope(refusal.Status, new { code = refusal.Status, message = refusal.Message }), refusal.Status);
+                return;
+            }
             var path = req.Url?.AbsolutePath.TrimEnd('/') ?? "";
             if (req.HttpMethod == "GET" && path.EndsWith("/device/get", StringComparison.OrdinalIgnoreCase))
                 Write(ctx, Ok(new { code = 0, list = DeviceList() }));
@@ -101,6 +109,10 @@ public sealed class ApiServer : IDisposable
         catch (ArgumentException ex) { Write(ctx,Ok(new {code=36,message=ex.Message})); }
         catch (InvalidOperationException ex) { Write(ctx,Ok(new {code=409,message=ex.Message})); }
         catch (JsonException ex) { Write(ctx,Ok(new {code=36,message=ex.Message})); }
+        catch (BodyTooLargeException)
+        {
+            try { Write(ctx, Envelope(413, new { code = 413, message = "Request body is larger than " + MaxBodyBytes + " bytes. Nothing was done." }), 413); } catch { }
+        }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
@@ -235,9 +247,40 @@ public sealed class ApiServer : IDisposable
     private static string Str(JsonElement obj, string name) =>
         obj.ValueKind == JsonValueKind.Object && obj.TryGetProperty(name, out var v) && v.ValueKind != JsonValueKind.Null ? v.ToString() : "";
 
+    /// <summary>
+    /// What is turned away before anything is read or done. This API has no login: the lease tokens
+    /// only keep controllers out of each other's way. Its one defence against a web page open on
+    /// this PC is that it never serves one. A browser attaches Origin to every cross-site POST,
+    /// whatever its content type, and to every scripted cross-site request; no client here is a web
+    /// page, so a request that carries Origin is refused whatever it asks for. The kernel sends no
+    /// Access-Control header either, so no page is ever told it may send or read. POST bodies must
+    /// be JSON, which a plain HTML form cannot send, and are bounded.
+    /// </summary>
+    private static (int Status, string Message)? Refusal(HttpListenerRequest req)
+    {
+        if (req.Headers["Origin"] is not null)
+            return (403, "Requests from web pages are refused: this API does not accept an Origin header. Nothing was done.");
+        if (req.HttpMethod != "POST") return null;
+        string type = (req.ContentType ?? "").Split(';')[0].Trim();
+        if (!type.Equals("application/json", StringComparison.OrdinalIgnoreCase))
+            return (415, "POST bodies must be sent with Content-Type: application/json. Nothing was done.");
+        if (req.ContentLength64 > MaxBodyBytes)
+            return (413, "Request body is larger than " + MaxBodyBytes + " bytes. Nothing was done.");
+        return null;
+    }
+
     private static JsonElement ReadBody(HttpListenerRequest req)
     {
-        using var reader = new StreamReader(req.InputStream, req.ContentEncoding);
+        // Bounded even when no length was declared (a chunked body): stop one read past the cap.
+        using var bytes = new MemoryStream();
+        byte[] chunk = new byte[4096];
+        for (int read; (read = req.InputStream.Read(chunk, 0, chunk.Length)) > 0;)
+        {
+            if (bytes.Length + read > MaxBodyBytes) throw new BodyTooLargeException();
+            bytes.Write(chunk, 0, read);
+        }
+        bytes.Position = 0;
+        using var reader = new StreamReader(bytes, req.ContentEncoding);
         string text = reader.ReadToEnd();
         if (string.IsNullOrWhiteSpace(text)) return default;
         using var doc = JsonDocument.Parse(text);
