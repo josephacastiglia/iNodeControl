@@ -56,7 +56,7 @@ Updates and rollbacks touch only the program. Uninstall leaves your data.
 
    `powershell -NoProfile -ExecutionPolicy Bypass -File $farm server-self-check`
 
-   `status` lists the version and every command. The self-check ends with `OK - Simulated routes ...`.
+   `status` lists the version and every command. The self-check ends with `OK - farm backend self-check passed ...`.
 
 5. The farm runs through `Farm.ps1`: `start-rack`, `release-receiver`, `restart-receiver`,
    `prepare-window`, `start-window`, `run-window`, `verify-window`, `stop-window`, `stop-rack`,

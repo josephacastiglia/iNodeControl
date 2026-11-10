@@ -185,9 +185,30 @@ def _claim_data(data, manifest):
 
 # ---------------------------------------------------------------- processes
 
+def own_lineage(rows, pid):
+    """This process and the chain of processes that started it. The installer's own command line names the
+    install root (`--root <root>`), and so does the shell or Install-Farm.ps1 that launched it: neither is
+    the farm running. Until 9 Nov they were counted, so update, rollback, prune and uninstall refused
+    whenever they were run from a command line."""
+    parents = {r.get('ProcessId'): r.get('ParentProcessId') for r in rows}
+    lineage = set()
+    while pid in parents and pid not in lineage:   # `not in lineage` ends a reused-PID loop.
+        lineage.add(pid)
+        pid = parents[pid]
+    return lineage
+
+
+def from_install(rows, root, pid):
+    """The rows whose executable or command line is under the install root, leaving out the caller's own lineage."""
+    needle = str(Path(root).resolve()).casefold()
+    mine = own_lineage(rows, pid)
+    return [r for r in rows if r.get('ProcessId') not in mine
+            and (needle in (r.get('ExecutablePath') or '').casefold() or needle in (r.get('CommandLine') or '').casefold())]
+
+
 def farm_processes(root):
     """Processes whose executable or command line is under the install root (read-only CIM query)."""
-    script = ("Get-CimInstance Win32_Process | Select-Object ProcessId,Name,ExecutablePath,CommandLine | "
+    script = ("Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,CommandLine | "
               "ConvertTo-Json -Compress")
     try:
         out = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', script],
@@ -196,8 +217,7 @@ def farm_processes(root):
         raise Refused(f'could not list processes to check nothing runs from the install: {error}') from error
     rows = json.loads(out or '[]')
     rows = rows if isinstance(rows, list) else [rows]
-    needle = str(Path(root).resolve()).casefold()
-    return [r for r in rows if needle in (r.get('ExecutablePath') or '').casefold() or needle in (r.get('CommandLine') or '').casefold()]
+    return from_install(rows, root, os.getpid())
 
 
 def _require_idle(root, processes):

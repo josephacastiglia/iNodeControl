@@ -209,6 +209,48 @@ class Lifecycle(Base):
         self.assertIn('nothing installed', json.loads(out.stdout)['refused'])
 
 
+class RealProcessCheck(Base):
+    """Every other test passes a stand-in for the process check, which is how the real one came to count the
+    installer itself as "the farm running" (found 9 Nov). These use the real check."""
+    def test_the_installer_and_whoever_launched_it_are_not_the_farm(self):
+        root = str(self.root.resolve())
+        rows = [{'ProcessId': 1, 'ParentProcessId': 0, 'Name': 'explorer.exe', 'ExecutablePath': r'C:\Windows\explorer.exe', 'CommandLine': 'explorer'},
+                {'ProcessId': 10, 'ParentProcessId': 1, 'Name': 'powershell.exe', 'ExecutablePath': 'ps', 'CommandLine': f'Install-Farm.ps1 -Update -Root "{root}"'},
+                {'ProcessId': 11, 'ParentProcessId': 10, 'Name': 'python.exe', 'ExecutablePath': 'py', 'CommandLine': f'farm_install.py update --root "{root}"'},
+                {'ProcessId': 20, 'ParentProcessId': 1, 'Name': 'iMouse2.Kernel.exe', 'ExecutablePath': root + r'ersions.0.0\kernel\iMouse2.Kernel.exe', 'CommandLine': 'k'},
+                {'ProcessId': 21, 'ParentProcessId': 1, 'Name': 'python.exe', 'ExecutablePath': 'py', 'CommandLine': root + r'\currentarm	ools\imouse_farm_server.py'}]
+        self.assertEqual(fi.own_lineage(rows, 11), {11, 10, 1})
+        self.assertEqual([r['ProcessId'] for r in fi.from_install(rows, self.root, 11)], [20, 21])
+        loop = [{'ProcessId': 5, 'ParentProcessId': 6}, {'ProcessId': 6, 'ParentProcessId': 5}]   # a reused PID must not hang it
+        self.assertEqual(fi.own_lineage(loop, 5), {5, 6})
+
+    def cli(self, *args):
+        return subprocess.run([sys.executable, str(Path(fi.__file__)), *map(str, args)], capture_output=True, text=True, timeout=180)
+
+    def test_update_rollback_and_uninstall_work_from_the_command_line(self):
+        self.install()
+        for args, version in ((('update', '--package', self.pkg_b, '--root', self.root), '1.1.0'), (('rollback', '--root', self.root), '1.0.0')):
+            done = self.cli(*args)
+            self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+            self.assertEqual(fi.status(self.root)['version'], version)
+        done = self.cli('uninstall', '--root', self.root)
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertFalse((self.root / 'versions').exists())
+        self.assertTrue((self.data / 'data.json').is_file())   # the operator's data stays
+
+    def test_a_real_process_started_from_the_install_still_blocks_the_command_line(self):
+        self.install()
+        marker = self.root / 'current-marker-for-test.txt'
+        farm = subprocess.Popen([sys.executable, '-c', 'import sys, time; time.sleep(120)', str(marker)])
+        try:
+            done = self.cli('update', '--package', self.pkg_b, '--root', self.root)
+            self.assertNotEqual(done.returncode, 0)
+            self.assertIn(f'pid {farm.pid}', done.stdout + done.stderr)
+            self.assertEqual(fi.status(self.root)['version'], '1.0.0')
+        finally:
+            farm.kill(); farm.wait(timeout=30)
+
+
 class DataMigration(unittest.TestCase):
     """Data schema 2 keeps the rack state in <data>/rack; a schema 1 folder is moved there once."""
 
