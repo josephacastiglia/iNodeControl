@@ -165,18 +165,12 @@
                           ToolTip="Send the phone to its home screen"/>
                   <Button x:Name="RestartButton" Content="Restart" Tag="usb|restart" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Restart this phone's control board. Control drops for a few seconds."/>
-                  <Button x:Name="LockButton" Content="Lock" Tag="key|TAB+l" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Lock the phone screen"/>
                   <Button x:Name="CtrlBarButton" Content="Ctrl Bar" Tag="key|ControlBar" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30" Padding="4,5" FontSize="12"
                           ToolTip="Open Control Centre"/>
-                  <Button x:Name="KeyboardButton" Content="KB" Tag="key|OPENKeyboard" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Open the on-screen keyboard"/>
                   <Button x:Name="CastButton" Content="Cast" Tag="cast|connect" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Ask this phone to start screen mirroring"/>
                   <Button x:Name="AppButton" Content="App" Tag="key|AppSwitch" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Open the app switcher using the phone's Full Keyboard Access shortcut. With Full Keyboard Access off, use the phone's physical app-switching gesture."/>
-                  <Button x:Name="ImeButton" Content="IME" Tag="key|SwitchIme" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Switch the phone input method"/>
                   <Button x:Name="DiscButton" Content="Disc" Tag="cast|disconnect" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Stop this phone's screen mirroring"/>
                   <!-- Says out loud how many phones the strip is about to hit. Input
@@ -437,7 +431,7 @@
                 <StackPanel x:Name="ActionPanel">
                   <TextBlock Text="NAVIGATION" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
                   <UniformGrid Columns="2">
-                    <Button Content="Home" Tag="key|Home" Click="Action_Click"/><Button Content="Back" Tag="key|TAB+b" Click="Action_Click"/>
+                    <Button Content="Home" Tag="key|Home" Click="Action_Click"/>
                     <Button Content="App switcher" Tag="key|AppSwitch" Click="Action_Click"
                             ToolTip="Uses the phone's Full Keyboard Access shortcut; it may do nothing with Full Keyboard Access off."/><Button Content="Control centre" Tag="key|ControlBar" Click="Action_Click"/>
                   </UniformGrid>
@@ -457,8 +451,8 @@
                   <TextBlock x:Name="SendTextCount" Text="0 / 200" Style="{StaticResource Muted}" FontSize="11" HorizontalAlignment="Right" Margin="0,3,0,0"
                              AutomationProperties.Name="Characters in the text box and the Send text limit"/>
                   <Button Content="Send text" Click="SendText_Click" Style="{StaticResource Primary}" HorizontalAlignment="Stretch" Margin="0,6,0,0"/>
-                  <UniformGrid Columns="3">
-                    <Button Content="Enter" Tag="key|ENTER" Click="Action_Click"/><Button Content="Bksp" Tag="key|BACKSPACE" Click="Action_Click"/><Button Content="Paste" Tag="key|WIN+v" Click="Action_Click"/>
+                  <UniformGrid Columns="2">
+                    <Button Content="Enter" Tag="key|ENTER" Click="Action_Click"/><Button Content="Bksp" Tag="key|BACKSPACE" Click="Action_Click"/>
                   </UniformGrid>
 
                   <TextBlock Text="SCREEN MIRRORING" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>

@@ -168,12 +168,9 @@ public partial class MainWindow
         Check("Strip says how many phones it will hit", StripTarget.Visibility == Visibility.Visible && StripTarget.Text.Contains("2 phones"));
 
         Check("Strip Restart is wired to a board restart", RestartButton.Tag as string == "usb|restart");
-        Check("Strip Lock is wired to the lock hotkey", LockButton.Tag as string == "key|TAB+l");
         Check("Strip Ctrl Bar is wired to Control Centre", CtrlBarButton.Tag as string == "key|ControlBar");
-        Check("Strip KB is wired to the on-screen keyboard", KeyboardButton.Tag as string == "key|OPENKeyboard");
         Check("Strip Cast is wired to airplay connect", CastButton.Tag as string == "cast|connect");
         Check("Strip App is wired to the app switcher", AppButton.Tag as string == "key|AppSwitch");
-        Check("Strip IME is wired to the input-method switch", ImeButton.Tag as string == "key|SwitchIme");
         Check("Strip Disc is wired to airplay disconnect", DiscButton.Tag as string == "cast|disconnect");
 
         await Click("usb|restart");
@@ -182,11 +179,8 @@ public partial class MainWindow
             handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
         foreach (var (tag, fn, key) in new (string Tag, string Fun, string Key)[]
         {
-            ("key|TAB+l", "/key/sendkey", "TAB+l"),
             ("key|ControlBar", "/key/sendkey", "ControlBar"),
-            ("key|OPENKeyboard", "/key/sendkey", "OPENKeyboard"),
             ("key|AppSwitch", "/key/sendkey", "AppSwitch"),
-            ("key|SwitchIme", "/key/sendkey", "SwitchIme"),
         })
         {
             await Click(tag);
