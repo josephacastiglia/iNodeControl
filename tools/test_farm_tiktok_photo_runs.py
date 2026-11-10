@@ -44,7 +44,7 @@ class TikTokPhotoRunsTests(unittest.TestCase):
         import imouse_farm_server as server
         runtime = server.FarmBackendRuntime(self.root/'backend'/'farm.db', self.root/'backend'/'stage')
         self.addCleanup(runtime.transfers.close)
-        self.assertEqual('tiktok_photo_creations', server.IMAGE_CREATION_ROUTES['tiktok-photo-creations'][1])
+        self.assertEqual(('tiktok_photo_creations', 'tiktokPhotoCreation'), server.CREATION_ROUTES['tiktok-photo-creations'][:2])
         self.assertIs(TikTokPhotoCreationRuns, type(runtime.tiktok_photo_creations))
         self.assertEqual(('tt_photo', 'create-tiktok-photo-draft', True), (TikTokPhotoCreationRuns.FORMAT,
                          TikTokPhotoCreationRuns.action_name, TikTokPhotoCreationRuns.PINNED_ACCOUNT))

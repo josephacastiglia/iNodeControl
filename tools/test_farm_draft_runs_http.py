@@ -2,6 +2,7 @@
 import unittest
 import uuid
 
+import imouse_farm_server as server
 from test_farm_http_jobs import FarmHttpJobsTests, no_kernel
 from test_farm_draft_runs import Drafts, FixtureRuns, CONFIG
 from test_farm_creation import FixtureCreation
@@ -25,6 +26,34 @@ class DraftRunHttpTests(unittest.TestCase):
     def finish(self,name,spec):
         self.assertTrue(self.runtime.jobs._jobs[spec['id']].done.wait(4))
         return self.request('/api/farm/'+name+'/'+spec['id'])[1]['run']
+
+    def test_the_route_table_names_every_creation_route_and_keeps_each_refusal_wording(self):
+        self.assertEqual(ROUTES, {name: row[0] for name, row in server.CREATION_ROUTES.items()})
+        health = self.request('/health')[1]
+        for name, (attribute, key, *_) in server.CREATION_ROUTES.items():
+            self.assertEqual(getattr(self.runtime, attribute).store_id, health[key]['storeId'], name)
+        wording = {   # What each route has always answered: another origin, an unknown path, a stop for another store.
+            'draft-creations': ('Draft run evidence is local-only.', 'Unknown draft run route.',
+                                'Stop needs this candidate store and the original request ID.'),
+            'reel-creations': ('Reel draft evidence is local-only.', 'Unknown Reel draft route.',
+                               'Stop needs this Reel candidate store and the original request ID.'),
+            'tiktok-creations': ('TikTok draft evidence is local-only.', 'Unknown TikTok draft route.',
+                                 'Stop needs this TikTok candidate store and the original request ID.'),
+            'x-creations': ('X draft evidence is local-only.', 'Unknown X draft route.',
+                            'Stop needs this X candidate store and the original request ID.'),
+            'youtube-creations': ('YouTube draft evidence is local-only.', 'Unknown YouTube draft route.',
+                                  'Stop needs this YouTube candidate store and the original request ID.'),
+            'x-image-creations': ('X image draft evidence is local-only.', 'Unknown X image draft route.',
+                                  'Stop needs this X image candidate store and the original request ID.'),
+            'tiktok-photo-creations': ('TikTok photo draft evidence is local-only.', 'Unknown TikTok photo draft route.',
+                                       'Stop needs this TikTok photo candidate store and the original request ID.'),
+        }
+        for name, (local_only, unknown, stop) in wording.items():
+            route = '/api/farm/' + name; run = str(uuid.uuid4())
+            with self.subTest(route=name):
+                self.assertEqual((403, local_only), (lambda r: (r[0], r[1]['error']))(self.request(route, origin='https://untrusted.invalid')))
+                self.assertEqual((404, unknown), (lambda r: (r[0], r[1]['error']))(self.request(route + '/' + run + '/unknown/extra/parts')))
+                self.assertEqual((400, stop), (lambda r: (r[0], r[1]['error']))(self.request(route + '/' + run + '/cancel', dict(store_id=str(uuid.uuid4())))))
 
     def test_real_http_admission_history_duplicate_result_and_origins_on_every_creation_route(self):
         for name in ROUTES:

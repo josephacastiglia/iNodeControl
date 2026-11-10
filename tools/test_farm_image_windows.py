@@ -31,7 +31,7 @@ class PrepareWindowTests(unittest.TestCase):
         self.assertEqual({'x-image': 17, 'tiktok-photo': 20}, {k: v['slot'] for k, v in prepare_window.IMAGE_PLATFORMS.items()})
         for platform, row in prepare_window.IMAGE_PLATFORMS.items():
             self.assertIn(row['slot'], prepare_window.BACKEND_PORTS)
-            self.assertIn(prepare_window.PLATFORMS[platform][3], server.IMAGE_CREATION_ROUTES)
+            self.assertIn(prepare_window.PLATFORMS[platform][3], server.CREATION_ROUTES)
             low, high = SLIDES[prepare_window.PLATFORMS[platform][0]]
             self.assertTrue(low <= row['slides'] <= high)
         self.assertEqual(set(prepare_window.IMAGE_PLATFORMS), set(verify_window.IMAGE_PLATFORMS))
@@ -39,6 +39,18 @@ class PrepareWindowTests(unittest.TestCase):
             self.assertEqual(prepare_window.PLATFORMS[platform][0], fmt)
             pinned = prepare_window.PLATFORMS[platform][5]
             self.assertEqual('config' if pinned else 'workflow', verify_window.IMAGE_PLATFORMS[platform][1])
+
+    def test_every_window_platform_names_a_served_route_its_health_key_and_its_format(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = server.FarmBackendRuntime(Path(directory) / 'farm.db', Path(directory) / 'stage')
+            self.addCleanup(runtime.transfers.close)
+            for platform, (fmt, _, _, route, capability, pinned) in prepare_window.PLATFORMS.items():
+                with self.subTest(platform=platform):
+                    attribute, health = server.CREATION_ROUTES[route][:2]
+                    self.assertEqual(capability, health)   # Start-Window.ps1 reads this key from /health.
+                    service = getattr(runtime, attribute)
+                    self.assertEqual((fmt, pinned), (service.FORMAT, service.PINNED_ACCOUNT))
+            self.assertEqual({'draft-creations'}, set(server.CREATION_ROUTES) - {row[3] for row in prepare_window.PLATFORMS.values()})
 
     def test_stage_images_saves_one_image_draft_per_platform(self):
         for platform in prepare_window.IMAGE_PLATFORMS:

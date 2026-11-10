@@ -24,6 +24,7 @@ creation config is accepted only with --mode live. Neither mode simulates anythi
 from __future__ import annotations
 
 import argparse
+import base64
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
@@ -185,9 +186,26 @@ class FarmBackendRuntime:
 
 
 RUNTIME: FarmBackendRuntime | None = None
-# Image creation routes -> (label, runtime attribute). In /health: xImageCreation, tiktokPhotoCreation.
-IMAGE_CREATION_ROUTES = {'x-image-creations': ('X image', 'x_image_creations'),
-                         'tiktok-photo-creations': ('TikTok photo', 'tiktok_photo_creations')}
+# Every draft creation route has the same shape: GET the list, eligibility, one run and its retained frames;
+# POST to start a run or to stop one. Route -> (runtime attribute, its key in /health, and the three messages
+# its refusals have always used).
+CREATION_ROUTES = {
+    'draft-creations': ('draft_creations', 'draftCreation', 'Draft run evidence is local-only.', 'Unknown draft run route.',
+                        'Stop needs this candidate store and the original request ID.'),
+    **{name: (attribute, health, label + ' draft evidence is local-only.', 'Unknown ' + label + ' draft route.',
+              'Stop needs this ' + label + ' candidate store and the original request ID.')
+       for name, attribute, health, label in (
+           ('reel-creations', 'reel_creations', 'reelCreation', 'Reel'),
+           ('tiktok-creations', 'tiktok_creations', 'tiktokCreation', 'TikTok'),
+           ('x-creations', 'x_creations', 'xCreation', 'X'),
+           ('youtube-creations', 'youtube_creations', 'youtubeCreation', 'YouTube'),
+           ('x-image-creations', 'x_image_creations', 'xImageCreation', 'X image'),
+           ('tiktok-photo-creations', 'tiktok_photo_creations', 'tiktokPhotoCreation', 'TikTok photo'))},
+}
+CREATION_PATHS = tuple('/api/farm/' + name for name in CREATION_ROUTES)
+# Never answered to another origin or another host name: media, evidence and preparation controls.
+LOCAL_ONLY = ('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/schedule-queue',
+              '/api/farm/draft-verifications') + CREATION_PATHS
 
 
 class FarmRequestHandler(BaseHTTPRequestHandler):
@@ -240,124 +258,29 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
+
     def do_GET(self) -> None:
         assert RUNTIME is not None
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/") or "/"
 
-        if path == '/api/farm/reel-creations' or path.startswith('/api/farm/reel-creations/'):
+        route = next((name for name in CREATION_ROUTES if path == '/api/farm/' + name or path.startswith('/api/farm/' + name + '/')), None)
+        if route:
+            attribute, _, local_only, unknown, _ = CREATION_ROUTES[route]
             if not self._transfer_access_allowed():
-                self._send_json(403, {'error': 'Reel draft evidence is local-only.'}); return
-            try:
-                parts = path.split('/')
-                query = urllib.parse.parse_qs(parsed.query)
-                service = RUNTIME.reel_creations
-                if path == '/api/farm/reel-creations/eligibility':
-                    self._send_json(200, {'eligibility': service.eligibility(query.get('draft_id', [''])[0], int(query.get('revision', ['0'])[0]))})
-                elif path == '/api/farm/reel-creations':
-                    self._send_json(200, {'runs': service.list(query.get('draft_id', [''])[0])})
-                elif len(parts) == 7 and parts[5] == 'frames':
-                    import base64
-                    self._send_json(200, {'frame': base64.b64encode(service.frame(parts[4], parts[6])).decode('ascii')})
-                elif len(parts) == 5: self._send_json(200, {'run': service.get(parts[4])})
-                else: raise ValueError('Unknown Reel draft route.')
-            except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
-            return
-
-        if path == '/api/farm/tiktok-creations' or path.startswith('/api/farm/tiktok-creations/'):
-            if not self._transfer_access_allowed():
-                self._send_json(403, {'error': 'TikTok draft evidence is local-only.'}); return
-            try:
-                parts = path.split('/')
-                query = urllib.parse.parse_qs(parsed.query)
-                service = RUNTIME.tiktok_creations
-                if path == '/api/farm/tiktok-creations/eligibility':
-                    self._send_json(200, {'eligibility': service.eligibility(query.get('draft_id', [''])[0], int(query.get('revision', ['0'])[0]))})
-                elif path == '/api/farm/tiktok-creations':
-                    self._send_json(200, {'runs': service.list(query.get('draft_id', [''])[0])})
-                elif len(parts) == 7 and parts[5] == 'frames':
-                    import base64
-                    self._send_json(200, {'frame': base64.b64encode(service.frame(parts[4], parts[6])).decode('ascii')})
-                elif len(parts) == 5: self._send_json(200, {'run': service.get(parts[4])})
-                else: raise ValueError('Unknown TikTok draft route.')
-            except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
-            return
-
-        if path == '/api/farm/x-creations' or path.startswith('/api/farm/x-creations/'):
-            if not self._transfer_access_allowed():
-                self._send_json(403, {'error': 'X draft evidence is local-only.'}); return
-            try:
-                parts = path.split('/')
-                query = urllib.parse.parse_qs(parsed.query)
-                service = RUNTIME.x_creations
-                if path == '/api/farm/x-creations/eligibility':
-                    self._send_json(200, {'eligibility': service.eligibility(query.get('draft_id', [''])[0], int(query.get('revision', ['0'])[0]))})
-                elif path == '/api/farm/x-creations':
-                    self._send_json(200, {'runs': service.list(query.get('draft_id', [''])[0])})
-                elif len(parts) == 7 and parts[5] == 'frames':
-                    import base64
-                    self._send_json(200, {'frame': base64.b64encode(service.frame(parts[4], parts[6])).decode('ascii')})
-                elif len(parts) == 5: self._send_json(200, {'run': service.get(parts[4])})
-                else: raise ValueError('Unknown X draft route.')
-            except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
-            return
-
-        image_route = next((name for name in IMAGE_CREATION_ROUTES if path == '/api/farm/' + name or path.startswith('/api/farm/' + name + '/')), None)
-        if image_route:
-            label, attribute = IMAGE_CREATION_ROUTES[image_route]
-            if not self._transfer_access_allowed():
-                self._send_json(403, {'error': label + ' draft evidence is local-only.'}); return
+                self._send_json(403, {'error': local_only}); return
             try:
                 parts = path.split('/')
                 query = urllib.parse.parse_qs(parsed.query)
                 service = getattr(RUNTIME, attribute)
-                if path == '/api/farm/' + image_route + '/eligibility':
+                if path == '/api/farm/' + route + '/eligibility':
                     self._send_json(200, {'eligibility': service.eligibility(query.get('draft_id', [''])[0], int(query.get('revision', ['0'])[0]))})
-                elif path == '/api/farm/' + image_route:
+                elif path == '/api/farm/' + route:
                     self._send_json(200, {'runs': service.list(query.get('draft_id', [''])[0])})
                 elif len(parts) == 7 and parts[5] == 'frames':
-                    import base64
                     self._send_json(200, {'frame': base64.b64encode(service.frame(parts[4], parts[6])).decode('ascii')})
                 elif len(parts) == 5: self._send_json(200, {'run': service.get(parts[4])})
-                else: raise ValueError('Unknown ' + label + ' draft route.')
-            except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
-            return
-
-        if path == '/api/farm/youtube-creations' or path.startswith('/api/farm/youtube-creations/'):
-            if not self._transfer_access_allowed():
-                self._send_json(403, {'error': 'YouTube draft evidence is local-only.'}); return
-            try:
-                parts = path.split('/')
-                query = urllib.parse.parse_qs(parsed.query)
-                service = RUNTIME.youtube_creations
-                if path == '/api/farm/youtube-creations/eligibility':
-                    self._send_json(200, {'eligibility': service.eligibility(query.get('draft_id', [''])[0], int(query.get('revision', ['0'])[0]))})
-                elif path == '/api/farm/youtube-creations':
-                    self._send_json(200, {'runs': service.list(query.get('draft_id', [''])[0])})
-                elif len(parts) == 7 and parts[5] == 'frames':
-                    import base64
-                    self._send_json(200, {'frame': base64.b64encode(service.frame(parts[4], parts[6])).decode('ascii')})
-                elif len(parts) == 5: self._send_json(200, {'run': service.get(parts[4])})
-                else: raise ValueError('Unknown YouTube draft route.')
-            except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
-            return
-
-        if path == '/api/farm/draft-creations' or path.startswith('/api/farm/draft-creations/'):
-            if not self._transfer_access_allowed():
-                self._send_json(403, {'error': 'Draft run evidence is local-only.'}); return
-            try:
-                parts = path.split('/')
-                query = urllib.parse.parse_qs(parsed.query)
-                if path == '/api/farm/draft-creations/eligibility':
-                    value = RUNTIME.draft_creations.eligibility(query.get('draft_id', [''])[0], int(query.get('revision', ['0'])[0]))
-                    self._send_json(200, {'eligibility': value})
-                elif path == '/api/farm/draft-creations':
-                    self._send_json(200, {'runs': RUNTIME.draft_creations.list(query.get('draft_id', [''])[0])})
-                elif len(parts) == 7 and parts[5] == 'frames':
-                    import base64
-                    self._send_json(200, {'frame': base64.b64encode(RUNTIME.draft_creations.frame(parts[4], parts[6])).decode('ascii')})
-                elif len(parts) == 5: self._send_json(200, {'run': RUNTIME.draft_creations.get(parts[4])})
-                else: raise ValueError('Unknown draft run route.')
+                else: raise ValueError(unknown)
             except (ValueError, KeyError) as error: self._send_json(404, {'error': str(error)})
             return
 
@@ -369,7 +292,6 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     draft_id = urllib.parse.parse_qs(parsed.query).get('draft_id', [''])[0]
                     self._send_json(200, {'verifications': RUNTIME.verifications.list(draft_id)})
                 elif '/frames/' in path:
-                    import base64
                     parts = path.split('/')
                     if len(parts) != 7 or parts[5] != 'frames': raise ValueError('Invalid review frame route.')
                     self._send_json(200, {'frame': base64.b64encode(RUNTIME.verifications.frame(parts[4], parts[6])).decode('ascii')})
@@ -399,7 +321,6 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                 if path == '/api/farm/observations':
                     self._send_json(200, {'observations': RUNTIME.observations.list()})
                 elif path.endswith('/frame'):
-                    import base64
                     self._send_json(200, {'frame': base64.b64encode(RUNTIME.observations.frame(path.split('/')[-2])).decode('ascii')})
                 else:
                     self._send_json(200, {'observation': RUNTIME.observations.get(path.rsplit('/', 1)[-1])})
@@ -467,13 +388,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
                     "videoDraftsVersion": 1,
                     "observationsVersion": 2,
                     "draftVerificationVersion": 2,
-                    "draftCreation": RUNTIME.draft_creations.capability(),
-                    "reelCreation": RUNTIME.reel_creations.capability(),
-                    "tiktokCreation": RUNTIME.tiktok_creations.capability(),
-                    "xCreation": RUNTIME.x_creations.capability(),
-                    "youtubeCreation": RUNTIME.youtube_creations.capability(),
-                    "xImageCreation": RUNTIME.x_image_creations.capability(),
-                    "tiktokPhotoCreation": RUNTIME.tiktok_photo_creations.capability(),
+                    **{health: getattr(RUNTIME, attribute).capability() for attribute, health, *_ in CREATION_ROUTES.values()},
                     "imageDraftsVersion": 1,
                     "preparationScheduleVersion": 2,
                 },
@@ -494,7 +409,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/")
-        if path.startswith(('/api/farm/transfers', '/api/farm/observations', '/api/farm/preparation-schedule', '/api/farm/schedule-queue', '/api/farm/draft-verifications', '/api/farm/draft-creations', '/api/farm/reel-creations', '/api/farm/tiktok-creations', '/api/farm/x-creations', '/api/farm/youtube-creations', '/api/farm/x-image-creations', '/api/farm/tiktok-photo-creations')) and not self._transfer_access_allowed():
+        if path.startswith(LOCAL_ONLY) and not self._transfer_access_allowed():
             self.close_connection = True
             self._send_json(403, {"error": "Media, observation and preparation controls are local-only."})
             return
@@ -527,7 +442,7 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         # Stop and cancellation must remain available while work is in progress.
         interrupt = path == "/api/farm/emergency-stop" or (path.startswith("/api/farm/jobs/") and path.endswith("/cancel"))
         interrupt = interrupt or path == '/api/farm/preparation-schedule/pause'
-        interrupt = interrupt or (path.startswith(('/api/farm/draft-creations/','/api/farm/reel-creations/','/api/farm/tiktok-creations/','/api/farm/x-creations/','/api/farm/youtube-creations/','/api/farm/x-image-creations/','/api/farm/tiktok-photo-creations/')) and path.endswith('/cancel'))
+        interrupt = interrupt or (path.startswith(tuple(route + '/' for route in CREATION_PATHS)) and path.endswith('/cancel'))
         if interrupt or path == "/api/farm/jobs" or (path.startswith("/api/farm/transfers/") and path.endswith("/stop")):
             self._dispatch_post(path, data, raw_body)
             return
@@ -544,50 +459,15 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
     def _dispatch_post(self, path: str, data: dict, raw_body: bytes) -> None:
         assert RUNTIME is not None
         data = dict(data)
-        if path == '/api/farm/reel-creations':
-            self._send_json(202, {'run': RUNTIME.reel_creations.start(data)}); return
-        if path.startswith('/api/farm/reel-creations/') and path.endswith('/cancel'):
-            parts = path.split('/')
-            if len(parts) != 6 or set(data) != {'store_id'} or data['store_id'] != RUNTIME.reel_creations.store_id:
-                raise ValueError('Stop needs this Reel candidate store and the original request ID.')
-            self._send_json(200, {'job': RUNTIME.reel_creations.cancel(parts[4])}); return
-        if path == '/api/farm/tiktok-creations':
-            self._send_json(202, {'run': RUNTIME.tiktok_creations.start(data)}); return
-        if path.startswith('/api/farm/tiktok-creations/') and path.endswith('/cancel'):
-            parts = path.split('/')
-            if len(parts) != 6 or set(data) != {'store_id'} or data['store_id'] != RUNTIME.tiktok_creations.store_id:
-                raise ValueError('Stop needs this TikTok candidate store and the original request ID.')
-            self._send_json(200, {'job': RUNTIME.tiktok_creations.cancel(parts[4])}); return
-        if path == '/api/farm/x-creations':
-            self._send_json(202, {'run': RUNTIME.x_creations.start(data)}); return
-        if path.startswith('/api/farm/x-creations/') and path.endswith('/cancel'):
-            parts = path.split('/')
-            if len(parts) != 6 or set(data) != {'store_id'} or data['store_id'] != RUNTIME.x_creations.store_id:
-                raise ValueError('Stop needs this X candidate store and the original request ID.')
-            self._send_json(200, {'job': RUNTIME.x_creations.cancel(parts[4])}); return
-        for image_route, (label, attribute) in IMAGE_CREATION_ROUTES.items():
+        for route, (attribute, _, _, _, stop_refused) in CREATION_ROUTES.items():
             service = getattr(RUNTIME, attribute)
-            if path == '/api/farm/' + image_route:
+            if path == '/api/farm/' + route:
                 self._send_json(202, {'run': service.start(data)}); return
-            if path.startswith('/api/farm/' + image_route + '/') and path.endswith('/cancel'):
+            if path.startswith('/api/farm/' + route + '/') and path.endswith('/cancel'):
                 parts = path.split('/')
                 if len(parts) != 6 or set(data) != {'store_id'} or data['store_id'] != service.store_id:
-                    raise ValueError('Stop needs this ' + label + ' candidate store and the original request ID.')
+                    raise ValueError(stop_refused)
                 self._send_json(200, {'job': service.cancel(parts[4])}); return
-        if path == '/api/farm/youtube-creations':
-            self._send_json(202, {'run': RUNTIME.youtube_creations.start(data)}); return
-        if path.startswith('/api/farm/youtube-creations/') and path.endswith('/cancel'):
-            parts = path.split('/')
-            if len(parts) != 6 or set(data) != {'store_id'} or data['store_id'] != RUNTIME.youtube_creations.store_id:
-                raise ValueError('Stop needs this YouTube candidate store and the original request ID.')
-            self._send_json(200, {'job': RUNTIME.youtube_creations.cancel(parts[4])}); return
-        if path == '/api/farm/draft-creations':
-            self._send_json(202, {'run': RUNTIME.draft_creations.start(data)}); return
-        if path.startswith('/api/farm/draft-creations/') and path.endswith('/cancel'):
-            parts = path.split('/')
-            if len(parts) != 6 or set(data) != {'store_id'} or data['store_id'] != RUNTIME.draft_creations.store_id:
-                raise ValueError('Stop needs this candidate store and the original request ID.')
-            self._send_json(200, {'job': RUNTIME.draft_creations.cancel(parts[4])}); return
         if path == '/api/farm/draft-verifications':
             self._send_json(200, {'verification': RUNTIME.verifications.create(data)}); return
         if path == '/api/farm/preparation-schedule':
@@ -632,7 +512,6 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
             self._send_json(200, {"draft": draft})
             return
         if path.startswith("/api/farm/drafts/"):
-            import base64
             parts = path.split("/")
             if len(parts) != 6:
                 raise ValueError("Unknown draft operation.")
@@ -783,10 +662,7 @@ def self_check() -> None:
             checked.update(('drafts', 'image-drafts', 'video-drafts', 'video-sources', 'transfers'))
 
             # Every creation route answers, reports itself disabled and refuses to start.
-            for name, capability in (('draft-creations', 'draftCreation'), ('reel-creations', 'reelCreation'),
-                                     ('tiktok-creations', 'tiktokCreation'), ('x-creations', 'xCreation'),
-                                     ('youtube-creations', 'youtubeCreation'), ('x-image-creations', 'xImageCreation'),
-                                     ('tiktok-photo-creations', 'tiktokPhotoCreation')):
+            for name, (_, capability, *_) in CREATION_ROUTES.items():
                 route, value = "/api/farm/" + name, health[capability]
                 assert value["enabled"] is False and value["publishing"] is False and value["messaging"] is False, name
                 spec = {"id": str(uuid.uuid4()), "draft_id": str(uuid.uuid4()), "revision": 1, "store_id": value["storeId"]}
