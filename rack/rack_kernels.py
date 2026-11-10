@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
+ROOT = HERE.parent
 sys.path.insert(0, str(ROOT / 'tools'))
 import farm_paths  # noqa: E402
 STATE = farm_paths.rack_state(HERE)  # slots/, windows/, slot and board maps: here in a checkout, the data folder when installed

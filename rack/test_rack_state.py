@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
+ROOT = HERE.parent
 SCRIPTS = ('run_window', 'verify_window', 'relaunch_check', 'auto_connect', 'card_survey', 'pointer_identify',
            'pointer_measure', 'rack_kernels', 'rack_recovery', 'prepare_window', 'prepare_rack_a', 'prepare_rack_b')
 

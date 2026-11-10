@@ -172,7 +172,7 @@ def sandbox_rack(root, data, scratch, env, launcher, step, checks):
     api = f'http://127.0.0.1:{SANDBOX_PORT}/api'
     arguments = [api + '/', '--data-dir', str(run_data), '--input-pid', '0F11', '--receivers', str(run_data / 'receivers.json'),
                  '--receiver', str(receiver), '--receiver-runtime', str(runtime), '--hold-receivers', '0F13']
-    slots = data / fr.RACK_DIR / 'slots'
+    slots = data / fi.RACK_STATE / 'slots'
     prep = dict(runDirectory=str(run_dir), kernel=str(kernel), kernelSha256=fr.sha256(kernel.with_suffix('.dll')), arguments=arguments,
                 api=api, held=['0F13'], boards=list(SANDBOX_BOARDS), inputEnabled=['0F11'],
                 receivers=[dict(board=b, name=SANDBOX_NAMES[b], port=SANDBOX_PORTS[b]) for b in SANDBOX_BOARDS],
@@ -282,8 +282,8 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
 
     # Fake per-machine data folder, with fake rack state the release must never carry or touch.
     fi.init_data(data)
-    (data / f'{fr.RACK_DIR}/slots/preparation-earlier.json').write_text(json.dumps(FAKE_PREPARATION), encoding='utf-8')
-    (data / f'{fr.RACK_DIR}/phone-slots.json').write_text('{"slots": {"1": {"board": "FAKE"}}}', encoding='utf-8')
+    (data / f'{fi.RACK_STATE}/slots/preparation-earlier.json').write_text(json.dumps(FAKE_PREPARATION), encoding='utf-8')
+    (data / f'{fi.RACK_STATE}/phone-slots.json').write_text('{"slots": {"1": {"board": "FAKE"}}}', encoding='utf-8')
     (data / 'evidence-archive/privacy/withheld-candidates.txt').write_text('# fake\n', encoding='utf-8')
     data_before = {p.relative_to(data).as_posix(): fr.sha256(p) for p in data.rglob('*') if p.is_file() and p.name != 'data.json'}
 
@@ -308,7 +308,7 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
     seen = dict(line.split(' ', 1) for line in paths['stdout'].strip().splitlines() if ' ' in line)
     checks['installed farm_paths point at the data folder'] = (
         Path(seen.get('MAIN', '')) == data.resolve() and Path(seen.get('ARCHIVE', '')) == data.resolve() / 'evidence-archive'
-        and Path(seen.get('RACK', '')) == data.resolve() / fr.RACK_DIR / 'slots')
+        and Path(seen.get('RACK', '')) == data.resolve() / fi.RACK_STATE / 'slots')
     checks['dev folder not read (imports)'] = not any(imports['report'][k] for k in ('forbidden_opened', 'forbidden_modules', 'forbidden_sys_path'))
     checks['dev folder not read (self-check)'] = not any(selfcheck['report'][k] for k in ('forbidden_opened', 'forbidden_modules', 'forbidden_sys_path'))
     checks['self-check passed'] = selfcheck['report'].get('exit') == 0 and 'OK' in selfcheck['stdout']

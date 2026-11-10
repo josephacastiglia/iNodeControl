@@ -81,6 +81,6 @@ Rename-Item -LiteralPath $taskStarting -NewName ('processes-failed-' + [datetime
 $taskBoards=@($taskPrep.receivers | ForEach-Object {'--board'; $_.board})
 try{
     $ErrorActionPreference='Continue'
-    & $taskPy (Join-Path $PSScriptRoot '..\..\tools\mdns_goodbye.py') --receivers (Join-Path $taskPrep.runDirectory 'data\receivers.json') --status-url "$taskApi/kernel/status" @taskBoards *> $null
+    & $taskPy (Join-Path $PSScriptRoot '..\tools\mdns_goodbye.py') --receivers (Join-Path $taskPrep.runDirectory 'data\receivers.json') --status-url "$taskApi/kernel/status" @taskBoards *> $null
 }catch{}finally{$ErrorActionPreference='Stop'}
 throw "$taskProblem The kernel is not running; its record is processes-failed-<time>.json and its logs are beside it. Nothing was started."

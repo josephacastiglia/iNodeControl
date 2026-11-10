@@ -9,7 +9,7 @@ A package is a folder (and optionally a zip of it) with this layout:
   console/                             iMouse2.{exe,dll,deps.json,runtimeconfig.json,pdb}
   receiver/uxplay.exe, receiver/runtime/**   patched UxPlay and its GStreamer/MSYS2 runtime
   receiver/LICENSE, NOTICE.md, source/**     UxPlay's licence (GPL 3), what was changed, and the source it was built from
-  farm/tools/**, farm/analysis/farm-multiphone-20261020/**   the farm's Python/PowerShell, same relative layout
+  farm/tools/**, farm/rack/**          the farm's Python/PowerShell, same relative layout
 
 Private, per-machine state is never packaged: rack preparations and process records, phone-slot and
 board maps, window folders, receiver/device/calibration data, run output, databases, logs, captures,
@@ -40,7 +40,7 @@ REPO = Path(__file__).resolve().parents[1]
 SCHEMA = 1
 DATA_SCHEMA = 1
 KIND = 'imouse-marketing-farm'
-RACK_DIR = 'analysis/farm-multiphone-20261020'
+RACK_DIR = 'rack'
 
 KERNEL_FILES = tuple('iMouse2.Kernel' + s for s in ('.exe', '.dll', '.deps.json', '.runtimeconfig.json', '.pdb'))
 CONSOLE_FILES = tuple('iMouse2' + s for s in ('.exe', '.dll', '.deps.json', '.runtimeconfig.json', '.pdb'))
@@ -103,10 +103,10 @@ LINT_RULES = (
     ('info', 'cwd-relative state (lands in the data folder: Farm.ps1 runs there)', re.compile(r'''^[^#\n]*Path\(\s*['"](?:output|config)[\\/]''')),
     ('blocker', 'state beside the rack scripts ($PSScriptRoot)', re.compile(r'''Join-Path\s+\$PSScriptRoot\s+\(?['"](?:windows|slots|processes|preparation|receivers-ready|identify|autoconnect|measure)''', re.I)),
     ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|FOLDER|folder)\s*/\s*f?['"](?:windows|slots|identify|autoconnect|card-survey|measure|phone-slots)''')),
-    ('blocker', 'rack folder via repo layout', re.compile(r'''(?:ROOT|REPO|HERE)[^\n]{0,10}['"]analysis[\\/]+farm-multiphone-20261020['"]''')),
-    ('blocker', 'rack state via repo layout', re.compile(r'''['"]analysis[\\/]+farm-multiphone-20261020[\\/]+(?:slots|windows)''', re.I)),
+    ('blocker', 'rack folder via repo layout', re.compile(r'''(?:ROOT|REPO|HERE)[^\n]{0,10}['"]rack['"]''')),
+    ('blocker', 'rack state via repo layout', re.compile(r'''['"]rack[\\/]+(?:slots|windows)''', re.I)),
     ('info', 'hard-coded kernel port', re.compile(r'127\.0\.0\.1:99(?:13|16)')),
-    ('info', 'repo-relative root (parents[N] / ..\\..)', re.compile(r'''parents\[[1-9]\]|Join-Path\s+\$PSScriptRoot\s+['"]\.\.[\\/]\.\.''')),
+    ('info', 'repo-relative root (parents[N] / HERE.parent / ..)', re.compile(r'''parents\[[1-9]\]|\bHERE\.parent\b|Join-Path\s+\$PSScriptRoot\s+['"]\.\.(?:[\\/]|['"])''')),
 )
 
 

@@ -19,7 +19,7 @@ $taskPrepFile=Join-Path $taskDir 'preparation.json'
 $taskPrep=Get-Content -LiteralPath $taskPrepFile -Raw | ConvertFrom-Json
 $taskApi=([string]$taskPrep.arguments[0]).TrimEnd('/')
 $taskProcs=Get-Content -LiteralPath (Join-Path $taskDir 'processes.json') -Raw | ConvertFrom-Json
-$taskHelper=Join-Path $PSScriptRoot '..\..\tools\kernel-window\Stop-ConsoleProcessGracefully.ps1'
+$taskHelper=Join-Path $PSScriptRoot '..\tools\kernel-window\Stop-ConsoleProcessGracefully.ps1'
 $taskPid=[int]$taskProcs.kernel.pid
 $taskRunning=Get-CimInstance Win32_Process -Filter "ProcessId=$taskPid"
 if($taskRunning -and $taskRunning.ExecutablePath -ne $taskPrep.kernel){throw "PID $taskPid is no longer the prepared kernel; nothing was stopped."}
@@ -60,7 +60,7 @@ if($LASTEXITCODE -eq 3){throw "Still present: $taskVerdict"}elseif($LASTEXITCODE
 # The kernel kills receivers, so they never send their mDNS goodbye; send it for them, or every
 # phone keeps listing the stopped names for 75 minutes.
 $taskBoards=@($taskPrep.receivers | ForEach-Object {'--board'; $_.board})
-& $taskPy (Join-Path $PSScriptRoot '..\..\tools\mdns_goodbye.py') --receivers (Join-Path $taskPrep.runDirectory 'data\receivers.json') --status-url "$taskApi/kernel/status" @taskBoards
+& $taskPy (Join-Path $PSScriptRoot '..\tools\mdns_goodbye.py') --receivers (Join-Path $taskPrep.runDirectory 'data\receivers.json') --status-url "$taskApi/kernel/status" @taskBoards
 if($LASTEXITCODE){throw 'Receivers stopped, but their AirPlay names were not withdrawn.'}
 Rename-Item -LiteralPath (Join-Path $taskDir 'processes.json') -NewName ('processes-stopped-' + [datetime]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '.json')
 Remove-Item -LiteralPath $taskStopping

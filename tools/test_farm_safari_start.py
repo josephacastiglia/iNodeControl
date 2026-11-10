@@ -144,7 +144,7 @@ A12_FRAMES = farm_paths.ARCHIVE/'20261105-fleet-a12'
 class CloseAppInstagramCardTests(unittest.TestCase):
     """A12 (5 Nov): Instagram's front card shows a Reel editor, its name cut off at the right edge."""
     def setUp(self):
-        sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'analysis/farm-multiphone-20261020'))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'rack'))
 
     def load(self, name): return json.loads((A12_FRAMES/name).read_text(encoding='utf-8'))
 
@@ -1062,7 +1062,7 @@ class DiscardLeftoverTests(unittest.TestCase):
     def test_only_the_exact_dialogs_give_a_discard_target(self):
         import sys
         from pathlib import Path
-        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'analysis' / 'farm-multiphone-20261020'))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'rack'))
         from discard_leftover import discard_target
         tiktok = [('Discard', 66, 166, 134, 186), ('Save draft', 66, 224, 159, 243)]   # 23 Oct, slot 20.
         self.assertEqual((100, 176), discard_target(text(*tiktok), 'tiktok')[0])
@@ -1220,7 +1220,7 @@ class CloseAppEvidenceTests(unittest.TestCase):
     def module(self):
         import sys
         from pathlib import Path
-        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'analysis' / 'farm-multiphone-20261020'))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'rack'))
         import close_app
         return close_app
 

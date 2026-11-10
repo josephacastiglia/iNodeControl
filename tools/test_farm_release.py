@@ -42,7 +42,7 @@ def make_repo(base):
     (rack / 'Start-Multiphone.ps1').write_text(
         "$taskDir=Join-Path $PSScriptRoot 'slots'\n& python (Join-Path $PSScriptRoot 'rack_kernels.py')\n"
         "# preparation.json lives beside this script\n$p=Get-Content (Join-Path $taskDir 'preparation.json')\n", encoding='utf-8')
-    (rack / 'Stop-Multiphone.ps1').write_text("& (Join-Path $PSScriptRoot '..\\..\\tools\\kernel-window\\Stop-ConsoleProcessGracefully.ps1')\n", encoding='utf-8')
+    (rack / 'Stop-Multiphone.ps1').write_text("& (Join-Path $PSScriptRoot '..\\tools\\kernel-window\\Stop-ConsoleProcessGracefully.ps1')\n", encoding='utf-8')
     for name in ('Release-Receiver.ps1', 'Restart-Receiver.ps1', 'Stop-Window.ps1'):
         (rack / name).write_text('# fine\n', encoding='utf-8')
     (rack / 'Start-Window.ps1').write_text("$py='C:\\Users\\someone\\AppData\\Local\\Programs\\Python\\Python311\\python.exe'\n", encoding='utf-8')

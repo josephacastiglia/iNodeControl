@@ -16,6 +16,26 @@ card-survey/
 measure/
 *.jsonl
 *.bmp
+# Captures, media, traces, binaries and logs. The root .gitignore keeps these out of analysis/, where
+# this folder was until 9 Nov; they stay out here too.
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.etl
+*.xml
+*.bin
+*.mp4
+*.webm
+*.zip
+*.7z
+*.exe
+*.dll
+*.msi
+*.log
+*.lnk
+caps-data/
+binary/
 # State that scripts removed on 9 Nov left on the development PC.
 held/
 look/

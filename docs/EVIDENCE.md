@@ -93,10 +93,12 @@ keyboard and receiver investigations.
 
 Loose files: `BUILD-DECISIONS.md`, `IPHONE-BUILD.md`, `LIVE-RECONNECT-RESULTS.md`, `OVERVIEW.md`, `PHONE-FARM-CORE-REVIEW.md`, `UXPLAY-RECONNECT-TEST.md`, `binary-inventory.json`, `direct-click.json`, `direct-diagonal.json`, `direct-home.json`, `direct-reset.json`, `direct-search-move.json`, `file-manifest.json`, `firewall-approved-rules.json`, `independent-status.json`, `kernel-self-tests.txt`, `post-crash-status.json`, `receiver-disconnect-status.json`, `receiver-reconnected-status.json`, `ui-labels-english.json`, `verification.json`.
 
-What stays under `analysis/` is what something still reads or cites: the rack scripts
-(`farm-multiphone-20261020`), the scale gate's code, test fixtures, configurations the launchers and
-tools read, the evidence `FINISH-CRITERIA.md` links for the release gates, `HARDWARE.md`,
-`HID-PROTOCOL.md` and the HTML sources of the three PDFs in the root.
+What stays under `analysis/` is what something still reads or cites: the scale gate's code, test
+fixtures, configurations the launchers and tools read, the evidence `FINISH-CRITERIA.md` links for the
+release gates, `HARDWARE.md`, `HID-PROTOCOL.md` and the HTML sources of the three PDFs in the root.
+
+The rack scripts now live in `rack/`. At the tag, and in every earlier commit, they are
+`analysis/farm-multiphone-20261020/`.
 
 Bring one folder back, or look inside it, without leaving your branch:
 
@@ -158,7 +160,7 @@ None of this is on GitHub, and none of it may be added.
 | Evidence archive: dated folders of frames, captures and logs, each with `SHA256SUMS.txt`; `privacy/` holds the lists `tools/privacy_scan_staged.py` reads | `..\iMouseXP-2.0-evidence-archive\` |
 | Cross-agent preservation (19 Oct): the original Orca export and a Git bundle that includes withheld history | `..\iMouseXP-2.0-evidence-archive\20261019-cross-agent-preservation\` |
 | The 28 Sep handoff backup: ignored evidence from the checkouts of that date, the release binaries, candidate builds and session scratch folders, with `SHA256SUMS.txt`. It has no October work | `..\iMouseXP-2.0-handoff-backup-20260928\` |
-| Rack state: preparations, process records, window folders, run output, databases, device and receiver data | `analysis\farm-multiphone-20261020\slots\`, `...\windows\`, `output\` (all ignored) |
+| Rack state: preparations, process records, window folders, run output, databases, device and receiver data | `rack\slots\`, `rack\windows\`, `output\` (all ignored) |
 | The vendor install copy, which **contains a stored vendor login** | `build\` in the first checkout; deliberately in no backup |
 | Installed release, toolchains and build outputs (rebuildable or re-downloadable) | `release\`, `tools\airplay\msys64\`, `tools\protocol-deps\`, `**\bin`, `**\obj` |
 

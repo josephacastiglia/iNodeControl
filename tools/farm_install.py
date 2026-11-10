@@ -37,11 +37,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import farm_release as fr  # noqa: E402
 
 SCHEMA = 1
+# The rack scripts' state folder inside the data folder (farm_paths.STATE and RackState.ps1 name the same
+# place). It is not where their code is: that is farm_release.RACK_DIR, inside a version folder.
+RACK_STATE = 'analysis/farm-multiphone-20261020'
 # Private state, laid out as the farm tools expect it relative to their state root (farm_paths.MAIN once
 # IMOUSE_FARM_DATA is honoured). Created empty by init-data; filled by the operator's own preparations.
 DATA_DIRS = (
-    'analysis/farm-multiphone-20261020/slots',    # the kernel's preparation, process record, logs and ledgers
-    'analysis/farm-multiphone-20261020/windows',  # per-window preparations, backend data, run logs
+    f'{RACK_STATE}/slots',                        # the kernel's preparation, process record, logs and ledgers
+    f'{RACK_STATE}/windows',                      # per-window preparations, backend data, run logs
     'output/candidate-runs',                      # kernel run directories: devices, receivers, calibration
     'output/farm-data',                           # backend databases
     'output/media-stage',

@@ -18,7 +18,7 @@ import subprocess
 import sys
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+sys.path.insert(0, str(HERE.parent / 'tools'))
 import farm_paths  # noqa: E402
 from farm_rack_lock import hold_rack  # noqa: E402
 STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
@@ -39,7 +39,7 @@ def verified(attempt, run):
 
 
 def start_screen(target, folder, config_path):
-    out = subprocess.run([sys.executable, '-X', 'utf8', str(HERE.parents[1] / 'tools' / 'farm_start_screen.py'), target, str(folder),
+    out = subprocess.run([sys.executable, '-X', 'utf8', str(HERE.parent / 'tools' / 'farm_start_screen.py'), target, str(folder),
                           str(config_path)], capture_output=True, text=True, encoding='utf-8')
     last = (out.stdout.strip().splitlines() or ['{}'])[-1]
     try: return json.loads(last)

@@ -4,7 +4,7 @@
 param([Parameter(Mandatory)][ValidatePattern('^[a-z]+(-[a-z]+)?-slot\d+$')][string]$Window)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'RackState.ps1')
-$taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+$taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 # Python: IMOUSE_FARM_PYTHON (installed), else this user's Python 3.11, else python.exe on PATH (not the Store stub).
 $taskPython=@($env:IMOUSE_FARM_PYTHON,(Join-Path $env:LOCALAPPDATA 'Programs\Python\Python311\python.exe'),(Get-Command python.exe -ErrorAction SilentlyContinue).Source) | Where-Object { $_ -and $_ -notlike '*\WindowsApps\*' -and (Test-Path -LiteralPath $_ -PathType Leaf) } | Select-Object -First 1  # release-lint: dev-fallback
 if(!$taskPython){throw 'Python 3.11 was not found: install it for this user or set IMOUSE_FARM_PYTHON.'}
@@ -18,7 +18,7 @@ if((Get-FileHash -LiteralPath $taskPrep.config -Algorithm SHA256).Hash.ToLowerIn
 # tools/farm_paths.py); installed, it sits beside the window's rack preparation in the data folder.
 $taskLanes=Split-Path $taskRoot -Parent
 $taskMain=if((Split-Path $taskLanes -Leaf).EndsWith('.worktrees')){$taskLanes.Substring(0,$taskLanes.Length-'.worktrees'.Length)}else{$taskRoot}  # release-lint: dev-fallback
-$taskRackRecord=Join-Path $taskMain 'analysis\farm-multiphone-20261020\slots\processes.json'  # release-lint: dev-fallback
+$taskRackRecord=Join-Path $taskMain 'rack\slots\processes.json'  # release-lint: dev-fallback
 if($env:IMOUSE_FARM_DATA){$taskRackRecord=if($taskPrep.rackPreparation){Join-Path (Split-Path -Parent $taskPrep.rackPreparation) 'processes.json'}else{Join-Path (Get-RackKernelFolder) 'processes.json'}}
 $taskRack=Get-Content -LiteralPath $taskRackRecord -Raw | ConvertFrom-Json
 # The kernel API is the one the rack preparation starts (:9916 unless the preparation says otherwise).

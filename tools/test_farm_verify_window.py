@@ -10,7 +10,7 @@ import unittest
 from contextlib import redirect_stdout
 from unittest.mock import patch
 
-WINDOWS = Path(__file__).resolve().parents[1] / 'analysis/farm-multiphone-20261020'
+WINDOWS = Path(__file__).resolve().parents[1] / 'rack'
 sys.path.insert(0, str(WINDOWS))
 verify_window = importlib.import_module('verify_window')
 

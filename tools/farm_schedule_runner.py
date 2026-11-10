@@ -37,7 +37,7 @@ from farm_schedule_queue import NOT_READY, STOPPED_SAFELY, VERIFIED, check_label
 import farm_paths  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-FOLDER = ROOT / 'analysis/farm-multiphone-20261020'  # release-lint: code (the rack scripts; their state: farm_paths.rack_state)
+FOLDER = ROOT / 'rack'  # release-lint: code (the rack scripts; their state: farm_paths.rack_state)
 KERNEL = 'http://127.0.0.1:9916/api'
 MAX_FRAME_AGE_MS = 1500
 # window platform -> (queue platform label, start screen)

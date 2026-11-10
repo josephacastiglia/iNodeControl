@@ -1,8 +1,8 @@
 """What the rack's connect scripts share about Screen Mirroring: the calibrated points and the Bonjour list.
 
-The points are C24C's calibration (500x1080 frame); the rack scripts in
-analysis/farm-multiphone-20261020 (auto_connect.py, card_survey.py, rack_recovery.py) decide when
-and whether to use them, under a lease. Nothing here sends input.
+The points are C24C's calibration (500x1080 frame); the rack scripts in rack/
+(auto_connect.py, card_survey.py, rack_recovery.py) decide when and whether to use them, under a
+lease. Nothing here sends input.
 """
 import re
 import subprocess

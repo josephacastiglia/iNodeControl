@@ -24,11 +24,11 @@ def load_paths(module_file, env):
 
 
 def old_paths(here):
-    """The 27 Oct definitions, verbatim, for comparison."""
+    """The 27 Oct definitions, for comparison; the rack folder is rack/ since 9 Nov."""
     SUFFIX = '.worktrees'
     MAIN = here.parent.with_name(here.parent.name[:-len(SUFFIX)]) if here.parent.name.endswith(SUFFIX) else here
     return {'MAIN': str(MAIN), 'ARCHIVE': str(MAIN.parent / 'iMouseXP-2.0-evidence-archive'),
-            'RACK': str(MAIN / 'analysis/farm-multiphone-20261020/slots')}
+            'RACK': str(MAIN / 'rack/slots')}
 
 
 class FarmPaths(unittest.TestCase):

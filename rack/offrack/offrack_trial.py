@@ -30,8 +30,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-RACK = HERE.parent                    # analysis/farm-multiphone-20261020
-ROOT = RACK.parents[1]
+RACK = HERE.parent                    # rack/
+ROOT = RACK.parent
 PORT = 9936
 LIVE = 'http://127.0.0.1:9916/api/kernel/status'
 API = f'http://127.0.0.1:{PORT}/api'
@@ -147,7 +147,7 @@ def main():
         (data / name).write_text(json.dumps(content, indent=2), encoding='utf-8')
 
     # Sandbox: the real scripts, at the same relative layout, seeing only this trial's preparation.
-    box = run / 'sandbox' / 'analysis' / 'rack'
+    box = run / 'sandbox' / 'rack'
     box.mkdir(parents=True)
     for script in ('RackState.ps1', 'Start-Multiphone.ps1', 'Stop-Multiphone.ps1', 'Release-Receiver.ps1', 'Restart-Receiver.ps1', 'rack_kernels.py', 'rack_recovery.py'):
         shutil.copy2(RACK / script, box / script)

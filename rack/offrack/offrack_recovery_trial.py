@@ -70,7 +70,7 @@ def main():
                       Port=t.RECEIVER_PORTS[b], Mac=f'02:00:5A:00:0F:{b[2:]}') for b in t.BOARDS]
     for name, content in (('devices.json', devices), ('receivers.json', receivers), ('pointer-calibration.json', [])):
         (data / name).write_text(json.dumps(content, indent=2), encoding='utf-8')
-    box = run / 'sandbox' / 'analysis' / 'rack'; box.mkdir(parents=True)
+    box = run / 'sandbox' / 'rack'; box.mkdir(parents=True)
     for script in ('RackState.ps1', 'Start-Multiphone.ps1', 'Stop-Multiphone.ps1', 'Release-Receiver.ps1', 'Restart-Receiver.ps1',
                    'rack_kernels.py', 'rack_recovery.py', 'bringup-plan.json', 'phone-slots.json', 'rack-b-slots.json'):
         shutil.copy2(t.RACK / script, box / script)

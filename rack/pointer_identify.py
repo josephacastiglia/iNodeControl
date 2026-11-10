@@ -19,7 +19,7 @@ import numpy as np
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+sys.path.insert(0, str(HERE.parent / 'tools'))
 import farm_paths  # noqa: E402
 STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
 from identify_phone import acquire, post, request  # noqa: E402

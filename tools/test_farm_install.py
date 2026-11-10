@@ -50,7 +50,7 @@ class Lifecycle(Base):
         self.assertTrue((self.root / 'Farm.ps1').is_file())
         for d in fi.DATA_DIRS:
             self.assertTrue((self.data / d).is_dir(), d)
-        (self.data / f'{fr.RACK_DIR}/slots/preparation.json').write_text('{"fake": true}')
+        (self.data / f'{fi.RACK_STATE}/slots/preparation.json').write_text('{"fake": true}')
         state = fi.update(self.pkg_b, self.root, processes=idle)
         self.assertEqual((state['version'], state['previous']), ('1.1.0', '1.0.0'))
         self.assertIn('VERSION = 2', (self.root / 'versions/1.1.0/farm/tools/farm_jobs.py').read_text())
@@ -65,7 +65,7 @@ class Lifecycle(Base):
         result = fi.uninstall(self.root, processes=idle)
         self.assertFalse(self.root.exists())
         self.assertEqual(result['data_kept'], str(self.data.resolve()))
-        self.assertEqual((self.data / f'{fr.RACK_DIR}/slots/preparation.json').read_text(), '{"fake": true}')
+        self.assertEqual((self.data / f'{fi.RACK_STATE}/slots/preparation.json').read_text(), '{"fake": true}')
         self.assertFalse(list(self.base.rglob('*.tmp')))
 
     def test_install_refusals(self):

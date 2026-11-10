@@ -32,7 +32,7 @@ import tempfile
 import uuid
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
+ROOT = HERE.parent
 sys.path.insert(0, str(ROOT / 'tools'))
 from farm_creation_runs import MEDIA_PORTS, creation_config, window_ports  # noqa: E402
 from farm_paths import RACK  # noqa: E402  (the main folder's rack, also from a lane worktree)

@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parents[1] / 'tools'))
+sys.path.insert(0, str(HERE.parent / 'tools'))
 from card_survey import BASE, SMALL, SMALL_TILE, STATE, control_center, home_twice, read_screen, to_send  # noqa: E402
 from farm_mirroring import CLOSE, TILE, browse, natural  # noqa: E402
 from identify_phone import acquire, post, request  # noqa: E402

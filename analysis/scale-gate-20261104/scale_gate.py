@@ -45,7 +45,7 @@ from PIL import Image, ImageFilter
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 API = 'http://127.0.0.1:9916/api'
-SLOTS_FILE = REPO / 'analysis/farm-multiphone-20261020/rack-b-slots.json'
+SLOTS_FILE = REPO / 'rack/rack-b-slots.json'
 OUT_ROOT = REPO / 'output/scale-gate-20261104'
 
 NEVER = frozenset({'B3', 'B5', 'B7', 'B10', 'B17'})

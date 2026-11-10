@@ -12,7 +12,7 @@ phones and checks them read-only. It never posts, publishes, sends or messages.
 | What is done and what is left | [MARKETING-SUITE-TRACKER.md](MARKETING-SUITE-TRACKER.md) |
 | The rules for working here in parallel, and who has which phone | [LANES.md](LANES.md) |
 | When the product counts as finished (the release gates) | [FINISH-CRITERIA.md](FINISH-CRITERIA.md) |
-| To start the rack, connect phones, run a window, stop | [the rack runbook](analysis/farm-multiphone-20261020/README.md) |
+| To start the rack, connect phones, run a window, stop | [the rack runbook](rack/README.md) |
 | To install the farm on a PC, update it, roll back | [docs/INSTALL-FARM.md](docs/INSTALL-FARM.md) |
 | To open and use the desktop console | [OPEN-THIS-APP.md](OPEN-THIS-APP.md), [docs/OPERATOR-GUIDE.md](docs/OPERATOR-GUIDE.md) |
 | What typing and keys do on a phone, and what is still open | [KEYBOARD-SPEC.md](KEYBOARD-SPEC.md) |
@@ -25,7 +25,7 @@ phones and checks them read-only. It never posts, publishes, sends or messages.
 | `src/iMouse.Kernel/` | The kernel (C#, .NET 8): loopback HTTP API, input leases per phone, the HID boards, the AirPlay receivers and their frames |
 | `src/iMouse.Console/` | The operator's console (WPF) |
 | `tools/imouse_farm_server.py`, `tools/farm_*.py` | The farm (Python 3.11): one backend per window, a draft flow and a read-only verifier per format, the scheduler |
-| `analysis/farm-multiphone-20261020/` | The rack scripts: start and stop the kernel, connect phones, prepare and run windows |
+| `rack/` | The rack scripts: start and stop the kernel, connect phones, prepare and run windows |
 | `tools/farm_release.py`, `tools/farm_install.py`, `tools/release/` | Building a release package and installing it in versioned folders |
 | `tools/airplay/` | The receiver's source: UxPlay with three changes ([UPSTREAM.md](tools/airplay/UPSTREAM.md)) |
 | the C# projects under `tools/` (`*.csproj`) | Test projects and harnesses for the kernel and console |
@@ -46,7 +46,7 @@ dotnet build src/iMouse.Console/iMouse.Console.csproj -c Release -o <new folder>
 <console folder>\iMouse2.exe --self-test
 
 cd tools; python -m unittest discover -p "test_farm*.py"         # the farm
-cd analysis\farm-multiphone-20261020; python -m pytest -q        # the rack scripts
+cd rack; python -m pytest -q                                     # the rack scripts
 python tools\farm_release.py lint                                # nothing packaged reads the dev folder
 ```
 

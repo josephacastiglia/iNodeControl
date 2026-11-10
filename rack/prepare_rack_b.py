@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
+ROOT = HERE.parent
 sys.path.insert(0, str(ROOT / 'tools'))
 import farm_paths  # noqa: E402
 STATE = farm_paths.rack_state(HERE)  # the rack B maps and archived preparations: here in a checkout, the data folder when installed

@@ -11,7 +11,7 @@ import unittest
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
-WINDOWS = ROOT / 'analysis/farm-multiphone-20261020'
+WINDOWS = ROOT / 'rack'
 sys.path.insert(0, str(WINDOWS))
 prepare_window = importlib.import_module('prepare_window')
 verify_window = importlib.import_module('verify_window')

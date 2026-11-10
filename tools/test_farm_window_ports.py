@@ -11,7 +11,7 @@ from farm_creation_runs import LEGACY_PORTS, MEDIA_PORTS, creation_config, windo
 from farm_phone_identity import PhoneIdentity
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / 'analysis/farm-multiphone-20261020'))
+sys.path.insert(0, str(ROOT / 'rack'))
 prepare_window = importlib.import_module('prepare_window')
 
 # Ports the rack already uses: kernel API (9916), the planned rack B kernel (9926), the off-rack trial kernel (9936),
