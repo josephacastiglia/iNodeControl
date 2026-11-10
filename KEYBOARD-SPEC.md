@@ -183,8 +183,8 @@ Limits:
 | Bound | Value | Where |
 |---|---|---|
 | Kernel command deadline | 8 s per command; then code 499, lease revoked, Stop latched until Resume | `InputSessions.ExecuteAsync` |
-| Console request timeout | 8 s per HTTP request | `ApiClient` (`HttpClient.Timeout`) |
-| Kernel `key` length | 1–1000 characters | `InputRouter`. Longer, or empty `key` with empty `fn_key`: `Provide a key or 1–1000 ASCII characters.` Anything over roughly 50 characters in one command can outlast the deadline |
+| Console request timeout | 15 s for input commands, so the kernel's 8 s deadline answer always arrives; 8 s for reads | `ApiClient` |
+| Kernel `key` length | Text whose typing schedule fits the 8 s command deadline: at most 57 characters, fewer with spaces | `InputRouter`. Longer text is refused whole and nothing is typed (9 Nov; it used to accept 1,000 characters and cut them at the deadline). Empty `key` with empty `fn_key`: `Provide a key or ASCII text to type.` |
 | Console chunk | 12 characters per `/key/sendkey` (was 32 until 27 Sep; 32 overran the deadline under load) | `ApiClient.TextChunk` |
 | Send text cap (temporary) | 200 characters (17 chunks) | `MainWindow.MaxSendText`, checked in `SendText_Click`. Longer text stays whole in the box, the counter turns red, and nothing is sent. There is no `MaxLength` on the box, so nothing is truncated |
 | UI alphabet | codes 32–126 only | `SendText_Click`. `AcceptsReturn` is false |
