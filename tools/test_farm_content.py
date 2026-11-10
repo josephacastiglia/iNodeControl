@@ -1,14 +1,15 @@
-"""Content preservation, validation and request isolation. No real transport."""
+"""Content preparation: what is rendered, what is kept and how requests are isolated. No real transport."""
 from email.message import Message
 import hashlib
 import io
 import json
 from pathlib import Path
+import shutil
+import subprocess
 import tempfile
 import threading
 import unittest
 from unittest.mock import Mock, patch
-import uuid
 
 import imouse_farm_server as server
 import imouse_social_automation as engine
@@ -59,7 +60,8 @@ class FarmContentTests(unittest.TestCase):
         self.assertTrue(all((self.root / path.lstrip("/")).exists() for path in first["files"]))
 
     def test_manifest_assets_have_real_checksums_and_review_is_escaped(self):
-        self.runtime.db.update_persona("C24C", niche='<script>alert("x")</script>')
+        with self.runtime.db._lock, self.runtime.db._connect() as connection:
+            connection.execute("UPDATE personas SET niche = ? WHERE device_id = 'C24C'", ('<script>alert("x")</script>',))
         manifest = self.generate()
         for asset in manifest["assets"]:
             raw = (self.root / asset["url"].lstrip("/")).read_bytes()
@@ -71,67 +73,13 @@ class FarmContentTests(unittest.TestCase):
         self.assertTrue(manifest["reviewRequired"])
         self.assertEqual("local_templates", manifest["contentSource"])
 
-    def test_reading_missing_stage_does_not_generate_or_write_files(self):
-        for name in ("manifest.json", "iMousePull.shortcut.plist"):
-            status, _ = self.request("/stage/C24C/" + name, method="GET")
-            self.assertEqual(404, status)
+    def test_reading_never_generates_or_writes_stage_files(self):
+        for path in ("/stage/C24C/manifest.json", "/api/farm/state", "/health", "/api/farm/video-sources", "/api/farm/drafts"):
+            self.request(path, method="GET")
+        self.assertEqual(404, self.request("/stage/C24C/manifest.json", method="GET")[0])   # Nothing serves the stage folder.
         self.assertFalse((self.root / "stage/C24C").exists())
 
-    def test_calibration_cannot_choose_an_arbitrary_output_path(self):
-        destination = self.root / "operator-settings.json"
-        status, _ = self.request("/api/farm/calibrate-box", {"key": "ig_carousel_aspect_ratio_btn", "coords": [22, 516, 74, 568], "config_path": str(destination)})
-        self.assertEqual(400, status)
-        self.assertFalse(destination.exists())
-
-    def test_calibration_rejects_invalid_rectangles(self):
-        for coords in ([0, 0, 501, 1080], [3, 4, 2, 6], [0, 0, 2, 1081], [False, 0, 1, 1]):
-            with self.subTest(coords=coords):
-                status, _ = self.request("/api/farm/calibrate-box", {"key": "ig_carousel_aspect_ratio_btn", "coords": coords})
-                self.assertEqual(400, status)
-
-    def test_proxy_cannot_acquire_while_a_job_is_running(self):
-        started, release = threading.Event(), threading.Event()
-        def run(cancel):
-            started.set()
-            release.wait(2)
-            return {}
-        self.runtime.jobs.submit(str(uuid.uuid4()), "test", {}, run)
-        self.assertTrue(started.wait(1))
-        try:
-            status, _ = self.request("/kernel-proxy/api", {"fun": "/input/acquire", "data": {"ids": ["C24C"]}})
-            self.assertEqual(400, status)
-            self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
-        finally:
-            release.set()
-            # Wait for the durable terminal record before TemporaryDirectory cleanup.
-            for job in self.runtime.jobs._jobs.values():
-                self.assertTrue(job.done.wait(2))
-            with self.runtime.jobs._lock:
-                pass
-
-    def test_upload_rejects_untypable_caption_before_any_input(self):
-        for text in ("x" * 201, "Hello 👋"):
-            status, _ = self.request("/api/farm/single-upload", {"device_id": "C24C", "caption": text})
-            self.assertEqual(400, status)
-            self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
-
-    def test_single_image_carousel_does_not_select_an_extra_image(self):
-        status, data = self.request("/api/farm/single-upload", {"device_id": "C24C", "format": "ig_carousel", "media_count": 1, "caption": "Sample"})
-        self.assertEqual(200, status)
-        targets = [row[0] for row in data["result"]["clickCoordinates"]]
-        self.assertNotIn("ig_gallery_slot_2", targets)
-
-    def test_new_personas_have_unknown_not_invented_view_counts(self):
-        self.assertTrue(all(p["views_24h"] == -1 for p in self.runtime.db.list_personas()))
-        self.assertEqual([], self.runtime.factory.clone_winning_hooks())
-
-    def test_no_winner_is_invented_when_every_record_is_below_threshold(self):
-        with self.runtime.db._lock, self.runtime.db._connect() as connection:
-            connection.execute("UPDATE personas SET views_24h = 12 WHERE device_id = 'C24C'")
-            connection.commit()
-        self.assertEqual([], self.runtime.factory.clone_winning_hooks(threshold_views=10000))
-
-    def test_legacy_mutations_are_excluded_while_an_operation_holds_the_lock(self):
+    def test_ordinary_work_is_excluded_while_an_operation_holds_the_lock(self):
         locked, release = threading.Event(), threading.Event()
         def hold():
             with self.runtime.operation_lock:
@@ -141,9 +89,9 @@ class FarmContentTests(unittest.TestCase):
         worker.start()
         self.assertTrue(locked.wait(1))
         try:
-            status, _ = self.request("/api/farm/update-persona", {"device_id": "C24C", "niche": "Overlapping"})
+            status, _ = self.request("/api/farm/create-content", {"device_id": "C24C"})
             self.assertEqual(400, status)
-            self.assertNotEqual("Overlapping", self.runtime.db.get_persona("C24C")["niche"])
+            self.assertFalse((self.root / "stage/C24C").exists())
             # The emergency path stays responsive while ordinary work holds the lock.
             status, _ = self.request("/api/farm/emergency-stop", {"device_id": "C24C"})
             self.assertEqual(200, status)
@@ -151,17 +99,80 @@ class FarmContentTests(unittest.TestCase):
             release.set()
             worker.join(2)
 
-    def test_profile_validation_leaves_previous_values_unchanged(self):
-        before = self.runtime.db.get_persona("C24C")
-        for changes in ({"niche": " "}, {"cta_keyword": []}, {"account_day": -1}, {"paused_zero_view": "no"}, {"offer_url": "javascript:alert(1)"}):
-            with self.subTest(changes=changes), self.assertRaises(ValueError):
-                self.runtime.db.update_persona("C24C", **changes)
-        self.assertEqual(before, self.runtime.db.get_persona("C24C"))
+    def test_content_needs_a_known_profile_and_a_phone_free_request(self):
+        self.assertEqual(400, self.request("/api/farm/create-content", {"device_id": "no-such-profile"})[0])
+        self.assertEqual(400, self.request("/api/farm/create-content", {"device_id": ""})[0])
+        self.assertFalse((self.root / "stage").exists() and any((self.root / "stage").iterdir()))
+        status, body = self.request("/api/farm/create-content", {"device_id": engine.LIVE_TEST_DEVICE_ID})   # The console's ID for C24C.
+        self.assertEqual(200, status, body)
+        self.assertEqual(("ok", "/stage/C24C/manifest.json", "local_templates", True),
+                         (body["status"], body["manifest"], body["contentSource"], body["reviewRequired"]))
+        self.assertEqual(5, len(body["slates"])); self.assertNotIn("simulated", body)
+        self.assertFalse((self.root / "stage/C24C/iMousePull.shortcut.plist").exists())
 
-    def test_invalid_observed_view_counts_remain_unknown(self):
-        for views in ([1], [1, -1, 3], [1, "2", 3], [1, True, 3]):
-            vision = engine.VlmComputerUseAdapter(external_vlm_fn=lambda frame, query: {"views": views})
-            self.assertEqual([], vision.extract_profile_grid_views(b""))
+    def test_generated_slate_contains_readable_carousel_images_and_video(self):
+        if not engine.PIL_AVAILABLE:
+            self.skipTest("Pillow unavailable; JPEG decoding not established")
+        self.runtime.factory.generate_daily_slate_for_device("C24C")
+        folder = self.runtime.stage_root / "C24C"
+        manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
+        files = [folder / Path(path).name for path in manifest["files"]]
+        self.assertEqual(5, len(files))
+        self.assertEqual(4, sum(path.suffix == ".jpg" for path in files))
+        self.assertEqual(1, sum(path.suffix == ".mp4" for path in files))
+        for path in files:
+            self.assertTrue(path.is_file())
+            if path.suffix == ".jpg":
+                with engine.Image.open(path) as img:
+                    self.assertEqual("JPEG", img.format)
+                    self.assertEqual((540, 675), img.size)
+                    img.load()
+        ffprobe = shutil.which("ffprobe")
+        if not ffprobe:
+            self.skipTest("ffprobe unavailable; staged video decoding not established")
+        video = next(path for path in files if path.suffix == ".mp4")
+        probe = subprocess.run([ffprobe, "-v", "error", "-select_streams", "v:0", "-count_frames", "-show_entries", "stream=width,height,nb_read_frames", "-of", "json", str(video)], capture_output=True, text=True, timeout=20)
+        self.assertEqual(0, probe.returncode, probe.stderr)
+        stream = json.loads(probe.stdout)["streams"][0]
+        self.assertEqual((360, 640), (stream["width"], stream["height"]))
+        self.assertGreater(int(stream["nb_read_frames"]), 0)
+
+    def test_manifest_video_checksum_matches_the_staged_file(self):
+        self.runtime.factory.generate_daily_slate_for_device("C24C")
+        folder = self.runtime.stage_root / "C24C"
+        manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
+        video = folder / Path(manifest["files"][0]).name
+        self.assertEqual(hashlib.sha256(video.read_bytes()).hexdigest(), manifest["sha256Hex"],
+                         "Manifest sha256Hex is not the SHA-256 of its video")
+
+    def test_video_has_decodable_frames_or_reports_missing_encoder(self):
+        ffprobe = shutil.which("ffprobe")
+        if not ffprobe:
+            self.skipTest("ffprobe unavailable; actual decoding not established")
+        path = self.root / "sample.mp4"
+        animator = engine.LlmCodeAnimationEngine()
+        animator.compile_code_spec_to_mp4({"fps": 15, "durationSec": 1.2}, path, "C24C")
+        probe = subprocess.run([ffprobe, "-v", "error", "-select_streams", "v:0", "-count_frames", "-show_entries", "stream=width,height,nb_read_frames", "-of", "json", str(path)], capture_output=True, text=True, timeout=20)
+        self.assertEqual(0, probe.returncode, probe.stderr)
+        streams = json.loads(probe.stdout).get("streams", [])
+        self.assertTrue(streams, "MP4 has no decodable video stream")
+        self.assertGreater(int(streams[0]["nb_read_frames"]), 0)
+
+    def test_missing_video_encoder_is_reported_or_fallback_is_playable(self):
+        ffprobe = shutil.which("ffprobe")
+        if not ffprobe:
+            self.skipTest("ffprobe unavailable; fallback decoding not established")
+        path = self.root / "missing-encoder.mp4"
+        with patch.object(engine, "CV2_AVAILABLE", False):
+            try:
+                engine.LlmCodeAnimationEngine().compile_code_spec_to_mp4({}, path, "C24C")
+            except (RuntimeError, ValueError):
+                return  # Explicitly unavailable is acceptable; false success is not.
+        probe = subprocess.run([ffprobe, "-v", "error", "-select_streams", "v:0", "-count_frames", "-show_entries", "stream=nb_read_frames", "-of", "json", str(path)], capture_output=True, text=True, timeout=20)
+        self.assertEqual(0, probe.returncode, "Fallback was returned as success but cannot decode: " + probe.stderr)
+        streams = json.loads(probe.stdout).get("streams", [])
+        self.assertTrue(streams, "Fallback MP4 contains no video stream")
+        self.assertGreater(int(streams[0]["nb_read_frames"]), 0)
 
 
 if __name__ == "__main__":

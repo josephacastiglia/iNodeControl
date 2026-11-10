@@ -1,9 +1,8 @@
 """Real loopback HTTP with fake draft execution; no rack access."""
-from unittest.mock import patch
 import unittest
 import uuid
 
-from test_farm_http_jobs import FarmHttpJobsTests
+from test_farm_http_jobs import FarmHttpJobsTests, no_kernel
 from test_farm_draft_runs import Drafts, FixtureRuns, CONFIG
 from test_farm_creation import FixtureCreation
 
@@ -68,9 +67,9 @@ class DraftRunHttpTests(unittest.TestCase):
         spec=dict(id=str(uuid.uuid4()),draft_id=str(uuid.uuid4()),revision=3,store_id=service.store_id)
         route='/api/farm/draft-creations'
         self.assertTrue(self.request('/health')[1]['draftCreation']['enabled'])
-        with patch.object(self.runtime.kernel_client,'kernel_status',side_effect=AssertionError('No release access')):
-            self.assertIn('bounded draft workflow',self.request('/api/farm/state')[1]['kernelError'])
-            self.assertEqual(409,self.request('/kernel-proxy/',dict(fun='/mouse/click',data={'id':'C24C','x':200,'y':300}))[0])
+        with no_kernel():
+            self.assertNotIn('kernelError',self.request('/api/farm/state')[1])
+            self.assertEqual(404,self.request('/kernel-proxy/',dict(fun='/mouse/click',data={'id':'C24C','x':200,'y':300}))[0])
             self.assertEqual(202,self.request(route,spec)[0]);self.assertTrue(self.runtime.jobs._jobs[spec['id']].done.wait(4))
             self.assertFalse(self.request(route+'/'+spec['id'])[1]['run']['savedDraftVerified'])
             self.assertEqual(202,self.request(route,spec)[0]);self.assertEqual(1,service.executions)

@@ -21,7 +21,7 @@ class FarmJobTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         self.enterContext(patch("urllib.request.urlopen", side_effect=AssertionError("Network forbidden")))
-        self.enterContext(patch.object(engine.MediaPullOrchestrator, "detect_host_lan_url", return_value="http://127.0.0.1:9915"))
+        self.enterContext(patch.object(engine.IMouseKernel, "__init__", side_effect=AssertionError("No kernel client may be built")))
         self.runtime = server.FarmBackendRuntime(self.root / "farm.db", self.root / "stage", port=9915)
         self.enterContext(patch.object(server, "RUNTIME", self.runtime))
         self.jobs = self.runtime.jobs
@@ -223,25 +223,6 @@ with jobs._lock: pass
             release.set()
             self.finish(request_id)
 
-    def test_cancel_interrupts_wait_and_releases_owned_mock_phone(self):
-        started = threading.Event()
-        kernel = self.runtime.kernel_client
-        def run(cancel):
-            with kernel.job_context(cancel):
-                tokens = kernel.acquire(["C24C"])
-                try:
-                    started.set()
-                    kernel.wait(30)
-                    self.fail("Cancelled wait returned normally")
-                finally:
-                    kernel.release(tokens)
-        request_id = str(uuid.uuid4())
-        self.jobs.submit(request_id, "test", {}, run)
-        self.assertTrue(started.wait(1))
-        self.jobs.cancel(request_id)
-        self.assertEqual("cancelled", self.finish(request_id)["status"])
-        self.assertEqual({}, self.runtime.mock_kernel.leases)
-
     def test_cleanup_failure_during_cancellation_is_reported(self):
         started = threading.Event()
         def run(cancel):
@@ -302,59 +283,13 @@ with jobs._lock: pass
         job = self.finish(request_id)
         self.assertEqual("succeeded", job["status"], job)
         self.assertTrue((self.root / "stage/C24C/manifest.json").is_file())
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        self.assertEqual("simulate", job["result"]["executionMode"]); self.assertNotIn("simulated", job["result"])
 
-    def test_warmup_job_accepts_console_id_and_releases(self):
-        request_id = self.submit("warmup-wave", {"device_id": engine.LIVE_TEST_DEVICE_ID, "clips": 1, "time_scale": 0})
-        job = self.finish(request_id)
-        self.assertEqual("succeeded", job["status"], job)
-        self.assertEqual(1, job["result"]["sessionsRun"])
-        self.assertEqual({}, self.runtime.mock_kernel.leases)
-
-    def test_create_and_deploy_job_runs_the_whole_simulated_c24c_flow(self):
-        job = self.finish(self.submit("auto-create-and-deploy", {"device_id": engine.LIVE_TEST_DEVICE_ID}))
-        self.assertEqual("succeeded", job["status"], job)
-        self.assertEqual(1, job["result"]["summary"]["uploadsExecuted"])
-        self.assertEqual("simulated_upload_and_pin", job["result"]["devices"][0]["status"])
-        self.assertTrue(job["result"]["simulated"])
-        self.assertEqual({}, self.runtime.mock_kernel.leases)
-
-    def test_unknown_observations_do_not_claim_dm_success(self):
-        job = self.finish(self.submit("funnel-action", {"device_id": "C24C", "action": "comment_to_dm"}))
-        self.assertEqual("failed", job["status"])
-        self.assertIn("No text observation provider", job["error"])
-        self.assertEqual({}, self.runtime.mock_kernel.leases)
-
-    def test_unavailable_counts_do_not_clear_an_existing_pause(self):
-        self.runtime.db.update_persona("C24C", paused_zero_view=True)
-        guard = engine.ShadowbanGuardAndDiagnostics(self.runtime.kernel_client, self.runtime.db)
-        result = guard.scan_device_profile_views("C24C")
-        self.assertEqual("observation_unavailable", result["status"])
-        self.assertTrue(self.runtime.db.get_persona("C24C")["paused_zero_view"])
-
-    def test_live_automation_refuses_before_any_kernel_probe(self):
-        self.runtime.execution_mode = "live"
-        with patch.object(self.runtime, "get_kernel", side_effect=AssertionError("Must not connect")):
-            with self.assertRaises(engine.KernelSafetyError):
-                self.submit("single-upload", {"device_id": "C24C"})
-
-    def test_every_upload_format_dispatches_and_releases_in_simulation(self):
-        platforms = {"ig": "instagram", "tt": "tiktok", "x": "x", "yt": "youtube"}
-        for fmt in engine.UploadFormat:
-            with self.subTest(format=fmt.value):
-                job = self.finish(self.submit("single-upload", {"device_id": "C24C", "platform": platforms[fmt.value.split('_')[0]], "format": fmt.value, "caption": "Sample"}))
-                self.assertEqual("succeeded", job["status"], job)
-                self.assertEqual({}, self.runtime.mock_kernel.leases)
-
-    def test_cancelled_context_never_acquires_or_sends_but_allows_cleanup(self):
-        cancel = threading.Event()
-        tokens = self.runtime.kernel_client.acquire(["C24C"])
-        cancel.set()
-        with self.runtime.kernel_client.job_context(cancel):
-            with self.assertRaises(JobCancelled):
-                self.runtime.kernel_client.send("C24C", tokens["C24C"], "/mouse/click", x=1, y=1)
-            self.runtime.kernel_client.release(tokens)
-        self.assertEqual({}, self.runtime.mock_kernel.leases)
+    def test_removed_automation_actions_are_not_jobs(self):
+        for action in ("warmup-wave", "auto-create-and-deploy", "single-upload", "funnel-action", "scan-profile-views", "scheduler-tick"):
+            with self.subTest(action=action), self.assertRaises(ValueError):
+                self.submit(action, {"device_id": "C24C"})
+        self.assertFalse((self.root / "stage/C24C").exists())
 
 
 if __name__ == "__main__":

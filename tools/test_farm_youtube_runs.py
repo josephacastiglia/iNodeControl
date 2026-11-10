@@ -6,7 +6,6 @@ import threading
 import time
 import unittest
 import uuid
-from unittest.mock import patch
 
 import json
 
@@ -217,7 +216,7 @@ class YouTubeHttpTests(unittest.TestCase, YouTubeVideoFixture):
         capability = self.request('/health')[1]['youtubeCreation']
         self.assertFalse(capability['enabled']); self.assertEqual(('yt_short', 'first_signed_in'), (capability['format'], capability['accountPolicy']))
         spec = dict(id=str(uuid.uuid4()), draft_id=str(uuid.uuid4()), revision=1, store_id=capability['storeId'])
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel')):
+        with http_jobs.no_kernel():
             self.assertEqual(409, self.request('/api/farm/youtube-creations', spec)[0])
         self.assertEqual(404, self.request('/api/farm/youtube-creations/'+spec['id'])[0])
 
@@ -227,7 +226,7 @@ class YouTubeHttpTests(unittest.TestCase, YouTubeVideoFixture):
         self.runtime.youtube_creations = service; self.runtime.execution_mode = 'live'
         spec = dict(id=str(uuid.uuid4()), draft_id=draft['id'], revision=1, store_id=service.store_id)
         route = '/api/farm/youtube-creations'
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('Default rack must not be used')):
+        with http_jobs.no_kernel():
             self.assertEqual(403, self.request(route, spec, origin='https://untrusted.invalid')[0])
             self.assertEqual(403, self.request(route+'/'+spec['id'], origin='https://untrusted.invalid')[0])
             eligible = route+'/eligibility?draft_id='+draft['id']+'&revision=1'

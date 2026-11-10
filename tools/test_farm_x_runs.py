@@ -6,7 +6,6 @@ import threading
 import time
 import unittest
 import uuid
-from unittest.mock import patch
 
 from farm_draft_workflow import atomic_json
 from farm_drafts import DraftConflict
@@ -163,7 +162,7 @@ class XHttpTests(unittest.TestCase, XVideoFixture):
         capability = self.request('/health')[1]['xCreation']
         self.assertFalse(capability['enabled']); self.assertEqual(('x_video', 'first_signed_in'), (capability['format'], capability['accountPolicy']))
         spec = dict(id=str(uuid.uuid4()), draft_id=str(uuid.uuid4()), revision=1, store_id=capability['storeId'])
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel')):
+        with http_jobs.no_kernel():
             self.assertEqual(409, self.request('/api/farm/x-creations', spec)[0])
         self.assertEqual(404, self.request('/api/farm/x-creations/'+spec['id'])[0])
 
@@ -173,7 +172,7 @@ class XHttpTests(unittest.TestCase, XVideoFixture):
         self.runtime.x_creations = service; self.runtime.execution_mode = 'live'
         spec = dict(id=str(uuid.uuid4()), draft_id=draft['id'], revision=1, store_id=service.store_id)
         route = '/api/farm/x-creations'
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('Default rack must not be used')):
+        with http_jobs.no_kernel():
             self.assertEqual(403, self.request(route, spec, origin='https://untrusted.invalid')[0])
             eligible = route+'/eligibility?draft_id='+draft['id']+'&revision=1'
             self.assertTrue(self.request(eligible)[1]['eligibility']['eligible'])

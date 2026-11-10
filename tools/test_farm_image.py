@@ -464,7 +464,7 @@ class ImageHttpTests(unittest.TestCase):
                 capability = health[key]
                 self.assertEqual((False, fmt, False, False), (capability['enabled'], capability['format'], capability['publishing'], capability['messaging']))
                 spec = dict(id=str(uuid.uuid4()), draft_id=str(uuid.uuid4()), revision=1, store_id=capability['storeId'])
-                with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel')):
+                with http_jobs.no_kernel():
                     self.assertEqual(409, self.request('/api/farm/' + route, spec)[0])
                     self.assertEqual(403, self.request('/api/farm/' + route, spec, origin='https://untrusted.invalid')[0])
                     self.assertEqual(403, self.request('/api/farm/' + route + '/' + spec['id'], origin='https://untrusted.invalid')[0])
@@ -474,7 +474,8 @@ class ImageHttpTests(unittest.TestCase):
 
     def test_image_drafts_are_created_and_read_over_http(self):
         _, _, chosen = stage(self.root, 'tt_photo', 2, board='C24C')
-        self.assertEqual([c['name'] for c in chosen], [s['name'] for s in self.request('/api/farm/image-sources')[1]['sources']])
+        self.assertEqual([c['name'] for c in chosen], [s['name'] for s in self.runtime.images.sources()])
+        self.assertEqual(404, self.request('/api/farm/image-sources')[0])   # No client ever asked for this list; creation reads it itself.
         request = dict(id=str(uuid.uuid4()), device_id='C24C', format='tt_photo', images=chosen, title='HTTP', caption='c')
         status, body = self.request('/api/farm/image-drafts', request); self.assertEqual(200, status, body)
         self.assertEqual(body['draft'], self.request('/api/farm/image-drafts/' + request['id'])[1]['draft'])

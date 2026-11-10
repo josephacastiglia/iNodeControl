@@ -9,7 +9,6 @@ import threading
 import time
 import unittest
 import uuid
-from unittest.mock import patch
 
 from farm_draft_workflow import atomic_json
 from farm_drafts import DraftConflict
@@ -187,7 +186,7 @@ class ReelHttpTests(unittest.TestCase, ReelVideoFixture):
         capability = self.request('/health')[1]['reelCreation']
         self.assertFalse(capability['enabled']); self.assertEqual('ig_reel', capability['format'])
         spec = dict(id=str(uuid.uuid4()), draft_id=str(uuid.uuid4()), revision=1, store_id=capability['storeId'])
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel')):
+        with http_jobs.no_kernel():
             self.assertEqual(409, self.request('/api/farm/reel-creations', spec)[0])
         self.assertEqual(404, self.request('/api/farm/reel-creations/'+spec['id'])[0])
 
@@ -197,7 +196,7 @@ class ReelHttpTests(unittest.TestCase, ReelVideoFixture):
         self.runtime.reel_creations = service; self.runtime.execution_mode = 'live'
         spec = dict(id=str(uuid.uuid4()), draft_id=draft['id'], revision=1, store_id=service.store_id)
         route = '/api/farm/reel-creations'
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('Default rack must not be used')):
+        with http_jobs.no_kernel():
             self.assertEqual(403, self.request(route, spec, origin='https://untrusted.invalid')[0])
             eligible = route+'/eligibility?draft_id='+draft['id']+'&revision=1'
             self.assertTrue(self.request(eligible)[1]['eligibility']['eligible'])

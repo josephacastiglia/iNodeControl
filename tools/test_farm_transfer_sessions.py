@@ -19,6 +19,7 @@ from PIL import Image
 import imouse_farm_server as backend
 from farm_drafts import DraftConflict
 from farm_transfers import CarouselTransfers, TransferConflict
+import farm_test_network as network
 from farm_test_network import allowed_ports
 
 
@@ -26,6 +27,7 @@ class TransferSessionTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='farm-transfer-session-')
         self.root = Path(self.temp.name)
+        self.outside = network.mark()
         self.runtime = backend.FarmBackendRuntime(self.root / 'farm.db', self.root / 'stage')
         self.manager = self.runtime.transfers
         self.draft = self.runtime.drafts.create(str(uuid.uuid4()))
@@ -80,7 +82,7 @@ class TransferSessionTests(unittest.TestCase):
     def test_http_start_delivery_recovery_stop_and_no_phone_commands(self):
         code, response = self.api('/api/farm/transfers', self.request)
         self.assertEqual(200, code, response)
-        self.assertFalse(response['simulated'])  # Media delivery is real even when job input is simulated.
+        self.assertNotIn('simulated', response)
         session = response['transfer']
         self.assertEqual('real_media_only', session['deliveryMode'])
         self.assertEqual('serving', session['state'])
@@ -98,7 +100,7 @@ class TransferSessionTests(unittest.TestCase):
         self.assertEqual('closed', closed['transfer']['state'])
         self.assertIsNone(closed['transfer']['url'])
         with self.assertRaises(OSError): self.media(session['url'])
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        self.assertEqual([], network.since(self.outside))
 
     def test_duplicate_request_never_reopens_or_changes_snapshot(self):
         first = self.manager.start(self.request)

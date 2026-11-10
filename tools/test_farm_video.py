@@ -15,6 +15,7 @@ from unittest.mock import patch
 from farm_video import VideoDrafts, VideoTransferPackage, normalize_video, probe_video, run_media
 from farm_drafts import DraftConflict
 from farm_media_transfer import MediaTransferServer
+import farm_test_network as network
 from farm_test_network import allowed_ports
 
 
@@ -162,6 +163,7 @@ class VideoDraftTests(unittest.TestCase):
     def test_control_api_prepares_recovers_and_stops_video_without_phone_input(self):
         import imouse_farm_server as backend
         import socket
+        outside = network.mark()
         runtime = backend.FarmBackendRuntime(self.root / 'backend/farm.db', self.root / 'stage')
         httpd = backend.FarmControlServer(('127.0.0.1', 0), backend.FarmRequestHandler)
         allowed_ports.add(httpd.server_port)
@@ -185,7 +187,7 @@ class VideoDraftTests(unittest.TestCase):
                     self.assertEqual('preparation_busy', json.loads(body)['status'])
                     self.assertEqual([], runtime.videos.list())
                 code, body = request('/api/farm/video-drafts', self.request); self.assertEqual(200, code, body)
-                response = json.loads(body); self.assertFalse(response['simulated']); draft = response['draft']
+                response = json.loads(body); self.assertNotIn('simulated', response); draft = response['draft']
                 self.assertEqual(draft, json.loads(request('/api/farm/video-drafts/' + draft['id'])[1])['draft'])
                 self.assertEqual(draft, json.loads(request('/api/farm/video-drafts')[1])['drafts'][0])
                 transfer_request = dict(id=str(uuid.uuid4()), draft_id=draft['id'], revision=1, kind='video', device_id='C24C',
@@ -202,7 +204,7 @@ class VideoDraftTests(unittest.TestCase):
                 self.assertEqual(transfer['url'], json.loads(request('/api/farm/transfers', transfer_request)[1])['transfer']['url'])
                 code, body = request('/api/farm/transfers/' + transfer['id'] + '/stop', {})
                 self.assertEqual('closed', json.loads(body)['transfer']['state'])
-                self.assertEqual([], runtime.mock_kernel.commands_dispatched)
+                self.assertEqual([], network.since(outside))
             finally:
                 runtime.transfers.close(); httpd.shutdown(); httpd.server_close(); worker.join(2)
                 allowed_ports.discard(httpd.server_port); allowed_ports.discard(media_port)
