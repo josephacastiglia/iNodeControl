@@ -6,8 +6,8 @@ import threading
 import time
 import unittest
 import uuid
-from unittest.mock import patch
 
+from farm_draft_runs import ACCOUNT   # This machine's private default account.
 from farm_draft_workflow import atomic_json
 from farm_drafts import DraftConflict
 from farm_jobs import FarmJobs
@@ -71,7 +71,7 @@ class XServiceTests(unittest.TestCase, XVideoFixture):
         self.assertIn('signed in first', capability['reason'])
         for fixed in (ReelCreationRuns, TikTokCreationRuns):
             other = fixed(self.root/fixed.__name__, self.videos, self.jobs, CONFIG).capability()
-            self.assertEqual(('xs.halle.xo', 'fixed'), (other['account'], other['accountPolicy']))
+            self.assertEqual((ACCOUNT, 'fixed'), (other['account'], other['accountPolicy']))
         disabled = XCreationRuns(self.root/'disabled', self.videos, self.jobs).capability()
         self.assertFalse(disabled['enabled']); self.assertIn('X draft creation is disabled', disabled['reason'])
         with self.assertRaises(KernelSafetyError):
@@ -163,11 +163,9 @@ class XHttpTests(unittest.TestCase, XVideoFixture):
         capability = self.request('/health')[1]['xCreation']
         self.assertFalse(capability['enabled']); self.assertEqual(('x_video', 'first_signed_in'), (capability['format'], capability['accountPolicy']))
         spec = dict(id=str(uuid.uuid4()), draft_id=str(uuid.uuid4()), revision=1, store_id=capability['storeId'])
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel')):
+        with http_jobs.no_kernel():
             self.assertEqual(409, self.request('/api/farm/x-creations', spec)[0])
         self.assertEqual(404, self.request('/api/farm/x-creations/'+spec['id'])[0])
-        formats = {row['id']: row for row in self.request('/api/farm/capabilities')[1]['formats']}
-        self.assertEqual(('/api/farm/x-creations', 'integrated_offline'), (formats['x_video']['candidateEndpoint'], formats['x_video']['level']))
 
     def test_configured_route_is_local_only_store_bound_and_never_replays(self):
         videos, draft = self.stage(self.root/'x-fixture')
@@ -175,7 +173,7 @@ class XHttpTests(unittest.TestCase, XVideoFixture):
         self.runtime.x_creations = service; self.runtime.execution_mode = 'live'
         spec = dict(id=str(uuid.uuid4()), draft_id=draft['id'], revision=1, store_id=service.store_id)
         route = '/api/farm/x-creations'
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('Default rack must not be used')):
+        with http_jobs.no_kernel():
             self.assertEqual(403, self.request(route, spec, origin='https://untrusted.invalid')[0])
             eligible = route+'/eligibility?draft_id='+draft['id']+'&revision=1'
             self.assertTrue(self.request(eligible)[1]['eligibility']['eligible'])

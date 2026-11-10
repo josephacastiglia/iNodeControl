@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw
 
 import farm_tiktok_layout as tt
 import farm_reel_test_media as media
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 
 ROOT = Path(__file__).resolve().parents[1]
 R17 = ROOT/'analysis/farm-platform-drafts-20261017'
@@ -121,7 +121,7 @@ class RetainedTikTokLayoutTests(unittest.TestCase):
     def test_every_route_screen_is_recognized_with_its_target(self):
         f, t = self.load('95-tiktok-loaded'); self.assertEqual((450, 1005), tt.tiktok_feed(f, t)['profileTarget'])
         f, t = self.load('106-tiktok-save-video-draft'); self.assertTrue(tt.tiktok_feed(f, t)['toastSeen'])
-        f, t = self.load('107-tiktok-video-profile'); profile = tt.tiktok_profile(f, t, 'xs.halle.xo')
+        f, t = self.load('107-tiktok-video-profile'); profile = tt.tiktok_profile(f, t, farm_paths.account_label())
         self.assertEqual((2, (79, 478), (250, 1009)), (profile['draftsCount'], profile['draftsTarget'], profile['createTarget']))
         for step, which in (('96-tiktok-create-video', 'after'), ('100-tiktok-settled-gallery-click', 'before')):
             f, t = self.load(step, which); self.assertEqual((40, 1000), tt.tiktok_camera(f, t)['galleryTarget'])
@@ -141,10 +141,10 @@ class RetainedTikTokLayoutTests(unittest.TestCase):
         f, t = self.load('112-tiktok-resave-silent-video'); drafts = tt.tiktok_drafts(f, t, self.ref)
         self.assertEqual((2, None, True), (drafts['count'], drafts['tile']['soundLabel'], drafts['toastSeen']))
         # The photo route landed on the profile after Drafts, with the same toast.
-        f, t = self.load('22-tiktok-save-draft'); landed = tt.tiktok_profile(f, t, 'xs.halle.xo')
+        f, t = self.load('22-tiktok-save-draft'); landed = tt.tiktok_profile(f, t, farm_paths.account_label())
         self.assertEqual((1, True), (landed['draftsCount'], landed['toastSeen']))
         with self.assertRaises(InspectionStopped): tt.tiktok_feed(f, t)
-        f, t = self.load('107-tiktok-video-profile'); self.assertFalse(tt.tiktok_profile(f, t, 'xs.halle.xo')['toastSeen'])
+        f, t = self.load('107-tiktok-video-profile'); self.assertFalse(tt.tiktok_profile(f, t, farm_paths.account_label())['toastSeen'])
 
     def test_the_real_tiktok_callout_without_paste_is_refused(self):
         # 17 Oct photo route: a long press on the description showed only AutoFill
@@ -175,7 +175,7 @@ class RetainedTikTokLayoutTests(unittest.TestCase):
             ('102-tiktok-video-editor', 'after', lambda f, t: tt.tiktok_details(f, t, self.ref)),
             ('103-tiktok-video-details', 'after', lambda f, t: tt.tiktok_details(f, t, self.ref, reopened=True)),
             ('107-tiktok-video-profile', 'after', lambda f, t: tt.tiktok_profile(f, t, 'another.account')),
-            ('106-tiktok-save-video-draft', 'after', lambda f, t: tt.tiktok_profile(f, t, 'xs.halle.xo')),
+            ('106-tiktok-save-video-draft', 'after', lambda f, t: tt.tiktok_profile(f, t, farm_paths.account_label())),
             ('107-tiktok-video-profile', 'after', lambda f, t: tt.tiktok_feed(f, t)),
             ('95-tiktok-loaded', 'after', lambda f, t: tt.tiktok_camera(f, t)),
             ('108-tiktok-video-library', 'after', lambda f, t: tt.tiktok_picker(f, t, self.ref)),

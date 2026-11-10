@@ -5,10 +5,8 @@ October Create sheet. Video checks compare frames decoded from the immutable
 package; a match is visual evidence, not byte identity, app authenticity or
 proof that Instagram persisted a draft. Unknown or ambiguous screens stop.
 """
-import base64
 import hashlib
 import io
-import json
 from pathlib import Path
 import re
 import tempfile
@@ -16,8 +14,8 @@ import tempfile
 import numpy as np
 from PIL import Image
 
-from farm_carousel_inspection import InspectionStopped
-from farm_creation_layout import require, exact, control
+from farm_owned_capture import InspectionStopped
+from farm_creation_layout import require, exact, control, template
 from farm_screen_layout import pixels, words_at, line_at, overlay_present, create_menu_controls
 from farm_video import probe_video, run_media
 
@@ -42,10 +40,7 @@ def reference_rgb(raw):
 def reel_control(frame, name, exclude_columns=(), dy=0):
     """Fixed control template; same thresholds as the carousel controls. dy moves it down for a sheet whose rows
     were located by OCR (A12's Create sheet, 5 Nov); 0 everywhere else."""
-    row = json.loads(Path(__file__).with_name('farm_reel_controls.json').read_text(encoding='utf-8'))[name]
-    raw = base64.b64decode(row['png'], validate=True)
-    require(hashlib.sha256(raw).hexdigest() == row['sha256'], 'Reel control reference is damaged.')
-    left, top, right, bottom = row['box']
+    (left, top, right, bottom), raw = template('farm_reel_controls.json', name, 'Reel control reference is damaged.')
     top, bottom = top + dy, bottom + dy
     require(0 <= top and bottom <= 1080, 'Reel control is outside the frame.')
     image = pixels(frame, exact=True)
@@ -298,11 +293,8 @@ def selected_disk(image, cell):
 
 def numbered_one(image, cell):
     """A settled white disk carrying the numeral 1, at this cell's circle."""
-    row = json.loads(Path(__file__).with_name('farm_reel_controls.json').read_text(encoding='utf-8'))['selection_one']
-    raw = base64.b64decode(row['png'], validate=True)
-    require(hashlib.sha256(raw).hexdigest() == row['sha256'], 'Reel control reference is damaged.')
+    (left, top, right, bottom), raw = template('farm_reel_controls.json', 'selection_one', 'Reel control reference is damaged.')
     x, y = circle(cell); dx, dy = x-311, y-280
-    left, top, right, bottom = row['box']
     with Image.open(io.BytesIO(raw)) as reference:
         delta = np.abs(image[top+dy:bottom+dy, left+dx:right+dx].astype(float)-np.asarray(reference.convert('RGB')).astype(float))/255
     return bool(delta.mean() < .02 and (delta.max(axis=2) > 35/255).mean() < .04)

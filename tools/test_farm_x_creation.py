@@ -26,7 +26,7 @@ import farm_tiktok_layout as tt
 from farm_draft_workflow import references
 from farm_observations import ObservationStore
 from farm_x_creation import XCreationWorkflow, XVerification, COMMITTING, PENDING, guard
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from imouse_social_automation import LIVE_TEST_DEVICE_ID
 
 ROOT = Path(__file__).resolve().parents[1]

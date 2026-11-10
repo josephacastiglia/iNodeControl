@@ -17,7 +17,7 @@ import farm_permission_prompts as prompts
 import farm_reel_test_media as media
 import farm_tiktok_layout as tt
 import farm_youtube_layout as yl
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 
 ROOT = Path(__file__).resolve().parents[1]
 R17 = ROOT/'analysis/farm-platform-drafts-20261017'

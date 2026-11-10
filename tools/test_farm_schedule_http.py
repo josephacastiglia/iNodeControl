@@ -11,6 +11,7 @@ class ScheduleQueueHttpTests(unittest.TestCase):
     setUp_server = http_jobs.FarmHttpJobsTests.setUp
     tearDown = http_jobs.FarmHttpJobsTests.tearDown
     request = http_jobs.FarmHttpJobsTests.request
+    outside_connections = http_jobs.FarmHttpJobsTests.outside_connections
 
     def setUp(self):
         self.setUp_server()
@@ -39,7 +40,7 @@ class ScheduleQueueHttpTests(unittest.TestCase):
         self.assertEqual((200, 'rejected'), (status, body['package']['state']))
         q = ReviewQueue(self.runtime.schedule_queue_path)
         self.assertEqual((['reel18-aaaaaa'], [7], []), (q.schedule()['approved'], q.schedule()['rejected'], q.schedule()['slots']))
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        self.assertEqual([], self.outside_connections())
 
     def test_refusals(self):
         self.assertEqual(400, self.request('/api/farm/schedule-queue/approve', {'id': 7})[0])            # No account yet.

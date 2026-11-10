@@ -10,7 +10,7 @@ from farm_draft_creation import CreationWorkflow
 from farm_draft_workflow import Workflow, references, atomic_json
 from farm_draft_transport import CreationKernel
 from farm_media_transfer import MediaTransferServer, TransferPackage, checked_address
-from farm_observations import ObservationStore
+from farm_observations import ObservationStore, WindowsOcr
 from farm_live_verification import idle
 from imouse_social_automation import KernelSafetyError
 
@@ -234,7 +234,7 @@ class CreationRuns(DraftRuns):
         worker=threading.Thread(target=serve,daemon=True)
         try:
             worker.start()
-            kernel=CreationKernel(self.config['api'],phone=phone_of(self.config));store=ObservationStore(folder/'observations.sqlite3',retained_limit=160)
+            kernel=CreationKernel(self.config['api'],phone=phone_of(self.config));store=ObservationStore(folder/'observations.sqlite3',WindowsOcr(next_control=True),retained_limit=160)
             arguments=dict(account=account_of(self.config),package_hash=package_hash,cancelled=cancelled,allowed=allowed_of(self.config))
             creator=CreationWorkflow(folder,kernel,store,assets,caption,references(),
                 self.config['kernelSha256'],self.config['expectedUid'],transfer_url=server.url,

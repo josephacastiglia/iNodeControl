@@ -6,7 +6,7 @@ import unittest
 
 import farm_paths
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import safari_address_empty, safari_blank, safari_start_page
 
 
@@ -251,7 +251,7 @@ class StartScreenReelEditorTests(unittest.TestCase):
         details = text(('New reel', 210, 77, 289, 92), ('Add a caption...', 22, 495, 142, 511), ('Save draft', 90, 991, 171, 1004),
                        ('Share', 347, 991, 392, 1004))   # 22 Oct, slot 18.
         # The editor is read twice after the back tap: it must have settled (A18, 4 Nov).
-        start, taps = self.screen(text(*self.EDITOR), text(*self.EDITOR), text(*self.DIALOG), text(*self.PICKER), text(('xs.halle.xo', 150, 90, 260, 110)))
+        start, taps = self.screen(text(*self.EDITOR), text(*self.EDITOR), text(*self.DIALOG), text(*self.PICKER), text((farm_paths.account_label() or 'demo.account', 150, 90, 260, 110)))
         self.assertTrue(start.reel_details(details) and not start.reel_details(text(*self.EDITOR)))
         start.close_new_reel(b'before', details)
         self.assertEqual(['details-back', 'close-reel-editor', 'start-over-1', 'close-new-reel'], [p for p, _ in taps])

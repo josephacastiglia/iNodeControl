@@ -12,6 +12,7 @@ import uuid
 from PIL import Image
 from farm_drafts import CarouselDrafts, DraftConflict
 from farm_preparation_schedule import PreparationSchedule
+import farm_test_network as network
 import imouse_farm_server as server
 
 
@@ -20,6 +21,7 @@ class PreparedBatchTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         self.enterContext(patch('urllib.request.urlopen', side_effect=AssertionError('Network forbidden')))
+        self.outside = network.mark()
         self.runtime = server.FarmBackendRuntime(self.root / 'data/farm.db', self.root / 'stage')
         self.schedule = self.runtime.preparation
         self.addCleanup(self.schedule.close)
@@ -149,7 +151,7 @@ class PreparedBatchTests(unittest.TestCase):
             restarted = PreparationSchedule(self.schedule.path, lambda: self.fail('No render on restart'),
                                             lambda: {}, threading.Lock(), clock=lambda: self.now)
             restarted.tick(); self.assertEqual(status['runs'], restarted.status()['runs']); self.assertEqual(2, render.call_count)
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        self.assertEqual([], network.since(self.outside))
 
     def test_snapshot_failure_holds_schedule_without_retry_or_discarding_previous_draft(self):
         first, _ = self.batch(); second, manifest = self.batch('Broken batch')

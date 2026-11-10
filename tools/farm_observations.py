@@ -32,6 +32,14 @@ def image_size(raw):
 
 
 class WindowsOcr:
+    """Windows' own image-text recognition: one short-lived process per frame.
+
+    next_control=True also has that process read the Instagram carousel editor's Next label from its own enlarged
+    crop, for an editor whose full-frame read missed it. Only the carousel flow asks for that; every other reader
+    leaves it off and its frames are read once."""
+    def __init__(self, next_control=False):
+        self.next_control = next_control
+
     def _read_file(self, image_path, size, control_path=None):
         binary = Path(os.environ.get('WINDIR', 'C:/Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
         if not binary.is_file():
@@ -70,7 +78,7 @@ class WindowsOcr:
             with Image.open(io.BytesIO(raw)) as image:
                 image.convert('RGB').save(image_path)
             path = None
-            if size == (500, 1080):
+            if self.next_control and size == (500, 1080):
                 crop, source_pixels = next_crop(raw)
                 path = Path(directory) / 'next-control.png'; path.write_bytes(crop)
             # One WinRT engine/process reads both exact images. The optional crop
@@ -80,7 +88,7 @@ class WindowsOcr:
             unrotate(value)
             detail = value.pop('control', None)
             value['frameSha256'] = hashlib.sha256(raw).hexdigest()
-            if size == (500, 1080) and editor_controls(raw, value) and not next_label(raw, value):
+            if path is not None and editor_controls(raw, value) and not next_label(raw, value):
                 value['controlOcr'] = {'next': {**detail, 'sourceFrameSha256': value['frameSha256'],
                     'sourcePixelsSha256': source_pixels, 'bounds': list(NEXT_LABEL_BOX), 'scale': NEXT_LABEL_SCALE}}
             return value

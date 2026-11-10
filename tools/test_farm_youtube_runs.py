@@ -1,17 +1,16 @@
-"""YouTube admission, channel policy, duplicate holds, package naming, routes and the source fingerprint. No phone access."""
+"""YouTube admission, channel policy, duplicate holds, package naming and routes. No phone access."""
 import http.client
 from pathlib import Path
-import re
 import tempfile
 import threading
 import time
 import unittest
 import uuid
-from unittest.mock import patch
 
 import json
 
 from farm_creation_runs import creation_config
+from farm_draft_runs import ACCOUNT   # This machine's private default account.
 from farm_draft_workflow import atomic_json
 from farm_drafts import DraftConflict
 from farm_jobs import FarmJobs
@@ -28,7 +27,6 @@ from imouse_social_automation import KernelSafetyError, DEFAULT_SAFE_TEST_DEVICE
 import test_farm_http_jobs as http_jobs
 from test_farm_reel_runs import CONFIG, ReelVideoFixture
 
-ROOT = Path(__file__).resolve().parents[1]
 # The one phone this branch's shared transport drives, and the rack phone YouTube is meant for (box slot 16).
 PHONE = dict(board=DEFAULT_SAFE_TEST_DEVICE, deviceId=LIVE_TEST_DEVICE_ID, receiver='iMouse2-' + DEFAULT_SAFE_TEST_DEVICE)
 SLOT16 = dict(board='F215', deviceId='02:00:00:00:00:16', receiver='iMouse2-16', slot=16)   # fixture device ID
@@ -84,7 +82,7 @@ class YouTubeServiceTests(unittest.TestCase, YouTubeVideoFixture):
         self.assertEqual((False, False, False), (capability['publishing'], capability['messaging'], capability['automaticResume']))
         for fixed in (ReelCreationRuns, TikTokCreationRuns):
             other = fixed(self.root/fixed.__name__, self.videos, self.jobs, CONFIG).capability()
-            self.assertEqual(('xs.halle.xo', 'fixed'), (other['account'], other['accountPolicy']))
+            self.assertEqual((ACCOUNT, 'fixed'), (other['account'], other['accountPolicy']))
         disabled = YouTubeCreationRuns(self.root/'disabled', self.videos, self.jobs).capability()
         self.assertFalse(disabled['enabled']); self.assertIn('YouTube draft creation is disabled', disabled['reason'])
         self.assertIsNone(disabled['phone'])
@@ -210,20 +208,6 @@ class YouTubePackageTests(unittest.TestCase, YouTubeVideoFixture):
         self.assertRegex('imouse-yt-acdefh', reel.LEFTOVER_NAME)
 
 
-class YouTubeSourceFingerprintTests(unittest.TestCase):
-    def test_server_and_launcher_pin_the_same_files_in_the_same_order(self):
-        server = (ROOT/'tools/imouse_farm_server.py').read_text(encoding='utf-8')
-        launcher = (ROOT/'Open Marketing Farm Candidate.ps1').read_text(encoding='utf-8')
-        pinned = re.findall(r'"([^"]+)"', re.search(r'b"".join\(\(source / name\)\.read_bytes\(\) for name in \(([^)]*)\)', server).group(1))
-        checked = re.findall(r"'([^']+)'", re.search(r"foreach \(\$name in @\(([^)]*)\)\)", launcher).group(1))
-        self.assertEqual(pinned, checked)
-        self.assertEqual(len(pinned), len(set(pinned)))
-        for name in ('farm_youtube_layout.py', 'farm_youtube_controls.json', 'farm_youtube_creation.py', 'farm_youtube_runs.py'):
-            self.assertIn(name, pinned)
-        self.assertTrue(all((ROOT/'tools'/name).is_file() for name in pinned))
-        self.assertIn("[bool]$health.youtubeCreation.enabled -and -not $DraftCreationConfig", launcher)
-
-
 class YouTubeHttpTests(unittest.TestCase, YouTubeVideoFixture):
     setUp = http_jobs.FarmHttpJobsTests.setUp
     tearDown = http_jobs.FarmHttpJobsTests.tearDown
@@ -233,13 +217,9 @@ class YouTubeHttpTests(unittest.TestCase, YouTubeVideoFixture):
         capability = self.request('/health')[1]['youtubeCreation']
         self.assertFalse(capability['enabled']); self.assertEqual(('yt_short', 'first_signed_in'), (capability['format'], capability['accountPolicy']))
         spec = dict(id=str(uuid.uuid4()), draft_id=str(uuid.uuid4()), revision=1, store_id=capability['storeId'])
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel')):
+        with http_jobs.no_kernel():
             self.assertEqual(409, self.request('/api/farm/youtube-creations', spec)[0])
         self.assertEqual(404, self.request('/api/farm/youtube-creations/'+spec['id'])[0])
-        formats = {row['id']: row for row in self.request('/api/farm/capabilities')[1]['formats']}
-        self.assertEqual(('/api/farm/youtube-creations', 'integrated_offline'), (formats['yt_short']['candidateEndpoint'], formats['yt_short']['level']))
-        features = {row['id'] for row in self.request('/api/farm/capabilities')[1]['features']}
-        self.assertIn('youtube-draft', features)
 
     def test_configured_route_is_local_only_store_bound_and_never_replays(self):
         videos, draft = self.stage(self.root/'yt-fixture')
@@ -247,7 +227,7 @@ class YouTubeHttpTests(unittest.TestCase, YouTubeVideoFixture):
         self.runtime.youtube_creations = service; self.runtime.execution_mode = 'live'
         spec = dict(id=str(uuid.uuid4()), draft_id=draft['id'], revision=1, store_id=service.store_id)
         route = '/api/farm/youtube-creations'
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('Default rack must not be used')):
+        with http_jobs.no_kernel():
             self.assertEqual(403, self.request(route, spec, origin='https://untrusted.invalid')[0])
             self.assertEqual(403, self.request(route+'/'+spec['id'], origin='https://untrusted.invalid')[0])
             eligible = route+'/eligibility?draft_id='+draft['id']+'&revision=1'

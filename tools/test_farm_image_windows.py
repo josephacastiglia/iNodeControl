@@ -7,10 +7,8 @@ import re
 import sqlite3
 import sys
 import tempfile
-import types
 import unittest
 import uuid
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 WINDOWS = ROOT / 'analysis/farm-multiphone-20261020'
@@ -21,7 +19,6 @@ verify_window = importlib.import_module('verify_window')
 import imouse_farm_server as server  # noqa: E402
 from farm_image import ImageDrafts, SLIDES  # noqa: E402
 from farm_media_transfer import TransferPackage  # noqa: E402
-from farm_reel_runs import ImageCreationRuns, LANE_RUNS  # noqa: E402
 
 BOARD = '724E'
 
@@ -34,7 +31,7 @@ class PrepareWindowTests(unittest.TestCase):
         self.assertEqual({'x-image': 17, 'tiktok-photo': 20}, {k: v['slot'] for k, v in prepare_window.IMAGE_PLATFORMS.items()})
         for platform, row in prepare_window.IMAGE_PLATFORMS.items():
             self.assertIn(row['slot'], prepare_window.BACKEND_PORTS)
-            self.assertIn(prepare_window.PLATFORMS[platform][3], server.IMAGE_CREATION_ROUTES)
+            self.assertIn(prepare_window.PLATFORMS[platform][3], server.CREATION_ROUTES)
             low, high = SLIDES[prepare_window.PLATFORMS[platform][0]]
             self.assertTrue(low <= row['slides'] <= high)
         self.assertEqual(set(prepare_window.IMAGE_PLATFORMS), set(verify_window.IMAGE_PLATFORMS))
@@ -42,6 +39,18 @@ class PrepareWindowTests(unittest.TestCase):
             self.assertEqual(prepare_window.PLATFORMS[platform][0], fmt)
             pinned = prepare_window.PLATFORMS[platform][5]
             self.assertEqual('config' if pinned else 'workflow', verify_window.IMAGE_PLATFORMS[platform][1])
+
+    def test_every_window_platform_names_a_served_route_its_health_key_and_its_format(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = server.FarmBackendRuntime(Path(directory) / 'farm.db', Path(directory) / 'stage')
+            self.addCleanup(runtime.transfers.close)
+            for platform, (fmt, _, _, route, capability, pinned) in prepare_window.PLATFORMS.items():
+                with self.subTest(platform=platform):
+                    attribute, health = server.CREATION_ROUTES[route][:2]
+                    self.assertEqual(capability, health)   # Start-Window.ps1 reads this key from /health.
+                    service = getattr(runtime, attribute)
+                    self.assertEqual((fmt, pinned), (service.FORMAT, service.PINNED_ACCOUNT))
+            self.assertEqual({'draft-creations'}, set(server.CREATION_ROUTES) - {row[3] for row in prepare_window.PLATFORMS.values()})
 
     def test_stage_images_saves_one_image_draft_per_platform(self):
         for platform in prepare_window.IMAGE_PLATFORMS:
@@ -58,22 +67,14 @@ class PrepareWindowTests(unittest.TestCase):
 
 
 class VerifyWindowTests(unittest.TestCase):
-    def test_absent_lane_verifier_refuses_before_anything_is_read(self):
-        for platform in verify_window.IMAGE_PLATFORMS:
-            module_name, class_name = LANE_RUNS[verify_window.IMAGE_PLATFORMS[platform][0]][:2]
-            empty = types.ModuleType(module_name)
-            with self.subTest(platform=platform), patch.dict(sys.modules, {module_name: empty}):
-                with self.assertRaisesRegex(SystemExit, 'Nothing was sent'): verify_window.lane_runs(platform)
-                with patch.object(verify_window, 'admitted', side_effect=AssertionError('read')):
-                    with self.assertRaisesRegex(SystemExit, class_name):
-                        verify_window.verify(dict(platform=platform), dict(workflow={}), Path('unused'))
-
-    def test_lane_verifier_is_loaded_when_present(self):
-        class Lane(ImageCreationRuns):
-            FORMAT, verifier = 'tt_photo', object
-        module = types.ModuleType('farm_tiktok_photo_runs'); module.TikTokPhotoCreationRuns = Lane
-        with patch.dict(sys.modules, {'farm_tiktok_photo_runs': module}):
-            self.assertIs(Lane, verify_window.lane_runs('tiktok-photo'))
+    def test_each_image_window_gets_its_own_lane_verifier(self):
+        from farm_tiktok_photo_runs import TikTokPhotoCreationRuns
+        from farm_x_runs import XImageCreationRuns
+        self.assertIs(XImageCreationRuns, verify_window.lane_runs('x-image'))
+        self.assertIs(TikTokPhotoCreationRuns, verify_window.lane_runs('tiktok-photo'))
+        for platform, (fmt, _) in verify_window.IMAGE_PLATFORMS.items():
+            runs = verify_window.lane_runs(platform)
+            self.assertEqual(fmt, runs.FORMAT); self.assertIsNotNone(runs.verifier)
 
     def test_admitted_returns_the_ordered_package_images(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -115,13 +116,6 @@ class WindowNameTests(unittest.TestCase):
         source = (WINDOWS / 'run_window.py').read_text(encoding='utf-8')
         self.assertIn("prep.get('draftId') or prep['videoDraftId']", source)
         self.assertEqual(2, source.count('draft_id=draft_id'))
-
-
-class FingerprintTests(unittest.TestCase):
-    def test_farm_image_is_pinned_by_server_and_launcher(self):
-        launcher = (ROOT / 'Open Marketing Farm Candidate.ps1').read_text(encoding='utf-8')
-        source = (ROOT / 'tools/imouse_farm_server.py').read_text(encoding='utf-8')
-        self.assertIn('"farm_video.py", "farm_image.py"', source); self.assertIn("'farm_video.py', 'farm_image.py'", launcher)
 
 
 if __name__ == '__main__':

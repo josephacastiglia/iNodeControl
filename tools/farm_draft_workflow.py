@@ -18,9 +18,9 @@ import numpy as np
 from PIL import Image
 
 from farm_draft_transport import allowed_tap
-from farm_carousel_inspection import OwnedCaptureRun, InspectionStopped
+from farm_owned_capture import OwnedCaptureRun, InspectionStopped
 from farm_draft_media import media_comparison
-from farm_draft_rehearsal import save_prompt
+from farm_screen_layout import save_prompt
 from farm_draft_verification import caption_comparison, library_candidate, account_history
 from farm_frame_evidence import MAX_AGE_MS, capture_settled
 from farm_live_verification import validate_runtime, idle

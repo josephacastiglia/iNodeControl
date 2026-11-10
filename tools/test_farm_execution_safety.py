@@ -1,7 +1,6 @@
-"""Offline farm boundaries: no sockets, phone input, accounts, or media generation."""
+"""Offline boundaries of the kernel client and the content store: no sockets, phone input, accounts or media generation."""
 from __future__ import annotations
 
-import json
 import sqlite3
 from pathlib import Path
 import tempfile
@@ -12,8 +11,8 @@ import imouse_farm_server as server
 import imouse_social_automation as engine
 
 
-C24C = "86:1D:4A:04:2F:F6"
-C241 = "FE:A9:BC:D7:A0:44"
+C24C = engine.LIVE_TEST_DEVICE_ID
+C241 = "02:00:00:00:C2:41"   # Another phone: a fixture ID, not a real device.
 
 
 class FarmExecutionSafetyTests(unittest.TestCase):
@@ -22,7 +21,6 @@ class FarmExecutionSafetyTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         self.url_open = self.enterContext(patch("urllib.request.urlopen", side_effect=AssertionError("Network forbidden in this test")))
-        self.enterContext(patch.object(engine.MediaPullOrchestrator, "detect_host_lan_url", return_value="http://127.0.0.1:9914"))
 
     def runtime(self, **kwargs):
         return server.FarmBackendRuntime(db_path=self.root / "farm.db", stage_root=self.root / "stage", **kwargs)
@@ -33,44 +31,15 @@ class FarmExecutionSafetyTests(unittest.TestCase):
         client._transport = transport
         return client, transport
 
-    def test_default_runtime_never_probes_or_selects_live_kernel(self):
-        runtime = self.runtime()
-        kernel = runtime.get_kernel()
-        self.assertFalse(kernel._is_live_http)
+    def test_a_runtime_holds_no_kernel_client_in_either_mode(self):
+        for mode in ("simulate", "live"):
+            with self.subTest(mode=mode), patch.object(engine.IMouseKernel, "__init__", side_effect=AssertionError("No kernel client")):
+                runtime = server.FarmBackendRuntime(db_path=self.root / mode / "farm.db", stage_root=self.root / mode / "stage", execution_mode=mode)
+                self.addCleanup(runtime.transfers.close)
+                self.assertEqual(mode, runtime.execution_mode)
+                self.assertFalse(any(hasattr(runtime, name) for name in ("kernel_client", "mock_kernel", "get_kernel", "live_kernel_connected")))
+                self.assertIsNone(runtime.draft_creations.config)
         self.url_open.assert_not_called()
-
-    def test_explicit_simulation_preserves_mock_phone_work_without_network(self):
-        runtime = self.runtime(execution_mode="simulate")
-        client = runtime.get_kernel()
-        client.preflight_phone("C241")
-        tokens = client.acquire(["C241"])
-        client.send("C241", tokens["C241"], "/mouse/click", x=10, y=20)
-        client.release(tokens)
-        self.assertEqual({}, runtime.mock_kernel.leases)
-        self.assertTrue(all(entry["simulated"] for entry in client.audit_log))
-        self.url_open.assert_not_called()
-
-    def test_live_outage_refuses_instead_of_substituting_simulation(self):
-        runtime = self.runtime(execution_mode="live")
-        with patch.object(engine.IMouseKernel, "kernel_status", side_effect=OSError("service down")):
-            with self.assertRaises(engine.KernelSafetyError):
-                runtime.get_kernel()
-        self.assertFalse(runtime.live_kernel_connected)
-        self.assertEqual({}, runtime.mock_kernel.leases)
-        self.url_open.assert_not_called()
-
-    def test_live_requires_ownership_protocol(self):
-        runtime = self.runtime(execution_mode="live")
-        with patch.object(engine.IMouseKernel, "kernel_status", return_value={"code": 0, "input_leases_required": False}):
-            with self.assertRaises(engine.KernelSafetyError):
-                runtime.get_kernel()
-        self.assertFalse(runtime.live_kernel_connected)
-
-    def test_live_ready_returns_live_transport_and_same_mode(self):
-        runtime = self.runtime(execution_mode="live")
-        with patch.object(engine.IMouseKernel, "kernel_status", return_value={"code": 0, "input_leases_required": True}):
-            self.assertTrue(runtime.get_kernel()._is_live_http)
-        self.assertTrue(runtime.live_kernel_connected)
 
     def test_unknown_mode_is_rejected_before_creating_database(self):
         with self.assertRaises(ValueError):
@@ -146,30 +115,6 @@ class FarmExecutionSafetyTests(unittest.TestCase):
                 with self.assertRaises(engine.KernelSafetyError):
                     client.send(C24C, "owned-token", "/mouse/click", **data)
         transport.assert_not_called()
-
-    def test_proxy_post_uses_runtime_mode_and_guarded_client(self):
-        handler = object.__new__(server.FarmRequestHandler)
-        handler._send_json = Mock()
-        handler._send_bytes = Mock()
-        runtime = self.runtime(execution_mode="simulate")
-        payload = {"fun": "/input/acquire", "data": {"id": "C241"}}
-        with patch.object(server, "RUNTIME", runtime):
-            handler._proxy_to_kernel("POST", server.KERNEL_BASE_URL + "/", json.dumps(payload).encode())
-        self.url_open.assert_not_called()
-        self.assertEqual(200, handler._send_json.call_args.args[0])
-        self.assertIn("C241", runtime.mock_kernel.leases)
-
-    def test_proxy_live_request_cannot_skip_target_guard(self):
-        handler = object.__new__(server.FarmRequestHandler)
-        handler._send_json = Mock()
-        handler._send_bytes = Mock()
-        runtime = self.runtime(execution_mode="live")
-        client, transport = self.live_with_fake_transport()
-        with patch.object(server, "RUNTIME", runtime), patch.object(runtime, "get_kernel", return_value=client):
-            handler._proxy_to_kernel("POST", server.KERNEL_BASE_URL + "/", json.dumps({"fun": "/input/stop", "data": {"id": C241}}).encode())
-        self.assertEqual(409, handler._send_json.call_args.args[0])
-        transport.assert_not_called()
-        self.url_open.assert_not_called()
 
 
 if __name__ == "__main__":

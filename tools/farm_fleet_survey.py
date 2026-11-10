@@ -24,7 +24,7 @@ import sys
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from farm_carousel_inspection import InspectionStopped  # noqa: E402
+from farm_owned_capture import InspectionStopped  # noqa: E402
 
 ROOT = HERE.parent / 'output' / 'fleet'
 API = 'http://127.0.0.1:9916/api'
@@ -372,20 +372,9 @@ class FleetSurvey:
         self.record['state'] = 'done'
 
 
+# The survey's lease. StartScreen.command renews it before every input while under 20 s remain (a survey outlasts
+# one lease: A11, 5 Nov 17:28, it expired at the Instagram step and the kernel stopped that phone's input).
 LEASE_MS = 30000
-RENEW_BELOW_MS = 20000
-
-
-def renewing(screen):
-    """StartScreen sends on one 30 s lease and never renews it: enough for one start screen, not for a survey
-    (A11, 5 Nov 17:28: the lease expired at the Instagram step and the kernel stopped that phone's input).
-    Every command renews first while less than 20 s remain."""
-    send = screen.command
-    def command(fun, purpose, **data):
-        screen.kernel.renew_if_needed(screen.tokens, RENEW_BELOW_MS)
-        return send(fun, purpose, **data)
-    screen.command = command
-    return screen
 
 
 def pointer_landing(screen, point, record):
@@ -464,40 +453,42 @@ def main():
     phone = PhoneIdentity(board=board, device_id=devices[0]['deviceid'], receiver=name, slot=slot)
     label, model = FLEET[board]
     folder = ROOT / (a.run or f'survey-{label}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}')
-    screen = StartScreen(folder, phone=phone)
-    renewing(screen)
-    survey = FleetSurvey(screen, label, model)
-    screen.tokens = screen.kernel.acquire([board], LEASE_MS)
-    try:
-        if a.measure:   # Moves only: no prompt is answered, nothing is tapped.
-            pointer_landing(screen, tuple(int(v) for v in a.measure.split(',')), survey.record)
-            survey.record['state'] = 'done'
-            raise _Measured()
-        try: raw, text = survey.look('first', a.front_app)
-        except InspectionStopped as stop:
-            if not str(stop).startswith('No fresh frame'): raise   # A prompt stop is final (A11, 5 Nov 17:31).
-            # An asleep phone sends no new frame for a pointer move. Wake it with one Home only when the last
-            # frame is dark (never over Control Center, which a dark frame cannot show); else it is a stall.
-            last, _ = screen.kernel.shot(board)
-            if not dark(last): raise InspectionStopped('No fresh frame and the screen is not dark: mirror stall; no input.')
-            screen.command('/key/sendkey', 'wake-home', fn_key='Home'); survey.record['homes'] += 1
-            screen.pause(2)
-            raw, text = survey.look('after-wake')
-        if survey.model is None: survey.model = survey.record['model'] = model_of(raw)
-        if a.instagram_profile:
-            if survey.model != 'xr': raise InspectionStopped('Reel windows run on XR phones only.')
-            survey.to_instagram_profile()
-        elif a.tiktok_profile:
-            if survey.model != 'xr': raise InspectionStopped('TikTok windows run on XR phones only.')
-            survey.to_tiktok_profile()
-        else: survey.run(apps)
-    except _Measured: pass
-    except Exception as error:   # Every stop is recorded; nothing further is sent.
-        survey.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
-    finally:
-        try: screen.kernel.release(screen.tokens); survey.record['leaseReleased'] = True
-        except Exception as error: survey.record['leaseReleased'] = f'{type(error).__name__}: {error}'
-        screen.save()
+    # One phone run on the rack at a time: wait for the rack, or leave before any input (farm_rack_lock).
+    from farm_rack_lock import hold_rack
+    with hold_rack(f'farm_fleet_survey {label} {folder.name}'):
+        screen = StartScreen(folder, phone=phone)
+        survey = FleetSurvey(screen, label, model)
+        screen.tokens = screen.kernel.acquire([board], LEASE_MS)
+        try:
+            if a.measure:   # Moves only: no prompt is answered, nothing is tapped.
+                pointer_landing(screen, tuple(int(v) for v in a.measure.split(',')), survey.record)
+                survey.record['state'] = 'done'
+                raise _Measured()
+            try: raw, text = survey.look('first', a.front_app)
+            except InspectionStopped as stop:
+                if not str(stop).startswith('No fresh frame'): raise   # A prompt stop is final (A11, 5 Nov 17:31).
+                # An asleep phone sends no new frame for a pointer move. Wake it with one Home only when the last
+                # frame is dark (never over Control Center, which a dark frame cannot show); else it is a stall.
+                last, _ = screen.kernel.shot(board)
+                if not dark(last): raise InspectionStopped('No fresh frame and the screen is not dark: mirror stall; no input.')
+                screen.command('/key/sendkey', 'wake-home', fn_key='Home'); survey.record['homes'] += 1
+                screen.pause(2)
+                raw, text = survey.look('after-wake')
+            if survey.model is None: survey.model = survey.record['model'] = model_of(raw)
+            if a.instagram_profile:
+                if survey.model != 'xr': raise InspectionStopped('Reel windows run on XR phones only.')
+                survey.to_instagram_profile()
+            elif a.tiktok_profile:
+                if survey.model != 'xr': raise InspectionStopped('TikTok windows run on XR phones only.')
+                survey.to_tiktok_profile()
+            else: survey.run(apps)
+        except _Measured: pass
+        except Exception as error:   # Every stop is recorded; nothing further is sent.
+            survey.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
+        finally:
+            try: screen.kernel.release(screen.tokens); survey.record['leaseReleased'] = True
+            except Exception as error: survey.record['leaseReleased'] = f'{type(error).__name__}: {error}'
+            screen.save()
     sheet = contact_sheet(folder, survey.record)
     r = survey.record
     print(json.dumps(dict(board=board, phone=label, model=r.get('model'), state=r['state'], error=r.get('error'),

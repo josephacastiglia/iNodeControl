@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 
 SCREEN = (0, 95, 500, 985)
 STATUS_BAR = (0, 95, 500, 120)
@@ -32,7 +32,6 @@ PAGE_ONE = {'facetime', 'calendar', 'camera', 'mail', 'notes', 'clock', 'app sto
             'utilities', 'phone', 'safari', 'messages'}
 # Page 2 on B5: the social apps. OCR reads 'X' as 'x' and can drop a leading letter ('Tube').
 PAGE_TWO = {'instagram', 'tiktok', 'x', 'youtube', 'threads', 'bluesky', 'clapper', 'likee'}
-SUPPORTED = ('Instagram', 'TikTok', 'X', 'YouTube')
 
 
 def small_screen(frame):
@@ -159,40 +158,6 @@ def spotlight(text):
                     stop='Spotlight shows its first-use Siri & Search notice (Continue only); '
                          'it is not in the prompt policy. The operator answers it once on this phone.')
     return dict(state='ready')
-
-
-# What each supported app shows when no account is signed in (B5, 4 Nov). A run must stop here:
-# signing in is the operator's.
-SIGNED_OUT = {
-    'Instagram': (('username, email or mobile number',), ('log in', 'create new account')),
-    'TikTok': (('log in to tiktok',), ('use phone / email / username', 'sign up', 'continue with apple')),
-    'X': (("see what's happening",), ('in the world right now', 'create account', 'sign in')),
-    'YouTube': (('welcome to youtube',), ('sign in with google', 'use youtube signed out')),
-}
-SPLASH = {'TikTok': ('it starts on', 'tiktok.')}
-OFFLINE = ('your device appears to be offline', 'check your internet connection', 'no internet connection')
-
-
-def _norm(value):
-    return re.sub(r"[’`]", "'", value)
-
-
-def app_state(text, app):
-    """'signed_out', 'splash' or 'unknown' for an opened supported app, plus whether it says offline.
-
-    'unknown' is never read as signed in: a signed-in screen needs that platform's own layout.
-    """
-    require(app in SUPPORTED, f'{app} is not a supported platform.')
-    joined = _norm(' '.join(r['fold'] for r in rows(text)))
-    offline = any(part in joined for part in OFFLINE) or ('device appears to be offline' in joined)
-    required, extra = SIGNED_OUT[app]
-    if all(_norm(part) in joined for part in required) and any(_norm(part) in joined for part in extra):
-        state = 'signed_out'
-    elif app in SPLASH and all(part in joined for part in SPLASH[app]):
-        state = 'splash'
-    else:
-        state = 'unknown'
-    return dict(app=app, state=state, offline=offline)
 
 
 def control_center(text):

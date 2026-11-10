@@ -17,7 +17,7 @@ import sys
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from farm_carousel_inspection import InspectionStopped  # noqa: E402
+from farm_owned_capture import InspectionStopped  # noqa: E402
 from farm_draft_transport import CreationKernel, allowed_tap  # noqa: E402
 from farm_observations import WindowsOcr, classify  # noqa: E402
 from farm_paths import account_label  # noqa: E402
@@ -38,26 +38,49 @@ SETTLE_TRIES = 5                 # Fresh frames read after a back tap until two 
 EDITOR_BAR = ((0, 65, 500, 130),)   # The Reel editor's top bar; its video plays below it.
 
 
-def frames_agree(a_raw, b_raw, only=None):
-    """Two frames show the same screen: confirm_unchanged's rule (outside the status bar, the pointer's challenge
-    and reset spots and a lone pointer blob; only the `only` regions when given)."""
+def frame_pixels(raw):
     import io
     import numpy as np
     from PIL import Image
-    if a_raw == b_raw: return True
-    def pixels(raw):
-        with Image.open(io.BytesIO(raw)) as image: return np.asarray(image.convert('RGB'), dtype=float) / 255
-    a, b = pixels(a_raw), pixels(b_raw)
-    if a.shape != b.shape: return False
-    mask = np.ones(a.shape[:2], dtype=bool); mask[:65] = False; mask[250:350, 400:500] = False; mask[45:100, 80:135] = False
+    with Image.open(io.BytesIO(raw)) as image: return np.asarray(image.convert('RGB'), dtype=float) / 255
+
+
+def frame_difference(a, b, only=None, near=None):
+    """How far two decoded frames are from showing the same screen: (mean, share of strongly changed pixels, hover box).
+
+    Compared outside the status bar, the pointer's challenge and reset spots and a lone pointer blob; only inside
+    the `only` regions when given (screens with moving content: the app's own fixed bars). With `near`, the target
+    the pointer rests on, its own highlight (returned as the hover box) and the resting pointer are left out too.
+    Frames of different sizes, or with nothing left to compare, are (1.0, 1.0): never a match."""
+    import numpy as np
+    if a.shape != b.shape: return 1.0, 1.0, None
+    mask = np.ones(a.shape[:2], dtype=bool); mask[:65] = False; mask[250:350, 400:500] = False
+    mask[45:100, 80:135] = False   # Where /mouse/reset leaves the pointer (about 106, 70; 22 Oct, slot 18).
     if only is not None:
         keep = np.zeros(a.shape[:2], dtype=bool)
         for left, top, right, bottom in only: keep[top:bottom, left:right] = True
         mask &= keep
+    hover = hover_tint(a, b, near) if near is not None else None
+    if hover:   # The target's own highlight under the resting pointer; the rest of the screen must still match.
+        mask[hover[1]:hover[3], hover[0]:hover[2]] = False
     mask &= ~pointer_blob(a, b, mask)
-    mean = float(np.abs(a - b)[mask].mean())
-    strong = float((np.abs(a - b).max(axis=2)[mask] > 35 / 255).mean())
+    if near is not None: mask &= ~resting_pointer(a, b, near, mask)
+    if not mask.any(): return 1.0, 1.0, hover
+    difference = np.abs(a - b)
+    return float(difference[mask].mean()), float((difference.max(axis=2)[mask] > 35 / 255).mean()), hover
+
+
+def same_screen(mean, strong):
+    # A live camera view adds low-amplitude sensor noise everywhere (TikTok camera, 22 Oct: mean
+    # .005, no pixel off by 35 levels); real screen changes move pixels strongly.
     return mean <= .003 or (mean <= .012 and strong <= .0005)
+
+
+def frames_agree(a_raw, b_raw, only=None):
+    """Two frames show the same screen: confirm_unchanged's rule, without a resting pointer."""
+    if a_raw == b_raw: return True
+    mean, strong, _ = frame_difference(frame_pixels(a_raw), frame_pixels(b_raw), only)
+    return same_screen(mean, strong)
 
 
 HOME_ROLES = ('home', 'app_search_entry', 'app_result', 'home_page_2')
@@ -135,6 +158,10 @@ def hover_tint(a, b, near):
 
 
 class StartScreen:
+    # The account the Instagram profile must show: the window's own (to_instagram_profile_top is given it), or this
+    # machine's private default, the first Reel window's, when the caller names none.
+    instagram_account = None
+
     def __init__(self, folder, kernel=None, ocr=None, clock=time.monotonic, pause=time.sleep, phone=None):
         self.folder = Path(folder); self.folder.mkdir(parents=True, exist_ok=True)
         if kernel is None and phone is None: raise InspectionStopped('The start screen needs the window phone or its kernel.')
@@ -196,12 +223,7 @@ class StartScreen:
         Frame B must be fresh and match recognized frame A outside the status bar and the
         pointer's challenge area; then B's age budget, not A's, governs the decision.
         """
-        import io
-        import numpy as np
-        from PIL import Image
-        def pixels(raw):
-            with Image.open(io.BytesIO(raw)) as image: return np.asarray(image.convert('RGB'), dtype=float) / 255
-        a = pixels(recognized)
+        a = frame_pixels(recognized)
         for attempt in range(FRESH_TRIES):
             before = own_receiver(self.kernel.kernel_status(), self.phone)['frames']
             if near is None:
@@ -215,29 +237,13 @@ class StartScreen:
             raw, headers = self.kernel.shot(self.phone.board)
             taken = self.clock()
             sequence = int(headers.get('X-iMouse-Frame-Sequence', -1)); age = float(headers.get('X-iMouse-Frame-Age-Ms', 'inf'))
-            b = pixels(raw)
-            mask = np.ones(a.shape[:2], dtype=bool); mask[:65] = False; mask[250:350, 400:500] = False
-            mask[45:100, 80:135] = False   # Where /mouse/reset leaves the pointer (about 106, 70; 22 Oct, slot 18).
-            if only is not None:   # Screens with moving content: compare only the app's own fixed bars.
-                keep = np.zeros(a.shape[:2], dtype=bool)
-                for left, top, right, bottom in only: keep[top:bottom, left:right] = True
-                mask &= keep
-            hover = hover_tint(a, b, near) if near is not None and a.shape == b.shape else None
-            if hover:   # The target's own highlight under the resting pointer; the rest of the screen must still match.
-                mask[hover[1]:hover[3], hover[0]:hover[2]] = False
-            if a.shape == b.shape: mask &= ~pointer_blob(a, b, mask)
-            if near is not None and a.shape == b.shape: mask &= ~resting_pointer(a, b, near, mask)
-            same = a.shape == b.shape and bool(mask.any())   # Nothing left to compare is not a match.
-            mean = float(np.abs(a - b)[mask].mean()) if same else 1.0
-            # A live camera view adds low-amplitude sensor noise everywhere (TikTok camera, 22 Oct: mean
-            # .005, no pixel off by 35 levels); real screen changes move pixels strongly.
-            strong = float((np.abs(a - b).max(axis=2)[mask] > 35 / 255).mean()) if same else 1.0
+            mean, strong, hover = frame_difference(a, frame_pixels(raw), only, near)
             entry = dict(role=role + '-confirm', attempt=attempt, sequence=sequence, ageMs=age, before=before, mean=mean,
                          frame=f'{len(self.record["observations"])+1:02d}-{role}-confirm.bmp', frameSha256=hashlib.sha256(raw).hexdigest())
             if hover: entry['hoverBox'] = list(hover)
             (self.folder / entry['frame']).write_bytes(raw)
             self.record['observations'].append(entry); self.save()
-            if sequence > before and age <= MAX_AGE_MS and (mean <= .003 or (mean <= .012 and strong <= .0005)):
+            if sequence > before and age <= MAX_AGE_MS and same_screen(mean, strong):
                 entry['state'] = 'fresh_unchanged'; self.save()
                 return taken, age
             entry['state'] = 'stale_or_changed'; self.save()
@@ -256,7 +262,8 @@ class StartScreen:
         raise InspectionStopped(f'The {role} screen did not settle; no further input.')
 
     def instagram_profile(self, raw, text):
-        result = classify(text, dict(platform='instagram', account=account_label(), caption=''), raw)  # private data, not code
+        account = self.instagram_account or account_label()   # The default is private data, not code.
+        result = classify(text, dict(platform='instagram', account=account, caption=''), raw)
         return result['screen'] == 'profile' and result['accountStatus'] == 'exact_text_match', result
 
     def control_center(self, text):
@@ -579,7 +586,9 @@ class StartScreen:
             except BaseException as error: self.record['leaseReleased'] = False; self.record['releaseError'] = str(error)
             self.save()
 
-    def to_instagram_profile_top(self):
+    def to_instagram_profile_top(self, account=None):
+        """`account`: the handle signed in on this window's phone (its creation config's account)."""
+        self.instagram_account = account
         self.record['target'] = 'instagram_profile_top'
         status = self.kernel.preflight_phone(self.phone.board)
         self.record['preflight'] = dict(receiverLive=status['receiver'].get('live'), generation=status['input_status'].get('generation'))
@@ -658,7 +667,7 @@ def main():
             if target == 'tiktok-profile': tool.to_tiktok_profile(settings['account'])
             elif target == 'x-timeline': tool.to_x_timeline()
             elif target == 'youtube-home': tool.to_youtube_home()
-            else: tool.to_instagram_profile_top()
+            else: tool.to_instagram_profile_top(settings.get('account'))
         except Exception as error:   # Each route records its own stop; anything else is recorded here.
             if tool.record.get('state') != 'stopped': tool.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
     r = tool.record

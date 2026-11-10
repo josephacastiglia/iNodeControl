@@ -1,7 +1,9 @@
-"""Durable admission and retrieval for the bounded C24C draft candidate.
+"""Durable admission and retrieval shared by every draft creation route.
 
-GET never connects to the phone. Reusing an ID only retrieves its journal, even
-after a process dies between admission and execution. No startup resumes work.
+DraftRuns is the base: a route's class (CreationRuns, ReelCreationRuns and the lanes) says what
+content it supports, what it reports as its capability and how it executes. GET never connects to
+the phone. Reusing an ID only retrieves its journal, even after a process dies between admission
+and execution. No startup resumes work.
 """
 from contextlib import contextmanager
 import errno
@@ -17,8 +19,6 @@ import uuid
 import zipfile
 
 from farm_drafts import DraftConflict, identifier
-from farm_draft_workflow import Workflow, references
-from farm_draft_transport import StepKernel
 from farm_observations import ObservationStore
 from imouse_social_automation import KernelSafetyError
 from farm_phone_identity import LEGACY_C24C, PhoneIdentity, PhoneIdentityError
@@ -38,7 +38,6 @@ def _private_account():
 
 
 ACCOUNT = _private_account()
-CONTENT_SHA256 = 'fa226761c643c72800a2fada366652ae4baa49177cea3e76e5280b71f673a058'
 API = 'http://127.0.0.1:9916/api'
 
 
@@ -133,15 +132,8 @@ class DraftRuns:
             with connection: yield connection
         finally: connection.close()
 
-    def capability(self):
-        phone = phone_of(self.config) if self.config else LEGACY_C24C
-        account = account_of(self.config) if self.config else ACCOUNT
-        return dict(version=1, storeId=self.store_id, enabled=self.config is not None,
-            device=phone.board, slot=phone.slot, account=account, candidateOnly=True, integratedLiveValidated=False,
-            publishing=False, messaging=False, desktopControl=False,
-            reason=('Prepared candidate only: the existing labelled three-slide test draft on @'+str(account)+'.'
-                    if self.config else 'Phone verification is disabled. Prepare the isolated candidate first.'),
-            contentSha256=CONTENT_SHA256)
+    # A route's class provides capability(), supports(package), content_reason(supported) and
+    # execute(folder, assets, caption, package_hash, cancelled).
 
     def eligibility(self, draft_id, revision):
         package = self.drafts.export(identifier(draft_id), revision)
@@ -151,13 +143,6 @@ class DraftRuns:
             supportedContent=supported, draftId=draft_id, revision=revision,
             packageSha256=sha(package),
             contentReason=self.content_reason(supported))
-
-    def supports(self,package):
-        return source_content(package)[2] == CONTENT_SHA256
-
-    def content_reason(self,supported):
-        return ('The saved slides and caption match the verified test draft.' if supported else
-                'This first candidate supports only the verified three-slide test draft and exact caption.')
 
     @staticmethod
     def validate_request(spec):
@@ -204,13 +189,6 @@ class DraftRuns:
                 return dict(recordSha256=sha((folder / 'record.json').read_bytes()), state=result['state'])
             self.jobs.submit(spec['id'], self.action_name, spec, run)
             return self.get(spec['id'])
-
-    def execute(self, folder, assets, caption, package_hash, cancelled):
-        kernel = StepKernel(self.config['api'], phone=phone_of(self.config))
-        store = ObservationStore(folder / 'observations.sqlite3')
-        return Workflow(folder, kernel, store, assets, caption, references(),
-            self.config['kernelSha256'], self.config['expectedUid'], account=account_of(self.config),
-            package_hash=package_hash, cancelled=cancelled, allowed=allowed_of(self.config)).run()
 
     def get(self, run_id):
         run_id = identifier(run_id)

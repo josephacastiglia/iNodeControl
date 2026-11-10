@@ -126,7 +126,8 @@ class HoldRackTests(unittest.TestCase):
         import farm_paths
         self.assertEqual(farm_paths.MAIN / 'output' / 'farm-state' / 'rack-run.lock', farm_paths.RUN_LOCK)   # Main folder: every lane shares it.
         root = Path(__file__).resolve().parents[1]; folder = root / 'analysis/farm-multiphone-20261020'
-        for path in (folder / 'run_window.py', folder / 'verify_window.py', folder / 'relaunch_check.py', root / 'tools/farm_start_screen.py'):
+        for path in (folder / 'run_window.py', folder / 'verify_window.py', folder / 'relaunch_check.py', root / 'tools/farm_start_screen.py',
+                     root / 'tools/farm_fleet_survey.py', root / 'tools/farm_photos_cleanup.py'):
             with self.subTest(path.name): self.assertIn('with hold_rack(', path.read_text(encoding='utf-8'))
 
 

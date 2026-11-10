@@ -19,6 +19,7 @@ from PIL import Image
 import imouse_farm_server as backend
 from farm_drafts import DraftConflict
 from farm_transfers import CarouselTransfers, TransferConflict
+import farm_test_network as network
 from farm_test_network import allowed_ports
 
 
@@ -26,6 +27,7 @@ class TransferSessionTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='farm-transfer-session-')
         self.root = Path(self.temp.name)
+        self.outside = network.mark()
         self.runtime = backend.FarmBackendRuntime(self.root / 'farm.db', self.root / 'stage')
         self.manager = self.runtime.transfers
         self.draft = self.runtime.drafts.create(str(uuid.uuid4()))
@@ -80,7 +82,7 @@ class TransferSessionTests(unittest.TestCase):
     def test_http_start_delivery_recovery_stop_and_no_phone_commands(self):
         code, response = self.api('/api/farm/transfers', self.request)
         self.assertEqual(200, code, response)
-        self.assertFalse(response['simulated'])  # Media delivery is real even when job input is simulated.
+        self.assertNotIn('simulated', response)
         session = response['transfer']
         self.assertEqual('real_media_only', session['deliveryMode'])
         self.assertEqual('serving', session['state'])
@@ -98,7 +100,7 @@ class TransferSessionTests(unittest.TestCase):
         self.assertEqual('closed', closed['transfer']['state'])
         self.assertIsNone(closed['transfer']['url'])
         with self.assertRaises(OSError): self.media(session['url'])
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        self.assertEqual([], network.since(self.outside))
 
     def test_duplicate_request_never_reopens_or_changes_snapshot(self):
         first = self.manager.start(self.request)
@@ -236,6 +238,22 @@ class TransferSessionTests(unittest.TestCase):
             self.assertLess(time.monotonic() - start, 4)
         finally:
             client.close()
+
+    def test_a_media_listener_is_never_given_a_control_port(self):
+        import farm_transfers
+        opened = []
+        def listener(package, bind, port, client, **options):
+            opened.append(port); raise OSError('fixture: no listener is opened in this test')
+        with patch.object(farm_transfers, 'MediaTransferServer', side_effect=listener):
+            for port in (9911, 9913, 9914, 9915, 9916):   # Vendor service, the kernel's API ports, the farm backends.
+                with self.subTest(port=port), self.assertRaisesRegex(ValueError, 'separate from control services'):
+                    self.manager.start({**self.request, 'id': str(uuid.uuid4()), 'port': port})
+            self.assertEqual([], opened)
+            unnamed = {key: value for key, value in self.request.items() if key != 'port'}
+            session = self.manager.start({**unnamed, 'id': str(uuid.uuid4())})
+        self.assertEqual([9917], opened); self.assertEqual(9917, session['port'])
+        self.assertEqual(9917, farm_transfers.DEFAULT_MEDIA_PORT); self.assertNotIn(farm_transfers.DEFAULT_MEDIA_PORT, farm_transfers.RESERVED_PORTS)
+        self.assertIn(9916, farm_transfers.RESERVED_PORTS)
 
     def test_control_server_refuses_lan_binding(self):
         with self.assertRaisesRegex(ValueError, 'loopback'):

@@ -13,12 +13,15 @@ class ReviewHttpTests(unittest.TestCase):
     setUp = FarmHttpJobsTests.setUp
     tearDown = FarmHttpJobsTests.tearDown
     request = FarmHttpJobsTests.request
+    outside_connections = FarmHttpJobsTests.outside_connections
+
     def test_observation_capture_recovery_frames_and_origin_policy(self):
         kernel = ReadOnlyKernel(); self.runtime.observations.ocr = FixtureOcr()
         body = dict(id=str(uuid.uuid4()), device_id='C24C', platform='tiktok', account='test.account', caption='', source='phone', read_only=True)
         with patch('imouse_farm_server.engine.IMouseKernel', return_value=kernel):
             status, response = self.request('/api/farm/observations', body)
-            self.assertEqual(200, status, response); self.assertFalse(response['simulated']); self.assertEqual('observed', response['observation']['state'])
+            self.assertEqual(200, status, response); self.assertNotIn('simulated', response)
+            self.assertEqual(('observed', 'phone'), (response['observation']['state'], response['observation']['source']))
             count = len(kernel.reads)
             self.assertEqual(200, self.request('/api/farm/observations', body)[0]); self.assertEqual(count, len(kernel.reads))
         status, stored = self.request('/api/farm/observations/' + body['id']); self.assertEqual(200, status)
@@ -27,21 +30,21 @@ class ReviewHttpTests(unittest.TestCase):
         for path in ('/api/farm/observations', '/api/farm/observations/' + body['id'], '/api/farm/observations/' + body['id'] + '/frame'):
             self.assertEqual(403, self.request(path, origin='https://untrusted.invalid')[0])
         self.assertEqual(400, self.request('/api/farm/observations', {**body, 'read_only': False})[0])
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        self.assertEqual([], self.outside_connections())
 
     def test_local_schedule_http_idempotence_pause_and_worker(self):
         calls = []
         self.runtime.preparation.prepare = lambda: calls.append('local') or [{}]
         body = dict(id=str(uuid.uuid4()), action='create-content', device_id='C24C', interval_minutes=60, max_runs=1)
         status, response = self.request('/api/farm/preparation-schedule', body)
-        self.assertEqual(200, status, response); self.assertFalse(response['simulated'])
+        self.assertEqual(200, status, response); self.assertFalse(response['preparationSchedule']['phoneInput'])
         self.runtime.preparation.tick(); self.assertEqual(['local'], calls)
         self.assertEqual(200, self.request('/api/farm/preparation-schedule', body)[0])
         self.runtime.preparation.tick(); self.assertEqual(['local'], calls)
         status, response = self.request('/api/farm/preparation-schedule/pause', {'cancel_request_id': str(uuid.uuid4())})
         self.assertEqual(200, status); self.assertFalse(response['preparationSchedule']['config']['enabled'])
         self.assertEqual(403, self.request('/api/farm/preparation-schedule', origin='https://untrusted.invalid')[0])
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        self.assertEqual([], self.outside_connections())
 
     def test_saved_http_observation_ages_out_without_recapture(self):
         now = [1000.0]
@@ -64,23 +67,21 @@ class ReviewHttpTests(unittest.TestCase):
             self.assertEqual('stale', result['freshness'])
             self.assertEqual('blocked', result['workflowReview']['status'])
             self.assertEqual(reads, kernel.reads)
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        self.assertEqual([], self.outside_connections())
 
-    def test_emergency_phone_stop_precedes_failed_schedule_storage(self):
-        calls = []
-        kernel = self.runtime.kernel_client
-        post = kernel.post
-        def record_stop(fun, data):
-            calls.append(fun)
-            return post(fun, data)
+    def test_emergency_stop_reports_a_failed_schedule_pause_and_still_cancels_the_job(self):
+        order = []
+        cancel = self.runtime.jobs.cancel_active
         def unavailable():
-            self.assertIn('/input/stop', calls, 'Local schedule storage must never delay dispatching phone Stop')
+            self.assertEqual(['cancel'], order, 'Local schedule storage must never delay cancelling the job')
             raise OSError('Schedule storage unavailable')
-        with patch.object(kernel, 'post', side_effect=record_stop), patch.object(self.runtime.preparation, 'pause', side_effect=unavailable):
+        with patch.object(self.runtime.jobs, 'cancel_active', side_effect=lambda: order.append('cancel') or cancel()), \
+                patch.object(self.runtime.preparation, 'pause', side_effect=unavailable):
             status, response = self.request('/api/farm/emergency-stop', {'device_id': 'C24C'})
         self.assertEqual(500, status); self.assertEqual('partial', response['status'])
-        self.assertEqual('C24C', response['stopped']); self.assertFalse(response['preparationPaused'])
-        self.assertEqual(0, response['kernel_response']['code'])
+        self.assertFalse(response['preparationPaused']); self.assertIn('Schedule storage unavailable', response['preparationPauseError'])
+        self.assertFalse(response['phoneStopped']); self.assertIsNone(response['stopped'])
+        self.assertEqual([], self.outside_connections())
 
 
 del FarmHttpJobsTests

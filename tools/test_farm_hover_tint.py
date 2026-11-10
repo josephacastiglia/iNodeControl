@@ -13,7 +13,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import farm_start_screen as start  # noqa: E402
 from farm_paths import MAIN  # noqa: E402
-from farm_start_screen import InspectionStopped, hover_tint, resting_pointer  # noqa: E402
+from farm_start_screen import InspectionStopped, frame_difference, frames_agree, hover_tint, resting_pointer, same_screen  # noqa: E402
 
 TARGET = (250, 556)
 FRAMES = Path(os.environ.get('IMOUSE_HOVER_FRAMES', Path(MAIN).parent / 'iMouseXP-2.0-evidence-archive' / '20261105-hover-tint'))
@@ -134,6 +134,46 @@ class ConfirmTests(unittest.TestCase):
 
 
 @unittest.skipUnless(FRAMES.is_dir(), 'The A19 frames are private and kept outside Git.')
+def encoded(frame):
+    out = io.BytesIO(); Image.fromarray((frame * 255).round().astype(np.uint8)).save(out, 'BMP'); return out.getvalue()
+
+
+class SharedComparisonTests(unittest.TestCase):
+    """frames_agree and confirm_unchanged decide with one comparison and one limit."""
+    def test_the_limit(self):
+        for mean, strong, same in ((.003, 1.0, True), (.0031, .0005, True), (.012, .0005, True), (.012, .0006, False),
+                                   (.0121, 0.0, False), (1.0, 1.0, False)):
+            with self.subTest(mean=mean, strong=strong): self.assertEqual(same, same_screen(mean, strong))
+
+    def test_frames_that_cannot_be_compared_never_match(self):
+        a = dialog()
+        self.assertEqual((1.0, 1.0, None), frame_difference(a, a[:1000, :480]))
+        self.assertEqual((1.0, 1.0), frame_difference(a, tinted(a), only=((0, 0, 500, 60),))[:2])   # Only the status bar: nothing left.
+        self.assertFalse(frames_agree(encoded(a), encoded(a[:1000, :480])))
+        self.assertFalse(frames_agree(encoded(a), encoded(tinted(a)), only=((0, 0, 500, 60),)))
+
+    def test_what_is_left_out_and_what_still_counts(self):
+        a = dialog()
+        self.assertEqual((0.0, 0.0, None), frame_difference(a, a.copy()))
+        status = a.copy(); status[:65] = 0; status[250:350, 400:500] = 1; status[45:100, 80:135] = 1   # Status bar and both pointer spots.
+        self.assertEqual((0.0, 0.0, None), frame_difference(a, status))
+        mean, strong, hover = frame_difference(a, with_pointer(tinted(a)), near=TARGET)
+        self.assertEqual((95, 525, 410, 588), hover); self.assertTrue(same_screen(mean, strong))
+        counted, _, hover = frame_difference(a, with_pointer(tinted(a)))          # Without a settled target the tint counts.
+        self.assertIsNone(hover); self.assertGreater(counted, mean + .002)
+        changed = a.copy(); changed[660:700, 150:350] = 1
+        self.assertFalse(same_screen(*frame_difference(a, changed, near=TARGET)[:2]))
+        self.assertTrue(same_screen(*frame_difference(a, changed, only=((0, 65, 500, 130),))[:2]))   # Outside the compared bars.
+
+    def test_frames_agree_is_the_same_rule_without_a_target(self):
+        a = dialog()
+        for name, b in (('same', a.copy()), ('tinted', tinted(a)), ('pointer', with_pointer(a, 300, 620)), ('row', tinted(a, 588, 655, (60, 60, 60)))):
+            with self.subTest(name):
+                mean, strong, _ = frame_difference(start.frame_pixels(encoded(a)), start.frame_pixels(encoded(b)))
+                self.assertEqual(same_screen(mean, strong), frames_agree(encoded(a), encoded(b)))
+        self.assertTrue(frames_agree(b'identical bytes are never decoded', b'identical bytes are never decoded'))
+
+
 class A19FrameTests(unittest.TestCase):
     def test_the_done_frames_that_stopped_now_match(self):
         load = lambda name: np.asarray(Image.open(FRAMES / name).convert('RGB'), dtype=float) / 255
