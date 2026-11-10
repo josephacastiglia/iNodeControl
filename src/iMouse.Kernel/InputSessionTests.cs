@@ -379,6 +379,11 @@ internal static class InputSessionTests
                 Code(await Request("/mouse/down", new { id = "one", token })) == 0, "API acquisition and renewal reach owned HID dispatch");
             check(Code(await Request("/device/set", new { id = "one", pid = "C241", uid = "wrong" })) == 41 &&
                 apiStore.All()[0].pid == "C24C", "API has no live rebinding: /device/set is refused and the assignment stands");
+            int beforeVendor = transport.Reports.Count;
+            check(Code(await Request("/device/usb/restart", new { id = "one", token })) == 41 &&
+                Code(await Request("/device/airplay/disconnect", new { id = "one" })) == 41 &&
+                Code(await Request("/device/airplay/connect", new { pid = "C24C" })) == 41 && transport.Reports.Count == beforeVendor,
+                "Vendor board-restart and remote mirroring commands are not implemented and write nothing");
             check(Code(await Request("/input/stop", new { id = "one" })) == 0 &&
                 Code(await Request("/input/resume", new { id = "one" })) == 0, "API Stop and Resume use the ownership boundary");
             token = Data(await Request("/input/acquire", new { id = "one" })).GetProperty("leases")[0].GetProperty("token").GetString()!;

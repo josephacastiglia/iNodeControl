@@ -43,7 +43,7 @@ Console.WriteLine($"Pointer movement pacing: high-resolution {InputRouter.MoveDe
 Console.WriteLine("Video waits on an independent AirPlay receiver.");
 var fleet = new ReceiverFleet(config.Receivers, config.Store, config.ReceiverPath, config.RuntimePath, options.DataDir);
 var server = new ApiServer(options.Prefix, config.Store, input, fleet.Sessions.Select(s => (s.Config.Name, s.Frames)))
-    { AdvertiseReceiver = fleet.Advertise, Receivers = fleet };
+    { Receivers = fleet };
 if (options.HeldReceivers.Length > 0) Console.WriteLine("Receivers held until released: " + string.Join(",", options.HeldReceivers));
 if (options.StopFile is { } stopFile) Console.WriteLine("Graceful stop: write this PID to " + stopFile + ".");
 var stopWatch = options.StopFile is { } watched ? new KernelStopFile(watched, Environment.ProcessId).WatchAsync(cts) : Task.CompletedTask;

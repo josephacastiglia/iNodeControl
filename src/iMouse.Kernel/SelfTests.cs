@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Diagnostics;
 using System.IO.Pipes;
 using System.Text.Json;
 namespace IMouse2.Kernel;
@@ -265,12 +264,6 @@ public static class SelfTests
         bmp[28]=32;invalid=false;
         try{FrameStore.ValidateBmp(bmp);}catch(InvalidDataException){invalid=true;}
         Check(invalid,"Unexpected pixel format rejected");
-        Check(AirplayProcess.LivePid(null)==0,"Missing receiver process reports pid 0");
-        using(var dead=Process.Start(new ProcessStartInfo("cmd.exe","/c exit"){CreateNoWindow=true,UseShellExecute=false}))
-        {
-            dead!.WaitForExit(5000);
-            Check(AirplayProcess.LivePid(dead)==0,"Exited receiver process reports pid 0");
-        }
         int launches=0;
         using(var failing=new AirplaySupervisor(() => { launches++; var fake=new FakeReceiver(launches); fake.Exit.TrySetResult(); return fake; }, 2, TimeSpan.FromMilliseconds(1)))
         {

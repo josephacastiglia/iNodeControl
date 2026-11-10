@@ -13,9 +13,7 @@ public sealed class ApiServer : IDisposable
     private readonly InputRouter _input;
     private readonly InputSessions _inputSessions;
     private readonly Dictionary<string,(string Name,FrameStore Frames)> _sessions;
-    // Starts one held receiver by board PID; null when the kernel holds none.
-    public Func<string,object>? AdvertiseReceiver { get; init; }
-    // Restarts or withdraws one receiver by board PID; null when the kernel runs no receivers.
+    // Advertises, restarts or withdraws one receiver by board PID; null when the kernel runs no receivers.
     public ReceiverFleet? Receivers { get; init; }
 
     public ApiServer(string prefix,DeviceStore store,InputRouter input,IEnumerable<(string Name,FrameStore Frames)> sessions)
@@ -149,15 +147,20 @@ public sealed class ApiServer : IDisposable
             "/input/stop" => await _inputSessions.StopAsync(data),
             "/input/release" => await _inputSessions.StopAsync(data, release: true),
             "/mouse/move" or "/mouse/down" or "/mouse/up" or "/mouse/click" or "/mouse/reset" or "/mouse/swipe"
-                or "/key/sendkey" or "/device/usb/restart"
+                or "/key/sendkey"
                 => await _inputSessions.DispatchAsync(fun, data),
-            "/device/airplay/connect" when AdvertiseReceiver is not null && Str(data, "pid") is { Length: > 0 } pid
-                => KernelOptions.BoardId(pid) ? AdvertiseReceiver(pid) : new { code = 36, message = "pid must be a four-digit hexadecimal board ID." },
+            "/device/airplay/connect" => Advertise(data),
             "/device/airplay/restart" or "/device/airplay/withdraw" => await ChangeReceiver(fun, data),
-            "/device/airplay/connect" or "/device/airplay/disconnect"
-                => new { code = 41, message = "Choose or stop " + _castName + " in the iPhone's Screen Mirroring menu." },
             _ => new { code = 41, message = "Not implemented: " + fun }
         };
+    }
+
+    // Starts one held or withdrawn receiver. Mirroring itself is always chosen on the iPhone.
+    private object Advertise(JsonElement data)
+    {
+        if (Receivers is null) return new { code = 41, message = "This kernel runs no receivers." };
+        string pid = Str(data, "pid");
+        return KernelOptions.BoardId(pid) ? Receivers.Advertise(pid) : new { code = 36, message = "pid must be a four-digit hexadecimal board ID." };
     }
 
     // One receiver at a time; a phone whose input another controller leases is refused, so a

@@ -84,7 +84,6 @@ public sealed class InputRouter : IDisposable
 
     public async Task<object> DispatchAsync(string fun, JsonElement data, CancellationToken cancellation = default)
     {
-        if (fun == "/device/usb/restart") return new { code = 41, message = "Restart packet has not been decoded." };
         var ids = Text(data, "id").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToArray();
         if (ids.Length == 0) return new { code = 36, message = "id required" };
         var phones = _store.All();
