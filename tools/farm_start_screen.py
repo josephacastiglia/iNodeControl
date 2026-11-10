@@ -158,6 +158,10 @@ def hover_tint(a, b, near):
 
 
 class StartScreen:
+    # The account the Instagram profile must show: the window's own (to_instagram_profile_top is given it), or this
+    # machine's private default, the first Reel window's, when the caller names none.
+    instagram_account = None
+
     def __init__(self, folder, kernel=None, ocr=None, clock=time.monotonic, pause=time.sleep, phone=None):
         self.folder = Path(folder); self.folder.mkdir(parents=True, exist_ok=True)
         if kernel is None and phone is None: raise InspectionStopped('The start screen needs the window phone or its kernel.')
@@ -258,7 +262,8 @@ class StartScreen:
         raise InspectionStopped(f'The {role} screen did not settle; no further input.')
 
     def instagram_profile(self, raw, text):
-        result = classify(text, dict(platform='instagram', account=account_label(), caption=''), raw)  # private data, not code
+        account = self.instagram_account or account_label()   # The default is private data, not code.
+        result = classify(text, dict(platform='instagram', account=account, caption=''), raw)
         return result['screen'] == 'profile' and result['accountStatus'] == 'exact_text_match', result
 
     def control_center(self, text):
@@ -581,7 +586,9 @@ class StartScreen:
             except BaseException as error: self.record['leaseReleased'] = False; self.record['releaseError'] = str(error)
             self.save()
 
-    def to_instagram_profile_top(self):
+    def to_instagram_profile_top(self, account=None):
+        """`account`: the handle signed in on this window's phone (its creation config's account)."""
+        self.instagram_account = account
         self.record['target'] = 'instagram_profile_top'
         status = self.kernel.preflight_phone(self.phone.board)
         self.record['preflight'] = dict(receiverLive=status['receiver'].get('live'), generation=status['input_status'].get('generation'))
@@ -660,7 +667,7 @@ def main():
             if target == 'tiktok-profile': tool.to_tiktok_profile(settings['account'])
             elif target == 'x-timeline': tool.to_x_timeline()
             elif target == 'youtube-home': tool.to_youtube_home()
-            else: tool.to_instagram_profile_top()
+            else: tool.to_instagram_profile_top(settings.get('account'))
         except Exception as error:   # Each route records its own stop; anything else is recorded here.
             if tool.record.get('state') != 'stopped': tool.record.update(state='stopped', error=type(error).__name__ + ': ' + str(error))
     r = tool.record
