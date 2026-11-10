@@ -240,6 +240,13 @@ public sealed class TestHandler : HttpMessageHandler
                 string idStr = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
                 var ids = idStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
                 if (ids.Length == 0) return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 36, message = "No target" } }));
+                // The kernel validates the command before the lease and answers a bad one with code 36:
+                // nothing is written to a board, and the lease and the phone's state are untouched.
+                if (Refusal(fun, data) is { } refusal)
+                {
+                    Refused++;
+                    return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 36, message = refusal } }));
+                }
                 if (data.TryGetProperty("tokens", out var tokensProp) && tokensProp.ValueKind == JsonValueKind.Object)
                 {
                     foreach (var id in ids)
@@ -323,6 +330,21 @@ public sealed class TestHandler : HttpMessageHandler
         return new(HttpStatusCode.NotFound);
     }
     private static HttpResponseMessage Json(string text) => new(HttpStatusCode.OK) { Content = new StringContent(text, Encoding.UTF8, "application/json") };
+    /// <summary>How many input commands this handler refused as the kernel would (code 36, nothing sent).</summary>
+    public int Refused { get; private set; }
+    /// <summary>The mirror image size the mock validates pointer coordinates against, like a kernel calibration.</summary>
+    public (int Width, int Height) Calibrated { get; set; } = (4096, 4096);
+    // InputRouter.Validate's rules that matter to the console: verified key names and in-image points.
+    private static readonly string[] KernelKeys = ["Home", "Enter", "ENTER", "Backspace", "BACKSPACE", "Tab", "Escape", "Up", "Down", "Left", "Right", "AppSwitch", "ControlBar"];
+    private string? Refusal(string fun, JsonElement data)
+    {
+        if (fun == "/key/sendkey" && data.TryGetProperty("fn_key", out var key) && key.GetString() is { Length: > 0 } name && !KernelKeys.Contains(name))
+            return "Function key has not been verified: " + name;
+        if (fun is "/mouse/move" or "/mouse/click" && data.TryGetProperty("x", out var x) && data.TryGetProperty("y", out var y)
+            && (x.GetInt32() < 0 || y.GetInt32() < 0 || x.GetInt32() >= Calibrated.Width || y.GetInt32() >= Calibrated.Height))
+            return "Coordinates outside calibrated image.";
+        return null;
+    }
     private static byte[] TestImage()
     {
         var visual = new DrawingVisual();
@@ -604,6 +626,7 @@ public static class SelfTests
         Check("Wall rate labels bitmap updates per second", tile.RateText == "12/s");
 
         await RunOwnershipTestsAsync(passed);
+        await RunRefusalTestsAsync(passed);
         await RunTextChunkTestsAsync(passed);
         await DiagnosticsTests.RunAsync(Check);
         await CleanupDiagnosticsTests.RunAsync(Check);
@@ -1162,6 +1185,88 @@ public static class SelfTests
     /// 8 s command deadline cancelled it after about 50 characters, left the rest untyped and
     /// latched Stop. It now goes out in ApiClient.TextChunk-character chunks inside one lease.
     /// </summary>
+    /// <summary>
+    /// Kernel code 36 or 41 means the request was refused before anything was written to a board.
+    /// The operator must hear about it, but the phone is not in an unknown state: it must not be
+    /// paused, its lease must keep being renewed, and the next command must simply work.
+    /// </summary>
+    public static async Task RunRefusalTestsAsync(List<string> passed)
+    {
+        void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
+        static string Fun(JsonElement c) => c.GetProperty("fun").GetString() ?? "";
+        var h = new TestHandler();
+        await using var api = new ApiClient("localhost", h, renewalInterval: TimeSpan.FromMilliseconds(40));
+        var notices = new List<string>(); api.InputNotice += notices.Add;
+        await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" });
+        string lease = h.ActiveLeases["TEST:01"];
+
+        ApiException? refused = null;
+        try { await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "TAB+l" }); }
+        catch (ApiException ex) { refused = ex; }
+        Check("A key the kernel refuses is reported to the caller with the kernel's reason",
+            refused is { Code: 36, IsRefusal: true } && refused.Message.Contains("has not been verified: TAB+l") && h.Refused == 1);
+        Check("A refusal raises no pause notice", notices.Count == 0);
+
+        await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" });
+        var commands = h.Commands.ToArray();
+        Check("After a refusal the next command is sent under the same lease, with no new acquisition",
+            commands.Count(c => Fun(c) == "/input/acquire") == 1 && h.ActiveLeases["TEST:01"] == lease
+            && commands.Last(c => Fun(c) == "/key/sendkey").GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString() == lease);
+        Check("A refusal releases nothing and stops nothing", !commands.Any(c => Fun(c) is "/input/release" or "/input/stop"));
+
+        int renewals = h.Commands.ToArray().Count(c => Fun(c) == "/input/renew");
+        for (int i = 0; i < 100 && h.Commands.ToArray().Count(c => Fun(c) == "/input/renew") < renewals + 2; i++) await Task.Delay(20);
+        Check("The lease is still renewed after a refusal", h.Commands.ToArray().Count(c => Fun(c) == "/input/renew") >= renewals + 2 && notices.Count == 0);
+
+        // A refused pointer command is the same: coordinates outside the calibrated image.
+        h.Calibrated = (500, 1080);
+        refused = null;
+        try { await api.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 500, ["y"] = 20 }); }
+        catch (ApiException ex) { refused = ex; }
+        await api.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 499, ["y"] = 20 });
+        Check("A refused tap is reported and the next tap goes out", refused is { Code: 36 } && notices.Count == 0
+            && h.Commands.ToArray().Count(c => Fun(c) == "/input/acquire") == 1);
+
+        // Text: a refused chunk ends the send as Refused, not Failed, and leaves input usable.
+        h.Calibrated = (4096, 4096);
+        var text = await api.SendTextAsync("TEST:01", "ok");
+        Check("Text still types after refusals", text.End == InputEnd.Completed && notices.Count == 0);
+
+        // The action queue must not latch a refusal: it latches failures so that queued input
+        // behind a failed command is not sent blind, and a refusal leaves nothing unknown.
+        using var connection = new CancellationTokenSource(); using var control = new CancellationTokenSource();
+        var context = new InputContext(api, "TEST:01", connection.Token, control);
+        var queue = new InputActionQueue(c => c.Connection.IsCancellationRequested || c.ControlToken.IsCancellationRequested);
+        Exception? first = null;
+        try { await queue.Enqueue(context, ct => api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "SwitchIme" }, ct)); }
+        catch (Exception ex) { first = ex; }
+        Exception? second = null;
+        try { await queue.Enqueue(context, ct => api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" }, ct)); }
+        catch (Exception ex) { second = ex; }
+        Check("A refused action does not block the next action in the same scope", first is ApiException { IsRefusal: true } && second is null);
+
+        // A drag whose move is refused still holds the button on the phone and still owns its
+        // lease, so the runner must lift the button itself; no cleanup will do it for it.
+        h.Calibrated = (500, 1080);
+        var drag = new DragGesture(context, 100, 100, false);
+        drag.Move((900, 100));          // outside the calibrated image: refused
+        drag.Release();
+        int before = h.Commands.ToArray().Length;
+        var result = await DragInput.RunAsync(drag, CancellationToken.None);
+        var stroke = h.Commands.ToArray().Skip(before).Select(Fun).Where(f => f.StartsWith("/mouse/")).ToArray();
+        Check("A drag whose move is refused lifts the button with /mouse/up", result.Failure is ApiException { IsRefusal: true } && result.Released
+            && result.ReleaseFailure is null && stroke.SequenceEqual(new[] { "/mouse/move", "/mouse/down", "/mouse/move", "/mouse/up" }));
+        Check("The whole refusal sequence never paused the phone", notices.Count == 0 && h.ActiveLeases["TEST:01"] == lease
+            && !h.Commands.ToArray().Any(c => Fun(c) is "/input/release" or "/input/stop"));
+
+        // The hover pump likewise: a refused position does not end hover for the scope.
+        var pump = new PointerMovePump();
+        pump.Post(new(api, "TEST:01", 900, 100, connection.Token, control.Token)); await pump.WhenIdle;
+        int moves = h.Commands.ToArray().Count(c => Fun(c) == "/mouse/move");
+        pump.Post(new(api, "TEST:01", 120, 100, connection.Token, control.Token)); await pump.WhenIdle;
+        Check("Hover continues after a refused position", h.Commands.ToArray().Count(c => Fun(c) == "/mouse/move") == moves + 1);
+    }
+
     public static async Task RunTextChunkTestsAsync(List<string> passed)
     {
         void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }

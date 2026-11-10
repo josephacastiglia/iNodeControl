@@ -93,7 +93,9 @@ internal static class DragInput
         {
             // A failed command already triggers lease-scoped cleanup in the
             // client/kernel. An extra up would only be refused and double-log it.
-            if (pressed && !ct.IsCancellationRequested && failure is null)
+            // A move the kernel refused is different: nothing was paused or cleaned up,
+            // the lease is live and the button is still down, so it is lifted here.
+            if (pressed && !ct.IsCancellationRequested && (failure is null || failure is ApiException { IsRefusal: true }))
             {
                 try
                 {

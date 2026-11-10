@@ -1008,6 +1008,8 @@ public partial class MainWindow : Window
         }
         catch (OperationCanceledException) when (CancelledHere(context.Connection, context.Control)) { }
         catch (InputNotSentException ex) { LogAsync("Drag: " + ex.Message, true); }
+        catch (ApiException ex) when (ex.IsRefusal && result is { Released: true })
+        { LogAsync("Drag refused: " + ex.Message + " The button was released; nothing else was sent.", true); }
         catch (Exception ex)
         {
             bool releaseOnly = result is { Failure: null, ReleaseFailure: not null };
@@ -1411,6 +1413,8 @@ public partial class MainWindow : Window
         }
         catch (OperationCanceledException) when (CancelledHere(lifetime, control)) { }
         catch (InputNotSentException ex) { LogAsync($"{label}: {ex.Message}", true); }
+        // The kernel declined it before sending anything; input stays ready and nothing needs Resume.
+        catch (ApiException ex) when (ex.IsRefusal) { LogAsync($"{label} refused: {ex.Message} Nothing was sent.", true); }
         // A cancellation nobody here asked for is HttpClient's timeout: logged, not swallowed.
         catch (Exception ex) { LogAsync($"{label} failed: {Friendly(ex)}", true); }
     }
@@ -1480,6 +1484,8 @@ public partial class MainWindow : Window
             switch (r.End)
             {
                 case InputEnd.Cancelled: Log($"{label} stopped: {progress}{partial}{rest}", true); break;
+                // The kernel declined the chunk before typing any of it; input stays ready.
+                case InputEnd.Refused: Log($"{label} refused: {progress} Chunk {r.Sent} of {r.Chunks} was not typed.{rest} {Friendly(r.Failure!)}", true); break;
                 // The lease client's pause notice shows Input paused and enables Resume.
                 case InputEnd.TimedOut: Log($"{label} timed out: {progress}{partial}{rest} Check the phone before continuing.", true); break;
                 default: Log($"{label} failed: {progress}{partial}{rest} {Friendly(r.Failure!)}", true); break;

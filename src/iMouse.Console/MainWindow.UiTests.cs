@@ -215,6 +215,19 @@ public partial class MainWindow
             "key" => kernelKeys.Contains(t[1]), "swipe" => kernelSwipes.Contains(t[1]), "reset" => t[1] == "mouse", _ => false
         }));
 
+        // A command the kernel refuses is reported, and pauses nothing. It used to pause the phone
+        // and its followers and stop renewing their leases, which cost the operator a Resume.
+        int beforeRefused = Inputs().Length;
+        await ClickTag("key|SwitchIme");
+        for (int i = 0; !_activity.Any(s => s.Contains("key|SwitchIme refused")) && i < 100; i++) await Task.Delay(10);
+        Check("A key the kernel refuses is reported to the operator as refused, with the reason",
+            _activity.Any(s => s.Contains("key|SwitchIme refused") && s.Contains("has not been verified") && s.Contains("Nothing was sent")));
+        Check("A refused key leaves input ready and does not offer Resume",
+            _controlReady && !ResumeInputButton.IsEnabled && InputStateText.Text.Contains("ready"));
+        await Click(HomeButton);
+        Check("The next command after a refusal is sent without Resume",
+            Inputs().Length == beforeRefused + 2 && Inputs()[^1].GetProperty("data").GetProperty("fn_key").GetString() == "Home");
+
         foreach (var d in _devices) d.IsChecked = false;
         BatchMode.IsChecked = false;
         UpdateControls();

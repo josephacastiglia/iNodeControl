@@ -172,6 +172,11 @@ internal static class InputSessionTests
                 try { await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = wrong })); }
                 catch (ArgumentException) { refused = true; }
                 check(refused && t.Reports.IsEmpty, "Unverified key name is refused and sends nothing: " + wrong);
+                // A refusal is not a failure: the kernel stops nothing and the lease goes on working.
+                check(Code(sessions.Renew(Data(new { id = "one", token }))) == 0
+                    && Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Enter" }))) == 0
+                    && !JsonSerializer.Serialize(sessions.Status()).Contains("\"stopped\":true"),
+                    "A refused key leaves the lease valid and the phone not stopped: " + wrong);
             }
         }
         finally { try { Directory.Delete(directory, true); } catch { } }

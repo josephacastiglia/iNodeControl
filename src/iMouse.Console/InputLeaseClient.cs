@@ -62,6 +62,8 @@ internal sealed class InputLeaseClient : IAsyncDisposable
     /// after the kernel accepted it. The first failure ends the sequence and pauses the phones
     /// like any failed command; the failed step is never resent, because it may have partly
     /// run. Refusals before anything could be sent (paused, closed, caller cancelled) throw.
+    /// A step the kernel itself refuses (code 36 or 41) ends the sequence as Refused: the kernel
+    /// wrote nothing, so the phones are not paused and their leases keep being renewed.
     /// A step still waiting its turn when another command's failure paused the phones ends
     /// Cancelled with an <see cref="InputNotSentException"/>: it never left this console.
     /// </summary>
@@ -143,6 +145,12 @@ internal sealed class InputLeaseClient : IAsyncDisposable
                     lock (_sync) foreach (var p in phones) p.ButtonMaybeDown = false;
             }
             return (InputEnd.Completed, null);
+        }
+        catch (ApiException ex) when (ex.IsRefusal)
+        {
+            // The kernel validated the request and declined it before writing to any board. No
+            // phone is in an unknown state and every lease is as it was: report it, pause nothing.
+            return (InputEnd.Refused, ex);
         }
         catch (Exception ex)
         {

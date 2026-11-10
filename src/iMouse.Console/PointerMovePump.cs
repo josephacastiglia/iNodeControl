@@ -87,6 +87,7 @@ internal sealed class PointerMovePump
                 catch (Exception ex) { operation = Task.FromException(ex); }
             }
             try { await operation.ConfigureAwait(false); }
+            catch (ApiException ex) when (ex.IsRefusal) { /* Nothing was sent or paused; a later position may be valid. */ }
             catch
             {
                 // Never replay a failed/uncertain move. Resume or a new selection has a

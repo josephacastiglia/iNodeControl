@@ -9,6 +9,9 @@ namespace IMouse2;
 public sealed class ApiException(string message, int code = -1) : Exception(message)
 {
     public int Code { get; } = code;
+    /// <summary>The kernel refused the request before it wrote anything to a board (36: invalid,
+    /// 41: not supported). Nothing was sent, no lease was touched and no phone was stopped.</summary>
+    public bool IsRefusal => Code is 36 or 41;
 }
 
 /// <summary>An input command that never left this console: another command's failure or timeout,
@@ -17,8 +20,9 @@ public sealed class InputNotSentException(Exception cause)
     : Exception("Not sent: input was paused by an earlier failure or timeout while this waited.", cause);
 
 /// <summary>How an input sequence ended. Cancelled means this console asked it to stop
-/// (Stop, a scope change, disconnect); TimedOut means no answer arrived in time.</summary>
-public enum InputEnd { Completed, Cancelled, TimedOut, Failed }
+/// (Stop, a scope change, disconnect); TimedOut means no answer arrived in time; Refused means
+/// the kernel declined a step before sending anything, which pauses nothing.</summary>
+public enum InputEnd { Completed, Cancelled, TimedOut, Failed, Refused }
 
 /// <summary>
 /// How releasing one phone's possibly held button ended after an input failure. Confirmed means
@@ -63,8 +67,9 @@ public sealed record InputCleanup(InputEnd Cause, IReadOnlyList<PhoneCleanup> Ph
 /// Outcome of <see cref="ApiClient.SendTextAsync"/>. ConfirmedCharacters counts characters in
 /// chunks the kernel answered with code 0: their HID writes finished, which does not prove iOS
 /// inserted them. Sent counts chunks that left this console. When Sent &gt; Confirmed, chunk
-/// Sent has an unknown outcome and may be partly typed; when they are equal the send ended
-/// between chunks and nothing is partial. No chunk after Sent was sent.
+/// Sent has an unknown outcome and may be partly typed (unless End is Refused: then the kernel
+/// typed none of it); when they are equal the send ended between chunks and nothing is partial.
+/// No chunk after Sent was sent.
 /// </summary>
 public sealed record TextDelivery(InputEnd End, int ConfirmedCharacters, int Total, int Sent, int Confirmed, int Chunks, Exception? Failure);
 
