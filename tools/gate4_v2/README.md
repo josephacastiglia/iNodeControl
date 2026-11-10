@@ -40,7 +40,7 @@ python tools/gate4_1000_tap_suite.py --config my-targets.json --total 1000 --liv
 
 The first three send nothing to any phone. `--calibrate --live` and the run both drive phones.
 
-1. Copy `targets.example.json` and check every position against the phone's **current** Home screen. Enable only the phones the operator has approved.
+1. Copy `targets.example.json`, put each phone's device ID (as the kernel's `/device/get` lists it) in `id`, and check every position against the phone's **current** Home screen. Keep the copy out of Git: it names the phones. Enable only the phones the operator has approved.
 2. Calibrate with the operator present, following the live-rack rules: fresh PIDs, and `/input/status` showing no other controller holds a phone.
 3. Open every `refs/*.bmp`. Check that each shows the intended screen, then set `"reviewed": true` and `"reviewed_by"` in `calibration.json`. The run refuses an unsigned calibration, a reference that looks like Home, two references too alike to tell apart, and any reference changed since calibration.
 4. Run. Results go to `<out>/runs/<run_id>/`: `results.jsonl`, `status.json`, `manifest.json` and `shots/` for failures. An existing run ID is refused before service access. Automatic resume is disabled: a prior manifest or partial result log must never be overwritten or silently combined with a different build/configuration. Calibration also requires a new output folder.

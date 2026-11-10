@@ -10,7 +10,7 @@
   "phones": [
     {
       "tag": "C24C",
-      "id": "86:1D:4A:04:2F:F6",
+      "id": "PUT-THE-PHONE-DEVICE-ID-HERE",
       "enabled": true,
       "profile": "iPhone XR, iOS 18.7.10, FKA On (Auto-Hide 1s), vendor settings",
       "receiver_name": "iMouse2-C24C",
@@ -29,7 +29,7 @@
     },
     {
       "tag": "C241",
-      "id": "FE:A9:BC:D7:A0:44",
+      "id": "PUT-THE-PHONE-DEVICE-ID-HERE",
       "enabled": false,
       "profile": "iPhone XR (operator's phone in hand)",
       "receiver_name": "iMouse2-C241",
