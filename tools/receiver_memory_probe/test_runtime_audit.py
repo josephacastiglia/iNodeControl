@@ -16,8 +16,7 @@ class RuntimeAudit(unittest.TestCase):
         self.system.mkdir()
         (self.runtime / "bin").mkdir(parents=True)
         self.receiver = self.root / "receiver.exe"
-        for path in [self.receiver, self.runtime / "libexec/gstreamer-1.0/gst-plugin-scanner.exe",
-                     *[self.runtime / "lib/gstreamer-1.0" / name for name in r.PLUGIN_FILES]]:
+        for path in [self.receiver, *[self.runtime / name for name in r.RECEIVER_RUNTIME_REQUIRED]]:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b"fixture")
         self.graph = {}
@@ -34,13 +33,13 @@ class RuntimeAudit(unittest.TestCase):
     def test_consistency_never_claims_launch_readiness(self):
         result = self.audit()
         self.assertTrue(result["files_consistent"])
-        self.assertEqual(len(result["files"]), 2 + len(r.PLUGIN_FILES))
+        self.assertEqual(len(result["files"]), 1 + len(r.RECEIVER_RUNTIME_REQUIRED))
         self.assertFalse(result["launch_ready"])
         self.assertFalse(result["receiver_started"])
         self.assertFalse(result["dlls_loaded"])
 
     def test_missing_plugin_fails(self):
-        (self.runtime / "lib/gstreamer-1.0" / r.PLUGIN_FILES[0]).unlink()
+        (self.runtime / r.RECEIVER_RUNTIME_REQUIRED[1]).unlink()
         self.assertFalse(self.audit()["files_consistent"])
 
     def test_receiver_startup_requirements_are_not_just_video_decoding(self):
@@ -88,7 +87,7 @@ class RuntimeAudit(unittest.TestCase):
             raise ValueError("unreadable PE")
         result = r.audit(self.receiver, self.runtime, self.system, broken)
         self.assertFalse(result["files_consistent"])
-        self.assertEqual(len(result["errors"]), 2 + len(r.PLUGIN_FILES))
+        self.assertEqual(len(result["errors"]), 1 + len(r.RECEIVER_RUNTIME_REQUIRED))
 
     def test_wrong_architecture_is_refused(self):
         class Result:

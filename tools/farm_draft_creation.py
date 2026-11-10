@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from farm_carousel_inspection import OwnedCaptureRun, InspectionStopped
+from farm_owned_capture import OwnedCaptureRun, InspectionStopped
 from farm_creation_layout import (require, exact, source_match, picker_grid,
     selected_badges, caption_editor, home, home_search, app_target, control, empty_search, test_video_preview, restored_app_search,
     safari_address_empty, search_clear)

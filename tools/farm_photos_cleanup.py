@@ -368,8 +368,12 @@ def main(argv=None):
     args.board = args.board.upper()
     if args.mode == 'move' and not args.plan: parser.error('move needs --plan')
     refs = references()
-    folder = OUTPUT / f'{args.board}-{args.mode}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}'; folder.mkdir(parents=True)
-    record = (run_plan if args.mode == 'plan' else run_move)(args, refs, folder)
+    folder = OUTPUT / f'{args.board}-{args.mode}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}'
+    # One phone run on the rack at a time: wait for the rack, or leave before any input (farm_rack_lock).
+    from farm_rack_lock import hold_rack
+    with hold_rack(f'farm_photos_cleanup {args.mode} {args.board}'):
+        folder.mkdir(parents=True)
+        record = (run_plan if args.mode == 'plan' else run_move)(args, refs, folder)
     summary = {k: record.get(k) for k in ('planId', 'itemCount', 'farm', 'other', 'unsure', 'result', 'stopped', 'selectClosed',
                                           'itemCountAfter', 'farmLeft', 'deleteTapped') if k in record}
     print(json.dumps(dict(summary, folder=str(folder))))

@@ -1,5 +1,0 @@
-Our AirPlay service exited before it was ready (exit 2).
-
-Startup refused: Receiver runtime has missing or empty required files: lib/gstreamer-1.0/libgstplayback.dll, lib/gstreamer-1.0/libgstautodetect.dll, lib/gstreamer-1.0/libgstaudioconvert.dll, lib/gstreamer-1.0/libgstaudioresample.dll, lib/gstreamer-1.0/libgstvolume.dll, lib/gstreamer-1.0/libgstlevel.dll. Verify the dependency package before starting the kernel.
-
-Startup log: C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\launcher-startup-errors-20261013\actual-pwsh-f4611e43\launch-logs\kernel-20261013-052208-2470790266fa4f9caac6624e0f1ed31d.stderr.txt

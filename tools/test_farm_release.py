@@ -1,11 +1,13 @@
 """Synthetic files only: the release builder must not launch anything, read rack state or package it."""
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 import farm_release as fr
+from test_managed_symbols import fixture as symbol_pair   # a synthetic .dll/.pdb pair that belongs together
 
 RACK = fr.RACK_DIR
 FAKE_UDID = '0000' + 'A1B2-' + '0011223344556677'  # UDID-shaped, built at run time so this file holds none
@@ -38,38 +40,51 @@ def make_repo(base):
     (tools / 'test_farm_jobs.py').write_text('import farm_jobs\n', encoding='utf-8')
     (tools / 'kernel-window/Stop-ConsoleProcessGracefully.ps1').write_text('param($Pid)\n', encoding='utf-8')
     (rack / 'Start-Multiphone.ps1').write_text(
-        "param($Stage)\n$taskDir=Join-Path $PSScriptRoot $Stage\n& python (Join-Path $PSScriptRoot 'rack_kernels.py')\n"
+        "$taskDir=Join-Path $PSScriptRoot 'slots'\n& python (Join-Path $PSScriptRoot 'rack_kernels.py')\n"
         "# preparation.json lives beside this script\n$p=Get-Content (Join-Path $taskDir 'preparation.json')\n", encoding='utf-8')
-    (rack / 'Stop-Multiphone.ps1').write_text("& (Join-Path $PSScriptRoot '..\\..\\tools\\kernel-window\\Stop-ConsoleProcessGracefully.ps1')\n", encoding='utf-8')
+    (rack / 'Stop-Multiphone.ps1').write_text("& (Join-Path $PSScriptRoot '..\\tools\\kernel-window\\Stop-ConsoleProcessGracefully.ps1')\n", encoding='utf-8')
     for name in ('Release-Receiver.ps1', 'Restart-Receiver.ps1', 'Stop-Window.ps1'):
         (rack / name).write_text('# fine\n', encoding='utf-8')
     (rack / 'Start-Window.ps1').write_text("$py='C:\\Users\\someone\\AppData\\Local\\Programs\\Python\\Python311\\python.exe'\n", encoding='utf-8')
     (rack / 'rack_kernels.py').write_text('import json\nSLOTS = "phone-slots.json"\n', encoding='utf-8')
     for name in ('prepare_window.py', 'run_window.py', 'verify_window.py'):
         (rack / name).write_text('from pathlib import Path\nHERE = Path(__file__).resolve().parent\nW = HERE / "windows"\n', encoding='utf-8')
-    (rack / 'connect_xr.ps1').write_text('# dev-only probe with phone addresses\n', encoding='utf-8')
+    (rack / 'one_tap.py').write_text('# dev-only supervised helper\n', encoding='utf-8')
     (rack / 'test_rack_kernels.py').write_text('import rack_kernels\n', encoding='utf-8')
     (rack / 'phone-slots.json').write_text('{"slots": {"18": {"board": "C24C"}}}', encoding='utf-8')
     (rack / 'preparation.json').write_text('{"kernel": "C:\\\\dev\\\\kernel.exe"}', encoding='utf-8')
     (rack / 'slots/preparation.json').write_text('{}', encoding='utf-8')
     (rack / 'windows/reel-slot18/preparation.json').write_text('{}', encoding='utf-8')
+    # The receiver's source, with what a developer's checkout also holds there and must never ship.
+    airplay = tools / 'airplay'
+    for name, text in (('UPSTREAM.md', 'UxPlay, GPL 3. Changes: patches/0001-frame-pipe.patch\n'), ('build-receiver.sh', 'cmake -S . -B build-imouse\n'),
+                       ('patches/0001-frame-pipe.patch', '--- /dev/null\n'), ('uxplay/LICENSE', 'GNU GENERAL PUBLIC LICENSE Version 3\n'),
+                       ('uxplay/CMakeLists.txt', 'project(uxplay)\n'), ('uxplay/uxplay.cpp', 'int main() {}\n'),
+                       ('uxplay/lib/CMakeLists.txt', '# lib\n'), ('uxplay/lib/playfair/LICENSE.md', 'GPL 3\n'),
+                       ('uxplay/lib/llhttp/LICENSE-MIT', 'MIT\n'), ('uxplay/renderers/imouse_frame_pipe.h', '/* frame pipe */\n'),
+                       ('uxplay/build-imouse/uxplay.exe', 'build output'), ('msys64/ucrt64/bin/gcc.exe', 'toolchain'),
+                       ('uxplay-source.tar.gz', 'download')):
+        (airplay / name).parent.mkdir(parents=True, exist_ok=True)
+        (airplay / name).write_text(text, encoding='utf-8')
     return repo
 
 
 def make_builds(base):
     base = Path(base)
     kernel, console, runtime = base / 'kernel build', base / 'console build', base / 'receiver runtime'
-    for folder, names, frameworks in ((kernel, fr.KERNEL_FILES, ['Microsoft.NETCore.App']),
-                                      (console, fr.CONSOLE_FILES, ['Microsoft.NETCore.App', 'Microsoft.WindowsDesktop.App'])):
+    for seed, (folder, names, frameworks) in enumerate(((kernel, fr.KERNEL_FILES, ['Microsoft.NETCore.App']),
+                                                        (console, fr.CONSOLE_FILES, ['Microsoft.NETCore.App', 'Microsoft.WindowsDesktop.App'])), 1):
         (folder / 'data').mkdir(parents=True)
+        dll, pdb = symbol_pair(seed)
         for n in names:
-            (folder / n).write_bytes(b'binary ' + n.encode())
+            (folder / n).write_bytes(dll if n.endswith('.dll') else pdb if n.endswith('.pdb') else b'binary ' + n.encode())
         config = next(n for n in names if n.endswith('.runtimeconfig.json'))
         (folder / config).write_text(json.dumps({'runtimeOptions': {'frameworks': [{'name': f, 'version': '8.0.0'} for f in frameworks]}}))
         (folder / 'data/devices.json').write_text('{"private": "bindings"}')  # never packaged
-    (runtime / 'libexec/gstreamer-1.0').mkdir(parents=True)
-    (runtime / 'bin').mkdir()
-    (runtime / 'libexec/gstreamer-1.0/gst-plugin-scanner.exe').write_bytes(b'scanner')
+    (runtime / 'bin').mkdir(parents=True)
+    for name in fr.RECEIVER_RUNTIME_REQUIRED:
+        (runtime / name).parent.mkdir(parents=True, exist_ok=True)
+        (runtime / name).write_bytes(b'runtime ' + name.encode())
     (runtime / 'bin/libgstreamer-1.0-0.dll').write_bytes(b'gst')
     receiver = base / 'receiver build/uxplay.exe'
     receiver.parent.mkdir()
@@ -102,7 +117,7 @@ class FarmFileSet(Base):
         self.assertNotIn('tools/old_tool.py', names, 'a docstring mention must not pull a file in')
         self.assertNotIn('tools/test_farm_jobs.py', names)
         self.assertNotIn(f'{RACK}/test_rack_kernels.py', names)
-        self.assertNotIn(f'{RACK}/connect_xr.ps1', names, 'dev-only probes stay out')
+        self.assertNotIn(f'{RACK}/one_tap.py', names, 'dev-only helpers stay out')
         self.assertIn(f'{RACK}/phone-slots.json', private)
         self.assertFalse(any(fr.is_private(n) for n in files))
 
@@ -137,6 +152,40 @@ class Build(Base):
         self.assertFalse(manifest['commands']['start-rack']['ready'])
         self.assertTrue(manifest['commands']['server']['ready'])
         self.assertFalse(out.with_name(out.name + '.partial').exists())
+
+    def test_the_receiver_ships_with_its_licence_notice_and_source(self):
+        manifest, out, repo = build_package(self.base)
+        names = set(manifest['files'])
+        for need in fr.RECEIVER_SOURCE_REQUIRED + ('receiver/source/patches/0001-frame-pipe.patch',):
+            self.assertIn(need, names)
+        self.assertEqual((out / 'receiver/LICENSE').read_bytes(), (repo / 'tools/airplay/uxplay/LICENSE').read_bytes())
+        self.assertEqual((out / 'receiver/NOTICE.md').read_bytes(), (repo / 'tools/airplay/UPSTREAM.md').read_bytes())
+        self.assertFalse([n for n in names if 'build-imouse' in n or 'msys64' in n or n.endswith('.tar.gz')],
+                         'build output, the toolchain and downloads are not source')
+        receiver = manifest['components']['receiver']
+        self.assertEqual((receiver['licence'], receiver['notice'], receiver['source']), ('receiver/LICENSE', 'receiver/NOTICE.md', 'receiver/source'))
+        self.assertEqual(receiver['sha256'], manifest['files']['receiver/uxplay.exe']['sha256'])
+
+    def test_a_receiver_without_its_licence_source_or_a_named_patch_refuses_the_build(self):
+        for gone in ('uxplay/LICENSE', 'UPSTREAM.md', 'uxplay/uxplay.cpp', 'build-receiver.sh', 'patches/0001-frame-pipe.patch'):
+            base = self.base / gone.replace('/', '-')
+            repo = make_repo(base)
+            (repo / 'tools/airplay' / gone).unlink()
+            with self.assertRaisesRegex(ValueError, 'licence, notice and source must ship'):
+                build_package(base, repo=repo)
+            self.assertFalse((base / 'packages').exists(), 'nothing is written before the refusal')
+
+    def test_a_pdb_that_is_not_its_dlls_refuses_the_build(self):
+        repo = make_repo(self.base)
+        kernel, console, receiver, runtime = make_builds(self.base / 'b')
+        (console / 'iMouse2.pdb').write_bytes((kernel / 'iMouse2.Kernel.pdb').read_bytes())   # well formed, another build's
+        with self.assertRaisesRegex(ValueError, r'console: iMouse2\.pdb does not belong to iMouse2\.dll'):
+            fr.build(repo, self.base / 'p1', kernel, console, receiver, runtime, version='x')
+        kernel, console, receiver, runtime = make_builds(self.base / 'c')
+        (kernel / 'iMouse2.Kernel.pdb').write_bytes(b'not a pdb')
+        with self.assertRaisesRegex(ValueError, 'kernel: iMouse2.Kernel.pdb does not belong'):
+            fr.build(repo, self.base / 'p2', kernel, console, receiver, runtime, version='x')
+        self.assertFalse((self.base / 'p1').exists() or (self.base / 'p2').exists())
 
     def test_zip_is_named_after_the_whole_folder_and_holds_the_package(self):
         import zipfile
@@ -190,16 +239,28 @@ class Build(Base):
         with self.assertRaisesRegex(ValueError, 'not pinned'):
             fr.build(repo, self.base / 'p2', kernel, console, receiver, runtime, version='x')
         (repo / 'tools/requirements-farm.txt').write_text('Pillow==9.5.0\n')
-        (repo / 'tools/farm_controls.json').unlink()
-        with self.assertRaisesRegex(ValueError, 'source-hash files missing'):
+        # The server hashes what it loads and names (imouse_farm_server.source_files). A file it hashes that a
+        # package never carries (here: a private name) would give the installed backend another sourceHash.
+        (repo / 'tools/farm_settings.json').write_text('{}', encoding='utf-8')
+        server = repo / 'tools/imouse_farm_server.py'
+        server.write_text(server.read_text(encoding='utf-8') + 'SETTINGS = "farm_settings.json"\n', encoding='utf-8')
+        self.assertIn('farm_settings.json', fr.server_hash_names(repo / 'tools'))
+        with self.assertRaisesRegex(ValueError, 'source-hash files missing from the package: farm_settings.json'):
             fr.build(repo, self.base / 'p3', kernel, console, receiver, runtime, version='x')
+        self.assertFalse((self.base / 'p3').exists())
 
-    def test_missing_receiver_runtime_scanner(self):
+    def test_a_runtime_missing_any_file_the_kernel_requires_refuses_the_build(self):
         repo = make_repo(self.base)
-        kernel, console, receiver, runtime = make_builds(self.base / 'b')
-        (runtime / 'libexec/gstreamer-1.0/gst-plugin-scanner.exe').unlink()
-        with self.assertRaisesRegex(ValueError, 'gst-plugin-scanner'):
-            fr.build(repo, self.base / 'p', kernel, console, receiver, runtime, version='x')
+        for n, missing in enumerate(('libexec/gstreamer-1.0/gst-plugin-scanner.exe', 'lib/gstreamer-1.0/libgstplayback.dll')):
+            kernel, console, receiver, runtime = make_builds(self.base / f'b{n}')
+            (runtime / missing).unlink()
+            with self.assertRaisesRegex(ValueError, 'receiver runtime: missing ' + missing):
+                fr.build(repo, self.base / f'p{n}', kernel, console, receiver, runtime, version='x')
+
+    def test_the_required_runtime_files_are_the_kernels_list(self):
+        source = (fr.REPO / 'src/iMouse.Kernel/ReceiverRuntime.cs').read_text(encoding='utf-8')
+        block = re.search(r'RequiredFiles\s*=\s*\[(.*?)\];', source, re.S).group(1)
+        self.assertEqual(tuple(re.findall(r'"([^"]+)"', block)), fr.RECEIVER_RUNTIME_REQUIRED)
 
     def test_invalid_version(self):
         repo = make_repo(self.base)
@@ -221,6 +282,17 @@ class Verify(Base):
         relaxed = fr.verify(out, allow_unrecorded=True)
         self.assertNotIn('unrecorded: console/startup-state.json', relaxed)
         self.assertIn('changed: farm/tools/farm_jobs.py', relaxed)
+
+    def test_a_package_without_the_receivers_licence_fails_verification(self):
+        _, out, _ = build_package(self.base)
+        manifest = json.loads((out / 'release.json').read_text())
+        for name in ('receiver/LICENSE', 'receiver/source/uxplay/uxplay.cpp'):
+            manifest['files'].pop(name)
+            (out / name).unlink()
+        (out / 'release.json').write_text(json.dumps(manifest))
+        issues = fr.verify(out)
+        self.assertIn('required file absent: receiver/LICENSE', issues)
+        self.assertIn('required file absent: receiver/source/uxplay/uxplay.cpp', issues)
 
     def test_manifest_tampering(self):
         _, out, _ = build_package(self.base)
@@ -269,6 +341,85 @@ class Lint(Base):
         findings = fr.lint_text('farm/x.ps1', "# C:\\Users\\someone\\Desktop\\Claude Code\\notes\n$a=1\n")
         self.assertTrue(findings and all(f['comment'] for f in findings))
         self.assertEqual(fr.blockers(findings), [])
+
+
+class ReceiverSourceRecord(unittest.TestCase):
+    """tools/airplay: the receiver's source is upstream UxPlay plus the recorded patches (UPSTREAM.md)."""
+    AIRPLAY = fr.REPO / 'tools' / 'airplay'
+
+    def test_every_patch_describes_the_tracked_source(self):
+        patches = sorted((self.AIRPLAY / 'patches').glob('*.patch'))
+        self.assertEqual(len(patches), 3)
+        for patch in patches:
+            text = patch.read_bytes().decode('utf-8')
+            self.assertNotIn('\r', text, f'{patch.name} must keep LF line endings to apply to upstream')
+            target = re.search(r'^\+\+\+ b/(\S+)', text, re.M).group(1)
+            tracked = (self.AIRPLAY / 'uxplay' / target).read_bytes().decode('utf-8').replace('\r\n', '\n')
+            hunks = re.split(r'^@@ .* @@.*\n', text, flags=re.M)[1:]
+            self.assertTrue(hunks, patch.name)
+            for hunk in hunks:
+                lines = [l for l in hunk.split('\n') if l]
+                self.assertFalse([l for l in lines if l.startswith('-')], f'{patch.name} only adds lines')
+                after = '\n'.join(l[1:] for l in lines if l[0] in ' +')
+                self.assertIn(after, tracked, f'{patch.name}: {target} no longer holds this change')
+
+    def test_the_record_names_upstream_the_patches_and_the_licences(self):
+        record = (self.AIRPLAY / 'UPSTREAM.md').read_text(encoding='utf-8')
+        for need in ('github.com/FDH2/UxPlay', '44024fe', 'General Public License', *[p.name for p in (self.AIRPLAY / 'patches').glob('*.patch')]):
+            self.assertIn(need, record)
+        for licence in ('uxplay/LICENSE', 'uxplay/lib/playfair/LICENSE.md', 'uxplay/lib/llhttp/LICENSE-MIT'):
+            self.assertTrue((self.AIRPLAY / licence).is_file(), licence)
+            self.assertIn(licence, record)
+        self.assertEqual(fr.scan_private_content(self.AIRPLAY / 'UPSTREAM.md'), [], 'the notice ships in every package')
+
+    def test_the_build_script_does_not_tune_the_binary_to_the_build_pc(self):
+        script = (self.AIRPLAY / 'build-receiver.sh').read_text(encoding='utf-8')
+        self.assertIn('-DNO_MARCH_NATIVE=ON', script)
+        self.assertIn('NOT NO_MARCH_NATIVE', (self.AIRPLAY / 'uxplay/lib/CMakeLists.txt').read_text(encoding='utf-8'),
+                      'upstream still guards -march=native with this option')
+
+
+class OperatorInstructions(unittest.TestCase):
+    def test_every_tool_the_shipped_scripts_and_the_guide_name_is_in_the_package(self):
+        # An operator on an installed PC has the package and nothing else: an instruction that names a
+        # tools/ file must name one that ships.
+        files, _ = fr.farm_files(fr.REPO)
+        shipped = {n[len('farm/'):] for n in files}
+        for doc in ('tools/release/Preflight-Farm.ps1', 'tools/release/Farm.ps1', 'tools/release/Install-Farm.ps1', 'docs/INSTALL-FARM.md'):
+            text = (fr.REPO / doc).read_text(encoding='utf-8')
+            for path in re.findall(r'(?<![\w.-])(tools[\\/][\w./\\-]+\.(?:ps1|py|txt|json))', text):
+                self.assertIn(path.replace('\\', '/'), shipped, f'{doc} names {path}, which a package does not contain')
+
+    def test_the_guide_names_only_launcher_commands_that_exist_and_says_what_a_new_pc_cannot_do(self):
+        guide = (fr.REPO / 'docs/INSTALL-FARM.md').read_text(encoding='utf-8')
+        named = set(re.findall(r'`([a-z]+(?:-[a-z]+)+)`', guide))
+        self.assertTrue({'start-rack', 'stop-rack', 'prepare-window', 'run-window'} <= named)
+        self.assertEqual(named - set(fr.COMMANDS) - {'status', 'preflight'}, set())
+        for removed in ('-Stage', '-Rack'):
+            self.assertNotIn(removed, guide)
+        # No rack preparation tool is a launcher command, so the guide may not send a new PC's operator to one.
+        self.assertFalse([c for c in fr.COMMANDS if 'rack' in c and 'prepare' in c])
+        self.assertIn('cannot make one yet', guide)
+
+
+class ThisCheckout(unittest.TestCase):
+    def test_no_packaged_file_reads_state_from_the_code_folder(self):
+        # The rehearsal's 'every launcher command ready' check, without building a package: one blocker line
+        # in a file a command pulls in makes Farm.ps1 refuse that command on an installed PC.
+        files, _ = fr.farm_files(fr.REPO)
+        findings = fr.lint(files)
+        self.assertEqual([f"{f['file']}:{f['line']} {f['rule']}" for f in fr.blockers(findings)], [])
+        self.assertEqual([c for c, s in fr.command_readiness(fr.COMMANDS, findings, files).items() if not s['ready']], [])
+
+    def test_the_builder_finds_the_servers_hashed_files_as_the_server_does_and_all_of_them_ship(self):
+        # farm_release.build refuses a package without a file the server hashes. It reads that set from source
+        # (it never imports the server); the server computes it itself. They must be the same list.
+        import imouse_farm_server as server
+        hashed = fr.server_hash_names(fr.REPO / 'tools')
+        self.assertEqual(hashed, list(server.source_files()))
+        self.assertGreater(len(hashed), 40)
+        files, _ = fr.farm_files(fr.REPO)
+        self.assertEqual([n for n in hashed if f'farm/tools/{n}' not in files], [])
 
 
 if __name__ == '__main__':

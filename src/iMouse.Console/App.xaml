@@ -23,7 +23,6 @@
     <SolidColorBrush x:Key="WarnBrush"       Color="#B45309"/>
     <SolidColorBrush x:Key="BadBrush"        Color="#DC2626"/>
     <SolidColorBrush x:Key="StageBrush"      Color="#EDEFF2"/>
-    <SolidColorBrush x:Key="WallBrush"       Color="#FAFBFC"/>
     <SolidColorBrush x:Key="TileBrush"       Color="#FFFFFF"/>
     <SolidColorBrush x:Key="ItemBrush"       Color="#FFFFFF"/>
     <SolidColorBrush x:Key="ItemHoverBrush"  Color="#F2F5FA"/>

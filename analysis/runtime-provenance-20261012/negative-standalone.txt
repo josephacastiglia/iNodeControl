@@ -1,6 +1,0 @@
-test_standalone_verifier_never_changes_the_package_it_verifies (test_stage_receiver_runtime.RuntimeStageTests.test_standalone_verifier_never_changes_the_package_it_verifies) ... ok
-
-----------------------------------------------------------------------
-Ran 1 test in 2.333s
-
-OK

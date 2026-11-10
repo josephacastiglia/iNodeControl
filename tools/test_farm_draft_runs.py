@@ -36,10 +36,15 @@ CONFIG = dict(version=1, api=runs.API, kernelSha256='a'*64, expectedUid='fixture
 
 
 class FixtureRuns(runs.DraftRuns):
+    """The base's admission and journal rules, with a stand-in route: what it supports and how it executes."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.entered = threading.Event(); self.proceed = threading.Event(); self.wait = False
-        self.executions = 0; self.unknown = False; self.source = 'offline_protocol_fixture'
+        self.executions = 0; self.unknown = False; self.source = 'offline_protocol_fixture'; self.supported = True
+    def capability(self):
+        return dict(version=1, storeId=self.store_id, enabled=self.config is not None, publishing=False, messaging=False)
+    def supports(self, package): return self.supported
+    def content_reason(self, supported): return 'Fixture content is supported.' if supported else 'Fixture content is refused.'
     def execute(self, folder, assets, caption, package_hash, cancelled):
         self.executions += 1; self.entered.set()
         record = dict(packageSha256=package_hash, state='running', source=self.source,
@@ -62,8 +67,6 @@ class DraftRunTests(unittest.TestCase):
     def setUp(self):
         temporary=tempfile.TemporaryDirectory(prefix='farm-draft-run-'); self.addCleanup(temporary.cleanup)
         self.root=Path(temporary.name); self.drafts=Drafts()
-        self.content=runs.source_content(self.drafts.export('fixture',3))[2]
-        self.patch=patch.object(runs,'CONTENT_SHA256',self.content); self.patch.start(); self.addCleanup(self.patch.stop)
         self.jobs=FarmJobs(journal_path=self.root/'jobs.db')
         self.service=FixtureRuns(self.root/'runs',self.drafts,self.jobs,CONFIG)
         self.spec=dict(id=str(uuid.uuid4()),draft_id=str(uuid.uuid4()),revision=3,store_id=self.service.store_id)
@@ -79,7 +82,7 @@ class DraftRunTests(unittest.TestCase):
         return self.service.get(self.spec['id'])
 
     def test_default_disabled_and_config_cannot_target_release_other_host_or_simulation(self):
-        service=runs.DraftRuns(self.root/'disabled',self.drafts,self.jobs)
+        service=FixtureRuns(self.root/'disabled',self.drafts,self.jobs)
         self.assertFalse(service.capability()['enabled'])
         with self.assertRaises(runs.KernelSafetyError): service.start({**self.spec,'store_id':service.store_id})
         path=self.root/'config.json'
@@ -120,9 +123,12 @@ class DraftRunTests(unittest.TestCase):
         self.assertEqual(3,result['request']['revision']); self.assertEqual(1,self.service.executions)
 
     def test_changed_content_store_or_request_fields_never_reach_worker(self):
-        with patch.object(runs,'CONTENT_SHA256','f'*64):
-            self.assertFalse(self.service.eligibility(self.spec['draft_id'],3)['eligible'])
-            with self.assertRaises(ValueError): self.service.start(self.spec)
+        self.service.supported=False
+        refused=self.service.eligibility(self.spec['draft_id'],3)
+        self.assertEqual((False,False,'Fixture content is refused.'),(refused['eligible'],refused['supportedContent'],refused['contentReason']))
+        with self.assertRaises(ValueError): self.service.start(self.spec)
+        self.service.supported=True
+        self.assertTrue(self.service.eligibility(self.spec['draft_id'],3)['eligible'])
         for fields in ({'device':'C241'},{'account':'another'},{'api':runs.API},{'actions':[]},{'revision':True}):
             with self.assertRaises(ValueError): self.service.start({**self.spec,**fields})
         with self.assertRaises(DraftConflict): self.service.start({**self.spec,'store_id':str(uuid.uuid4())})
@@ -221,10 +227,9 @@ from pathlib import Path
 import farm_draft_runs as runs
 from farm_jobs import FarmJobs
 from farm_draft_workflow import atomic_json
-from test_farm_draft_runs import Drafts,CONFIG
+from test_farm_draft_runs import Drafts,CONFIG,FixtureRuns
 root=Path(sys.argv[1]); drafts=Drafts()
-runs.CONTENT_SHA256=runs.source_content(drafts.export('fixture',3))[2]
-class Crashing(runs.DraftRuns):
+class Crashing(FixtureRuns):
     def execute(self,folder,assets,caption,package_hash,cancelled):
         atomic_json(folder/'record.json',dict(packageSha256=package_hash,state='running',source='offline_protocol_fixture',cleanup='unconfirmed',savedDraftVerified=False,observations=[],actions=[dict(label='prepared-save-once',state='outcome_unknown')]))
         with (root/'sends.txt').open('a') as f: f.write('Save\\n'); f.flush(); os.fsync(f.fileno())

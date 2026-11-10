@@ -1,9 +1,0 @@
-System.Exception: Failed: Resume retries its own unconfirmed scope release before resuming
-   at IMouse2.SelfTests.<>c__DisplayClass0_0.<RunAsync>g__Check|0(String name, Boolean ok) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\SelfTests.cs:line 354
-   at IMouse2.ConnectionCleanupTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\ConnectionCleanupTests.cs:line 113
-   at IMouse2.ConnectionCleanupTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\ConnectionCleanupTests.cs:line 232
-   at IMouse2.ConnectionCleanupTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\ConnectionCleanupTests.cs:line 232
-   at IMouse2.ConnectionCleanupTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\ConnectionCleanupTests.cs:line 232
-   at IMouse2.ConnectionCleanupTests.RunAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\ConnectionCleanupTests.cs:line 232
-   at IMouse2.SelfTests.RunAsync() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\SelfTests.cs:line 628
-   at IMouse2.App.OnStartup(StartupEventArgs e) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\src\iMouse.Console\App.xaml.cs:line 188

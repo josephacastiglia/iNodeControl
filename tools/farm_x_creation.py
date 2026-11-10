@@ -11,7 +11,7 @@ draft whose exact text and thumbnail match, plays it and keeps it.
 """
 import numpy as np
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import require, safari_blank, leftover_downloads, leftover_player
 from farm_draft_transport import allowed_tap
 from farm_draft_workflow import Workflow

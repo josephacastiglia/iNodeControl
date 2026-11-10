@@ -1,9 +1,0 @@
-  iMouse.Console -> C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\screenshot-backpressure-20261013\harness\iMouse2.dll
-  iMouse.Kernel -> C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\screenshot-backpressure-20261013\harness\iMouse2.Kernel.dll
-  InputCleanupHarness -> C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\screenshot-backpressure-20261013\harness\InputCleanupHarness.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:05.42

@@ -16,6 +16,13 @@ import uuid
 from farm_media_transfer import MediaTransferServer, TransferPackage, checked_address
 
 
+# Ports of the farm's own control services, which a media listener is never given: the vendor service (9911),
+# the kernel's API (9913 by default, 9916 on the rack) and the farm backends (9914, 9915).
+RESERVED_PORTS = (9911, 9913, 9914, 9915, 9916)
+# Used when a request names no port: the pre-rack window's media port (farm_creation_runs.LEGACY_PORTS[0]).
+DEFAULT_MEDIA_PORT = 9917
+
+
 class TransferConflict(ValueError):
     pass
 
@@ -124,8 +131,8 @@ class CarouselTransfers:
         if kind not in ('carousel', 'video') or (kind == 'video' and self.videos is None):
             raise ValueError('Unsupported media draft kind.')
         bind, client = checked_address(request.get('bind', '')), checked_address(request.get('client', ''))
-        port, minutes = request.get('port', 9916), request.get('minutes', 20)
-        if type(port) is not int or port not in range(1024, 65536) or port in (9911, 9913, 9914, 9915):
+        port, minutes = request.get('port', DEFAULT_MEDIA_PORT), request.get('minutes', 20)
+        if type(port) is not int or port not in range(1024, 65536) or port in RESERVED_PORTS:
             raise ValueError('Choose an unused media port between 1024 and 65535, separate from control services.')
         if type(minutes) is not int or not 1 <= minutes <= 60:
             raise ValueError('Transfer duration must be 1–60 minutes.')

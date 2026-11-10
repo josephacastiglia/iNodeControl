@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace IMouse2;
 
-internal sealed record FarmJobBookmark(string Id, string Mode, string Action, bool OwnsInput);
+internal sealed record FarmJobBookmark(string Id, string Mode, string Action);
 
 internal sealed class FarmJobRecovery(string folder)
 {

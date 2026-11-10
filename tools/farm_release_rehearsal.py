@@ -35,6 +35,7 @@ sys.path.insert(0, str(HERE))
 import farm_install as fi  # noqa: E402
 import farm_release as fr  # noqa: E402
 
+# An archived preparation, as the rack keeps beside the current one (the sandbox step writes slots/preparation.json).
 FAKE_PREPARATION = {'note': 'rehearsal fake: no real device', 'receivers': [{'board': 'FAKE', 'name': 'iMouse2-FAKE', 'port': 7110}]}
 
 
@@ -67,8 +68,10 @@ def copy_sources(dest):
     """A throwaway copy of the farm sources (tools/ and the rack scripts), with one changed file."""
     for rel in ('tools', fr.RACK_DIR):
         shutil.copytree(REPO / rel, dest / rel, ignore=shutil.ignore_patterns(
-            '__pycache__', '*.pyc', 'slots', 'held', 'windows', 'windows-archive', 'rack-a', 'rack-b', 'identify', 'autoconnect',
-            'measure', 'look', 'card-survey', 'airplay', 'protocol-deps', '*.png', '*.jpg', '*.bmp', '*.log', '*.jsonl'))
+            '__pycache__', '*.pyc', 'slots', 'windows', 'windows-archive', 'identify', 'autoconnect',
+            'measure', 'card-survey', 'protocol-deps', '*.png', '*.jpg', '*.bmp', '*.log', '*.jsonl',
+            # tools/airplay is the receiver's source and ships; its downloaded toolchain and build output do not.
+            'msys64', 'build-imouse', '*.tar.*'))
     marker = dest / 'tools' / 'mdns_goodbye.py'
     marker.write_text(marker.read_text(encoding='utf-8') + '\n# rehearsal B: this line marks the updated version\n', encoding='utf-8')
     return dest
@@ -106,9 +109,6 @@ SANDBOX_PORT = 9956                                   # not a farm port (9911-99
 SANDBOX_BOARDS = ('0F11', '0F12', '0F13')             # no WCH board on this PC has these IDs (checked before start)
 SANDBOX_NAMES = {b: f'iMouse2-Y{i + 1}' for i, b in enumerate(SANDBOX_BOARDS)}
 SANDBOX_PORTS = {b: 7950 + 10 * i for i, b in enumerate(SANDBOX_BOARDS)}
-STAND_IN_RUNTIME = ('libexec/gstreamer-1.0/gst-plugin-scanner.exe',) + tuple(f'lib/gstreamer-1.0/libgst{n}.dll' for n in (
-    'app', 'coreelements', 'libav', 'videoparsersbad', 'videoconvertscale', 'playback', 'autodetect', 'audioconvert',
-    'audioresample', 'volume', 'level'))
 
 
 def _port_free(port):
@@ -138,7 +138,8 @@ def _wait(predicate, seconds=25):
 
 
 def sandbox_rack(root, data, scratch, env, launcher, step, checks):
-    """Rack B in the data folder, driven only through the installed Farm.ps1. Never reads or calls :9916."""
+    """A sandbox kernel in the data folder's one kernel folder, driven only through the installed Farm.ps1.
+    Never reads or calls :9916."""
     used = [p for p in [SANDBOX_PORT] + [q for b in SANDBOX_BOARDS for q in range(SANDBOX_PORTS[b], SANDBOX_PORTS[b] + 3)] if not _port_free(p)]
     present = subprocess.run(['powershell.exe', '-NoProfile', '-Command',
                               "@(Get-PnpDevice -PresentOnly -ErrorAction SilentlyContinue | Where-Object InstanceId -match 'VID_720A&PID_0F1[123]').Count"],
@@ -153,12 +154,12 @@ def sandbox_rack(root, data, scratch, env, launcher, step, checks):
                    creationflags=getattr(subprocess, 'BELOW_NORMAL_PRIORITY_CLASS', 0))
     receiver = fake / 'offrack-receiver.exe'
     runtime = scratch / 'stand-in-runtime'
-    for rel in STAND_IN_RUNTIME:
+    for rel in fr.RECEIVER_RUNTIME_REQUIRED:   # the files the kernel insists on, as empty stand-ins
         (runtime / rel).parent.mkdir(parents=True, exist_ok=True)
         (runtime / rel).write_bytes(b'stand-in')
     (runtime / 'bin').mkdir(exist_ok=True)
     kernel = Path(env['IMOUSE_FARM_KERNEL'])  # the INSTALLED kernel
-    run_dir = data / f"output/candidate-runs/sandbox-rack-b-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
+    run_dir = data / f"output/candidate-runs/sandbox-rack-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"
     run_data = run_dir / 'data'
     run_data.mkdir(parents=True)
     devices = [dict(deviceid=f'sandbox-{SANDBOX_NAMES[b][8:]}', name=f'Sandbox {SANDBOX_NAMES[b][8:]}', device_name='stand-in', width=414, height=896,
@@ -170,23 +171,26 @@ def sandbox_rack(root, data, scratch, env, launcher, step, checks):
         (run_data / name).write_text(json.dumps(rows, indent=2), encoding='utf-8')
     api = f'http://127.0.0.1:{SANDBOX_PORT}/api'
     arguments = [api + '/', '--data-dir', str(run_data), '--input-pid', '0F11', '--receivers', str(run_data / 'receivers.json'),
-                 '--receiver', str(receiver), '--receiver-runtime', str(runtime), '--hold-receivers', '0F13', '--rack', 'B']
-    rack_b = data / fr.RACK_DIR / 'rack-b'
-    prep = dict(runDirectory=str(run_dir), kernel=str(kernel), kernelSha256=fr.sha256(kernel.with_suffix('.dll')), arguments=arguments, rack='B',
+                 '--receiver', str(receiver), '--receiver-runtime', str(runtime), '--hold-receivers', '0F13']
+    slots = data / fi.RACK_STATE / 'slots'
+    prep = dict(runDirectory=str(run_dir), kernel=str(kernel), kernelSha256=fr.sha256(kernel.with_suffix('.dll')), arguments=arguments,
                 api=api, held=['0F13'], boards=list(SANDBOX_BOARDS), inputEnabled=['0F11'],
                 receivers=[dict(board=b, name=SANDBOX_NAMES[b], port=SANDBOX_PORTS[b]) for b in SANDBOX_BOARDS],
                 dataSha256={n: fr.sha256(run_data / n) for n in ('devices.json', 'receivers.json', 'pointer-calibration.json')},
                 sandboxRehearsal=True, serviceStarted=False, phoneInput=False)
-    (rack_b / 'preparation.json').write_text(json.dumps(prep, indent=2), encoding='utf-8')
+    (slots / 'preparation.json').write_text(json.dumps(prep, indent=2), encoding='utf-8')
 
-    # 1. Start through the installed Start-Multiphone. Beside a running single kernel it must refuse and start nothing.
-    start = powershell(launcher, 'start-rack', '-Rack', 'B', cwd=scratch, timeout=180)
+    # 1. Start through the installed Start-Multiphone, as a real preparation: while any other kernel, receiver or
+    # farm process runs it must refuse and start nothing. From then on the preparation is a sandbox, which the
+    # scripts check only against its own kernel, receivers and ports.
+    start = powershell(launcher, 'start-rack', cwd=scratch, timeout=180)
     started_by_script = start['exit'] == 0
-    step('Farm.ps1 start-rack -Rack B (installed Start-Multiphone, state in the data folder)',
+    step('Farm.ps1 start-rack (installed Start-Multiphone, state in the data folder)',
          {'exit': start['exit'], 'tail': (start['stdout'] + start['stderr']).strip()[-400:]})
+    (slots / 'preparation.json').write_text(json.dumps(dict(prep, sandbox=True), indent=2), encoding='utf-8')
     if not started_by_script:
-        checks['installed Start-Multiphone refuses beside the single kernel, starts nothing'] = (
-            'single kernel' in start['stdout'] + start['stderr'] and not (rack_b / 'processes.json').exists() and _port_free(SANDBOX_PORT))
+        checks['installed Start-Multiphone refuses while something of the farm runs, starts nothing'] = (
+            'Nothing was stopped or started' in start['stdout'] + start['stderr'] and not (slots / 'processes.json').exists() and _port_free(SANDBOX_PORT))
         # Start the sandbox kernel with the script's arguments (the installed kernel, the data folder's preparation).
         # Created through WMI, outside this process tree: processes under an agent session inherit "ignore Ctrl+C",
         # and Stop-Multiphone stops a kernel only with Ctrl+C (a kernel it started from an operator's shell is fine).
@@ -199,28 +203,28 @@ def sandbox_rack(root, data, scratch, env, launcher, step, checks):
             subprocess.run(['powershell.exe', '-NoProfile', '-Command', create], stdin=subprocess.DEVNULL, stdout=handle,
                            stderr=subprocess.DEVNULL, timeout=60, check=True)
         pid = int(pid_file.read_text(encoding='utf-8-sig').strip().splitlines()[-1])
-        (rack_b / 'processes.json').write_text(json.dumps(dict(utc=datetime.now(timezone.utc).isoformat(), kernel=dict(pid=pid, path=str(kernel)),
-                                                               rack='B', api=api, phoneInput=False)), encoding='utf-8')
+        (slots / 'processes.json').write_text(json.dumps(dict(utc=datetime.now(timezone.utc).isoformat(), kernel=dict(pid=pid, path=str(kernel)),
+                                                              api=api, phoneInput=False)), encoding='utf-8')
     try:
         up = _wait(lambda: all(r['receiver_pid'] > 0 for r in _sandbox_api('/kernel/status')['receivers'] if r['name'] != SANDBOX_NAMES['0F13']))
         checks['sandbox kernel (installed build) up with stand-in receivers'] = up
         # 2. Restart one receiver through the installed Restart-Receiver.
-        restart = powershell(launcher, 'restart-receiver', '-Rack', 'B', '-Board', '0F11', cwd=scratch, timeout=120)
-        record_file = rack_b / 'restarts.jsonl'
+        restart = powershell(launcher, 'restart-receiver', '-Board', '0F11', cwd=scratch, timeout=120)
+        record_file = slots / 'restarts.jsonl'
         record = json.loads(record_file.read_text(encoding='utf-8-sig').strip().splitlines()[-1]) if record_file.exists() else {}
-        step('Farm.ps1 restart-receiver -Rack B -Board 0F11 (installed Restart-Receiver)',
+        step('Farm.ps1 restart-receiver -Board 0F11 (installed Restart-Receiver)',
              {'exit': restart['exit'], 'record': {k: record.get(k) for k in ('code', 'withdrawn', 'generation_after', 'others_changed', 'state')},
               'tail': restart['stderr'].strip()[-300:]})
         checks['installed Restart-Receiver restarts one stand-in, record in the data folder'] = (
             restart['exit'] == 0 and record.get('code') == 0 and record.get('generation_after') == 2 and record.get('others_changed') == [])
         # 3. Release the held one through the installed Release-Receiver.
-        release = powershell(launcher, 'release-receiver', '-Rack', 'B', '-Board', '0F13', cwd=scratch, timeout=120)
-        checks['installed Release-Receiver starts the held stand-in'] = release['exit'] == 0 and (rack_b / 'releases.jsonl').exists()
+        release = powershell(launcher, 'release-receiver', '-Board', '0F13', cwd=scratch, timeout=120)
+        checks['installed Release-Receiver starts the held stand-in'] = release['exit'] == 0 and (slots / 'releases.jsonl').exists()
     finally:
-        # 4. Stop through the installed Stop-Multiphone: graceful stop, rack-scoped check, goodbye for the Y names.
-        stop = powershell(launcher, 'stop-rack', '-Rack', 'B', cwd=scratch, timeout=180)
-        step('Farm.ps1 stop-rack -Rack B (installed Stop-Multiphone)', {'exit': stop['exit'], 'tail': (stop['stdout'] + stop['stderr']).strip()[-300:]})
-        checks['installed Stop-Multiphone stops the sandbox kernel'] = stop['exit'] == 0 and 'Stopped rack B' in stop['stdout']
+        # 4. Stop through the installed Stop-Multiphone: graceful stop, leftover check, goodbye for the Y names.
+        stop = powershell(launcher, 'stop-rack', cwd=scratch, timeout=180)
+        step('Farm.ps1 stop-rack (installed Stop-Multiphone)', {'exit': stop['exit'], 'tail': (stop['stdout'] + stop['stderr']).strip()[-300:]})
+        checks['installed Stop-Multiphone stops the sandbox kernel'] = stop['exit'] == 0 and 'Stopped:' in stop['stdout']
         if stop['exit'] != 0:  # last resort: only this sandbox's kernel (its port is in its command line) and stand-ins
             subprocess.run(['powershell.exe', '-NoProfile', '-Command',
                             f"Get-CimInstance Win32_Process | Where-Object {{ ($_.Name -eq 'iMouse2.Kernel.exe' -and $_.CommandLine -match '127\\.0\\.0\\.1:{SANDBOX_PORT}/') "
@@ -230,9 +234,9 @@ def sandbox_rack(root, data, scratch, env, launcher, step, checks):
                                f"@(Get-CimInstance Win32_Process | Where-Object {{ $_.ExecutablePath -like '{fake}*' -or ($_.Name -eq 'iMouse2.Kernel.exe' -and $_.CommandLine -match ':{SANDBOX_PORT}/') }}).Count"],
                               capture_output=True, text=True, timeout=60, stdin=subprocess.DEVNULL).stdout.strip()
         checks['nothing of the sandbox remains'] = left == '0' and _port_free(SANDBOX_PORT) and all(_port_free(p) for p in SANDBOX_PORTS.values())
-    stopped = sorted(p.name for p in rack_b.glob('processes-stopped-*.json'))
+    stopped = sorted(p.name for p in slots.glob('processes-stopped-*.json'))
     issues = fr.verify(Path(root) / 'versions' / env['IMOUSE_FARM_VERSION'])  # strict: any file written into the install shows
-    step('sandbox rack state', {'data_rack_b': sorted(p.name for p in rack_b.iterdir()), 'install_issues': issues[:20]})
+    step('sandbox rack state', {'data_slots': sorted(p.name for p in slots.iterdir()), 'install_issues': issues[:20]})
     checks['rack state written only in the data folder'] = bool(stopped) and not issues
 
 
@@ -278,8 +282,8 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
 
     # Fake per-machine data folder, with fake rack state the release must never carry or touch.
     fi.init_data(data)
-    (data / f'{fr.RACK_DIR}/slots/preparation.json').write_text(json.dumps(FAKE_PREPARATION), encoding='utf-8')
-    (data / f'{fr.RACK_DIR}/phone-slots.json').write_text('{"slots": {"1": {"board": "FAKE"}}}', encoding='utf-8')
+    (data / f'{fi.RACK_STATE}/slots/preparation-earlier.json').write_text(json.dumps(FAKE_PREPARATION), encoding='utf-8')
+    (data / f'{fi.RACK_STATE}/phone-slots.json').write_text('{"slots": {"1": {"board": "FAKE"}}}', encoding='utf-8')
     (data / 'evidence-archive/privacy/withheld-candidates.txt').write_text('# fake\n', encoding='utf-8')
     data_before = {p.relative_to(data).as_posix(): fr.sha256(p) for p in data.rglob('*') if p.is_file() and p.name != 'data.json'}
 
@@ -304,7 +308,7 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
     seen = dict(line.split(' ', 1) for line in paths['stdout'].strip().splitlines() if ' ' in line)
     checks['installed farm_paths point at the data folder'] = (
         Path(seen.get('MAIN', '')) == data.resolve() and Path(seen.get('ARCHIVE', '')) == data.resolve() / 'evidence-archive'
-        and Path(seen.get('RACK', '')) == data.resolve() / fr.RACK_DIR / 'slots')
+        and Path(seen.get('RACK', '')) == data.resolve() / fi.RACK_STATE / 'slots')
     checks['dev folder not read (imports)'] = not any(imports['report'][k] for k in ('forbidden_opened', 'forbidden_modules', 'forbidden_sys_path'))
     checks['dev folder not read (self-check)'] = not any(selfcheck['report'][k] for k in ('forbidden_opened', 'forbidden_modules', 'forbidden_sys_path'))
     checks['self-check passed'] = selfcheck['report'].get('exit') == 0 and 'OK' in selfcheck['stdout']
@@ -352,7 +356,7 @@ def rehearse(kernel, console, receiver_exe, receiver_runtime, work, sandbox=Fals
     checks['install root removed'] = not root.exists()
     checks['data folder kept; its earlier files unchanged'] = (
         all((data / n).is_file() and fr.sha256(data / n) == h for n, h in data_before.items()) and state['last_version'] == va)
-    checks['package carries no private state'] = not [n for n in a['files'] if fr.is_private(n) and not n.startswith('receiver/runtime/')]
+    checks['package carries no private state'] = not [n for n in a['files'] if fr.is_private(n) and not n.startswith(fr.THIRD_PARTY)]
     return {'utc': datetime.now(timezone.utc).isoformat(), 'source': a['source'], 'passed': all(checks.values()),
             'checks': checks, 'steps': steps}
 

@@ -82,34 +82,6 @@ class DiagnosticTests(unittest.TestCase):
         self.assertIsNone(row["frame_session"])
         self.assertIsNone(row["frame_pipe_connected"])
 
-    def test_hid_reply_counters_survive_export_without_raw_identifiers(self):
-        reply = {"boards": [{"pid": "C24C", "observation": {"State": "receiving", "Connection": 1,
-            "Reports": 13, "MovementSignals": 12, "StatusReports": 1, "LastFamily": "A1", "LastReportAgeMs": 25,
-            "IdentifierHex": "DO-NOT-EXPORT", "PayloadHex": "RAW-SECRET", "token": "LEASE-SECRET"}}]}
-        self.network.side_effect = lambda url: ({"data": {"hid_replies": reply}}
-            if url.endswith("/kernel/status") else self.response(url))
-        result = d.collect("http://127.0.0.1:9913")["kernel"]["hid_replies"]
-        self.assertEqual(result["boards"][0]["observation"]["Reports"], 13)
-        self.assertEqual(result["boards"][0]["observation"]["LastReportAgeMs"], 25)
-        self.assertIn("not command acknowledgement", result["meaning"])
-        self.assertNotIn("SECRET", json.dumps(result))
-        self.assertNotIn("DO-NOT-EXPORT", json.dumps(result))
-
-    def test_legacy_hid_reply_support_is_unknown_not_zero_reports(self):
-        self.assertEqual(d.collect("http://127.0.0.1:9913")["kernel"]["hid_replies"], {"available": False, "boards": []})
-
-    def test_hid_reply_export_rejects_bad_counters_and_bounds_rows(self):
-        row = {"pid": "C24C", "observation": {"State": [], "Reports": True, "MovementSignals": -1,
-            "LastReportAgeMs": "secret", "LastFamily": "bad", "ErrorType": "secret"}}
-        result = d.hid_reply_summary({"boards": [row]*129})
-        observation = result["boards"][0]["observation"]
-        self.assertTrue(result["truncated"])
-        self.assertEqual(len(result["boards"]), 128)
-        self.assertIsNone(observation["Reports"])
-        self.assertIsNone(observation["MovementSignals"])
-        self.assertIsNone(observation["LastReportAgeMs"])
-        self.assertNotIn("secret", json.dumps(result))
-
     def test_offline_kernel_still_produces_partial_report(self):
         self.network.side_effect = OSError("offline fixture")
         with patch.object(d, "processes", return_value=[]):

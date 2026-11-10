@@ -9,15 +9,14 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 # The deployed appsink/fakesink mode still runs audio_renderer.c:gstreamer_init
 # and initializes AAC/ALAC pipelines. A video-only synthetic probe misses these
 # dynamic requirements (observed in the 13 October candidate startup failure).
-PLUGIN_FILES = ("libgstapp.dll", "libgstcoreelements.dll", "libgstlibav.dll",
-                "libgstvideoparsersbad.dll", "libgstvideoconvertscale.dll",
-                "libgstplayback.dll", "libgstautodetect.dll",
-                "libgstaudioconvert.dll", "libgstaudioresample.dll",
-                "libgstvolume.dll", "libgstlevel.dll")
+# The list itself is the release builder's, shared with the kernel (ReceiverRuntime.cs).
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from farm_release import RECEIVER_RUNTIME_REQUIRED  # noqa: E402
 
 
 def sha(path):
@@ -57,9 +56,7 @@ def audit(receiver, runtime, system_dir, inspect):
     bins = directory_index(runtime / "bin")
     system = directory_index(system_dir)
     root_files = directory_index(receiver.parent)
-    plugins = runtime / "lib/gstreamer-1.0"
-    pending = [receiver, runtime / "libexec/gstreamer-1.0/gst-plugin-scanner.exe"]
-    pending += [plugins / name for name in PLUGIN_FILES]
+    pending = [receiver] + [runtime / name for name in RECEIVER_RUNTIME_REQUIRED]
     seen = set()
     while pending:
         path = pending.pop()

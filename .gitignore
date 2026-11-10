@@ -17,8 +17,6 @@
 /analysis/references/
 /analysis/site-reference/
 /analysis/hid-captures/
-/analysis/led-hardware-20260923/bushound-free-setup.msi
-/analysis/led-hardware-20260923/install.log
 
 # Generated captures, screenshots, traces, and machine-specific logs.
 /analysis/**/*.bmp

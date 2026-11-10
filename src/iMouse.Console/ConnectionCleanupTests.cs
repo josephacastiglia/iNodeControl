@@ -14,7 +14,7 @@ internal static class ConnectionCleanupTests
 
     private sealed class Transport : HttpMessageHandler
     {
-        internal readonly TestHandler Model = new() { OwnershipSupported = true, StrictRelease = true };
+        internal readonly TestHandler Model = new() { StrictRelease = true };
         internal readonly ConcurrentQueue<(string Fun, JsonElement Data)> Requests = new();
         internal Func<string, JsonElement, CancellationToken, Task>? Before;
         internal int Disposals;
@@ -46,7 +46,7 @@ internal static class ConnectionCleanupTests
     internal static async Task RunAsync(Action<string, bool> check)
     {
         var wire = new Transport();
-        var api = new ApiClient("http://localhost:9923", wire, ownership: true);
+        var api = new ApiClient("http://localhost:9923", wire);
         await Hold(api);
         var releaseArrived = Signal(); var answer = Signal();
         wire.Before = async (fun, _, ct) => { if (fun == "/input/release") { releaseArrived.TrySetResult(); await answer.Task.WaitAsync(ct); } };
@@ -64,7 +64,7 @@ internal static class ConnectionCleanupTests
         check("Closing never sends Stop, Resume or a replayed press", !wire.Requests.Any(r => r.Fun is "/input/stop" or "/input/resume") && wire.Releases == 1);
 
         var two = new Transport();
-        await using var pair = new ApiClient("http://localhost:9923", two, ownership: true);
+        await using var pair = new ApiClient("http://localhost:9923", two);
         await Hold(pair, "TEST:01,TEST:04");
         var tokens = two.Model.ActiveLeases.ToDictionary(p => p.Key, p => p.Value);
         two.Model.ReleaseFailed.Add("TEST:04");
@@ -83,7 +83,7 @@ internal static class ConnectionCleanupTests
             tokens[r.Data.GetProperty("id").GetString()!] == r.Data.GetProperty("token").GetString()));
 
         var retiring = new Transport();
-        await using var releasing = new ApiClient("http://localhost:9923", retiring, ownership: true);
+        await using var releasing = new ApiClient("http://localhost:9923", retiring);
         await Hold(releasing);
         var releaseStarted = Signal(); var finishRelease = Signal();
         retiring.Before = async (fun, _, ct) => { if (fun == "/input/release") { releaseStarted.TrySetResult(); await finishRelease.Task.WaitAsync(ct); } };
@@ -98,12 +98,12 @@ internal static class ConnectionCleanupTests
         check("An in-flight scope release is counted once by shutdown", (await retireClose).Confirmed && retiring.Releases == 1);
 
         var lost = new Transport();
-        await using var unknown = new ApiClient("http://localhost:9923", lost, ownership: true);
+        await using var unknown = new ApiClient("http://localhost:9923", lost);
         await Hold(unknown); lost.Model.ReleaseTimeout = true;
         check("A missing release answer is never reported as confirmed shutdown", !(await unknown.CloseAsync()).Confirmed && lost.Disposals == 1);
 
         var retry = new Transport();
-        await using var retryApi = new ApiClient("http://localhost:9923", retry, ownership: true);
+        await using var retryApi = new ApiClient("http://localhost:9923", retry);
         await Hold(retryApi); string retryToken = retry.Model.ActiveLeases["TEST:01"];
         retry.Model.ReleaseTimeout = true;
         await retryApi.ReleaseInputAsync("TEST:01");
@@ -120,14 +120,14 @@ internal static class ConnectionCleanupTests
             && !retry.Model.ActiveLeases.ContainsKey("TEST:01"));
 
         var retryClose = new Transport();
-        await using var closeRetryApi = new ApiClient("http://localhost:9923", retryClose, ownership: true);
+        await using var closeRetryApi = new ApiClient("http://localhost:9923", retryClose);
         await Hold(closeRetryApi); retryClose.Model.ReleaseTimeout = true;
         await closeRetryApi.ReleaseInputAsync("TEST:01"); retryClose.Model.ReleaseTimeout = false;
         check("Normal close can finish an earlier unconfirmed scope release", (await closeRetryApi.CloseAsync()).Confirmed
             && retryClose.Releases == 2 && !retryClose.Model.ActiveLeases.ContainsKey("TEST:01"));
 
         var shared = new Transport();
-        await using var sharedApi = new ApiClient("http://localhost:9923", shared, ownership: true);
+        await using var sharedApi = new ApiClient("http://localhost:9923", shared);
         await Hold(sharedApi); var sharedArrived = Signal(); var sharedAnswer = Signal();
         shared.Before = async (fun, _, ct) => { if (fun == "/input/release") { sharedArrived.TrySetResult(); await sharedAnswer.Task.WaitAsync(ct); } };
         var firstRelease = sharedApi.ReleaseInputAsync("TEST:01"); await Wait(sharedArrived.Task);
@@ -142,7 +142,7 @@ internal static class ConnectionCleanupTests
             && shared.Requests.Count(r => r.Fun == "/input/acquire") == 1 && !shared.Requests.Any(r => r.Fun == "/mouse/move"));
 
         var overtaken = new Transport();
-        await using var overtakenApi = new ApiClient("http://localhost:9923", overtaken, ownership: true);
+        await using var overtakenApi = new ApiClient("http://localhost:9923", overtaken);
         await Hold(overtakenApi); var olderArrived = Signal(); var olderAnswer = Signal();
         overtaken.Before = async (fun, _, ct) =>
         {
@@ -157,7 +157,7 @@ internal static class ConnectionCleanupTests
             && overtaken.Releases == 1 && lateNotices == 0);
 
         var replaced = new Transport();
-        await using var replacedApi = new ApiClient("http://localhost:9923", replaced, ownership: true);
+        await using var replacedApi = new ApiClient("http://localhost:9923", replaced);
         await Hold(replacedApi); string oldToken = replaced.Model.ActiveLeases["TEST:01"];
         var oldArrived = Signal(); var allowOldAnswer = Signal();
         replaced.Before = async (fun, data, ct) =>
@@ -179,7 +179,7 @@ internal static class ConnectionCleanupTests
         check("An obsolete release never restores or clears the newer lease state", (await replacedApi.CloseAsync()).Confirmed && replaced.Releases == 2);
 
         var group = new Transport();
-        await using var groupApi = new ApiClient("http://localhost:9923", group, ownership: true);
+        await using var groupApi = new ApiClient("http://localhost:9923", group);
         await Hold(groupApi, "TEST:01,TEST:04");
         var groupArrived = Signal(); var groupAnswer = Signal(); int groupCount = 0;
         group.Before = async (fun, _, ct) =>
@@ -200,18 +200,18 @@ internal static class ConnectionCleanupTests
             && !group.Requests.Any(r => r.Fun is "/input/stop" or "/input/resume" or "/mouse/up"));
 
         var stopped = new Transport();
-        await using var afterStop = new ApiClient("http://localhost:9923", stopped, ownership: true);
+        await using var afterStop = new ApiClient("http://localhost:9923", stopped);
         await Hold(afterStop); await afterStop.StopInputAsync("TEST:01");
         check("A completed Stop supplies shutdown confirmation without a stale release", (await afterStop.CloseAsync()).Confirmed && stopped.Releases == 0);
 
         var failed = new Transport();
-        await using var failedRelease = new ApiClient("http://localhost:9923", failed, ownership: true);
+        await using var failedRelease = new ApiClient("http://localhost:9923", failed);
         await Hold(failedRelease); failed.Model.ReleaseFailed.Add("TEST:01");
         await failedRelease.ReleaseInputAsync("TEST:01");
         check("A failed prior release is retained even after its token was detached", !(await failedRelease.CloseAsync()).Confirmed);
 
         var stalled = new Transport(); var unblock = Signal(); var entered = Signal(); var left = Signal();
-        await using var bounded = new ApiClient("http://localhost:9923", stalled, ownership: true, closeTimeout: TimeSpan.FromMilliseconds(120));
+        await using var bounded = new ApiClient("http://localhost:9923", stalled, closeTimeout: TimeSpan.FromMilliseconds(120));
         await Hold(bounded);
         stalled.Before = async (fun, _, _) =>
         {
@@ -245,12 +245,12 @@ internal static class ConnectionCleanupTests
 
         var tracker = new ConnectionCleanup();
         var tracked = new Transport(); var continueTracked = Signal(); var trackedArrived = Signal();
-        var trackedApi = new ApiClient("http://localhost:9923", tracked, ownership: true);
+        var trackedApi = new ApiClient("http://localhost:9923", tracked);
         await Hold(trackedApi);
         tracked.Before = async (fun, _, ct) => { if (fun == "/input/release") { trackedArrived.TrySetResult(); await continueTracked.Task.WaitAsync(ct); } };
         tracker.Retire(trackedApi); tracker.Retire(trackedApi);
         var drain = tracker.DrainAsync(); await Wait(trackedArrived.Task);
-        var second = new Transport(); var secondApi = new ApiClient("http://localhost:9923", second, ownership: true);
+        var second = new Transport(); var secondApi = new ApiClient("http://localhost:9923", second);
         await Hold(secondApi); second.Model.ReleaseTimeout = true; tracker.Retire(secondApi);
         check("Reconnect cleanup stays pending until the previous connection answers", !drain.IsCompleted && tracked.Disposals == 0);
         continueTracked.SetResult(); var records = await drain;

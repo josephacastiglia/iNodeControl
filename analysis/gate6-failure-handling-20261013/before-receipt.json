@@ -1,8 +1,0 @@
-{
-  "base_commit": "b1069f3",
-  "test_exit_code": 1,
-  "sha256": {
-    "run_gate6.py": "00ff4dc05164987ba4bc6cc832051083d5fa5fa8cd4bc98b14f21e2eee4a2bbc",
-    "test_run_gate6.py": "9256e4a446f8a859850ccbdf7862dbb0d87c9c533e8ce9fb4dac70cb8a0aaeeb"
-  }
-}

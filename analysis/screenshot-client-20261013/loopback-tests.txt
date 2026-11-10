@@ -1,3 +1,0 @@
-PASS real HTTP body timeout after 8009 ms; caller not cancelled
-PASS real HTTP 503 clears evidence and returns to the caller
-PASS real chunked HTTP image preserves all bytes across buffer growth and recovers after timeout/503

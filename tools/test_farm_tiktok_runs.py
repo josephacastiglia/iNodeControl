@@ -6,8 +6,8 @@ import threading
 import time
 import unittest
 import uuid
-from unittest.mock import patch
 
+from farm_draft_runs import ACCOUNT   # This machine's private default account.
 from farm_draft_workflow import atomic_json
 from farm_drafts import DraftConflict
 from farm_jobs import FarmJobs
@@ -71,7 +71,7 @@ class TikTokServiceTests(unittest.TestCase, TikTokVideoFixture):
         self.assertIn('TikTok draft creation is disabled', capability['reason'])
         with self.assertRaises(KernelSafetyError): service.start(dict(self.spec, store_id=service.store_id))
         enabled = self.service.capability()
-        self.assertTrue(enabled['enabled']); self.assertIn("@xs.halle.xo's TikTok profile", enabled['reason'])
+        self.assertTrue(enabled['enabled']); self.assertIn("@" + ACCOUNT + "'s TikTok profile", enabled['reason'])
 
     def test_supported_content_is_one_short_ascii_line_and_never_truncated(self):
         self.assertTrue(self.service.eligibility(self.draft['id'], 1)['eligible'])
@@ -162,12 +162,9 @@ class TikTokHttpTests(unittest.TestCase, TikTokVideoFixture):
         capability = self.request('/health')[1]['tiktokCreation']
         self.assertFalse(capability['enabled']); self.assertEqual('tt_video', capability['format'])
         spec = dict(id=str(uuid.uuid4()), draft_id=str(uuid.uuid4()), revision=1, store_id=capability['storeId'])
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel')):
+        with http_jobs.no_kernel():
             self.assertEqual(409, self.request('/api/farm/tiktok-creations', spec)[0])
         self.assertEqual(404, self.request('/api/farm/tiktok-creations/'+spec['id'])[0])
-        formats = {row['id']: row for row in self.request('/api/farm/capabilities')[1]['formats']}
-        self.assertEqual('/api/farm/tiktok-creations', formats['tt_video']['candidateEndpoint'])
-        self.assertEqual('integrated_offline', formats['tt_video']['level'])
 
     def test_configured_route_is_local_only_store_bound_and_never_replays(self):
         videos, draft = self.stage(self.root/'tiktok-fixture')
@@ -175,7 +172,7 @@ class TikTokHttpTests(unittest.TestCase, TikTokVideoFixture):
         self.runtime.tiktok_creations = service; self.runtime.execution_mode = 'live'
         spec = dict(id=str(uuid.uuid4()), draft_id=draft['id'], revision=1, store_id=service.store_id)
         route = '/api/farm/tiktok-creations'
-        with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('Default rack must not be used')):
+        with http_jobs.no_kernel():
             self.assertEqual(403, self.request(route, spec, origin='https://untrusted.invalid')[0])
             eligible = route+'/eligibility?draft_id='+draft['id']+'&revision=1'
             self.assertTrue(self.request(eligible)[1]['eligibility']['eligible'])

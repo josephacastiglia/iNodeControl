@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from farm_carousel_inspection import InspectionStopped  # noqa: E402
+from farm_owned_capture import InspectionStopped  # noqa: E402
 import farm_creation_layout as layout  # noqa: E402
 import farm_small_layout as small  # noqa: E402
 from farm_start_screen import StartScreen  # noqa: E402
@@ -148,7 +148,7 @@ class SavedCaptureTests(unittest.TestCase):
                 self.assertTrue(layout.small_screen(raw)); self.assertTrue(layout.home(txt, raw))
                 self.assertEqual(small.home_page(txt, raw), page)
         raw, txt = self.load('survey-1/08-tt-home')
-        self.assertEqual({a: layout.app_target(txt, a, raw) for a in small.SUPPORTED},
+        self.assertEqual({a: layout.app_target(txt, a, raw) for a in ('Instagram', 'TikTok', 'X', 'YouTube')},
                          {'Instagram': (76, 175), 'TikTok': (192, 175), 'X': (308, 175), 'YouTube': (424, 175)})
         s = StartScreen.__new__(StartScreen)
         for name in ('start-3/02-home', 'survey-1/04-ig-open', 'survey-1/12-yt-open', 'cal-1/02-spotlight'):

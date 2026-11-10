@@ -144,5 +144,37 @@ class TextTests(unittest.TestCase):
         self.assertIsNotNone(fp.delete_target(self.text(('Delete 1 Video', 180, 900, 140)), 1))
 
 
+class RackLockTests(unittest.TestCase):
+    """main() with the phone work replaced: what it holds while that work runs."""
+    def run_main(self, hold):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        events = self.events = []
+        def work(args, refs, folder):
+            events.append(('phone', args.mode, args.board, folder.is_dir())); return dict(planId='plan-1')
+        with tempfile.TemporaryDirectory() as directory, patch.object(fp, 'OUTPUT', Path(directory)), \
+                patch.object(fp, 'references', return_value=[]), patch.object(fp, 'run_plan', work), patch.object(fp, 'run_move', work), \
+                patch('farm_rack_lock.hold_rack', hold), patch('builtins.print'):
+            return fp.main(['plan', '--board', 'c214']), list(Path(directory).iterdir())
+
+    def test_the_phone_work_runs_inside_the_rack_lock(self):
+        from contextlib import contextmanager
+        @contextmanager
+        def hold(holder):
+            self.events.append(('lock', holder))
+            try: yield
+            finally: self.events.append(('unlock', holder))
+        code, _ = self.run_main(hold)
+        self.assertEqual(0, code)
+        self.assertEqual([('lock', 'farm_photos_cleanup plan C214'), ('phone', 'plan', 'C214', True),
+                          ('unlock', 'farm_photos_cleanup plan C214')], self.events)
+
+    def test_a_busy_rack_sends_nothing_and_leaves_no_run_folder(self):
+        def busy(holder): raise SystemExit('The rack is busy. Nothing was sent to a phone; run it again later.')
+        with self.assertRaisesRegex(SystemExit, 'Nothing was sent to a phone'): self.run_main(busy)
+        self.assertEqual([], self.events)
+
+
 if __name__ == '__main__':
     unittest.main()

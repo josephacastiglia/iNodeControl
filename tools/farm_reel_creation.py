@@ -7,7 +7,7 @@ review. Nothing taps Share, publishes or messages. The verifier is a separate
 owned run that starts from the exact profile and finishes on Reels drafts.
 """
 import hashlib
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import require, safari_blank, leftover_downloads, leftover_player
 from farm_draft_creation import CreationWorkflow
 from farm_draft_transport import allowed_tap
@@ -48,8 +48,8 @@ class ReelCreationWorkflow(CreationWorkflow):
     MEDIA_ROLES = ('reel_picker',)           # The app's own media picker opens here.
     PASTE_ROLES = ('reel_caption_pasted',)   # Directly after this run's own Paste.
     PROMPT_LIMIT = 2                         # Prompts answered per observation, at most.
-    # Proven (family, method) pairs from a validation window; none yet, so every
-    # recognized prompt stops the run with its one-time request.
+    # (family, method) pairs proven on this lane's phone; none here, so every recognized
+    # prompt stops the run with its one-time request. A lane that has proven one names it.
     validated_prompt_methods = None
     _prompt_role = None                      # Screen whose context an answered prompt keeps.
 

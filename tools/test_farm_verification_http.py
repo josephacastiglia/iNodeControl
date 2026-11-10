@@ -10,6 +10,7 @@ class VerificationHttpTests(unittest.TestCase):
     setUp = FarmHttpJobsTests.setUp
     tearDown = FarmHttpJobsTests.tearDown
     request = FarmHttpJobsTests.request
+    outside_connections = FarmHttpJobsTests.outside_connections
 
     def test_review_roundtrip_recovery_origin_policy_and_no_phone(self):
         from test_farm_draft_verification import VerificationTests
@@ -17,8 +18,9 @@ class VerificationHttpTests(unittest.TestCase):
         self.runtime.verifications = fixture.reviews
         with patch('imouse_farm_server.engine.IMouseKernel', side_effect=AssertionError('Review must never contact a phone')):
             status, response = self.request('/api/farm/draft-verifications', fixture.spec)
-            self.assertEqual(200, status, response); self.assertTrue(response['simulated'])
+            self.assertEqual(200, status, response); self.assertNotIn('simulated', response)
             report = response['verification']
+            self.assertNotEqual('phone', report['assessment']['source'])   # Fixture observations, and the report says so.
             self.assertEqual('consistent_visual_evidence', report['assessment']['status'])
             self.assertFalse(report['assessment']['savedDraftVerified'])
             self.assertEqual(report, self.request('/api/farm/draft-verifications', fixture.spec)[1]['verification'])
@@ -35,7 +37,7 @@ class VerificationHttpTests(unittest.TestCase):
             self.assertEqual(400, self.request('/api/farm/draft-verifications', {**fixture.spec, 'device_id': 'C241'})[0])
             self.assertEqual(409, self.request('/api/farm/draft-verifications', {**fixture.spec, 'account': 'another.account'})[0])
             self.assertEqual(404, self.request('/api/farm/draft-verifications/' + str(uuid.uuid4()))[0])
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        self.assertEqual([], self.outside_connections())
 
 
 del FarmHttpJobsTests

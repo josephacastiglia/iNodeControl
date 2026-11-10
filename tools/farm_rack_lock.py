@@ -8,8 +8,8 @@ released when its holder exits or dies; a side file names the holder for whoever
     with rack_run_lock('slot runner phone 18 pkg reel18-abc123'):
         ...   # the whole run: backend start, start screen, creation, verifier, stop
 
-The tools a person or a lane runs by hand (run_window, verify_window, relaunch_check, farm_start_screen) use
-hold_rack: it waits for the rack, says so once, and exits clearly before any phone input when the wait runs out
+The tools a person or a lane runs by hand (run_window, verify_window, relaunch_check, farm_start_screen,
+farm_fleet_survey, farm_photos_cleanup) use hold_rack: it waits for the rack, says so once, and exits clearly before any phone input when the wait runs out
 (IMOUSE_RACK_WAIT seconds, default 30 min). A tool started by the holder joins its hold: the holder's token goes
 to its child processes through the environment, and only counts while that holder still holds the lock. A hold
 ends with its tool; a backend run its tool started keeps going if the tool is killed, and its own phone lease

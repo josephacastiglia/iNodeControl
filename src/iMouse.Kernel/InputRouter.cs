@@ -9,12 +9,14 @@ public sealed record PointerCalibration(string Pid, int Width, int Height, doubl
 
 /// <summary>
 /// What fn_key=Home sends. Vendor is the sequence observed from IMService on 14 Sep (Tab, then
-/// Left GUI+H) and stays the default. Its Tab is typed into a focused text field. The other two
-/// are for a phone comparison only, chosen once at kernel startup with --home-sequence; each
-/// still goes through the per-phone lease, the board's write gate, Stop and key release.
+/// Left GUI+H) and stays the default. Its Tab is typed into a focused text field. CommandH sends
+/// Left GUI+H alone; it is chosen once at kernel startup with --home-sequence and still goes
+/// through the per-phone lease, the board's write gate, Stop and key release.
 /// </summary>
-public enum HomeSequence { Vendor, CommandH, CommandWake, FnH }
-public enum NavigationSequence { Vendor, DirectFn }
+public enum HomeSequence { Vendor, CommandH }
+
+/// <summary>What the start-up release did for one enabled board.</summary>
+public sealed record StartupRelease(string Pid, bool Sent, string Message);
 
 public sealed class InputRouter : IDisposable
 {
@@ -22,10 +24,16 @@ public sealed class InputRouter : IDisposable
     private readonly Dictionary<string, PointerCalibration> _calibrations;
     private readonly HashSet<string> _allowed;
     private readonly Func<string,IHidTransport> _open;
-    private readonly int _preciseDelayMs;
-    private readonly ConcurrentDictionary<string, HidReplyTelemetry> _replyTelemetry = new(StringComparer.OrdinalIgnoreCase);
-    private readonly HashSet<string> _replyBoards;
-    private readonly string? _absoluteProbeBoard;
+    /// <summary>Delay per one-unit step of a plain pointer move, on a high-resolution timer.
+    /// Task.Delay(3) rounds near 15 ms on Windows. Reset, held-button movement and settle keep their own timing.</summary>
+    internal const int MoveDelayMs = 7;
+    /// <summary>How long one command may run before the kernel cancels it, releases the board and
+    /// answers. The console waits longer than this for the answer (ApiClient.CommandTimeout).</summary>
+    public static readonly TimeSpan CommandDeadline = TimeSpan.FromSeconds(8);
+    // One typed character: keys up, wait, key down, hold (longer for space), keys up, wait.
+    private const int KeyLeadMs = 45, KeyHoldMs = 60, SpaceHoldMs = 90, KeyGapMs = 35;
+    /// <summary>The time the waits alone take to type this text; the HID writes come on top.</summary>
+    internal static int TypingMs(string text) => text.Sum(ch => KeyLeadMs + (ch == ' ' ? SpaceHoldMs : KeyHoldMs) + KeyGapMs);
     private readonly ConcurrentDictionary<string, BoardState> _states = new(StringComparer.OrdinalIgnoreCase);
     private sealed class BoardState
     {
@@ -38,32 +46,17 @@ public sealed class InputRouter : IDisposable
         public byte Buttons;
         public CancellationToken Cancellation;
         public Exception? ReleaseFailure;
-        // This mode never presses a button. Re-sending an A0 on cleanup would
-        // repeat a possibly failed move; do not retry or fall back to A1.
-        public bool AbsoluteProbe;
     }
     public InputRouter(DeviceStore store, IEnumerable<string> allowed, IEnumerable<PointerCalibration> calibrations,
-        Func<string,IHidTransport>? open=null, int preciseDelayMs=0, IEnumerable<string>? replyBoards=null,
-        string? absoluteProbeBoard=null)
+        Func<string,IHidTransport>? open=null)
     {
         _store = store;
-        _preciseDelayMs = preciseDelayMs;
         _allowed = new(allowed, StringComparer.OrdinalIgnoreCase);
-        _replyBoards = new(replyBoards ?? [], StringComparer.OrdinalIgnoreCase);
-        if (!_replyBoards.IsSubsetOf(_allowed)) throw new ArgumentException("Reply diagnostics require an enabled input board.");
-        _absoluteProbeBoard = absoluteProbeBoard;
-        if (absoluteProbeBoard is not null && (_allowed.Count != 1 || !_allowed.Contains(absoluteProbeBoard)
-            || !_replyBoards.Contains(absoluteProbeBoard)))
-            throw new ArgumentException("Absolute probe needs one enabled board with reply observation.");
-        _open = open ?? (pid => new HidConnection(pid, _replyBoards.Contains(pid)
-            ? _replyTelemetry.GetOrAdd(pid, _ => new()) : null));
+        _open = open ?? (pid => new HidConnection(pid));
         _calibrations = calibrations.ToDictionary(c => c.Pid, StringComparer.OrdinalIgnoreCase);
         if (_calibrations.Values.Any(c => !ValidAxis(c.Width,c.OriginX,c.PixelsPerUnitX)
             || !ValidAxis(c.Height,c.OriginY,c.PixelsPerUnitY)))
             throw new ArgumentException("Invalid pointer calibration.");
-        if (absoluteProbeBoard is not null && (!_calibrations.TryGetValue(absoluteProbeBoard, out var probe)
-            || probe.Width > 65535 || probe.Height > 65535))
-            throw new ArgumentException("Absolute probe needs a recorded image no larger than 65535 pixels per axis.");
     }
     private static bool ValidAxis(int size,double origin,double pixelsPerUnit)
     {
@@ -75,58 +68,32 @@ public sealed class InputRouter : IDisposable
         return double.IsFinite(first) && double.IsFinite(last)
             && first > int.MinValue && last < int.MaxValue;
     }
-    public InputRouter(DeviceStore store, IEnumerable<string> allowed, IEnumerable<PointerCalibration> calibrations,
-        Func<string,IHidTransport>? open, bool preciseMovement)
-        : this(store, allowed, calibrations, open, preciseMovement ? 8 : 0) {}
     public bool Enabled(string pid) => _allowed.Contains(pid) && _calibrations.ContainsKey(pid);
     public string[] Allowed => _allowed.ToArray();
     internal object DiagnosticConfiguration() => new
     {
-        precise_movement_delay_ms = _preciseDelayMs,
-        hid_reply_boards = _replyBoards.OrderBy(p => p).ToArray(),
-        absolute_probe_board = _absoluteProbeBoard,
-        navigation_sequence = NavigationSequenceName,
+        precise_movement_delay_ms = MoveDelayMs,
         calibrations = _calibrations.Values.Select(c => new { pid = c.Pid, enabled = Enabled(c.Pid),
             width = c.Width, height = c.Height, origin_x = c.OriginX, origin_y = c.OriginY,
             pixels_per_unit_x = c.PixelsPerUnitX, pixels_per_unit_y = c.PixelsPerUnitY }).ToArray()
     };
-    internal object ReplyDiagnostics() => new
-    {
-        mode = "observation only; no write waits or action acknowledgement",
-        boards = _replyBoards.OrderBy(p => p).Select(pid => new
-        { pid, observation = _replyTelemetry.TryGetValue(pid, out var state) ? state.Snapshot() : new HidReplyTelemetry().Snapshot() }).ToArray()
-    };
     public HomeSequence Home { get; init; } = HomeSequence.Vendor;
-    public NavigationSequence Navigation { get; init; } = NavigationSequence.Vendor;
-    public string HomeSequenceName => Home switch { HomeSequence.CommandH => "command-h", HomeSequence.CommandWake => "command-wake", HomeSequence.FnH => "fn-h", _ => "vendor" };
-    public string NavigationSequenceName => Navigation == NavigationSequence.DirectFn ? "direct-fn" : "vendor";
+    public string HomeSequenceName => Home == HomeSequence.CommandH ? "command-h" : "vendor";
     internal object ControlCompatibility() => new
     {
         home_sequence = HomeSequenceName, home_sends_tab = Home == HomeSequence.Vendor,
-        navigation_sequence = NavigationSequenceName, navigation_sends_tab = Navigation == NavigationSequence.Vendor,
         app_switcher = "Fn+Up; uses the phone's Full Keyboard Access assignment. FKA-Off support is not established.",
-        absolute_probe_board = _absoluteProbeBoard,
-        absolute_probe = _absoluteProbeBoard is null ? "off" : "experimental moves only; hardware support unverified; clicks, drags and keys refused",
         phone_setting_detection = false
     };
     public static HomeSequence ParseHomeSequence(string value) => value switch
     {
         "vendor" => HomeSequence.Vendor,
         "command-h" => HomeSequence.CommandH,
-        "command-wake" => HomeSequence.CommandWake,
-        "fn-h" => HomeSequence.FnH,
-        _ => throw new ArgumentException($"--home-sequence must be vendor, command-h, command-wake or fn-h, not \"{value}\"."),
-    };
-    public static NavigationSequence ParseNavigationSequence(string value) => value switch
-    {
-        "vendor" => NavigationSequence.Vendor,
-        "direct-fn" => NavigationSequence.DirectFn,
-        _ => throw new ArgumentException("--navigation-sequence must be vendor or direct-fn.")
+        _ => throw new ArgumentException($"--home-sequence must be vendor or command-h, not \"{value}\"."),
     };
 
     public async Task<object> DispatchAsync(string fun, JsonElement data, CancellationToken cancellation = default)
     {
-        if (fun == "/device/usb/restart") return new { code = 41, message = "Restart packet has not been decoded." };
         var ids = Text(data, "id").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToArray();
         if (ids.Length == 0) return new { code = 36, message = "id required" };
         var phones = _store.All();
@@ -139,23 +106,51 @@ public sealed class InputRouter : IDisposable
         foreach (var phone in targets) ValidateCommand(fun, data, phone.pid);
         var results = await Task.WhenAll(targets.Select(async phone =>
         {
-            try { await ExecuteAsync(phone.pid, fun, data, cancellation); return new { id = phone.deviceid, code = 0, message = "ok" }; }
-            catch (OperationCanceledException) { return new { id = phone.deviceid, code = 499, message = "Input cancelled" }; }
-            catch (Exception ex) { return new { id = phone.deviceid, code = 33, message = ex.Message }; }
+            // reason is for InputSessions, which turns it into the phone's stop_reason. "cancelled" means
+            // the caller's token fired. A cancellation without it is the transport's own write limit.
+            try { await ExecuteAsync(phone.pid, fun, data, cancellation); return new { id = phone.deviceid, code = 0, message = "ok", reason = "" }; }
+            catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { return new { id = phone.deviceid, code = 499, message = "Input cancelled", reason = "cancelled" }; }
+            catch (OperationCanceledException) { return new { id = phone.deviceid, code = 499, message = "Input cancelled", reason = StopReasons.BoardUnavailable }; }
+            catch (Exception ex) { return new { id = phone.deviceid, code = 33, message = ex.Message, reason = BoardFailure(ex) ? StopReasons.BoardUnavailable : StopReasons.CommandFailed }; }
         }));
         return new { code = results.All(r => r.code == 0) ? 0 : 33, results };
     }
+
+    // The board is not enumerated (HidConnection throws KeyNotFoundException), cannot be opened, or a write to it failed.
+    private static bool BoardFailure(Exception ex) => ex is KeyNotFoundException or System.ComponentModel.Win32Exception
+        or IOException or UnauthorizedAccessException or ObjectDisposedException;
 
     public void ValidateCommand(string fun, JsonElement data, string pid)
     {
         if (fun is not ("/mouse/reset" or "/mouse/move" or "/mouse/down" or "/mouse/up" or "/mouse/click" or "/mouse/swipe" or "/key/sendkey"))
             throw new ArgumentException("Unsupported input operation.");
         if (!Enabled(pid)) throw new ArgumentException("Target needs an enabled, calibrated board.");
-        if (string.Equals(pid, _absoluteProbeBoard, StringComparison.OrdinalIgnoreCase)
-            && fun is not ("/mouse/reset" or "/mouse/move"))
-            throw new ArgumentException("Absolute probe permits pointer moves and reset only. No click, drag or keyboard input was sent.");
         Validate(fun, data, _calibrations[pid]);
     }
+
+    /// <summary>
+    /// Start-up only, before any command is accepted. A kernel that is killed cannot lift a button
+    /// or key it was holding, and the board goes on holding it. This sends every enabled board the
+    /// same button-up and key-up reports every release sends, once. Each board is opened, written
+    /// and closed again, so the first command opens it exactly as before. A board that is absent or
+    /// fails is reported and holds up nothing: the kernel starts with boards missing today.
+    /// </summary>
+    public Task<StartupRelease[]> ReleaseAtStartupAsync() =>
+        Task.WhenAll(_allowed.Where(Enabled).OrderBy(pid => pid, StringComparer.Ordinal).Select(async pid =>
+        {
+            var state = _states.GetOrAdd(pid, _ => new());
+            await state.Gate.WaitAsync();
+            try
+            {
+                state.Connection = _open(pid);
+                try { await ReleaseReportsAsync(state); }
+                finally { state.Connection.Dispose(); state.Connection = null; }
+                return new StartupRelease(pid, true, "button and keys released");
+            }
+            catch (KeyNotFoundException) { return new StartupRelease(pid, false, "board not present; nothing sent"); }
+            catch (Exception ex) { return new StartupRelease(pid, false, "release not confirmed: " + ex.Message); }
+            finally { state.Gate.Release(); }
+        }));
 
     // Cleanup deliberately ignores the cancelled command token. Transport writes have
     // their own two-second deadline. Never open an otherwise unused board just to stop it.
@@ -180,7 +175,7 @@ public sealed class InputRouter : IDisposable
     private static async Task ReleaseReportsAsync(BoardState state)
     {
         Exception? failure = null;
-        try { if (!state.AbsoluteProbe) await state.Connection!.SendAsync(HidProtocol.Mouse(), CancellationToken.None); }
+        try { await state.Connection!.SendAsync(HidProtocol.Mouse(), CancellationToken.None); }
         catch (Exception ex) { failure = ex; }
         try { await state.Connection!.SendAsync(HidProtocol.Key(), CancellationToken.None); }
         catch (Exception ex) { failure ??= ex; }
@@ -203,8 +198,14 @@ public sealed class InputRouter : IDisposable
             string key = Text(data,"fn_key"), value = Text(data,"key");
             if (key.Length > 0 && key is not ("Home" or "Enter" or "ENTER" or "Backspace" or "BACKSPACE" or "Tab" or "Escape" or "Up" or "Down" or "Left" or "Right" or "AppSwitch" or "ControlBar"))
                 throw new ArgumentException("Function key has not been verified: " + key);
-            if (value.Length > 1000 || (key.Length == 0 && value.Length == 0)) throw new ArgumentException("Provide a key or 1–1000 ASCII characters.");
+            if (key.Length == 0 && value.Length == 0) throw new ArgumentException("Provide a key or ASCII text to type.");
             foreach (char ch in value) _ = HidProtocol.Ascii(ch);
+            // Text that cannot finish inside the command deadline would be typed part-way, cut and
+            // the phone stopped. Refuse it whole. Text near the limit can still be cut under load,
+            // so clients send short chunks (the console sends 12 characters).
+            if (TypingMs(value) > CommandDeadline.TotalMilliseconds)
+                throw new ArgumentException($"Text of {value.Length} characters takes {TypingMs(value) / 1000.0:0.#} s to type, longer than the {CommandDeadline.TotalSeconds:0} s one command may run. "
+                    + $"Nothing was typed. Send at most {(int)(CommandDeadline.TotalMilliseconds / (KeyLeadMs + KeyHoldMs + KeyGapMs))} characters at a time, fewer with spaces.");
         }
     }
     private static void ValidatePoint(JsonElement d, string x, string y, PointerCalibration c)
@@ -220,18 +221,8 @@ public sealed class InputRouter : IDisposable
         {
             state.Cancellation = cancellation;
             cancellation.ThrowIfCancellationRequested();
-            state.AbsoluteProbe = string.Equals(pid, _absoluteProbeBoard, StringComparison.OrdinalIgnoreCase);
             state.Connection ??= _open(pid);
             var calibration = _calibrations[pid];
-            if (string.Equals(pid, _absoluteProbeBoard, StringComparison.OrdinalIgnoreCase))
-            {
-                int x = fun == "/mouse/reset" ? 0 : Number(data, "x");
-                int y = fun == "/mouse/reset" ? 0 : Number(data, "y");
-                await Send(state, HidProtocol.AbsoluteProbe(x, y, calibration.Width, calibration.Height));
-                // No wait for an uncorrelated reply and no automatic retry/fallback.
-                state.Known = false;
-                return;
-            }
             switch (fun)
             {
                 case "/mouse/reset": await ResetAsync(state); break;
@@ -259,18 +250,13 @@ public sealed class InputRouter : IDisposable
                     string fn=Text(data,"fn_key");
                     if (fn=="Home")
                     {
-                        if (Home == HomeSequence.FnH) await FnStroke(state,11);
-                        else
-                        {
-                            if (Home == HomeSequence.Vendor) await Stroke(state,0,43);          // Tab: typed into a focused text field
-                            else if (Home == HomeSequence.CommandWake) await Stroke(state,8,0); // Left GUI alone: types nothing
-                            await Stroke(state,8,11);                                            // Left GUI+H
-                        }
+                        if (Home == HomeSequence.Vendor) await Stroke(state,0,43);   // Tab: typed into a focused text field
+                        await Stroke(state,8,11);                                    // Left GUI+H
                         state.Known=false;
                     }
                     else if(fn is "AppSwitch" or "ControlBar")
                     {
-                        if (Navigation == NavigationSequence.Vendor) await Stroke(state,0,43);
+                        await Stroke(state,0,43);
                         await FnStroke(state,(byte)(fn=="AppSwitch"?0x52:6));
                         state.Known=false;
                     }
@@ -321,10 +307,10 @@ public sealed class InputRouter : IDisposable
     }
     private static async Task Stroke(BoardState state,byte modifier,byte usage)
     {
-        await Send(state,HidProtocol.Key()); await Task.Delay(45, state.Cancellation);
-        try { await Send(state,HidProtocol.Key(modifier,usage)); await Task.Delay(usage == 44 ? 90 : 60, state.Cancellation); }
+        await Send(state,HidProtocol.Key()); await Task.Delay(KeyLeadMs, state.Cancellation);
+        try { await Send(state,HidProtocol.Key(modifier,usage)); await Task.Delay(usage == 44 ? SpaceHoldMs : KeyHoldMs, state.Cancellation); }
         finally { await Send(state,HidProtocol.Key()); }
-        await Task.Delay(35, state.Cancellation);
+        await Task.Delay(KeyGapMs, state.Cancellation);
     }
     private static async Task FnStroke(BoardState state, byte usage)
     {
@@ -355,10 +341,9 @@ public sealed class InputRouter : IDisposable
         int ty=Math.Max(0,(int)Math.Round((y-c.OriginY)/c.PixelsPerUnitY));
         int sx=state.X,sy=state.Y,steps=Math.Max(Math.Abs(tx-sx),Math.Abs(ty-sy));
         // Keep one-unit reports and calibration. Task.Delay(3) rounds near 15 ms on
-        // this Windows host; opt-in precise pacing fixes that without skipping reset.
+        // this Windows host; the high-resolution timer fixes that without skipping reset.
         // Held-button movement keeps its established gesture timing.
-        using var pacing = _preciseDelayMs > 0 && duration == 0 && state.Buttons == 0 && steps > 0
-            ? new MovementDelay() : null;
+        using var pacing = duration == 0 && state.Buttons == 0 && steps > 0 ? new MovementDelay() : null;
         int sendMs = 0, delayMs = 0;
         for(int i=1;i<=steps;i++)
         {
@@ -370,12 +355,13 @@ public sealed class InputRouter : IDisposable
             var delayAt = Stopwatch.StartNew();
             int delay = Math.Max(3,duration/Math.Max(1,steps));
             if (pacing is null) await Task.Delay(delay, state.Cancellation);
-            else await pacing.WaitAsync(_preciseDelayMs, state.Cancellation);
+            else await pacing.WaitAsync(MoveDelayMs, state.Cancellation);
             delayMs += (int)delayAt.ElapsedMilliseconds;
         }
         return (resetMs, steps, sendMs, delayMs);
     }
-    private static string Text(JsonElement d,string key) => d.ValueKind==JsonValueKind.Object && d.TryGetProperty(key,out var v)?v.ToString():"";
+    /// <summary>A request field as text: "" when the data is not an object, the field is absent or it is null.</summary>
+    internal static string Text(JsonElement d,string key) => d.ValueKind==JsonValueKind.Object && d.TryGetProperty(key,out var v)?v.ToString():"";
     private static (int X1,int Y1,int X2,int Y2) SwipePoints(JsonElement data,PointerCalibration c)
     {
         string direction=Text(data,"direction").ToLowerInvariant();

@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 import uuid
 from unittest.mock import patch
 
@@ -34,7 +34,7 @@ import farm_paths  # noqa: E402  (the archive beside the main folder, also from 
 OCR17 = farm_paths.ARCHIVE/'20261019-farm-reel-offline/ocr-20261017'
 P1 = farm_paths.ARCHIVE/'20261019-farm-new-draft/backend/draft-creations/b8c155e2-1670-4f60-a090-aeff921e162e'
 PRIVATE = all(p.exists() for p in (R17/'normalized-test.mp4', OCR17, P1/'record.json'))
-ACCOUNT = 'xs.halle.xo'
+ACCOUNT = farm_paths.account_label() or 'fixture.account'   # Private data: the account on the retained frames.
 CAPTION = 'IMOUSE-VlDEO-DRAFT-TEST-20261017'   # The retained frames' exact OCR form.
 URL = 'http://192.168.50.2:9917/t/fixture-token/'
 VIDEO_BYTES = 78953

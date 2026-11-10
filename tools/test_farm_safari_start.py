@@ -6,7 +6,7 @@ import unittest
 
 import farm_paths
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import safari_address_empty, safari_blank, safari_start_page
 
 
@@ -144,7 +144,7 @@ A12_FRAMES = farm_paths.ARCHIVE/'20261105-fleet-a12'
 class CloseAppInstagramCardTests(unittest.TestCase):
     """A12 (5 Nov): Instagram's front card shows a Reel editor, its name cut off at the right edge."""
     def setUp(self):
-        sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'analysis/farm-multiphone-20261020'))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'rack'))
 
     def load(self, name): return json.loads((A12_FRAMES/name).read_text(encoding='utf-8'))
 
@@ -251,7 +251,7 @@ class StartScreenReelEditorTests(unittest.TestCase):
         details = text(('New reel', 210, 77, 289, 92), ('Add a caption...', 22, 495, 142, 511), ('Save draft', 90, 991, 171, 1004),
                        ('Share', 347, 991, 392, 1004))   # 22 Oct, slot 18.
         # The editor is read twice after the back tap: it must have settled (A18, 4 Nov).
-        start, taps = self.screen(text(*self.EDITOR), text(*self.EDITOR), text(*self.DIALOG), text(*self.PICKER), text(('xs.halle.xo', 150, 90, 260, 110)))
+        start, taps = self.screen(text(*self.EDITOR), text(*self.EDITOR), text(*self.DIALOG), text(*self.PICKER), text((farm_paths.account_label() or 'demo.account', 150, 90, 260, 110)))
         self.assertTrue(start.reel_details(details) and not start.reel_details(text(*self.EDITOR)))
         start.close_new_reel(b'before', details)
         self.assertEqual(['details-back', 'close-reel-editor', 'start-over-1', 'close-new-reel'], [p for p, _ in taps])
@@ -1062,7 +1062,7 @@ class DiscardLeftoverTests(unittest.TestCase):
     def test_only_the_exact_dialogs_give_a_discard_target(self):
         import sys
         from pathlib import Path
-        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'analysis' / 'farm-multiphone-20261020'))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'rack'))
         from discard_leftover import discard_target
         tiktok = [('Discard', 66, 166, 134, 186), ('Save draft', 66, 224, 159, 243)]   # 23 Oct, slot 20.
         self.assertEqual((100, 176), discard_target(text(*tiktok), 'tiktok')[0])
@@ -1220,7 +1220,7 @@ class CloseAppEvidenceTests(unittest.TestCase):
     def module(self):
         import sys
         from pathlib import Path
-        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'analysis' / 'farm-multiphone-20261020'))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'rack'))
         import close_app
         return close_app
 

@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 from PIL import Image
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 import farm_fleet_survey as F
 
 
@@ -157,6 +157,59 @@ class Guards(unittest.TestCase):
     def test_not_fleet_board_refused(self):
         for board in ('724E', 'C24C', 'C214', 'CD51', 'F215'):
             self.assertNotIn(board, F.FLEET)
+
+
+class RackLockTests(unittest.TestCase):
+    """main() for one fleet phone, with the kernel, the start screen and the survey itself replaced."""
+    DEVICE = '02:00:00:00:00:10'   # A fixture device ID.
+
+    def run_main(self, hold):
+        import sys
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        events = self.events = []
+        def request(base, method, path, **options):
+            events.append(('read', path))
+            if path == '/kernel/status': return dict(receivers=[dict(deviceid=self.DEVICE, live=True, name='iMouse2-10')])
+            return dict(list=[dict(pid='374C', deviceid=self.DEVICE)])
+        class Kernel:
+            def acquire(self, boards, lease_ms): events.append(('acquire', tuple(boards))); return {boards[0]: 'token'}
+            def release(self, tokens): events.append(('release',))
+        class Screen:
+            def __init__(self, folder, phone=None):
+                events.append(('screen', phone.board)); self.kernel, self.tokens = Kernel(), None
+                self.record = dict(observations=[], commands=[], state='started')
+            def save(self): pass
+        class Survey:
+            def __init__(self, screen, label, model):
+                self.model = model; self.record = screen.record
+                self.record.update(apps={}, prompts=[], homes=0, pages={}, model=model)
+            def look(self, role, app=None): events.append(('input', 'look')); return b'frame', {}
+            def run(self, apps): events.append(('input', 'survey')); self.record['state'] = 'done'
+        with tempfile.TemporaryDirectory() as directory, patch.object(F, 'ROOT', Path(directory) / 'output' / 'fleet'), \
+                patch.object(F, 'HERE', Path(directory) / 'tools'), patch('identify_phone.request', request), \
+                patch('farm_start_screen.StartScreen', Screen), patch.object(F, 'FleetSurvey', Survey), \
+                patch.object(F, 'contact_sheet', return_value=None), patch('farm_rack_lock.hold_rack', hold), \
+                patch.object(sys, 'argv', ['farm_fleet_survey.py', '374C', '--run', 'run-1']), patch('builtins.print'):
+            F.main()
+
+    def test_the_lease_and_every_input_sit_inside_the_rack_lock(self):
+        from contextlib import contextmanager
+        @contextmanager
+        def hold(holder):
+            self.events.append(('lock', holder))
+            try: yield
+            finally: self.events.append(('unlock', holder))
+        self.run_main(hold)
+        acting = [event for event in self.events if event[0] != 'read']
+        self.assertEqual([('lock', 'farm_fleet_survey A10 run-1'), ('screen', '374C'), ('acquire', ('374C',)), ('input', 'look'),
+                          ('input', 'survey'), ('release',), ('unlock', 'farm_fleet_survey A10 run-1')], acting)
+
+    def test_a_busy_rack_takes_no_lease_and_sends_nothing(self):
+        def busy(holder): raise SystemExit('The rack is busy. Nothing was sent to a phone; run it again later.')
+        with self.assertRaisesRegex(SystemExit, 'Nothing was sent to a phone'): self.run_main(busy)
+        self.assertEqual([], [event for event in self.events if event[0] != 'read'])   # Only the two read-only status reads.
 
 
 if __name__ == '__main__':

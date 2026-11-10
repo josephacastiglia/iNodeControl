@@ -6,7 +6,6 @@ in Photos or the app. Run only for an explicitly selected phone on the LAN.
 """
 from __future__ import annotations
 
-import argparse
 from datetime import datetime, timezone
 import hashlib
 import html
@@ -14,7 +13,6 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import io
 import ipaddress
 import json
-from pathlib import Path
 import secrets
 import socket
 import sys
@@ -349,49 +347,3 @@ class TransferHandler(BaseHTTPRequestHandler):
             self.reply(200, s.package.page(s.prefix, s.nonce, int(route[6:])), 'text/html; charset=utf-8', head, route)
         else:
             self.reply(404, b'Unknown media.', 'text/plain', head)
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--package', type=Path, required=True)
-    parser.add_argument('--bind', required=True)
-    parser.add_argument('--allow-client', required=True)
-    parser.add_argument('--port', type=int, default=9916)
-    parser.add_argument('--minutes', type=int, default=20)
-    parser.add_argument('--board', default='C24C', help="The package's phone board (image and video drafts).")
-    parser.add_argument('--ready-file', type=Path, required=True)
-    parser.add_argument('--events-file', type=Path, required=True)
-    parser.add_argument('--stop-file', type=Path, required=True)
-    args = parser.parse_args()
-    if args.ready_file.exists() or args.events_file.exists() or args.stop_file.exists():
-        parser.error('Use new state paths; existing evidence is never overwritten.')
-    raw = args.package.read_bytes()
-    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
-        video = 'video.mp4' in archive.namelist()
-    if video:
-        from farm_video import VideoTransferPackage
-        package = VideoTransferPackage(raw, args.board)
-    else:
-        package = TransferPackage(raw, args.board)
-    with args.events_file.open('x', encoding='utf-8') as events:
-        def event(value):
-            events.write(json.dumps(value) + '\n')
-            events.flush()
-        with MediaTransferServer(package, args.bind, args.port, args.allow_client, minutes=args.minutes, on_event=event) as server:
-            state = {'url': server.url, 'draftId': package.draft_id, 'revision': package.revision,
-                     'packageSha256': package.package_hash, 'expiresAfterSeconds': args.minutes * 60,
-                     'state': 'serving', 'savedInPhotos': False, 'savedInInstagram': False, 'published': False}
-            args.ready_file.write_text(json.dumps(state, indent=2), encoding='utf-8')
-            print(json.dumps({'state': 'serving', 'readyFile': str(args.ready_file), 'port': server.server_port}), flush=True)
-            try:
-                while server.clock() < server.deadline and not args.stop_file.exists():
-                    server.handle_request()
-            finally:
-                state.pop('url')
-                state.update(state='closed', imagesServed=sorted(server.served_images))
-                args.ready_file.write_text(json.dumps(state, indent=2), encoding='utf-8')
-                print(json.dumps(state), flush=True)
-
-
-if __name__ == '__main__':
-    main()

@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 from farm_observations import WindowsOcr, classify
-from farm_screen_layout import NEXT_BOX, NEXT_LABEL_BOX, NEXT_LABEL_SCALE, NEXT_CROP_SIZE, editor_controls, next_crop, next_label, picker_controls, picker_stability
+from farm_screen_layout import NEXT_BOX, NEXT_LABEL_BOX, NEXT_LABEL_SCALE, NEXT_CROP_SIZE, editor_controls, next_crop, next_label, save_prompt, picker_controls, picker_stability
 
 
 def encoded(image):
@@ -181,7 +181,7 @@ class LayoutTests(unittest.TestCase):
             calls.append((Path(path).read_bytes(),size,Path(control_path).read_bytes()))
             detail=crop_proof(frame,copy.deepcopy(text))['controlOcr']['next']
             return {**copy.deepcopy(text),'control':{k:v for k,v in detail.items() if k in ('width','height','imageSha256','lines')}}
-        with patch.object(WindowsOcr,'_read_file',side_effect=read): result=WindowsOcr().read(frame)
+        with patch.object(WindowsOcr,'_read_file',side_effect=read): result=WindowsOcr(next_control=True).read(frame)
         self.assertEqual(1,len(calls)); self.assertEqual((500,1080),calls[0][1])
         self.assertEqual(next_crop(frame)[0],calls[0][2])
         self.assertEqual(text['lines'],result['lines'])
@@ -194,13 +194,13 @@ class LayoutTests(unittest.TestCase):
                 row=next(r for r in text['lines'] if r['text']=='ext')
                 row['text']=row['words'][0]['text']='Next'
             with patch.object(WindowsOcr,'_read_file',return_value={**text,'control':{'lines':[]}}) as read:
-                result=WindowsOcr().read(frame)
+                result=WindowsOcr(next_control=True).read(frame)
             self.assertEqual(1,read.call_count); self.assertNotIn('controlOcr',result)
 
     def test_ambiguous_crop_does_not_retry_or_invent_a_label(self):
         frame,text=screen('editor'); bad=crop_proof(frame,copy.deepcopy(text),'ext')['controlOcr']['next']
         with patch.object(WindowsOcr,'_read_file',return_value={**copy.deepcopy(text),'control':bad}) as read:
-            result=WindowsOcr().read(frame)
+            result=WindowsOcr(next_control=True).read(frame)
         self.assertEqual(1,read.call_count); self.assertIsNone(next_label(frame,result))
         self.assertEqual('draft_editor',classify(result,self.expected,frame)['screen'])
 
@@ -218,6 +218,13 @@ class LayoutTests(unittest.TestCase):
         frame,text=screen('editor'); crop_proof(frame,text)
         text['controlOcr']['next'].update(bounds=list(NEXT_BOX),width=246,height=156)
         self.assertIsNone(next_label(frame,text))
+
+    def test_save_prompt_needs_complete_geometry_and_no_duplicate_buttons(self):
+        from test_farm_observations import ocr_lines
+        text=ocr_lines(('If you go back now, your edits will be discarded.',793),('Discard',858),('Save draft',925),('Cancel',1002))
+        self.assertTrue(save_prompt(text))
+        missing=copy.deepcopy(text); missing['lines'].pop(0); self.assertFalse(save_prompt(missing))
+        text['lines'].append(copy.deepcopy(text['lines'][2])); self.assertFalse(save_prompt(text))
 
 
 if __name__=='__main__': unittest.main()

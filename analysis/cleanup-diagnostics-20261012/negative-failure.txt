@@ -1,6 +1,0 @@
-System.Exception: Failed: The actual window export reads its isolated receipt after disconnect
-   at IMouse2.SelfTests.<>c__DisplayClass0_0.<RunAsync>g__Check|0(String name, Boolean ok) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\cleanup-diagnostics-20261012\negative-profile\SelfTests.cs:line 350
-   at IMouse2.MainWindow.CheckCleanupDiagnosticWindowAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\cleanup-diagnostics-20261012\negative-profile\CleanupDiagnosticsTests.cs:line 148
-   at IMouse2.MainWindow.CheckCleanupDiagnosticWindowAsync(Action`2 check) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\cleanup-diagnostics-20261012\negative-profile\CleanupDiagnosticsTests.cs:line 153
-   at IMouse2.SelfTests.RunAsync() in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\cleanup-diagnostics-20261012\negative-profile\SelfTests.cs:line 619
-   at IMouse2.App.OnStartup(StartupEventArgs e) in C:\Users\joey_\Desktop\Claude Code\iMouseXP-2.0-combined-candidate\analysis\cleanup-diagnostics-20261012\negative-profile\App.xaml.cs:line 188

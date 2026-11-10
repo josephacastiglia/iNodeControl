@@ -1,8 +1,0 @@
-{
-  "isolatedOnly": true,
-  "sha256": "57f6f78c20a8831bc8ef740c05565b2c0bf0b2c09594df6911755404568580f4",
-  "source": "analysis/farm-recovery-live-20261019/NativeFaultProbe",
-  "productChanged": false,
-  "path": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-combined-candidate\\output\\farm-recovery-fault-stop-probe-20261019\\NativeFaultProbe.exe",
-  "managedSha256": "ba5fc632d8e3fa16f471f89124a90ad447c195b8066f9a4818cd305052b0394c"
-}

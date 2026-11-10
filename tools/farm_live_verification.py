@@ -1,20 +1,14 @@
-"""Read-only C24C candidate verification. This tool cannot acquire or send input.
+"""The read-only kernel client and the checks that the running kernel is the prepared one.
 
-Requires the prepared kernel's exact hash and one-phone configuration. It uses
-the production observer/OCR and retains real frame evidence without claiming
-that a draft was saved. No receiver, console or service is started here.
+ReadOnlyKernel cannot acquire or send input: it reads the kernel's status, the device list, this
+window's own screenshot and the input status, and refuses everything else before any transport.
+validate_runtime and idle are the identity and ownership checks every draft workflow starts with.
 """
-import argparse
-import hashlib
 import json
-from pathlib import Path
 import re
-import time
 import urllib.parse
 import urllib.request
-import uuid
 
-from farm_observations import ObservationStore
 from imouse_social_automation import IMouseKernel, KernelSafetyError
 from farm_phone_identity import LEGACY_C24C, PhoneIdentityError, own_receiver
 
@@ -100,87 +94,3 @@ def validate_runtime(status, devices, expected_hash, expected_uid, phone=LEGACY_
 def idle(state):
     return (isinstance(state, dict) and type(state.get('generation')) is int
             and all(state.get(key) is False for key in ('owned', 'active', 'stopped', 'releasing', 'release_failed')))
-
-
-def capture_once(kernel, store, expectation, expected_hash, expected_uid):
-    before = kernel.kernel_status()
-    identity = validate_runtime(before, kernel.devices(), expected_hash, expected_uid, kernel.phone)
-    original_input = kernel.input_status().get(kernel.phone.device_id)
-    if not idle(original_input):
-        raise KernelSafetyError(f'{kernel.phone.board} is not idle/free; verification will not take control.')
-    request_id = str(uuid.uuid4())
-    value = store.capture(dict(id=request_id, device_id=kernel.phone.board, **expectation), kernel)
-    after = kernel.kernel_status()
-    if validate_runtime(after, kernel.devices(), expected_hash, expected_uid, kernel.phone) != identity:
-        raise KernelSafetyError('Kernel changed during verification.')
-    final_input = kernel.input_status().get(kernel.phone.device_id)
-    if not idle(final_input) or original_input != final_input:
-        raise KernelSafetyError('Phone input state changed during verification; no conclusion is accepted.')
-    # Extra identity reads consume the age budget too.
-    value = store.get(request_id)
-    accepted = (value.get('state') == 'observed' and value.get('freshness') == 'recent'
-                and value.get('stable') is True and value.get('inputIdle') is True
-                and value.get('frameEvidence', {}).get('pairedMetadata') is True)
-    return dict(observation=value, metadataUsableAtCheck=accepted, kernelProcess=identity,
-                inputBefore=original_input, inputAfter=final_input, automaticInputAllowed=False,
-                savedDraftVerified=False)
-
-
-def check_retained_expiry(store, observation_id, wait=time.sleep):
-    """No new screenshot: real elapsed time must expire the original observation."""
-    wait(1.7)
-    result = store.get(observation_id)
-    return dict(observationId=observation_id, expired=result.get('freshness') != 'recent',
-                freshness=result.get('freshness'), frameEvidence=result.get('frameEvidence'),
-                recaptured=False)
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--preparation', type=Path, required=True)
-    parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--account', required=True)
-    parser.add_argument('--caption', default='')
-    parser.add_argument('--samples', type=int, choices=(1, 2, 3), default=3)
-    args = parser.parse_args()
-    preparation = json.loads(args.preparation.read_text(encoding='utf-8-sig'))
-    expected_hash = preparation['validation']['build']['sha256']
-    kernel_path = Path(preparation['kernel']).with_suffix('.dll')
-    if hashlib.sha256(kernel_path.read_bytes()).hexdigest() != expected_hash:
-        raise KernelSafetyError('Prepared kernel bytes changed.')
-    args.out.mkdir(parents=True, exist_ok=False)
-    kernel = ReadOnlyKernel(preparation['arguments'][0], phone=LEGACY_C24C)   # This one-off check predates the rack.
-    store = ObservationStore(args.out / 'observations.sqlite3')
-    report = dict(source='phone', samples=[], automaticInputAllowed=False, savedDraftVerified=False,
-                  phoneInput=False, publishing=False, messaging=False, kernelSha256=expected_hash)
-    try:
-        for index in range(args.samples):
-            sample = capture_once(kernel, store, dict(platform='instagram', account=args.account, caption=args.caption),
-                                  expected_hash, preparation['expectedUid'])
-            report['samples'].append(sample)
-            value = sample['observation']
-            if value.get('state') == 'observed':
-                _, frame = store.evidence(value['id'])
-                (args.out / f'frame-{index + 1}.png').write_bytes(frame)
-            if not sample['metadataUsableAtCheck']:
-                report['reason'] = value.get('frameEvidence', {}).get('reason', value.get('reason'))
-                break
-        if report['samples']:
-            report['retainedExpiry'] = check_retained_expiry(store, report['samples'][-1]['observation']['id'])
-        sequences = [s['observation'].get('frameEvidence', {}).get('sequence') for s in report['samples']]
-        report['metadataCheckPassed'] = (len(report['samples']) == args.samples
-            and all(s['metadataUsableAtCheck'] for s in report['samples'])
-            and all(type(s) is int for s in sequences) and len(set(sequences)) == len(sequences)
-            and report.get('retainedExpiry', {}).get('expired') is True)
-        report['meaning'] = 'Receiver-delivery evidence only, not iOS source time, app identity or a saved draft.'
-    except Exception as exc:
-        report.update(metadataCheckPassed=False, error=str(exc))
-    finally:
-        (args.out / 'report.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
-    print(json.dumps({'passed': report['metadataCheckPassed'], 'samples': len(report['samples']),
-                      'reason': report.get('error', report.get('reason')), 'folder': str(args.out)}))
-    return 0 if report['metadataCheckPassed'] else 2
-
-
-if __name__ == '__main__':
-    raise SystemExit(main())

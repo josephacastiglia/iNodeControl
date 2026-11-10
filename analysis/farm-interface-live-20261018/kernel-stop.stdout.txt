@@ -1,3 +1,0 @@
-22:37:49.840 stopping PID 47612 (iMouse2.Kernel.exe); children: 47908 conhost.exe, 10984 uxplay.exe
-22:37:50.148 processes attached to PID 47612's console: 49608 powershell.exe, 47612 iMouse2.Kernel.exe
-22:37:50.734 PID 47612 exited; children still running: none

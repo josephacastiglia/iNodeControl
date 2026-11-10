@@ -5,6 +5,7 @@ import io
 import json
 from pathlib import Path
 import sqlite3
+import subprocess
 import tempfile
 import unittest
 import uuid
@@ -213,6 +214,81 @@ class ObservationTests(unittest.TestCase):
         with self.assertRaises(KeyError): self.store.frame(self.request['id'])
         count = len(self.kernel.reads); self.store.capture(self.request, self.kernel)
         self.assertEqual(count, len(self.kernel.reads)); self.assertEqual(50, len(self.store.list()))
+
+    def test_capture_rejects_missing_or_wrong_ocr_frame_digest(self):
+        for digest in (None, 'f' * 64):
+            with self.subTest(digest=digest), patch.object(self.store.ocr, 'read', return_value={**PROFILE, 'frameSha256': digest}):
+                result = self.store.capture({**self.request, 'id': str(uuid.uuid4())}, self.kernel)
+            self.assertEqual('failed', result['state']); self.assertIn('exact captured frame', result['reason'])
+            self.assertFalse(result['automaticInputAllowed']); self.assertNotIn('text', result)
+
+
+class OcrBridgeTests(unittest.TestCase):
+    """WindowsOcr against a stand-in for its PowerShell process: what it submits and what it refuses."""
+    def setUp(self):
+        stream = io.BytesIO(); Image.new('RGB', (500, 1080), 'black').save(stream, format='BMP')
+        self.raw = stream.getvalue()
+
+    def test_real_ocr_bridge_checks_the_image_digest_returned_by_its_process(self):
+        def reply(arguments, **kwargs):
+            image_path = Path(arguments[arguments.index('-ImagePath')+1])
+            digest = hashlib.sha256(image_path.read_bytes()).hexdigest()
+            control_path = Path(arguments[arguments.index('-ControlImagePath')+1])
+            value = dict(width=500, height=1080, lines=[], imageSha256=digest,
+                         control=dict(width=129, height=117, lines=[], imageSha256=hashlib.sha256(control_path.read_bytes()).hexdigest()))
+            return subprocess.CompletedProcess(arguments, 0, json.dumps(value).encode(), b'')
+        with patch('farm_observations.subprocess.run', side_effect=reply) as process: value = WindowsOcr(next_control=True).read(self.raw)
+        self.assertEqual(1, process.call_count)
+        self.assertEqual(hashlib.sha256(self.raw).hexdigest(), value['frameSha256'])
+        wrong = dict(width=500, height=1080, lines=[], imageSha256='f'*64)
+        with patch('farm_observations.subprocess.run', return_value=subprocess.CompletedProcess([], 0, json.dumps(wrong).encode(), b'')):
+            with self.assertRaisesRegex(ValueError, 'exact submitted image'): WindowsOcr(next_control=True).read(self.raw)
+
+    def test_ocr_batch_rejects_missing_swapped_or_mis_sized_control(self):
+        def reply(arguments, **kwargs):
+            image = Path(arguments[arguments.index('-ImagePath')+1]).read_bytes()
+            control = Path(arguments[arguments.index('-ControlImagePath')+1]).read_bytes()
+            detail = dict(width=129, height=117, lines=[], imageSha256=hashlib.sha256(control).hexdigest())
+            if problem == 'swapped': detail['imageSha256'] = hashlib.sha256(image).hexdigest()
+            elif problem == 'dimensions': detail['width'] = 128
+            elif problem == 'missing': detail = None
+            value = dict(width=500, height=1080, lines=[], imageSha256=hashlib.sha256(image).hexdigest(), control=detail)
+            return subprocess.CompletedProcess(arguments, 0, json.dumps(value).encode(), b'')
+        for problem in ('missing', 'swapped', 'dimensions'):
+            with self.subTest(problem=problem), patch('farm_observations.subprocess.run', side_effect=reply):
+                with self.assertRaises(ValueError): WindowsOcr(next_control=True).read(self.raw)
+
+    def test_only_a_reader_that_asks_has_the_next_label_crop_read(self):
+        seen = []
+        def reply(arguments, **kwargs):
+            seen.append(list(arguments))
+            image = Path(arguments[arguments.index('-ImagePath')+1]).read_bytes()
+            value = dict(width=500, height=1080, lines=[], imageSha256=hashlib.sha256(image).hexdigest())
+            if '-ControlImagePath' in arguments:
+                control = Path(arguments[arguments.index('-ControlImagePath')+1]).read_bytes()
+                value['control'] = dict(width=129, height=117, lines=[], imageSha256=hashlib.sha256(control).hexdigest())
+            return subprocess.CompletedProcess(arguments, 0, json.dumps(value).encode(), b'')
+        with patch('farm_observations.subprocess.run', side_effect=reply):
+            plain = WindowsOcr().read(self.raw)
+            asked = WindowsOcr(next_control=True).read(self.raw)
+        self.assertNotIn('-ControlImagePath', seen[0]); self.assertIn('-ControlImagePath', seen[1])
+        self.assertEqual(seen[0][:seen[0].index('-ImagePath')], seen[1][:seen[1].index('-ImagePath')])   # The same reader otherwise.
+        self.assertEqual(plain, asked); self.assertNotIn('control', plain); self.assertNotIn('controlOcr', plain)
+        self.assertFalse(WindowsOcr().next_control)
+
+    def test_the_carousel_readers_ask_and_the_lanes_do_not(self):
+        import inspect
+        import farm_creation_runs
+        import farm_reel_runs
+        import imouse_farm_server as server
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = server.FarmBackendRuntime(Path(directory) / 'farm.db', Path(directory) / 'stage')
+            self.addCleanup(runtime.transfers.close)
+            self.assertTrue(runtime.observations.ocr.next_control)
+            self.assertIs(runtime.observations, runtime.verifications.observations)
+        self.assertIn("WindowsOcr(next_control=True)", inspect.getsource(farm_creation_runs.CreationRuns.execute))
+        self.assertNotIn('WindowsOcr', inspect.getsource(farm_reel_runs.ReelCreationRuns.execute))   # The six lanes read once.
+        self.assertFalse(ObservationStore(Path(self.enterContext(tempfile.TemporaryDirectory())) / 'o.db').ocr.next_control)
 
 
 if __name__ == '__main__': unittest.main()

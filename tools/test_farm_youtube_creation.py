@@ -34,7 +34,7 @@ from farm_draft_workflow import references
 from farm_observations import ObservationStore
 from farm_reel_test_media import font
 from farm_youtube_creation import YouTubeCreationWorkflow, YouTubeVerification, COMMITTING, PENDING, guard
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from imouse_social_automation import LIVE_TEST_DEVICE_ID, DEFAULT_SAFE_TEST_DEVICE
 import test_farm_youtube_layout as layout
 

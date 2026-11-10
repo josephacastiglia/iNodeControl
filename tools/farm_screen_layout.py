@@ -219,3 +219,13 @@ def picker_stability(before, before_text, after, after_text):
             'mostChangedControlPixels': control_changed,
             'ignoredRegions': [[0, 0, 500, 65], [0, 112, 500, 612]],
             'reason': 'Picker controls/grid agree; preview motion was excluded.' if stable else 'Controls or library pixels changed; inspect again.'}
+
+
+def save_prompt(text):
+    """Observed English exit sheet; generic Save text behind an overlay is not enough."""
+    def at(label, lo, hi):
+        return sum(1 for line in text.get('lines', []) if line.get('words')
+                   and line['text'].casefold() == label
+                   and lo <= min(w['y'] for w in line['words']) / text['height'] <= hi) == 1
+    return (at('if you go back now, your edits will be discarded.', .71, .78)
+            and at('discard', .78, .83) and at('save draft', .83, .89) and at('cancel', .90, .96))

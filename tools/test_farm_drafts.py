@@ -15,7 +15,9 @@ from email.message import Message
 from PIL import Image
 
 from farm_drafts import CarouselDrafts, DraftConflict, MAX_IMAGE_BYTES, prepare_image
+import farm_test_network as network
 import imouse_farm_server as server
+import imouse_social_automation as engine
 
 
 def picture(color, size=(100, 125), fmt="PNG"):
@@ -215,8 +217,8 @@ class CarouselRouteTests(unittest.TestCase):
         return code, json.loads(response)
 
     def test_draft_routes_are_local_even_in_live_mode(self):
-        self.runtime.execution_mode = "live"
-        with patch.object(self.runtime, "get_kernel", side_effect=AssertionError("No kernel needed")):
+        self.runtime.execution_mode = "live"; outside = network.mark()
+        with patch.object(engine.IMouseKernel, "__init__", side_effect=AssertionError("No kernel needed")) as kernel:
             draft_id = str(uuid.uuid4())
             self.assertEqual(200, self.request("/api/farm/drafts", {"id": draft_id})[0])
             revision = 1
@@ -228,7 +230,7 @@ class CarouselRouteTests(unittest.TestCase):
             self.assertFalse(result["published"])
             self.assertFalse(result["savedInInstagram"])
             self.assertEqual(1, len(self.request("/api/farm/drafts")[1]["drafts"]))
-        self.assertEqual([], self.runtime.mock_kernel.commands_dispatched)
+        kernel.assert_not_called(); self.assertEqual([], network.since(outside))
 
     def test_conflict_status_and_unknown_id(self):
         draft_id = str(uuid.uuid4())

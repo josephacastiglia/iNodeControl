@@ -1,9 +1,0 @@
-{
-  "created_at_utc": "2026-10-14T23:25:15.662027+00:00",
-  "archive": "C:\\Users\\joey_\\Desktop\\Claude Code\\iMouseXP-2.0-evidence-archive\\20261014-vendor-protocol-rea",
-  "files_verified": 87,
-  "bytes_verified": 26266364,
-  "manifest_sha256": "e3f0ea68a090ef9d57806a1045a5b808c9581f73d8a0e3c2e715297d2b36fa8d",
-  "all_match": true,
-  "scope": "Local copy only, not an off-machine backup. Vendor binaries remain outside git."
-}

@@ -1,4 +1,4 @@
-"""A stand-in for the iMouse 2.0 kernel and its phones, for testing gate4_suite.py offline.
+"""A stand-in for the iMouse 2.0 kernel and its phones, for testing gate4_1000_tap_suite.py offline.
 
 It follows the real kernel where the harness depends on it (src/iMouse.Kernel, InputSessions.cs
 and InputRouter.cs at ee445d7):

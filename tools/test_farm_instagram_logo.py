@@ -2,7 +2,7 @@
 import unittest
 
 import farm_paths
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import CONTROL_VARIANTS, _matches, control
 
 FRAMES = farm_paths.ARCHIVE/'20261105-fleet-a12'

@@ -6,23 +6,18 @@ namespace IMouse2.Kernel;
 
 public sealed class ApiServer : IDisposable
 {
+    /// <summary>The largest request body read. A command for forty phones with their tokens is about 3 KiB.</summary>
+    internal const int MaxBodyBytes = 64 * 1024;
+    private sealed class BodyTooLargeException : Exception;
     private readonly HttpListener _http = new();
     private readonly Action _startListening;
     private readonly DeviceStore _store;
     private readonly string _castName;
     private readonly InputRouter _input;
     private readonly InputSessions _inputSessions;
-    private readonly FrameStore _frames;
     private readonly Dictionary<string,(string Name,FrameStore Frames)> _sessions;
-    // Starts one held receiver by board PID; null when the kernel holds none.
-    public Func<string,object>? AdvertiseReceiver { get; init; }
-    // Restarts or withdraws one receiver by board PID; null when the kernel runs no receivers.
+    // Advertises, restarts or withdraws one receiver by board PID; null when the kernel runs no receivers.
     public ReceiverFleet? Receivers { get; init; }
-    // This kernel's rack label ("" for the single kernel), so a script can confirm it reached the right one.
-    public string Rack { get; init; } = "";
-
-    public ApiServer(string prefix, DeviceStore store, string castName, InputRouter input, FrameStore frames)
-        : this(prefix,store,input,[(castName,frames)]) { }
 
     public ApiServer(string prefix,DeviceStore store,InputRouter input,IEnumerable<(string Name,FrameStore Frames)> sessions)
         : this(prefix,store,input,sessions,null) { }
@@ -35,7 +30,6 @@ public sealed class ApiServer : IDisposable
         _input = input;
         _inputSessions = new(store, input);
         _sessions=sessions.ToDictionary(s=>s.Frames.DeviceId);
-        _frames=_sessions.Values.First().Frames;
         _castName=string.Join(" / ",_sessions.Values.Select(s=>s.Name));
         _http.Prefixes.Add(prefix);
     }
@@ -63,6 +57,11 @@ public sealed class ApiServer : IDisposable
         try
         {
             var req = ctx.Request;
+            if (Refusal(req) is { } refusal)
+            {
+                Write(ctx, Envelope(refusal.Status, new { code = refusal.Status, message = refusal.Message }), refusal.Status);
+                return;
+            }
             var path = req.Url?.AbsolutePath.TrimEnd('/') ?? "";
             if (req.HttpMethod == "GET" && path.EndsWith("/device/get", StringComparison.OrdinalIgnoreCase))
                 Write(ctx, Ok(new { code = 0, list = DeviceList() }));
@@ -110,6 +109,10 @@ public sealed class ApiServer : IDisposable
         catch (ArgumentException ex) { Write(ctx,Ok(new {code=36,message=ex.Message})); }
         catch (InvalidOperationException ex) { Write(ctx,Ok(new {code=409,message=ex.Message})); }
         catch (JsonException ex) { Write(ctx,Ok(new {code=36,message=ex.Message})); }
+        catch (BodyTooLargeException)
+        {
+            try { Write(ctx, Envelope(413, new { code = 413, message = "Request body is larger than " + MaxBodyBytes + " bytes. Nothing was done." }), 413); } catch { }
+        }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
@@ -118,22 +121,14 @@ public sealed class ApiServer : IDisposable
     }
 
     // Kept separate from HTTP so diagnostics can be checked without a listener or HID access.
+    // Every receiver reports its own state; there is no single-receiver summary at the top level.
     internal object KernelStatus()
     {
-        var rec = _frames.Receiver();
-        var delivery = _frames.Delivery;
-        return new { code = 0, rack = Rack, input = "direct-hid", input_protocol = 1, input_leases_required = true,
+        return new { code = 0, input = "direct-hid", input_protocol = 1, input_leases_required = true,
             build_identity = KernelDiagnostics.BuildIdentity, process = KernelDiagnostics.ProcessSnapshot(),
             input_configuration = _input.DiagnosticConfiguration(),
-            hid_replies = _input.ReplyDiagnostics(),
             control_compatibility = _input.ControlCompatibility(),
             allowed = _input.Allowed, home_sequence = _input.HomeSequenceName, receiver = _castName,
-            receiver_state = VideoState(rec), receiver_message = ScreenshotMessage(),
-            receiver_pid = rec.Pid, receiver_restarts = rec.Restarts,
-            frames = delivery.Sequence, live = delivery.Available,
-            frame_delivery = delivery.Status, frame_age_ms = delivery.AgeMs,
-            frame_session = delivery.Session, frame_message = delivery.Message,
-            frame_pipe_connected = delivery.Connected,
             receivers = _sessions.Select(s =>
             {
                 var receiver = s.Value.Frames.Receiver();
@@ -157,7 +152,6 @@ public sealed class ApiServer : IDisposable
         Console.WriteLine(fun);
         return fun switch
         {
-            "/device/set" => new { code = 41, message = "Live binding changes are disabled in the ownership build. Stop the kernel and verify saved phone/board/receiver configuration before restarting." },
             "/input/acquire" => _inputSessions.Acquire(data),
             "/input/status" => _inputSessions.Status(),
             "/input/renew" => _inputSessions.Renew(data),
@@ -165,15 +159,20 @@ public sealed class ApiServer : IDisposable
             "/input/stop" => await _inputSessions.StopAsync(data),
             "/input/release" => await _inputSessions.StopAsync(data, release: true),
             "/mouse/move" or "/mouse/down" or "/mouse/up" or "/mouse/click" or "/mouse/reset" or "/mouse/swipe"
-                or "/key/sendkey" or "/device/usb/restart"
+                or "/key/sendkey"
                 => await _inputSessions.DispatchAsync(fun, data),
-            "/device/airplay/connect" when AdvertiseReceiver is not null && Str(data, "pid") is { Length: > 0 } pid
-                => KernelOptions.BoardId(pid) ? AdvertiseReceiver(pid) : new { code = 36, message = "pid must be a four-digit hexadecimal board ID." },
+            "/device/airplay/connect" => Advertise(data),
             "/device/airplay/restart" or "/device/airplay/withdraw" => await ChangeReceiver(fun, data),
-            "/device/airplay/connect" or "/device/airplay/disconnect"
-                => new { code = 41, message = "Choose or stop " + _castName + " in the iPhone's Screen Mirroring menu." },
             _ => new { code = 41, message = "Not implemented: " + fun }
         };
+    }
+
+    // Starts one held or withdrawn receiver. Mirroring itself is always chosen on the iPhone.
+    private object Advertise(JsonElement data)
+    {
+        if (Receivers is null) return new { code = 41, message = "This kernel runs no receivers." };
+        string pid = InputRouter.Text(data, "pid");
+        return KernelOptions.BoardId(pid) ? Receivers.Advertise(pid) : new { code = 36, message = "pid must be a four-digit hexadecimal board ID." };
     }
 
     // One receiver at a time; a phone whose input another controller leases is refused, so a
@@ -181,37 +180,25 @@ public sealed class ApiServer : IDisposable
     private async Task<object> ChangeReceiver(string fun, JsonElement data)
     {
         if (Receivers is null) return new { code = 41, message = "This kernel runs no receivers." };
-        string pid = Str(data, "pid");
+        string pid = InputRouter.Text(data, "pid");
         if (!KernelOptions.BoardId(pid)) return new { code = 36, message = "pid must be a four-digit hexadecimal board ID." };
         pid = pid.ToUpperInvariant();
-        if (_inputSessions.LeasedByOther(pid, Str(data, "token")))
+        if (_inputSessions.LeasedByOther(pid, InputRouter.Text(data, "token")))
             return new { code = 409, message = "Board " + pid + "'s phone has an active input lease. Wait for it to end, or pass that lease's token. Nothing was stopped." };
-        bool hold = Str(data, "hold") is var h && (h.Equals("true", StringComparison.OrdinalIgnoreCase) || h == "1");
+        bool hold = InputRouter.Text(data, "hold") is var h && (h.Equals("true", StringComparison.OrdinalIgnoreCase) || h == "1");
         return fun == "/device/airplay/withdraw" ? await Receivers.WithdrawAsync(pid) : await Receivers.RestartAsync(pid, hold);
     }
 
-    private object Bind(JsonElement data)
-    {
-        string id = Str(data, "id");
-        string vid = Str(data, "vid");
-        string pid = Str(data, "pid");
-        string uid = Str(data, "uid");
-        if (string.IsNullOrEmpty(id)) return new { code = 36, message = "id required" };
-        _store.Bind(id, vid, pid, uid);
-        return new { code = 0, id };
-    }
+    private static string VideoState(ReceiverInfo rec,FrameStore frames) =>
+        frames.State.Live ? "mirroring" : rec.State is "restarting" ? "restarting" : rec.State is "failed" or "held" ? rec.State : "offline";
 
-    private string VideoState(ReceiverInfo rec,FrameStore? frames=null) =>
-        (frames??_frames).State.Live ? "mirroring" : rec.State is "restarting" or "starting" ? "restarting" : rec.State is "failed" or "held" ? rec.State : "offline";
-
-    private string ScreenshotMessage(FrameStore? frames=null,string? name=null)
+    private static string ScreenshotMessage(FrameStore frames,string name)
     {
-        frames??=_frames;
-        var rec=frames.Receiver();
         if (frames.State.Live) return "";
-        if (rec.State is "restarting" or "starting") return "Receiver restarting";
+        var rec=frames.Receiver();
+        if (rec.State is "restarting") return "Receiver restarting";
         if (rec.State is "failed" or "held") return rec.Message;
-        return "No live frame. Select " + (name??_sessions[frames.DeviceId].Name) + " in iPhone Screen Mirroring.";
+        return "No live frame. Select " + name + " in iPhone Screen Mirroring.";
     }
 
     private List<object> DeviceList()
@@ -257,12 +244,40 @@ public sealed class ApiServer : IDisposable
         }).ToList();
     }
 
-    private static string Str(JsonElement obj, string name) =>
-        obj.ValueKind == JsonValueKind.Object && obj.TryGetProperty(name, out var v) && v.ValueKind != JsonValueKind.Null ? v.ToString() : "";
+    /// <summary>
+    /// What is turned away before anything is read or done. This API has no login: the lease tokens
+    /// only keep controllers out of each other's way. Its one defence against a web page open on
+    /// this PC is that it never serves one. A browser attaches Origin to every cross-site POST,
+    /// whatever its content type, and to every scripted cross-site request; no client here is a web
+    /// page, so a request that carries Origin is refused whatever it asks for. The kernel sends no
+    /// Access-Control header either, so no page is ever told it may send or read. POST bodies must
+    /// be JSON, which a plain HTML form cannot send, and are bounded.
+    /// </summary>
+    private static (int Status, string Message)? Refusal(HttpListenerRequest req)
+    {
+        if (req.Headers["Origin"] is not null)
+            return (403, "Requests from web pages are refused: this API does not accept an Origin header. Nothing was done.");
+        if (req.HttpMethod != "POST") return null;
+        string type = (req.ContentType ?? "").Split(';')[0].Trim();
+        if (!type.Equals("application/json", StringComparison.OrdinalIgnoreCase))
+            return (415, "POST bodies must be sent with Content-Type: application/json. Nothing was done.");
+        if (req.ContentLength64 > MaxBodyBytes)
+            return (413, "Request body is larger than " + MaxBodyBytes + " bytes. Nothing was done.");
+        return null;
+    }
 
     private static JsonElement ReadBody(HttpListenerRequest req)
     {
-        using var reader = new StreamReader(req.InputStream, req.ContentEncoding);
+        // Bounded even when no length was declared (a chunked body): stop one read past the cap.
+        using var bytes = new MemoryStream();
+        byte[] chunk = new byte[4096];
+        for (int read; (read = req.InputStream.Read(chunk, 0, chunk.Length)) > 0;)
+        {
+            if (bytes.Length + read > MaxBodyBytes) throw new BodyTooLargeException();
+            bytes.Write(chunk, 0, read);
+        }
+        bytes.Position = 0;
+        using var reader = new StreamReader(bytes, req.ContentEncoding);
         string text = reader.ReadToEnd();
         if (string.IsNullOrWhiteSpace(text)) return default;
         using var doc = JsonDocument.Parse(text);

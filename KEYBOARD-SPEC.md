@@ -183,8 +183,8 @@ Limits:
 | Bound | Value | Where |
 |---|---|---|
 | Kernel command deadline | 8 s per command; then code 499, lease revoked, Stop latched until Resume | `InputSessions.ExecuteAsync` |
-| Console request timeout | 8 s per HTTP request | `ApiClient` (`HttpClient.Timeout`) |
-| Kernel `key` length | 1–1000 characters | `InputRouter`. Longer, or empty `key` with empty `fn_key`: `Provide a key or 1–1000 ASCII characters.` Anything over roughly 50 characters in one command can outlast the deadline |
+| Console request timeout | 15 s for input commands, so the kernel's 8 s deadline answer always arrives; 8 s for reads | `ApiClient` |
+| Kernel `key` length | Text whose typing schedule fits the 8 s command deadline: at most 57 characters, fewer with spaces | `InputRouter`. Longer text is refused whole and nothing is typed (9 Nov; it used to accept 1,000 characters and cut them at the deadline). Empty `key` with empty `fn_key`: `Provide a key or ASCII text to type.` |
 | Console chunk | 12 characters per `/key/sendkey` (was 32 until 27 Sep; 32 overran the deadline under load) | `ApiClient.TextChunk` |
 | Send text cap (temporary) | 200 characters (17 chunks) | `MainWindow.MaxSendText`, checked in `SendText_Click`. Longer text stays whole in the box, the counter turns red, and nothing is sent. There is no `MaxLength` on the box, so nothing is truncated |
 | UI alphabet | codes 32–126 only | `SendText_Click`. `AcceptsReturn` is false |
@@ -209,13 +209,13 @@ The phone sees a hardware keyboard. Settings the API cannot read still decide wh
 
 Spotlight consumes spaces. Usage 44 is still a space in Notes (`A B Test 123!` on C24C). Do not score spaces in Spotlight.
 
-**Open issue: the first space typed into a note goes missing (cause unresolved).** The controlled comparison is in [analysis/text-chunking-candidate-20260925/REPORT.md](analysis/text-chunking-candidate-20260925/REPORT.md).
+**Open issue: the first space typed into a note goes missing (cause unresolved).** The controlled comparison is in `analysis/text-chunking-candidate-20260925/REPORT.md`.
 
 **Update, 27 Sep 2026: Full Keyboard Access is implicated under the tested conditions.**
 - On C24C, with fresh Notes notes, `Hi there` and identical kernel reports, the first space was lost with FKA On (3 of 3, including after restoring it) and kept with FKA Off (2 of 2).
 - The operator changed the setting by hand, and it was restored to On.
 - The mechanism, other fields and any product change are not established.
-- See [analysis/fka-space-loss-20260927/README.md](analysis/fka-space-loss-20260927/README.md).
+- See `analysis/fka-space-loss-20260927/README.md`.
 
 **Update, 1 Oct 2026: FKA Off through the console's Send text** (candidate-5, built from `b0708e3`, 12-character chunks; C24C only; evidence archive `20261001-fka-off-compat-b0708e3`, outside the repository). This session had no FKA On control.
 - Measured with FKA Off: `Hi there` was exact in 3/3 fresh Notes notes and 3/3 fresh Settings search fields. A 100-character string was exact in every visible character, across 9 chunks. One space sits at a line wrap, where it cannot be seen. App switcher did nothing in 3/3 trials, although every command returned code 0. Control Centre opened 1/1. Home reached Home but appended a character to an open note (a Home Tab into a note was also seen once with FKA On, 27 Sep).
@@ -248,14 +248,18 @@ Also observed: iOS applied a pending autocorrection (`Hithere` → `Hi there`) w
 
 ## Evidence
 
+Paths under `analysis/` that are not links were removed from the tip on 9 Nov 2026; they are in Git
+history at tag `evidence-20261109` (see [docs/EVIDENCE.md](docs/EVIDENCE.md)). Screenshots (`.png`,
+`.bmp`) were never in Git and are in the private evidence archive.
+
 | Run | What was visible | Files |
 |---|---|---|
 | C24C Gate 5, 21 Sep 2026 | Spotlight text exactly `iMouse2026`, then four Backspaces left `iMouse`. No stuck Shift. Isolation held | [analysis/gate5-everyday-controls-20260916/](analysis/gate5-everyday-controls-20260916/) `c24c-typed.png`, `c24c-backspace.png` |
 | C241 Gate 5, same run | Spotlight stayed on placeholder `Search`. Code 0. Not a character-set failure | same folder, `c241-typed.png` |
-| C241 clean typing, 22 Sep 2026 | Spotlight exactly `hello2026`, then four Backspaces left `hello` | [analysis/c241-clean-typing/](analysis/c241-clean-typing/) `c241-02-typed.png`, `c241-03-backspaced.png` |
-| C24C Notes (older kernel) | Spaces, digits, and `!` visible as `A B Test 123!` | [INDEPENDENT-KERNEL.md](INDEPENDENT-KERNEL.md), `analysis/live-notes-space.bmp` |
-| FKA diagnosis | Typing Mode required on C241; Escape cleared the banner | [analysis/c241-typing-diagnostic/findings.json](analysis/c241-typing-diagnostic/findings.json) |
+| C241 clean typing, 22 Sep 2026 | Spotlight exactly `hello2026`, then four Backspaces left `hello` | `analysis/c241-clean-typing/` `c241-02-typed.png`, `c241-03-backspaced.png` |
+| C24C Notes (older kernel) | Spaces, digits, and `!` visible as `A B Test 123!` | `INDEPENDENT-KERNEL.md` at tag `evidence-20261109` (see [docs/EVIDENCE.md](docs/EVIDENCE.md)); the frame `live-notes-space.bmp` was never tracked |
+| FKA diagnosis | Typing Mode required on C241; Escape cleared the banner | `analysis/c241-typing-diagnostic/findings.json` |
 | C24C text chunking, 25 Sep 2026 | `ApiClient.SendTextAsync` against the two-phone kernel. 100 characters in 4 chunks, about 15.4 s each run, every chunk confirmed, no Stop, lease released. Second-paragraph run exactly `Chunk check 2026 on C24C types 100 characters in four chunks of 32 with one lease (no Stop) #78 & OK`. Both new-note first-line runs arrived without the first space (open issue above). These runs used a test harness, not the Send text button |
-| Text-chunking candidate, 25 Sep 2026 | 17 controlled sends on C24C, plus the candidate console's real Send text, Stop input, Resume input and Disconnect. Exact 100 characters through the button only in a note that had already lost its first space. Stop, recovery and release worked | [analysis/text-chunking-candidate-20260925/REPORT.md](analysis/text-chunking-candidate-20260925/REPORT.md), `trials/`, `ui/` | [analysis/c24c-text-chunking-20260925/](analysis/c24c-text-chunking-20260925/) `c24c-01-new-note.png`, `c24c-02-new-note-repeat.png`, `c24c-03-second-paragraph.png` |
+| Text-chunking candidate, 25 Sep 2026 | 17 controlled sends on C24C, plus the candidate console's real Send text, Stop input, Resume input and Disconnect. Exact 100 characters through the button only in a note that had already lost its first space. Stop, recovery and release worked | `analysis/text-chunking-candidate-20260925/REPORT.md`, `trials/`, `ui/` | `analysis/c24c-text-chunking-20260925/` (screenshots only, never in Git) `c24c-01-new-note.png`, `c24c-02-new-note-repeat.png`, `c24c-03-second-paragraph.png` |
 
 Those captures do not include a live Enter newline, a live punctuation string on both phones, or a recorded Settings screenshot of English (US) / Smart Punctuation / Auto-Capitalization. Those remain open Gate 5 checks. This file only closes the documentation requirement.

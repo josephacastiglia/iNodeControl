@@ -1,3 +1,0 @@
-02:20:59.718 stopping PID 33512 (python.exe); children: 58160 conhost.exe
-02:20:59.984 processes attached to PID 33512's console: 43704 powershell.exe, 33512 python.exe
-02:21:00.774 PID 33512 exited; children still running: none

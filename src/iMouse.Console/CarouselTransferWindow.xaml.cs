@@ -125,7 +125,7 @@ public partial class CarouselTransferWindow : Window
         {
             id = Guid.NewGuid().ToString(), draft_id = _draft.Id, revision = _draft.Revision,
             device_id = "C24C", bind = BindBox.Text.Trim(), client = ClientBox.Text.Trim(),
-            account = AccountBox.Text.Trim(), port = 9916, minutes = 20, kind = _kind
+            account = AccountBox.Text.Trim(), minutes = 20, kind = _kind
         }));
     }
 

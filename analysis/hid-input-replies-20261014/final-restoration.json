@@ -1,8 +1,0 @@
-{
-  "utc": "2026-10-14T23:51:19.804047+00:00",
-  "same_release_processes": true,
-  "c24c_free": true,
-  "c241_unchanged_since_capture": true,
-  "protected_hashes_unchanged": true,
-  "scope": "Read-only process, ownership and file-hash verification. No input or settings writes."
-}

@@ -138,7 +138,7 @@ internal static class ReceiverFleetTests
                 && rig.Info(1).Message.Contains("withdrawn") && rig.Log.Items.Contains("goodbye iMouse2-T20") && rig.Count("C214") == 1,
                 "Withdraw stops one receiver, sends its goodbye and holds it");
             check(rig.Info(0) is { State: "running", Pid: 2 } && !rig.Last("C24C").Disposed, "Withdrawing one receiver leaves the other running");
-            check(rig.Fleet.IsHeld("C214") && Code(rig.Fleet.Advertise("C214")) == 0 && await rig.WaitStarts("C214", 2) == 2,
+            check(rig.Info(1).State == "held" && Code(rig.Fleet.Advertise("C214")) == 0 && await rig.WaitStarts("C214", 2) == 2,
                 "A withdrawn receiver is advertised again by /device/airplay/connect");
             await rig.Running(1, 2);
             check(rig.Info(1) is { State: "running", Generation: 2 }, "Re-advertised receiver runs as the next generation");
@@ -225,7 +225,7 @@ internal static class ReceiverFleetTests
             await rig.Running(0, 1); await rig.Running(1, 1);
             var store = new DeviceStore(devices);
             using var api = new ApiServer("http://127.0.0.1:1/api/", store, router,
-                rig.Fleet.Sessions.Select(s => (s.Config.Name, s.Frames)), () => { }) { AdvertiseReceiver = rig.Fleet.Advertise, Receivers = rig.Fleet };
+                rig.Fleet.Sessions.Select(s => (s.Config.Name, s.Frames)), () => { }) { Receivers = rig.Fleet };
             JsonElement Body(string fun, object data) => JsonSerializer.SerializeToElement(new { fun, data });
             var lease = Json(await api.Dispatch(Body("/input/acquire", new { id = "test-one" })));
             string token = lease.GetProperty("leases")[0].GetProperty("token").GetString()!;
@@ -240,6 +240,8 @@ internal static class ReceiverFleetTests
             check(Code(await api.Dispatch(Body("/input/renew", new { id = "test-one", token }))) == 0,
                 "A receiver restart leaves the input lease intact");
             check(Code(await api.Dispatch(Body("/device/airplay/restart", new { pid = "12" }))) == 36, "Malformed board IDs are refused");
+            check(Code(await api.Dispatch(Body("/device/airplay/connect", new { id = "test-two" }))) == 36 && rig.Count("C214") == 2,
+                "connect without a board ID is refused and starts nothing");
             var held = Json(await api.Dispatch(Body("/device/airplay/restart", new { pid = "C214", hold = true })));
             check(held.GetProperty("code").GetInt32() == 0 && rig.Info(1).State == "held", "hold=true over HTTP leaves the receiver withdrawn");
             check(Code(await api.Dispatch(Body("/device/airplay/connect", new { pid = "C214" }))) == 0 && await rig.WaitStarts("C214", 3) == 3,

@@ -129,11 +129,6 @@ class Guards(unittest.TestCase):
                  patch.object(g, "Kernel", side_effect=AssertionError("unexpected service")):
                 with self.assertRaisesRegex(SystemExit, "without --live"): g.main()
 
-    def test_old_entry_point_is_the_same_implementation(self):
-        sys.path.insert(0, str(Path(__file__).resolve().parent))
-        import gate4_suite
-        self.assertIs(gate4_suite, g)
-
     def test_calibration_cannot_overwrite_previous_references(self):
         with tempfile.TemporaryDirectory() as directory:
             out = Path(directory); (out/"refs").mkdir()

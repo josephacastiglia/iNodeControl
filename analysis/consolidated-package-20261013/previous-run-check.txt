@@ -1,5 +1,0 @@
-Write-Error: 
-Line |
-   2 |  & './tools/candidate-launcher/Start-iMouse2Candidate.ps1' -ConsoleExe …
-     |  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     | Unexpected prepared-run file: bin/startup-validation.json

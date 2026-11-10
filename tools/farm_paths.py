@@ -2,9 +2,10 @@
 
 Installed (Farm.ps1 sets IMOUSE_FARM_DATA): every piece of private state is in that per-machine data
 folder, laid out as below; the code folder is never written. MAIN is the data folder, the evidence
-archive is <data>/evidence-archive, and the rack and window state is <data>/analysis/farm-multiphone-20261020.
+archive is <data>/evidence-archive, and the rack and window state is <data>/rack.
 
-Dev checkout (IMOUSE_FARM_DATA unset): exactly the paths of 27 Oct. The rack belongs to the main folder:
+Dev checkout (IMOUSE_FARM_DATA unset): the paths of 27 Oct, with the rack scripts and their state in
+rack/ since 9 Nov. The rack belongs to the main folder:
 the multi-phone kernel's preparation and process record are written there, and the private evidence
 archive sits beside it. Switchboard makes each lane's folder at <main folder>.worktrees/<lane>, so a tool
 there finds the main folder by that name. (Git's own common directory would not do: this checkout is
@@ -24,7 +25,7 @@ if DATA:
 else:
     MAIN = HERE.parent.with_name(HERE.parent.name[:-len(SUFFIX)]) if HERE.parent.name.endswith(SUFFIX) else HERE  # release-lint: dev-fallback
     ARCHIVE = MAIN.parent / 'iMouseXP-2.0-evidence-archive'  # release-lint: dev-fallback
-STATE = MAIN / 'analysis' / 'farm-multiphone-20261020'
+STATE = MAIN / 'rack'  # checkout: beside the rack scripts; installed: farm_install.RACK_STATE in the data folder
 RACK = STATE / 'slots'
 # One phone run on the rack at a time, for the runs that opt in (farm_rack_lock.py; the slot runner does):
 # heavy OCR from parallel runs aged decisions past the 1.5 s frame limit (4 Nov).

@@ -10,14 +10,14 @@ public partial class App : Application
     private MainWindow? _testWindow;
 
     // Test modes run on a throwaway data folder so they never read or save the operator's
-    // %APPDATA%\iMouse2. That also means a live mode cannot pick up the saved service address,
-    // so it has to be given one: guessing could point a test that sends taps at the wrong service.
+    // %APPDATA%\iMouse2. That also means the live smoke test cannot pick up the saved service
+    // address, so it has to be given one rather than guess which service to read.
     private MainWindow CreateTestWindow(string[] args, bool live, Func<string, ApiClient>? factory = null)
     {
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
         var address = args.FirstOrDefault(a => a.StartsWith("--address="))?["--address=".Length..];
         if (live && string.IsNullOrWhiteSpace(address))
-            throw new Exception("Live test modes need --address=<service url>, for example --address=http://127.0.0.1:9913. They use their own data folder and do not read the address saved in %APPDATA%\\iMouse2.");
+            throw new Exception("The live smoke test needs --address=<service url>, for example --address=http://127.0.0.1:9913. It uses its own data folder and does not read the address saved in %APPDATA%\\iMouse2.");
         _testData = Path.Combine(Path.GetTempPath(), "iMouse2-test-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_testData);
         var window = new MainWindow(factory, _testData);
@@ -189,53 +189,15 @@ public partial class App : Application
             catch (Exception ex) { File.WriteAllText(Path.Combine(InstallLayout.RunFiles, "self-test-failure.txt"), ex.ToString()); Shutdown(1); }
             return;
         }
-        if (e.Args.Contains("--wall-test"))
-        {
-            try
-            {
-                var window = CreateTestWindow(e.Args, live: true);
-                window.Show();
-                var tileArg = e.Args.FirstOrDefault(a => a.StartsWith("--tile-ms="));
-                await window.RunWallAsync(tileArg is null ? 0 : int.Parse(tileArg["--tile-ms=".Length..]));
-                await FinishTestWindowAsync();
-                Shutdown(0);
-            }
-            catch (Exception ex) { await FailTestAsync("wall-test-failure.txt", ex); }
-            return;
-        }
-        if (e.Args.Contains("--mirror-test"))
-        {
-            try
-            {
-                var window = CreateTestWindow(e.Args, live: true);
-                window.Show();
-                await window.RunMirrorAsync();
-                await FinishTestWindowAsync();
-                Shutdown(0);
-            }
-            catch (Exception ex) { await FailTestAsync("mirror-test-failure.txt", ex); }
-            return;
-        }
-        if (e.Args.Contains("--fps-test"))
-        {
-            try
-            {
-                var window = CreateTestWindow(e.Args, live: true);
-                window.Show();
-                await window.RunFpsAsync();
-                await FinishTestWindowAsync();
-                Shutdown(0);
-            }
-            catch (Exception ex) { await FailTestAsync("fps-test-failure.txt", ex); }
-            return;
-        }
         if (e.Args.Contains("--smoke-test") || e.Args.Contains("--ui-test"))
         {
             try
             {
                 bool fake = e.Args.Contains("--ui-test");
                 var handler = fake ? new TestHandler() : null;
-                var window = CreateTestWindow(e.Args, live: !fake, handler is null ? null : address => new ApiClient(address, handler));
+                // The first connection renews leases rarely, so its request counts are exact; the phase
+                // reconnects with a 50 ms heartbeat for its Stop, Resume and timeout checks.
+                var window = CreateTestWindow(e.Args, live: !fake, handler is null ? null : address => new ApiClient(address, handler, renewalInterval: TimeSpan.FromMinutes(10)));
                 await window.RunSmokeAsync(fake, handler);
                 await FinishTestWindowAsync();
                 Shutdown(0);

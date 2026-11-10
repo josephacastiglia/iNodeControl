@@ -8,14 +8,11 @@ prompt blindly. Evidence so far: on 17 Oct (C24C) YouTube's local-network prompt
 highlighted under the pointer, but ignored the pointer click and Escape. The
 operator chose Don't Allow by hand.
 
-A method becomes validated only through WINDOW_EVIDENCE: results that
-tools/farm_prompt_validation.py recorded in a C24C validation window, each with
-the operator's confirmation of the safe answer. Nothing is validated by default.
-Evidence is per phone: on 20 Oct the same move-then-click answered a prompt on one
-rack phone and was ignored on another.
+Nothing is validated by default: a workflow passes plan() the methods proven for its
+own phone (its validated_prompt_methods). Evidence is per phone: on 20 Oct the same
+move-then-click answered a prompt on one rack phone and was ignored on another.
 """
 import re
-import uuid
 
 # Answer per prompt family. None means the run must stop and ask.
 POLICY = {
@@ -36,9 +33,8 @@ POLICY = {
     'photos_reminder': 'Allow Full Access',
     'unknown_permission': None,
 }
-# The safe answer of each family: the only button a validation window ever targets. It grants
-# nothing the app does not already have: the declining button, or for the full-access
-# reminder, keeping the current setting.
+# The safe answer of each family. It grants nothing the app does not already have: the
+# declining button, or for the full-access reminder, keeping the current setting.
 SAFE_ANSWER = {
     'local_network': "Don't Allow", 'notifications': "Don't Allow", 'tracking': 'Ask App Not to Track',
     'camera': "Don't Allow", 'microphone': "Don't Allow", 'location': "Don't Allow", 'contacts': "Don't Allow",
@@ -49,25 +45,18 @@ CANCEL_ANSWERS = ("Don't Allow", 'Ask App Not to Track', "Don't Allow Paste")
 # Families whose policy answer changes nothing, so it is answered even for another app.
 ALWAYS_SAFE = ('local_network', 'notifications', 'tracking', 'photos_reminder')
 
-# Input methods, in the order a validation window tries them. Each records its
-# evidence per prompt family. Only 'validated' entries are ever used by a run.
+# Input methods, in order of preference. Evidence is kept per prompt family, and only
+# 'validated' entries are ever used by a run.
 METHODS = ('pointer_tap', 'keyboard_escape', 'absolute_tap', 'keyboard_focus', 'long_press')
 # What the shared run answer path (ReelCreationWorkflow.answer_prompt, used by the Reel,
 # TikTok and X runs) can send. Escape only reaches an alert's cancel action, so it may
-# only decline. A method validated in a window but missing here stops the run with its
+# only decline. A validated method that is missing here stops the run with its
 # one-time request; it is added here together with its run implementation.
 RUN_METHODS = ('pointer_tap', 'keyboard_escape', 'long_press')
 EVIDENCE = {
     ('local_network', 'pointer_tap'): ('ignored', '17 Oct C24C steps 133-134: button highlighted under the pointer; click ignored'),
     ('local_network', 'keyboard_escape'): ('ignored', '17 Oct C24C step 135: Escape ignored'),
 }
-# Validation-window results, one record per (family, method), added only by a reviewed
-# commit of the `promote` output of tools/farm_prompt_validation.py. An entry counts only
-# when window_problems() finds its evidence complete.
-WINDOW_EVIDENCE = ()
-WINDOW_SOURCE = 'c24c_prompt_validation_window'
-WINDOW_RECORD = 'analysis/farm-prompt-validation-20261020/window/'
-_SHA256 = re.compile(r'[0-9a-f]{64}')
 
 _QUOTE = '["“”‘’\']'
 FAMILIES = (
@@ -166,55 +155,11 @@ def alert_reads(text, kind):
     return any(fragment in row for row in rows for fragment in ALERT_ROWS.get(kind, ()))
 
 
-def window_problems(entry):
-    """Why a validation-window entry cannot count as evidence. An empty list means it is complete."""
-    if not isinstance(entry, dict): return ['A window entry must be a record.']
-    problems = []
-    family, method, state = entry.get('family'), entry.get('method'), entry.get('state')
-    if family not in SAFE_ANSWER: problems.append('The prompt family is unknown or has no safe answer.')
-    if method not in METHODS: problems.append('The input method is unknown.')
-    if state not in ('validated', 'ignored'): problems.append('A window result is either validated or ignored.')
-    if entry.get('source') != WINDOW_SOURCE or entry.get('phone') != 'C24C': problems.append('This is not C24C validation-window evidence.')
-    if family in SAFE_ANSWER and entry.get('answer') != SAFE_ANSWER[family]:
-        problems.append('Validation only ever targets the safe answer.')
-    if not re.fullmatch(r'2\d{3}-\d{2}-\d{2}', str(entry.get('date'))): problems.append('The window date is missing.')
-    try: uuid.UUID(str(entry.get('trial')))
-    except ValueError: problems.append('The trial identity is missing.')
-    summary = entry.get('summary')
-    if not (isinstance(summary, str) and summary.startswith(WINDOW_RECORD) and summary.endswith('.json')
-            and '..' not in summary and '\\' not in summary):
-        problems.append('The trial summary is not in the validation record.')
-    for key in ('summarySha256', 'beforeFrameSha256', 'afterFrameSha256'):
-        if not _SHA256.fullmatch(str(entry.get(key))): problems.append(key + ' is missing.')
-    if entry.get('commandsAnswered') is not True: problems.append('A trial command has no answered reply.')
-    if entry.get('outcome') != {'validated': 'dismissed', 'ignored': 'ignored'}.get(state):
-        problems.append('The recorded outcome does not support this state.')
-    if state == 'validated' and (entry.get('safeAnswerConfirmed') is not True or not str(entry.get('confirmation') or '').strip()):
-        problems.append("The operator's confirmation of the safe answer is missing.")
-    return problems
-
-
-def evidence(entries=None):
-    """EVIDENCE plus complete window entries, as {(family, method): (state, note)}.
-
-    Contradicting results for one pair become 'conflicting', which no run uses: a method
-    seen both answering and ignored needs review first.
-    """
-    known = dict(EVIDENCE)
-    for entry in WINDOW_EVIDENCE if entries is None else entries:
-        if window_problems(entry): continue
-        key = (entry['family'], entry['method'])
-        note = f"{entry['date']} C24C window trial {entry['trial']}: {entry.get('note') or entry['outcome']}"
-        if key not in known: known[key] = (entry['state'], note)
-        elif known[key][0] != entry['state']: known[key] = ('conflicting', known[key][1] + ' | ' + note)
-    return known
-
-
 def plan(prompt, *, app_expected=None, needs_media_picker=False, after_own_paste=False, validated=None):
     """What a run may do. Never 'tap' unless the method is validated for this family.
 
     validated: {(family, method): (state, note)} entries proven on a phone; defaults to
-    evidence(), which is EVIDENCE plus complete window results (none validated yet).
+    EVIDENCE, where nothing is validated.
     Returns action 'answer' with a method the run can send and its target, or 'stop' with
     an operator request that names the prompt, the answer and why.
     """
@@ -230,7 +175,7 @@ def plan(prompt, *, app_expected=None, needs_media_picker=False, after_own_paste
     if prompt.get('ambiguous'): answer, reason = None, 'Two identical buttons were read.'
     if answer is not None and answer not in prompt['buttons']:
         answer, reason = None, 'The policy answer is not visible on this prompt.'
-    known = evidence()
+    known = EVIDENCE
     proven = {key: value for key, value in (validated if validated is not None else known).items() if value[0] == 'validated'}
     runnable = [m for m in METHODS if (kind, m) in proven and m in RUN_METHODS
                 and (m != 'keyboard_escape' or (answer in CANCEL_ANSWERS and answer == SAFE_ANSWER.get(kind)))]

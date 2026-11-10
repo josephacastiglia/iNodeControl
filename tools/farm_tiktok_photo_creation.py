@@ -14,7 +14,7 @@ cover shows package slide 1. Nothing is reopened (saving a reopened draft droppe
 """
 import numpy as np
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import require, safari_blank, leftover_downloads, leftover_player
 from farm_draft_creation import CreationWorkflow
 from farm_draft_workflow import Workflow

@@ -48,7 +48,8 @@ internal sealed class InputActionQueue(Func<InputContext, bool> cancelledByUser,
             }
             catch (Exception ex)
             {
-                if (context.Api.UsesInputOwnership && ex is not InputNotSentException && !cancelledByUser(context))
+                // A refusal sent nothing and paused nothing, so there is nothing to hold later actions back for.
+                if (ex is not InputNotSentException and not ApiException { IsRefusal: true } && !cancelledByUser(context))
                     lock (_gate) { _failedScope = context; _failure = ex; }
                 throw;
             }

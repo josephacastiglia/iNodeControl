@@ -16,8 +16,8 @@ public partial class MainWindow
         var handlers = new List<TestHandler>(); var clients = new List<ApiClient>();
         var window = new MainWindow(address =>
         {
-            var h = new TestHandler { OwnershipSupported = true };
-            handlers.Add(h); var api = new ApiClient(address, h, ownership: true); clients.Add(api); return api;
+            var h = new TestHandler();
+            handlers.Add(h); var api = new ApiClient(address, h); clients.Add(api); return api;
         }, folder);
         var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var closeGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -57,14 +57,6 @@ public partial class MainWindow
             check("The window closes after cleanup and persists its isolated receipt", closed && File.Exists(Path.Combine(folder, "last-input-cleanup.json")) && string.IsNullOrEmpty(window.CleanupWarning));
             using var record = JsonDocument.Parse(File.ReadAllText(Path.Combine(folder, "last-input-cleanup.json")));
             check("Rapid reconnect and close record every retired connection", record.RootElement.GetProperty("connections").GetArrayLength() == 3);
-
-            var legacy = new MainWindow(address => new ApiClient(address, new TestHandler()), folder);
-            try
-            {
-                legacy.AutoPreview.IsChecked = false; await legacy.ConnectAsync();
-                check("Explicit legacy test connections retain input readiness", legacy._connected && legacy._controlReady && legacy._api?.UsesInputOwnership == false);
-            }
-            finally { await legacy.CloseSafelyAsync(); }
         }
         finally
         {

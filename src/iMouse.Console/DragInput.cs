@@ -59,8 +59,7 @@ internal sealed class DragGesture(InputContext context, int x, int y, bool hold)
     }
 }
 
-internal sealed record DragResult(int Moves, int LastX, string Trace, long DurationMs,
-    bool Released, Exception? Failure, Exception? ReleaseFailure);
+internal sealed record DragResult(int Moves, long DurationMs, bool Released, Exception? Failure, Exception? ReleaseFailure);
 
 internal static class DragInput
 {
@@ -69,27 +68,22 @@ internal static class DragInput
         var api = gesture.Context.Api;
         string ids = gesture.Context.Ids;
         bool pressed = false, released = false;
-        int moves = 0, lastX = -1;
-        string trace = "";
+        int moves = 0;
         Exception? failure = null, releaseFailure = null;
         var elapsed = Stopwatch.StartNew();
         try
         {
             ct.ThrowIfCancellationRequested();
             await api.MoveAsync(ids, gesture.X, gesture.Y, ct).ConfigureAwait(false);
-            long moveMs = elapsed.ElapsedMilliseconds;
             await api.CommandAsync("/mouse/down", new() { ["id"] = ids, ["button"] = "1" }, ct).ConfigureAwait(false);
-            trace = $"[setup move {moveMs} ms, down {elapsed.ElapsedMilliseconds - moveMs} ms] ";
             pressed = true;
             while (true)
             {
                 var next = await gesture.ReadAsync(ct).ConfigureAwait(false);
                 if (next.Point is { } point)
                 {
-                    long began = elapsed.ElapsedMilliseconds;
                     await api.MoveAsync(ids, point.X, point.Y, ct).ConfigureAwait(false);
-                    moves++; lastX = point.X;
-                    if (trace.Length < 400) trace += $"{(next.Released ? "final" : "")}({point.X},{point.Y})+{elapsed.ElapsedMilliseconds - began}ms ";
+                    moves++;
                 }
                 if (next.Released) break;
             }
@@ -97,10 +91,11 @@ internal static class DragInput
         catch (Exception ex) { failure = ex; }
         finally
         {
-            // A failed owned command already triggers lease-scoped cleanup in the
+            // A failed command already triggers lease-scoped cleanup in the
             // client/kernel. An extra up would only be refused and double-log it.
-            // Legacy mode retains its best-effort release after a move failure.
-            if (pressed && !ct.IsCancellationRequested && (failure is null || !api.UsesInputOwnership))
+            // A move the kernel refused is different: nothing was paused or cleaned up,
+            // the lease is live and the button is still down, so it is lifted here.
+            if (pressed && !ct.IsCancellationRequested && (failure is null || failure is ApiException { IsRefusal: true }))
             {
                 try
                 {
@@ -110,6 +105,6 @@ internal static class DragInput
                 catch (Exception ex) { releaseFailure = ex; }
             }
         }
-        return new(moves, lastX, trace, elapsed.ElapsedMilliseconds, released, failure, releaseFailure);
+        return new(moves, elapsed.ElapsedMilliseconds, released, failure, releaseFailure);
     }
 }

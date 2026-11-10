@@ -28,7 +28,7 @@ public partial class CarouselTransferWindow
                 var data = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(await request.Content!.ReadAsStringAsync(token))!;
                 Session = data.ToDictionary(kv => kv.Key, kv => (object?)kv.Value);
                 Session["state"] = "serving";
-                Session["url"] = "http://192.168.1.2:9916/t/test-only/";
+                Session["url"] = "http://192.168.1.2:9917/t/test-only/";
                 Session["secondsRemaining"] = 1200;
                 Session["imagesDelivered"] = Array.Empty<string>();
                 Session["slideCount"] = 3;

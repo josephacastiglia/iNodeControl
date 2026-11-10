@@ -30,7 +30,7 @@ import time
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from farm_carousel_inspection import InspectionStopped  # noqa: E402
+from farm_owned_capture import InspectionStopped  # noqa: E402
 import farm_permission_prompts as P  # noqa: E402
 
 ROOT = HERE.parent / 'output' / 'fleet'
