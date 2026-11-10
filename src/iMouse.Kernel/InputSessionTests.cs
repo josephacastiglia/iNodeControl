@@ -253,12 +253,6 @@ internal static class InputSessionTests
             await Rejected(() => Task.FromResult(sessions.Renew(Data(new { id = "one", token = first }))));
             await sessions.StopAsync(Data(new { id = "one,two" }));
             check(Code(sessions.Acquire(Data(new { id = "one" }))) == 409, "Expired lease cannot be revived and requires explicit resume");
-            sessions.Resume(Data(new { id = "one,two" }));
-            first = Lease(sessions, "one");
-            // Simulate a saved binding changing outside the API. No old lease may survive.
-            store.Bind("one", "", "C24C", "CHANGED");
-            await Rejected(() => sessions.DispatchAsync("/mouse/reset", Data(new { id = "one", token = first })));
-            check(true, "Changed board UID invalidates existing lease");
         }
         finally { await sessions.DisposeAsync(); File.Delete(file); Directory.Delete(directory); }
 
@@ -384,7 +378,7 @@ internal static class InputSessionTests
             check(Code(await Request("/input/renew", new { id = "one", token })) == 0 &&
                 Code(await Request("/mouse/down", new { id = "one", token })) == 0, "API acquisition and renewal reach owned HID dispatch");
             check(Code(await Request("/device/set", new { id = "one", pid = "C241", uid = "wrong" })) == 41 &&
-                apiStore.All()[0].pid == "C24C", "API forbids live rebinding under active input");
+                apiStore.All()[0].pid == "C24C", "API has no live rebinding: /device/set is refused and the assignment stands");
             check(Code(await Request("/input/stop", new { id = "one" })) == 0 &&
                 Code(await Request("/input/resume", new { id = "one" })) == 0, "API Stop and Resume use the ownership boundary");
             token = Data(await Request("/input/acquire", new { id = "one" })).GetProperty("leases")[0].GetProperty("token").GetString()!;

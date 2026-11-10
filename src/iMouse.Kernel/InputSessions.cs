@@ -18,7 +18,7 @@ public sealed class InputSessions : IAsyncDisposable
     }
     private sealed class Slot(Phone phone)
     {
-        public readonly string Id = phone.deviceid, Pid = phone.pid, Uid = phone.uid;
+        public readonly string Id = phone.deviceid, Pid = phone.pid;
         public Lease? Owner;
         public TaskCompletionSource? Active;
         public TaskCompletionSource? Cleaning;
@@ -57,11 +57,6 @@ public sealed class InputSessions : IAsyncDisposable
     private Slot Get(Phone phone)
     {
         if (!_slots.TryGetValue(phone.pid, out var slot)) _slots[phone.pid] = slot = new(phone);
-        if (slot.Id != phone.deviceid || slot.Uid != phone.uid)
-        {
-            BeginClose(slot, true, "Binding changed; restart the kernel after verifying configuration.");
-            throw new InvalidOperationException("Binding changed; previous input ownership is invalid.");
-        }
         return slot;
     }
     private string Token(JsonElement data, string id)

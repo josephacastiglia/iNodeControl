@@ -18,15 +18,14 @@ public sealed class Phone
     public string gname { get; set; } = "Ungrouped";
 }
 
+/// <summary>The saved phone/board assignments, fixed for the life of the kernel. Changing one means
+/// stopping the kernel, editing devices.json and starting it again through startup validation.</summary>
 public sealed class DeviceStore
 {
-    private readonly string _path;
-    private readonly object _gate = new();
-    private List<Phone> _phones;
+    private readonly List<Phone> _phones;
 
     public DeviceStore(string path)
     {
-        _path = path;
         _phones = File.Exists(path)
             ? JsonSerializer.Deserialize<List<Phone>>(File.ReadAllText(path)) ?? []
             : [];
@@ -34,52 +33,9 @@ public sealed class DeviceStore
 
     // Startup has already read and validated these bytes; do not reread a file
     // that another process could replace between validation and use.
-    internal DeviceStore(string path, IEnumerable<Phone> phones)
-    {
-        _path = path;
-        _phones = phones.Select(Clone).ToList();
-    }
+    internal DeviceStore(IEnumerable<Phone> phones) => _phones = phones.Select(Clone).ToList();
 
-    public List<Phone> All()
-    {
-        lock (_gate) return _phones.Select(Clone).ToList();
-    }
-
-    public void Bind(string id, string vid, string pid, string uid)
-    {
-        lock (_gate)
-        {
-            var next = _phones.Select(Clone).ToList();
-            var phone = next.FirstOrDefault(p => p.deviceid == id);
-            if (phone is null) throw new KeyNotFoundException(id);
-            phone.vid = vid; phone.pid = pid; phone.uid = uid;
-            Save(next);
-            _phones = next;
-        }
-    }
-
-    private void Save(List<Phone> phones)
-    {
-        string path = Path.GetFullPath(_path);
-        string folder = Path.GetDirectoryName(path)!;
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(phones, new JsonSerializerOptions { WriteIndented = true });
-        Directory.CreateDirectory(folder);
-        string temp = Path.Combine(folder, ".imouse-bindings-" + Guid.NewGuid().ToString("N") + ".tmp");
-        try
-        {
-            using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-            {
-                stream.Write(bytes);
-                stream.Flush(flushToDisk: true);
-            }
-            File.Move(temp, path, overwrite: true);
-        }
-        finally
-        {
-            try { File.Delete(temp); }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
-        }
-    }
+    public List<Phone> All() => _phones.Select(Clone).ToList();
 
     private static Phone Clone(Phone p) => new()
     {

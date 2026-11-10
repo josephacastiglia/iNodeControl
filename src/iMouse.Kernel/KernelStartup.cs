@@ -127,7 +127,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         if (phones.Select(p => p.deviceid).Distinct(StringComparer.OrdinalIgnoreCase).Count() != phones.Count
             || phones.Where(p => p.pid.Length > 0).Select(p => p.pid).Distinct(StringComparer.OrdinalIgnoreCase).Count() != phones.Count(p => p.pid.Length > 0))
             throw new ArgumentException("Saved phone identities and bound board PIDs must be unique.");
-        var store = new DeviceStore(devicesPath, phones);
+        var store = new DeviceStore(phones);
         string calibrationFile = Path.Combine(options.DataDir, "pointer-calibration.json");
         var calibrations = File.Exists(calibrationFile) ? ReadList<PointerCalibration>(calibrationFile) : [];
         if (calibrations.Any(c => !KernelOptions.BoardId(c.Pid))) throw new ArgumentException("Invalid calibration board PID.");

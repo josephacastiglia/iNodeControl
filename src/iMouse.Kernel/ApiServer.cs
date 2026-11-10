@@ -156,7 +156,6 @@ public sealed class ApiServer : IDisposable
         Console.WriteLine(fun);
         return fun switch
         {
-            "/device/set" => new { code = 41, message = "Live binding changes are disabled in the ownership build. Stop the kernel and verify saved phone/board/receiver configuration before restarting." },
             "/input/acquire" => _inputSessions.Acquire(data),
             "/input/status" => _inputSessions.Status(),
             "/input/renew" => _inputSessions.Renew(data),
@@ -187,17 +186,6 @@ public sealed class ApiServer : IDisposable
             return new { code = 409, message = "Board " + pid + "'s phone has an active input lease. Wait for it to end, or pass that lease's token. Nothing was stopped." };
         bool hold = Str(data, "hold") is var h && (h.Equals("true", StringComparison.OrdinalIgnoreCase) || h == "1");
         return fun == "/device/airplay/withdraw" ? await Receivers.WithdrawAsync(pid) : await Receivers.RestartAsync(pid, hold);
-    }
-
-    private object Bind(JsonElement data)
-    {
-        string id = Str(data, "id");
-        string vid = Str(data, "vid");
-        string pid = Str(data, "pid");
-        string uid = Str(data, "uid");
-        if (string.IsNullOrEmpty(id)) return new { code = 36, message = "id required" };
-        _store.Bind(id, vid, pid, uid);
-        return new { code = 0, id };
     }
 
     private string VideoState(ReceiverInfo rec,FrameStore? frames=null) =>
