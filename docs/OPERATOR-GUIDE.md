@@ -168,5 +168,4 @@ checks. Returning to the working version means closing the candidate normally,
 restoring any changed files from that verified copy, and using the original
 shortcut again. Mirroring may need to be selected again on the phones.
 
-The developer's exact checks are in [RELEASE-STAGING.md](RELEASE-STAGING.md).
 Nothing in this guide authorizes an automatic update or service restart.
