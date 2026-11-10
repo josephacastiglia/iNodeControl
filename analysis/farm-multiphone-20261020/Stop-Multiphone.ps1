@@ -14,7 +14,7 @@
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'RackState.ps1')
 $taskPy=Get-RackPython
-$taskDir=Get-RackState 'slots'
+$taskDir=Get-RackKernelFolder
 $taskPrepFile=Join-Path $taskDir 'preparation.json'
 $taskPrep=Get-Content -LiteralPath $taskPrepFile -Raw | ConvertFrom-Json
 $taskApi=([string]$taskPrep.arguments[0]).TrimEnd('/')

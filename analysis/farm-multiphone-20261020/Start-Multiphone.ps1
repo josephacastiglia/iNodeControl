@@ -15,7 +15,7 @@
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'RackState.ps1')
 $taskPy=Get-RackPython
-$taskDir=Get-RackState 'slots'
+$taskDir=Get-RackKernelFolder
 $taskProcessFile=Join-Path $taskDir 'processes.json'
 $taskStarting=Join-Path $taskDir 'processes-starting.json'
 if(Test-Path -LiteralPath $taskProcessFile){throw 'The kernel already has a process record. Do not start duplicates.'}

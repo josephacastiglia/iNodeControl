@@ -19,7 +19,7 @@ if((Get-FileHash -LiteralPath $taskPrep.config -Algorithm SHA256).Hash.ToLowerIn
 $taskLanes=Split-Path $taskRoot -Parent
 $taskMain=if((Split-Path $taskLanes -Leaf).EndsWith('.worktrees')){$taskLanes.Substring(0,$taskLanes.Length-'.worktrees'.Length)}else{$taskRoot}  # release-lint: dev-fallback
 $taskRackRecord=Join-Path $taskMain 'analysis\farm-multiphone-20261020\slots\processes.json'  # release-lint: dev-fallback
-if($env:IMOUSE_FARM_DATA){$taskRackRecord=if($taskPrep.rackPreparation){Join-Path (Split-Path -Parent $taskPrep.rackPreparation) 'processes.json'}else{Get-RackState 'slots\processes.json'}}
+if($env:IMOUSE_FARM_DATA){$taskRackRecord=if($taskPrep.rackPreparation){Join-Path (Split-Path -Parent $taskPrep.rackPreparation) 'processes.json'}else{Join-Path (Get-RackKernelFolder) 'processes.json'}}
 $taskRack=Get-Content -LiteralPath $taskRackRecord -Raw | ConvertFrom-Json
 # The kernel API is the one the rack preparation starts (:9916 unless the preparation says otherwise).
 $taskApi='http://127.0.0.1:9916/api'

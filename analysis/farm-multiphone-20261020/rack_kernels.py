@@ -42,7 +42,7 @@ def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 def kernel_folder():
     """The one folder that holds the kernel's preparation, process record, logs and ledgers
-    (RackState.ps1's Get-RackState 'slots')."""
+    (RackState.ps1's Get-RackKernelFolder)."""
     return STATE / 'slots'
 
 

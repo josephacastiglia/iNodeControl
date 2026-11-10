@@ -6,7 +6,7 @@
 param([Parameter(Mandatory)][ValidatePattern('^[0-9A-Fa-f]{4}$')][string]$Board)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'RackState.ps1')
-$taskDir=Get-RackState 'slots'
+$taskDir=Get-RackKernelFolder
 $taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json
 $taskApi=([string]$taskPrep.arguments[0]).TrimEnd('/')
 $taskProcs=Get-Content -LiteralPath (Join-Path $taskDir 'processes.json') -Raw | ConvertFrom-Json

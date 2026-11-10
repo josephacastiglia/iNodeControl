@@ -28,15 +28,16 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import farm_paths  # noqa: E402
-STATE = farm_paths.rack_state(HERE)  # slots/ and the rack B maps: here in a checkout, the data folder when installed
+STATE = farm_paths.rack_state(HERE)  # the rack B maps and archived preparations: here in a checkout, the data folder when installed
 RUNS = farm_paths.run_root(ROOT)
-OUT = STATE / 'slots'
+sys.path.insert(0, str(HERE))
+from rack_kernels import kernel_folder  # noqa: E402
+OUT = kernel_folder()
 KERNEL = farm_paths.installed('kernel', ROOT / 'output/multiphone-kernel-20261029/iMouse2.Kernel.exe')  # release-lint: dev-fallback
 # Installed: new preparations name this version's receiver and runtime (Farm.ps1 sets them).
 RECEIVER, RECEIVER_RUNTIME = farm_paths.installed('receiver'), farm_paths.installed('receiver_runtime')
 PLACEHOLDER = '3848'   # A rack A board still on its placeholder: its device and calibration rows are the template.
 FIRST_PORT = 7300
-sys.path.insert(0, str(HERE))
 from prepare_rack_a import MODELS, REQUEST  # noqa: E402
 from card_survey import SMALL  # noqa: E402
 
