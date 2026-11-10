@@ -81,9 +81,10 @@ def make_builds(base):
         config = next(n for n in names if n.endswith('.runtimeconfig.json'))
         (folder / config).write_text(json.dumps({'runtimeOptions': {'frameworks': [{'name': f, 'version': '8.0.0'} for f in frameworks]}}))
         (folder / 'data/devices.json').write_text('{"private": "bindings"}')  # never packaged
-    (runtime / 'libexec/gstreamer-1.0').mkdir(parents=True)
-    (runtime / 'bin').mkdir()
-    (runtime / 'libexec/gstreamer-1.0/gst-plugin-scanner.exe').write_bytes(b'scanner')
+    (runtime / 'bin').mkdir(parents=True)
+    for name in fr.RECEIVER_RUNTIME_REQUIRED:
+        (runtime / name).parent.mkdir(parents=True, exist_ok=True)
+        (runtime / name).write_bytes(b'runtime ' + name.encode())
     (runtime / 'bin/libgstreamer-1.0-0.dll').write_bytes(b'gst')
     receiver = base / 'receiver build/uxplay.exe'
     receiver.parent.mkdir()
@@ -242,12 +243,18 @@ class Build(Base):
         with self.assertRaisesRegex(ValueError, 'source-hash files missing'):
             fr.build(repo, self.base / 'p3', kernel, console, receiver, runtime, version='x')
 
-    def test_missing_receiver_runtime_scanner(self):
+    def test_a_runtime_missing_any_file_the_kernel_requires_refuses_the_build(self):
         repo = make_repo(self.base)
-        kernel, console, receiver, runtime = make_builds(self.base / 'b')
-        (runtime / 'libexec/gstreamer-1.0/gst-plugin-scanner.exe').unlink()
-        with self.assertRaisesRegex(ValueError, 'gst-plugin-scanner'):
-            fr.build(repo, self.base / 'p', kernel, console, receiver, runtime, version='x')
+        for n, missing in enumerate(('libexec/gstreamer-1.0/gst-plugin-scanner.exe', 'lib/gstreamer-1.0/libgstplayback.dll')):
+            kernel, console, receiver, runtime = make_builds(self.base / f'b{n}')
+            (runtime / missing).unlink()
+            with self.assertRaisesRegex(ValueError, 'receiver runtime: missing ' + missing):
+                fr.build(repo, self.base / f'p{n}', kernel, console, receiver, runtime, version='x')
+
+    def test_the_required_runtime_files_are_the_kernels_list(self):
+        source = (fr.REPO / 'src/iMouse.Kernel/ReceiverRuntime.cs').read_text(encoding='utf-8')
+        block = re.search(r'RequiredFiles\s*=\s*\[(.*?)\];', source, re.S).group(1)
+        self.assertEqual(tuple(re.findall(r'"([^"]+)"', block)), fr.RECEIVER_RUNTIME_REQUIRED)
 
     def test_invalid_version(self):
         repo = make_repo(self.base)

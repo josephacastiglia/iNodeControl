@@ -38,9 +38,8 @@ API = f'http://127.0.0.1:{PORT}/api'
 BOARDS = ('0F01', '0F02', '0F03')
 NAMES = {b: f'iMouse2-Z{i + 1}' for i, b in enumerate(BOARDS)}
 RECEIVER_PORTS = {b: 7900 + 10 * i for i, b in enumerate(BOARDS)}
-RUNTIME_FILES = ('libexec/gstreamer-1.0/gst-plugin-scanner.exe',) + tuple(f'lib/gstreamer-1.0/libgst{n}.dll' for n in (
-    'app', 'coreelements', 'libav', 'videoparsersbad', 'videoconvertscale', 'playback', 'autodetect', 'audioconvert',
-    'audioresample', 'volume', 'level'))
+sys.path.insert(0, str(ROOT / 'tools'))
+from farm_release import RECEIVER_RUNTIME_REQUIRED as RUNTIME_FILES  # noqa: E402  (what the kernel insists a runtime holds)
 results = []
 
 

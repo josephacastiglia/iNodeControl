@@ -45,7 +45,13 @@ RACK_DIR = 'analysis/farm-multiphone-20261020'
 KERNEL_FILES = tuple('iMouse2.Kernel' + s for s in ('.exe', '.dll', '.deps.json', '.runtimeconfig.json', '.pdb'))
 CONSOLE_FILES = tuple('iMouse2' + s for s in ('.exe', '.dll', '.deps.json', '.runtimeconfig.json', '.pdb'))
 FRAMEWORKS = {'kernel': {'Microsoft.NETCore.App'}, 'console': {'Microsoft.NETCore.App', 'Microsoft.WindowsDesktop.App'}}
-RECEIVER_RUNTIME_REQUIRED = ('libexec/gstreamer-1.0/gst-plugin-scanner.exe',)
+# What the kernel refuses to start a receiver without (src/iMouse.Kernel/ReceiverRuntime.cs holds the same list;
+# a test compares them). The receiver's appsink/fakesink mode still checks playback and autodetect and builds
+# its AAC/ALAC audio pipelines, so these are needed although no PE import names them. The one Python list:
+# the runtime audit, the off-rack trials and the rehearsal's stand-in runtime all read it.
+RECEIVER_RUNTIME_REQUIRED = ('libexec/gstreamer-1.0/gst-plugin-scanner.exe',) + tuple(f'lib/gstreamer-1.0/libgst{n}.dll' for n in (
+    'app', 'coreelements', 'libav', 'videoparsersbad', 'videoconvertscale', 'playback', 'autodetect', 'audioconvert',
+    'audioresample', 'volume', 'level'))
 # The receiver is GPL 3 software. Wherever its binary goes, its licence, a notice of what was changed and
 # the source it was built from go with it: tools/airplay (upstream UxPlay, our patches, the build script).
 RECEIVER_SOURCE = 'tools/airplay'

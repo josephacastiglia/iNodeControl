@@ -109,9 +109,6 @@ SANDBOX_PORT = 9956                                   # not a farm port (9911-99
 SANDBOX_BOARDS = ('0F11', '0F12', '0F13')             # no WCH board on this PC has these IDs (checked before start)
 SANDBOX_NAMES = {b: f'iMouse2-Y{i + 1}' for i, b in enumerate(SANDBOX_BOARDS)}
 SANDBOX_PORTS = {b: 7950 + 10 * i for i, b in enumerate(SANDBOX_BOARDS)}
-STAND_IN_RUNTIME = ('libexec/gstreamer-1.0/gst-plugin-scanner.exe',) + tuple(f'lib/gstreamer-1.0/libgst{n}.dll' for n in (
-    'app', 'coreelements', 'libav', 'videoparsersbad', 'videoconvertscale', 'playback', 'autodetect', 'audioconvert',
-    'audioresample', 'volume', 'level'))
 
 
 def _port_free(port):
@@ -157,7 +154,7 @@ def sandbox_rack(root, data, scratch, env, launcher, step, checks):
                    creationflags=getattr(subprocess, 'BELOW_NORMAL_PRIORITY_CLASS', 0))
     receiver = fake / 'offrack-receiver.exe'
     runtime = scratch / 'stand-in-runtime'
-    for rel in STAND_IN_RUNTIME:
+    for rel in fr.RECEIVER_RUNTIME_REQUIRED:   # the files the kernel insists on, as empty stand-ins
         (runtime / rel).parent.mkdir(parents=True, exist_ok=True)
         (runtime / rel).write_bytes(b'stand-in')
     (runtime / 'bin').mkdir(exist_ok=True)
