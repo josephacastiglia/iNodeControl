@@ -1014,13 +1014,6 @@ public partial class MainWindow : Window
     /// gesture. One sequential task, so press - moves - release is ordered; the newest
     /// pending position always wins and the last one is always delivered before release.
     /// </summary>
-    // What the last drag actually sent, for the mirror test to report. A drag that reaches
-    // one phone and not another is invisible from the outside, so record it at the source.
-    private string _lastDragIds = "";
-    private int _lastDragMoves;
-    private int _lastDragX = -1;
-    private string _lastDragTrace = "";
-
     private void StartDrag(ApiClient api, int x, int y, bool hold, (int X, int Y)? point = null)
     {
         var context = new InputContext(api, InputTargetIds(), _lifetime.Token, _controlCancellation);
@@ -1039,8 +1032,6 @@ public partial class MainWindow : Window
             await _inputActions.Enqueue(context, async ct =>
             {
                 result = await DragInput.RunAsync(drag, ct).ConfigureAwait(false);
-                _lastDragIds = context.Ids; _lastDragMoves = result.Moves;
-                _lastDragTrace = result.Trace; _lastDragX = result.LastX;
                 if (result.Failure is not null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw(result.Failure);
                 if (result.ReleaseFailure is not null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw(result.ReleaseFailure);
                 if (drag.Hold && result.Released)
@@ -1346,8 +1337,7 @@ public partial class MainWindow : Window
     private readonly TileFetchScheduler _tileFetchScheduler = new(3);
     private int _tileHeight = 118;
     private int _tilePeriodMs = 33;    // per tile, not per pass over the whole wall
-    private long _tileFrames, _tileFetches, _tileDupes, _tileRestarts;
-    private long _tileFetchMs, _tilePrepareMs, _tilePresentMs;
+    private long _tileFrames, _tileFetches, _tileDupes;
     private string _castName = "";
 
     public double TileHeight => _tileHeight;
@@ -1500,13 +1490,11 @@ public partial class MainWindow : Window
                 long started = Environment.TickCount64;
                 try
                 {
-                    long t0 = Environment.TickCount64;
                     var result = await _tileFetchScheduler.FetchAsync(
                         ct => api.ScreenshotIntoAsync(stream.Id, false, fetch, ct), stream.Token).ConfigureAwait(false);
                     if (result.Cancelled || !Current()) break;
                     if (!result.Success) throw new IOException("Tile screenshot unavailable.");
                     Interlocked.Increment(ref _tileFetches);
-                    Interlocked.Add(ref _tileFetchMs, Environment.TickCount64 - t0);
                     bool same = LiveFrame.SameAsPrevious(previous.Span, fetch.Span);
                     var stamp = stream.Freshness.Observe(0, same, fetch.Metadata, requestSerial: fetch.RequestSerial);
                     if (stamp is null) continue;
@@ -1519,15 +1507,12 @@ public partial class MainWindow : Window
                     {
                         idle = 0;
                         (fetch, previous) = (previous, fetch);
-                        long t1 = Environment.TickCount64;
                         var prepared = live.Prepare(previous.Span, Math.Max(48, _tileHeight * 2));
-                        Interlocked.Add(ref _tilePrepareMs, Environment.TickCount64 - t1);
                         if (prepared is null)
                         {
                             previous.Length = 0;
                             throw new InvalidDataException("Tile image cannot be decoded.");
                         }
-                        long t2 = Environment.TickCount64;
                         try
                         {
                             await Dispatcher.InvokeAsync(() =>
@@ -1541,7 +1526,6 @@ public partial class MainWindow : Window
                             });
                         }
                         finally { live.Recycle(prepared); }
-                        Interlocked.Add(ref _tilePresentMs, Environment.TickCount64 - t2);
                     }
                     if (Current()) await Dispatcher.InvokeAsync(UpdateTile);
                 }
@@ -1558,7 +1542,7 @@ public partial class MainWindow : Window
             }
         }
         catch (OperationCanceledException) when (stream.Token.IsCancellationRequested) { }
-        finally { Interlocked.Increment(ref _tileRestarts); _tileStreams.Complete(stream); }
+        finally { _tileStreams.Complete(stream); }
     }
 
     private List<Device> Followers()
@@ -1774,416 +1758,6 @@ public partial class MainWindow : Window
         while (_activity.Count > 100) _activity.RemoveAt(_activity.Count - 1);
     }
     private static string Friendly(Exception ex) => ex is TaskCanceledException ? "Request timed out. The outcome may be unknown; check the phone before repeating the action." : ex.Message;
-
-    /// <summary>
-    /// Runs the real live pipeline against the running service for a few seconds and
-    /// records the frame rate actually presented to the screen. Smoothness is the whole
-    /// point of the render path, so it is measured rather than asserted.
-    /// </summary>
-    /// <summary>
-    /// Drives the real mirroring path against the live service and records what the app
-    /// actually addresses. The protocol was already proven to work with an id list, so if
-    /// mirroring misbehaves the fault is in this app's own targeting - which is what this
-    /// exercises: the same Followers/InputTargetIds/SendInputAsync the mouse handlers use.
-    /// </summary>
-    public async Task RunMirrorAsync()
-    {
-        var report = new List<object>();
-        void Note(string step, object detail) => report.Add(new { step, detail });
-
-        await ConnectAsync();
-        if (!_connected) throw new Exception("mirror test could not reach the service.");
-        await Task.Delay(800);
-        await RefreshDevicesAsync();
-
-        Note("devices", _devices.Select(d => new
-        {
-            d.Id, d.DisplayName, d.Online, d.BoardState, d.ControlReady,
-            geometry = $"{d.ImageWidth}x{d.ImageHeight}", d.Hardware
-        }).ToList());
-
-        var master = Selected;
-        Note("master", master?.Id ?? "(none)");
-        Note("beforeAnyChecks", new { batch = BatchMode.IsChecked, followers = Followers().Count, ids = InputTargetIds() });
-
-        // exactly what the "Mirror to all" tick box does
-        SelectAllBox.IsChecked = true;
-        SelectAll_Click(SelectAllBox, new RoutedEventArgs());
-        await Task.Delay(300);
-
-        Note("afterMirrorToAll", new
-        {
-            batch = BatchMode.IsChecked,
-            checkedDevices = _devices.Count(d => d.IsChecked),
-            followers = Followers().Count,
-            followerIds = Followers().Select(d => d.Id).ToList(),
-            mismatched = MismatchedFollowers().Select(d => new { d.Id, geometry = $"{d.ImageWidth}x{d.ImageHeight}" }).ToList(),
-            ids = InputTargetIds()
-        });
-
-        // send a real mirrored input through the same method the handlers use
-        int before = _activity.Count;
-        await SendInputAsync("MirrorTest Home", "/key/sendkey", new() { ["fn_key"] = "Home" });
-        await Task.Delay(600);
-        Note("sendInputLog", _activity.Take(Math.Max(1, _activity.Count - before)).ToList());
-
-        // and the drag path: each gesture captures the id list up front
-        Note("dragWouldAddress", InputTargetIds());
-
-        // --- end to end on the real phones ---
-        // Everything above proves the app addresses the right ids. This part drives the
-        // actual mouse handlers against the rack and reads the phones back, because the
-        // question the id list cannot answer is whether the gesture reached the glass.
-        var content = (FrameworkElement)Content;
-        content.Measure(new Size(1370, 880)); content.Arrange(new Rect(0, 0, 1370, 880)); content.UpdateLayout();
-        await GrabOneAsync();
-        content.UpdateLayout();
-
-        // "Did the phone react?" cannot be answered by comparing screenshots byte for byte:
-        // a mirrored screen never repeats exactly - the clock, the AirPlay encoder and the
-        // wallpaper parallax all move on their own, so an untouched phone fails an equality
-        // test just as reliably as a tapped one. Mean pixel difference over the whole frame
-        // separates them: idle noise sits near zero, a screen that actually changed does not.
-        async Task<Dictionary<string, byte[]>> Shots()
-        {
-            var map = new Dictionary<string, byte[]>();
-            foreach (var d in _devices.Where(x => x.Online))
-            {
-                try { map[d.Id] = await _api!.ScreenshotAsync(d.Id, false, _lifetime.Token); }
-                catch { }
-            }
-            return map;
-        }
-        List<object> Reacted(Dictionary<string, byte[]> before, Dictionary<string, byte[]> after) =>
-            _devices.Where(d => d.Online).Select(d => (object)new
-            {
-                d.Id,
-                diff = before.TryGetValue(d.Id, out var b) && after.TryGetValue(d.Id, out var a)
-                    ? Math.Round(FrameRegion.MeanDifference(b, a, d.ImageWidth / 2, d.ImageHeight / 2, Math.Max(d.ImageWidth, d.ImageHeight)), 2)
-                    : -1
-            }).ToList();
-
-        // Two Home presses, not one: the first leaves an app, the second returns to the
-        // first home page. Without that the phones drift onto different pages and the
-        // same coordinate stops meaning the same thing on each of them - which looks
-        // exactly like broken mirroring when it is really an unequal starting state.
-        async Task NormaliseAsync()
-        {
-            await SendInputAsync("MirrorTest Home", "/key/sendkey", new() { ["fn_key"] = "Home" }, quiet: true);
-            await Task.Delay(900);
-            await SendInputAsync("MirrorTest Home", "/key/sendkey", new() { ["fn_key"] = "Home" }, quiet: true);
-            await Task.Delay(1600);
-        }
-
-        // How long does one input request take from inside this app, with its own frame
-        // pumps running and with them stopped? The service itself answers a move in about
-        // 1-3 ms even while both phones are being polled flat out, so any difference here
-        // is this process's own doing.
-        async Task<object> MoveLatency(string label)
-        {
-            var lat = new List<double>();
-            for (int i = 0; i < 25; i++)
-            {
-                var w = System.Diagnostics.Stopwatch.StartNew();
-                try { await _api!.MoveAsync(InputTargetIds(), 100 + i * 4, 500, _lifetime.Token); }
-                catch { continue; }
-                lat.Add(w.Elapsed.TotalMilliseconds);
-                await Task.Delay(18);
-            }
-            lat.Sort();
-            return new { label, p50 = Math.Round(lat[lat.Count / 2], 1), p95 = Math.Round(lat[(int)(lat.Count * .95)], 1), max = Math.Round(lat[^1], 1) };
-        }
-        Note("inputLatencyWithPumps", await MoveLatency("pumps running"));
-        AutoPreview.IsChecked = false;
-        SyncPumpTarget();
-        await Task.Delay(600);
-        Note("inputLatencyPumpsIdle", await MoveLatency("pumps idle"));
-        AutoPreview.IsChecked = true;
-        SyncPumpTarget();
-        await Task.Delay(600);
-
-        double pw = PhoneImage.ActualWidth, ph = PhoneImage.ActualHeight;
-        Note("preview", new { frame = _frame is not null, frameId = _frameId, width = pw, height = ph, pointerEnabled = PointerEnabled.IsChecked });
-
-        if (_frame is not null && pw > 0 && ph > 0)
-        {
-            // 0. a control run. "The screenshot changed" only means "the gesture landed" if
-            //    an untouched phone holds still for the same interval - a clock tick or a
-            //    stray animation would otherwise read as a reaction on every phone.
-            await NormaliseAsync();
-            var quiet = await Shots();
-            await Task.Delay(2000);
-            Note("quietControl", Reacted(quiet, await Shots()));
-
-            // 1. a tap, mirrored. The target is the Clock icon on the stock home screen -
-            //    an app with no network or account side effects that repaints the whole
-            //    screen when it opens, so "the tap landed" is unmistakable in the numbers.
-            //    Note the release point is deliberately a couple of pixels off the press
-            //    point: that difference is what used to move the tap.
-            await NormaliseAsync();
-            var beforeTap = await Shots();
-            BeginGesture(new Point(pw * 0.845, ph * 0.232));
-            await EndGestureAsync(new Point(pw * 0.845 + 2, ph * 0.232 + 2));
-            await Task.Delay(2500);
-            Note("mirroredTap", Reacted(beforeTap, await Shots()));
-
-            // 2. the stroke that runs off the edge of the picture - the one that used to
-            //    freeze half way, and the reason the clamping mapper exists.
-            //
-            //    Two things are checked, and neither depends on what the phones happen to
-            //    be showing. First, what the app SENDS: the delivered coordinate must be
-            //    the clamped edge, addressed to every mirrored phone. Second, whether the
-            //    stroke reached the glass: measured as the change in a small box around the
-            //    coordinate the stroke ended on, which is where each phone's pointer must
-            //    now be sitting.
-            //
-            //    Earlier versions of this probe watched for a home-page flip or for Control
-            //    Centre to open, and both were unreliable for the same reason: a phone
-            //    already on its last page, or an edge gesture iOS declined to recognise,
-            //    looks exactly like mirroring having dropped that phone. The pointer is the
-            //    honest signal - it moves whether or not iOS does anything with the touch.
-            await NormaliseAsync();
-            var beforeStroke = await Shots();
-            BeginGesture(new Point(pw * 0.82, ph * 0.55));
-            for (int i = 1; i <= 14; i++)
-            {
-                // the last points deliberately lie well outside the picture
-                TrackGesture(new Point(pw * 0.82 - pw * 0.95 * i / 14.0, ph * 0.55), true);
-                await Task.Delay(16);
-            }
-            await EndGestureAsync(new Point(-40, ph * 0.55));
-            for (int i = 0; _inputActions.IsRunning && i < 300; i++) await Task.Delay(10);
-            await Task.Delay(1200);
-            var afterStroke = await Shots();
-
-            int endX = Math.Max(0, _lastDragX), endY = (int)(0.55 * (Selected?.ImageHeight ?? 1080));
-            Note("strokePastTheEdge", new
-            {
-                ids = _lastDragIds,
-                addressedEveryMirroredPhone = _lastDragIds == InputTargetIds(),
-                lastDeliveredX = _lastDragX,
-                clampedToTheEdge = _lastDragX == 0,
-                trace = _lastDragTrace,
-                // A whole-frame diff drowns a pointer dot a few pixels across, so look only
-                // where the stroke ended. This is the same measurement auto-bind uses.
-                pointerArrived = _devices.Where(d => d.Online).Select(d => (object)new
-                {
-                    d.Id,
-                    boxDiff = beforeStroke.TryGetValue(d.Id, out var b0) && afterStroke.TryGetValue(d.Id, out var a0)
-                        ? Math.Round(FrameRegion.MeanDifference(b0, a0, endX, endY, 45), 2) : -1
-                }).ToList()
-            });
-
-            await NormaliseAsync();
-
-            // Both phones should now be showing the same thing. If they are not, every
-            // coordinate-based comparison above was measuring divergent state, so say so.
-            var settled = await Shots();
-            var master0 = settled.Values.FirstOrDefault();
-            Note("phonesAgreeAfterReset", _devices.Where(d => d.Online).Select(d => (object)new
-            {
-                d.Id,
-                vsMaster = master0 is null || !settled.TryGetValue(d.Id, out var mine) ? -1
-                    : Math.Round(FrameRegion.MeanDifference(master0, mine, d.ImageWidth / 2, d.ImageHeight / 2, Math.Max(d.ImageWidth, d.ImageHeight)), 2)
-            }).ToList());
-        }
-
-        var qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
-        File.WriteAllText(Path.Combine(qa, "mirror.json"),
-            JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
-    }
-
-    /// <summary>
-    /// Measures the master view and the wall tiles together, while the phones are actually
-    /// moving. A still home screen is the wrong thing to benchmark: the source emits almost
-    /// no new frames, so every rate looks the same and the numbers say nothing about what
-    /// swiping feels like. This drives a continuous mirrored swipe throughout.
-    /// </summary>
-    public async Task RunWallAsync(int tileMs = 0)
-    {
-        await ConnectAsync();
-        if (!_connected) throw new Exception("wall test could not reach the service.");
-        await Task.Delay(800);
-        await RefreshDevicesAsync();
-        if (Selected is null) throw new Exception("wall test found no mirroring phone.");
-
-        SelectAllBox.IsChecked = true;
-        SelectAll_Click(SelectAllBox, new RoutedEventArgs());
-        AutoPreview.IsChecked = true;
-        var content = (FrameworkElement)Content;
-        content.Measure(new Size(1370, 880)); content.Arrange(new Rect(0, 0, 1370, 880)); content.UpdateLayout();
-        if (tileMs > 0) _tilePeriodMs = tileMs;
-        SyncPumpTarget();
-        StartPump();
-        await Task.Delay(2500);           // let both pumps settle and the tiles appear
-
-        var api = _api!;
-        var ids = InputTargetIds();
-        int w = Selected.ImageWidth, h = Selected.ImageHeight;
-        bool running = true;
-
-        // Continuous motion: swipe between home pages, alternating direction so the phones
-        // end where they started.
-        async Task Motion()
-        {
-            bool forward = true;
-            while (running && !_closing)
-            {
-                try
-                {
-                    int from = forward ? (int)(w * 0.85) : (int)(w * 0.15);
-                    int to = forward ? (int)(w * 0.15) : (int)(w * 0.85);
-                    await api.MoveAsync(ids, from, h / 2, _lifetime.Token);
-                    await api.CommandAsync("/mouse/down", new() { ["id"] = ids, ["button"] = "1" }, _lifetime.Token);
-                    for (int i = 1; i <= 12; i++)
-                    {
-                        await api.MoveAsync(ids, from + (to - from) * i / 12, h / 2, _lifetime.Token);
-                        await Task.Delay(12);
-                    }
-                    await api.CommandAsync("/mouse/up", new() { ["id"] = ids, ["button"] = "1" }, _lifetime.Token);
-                    forward = !forward;
-                    await Task.Delay(500);
-                }
-                catch { await Task.Delay(200); }
-            }
-        }
-        var motion = Motion();
-
-        await Task.Delay(1200);
-        long masterStart = _live.Frames, tileStart = _tileFrames;
-        long fetchStart = _tileFetches, dupeStart = _tileDupes;
-        long allocStart = GC.GetTotalAllocatedBytes();
-        int g0 = GC.CollectionCount(0), g1 = GC.CollectionCount(1), g2 = GC.CollectionCount(2);
-        var pauseStart = GC.GetTotalPauseDuration();
-        // Watch the tiles' geometry for the whole run. This is the same measurement that
-        // caught the wall jittering - taken from a screen recording then, taken from the
-        // live layout now - so a tile that resizes itself again will show up here.
-        var widths = new HashSet<double>();
-        var lefts = new HashSet<double>();
-        bool watching = true;
-        async Task WatchGeometry()
-        {
-            while (watching && !_closing)
-            {
-                await Dispatcher.InvokeAsync(() =>
-                {
-                    foreach (var t in _wall)
-                        if (PhoneWall.ItemContainerGenerator.ContainerFromItem(t) is FrameworkElement box && box.ActualWidth > 0)
-                        {
-                            widths.Add(Math.Round(box.ActualWidth, 2));
-                            lefts.Add(Math.Round(box.TranslatePoint(new Point(0, 0), PhoneWall).X, 2));
-                        }
-                });
-                await Task.Delay(50);
-            }
-        }
-        var watcher = WatchGeometry();
-
-        var clock = System.Diagnostics.Stopwatch.StartNew();
-        await Task.Delay(10000);
-        clock.Stop();
-        watching = false;
-        try { await watcher; } catch { }
-        double seconds = clock.Elapsed.TotalSeconds;
-        long masterDrawn = _live.Frames - masterStart, tileDrawn = _tileFrames - tileStart;
-        int tiles = Math.Max(1, _wall.Count);
-
-        running = false;
-        try { await motion; } catch { }
-        await SendInputAsync("WallTest Home", "/key/sendkey", new() { ["fn_key"] = "Home" }, quiet: true);
-
-        var gaps = _jitter.Summary();
-        var qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
-        File.WriteAllText(Path.Combine(qa, $"wall-{_tilePeriodMs}.json"), JsonSerializer.Serialize(new
-        {
-            phonesOnWall = _wall.Count,
-            mirroring = Followers().Count,
-            seconds = Math.Round(seconds, 2),
-            masterFps = Math.Round(masterDrawn / seconds, 1),
-            tileFpsEach = Math.Round(tileDrawn / seconds / tiles, 1),
-            tileFramesTotal = tileDrawn,
-            distinctTileWidths = widths.OrderBy(x => x).ToList(),
-            distinctTileLefts = lefts.OrderBy(x => x).ToList(),
-            tileFetchesPerSec = Math.Round((_tileFetches - fetchStart) / seconds, 1),
-            tileDuplicatesSkipped = _tileDupes - dupeStart,
-            tilePumpsAlive = _tileStreams.RunningCount,
-            tilePumpExits = _tileRestarts,
-            avgFetchMs = _tileFetches > 0 ? Math.Round((double)_tileFetchMs / _tileFetches, 1) : 0,
-            avgPrepareMs = tileDrawn > 0 ? Math.Round((double)_tilePrepareMs / tileDrawn, 1) : 0,
-            avgPresentMs = tileDrawn > 0 ? Math.Round((double)_tilePresentMs / tileDrawn, 1) : 0,
-            masterPresentP50Ms = Math.Round(gaps.P50, 1),
-            masterPresentP95Ms = Math.Round(gaps.P95, 1),
-            allocatedMbPerSec = Math.Round((GC.GetTotalAllocatedBytes() - allocStart) / seconds / 1e6, 1),
-            gen0 = GC.CollectionCount(0) - g0,
-            gen1 = GC.CollectionCount(1) - g1,
-            gen2 = GC.CollectionCount(2) - g2,
-            gcPauseMs = Math.Round((GC.GetTotalPauseDuration() - pauseStart).TotalMilliseconds, 1),
-            tilePeriodMs = _tilePeriodMs,
-            tileHeight = _tileHeight,
-            at = DateTime.Now
-        }, new JsonSerializerOptions { WriteIndented = true }));
-    }
-
-    public async Task RunFpsAsync()
-    {
-        await ConnectAsync();
-        if (!_connected) throw new Exception("fps test could not reach the service.");
-        if (Selected is null) throw new Exception("fps test found no mirroring phone to measure.");
-        AutoPreview.IsChecked = true;
-        SyncPumpTarget();
-        StartPump();
-
-        await Task.Delay(1500);                 // let the pump settle
-        _rate.Reset(); _jitter.Reset();
-        long start = _live.Frames;
-        // Every screenshot is a fresh 1.6 MB array, which is over the 85 KB large-object
-        // threshold, so each frame is a Large Object Heap allocation. Record what that
-        // costs: gen-2 collections are what turn a steady stream into a stuttering one.
-        long allocStart = GC.GetTotalAllocatedBytes();
-        int g0 = GC.CollectionCount(0), g1 = GC.CollectionCount(1), g2 = GC.CollectionCount(2);
-        var pauseStart = GC.GetTotalPauseDuration();
-        var clock = System.Diagnostics.Stopwatch.StartNew();
-        var samples = new List<double>();
-        for (int i = 0; i < 16; i++) { await Task.Delay(500); samples.Add(_rate.Fps); }
-        clock.Stop();
-
-        long drawn = _live.Frames - start;
-        double seconds = clock.Elapsed.TotalSeconds;
-        double average = seconds > 0 ? drawn / seconds : 0;
-        var ordered = samples.Order().ToList(); // Keep zero-update samples; do not hide pauses.
-        double worst = ordered.Count > 0 ? ordered[0] : 0;
-        double median = ordered.Count > 0 ? ordered[ordered.Count / 2] : 0;
-
-        var qa = Path.Combine(InstallLayout.RunFiles, "qa"); Directory.CreateDirectory(qa);
-        File.WriteAllText(Path.Combine(qa, "fps.json"), JsonSerializer.Serialize(new
-        {
-            device = Selected?.DisplayName,
-            framesPresented = drawn,
-            allocatedMbPerSec = seconds > 0 ? Math.Round((GC.GetTotalAllocatedBytes() - allocStart) / seconds / 1e6, 1) : 0,
-            gen0 = GC.CollectionCount(0) - g0,
-            gen1 = GC.CollectionCount(1) - g1,
-            gen2 = GC.CollectionCount(2) - g2,
-            gcPauseMs = Math.Round((GC.GetTotalPauseDuration() - pauseStart).TotalMilliseconds, 1),
-            wallTiles = _wall.Count,
-            seconds = Math.Round(seconds, 2),
-            averageFps = Math.Round(average, 1),
-            medianFps = Math.Round(median, 1),
-            worstFps = Math.Round(worst, 1),
-            // Pacing, not just throughput. A run with the same averageFps but a larger
-            // p95 or a non-zero longIntervals count will look worse on screen, and that
-            // is the difference this build set out to remove.
-            presentIntervalP50Ms = Math.Round(_jitter.Summary().P50, 1),
-            presentIntervalP95Ms = Math.Round(_jitter.Summary().P95, 1),
-            presentIntervalMaxMs = Math.Round(_jitter.Summary().Max, 1),
-            longIntervals = _jitter.Summary().Long,
-            sinceLastPresentationMs = _jitter.SinceLastMs,
-            metricScope = "WPF bitmap updates after pixel deduplication; not physical display scans or receiver freshness",
-            pollIntervalMs = _pollInterval,
-            framePeriodMs = _framePeriod,
-            imageSize = $"{_live.Width}x{_live.Height}",
-            at = DateTime.Now
-        }, new JsonSerializerOptions { WriteIndented = true }));
-    }
 
     public async Task RunSmokeAsync(bool fake, TestHandler? handler = null)
     {
