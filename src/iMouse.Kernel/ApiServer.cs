@@ -125,7 +125,6 @@ public sealed class ApiServer : IDisposable
         return new { code = 0, rack = Rack, input = "direct-hid", input_protocol = 1, input_leases_required = true,
             build_identity = KernelDiagnostics.BuildIdentity, process = KernelDiagnostics.ProcessSnapshot(),
             input_configuration = _input.DiagnosticConfiguration(),
-            hid_replies = _input.ReplyDiagnostics(),
             control_compatibility = _input.ControlCompatibility(),
             allowed = _input.Allowed, home_sequence = _input.HomeSequenceName, receiver = _castName,
             receiver_state = VideoState(rec), receiver_message = ScreenshotMessage(),

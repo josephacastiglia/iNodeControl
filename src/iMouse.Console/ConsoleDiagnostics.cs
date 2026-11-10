@@ -103,19 +103,6 @@ public static class ConsoleDiagnostics
         if (data.TryGetProperty("control_compatibility", out var controls))
             result["control_compatibility"] = Pick(controls, ["home_sequence", "home_sends_tab", "navigation_sequence",
                 "navigation_sends_tab", "app_switcher", "absolute_probe_board", "absolute_probe", "phone_setting_detection"]);
-        if (data.TryGetProperty("hid_replies", out var replies))
-        {
-            if (!replies.TryGetProperty("boards", out var boards) || boards.ValueKind != JsonValueKind.Array || boards.GetArrayLength() > 512)
-                throw new InvalidDataException();
-            result["hid_replies"] = new { mode = Optional(replies, "mode"), boards = boards.EnumerateArray().Select(row =>
-            {
-                var board = Pick(row, ["pid"]);
-                if (row.TryGetProperty("observation", out var observation)) board["observation"] = Pick(observation,
-                    ["State", "Connection", "Reports", "MovementSignals", "StatusReports", "IdentifierReports", "UnknownReports", "InvalidReports",
-                     "LastFamily", "LastReportAgeMs", "ErrorType", "Meaning"]);
-                return board;
-            }).ToArray() };
-        }
         if (data.TryGetProperty("input_configuration", out var input))
             result["input_configuration"] = new { precise_movement_delay_ms = Optional(input, "precise_movement_delay_ms"),
                 absolute_probe_board = Optional(input, "absolute_probe_board"), navigation_sequence = Optional(input, "navigation_sequence"),

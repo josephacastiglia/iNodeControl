@@ -45,21 +45,11 @@ internal static class KernelStartupTests
             check(watched.IsCancellationRequested, "The stop watcher cancels the kernel exactly as Ctrl+C does");
         }
         Reject(() => KernelOptions.Parse(["--rack", "A", "--hid-caps"]), "--rack is refused with a raw hardware command");
-        check(defaults.ReplyBoards.Length == 0, "HID reply observation is off unless explicitly scoped at startup");
         check(defaults.Navigation == NavigationSequence.Vendor,
             "Experimental navigation options do not change normal startup");
         check(KernelOptions.Parse(["--home-sequence", "fn-h", "--navigation-sequence", "direct-fn"]).Home == HomeSequence.FnH
             && KernelOptions.Parse(["--navigation-sequence", "direct-fn"]).Navigation == NavigationSequence.DirectFn,
             "Direct Fn navigation is explicitly selected without claiming phone settings detection");
-        check(KernelOptions.Parse(["--input-pid", "C24C,C241", "--hid-replies-pid", "c24c"]).ReplyBoards.SequenceEqual(new[] { "c24c" }),
-            "Reply observation can select a subset of enabled boards");
-        foreach (var args in new[] {
-            new[] { "--hid-replies-pid", "C24C" },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C241" },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C,c24c" },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C," },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C", "--hid-caps" } })
-            Reject(() => KernelOptions.Parse(args), "Unsafe reply diagnostic scope refused: " + string.Join(' ', args));
         check(defaults.HeldReceivers.Length == 0 && KernelOptions.Parse(["--hold-receivers", "C214, 724e"]).HeldReceivers.SequenceEqual(new[] { "C214", "724e" }),
             "Receivers start advertised unless explicitly held");
         foreach (var args in new[] {

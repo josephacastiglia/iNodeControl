@@ -12,25 +12,13 @@ public interface IHidTransport : IDisposable
 public sealed class HidConnection : IHidTransport
 {
     private readonly Stream _stream;
-    private readonly HidReplyMonitor? _input;
-    internal HidConnection(Stream output, HidReplyMonitor input)
-    {
-        _stream = output;
-        _input = input;
-    }
-    public HidConnection(string pid, HidReplyTelemetry? replies = null)
+    public HidConnection(string pid)
     {
         var board = HidHost.Enumerate().SingleOrDefault(b => b.Pid.Equals(pid, StringComparison.OrdinalIgnoreCase))
             ?? throw new KeyNotFoundException("Board " + pid);
         var handle = CreateFileW(board.Path, 0xC0000000, 3, IntPtr.Zero, 3, 0x40000000, IntPtr.Zero);
         if (handle.IsInvalid) { int error = Marshal.GetLastWin32Error(); handle.Dispose(); throw new Win32Exception(error); }
         _stream = new FileStream(handle, FileAccess.ReadWrite, 9, true);
-        if (replies is not null)
-        {
-            try { _input = new HidReplyMonitor(HidInputReader.Open(board), replies); }
-            catch (Exception ex) when (ex is IOException or Win32Exception or UnauthorizedAccessException)
-            { replies.Started(); replies.Failed("open-failed", ex); }
-        }
     }
 
     public async Task SendAsync(byte[] data, CancellationToken ct)
@@ -44,11 +32,7 @@ public sealed class HidConnection : IHidTransport
         await _stream.FlushAsync(timeout.Token).ConfigureAwait(false);
     }
 
-    public void Dispose()
-    {
-        try { _input?.Dispose(); }
-        finally { _stream.Dispose(); }
-    }
+    public void Dispose() => _stream.Dispose();
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern SafeFileHandle CreateFileW(string path, uint access, uint share, IntPtr security,
