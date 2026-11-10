@@ -165,9 +165,6 @@ class TikTokHttpTests(unittest.TestCase, TikTokVideoFixture):
         with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel')):
             self.assertEqual(409, self.request('/api/farm/tiktok-creations', spec)[0])
         self.assertEqual(404, self.request('/api/farm/tiktok-creations/'+spec['id'])[0])
-        formats = {row['id']: row for row in self.request('/api/farm/capabilities')[1]['formats']}
-        self.assertEqual('/api/farm/tiktok-creations', formats['tt_video']['candidateEndpoint'])
-        self.assertEqual('integrated_offline', formats['tt_video']['level'])
 
     def test_configured_route_is_local_only_store_bound_and_never_replays(self):
         videos, draft = self.stage(self.root/'tiktok-fixture')

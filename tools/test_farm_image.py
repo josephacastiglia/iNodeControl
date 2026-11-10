@@ -471,10 +471,6 @@ class ImageHttpTests(unittest.TestCase):
                 self.assertEqual(404, self.request('/api/farm/' + route + '/' + spec['id'])[0])
                 self.assertEqual([], self.request('/api/farm/' + route + '?draft_id=' + spec['draft_id'])[1]['runs'])
                 self.assertEqual(400, self.request('/api/farm/' + route + '/' + spec['id'] + '/cancel', dict(store_id=str(uuid.uuid4())))[0])
-        formats = {row['id']: row for row in self.request('/api/farm/capabilities')[1]['formats']}
-        self.assertEqual(('/api/farm/x-image-creations', 'x_image'), (formats['x_post']['candidateEndpoint'], formats['x_post']['draftFormat']))
-        self.assertEqual(('/api/farm/tiktok-photo-creations', 'tt_photo'),
-                         (formats['tt_photo_carousel']['candidateEndpoint'], formats['tt_photo_carousel']['draftFormat']))
 
     def test_image_drafts_are_created_and_read_over_http(self):
         _, _, chosen = stage(self.root, 'tt_photo', 2, board='C24C')

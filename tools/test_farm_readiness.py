@@ -36,16 +36,6 @@ class FarmReadinessTests(unittest.TestCase):
         self.assertEqual(before, self.db.get_persona('C24C'))
         self.assertEqual('observation_incomplete', result['status'])
 
-    def test_feature_readiness_never_promotes_simulation_to_live_acceptance(self):
-        from farm_capabilities import capabilities
-        report = capabilities()
-        self.assertFalse(report['allMarketingFeaturesAccepted'])
-        self.assertFalse(report['liveAutomationReady'])
-        features = {f['id']: f for f in report['features']}
-        self.assertEqual(len(features), len(report['features']))
-        for feature in ('formats', 'warmup', 'replies', 'publish'):
-            self.assertIn(features[feature]['availability'], ('Simulation only', 'Unavailable'))
-
     def test_every_unvalidated_live_action_refuses_before_a_phone_probe(self):
         self.runtime.execution_mode = 'live'
         handler = object.__new__(server.FarmRequestHandler)

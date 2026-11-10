@@ -220,10 +220,6 @@ class YouTubeHttpTests(unittest.TestCase, YouTubeVideoFixture):
         with patch.object(self.runtime, 'get_kernel', side_effect=AssertionError('No kernel')):
             self.assertEqual(409, self.request('/api/farm/youtube-creations', spec)[0])
         self.assertEqual(404, self.request('/api/farm/youtube-creations/'+spec['id'])[0])
-        formats = {row['id']: row for row in self.request('/api/farm/capabilities')[1]['formats']}
-        self.assertEqual(('/api/farm/youtube-creations', 'integrated_offline'), (formats['yt_short']['candidateEndpoint'], formats['yt_short']['level']))
-        features = {row['id'] for row in self.request('/api/farm/capabilities')[1]['features']}
-        self.assertIn('youtube-draft', features)
 
     def test_configured_route_is_local_only_store_bound_and_never_replays(self):
         videos, draft = self.stage(self.root/'yt-fixture')

@@ -45,7 +45,6 @@ import imouse_social_automation as engine
 from farm_jobs import FarmJobs, JobCancelled
 from farm_drafts import CarouselDrafts, DraftConflict
 from farm_transfers import CarouselTransfers, TransferConflict
-from farm_capabilities import capabilities
 from farm_video import VideoDrafts
 from farm_image import ImageDrafts
 from farm_observations import ObservationStore
@@ -114,7 +113,7 @@ class FarmBackendRuntime:
         self.operation_lock = threading.RLock()
         source = Path(__file__).resolve().parent
         import hashlib
-        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_capabilities.py", "farm_video.py", "farm_image.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py", "farm_draft_media.py", "farm_carousel_inspection.py", "farm_draft_rehearsal.py", "farm_screen_layout.py", "farm_transitions.py", "farm_live_verification.py", "farm_draft_transport.py", "farm_draft_workflow.py", "farm_draft_runs.py", "farm_draft_anchors.json", "farm_draft_creation.py", "farm_creation_runs.py", "farm_creation_layout.py", "farm_home_edit.py", "farm_creation_badges.json", "farm_creation_browser.json", "farm_creation_controls.json", "farm_draft_recovery.py", "farm_format_coverage.py", "farm_reel_layout.py", "farm_reel_controls.json", "farm_reel_creation.py", "farm_reel_runs.py", "farm_tiktok_layout.py", "farm_tiktok_controls.json", "farm_tiktok_creation.py", "farm_tiktok_runs.py", "farm_permission_prompts.py", "farm_x_layout.py", "farm_x_creation.py", "farm_x_runs.py", "farm_youtube_layout.py", "farm_youtube_controls.json", "farm_youtube_creation.py", "farm_youtube_runs.py"))).hexdigest()
+        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_video.py", "farm_image.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py", "farm_draft_media.py", "farm_carousel_inspection.py", "farm_draft_rehearsal.py", "farm_screen_layout.py", "farm_transitions.py", "farm_live_verification.py", "farm_draft_transport.py", "farm_draft_workflow.py", "farm_draft_runs.py", "farm_draft_anchors.json", "farm_draft_creation.py", "farm_creation_runs.py", "farm_creation_layout.py", "farm_home_edit.py", "farm_creation_badges.json", "farm_creation_browser.json", "farm_creation_controls.json", "farm_draft_recovery.py", "farm_reel_layout.py", "farm_reel_controls.json", "farm_reel_creation.py", "farm_reel_runs.py", "farm_tiktok_layout.py", "farm_tiktok_controls.json", "farm_tiktok_creation.py", "farm_tiktok_runs.py", "farm_permission_prompts.py", "farm_x_layout.py", "farm_x_creation.py", "farm_x_runs.py", "farm_youtube_layout.py", "farm_youtube_controls.json", "farm_youtube_creation.py", "farm_youtube_runs.py"))).hexdigest()
         db_path = db_path or Path("output/farm-data/v2") / execution_mode / "imouse_farm.db"
         stage_root = stage_root or Path("output/media-stage/v2") / execution_mode
         self.calibration_path = db_path.parent / "ui-boxes.json"
@@ -332,7 +331,7 @@ class FarmBackendRuntime:
 
 
 RUNTIME: FarmBackendRuntime | None = None
-# Image creation routes -> (label, runtime attribute). Capabilities: xImageCreation, tiktokPhotoCreation.
+# Image creation routes -> (label, runtime attribute). In /health: xImageCreation, tiktokPhotoCreation.
 IMAGE_CREATION_ROUTES = {'x-image-creations': ('X image', 'x_image_creations'),
                          'tiktok-photo-creations': ('TikTok photo', 'tiktok_photo_creations')}
 
@@ -395,10 +394,6 @@ class FarmRequestHandler(BaseHTTPRequestHandler):
         assert RUNTIME is not None
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/") or "/"
-
-        if path == '/api/farm/capabilities':
-            self._send_json(200, capabilities())
-            return
 
         if path == '/api/farm/draft-recoveries' or path.startswith('/api/farm/draft-recoveries/'):
             if not self._transfer_access_allowed():
