@@ -40,10 +40,7 @@ SCHEMA = 1
 # Private state, laid out as the farm tools expect it relative to their state root (farm_paths.MAIN once
 # IMOUSE_FARM_DATA is honoured). Created empty by init-data; filled by the operator's own preparations.
 DATA_DIRS = (
-    'analysis/farm-multiphone-20261020/slots',    # rack preparation, process records, releases log
-    'analysis/farm-multiphone-20261020/held',
-    'analysis/farm-multiphone-20261020/rack-a',
-    'analysis/farm-multiphone-20261020/rack-b',
+    'analysis/farm-multiphone-20261020/slots',    # the kernel's preparation, process record, logs and ledgers
     'analysis/farm-multiphone-20261020/windows',  # per-window preparations, backend data, run logs
     'output/candidate-runs',                      # kernel run directories: devices, receivers, calibration
     'output/farm-data',                           # backend databases

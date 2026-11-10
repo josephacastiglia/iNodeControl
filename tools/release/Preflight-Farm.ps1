@@ -189,10 +189,10 @@ Invoke-Probe {
     elseif ($drive) { Add-Check 'disk' 'ok' ("{0:N1} GB free" -f ($drive.Free / 1GB)) }
 } 'folders'
 
-# 10. Ports the farm listens on (loopback kernels and backends); in use now = a farm or another app runs
+# 10. Ports the farm listens on (the loopback kernel and backends); in use now = a farm or another app runs
 Invoke-Probe {
     $listen = @(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | ForEach-Object LocalPort | Sort-Object -Unique)
-    $busy = @(9916, 9926, 9915, 9925, 9935, 9945 | Where-Object { $_ -in $listen })
+    $busy = @(9916, 9915, 9925, 9935, 9945 | Where-Object { $_ -in $listen })
     if ($busy.Count) { Add-Check 'ports' 'warn' "in use now: $($busy -join ', ')" 'If no farm is running on this PC, find the program on those ports (Get-NetTCPConnection -LocalPort <port>) and close it.' }
     else { Add-Check 'ports' 'ok' 'kernel and backend ports are free' }
 } 'ports'

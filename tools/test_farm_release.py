@@ -38,7 +38,7 @@ def make_repo(base):
     (tools / 'test_farm_jobs.py').write_text('import farm_jobs\n', encoding='utf-8')
     (tools / 'kernel-window/Stop-ConsoleProcessGracefully.ps1').write_text('param($Pid)\n', encoding='utf-8')
     (rack / 'Start-Multiphone.ps1').write_text(
-        "param($Stage)\n$taskDir=Join-Path $PSScriptRoot $Stage\n& python (Join-Path $PSScriptRoot 'rack_kernels.py')\n"
+        "$taskDir=Join-Path $PSScriptRoot 'slots'\n& python (Join-Path $PSScriptRoot 'rack_kernels.py')\n"
         "# preparation.json lives beside this script\n$p=Get-Content (Join-Path $taskDir 'preparation.json')\n", encoding='utf-8')
     (rack / 'Stop-Multiphone.ps1').write_text("& (Join-Path $PSScriptRoot '..\\..\\tools\\kernel-window\\Stop-ConsoleProcessGracefully.ps1')\n", encoding='utf-8')
     for name in ('Release-Receiver.ps1', 'Restart-Receiver.ps1', 'Stop-Window.ps1'):

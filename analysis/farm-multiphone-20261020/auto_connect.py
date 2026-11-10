@@ -13,7 +13,6 @@ live receiver also proves this board drives this phone. Every tap is a reset the
 C24C's calibrated points; no step repeats. One lease, released at the end.
 
   python auto_connect.py --board C214 --phone-ip 192.168.4.27
-  python auto_connect.py --rack B --board CD51 ...   on rack B's own kernel (rack-b/preparation.json's port)
 """
 import argparse
 import json
@@ -32,17 +31,9 @@ from farm_observations import WindowsOcr  # noqa: E402
 from identify_phone import acquire, post, request  # noqa: E402
 from mdns_watch import Watcher, lan_address  # noqa: E402
 
-# The single kernel, or rack A's (rack_kernels.py keeps it on 9916); rack_recovery.py's bring-up sets
-# IMOUSE_RACK_API for the kernel it is bringing up (card_survey.py imports this BASE too).
+# The rack kernel; rack_recovery.py's bring-up sets IMOUSE_RACK_API for the kernel it is bringing up
+# (card_survey.py imports this BASE too).
 BASE = os.environ.get('IMOUSE_RACK_API') or 'http://127.0.0.1:9916/api'
-
-
-def rack_api(rack):
-    """The API of one rack's own kernel, from its preparation (rack_kernels.py prepare)."""
-    prep = json.loads((STATE / f'rack-{rack.lower()}' / 'preparation.json').read_text(encoding='utf-8-sig'))
-    if prep.get('rack') != rack.upper() or not prep.get('api', '').startswith('http://127.0.0.1:'):
-        raise SystemExit(f'rack-{rack.lower()}/preparation.json is not a rack {rack.upper()} kernel preparation.')
-    return prep['api']
 
 
 OCR = WindowsOcr()
@@ -122,10 +113,7 @@ def main():
     # --small: a 4.7-inch phone (6s/7/8) on the placeholder calibration, with a --survey read on one
     # (card_survey.py --small): its tile, aim and Home-button close.
     parser.add_argument('--small', action='store_true')
-    parser.add_argument('--rack', choices=['A', 'B'], help="a rack's own kernel; default the kernel on 9916")
     args = parser.parse_args()
-    global BASE
-    if args.rack: BASE = rack_api(args.rack)
     if args.small and not args.survey: raise SystemExit('--small needs a --survey read on a 4.7-inch phone.')
     board = args.board.upper()
     device = next(d for d in request(BASE, 'GET', '/device/get', timeout=8)['list'] if d.get('pid', '').upper() == board)

@@ -5,12 +5,18 @@
   python rack_recovery.py ledger --api URL --before FILE --by NAME --ledger FILE
       Appends a ledger entry for every board whose input became stopped since FILE: what we stopped,
       with the generation it left, so a later bring-up resumes exactly those and nothing else.
-  python rack_recovery.py bringup [--stage slots | --rack A|B] [--plan bringup-plan.json] [--plan-only]
-      The ordered reconnect (Bringup-Rack.ps1). Writes bringup-<time>.json beside the preparation.
-  python rack_recovery.py watch [--stage slots | --rack A|B] [--interval 30] [--no-bringup] [--once]
-      The watchdog (Watch-Rack.ps1): when the recorded kernel has died, stops its orphaned receivers,
-      withdraws their names, starts the kernel again (Start-Multiphone.ps1) and runs the bring-up.
-      A kernel stopped on purpose (Stop-Multiphone.ps1 renames its record) is never restarted.
+  python rack_recovery.py bringup [--plan bringup-plan.json] [--plan-only] [--attempts 2]
+      The ordered reconnect of the rack's phones. Wakes Home-button phones, retries once, and writes
+      bringup-<time>/report.json beside the preparation. Drives phones (taps, Home): run it only when
+      no lane is on a phone.
+  python rack_recovery.py watch [--interval 30] [--no-bringup] [--once] [--max-restarts 3]
+      The watchdog, for the operator to leave running. Every interval it checks the kernel in
+      processes.json. When that kernel has died it stops the receivers it left (useless without it and
+      holding its ports), withdraws their names, starts the kernel again (Start-Multiphone.ps1) and
+      runs the bring-up. It never touches a kernel that is running, even one whose API is silent (it
+      reports that), and never restarts a kernel stopped on purpose (Stop-Multiphone.ps1 renames its
+      record). At most --max-restarts an hour, then it stops and says so. Pause it without stopping
+      it: create watchdog-pause beside the preparation. Log: watchdog.jsonl beside the preparation.
 
 Bring-up order (5 Nov, the orchestrator's live findings; bringup-plan.json): the 4.7-inch card shows
 three rows and numeric names sort ahead of 'iMouse2-B..', so rack B goes first, from B20 alone
@@ -36,6 +42,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from rack_kernels import STATE, kernel_folder  # noqa: E402  (beside this script)
 OPERATOR_STOP = 'Stopped by operator.'
 SMALL_ROW1, SMALL_PITCH, SMALL_ROWS = 483, 69, 3      # The 4.7-inch card: three visible rows (card_survey.py).
 XR_ROW1, XR_PITCH, XR_ROWS = 226, 63, 9               # The XR card, unscrolled.
@@ -45,21 +53,6 @@ def utc(): return datetime.now(timezone.utc).isoformat()
 def stamp(): return datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
 def natural(name): return [int(p) if p.isdigit() else p for p in re.split(r'(\d+)', name.casefold())]
 def load(path): return json.loads(Path(path).read_text(encoding='utf-8-sig'))
-
-
-def state_root():
-    try:
-        sys.path.insert(0, str(ROOT / 'tools'))
-        import farm_paths
-        return Path(farm_paths.rack_state(HERE))
-    except Exception:   # noqa: BLE001 - a checkout without the release lane's helper keeps state here
-        return HERE
-
-
-def stage_dir(stage=None, rack=None, root=None):
-    root = Path(root) if root else state_root()
-    if stage and rack: raise SystemExit('Choose --stage or --rack, not both.')
-    return root / (f'rack-{rack.lower()}' if rack else (stage or 'slots'))
 
 
 # ---------------------------------------------------------------- kernel access
@@ -204,7 +197,6 @@ class Actions:
     def snapshot(self): return snapshot(self.kernel)
 
     def browse(self):
-        sys.path.insert(0, str(ROOT / 'tools'))
         from farm_mirroring import browse
         return set(browse(4)[0])
 
@@ -233,7 +225,7 @@ class Actions:
         out = self._run('card_survey.py', '--board', board, *(['--small'] if small else []))
         got = last_json(out)
         if not got or not got.get('folder'): return None, 'survey failed: ' + (out.strip().splitlines() or [''])[-1][-200:]
-        return state_root() / got['folder'] / 'record.json', 'surveyed'
+        return STATE / got['folder'] / 'record.json', 'surveyed'
 
     def write_survey(self, board, survey):
         path = self.folder / f'crafted-{board}-{stamp()}.json'
@@ -288,7 +280,7 @@ def bring_up(phones, actions, ledger_path, attempts=2):
                 break
             before = actions.snapshot()
             tried['result'] = actions.connect(phone['board'], path, phone['card'] == 'small', phone.get('phone_ip'))
-            mine = ledger_entries(before, actions.snapshot(), 'Bringup-Rack')   # our own lease expiring, if any
+            mine = ledger_entries(before, actions.snapshot(), 'bringup')   # our own lease expiring, if any
             append_ledger(ledger_path, mine); ledger += mine
             row['result'] = tried['result']
             if tried['result'].startswith('mirroring') or 'already mirroring' in tried['result']: break
@@ -338,11 +330,6 @@ def orphans(processes, kernel_pid, names, exe='uxplay.exe'):
     return out
 
 
-def python_scope(scope_args):
-    """['-Stage', 'slots'] -> ['--stage', 'slots']; ['-Rack', 'B'] -> ['--rack', 'B']."""
-    return ['--' + scope_args[0].lstrip('-').lower(), scope_args[1]]
-
-
 def powershell(script, *args, log=None):
     cmd = ['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(HERE / script), *args]
     with open(log or os.devnull, 'a', encoding='utf-8') as out:
@@ -363,7 +350,7 @@ def kernel_running(record, procs):
     return any(p['ProcessId'] == pid and (p.get('ExecutablePath') or '').lower() == path.lower() for p in procs)
 
 
-def watch(folder, scope_args, interval, bringup, once, max_restarts=3, window=3600):
+def watch(folder, interval, bringup, once, max_restarts=3, window=3600):
     folder = Path(folder)
     log = folder / 'watchdog.jsonl'
     restarts = []
@@ -397,10 +384,10 @@ def watch(folder, scope_args, interval, bringup, once, max_restarts=3, window=36
                                       '--status-url', (record.get('api') or prep['arguments'][0].rstrip('/')) + '/kernel/status', *boards],
                                      stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=120)
             entry['goodbye'] = goodbye.returncode
-            entry['start'] = powershell('Start-Multiphone.ps1', *scope_args, log=folder / 'watchdog-start.txt')
+            entry['start'] = powershell('Start-Multiphone.ps1', log=folder / 'watchdog-start.txt')
             if entry['start'] == 0: pending.unlink(missing_ok=True)
             if entry['start'] == 0 and bringup:
-                entry['bringup'] = subprocess.run([sys.executable, str(HERE / 'rack_recovery.py'), 'bringup', *python_scope(scope_args)],
+                entry['bringup'] = subprocess.run([sys.executable, str(HERE / 'rack_recovery.py'), 'bringup'],
                                                   stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=7200).returncode
         if action != 'healthy' or once:
             with open(log, 'a', encoding='utf-8') as f: f.write(json.dumps(entry) + '\n')
@@ -417,12 +404,9 @@ def main():
     s = sub.add_parser('snapshot'); s.add_argument('--api', required=True); s.add_argument('--out', required=True)
     l = sub.add_parser('ledger'); l.add_argument('--api', required=True); l.add_argument('--before', required=True)
     l.add_argument('--by', required=True); l.add_argument('--ledger', required=True)
-    for name in ('bringup', 'watch'):
-        c = sub.add_parser(name)
-        c.add_argument('--stage', choices=['held', 'slots']); c.add_argument('--rack', choices=['A', 'B', 'a', 'b'])
-    b = sub.choices['bringup']; b.add_argument('--plan', default=str(HERE / 'bringup-plan.json')); b.add_argument('--plan-only', action='store_true')
+    b = sub.add_parser('bringup'); b.add_argument('--plan', default=str(HERE / 'bringup-plan.json')); b.add_argument('--plan-only', action='store_true')
     b.add_argument('--attempts', type=int, default=2)
-    w = sub.choices['watch']; w.add_argument('--interval', type=int, default=30); w.add_argument('--no-bringup', action='store_true')
+    w = sub.add_parser('watch'); w.add_argument('--interval', type=int, default=30); w.add_argument('--no-bringup', action='store_true')
     w.add_argument('--once', action='store_true'); w.add_argument('--max-restarts', type=int, default=3)
     args = parser.parse_args()
     if args.command == 'snapshot':
@@ -430,11 +414,9 @@ def main():
     if args.command == 'ledger':
         entries = ledger_entries(load(args.before), snapshot(Kernel(args.api)), args.by)
         append_ledger(args.ledger, entries); print(json.dumps(dict(recorded=[e['board'] for e in entries]))); return
-    rack = args.rack.upper() if args.rack else None
-    folder = stage_dir(args.stage, rack)
-    scope = ['-Rack', rack] if rack else ['-Stage', args.stage or 'slots']
+    folder = kernel_folder()
     if args.command == 'watch':
-        watch(folder, scope, args.interval, not args.no_bringup, args.once, args.max_restarts); return
+        watch(folder, args.interval, not args.no_bringup, args.once, args.max_restarts); return
     prep = load(folder / 'preparation.json')
     record = load(folder / 'processes.json') if (folder / 'processes.json').exists() else {}
     api = record.get('api') or prep['arguments'][0].rstrip('/')

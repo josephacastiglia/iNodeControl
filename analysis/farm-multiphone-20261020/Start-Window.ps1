@@ -3,27 +3,25 @@
 # if this window already runs, or if its own ports are taken.
 param([Parameter(Mandatory)][ValidatePattern('^[a-z]+(-[a-z]+)?-slot\d+$')][string]$Window)
 $ErrorActionPreference='Stop'
-# State (preparations, process records, logs) sits beside this script in a checkout; installed, Farm.ps1 sets
-# IMOUSE_FARM_DATA and the state is in the data folder. Python: IMOUSE_FARM_PYTHON when installed, else PATH.
-$taskState=if($env:IMOUSE_FARM_DATA){Join-Path $env:IMOUSE_FARM_DATA 'analysis\farm-multiphone-20261020'}else{$PSScriptRoot}
+. (Join-Path $PSScriptRoot 'RackState.ps1')
 $taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 # Python: IMOUSE_FARM_PYTHON (installed), else this user's Python 3.11, else python.exe on PATH (not the Store stub).
 $taskPython=@($env:IMOUSE_FARM_PYTHON,(Join-Path $env:LOCALAPPDATA 'Programs\Python\Python311\python.exe'),(Get-Command python.exe -ErrorAction SilentlyContinue).Source) | Where-Object { $_ -and $_ -notlike '*\WindowsApps\*' -and (Test-Path -LiteralPath $_ -PathType Leaf) } | Select-Object -First 1  # release-lint: dev-fallback
 if(!$taskPython){throw 'Python 3.11 was not found: install it for this user or set IMOUSE_FARM_PYTHON.'}
-$taskDir=Join-Path $taskState "windows\$Window"
+$taskDir=Get-RackState "windows\$Window"
 $taskProcessFile=Join-Path $taskDir 'processes.json'
 if(Test-Path -LiteralPath $taskProcessFile){throw 'This window already has a process record. Do not start duplicates.'}
 $taskPrep=Get-Content -LiteralPath (Join-Path $taskDir 'preparation.json') -Raw | ConvertFrom-Json
 if((Get-FileHash -LiteralPath $taskPrep.config -Algorithm SHA256).Hash.ToLowerInvariant() -cne $taskPrep.configSha256){throw 'Window config changed.'}
-# The shared kernel: the one the multi-phone preparation started, still the same process and build.
+# The shared kernel: the one the rack preparation started, still the same process and build.
 # In a checkout its record is the main folder's, also from a lane's worktree (<main>.worktrees\<lane>,
 # tools/farm_paths.py); installed, it sits beside the window's rack preparation in the data folder.
 $taskLanes=Split-Path $taskRoot -Parent
 $taskMain=if((Split-Path $taskLanes -Leaf).EndsWith('.worktrees')){$taskLanes.Substring(0,$taskLanes.Length-'.worktrees'.Length)}else{$taskRoot}  # release-lint: dev-fallback
 $taskRackRecord=Join-Path $taskMain 'analysis\farm-multiphone-20261020\slots\processes.json'  # release-lint: dev-fallback
-if($env:IMOUSE_FARM_DATA){$taskRackRecord=if($taskPrep.rackPreparation){Join-Path (Split-Path -Parent $taskPrep.rackPreparation) 'processes.json'}else{Join-Path $taskState 'slots\processes.json'}}
+if($env:IMOUSE_FARM_DATA){$taskRackRecord=if($taskPrep.rackPreparation){Join-Path (Split-Path -Parent $taskPrep.rackPreparation) 'processes.json'}else{Get-RackState 'slots\processes.json'}}
 $taskRack=Get-Content -LiteralPath $taskRackRecord -Raw | ConvertFrom-Json
-# The kernel API the rack preparation starts (the single kernel's is :9916; a rack's own kernel has its own port).
+# The kernel API is the one the rack preparation starts (:9916 unless the preparation says otherwise).
 $taskApi='http://127.0.0.1:9916/api'
 if($taskPrep.rackPreparation -and (Test-Path -LiteralPath $taskPrep.rackPreparation)){$taskApi=([string](Get-Content -LiteralPath $taskPrep.rackPreparation -Raw | ConvertFrom-Json).arguments[0]).TrimEnd('/')}
 $taskKernel=Get-CimInstance Win32_Process -Filter "ProcessId=$($taskRack.kernel.pid)"

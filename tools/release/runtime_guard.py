@@ -24,7 +24,7 @@ import_all = opts[opts.index('--import-all') + 1] if '--import-all' in opts else
 
 opened, refused, bound = [], [], set()
 LOOPBACK = ('127.0.0.1', 'localhost', '::1')
-FARM_PORTS = set(range(9911, 9950))  # kernels (9913/9916/9926), backends and media servers
+FARM_PORTS = set(range(9911, 9950))  # kernels (9913/9916), backends and media servers
 
 
 def under_forbidden(path):

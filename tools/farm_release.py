@@ -57,7 +57,7 @@ DEV_ONLY = {'one_tap.py'}
 PRIVATE_PATTERNS = (
     '*/preparation*.json', 'preparation*.json', '*/processes*.json', '*/receivers-ready.json',
     '*/phone-slots.json', '*/rack-b-boards.json', '*/rack-b-slots.json', '*/rack-*-slots.json',
-    '*/slots/*', '*/held/*', '*/windows/*', '*/windows-archive/*', '*/rack-a/*', '*/rack-b/*',
+    '*/slots/*', '*/windows/*', '*/windows-archive/*',
     '*/identify/*', '*/autoconnect/*', '*/measure/*', '*/look/*', '*/data/*', '*/output/*',
     '*devices.json', '*receivers.json', '*pointer-calibration.json', '*settings.json', '*startup-state.json',
     '*ui-boxes.json', '*imservice.json', '*.db', '*.db-*', '*.sqlite*', '*.log', '*.jsonl', '*.etl',
@@ -83,11 +83,11 @@ LINT_RULES = (
     ('blocker', 'pinned interpreter path', re.compile(r'Python3\d+[\\/]+python\.exe', re.I)),
     ('blocker', 'state under the code folder (output/)', re.compile(r'''(?:ROOT|REPO|HERE|taskRoot|taskMain|parents\[\d\])[^\n]{0,40}['"]output(?:[\\/]|['"])''')),
     ('info', 'cwd-relative state (lands in the data folder: Farm.ps1 runs there)', re.compile(r'''^[^#\n]*Path\(\s*['"](?:output|config)[\\/]''')),
-    ('blocker', 'state beside the rack scripts ($PSScriptRoot)', re.compile(r'''Join-Path\s+\$PSScriptRoot\s+(?:\$Stage|\$Rack|\(?['"](?:windows|slots|held|rack-|processes|preparation|receivers-ready|identify|autoconnect|measure|look))''', re.I)),
-    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|FOLDER|folder)\s*/\s*f?['"](?:windows|slots|held|rack-|identify|autoconnect|card-survey|measure|look|phone-slots)''')),
+    ('blocker', 'state beside the rack scripts ($PSScriptRoot)', re.compile(r'''Join-Path\s+\$PSScriptRoot\s+\(?['"](?:windows|slots|processes|preparation|receivers-ready|identify|autoconnect|measure)''', re.I)),
+    ('blocker', 'state beside the rack scripts (__file__)', re.compile(r'''(?:HERE|ROOT|FOLDER|folder)\s*/\s*f?['"](?:windows|slots|identify|autoconnect|card-survey|measure|phone-slots)''')),
     ('blocker', 'rack folder via repo layout', re.compile(r'''(?:ROOT|REPO|HERE)[^\n]{0,10}['"]analysis[\\/]+farm-multiphone-20261020['"]''')),
-    ('blocker', 'rack state via repo layout', re.compile(r'''['"]analysis[\\/]+farm-multiphone-20261020[\\/]+(?:slots|held|windows|rack-)''', re.I)),
-    ('info', 'hard-coded kernel port', re.compile(r'127\.0\.0\.1:99(?:13|16|26)')),
+    ('blocker', 'rack state via repo layout', re.compile(r'''['"]analysis[\\/]+farm-multiphone-20261020[\\/]+(?:slots|windows)''', re.I)),
+    ('info', 'hard-coded kernel port', re.compile(r'127\.0\.0\.1:99(?:13|16)')),
     ('info', 'repo-relative root (parents[N] / ..\\..)', re.compile(r'''parents\[[1-9]\]|Join-Path\s+\$PSScriptRoot\s+['"]\.\.[\\/]\.\.''')),
 )
 

@@ -69,8 +69,7 @@ Updates and rollbacks touch only the program. Uninstall leaves your data.
 
    `powershell -NoProfile -ExecutionPolicy Bypass -File $farm stop-window -Window <name>`, once per window
 
-   `powershell -NoProfile -ExecutionPolicy Bypass -File $farm stop-rack -Stage slots`, or `-Rack A` / `-Rack B` for
-   per-rack kernels
+   `powershell -NoProfile -ExecutionPolicy Bypass -File $farm stop-rack`
 
 2. Unzip the new release, then from its folder run:
 

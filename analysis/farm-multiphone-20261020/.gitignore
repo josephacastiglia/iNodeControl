@@ -1,16 +1,20 @@
-identify/
+# Rack and window state. Never committed: it names this PC's paths and phones.
+slots/preparation*.json
+processes*.json
 receivers-ready.json
 kernel*.txt
-autoconnect/
-measure/
-look/
-windows/
-windows-archive/
-slots/processes*.json
-slots/receivers-ready.json
-slots/releases.jsonl
-rack-*/processes*.json
 input-before-stop.json
 stop-request.txt
 watchdog-*
 bringup-*/
+windows/
+windows-archive/
+identify/
+autoconnect/
+card-survey/
+measure/
+*.jsonl
+*.bmp
+# State that scripts removed on 9 Nov left on the development PC.
+held/
+look/

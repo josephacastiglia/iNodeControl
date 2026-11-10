@@ -176,7 +176,7 @@ class BringUpTests(unittest.TestCase):
         fake = FakeActions(results={'24B7': ['lease expired', 'mirroring']})
         report = {r['board']: r for r in rr.bring_up(self.phones, fake, self.ledger)}
         self.assertEqual(report['24B7']['result'], 'mirroring')
-        self.assertEqual([e['by'] for e in rr.read_ledger(self.ledger)], ['Bringup-Rack'])
+        self.assertEqual([e['by'] for e in rr.read_ledger(self.ledger)], ['bringup'])
         self.assertIn(('resume', '24B7', 1), fake.calls)
 
 
@@ -203,10 +203,6 @@ class WatchdogTests(unittest.TestCase):
         rec = dict(kernel=dict(pid=5, path='C:\\K\\iMouse2.Kernel.exe'))
         self.assertTrue(rr.kernel_running(rec, [dict(ProcessId=5, ExecutablePath='c:\\k\\imouse2.kernel.exe')]))
         self.assertFalse(rr.kernel_running(rec, [dict(ProcessId=5, ExecutablePath='C:\\other.exe')]))   # PID reused
-
-    def test_python_scope(self):
-        self.assertEqual(rr.python_scope(['-Stage', 'slots']), ['--stage', 'slots'])
-        self.assertEqual(rr.python_scope(['-Rack', 'B']), ['--rack', 'B'])
 
     def test_last_json(self):
         self.assertEqual(rr.last_json('noise\n{"a": 1}\ntrailing'), {'a': 1})
