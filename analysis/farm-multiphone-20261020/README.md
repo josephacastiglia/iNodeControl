@@ -28,7 +28,9 @@ paths and phones.
 
 It refuses if a kernel, receiver, console or window backend is already running or one of their ports is
 taken, and if the kernel build or its data changed since the preparation. The kernel starts detached, so
-it outlives the session that started it; every receiver starts held (not advertised). Do not pipe this
+it outlives the session that started it; every receiver starts held (not advertised). It counts as
+started (`slots\processes.json`) only once it came up as prepared; one that does not within 40 s is
+stopped again and the script fails (`slots\processes-failed-<time>.json`). Do not pipe this
 script or `Start-Window.ps1` into another command: the process they start inherits the pipe and the
 pipeline never ends.
 
@@ -81,7 +83,9 @@ stopped run left behind (never 'Save draft' for a leftover).
 
 The kernel shuts down through its stop file, ends its receivers and the script withdraws their
 AirPlay names (a killed receiver never says goodbye, and phones would list it for 75 more minutes).
-Nothing is ever force-killed: if the stop fails, inspect before doing anything else.
+Nothing is ever force-killed: if the stop fails, inspect before doing anything else. From its first
+step the stop is marked in `slots\stopping.json`, so the watchdog does not start that kernel again;
+after a failed stop the marker stays until the stop succeeds.
 
 ## Preparing the rack
 

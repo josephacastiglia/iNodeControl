@@ -74,8 +74,9 @@ none of it has been done on a second PC yet:
 
 Does not work yet:
 - **Preparing a rack.** `start-rack` reads `analysis\farm-multiphone-20261020\slots\preparation.json`
-  in the data folder: the kernel's arguments, this PC's paths, and each phone's device ID bound to
-  its board. The scripts that write one (`prepare_rack_a.py`, `prepare_rack_b.py`) start from
+  in the data folder: the kernel's arguments, this PC's paths, and the run folder in which each
+  phone's device ID is bound to its board. The scripts that write one (`prepare_rack_a.py`,
+  `prepare_rack_b.py`) start from
   earlier preparations that exist only on the development PC, and they are not `Farm.ps1` commands.
   A preparation copied from another PC does not work either: it names that PC's paths. Until a
   tool prepares a rack from nothing, the farm can drive phones only on the PC it was developed on.
