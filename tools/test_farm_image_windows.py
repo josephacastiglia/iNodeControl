@@ -7,10 +7,8 @@ import re
 import sqlite3
 import sys
 import tempfile
-import types
 import unittest
 import uuid
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 WINDOWS = ROOT / 'analysis/farm-multiphone-20261020'
@@ -21,7 +19,6 @@ verify_window = importlib.import_module('verify_window')
 import imouse_farm_server as server  # noqa: E402
 from farm_image import ImageDrafts, SLIDES  # noqa: E402
 from farm_media_transfer import TransferPackage  # noqa: E402
-from farm_reel_runs import ImageCreationRuns, LANE_RUNS  # noqa: E402
 
 BOARD = '724E'
 
@@ -58,22 +55,14 @@ class PrepareWindowTests(unittest.TestCase):
 
 
 class VerifyWindowTests(unittest.TestCase):
-    def test_absent_lane_verifier_refuses_before_anything_is_read(self):
-        for platform in verify_window.IMAGE_PLATFORMS:
-            module_name, class_name = LANE_RUNS[verify_window.IMAGE_PLATFORMS[platform][0]][:2]
-            empty = types.ModuleType(module_name)
-            with self.subTest(platform=platform), patch.dict(sys.modules, {module_name: empty}):
-                with self.assertRaisesRegex(SystemExit, 'Nothing was sent'): verify_window.lane_runs(platform)
-                with patch.object(verify_window, 'admitted', side_effect=AssertionError('read')):
-                    with self.assertRaisesRegex(SystemExit, class_name):
-                        verify_window.verify(dict(platform=platform), dict(workflow={}), Path('unused'))
-
-    def test_lane_verifier_is_loaded_when_present(self):
-        class Lane(ImageCreationRuns):
-            FORMAT, verifier = 'tt_photo', object
-        module = types.ModuleType('farm_tiktok_photo_runs'); module.TikTokPhotoCreationRuns = Lane
-        with patch.dict(sys.modules, {'farm_tiktok_photo_runs': module}):
-            self.assertIs(Lane, verify_window.lane_runs('tiktok-photo'))
+    def test_each_image_window_gets_its_own_lane_verifier(self):
+        from farm_tiktok_photo_runs import TikTokPhotoCreationRuns
+        from farm_x_runs import XImageCreationRuns
+        self.assertIs(XImageCreationRuns, verify_window.lane_runs('x-image'))
+        self.assertIs(TikTokPhotoCreationRuns, verify_window.lane_runs('tiktok-photo'))
+        for platform, (fmt, _) in verify_window.IMAGE_PLATFORMS.items():
+            runs = verify_window.lane_runs(platform)
+            self.assertEqual(fmt, runs.FORMAT); self.assertIsNotNone(runs.verifier)
 
     def test_admitted_returns_the_ordered_package_images(self):
         with tempfile.TemporaryDirectory() as directory:

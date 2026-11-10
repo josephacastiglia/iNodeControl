@@ -23,7 +23,6 @@ import farm_paths
 import farm_reel_runs
 from farm_carousel_inspection import InspectionStopped
 from farm_jobs import FarmJobs
-from farm_reel_runs import image_runs_class
 import farm_x_image_creation as xic
 import farm_x_image_layout as xil
 import farm_x_layout as xl
@@ -393,7 +392,6 @@ class RunsTests(unittest.TestCase):
         return dict(id=str(uuid.uuid4()), draft_id=self.draft['id'], revision=1, store_id=service.store_id)
 
     def test_lane_class_capability_and_account_policy(self):
-        self.assertIs(XImageCreationRuns, image_runs_class('x_image'))
         capability = XImageCreationRuns(self.root/'runs', self.drafts, self.jobs, CONFIG).capability()
         self.assertEqual((True, 'x_image', BOARD, None, 'first_signed_in', False, False),
                          (capability['enabled'], capability['format'], capability['device'], capability['account'],

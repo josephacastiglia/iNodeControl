@@ -55,9 +55,10 @@ from farm_draft_rehearsal import DraftRehearsals
 from farm_draft_runs import DraftRuns, load_config, phone_of
 from farm_draft_recovery import RecoveryRuns
 from farm_creation_runs import CreationRuns, creation_config
-from farm_reel_runs import ReelCreationRuns, image_runs_class
+from farm_reel_runs import ReelCreationRuns
 from farm_tiktok_runs import TikTokCreationRuns
-from farm_x_runs import XCreationRuns
+from farm_tiktok_photo_runs import TikTokPhotoCreationRuns
+from farm_x_runs import XCreationRuns, XImageCreationRuns
 from farm_youtube_runs import YouTubeCreationRuns
 from farm_preparation_schedule import PreparationSchedule
 from farm_schedule_queue import ReviewQueue
@@ -138,10 +139,8 @@ class FarmBackendRuntime:
         self.tiktok_creations = TikTokCreationRuns(db_path.parent / 'tiktok-creations', self.videos, self.jobs, create_config)
         self.x_creations = XCreationRuns(db_path.parent / 'x-creations', self.videos, self.jobs, create_config)
         self.youtube_creations = YouTubeCreationRuns(db_path.parent / 'youtube-creations', self.videos, self.jobs, create_config)
-        # The lanes' classes (farm_x_runs.XImageCreationRuns, farm_tiktok_photo_runs.TikTokPhotoCreationRuns), or a
-        # disabled placeholder on the same route until they exist.
-        self.x_image_creations = image_runs_class('x_image')(db_path.parent / 'x-image-creations', self.images, self.jobs, create_config)
-        self.tiktok_photo_creations = image_runs_class('tt_photo')(db_path.parent / 'tiktok-photo-creations', self.images, self.jobs, create_config)
+        self.x_image_creations = XImageCreationRuns(db_path.parent / 'x-image-creations', self.images, self.jobs, create_config)
+        self.tiktok_photo_creations = TikTokPhotoCreationRuns(db_path.parent / 'tiktok-photo-creations', self.images, self.jobs, create_config)
         self.transfers = CarouselTransfers(db_path.parent / "transfers.db", self.drafts, videos=self.videos)
         self.port = port
         self.lan_host_url = (engine.MediaPullOrchestrator.detect_host_lan_url(port=port)

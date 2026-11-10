@@ -9,7 +9,6 @@ from unittest.mock import MagicMock, patch
 import farm_reel_runs
 from farm_image import ImageReference
 from farm_jobs import FarmJobs
-from farm_reel_runs import image_runs_class, LANE_RUNS
 from farm_tiktok_photo_creation import COMMITTING, TikTokPhotoCreationWorkflow, TikTokPhotoVerification
 from farm_tiktok_photo_runs import TikTokPhotoCreationRuns
 from test_farm_image import CONFIG, PHONE, stage, FakeImageWorkflow, FakeImageVerification
@@ -41,9 +40,12 @@ class TikTokPhotoRunsTests(unittest.TestCase):
             time.sleep(.02)
         self.fail('Run did not finish.')
 
-    def test_the_route_finds_this_lane_class(self):
-        self.assertEqual(('farm_tiktok_photo_runs', 'TikTokPhotoCreationRuns'), LANE_RUNS['tt_photo'][:2])
-        self.assertIs(TikTokPhotoCreationRuns, image_runs_class('tt_photo'))
+    def test_the_route_serves_this_lane_class(self):
+        import imouse_farm_server as server
+        runtime = server.FarmBackendRuntime(self.root/'backend'/'farm.db', self.root/'backend'/'stage')
+        self.addCleanup(runtime.transfers.close)
+        self.assertEqual('tiktok_photo_creations', server.IMAGE_CREATION_ROUTES['tiktok-photo-creations'][1])
+        self.assertIs(TikTokPhotoCreationRuns, type(runtime.tiktok_photo_creations))
         self.assertEqual(('tt_photo', 'create-tiktok-photo-draft', True), (TikTokPhotoCreationRuns.FORMAT,
                          TikTokPhotoCreationRuns.action_name, TikTokPhotoCreationRuns.PINNED_ACCOUNT))
         self.assertIs(TikTokPhotoCreationWorkflow, TikTokPhotoCreationRuns.workflow)

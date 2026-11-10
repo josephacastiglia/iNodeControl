@@ -17,9 +17,8 @@ bound: Create -> Drafts -> the one exact-title draft -> play -> Save draft (keep
   python verify_window.py --window x-image-slot17 --attempt 1 --check 2
 
 Image windows (x-image, tiktok-photo) run the verifier of their lane's runs class
-(farm_reel_runs.LANE_RUNS: farm_x_runs.XImageCreationRuns, farm_tiktok_photo_runs.TikTokPhotoCreationRuns)
-against a farm_image.ImageReference of the admitted package. They are loaded only when needed and
-refused, before any phone command, while the lane's class does not exist.
+(farm_x_runs.XImageCreationRuns, farm_tiktok_photo_runs.TikTokPhotoCreationRuns) against a
+farm_image.ImageReference of the admitted package. They are loaded only when needed.
 """
 import argparse
 import hashlib
@@ -40,7 +39,7 @@ from farm_draft_workflow import atomic_json, references  # noqa: E402
 from farm_observations import ObservationStore  # noqa: E402
 from farm_reel_creation import ReelVerification  # noqa: E402
 from farm_reel_layout import VideoReference  # noqa: E402
-from farm_reel_runs import LANE_RUNS, image_content, reel_content  # noqa: E402
+from farm_reel_runs import image_content, reel_content  # noqa: E402
 from farm_video import VideoTransferPackage  # noqa: E402
 
 
@@ -67,22 +66,17 @@ def admitted(prep, run):
 
 
 def lane_runs(platform):
-    """The lane's runs class for an image window, imported only now; refuses clearly while it is absent."""
-    import importlib
-    fmt, _ = IMAGE_PLATFORMS[platform]
-    module_name, class_name, label, _ = LANE_RUNS[fmt]
-    try: found = getattr(importlib.import_module(module_name), class_name, None)
-    except ModuleNotFoundError as error:
-        if error.name != module_name: raise
-        found = None
-    if found is None or getattr(found, 'verifier', None) is None:
-        raise SystemExit(f'No {label} verifier yet: {module_name}.{class_name} does not exist or has no verifier. Nothing was sent.')
-    return found
+    """The lane's runs class for an image window, imported only now."""
+    if platform == 'x-image':
+        from farm_x_runs import XImageCreationRuns as runs
+    else:
+        from farm_tiktok_photo_runs import TikTokPhotoCreationRuns as runs
+    return runs
 
 
 def verify(prep, run, child):
     """Runs the platform's verifier once in `child` (a new folder) against the admitted package."""
-    if prep['platform'] in IMAGE_PLATFORMS: runs = lane_runs(prep['platform'])   # Before reading or decoding anything.
+    if prep['platform'] in IMAGE_PLATFORMS: runs = lane_runs(prep['platform'])
     config, caption, raw = admitted(prep, run)
     workflow, extra = run['workflow'], {}
     if prep['platform'] in IMAGE_PLATFORMS:

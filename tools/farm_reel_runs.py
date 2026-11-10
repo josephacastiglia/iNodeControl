@@ -252,7 +252,6 @@ class ImageCreationRuns(ReelCreationRuns):
     # Generic wording; a lane replaces each with its app's route.
     ENABLED_REASON = 'Saves one prepared image set as a draft. Nothing is posted or messaged.'
     DISABLED_REASON = 'Image draft creation is disabled. Prepare the isolated window for this phone first.'
-    PENDING_REASON = '{label} draft creation is not built yet. Nothing can be sent to a phone.'
     SUPPORTED_REASON = 'This saved image set fits the candidate.'
     UNSUPPORTED_REASON = 'This saved image set does not fit the candidate. Nothing is cropped, trimmed or truncated.'
     HELD_REASON = ('These exact images and caption already have a request. '
@@ -261,15 +260,6 @@ class ImageCreationRuns(ReelCreationRuns):
     VERIFIED_REASON = 'The draft was saved and found once with the package images. Nothing was posted.'
     MEANING = ('Package images saved to Photos from the transfer page, selected in order, exact caption pasted and the draft '
                'saved once, then independently found once with the package images. No post or app-restart claim.')
-
-    def built(self):
-        return self.workflow is not None and self.verifier is not None and bool(self.committing) and self.FORMAT is not None
-
-    def capability(self):
-        value = super().capability()
-        if not self.built():
-            value.update(enabled=False, reason=self.PENDING_REASON.format(label=self.LABEL))
-        return value
 
     def supports(self, package):
         try: manifest, caption, _ = image_content(package)
@@ -282,21 +272,6 @@ class ImageCreationRuns(ReelCreationRuns):
                 and manifest.get('published') is False and manifest.get('savedInApp') is False
                 and low <= len(assets) <= high and self.caption_supported(caption)
                 and all((a.get('width'), a.get('height')) == CANVAS[self.FORMAT][0] for a in assets))
-
-    @classmethod
-    def retry_allowed(cls, value):
-        return bool(cls.committing) and super().retry_allowed(value)
-
-    def eligibility(self, draft_id, revision):
-        result = super().eligibility(draft_id, revision)
-        result['eligible'] = result['eligible'] and self.built()
-        return result
-
-    def start(self, spec):
-        if not self.built():
-            self.validate_request(spec)
-            raise KernelSafetyError(self.PENDING_REASON.format(label=self.LABEL))
-        return super().start(spec)
 
     # Media hooks: the package's ordered images, each saved to Photos from its own slide page.
     def transfer_package(self, package):
@@ -311,24 +286,3 @@ class ImageCreationRuns(ReelCreationRuns):
     def delivery(self, delivered, parsed, *, stopped):
         record = image_delivery(delivered, parsed.images)
         return dict(stopped=stopped, events=delivered, **record), record['everyImageDelivered']
-
-
-# The classes the lanes add. Until a lane's class exists its route reports disabled and refuses to start.
-LANE_RUNS = {'x_image': ('farm_x_runs', 'XImageCreationRuns', 'X image', 'create-x-image-draft'),
-             'tt_photo': ('farm_tiktok_photo_runs', 'TikTokPhotoCreationRuns', 'TikTok photo', 'create-tiktok-photo-draft')}
-
-
-def image_runs_class(fmt):
-    """The lane's runs class for an image format, or a disabled placeholder on the same route."""
-    import importlib
-    module_name, class_name, label, action = LANE_RUNS[fmt]
-    try:
-        found = getattr(importlib.import_module(module_name), class_name, None)
-    except ModuleNotFoundError as error:
-        if error.name != module_name: raise   # A lane module that fails to import is a real error.
-        found = None
-    if found is not None:
-        if not issubclass(found, ImageCreationRuns) or found.FORMAT != fmt:
-            raise TypeError(f'{module_name}.{class_name} must be an ImageCreationRuns for {fmt}.')
-        return found
-    return type(class_name + 'Pending', (ImageCreationRuns,), dict(FORMAT=fmt, LABEL=label, action_name=action))

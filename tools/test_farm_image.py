@@ -24,10 +24,9 @@ from farm_image import (CANVAS, IMAGE_FORMATS, IMAGE_MODELS, PAGES, SLIDES, Imag
 from farm_jobs import FarmJobs
 from farm_media_transfer import MediaTransferServer, TransferPackage, image_delivery
 from farm_reel_layout import FILL, SQUARE, video_match
-from farm_reel_runs import ImageCreationRuns, ReelCreationRuns, LANE_RUNS, image_content, image_runs_class
+from farm_reel_runs import ImageCreationRuns, ReelCreationRuns, image_content
 from farm_test_network import allowed_ports
 from farm_tiktok_layout import MODELS, media_match
-from imouse_social_automation import KernelSafetyError
 import test_farm_http_jobs as http_jobs
 
 BOARD = '724E'
@@ -355,34 +354,6 @@ class ImageRunsTests(unittest.TestCase):
             time.sleep(.02)
         self.fail('Run did not finish.')
 
-    def test_lane_names_and_placeholders(self):
-        self.assertEqual({'x_image': ('farm_x_runs', 'XImageCreationRuns', 'X image', 'create-x-image-draft'),
-                          'tt_photo': ('farm_tiktok_photo_runs', 'TikTokPhotoCreationRuns', 'TikTok photo', 'create-tiktok-photo-draft')},
-                         LANE_RUNS)
-        # X image's lane class exists (4 Nov); a lane without one gets the disabled placeholder on its route.
-        from farm_x_runs import XImageCreationRuns
-        self.assertIs(XImageCreationRuns, image_runs_class('x_image'))
-        self.assertTrue(XImageCreationRuns(self.root/'x_image', self.drafts, self.jobs, CONFIG).built())
-        for fmt in [f for f in LANE_RUNS if image_runs_class(f).__name__.endswith('Pending')]:
-            pending = image_runs_class(fmt)
-            self.assertTrue(issubclass(pending, ImageCreationRuns)); self.assertEqual(fmt, pending.FORMAT)
-            service = pending(self.root/fmt, self.drafts, self.jobs, CONFIG)
-            capability = service.capability()
-            self.assertEqual((False, fmt, BOARD, False, False), (capability['enabled'], capability['format'], capability['device'],
-                                                                 capability['publishing'], capability['messaging']))
-            self.assertIn('not built yet', capability['reason'])
-            with self.assertRaises(KernelSafetyError): service.start(self.spec(service))
-            self.assertFalse(service.eligibility(self.draft['id'], 1)['eligible'])
-            self.assertEqual([], service.list(self.draft['id']))
-
-    def test_lane_class_is_found_once_it_exists(self):
-        import types, sys
-        module = types.ModuleType('farm_tiktok_photo_runs'); module.TikTokPhotoCreationRuns = LaneImageRuns
-        with patch.dict(sys.modules, {'farm_tiktok_photo_runs': module}):
-            self.assertIs(LaneImageRuns, image_runs_class('tt_photo'))
-            module.TikTokPhotoCreationRuns = ReelCreationRuns
-            with self.assertRaises(TypeError): image_runs_class('tt_photo')
-
     def test_supports_count_board_caption_and_disabled_without_config(self):
         service = LaneImageRuns(self.root/'runs', self.drafts, self.jobs, CONFIG)
         self.assertTrue(service.capability()['enabled'])
@@ -439,12 +410,11 @@ class ImageRunsTests(unittest.TestCase):
     def test_retry_needs_committing_prefixes(self):
         stopped = dict(terminal=True, state='review_required', workflow=dict(source='candidate_phone_workflow', cleanup='confirmed',
                                                                             evidenceExport='confirmed', commands=[]))
+        from farm_x_runs import XImageCreationRuns
         self.assertTrue(LaneImageRuns.retry_allowed(stopped))
-        self.assertTrue(image_runs_class('x_image').retry_allowed(stopped))   # Built: its own prefixes decide.
+        self.assertTrue(XImageCreationRuns.retry_allowed(stopped))   # Its own prefixes decide.
         committed = dict(stopped, workflow=dict(stopped['workflow'], commands=[dict(purpose='save-photo-1', state='answered')]))
-        self.assertFalse(image_runs_class('x_image').retry_allowed(committed))
-        if image_runs_class('tt_photo').__name__.endswith('Pending'):   # No committing prefixes: never a retry.
-            self.assertFalse(image_runs_class('tt_photo').retry_allowed(stopped))
+        self.assertFalse(XImageCreationRuns.retry_allowed(committed)); self.assertFalse(LaneImageRuns.retry_allowed(committed))
 
 
 class VideoExecuteRegressionTests(unittest.TestCase):
