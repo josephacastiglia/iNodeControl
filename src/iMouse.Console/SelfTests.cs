@@ -630,7 +630,7 @@ public static class SelfTests
         await DragInputTests.RunAsync(Check);
         await ConnectionCleanupTests.RunAsync(Check);
         await MainWindow.CheckConnectionLifecycleAsync(Check);
-        RunFarmAutomationWindowTests(Check);
+        RunFarmTargetTests(Check);
         await FarmApiTests.RunAsync(Check);
         await MainWindow.CheckFarmHeadlessAsync(Check);
         await CarouselDraftWindow.CheckHeadlessAsync(Check);
@@ -673,7 +673,7 @@ public static class SelfTests
             check("Installed: run files in the data folder, never the version folder",
                 InstallLayout.RunFiles == Path.Combine(data, "console") && Directory.Exists(Path.Combine(data, "console")));
             check("Installed: the current version's farm server", InstallLayout.InstalledFarmServer == Path.Combine(home, "tools", "imouse_farm_server.py")
-                && IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath(Path.GetTempPath()) == InstallLayout.InstalledFarmServer);
+                && InstallLayout.ResolveFarmServerScriptPath(Path.GetTempPath()) == InstallLayout.InstalledFarmServer);
             check("Installed: the recorded Python", InstallLayout.Python == @"C:\Python311\python.exe");
             check("Installed: farm state in the data folder", InstallLayout.FarmStateRoot(InstallLayout.InstalledFarmServer!) == data);
         }
@@ -684,31 +684,16 @@ public static class SelfTests
         }
     }
 
-    private static void RunFarmAutomationWindowTests(Action<string, bool> check)
+    private static void RunFarmTargetTests(Action<string, bool> check)
     {
         check("Farm controls accept the explicit C24C identity",
             FarmTargetPolicy.IsC24C("C24C") && FarmTargetPolicy.IsC24C(FarmTargetPolicy.DeviceId.ToLowerInvariant()));
         check("Farm controls refuse protected, unknown and grouped identities",
             new string?[] { null, "", "C241", "FE:A9:BC:D7:A0:44", "RACK-03", "XR C24C", "C24C,C241" }
                 .All(id => !FarmTargetPolicy.IsC24C(id)));
-        check("FarmAutomationWindow normalizes kernel address to /api on port 9913",
-            IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl("localhost:9913") == "http://localhost:9913/api" &&
-            IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl(null) == "http://127.0.0.1:9913/api");
-
-        bool refused9911 = false;
-        try { _ = IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl("http://127.0.0.1:9911"); }
-        catch (InvalidOperationException) { refused9911 = true; }
-        check("FarmAutomationWindow refuses vendor port 9911", refused9911);
-
-        string? resolvedScript = IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath();
-        check("FarmAutomationWindow resolves tools/imouse_farm_server.py from parent directories",
+        string? resolvedScript = InstallLayout.ResolveFarmServerScriptPath();
+        check("The farm server script resolves to tools/imouse_farm_server.py from parent directories",
             !string.IsNullOrWhiteSpace(resolvedScript) && File.Exists(resolvedScript));
-
-        var farmWin = new IMouse2.ConsoleApp.FarmAutomationWindow("http://127.0.0.1:9914", "http://127.0.0.1:9913/api");
-        check("FarmAutomationWindow constructs layout offline with port 9913 and 9914 endpoints",
-            farmWin.FarmServerUrl == "http://127.0.0.1:9914" &&
-            farmWin.KernelApiUrl == "http://127.0.0.1:9913/api" &&
-            farmWin.Content is not null);
     }
 
     public static async Task RunOwnershipTestsAsync(List<string> passed)

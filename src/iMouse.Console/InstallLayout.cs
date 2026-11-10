@@ -45,6 +45,24 @@ internal static class InstallLayout
         }
     }
 
+    /// <summary>The farm server script to start: the installed one, else the first tools\imouse_farm_server.py
+    /// found in or above <paramref name="startDirectory"/>, the console's folder or the current directory.</summary>
+    public static string? ResolveFarmServerScriptPath(string? startDirectory = null)
+    {
+        // Installed: the current version's farm code (Farm.ps1 sets IMOUSE_FARM_HOME); never a folder above it.
+        if (InstalledFarmServer is string installed) return installed;
+        foreach (var root in new[] { startDirectory, AppContext.BaseDirectory, Environment.CurrentDirectory })
+        {
+            if (string.IsNullOrWhiteSpace(root)) continue;
+            for (var dir = new DirectoryInfo(root); dir is not null; dir = dir.Parent)
+            {
+                var candidate = Path.Combine(dir.FullName, "tools", "imouse_farm_server.py");
+                if (File.Exists(candidate)) return candidate;
+            }
+        }
+        return null;
+    }
+
     /// <summary>The Python that runs the farm server: IMOUSE_FARM_PYTHON when installed, else "python" from PATH.</summary>
     public static string Python => (Installed ? Env("IMOUSE_FARM_PYTHON") : null) ?? "python";
 

@@ -144,7 +144,7 @@ public partial class MainWindow
         catch { }
 
         // Resolve and start if not running
-        string? scriptPath = IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath();
+        string? scriptPath = InstallLayout.ResolveFarmServerScriptPath();
         if (scriptPath != null && File.Exists(scriptPath))
         {
             try

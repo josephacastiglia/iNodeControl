@@ -212,30 +212,9 @@ public partial class MainWindow : Window
         DrawerHost.Margin = new Thickness(0, TopBar.ActualHeight, 0, 0);
         DrawerHost.Visibility = Visibility.Visible;
     }
-    private IMouse2.ConsoleApp.FarmAutomationWindow? _farmWindow;
     private void OpenControls_Click(object sender, RoutedEventArgs e) { ShowDrawer("Controls", ControlsPane); UpdateControls(); }
     private void OpenSettings_Click(object sender, RoutedEventArgs e) { ShowDrawer("Settings", SettingsPane); UpdateControls(); }
     private void OpenActivity_Click(object sender, RoutedEventArgs e) => ShowDrawer("Activity", ActivityPane);
-    private void OpenFarm_Click(object sender, RoutedEventArgs e)
-    {
-        if (_farmWindow is { IsLoaded: true })
-        {
-            _farmWindow.Activate();
-            return;
-        }
-
-        string rawAddress = AddressBox?.Text ?? "";
-        string kernelUrl = string.IsNullOrWhiteSpace(rawAddress) || rawAddress.Contains(":9911", StringComparison.Ordinal)
-            ? "http://127.0.0.1:9913/api"
-            : IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl(rawAddress);
-
-        _farmWindow = new IMouse2.ConsoleApp.FarmAutomationWindow("http://127.0.0.1:9914", kernelUrl)
-        {
-            Owner = this
-        };
-        _farmWindow.Closed += (_, _) => _farmWindow = null;
-        _farmWindow.Show();
-    }
     private void CloseDrawer_Click(object sender, RoutedEventArgs e) => DrawerHost.Visibility = Visibility.Collapsed;
     private void CloseDrawer_Click(object sender, MouseButtonEventArgs e) => DrawerHost.Visibility = Visibility.Collapsed;
 
