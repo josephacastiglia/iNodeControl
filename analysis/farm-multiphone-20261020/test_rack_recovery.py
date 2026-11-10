@@ -79,17 +79,28 @@ class PlanTests(unittest.TestCase):
         with self.assertRaises(SystemExit): rr.build_plan({'steps': PLAN['steps'][1:2]}, rr.slot_boards(A_SLOTS, B_SLOTS), prep)  # survey phone absent
 
     def test_crafted_surveys_follow_the_live_rows(self):
-        # B20 alone: small card row 1 at cy 483; the PC's browse (with stale names) is 'advertised'.
-        survey, why = rr.crafted_survey('iMouse2-B20', 'small', set(), {'iMouse2-B20', 'iMouse2-old'})
+        # B20 alone: small card row 1 at cy 483; the PC's browse (with this kernel's withdrawn names) is 'advertised'.
+        survey, why = rr.crafted_survey('iMouse2-B20', 'small', set(), {'iMouse2-B20', 'iMouse2-old'}, {'iMouse2-B20', 'iMouse2-old'})
         self.assertEqual((survey['row'], survey['lines'][0]['cy'], survey['advertised']), (1, 483, ['iMouse2-B20', 'iMouse2-old']))
         self.assertTrue(survey['small'] and survey['lines'][1]['text'] == 'Stop Mirroring')
         # A20 after 2, 5, 6 and rack B: natural order puts it 4th: cy 226 + 3 * 63 = 415 (413 worked live).
         live = {'iMouse2-2', 'iMouse2-5', 'iMouse2-6'} | {f'iMouse2-B{n}' for n in range(1, 21)}
-        survey, _ = rr.crafted_survey('iMouse2-20', 'xr', live, live)
+        survey, _ = rr.crafted_survey('iMouse2-20', 'xr', live, live, live | {'iMouse2-20'})
         self.assertEqual((survey['row'], survey['lines'][0]['cy']), (4, 415))
         # A small phone below the three visible rows is refused, not guessed.
-        survey, why = rr.crafted_survey('iMouse2-B9', 'small', {'iMouse2-17', 'iMouse2-18', 'iMouse2-20'}, set())
+        survey, why = rr.crafted_survey('iMouse2-B9', 'small', {'iMouse2-17', 'iMouse2-18', 'iMouse2-20'}, set(), set())
         self.assertIsNone(survey); self.assertIn('row 4', why)
+
+    def test_a_computed_row_is_refused_when_the_network_lists_a_receiver_that_is_not_ours(self):
+        # The phone's card lists every AirPlay receiver on the network. One that is not this kernel's (a TV,
+        # another PC's receiver) shifts the rows, and a tap on its row would mirror the phone to it.
+        ours = set(BOARDS.values())
+        survey, why = rr.crafted_survey('iMouse2-B20', 'small', set(), ours | {'Bedroom TV'}, ours)
+        self.assertIsNone(survey); self.assertIn('Bedroom TV', why); self.assertTrue(why.startswith('refused'))
+        survey, why = rr.crafted_survey('iMouse2-20', 'xr', {'iMouse2-2'}, {'iMouse2-2', 'iMouse2-20', 'imouse2-b20 '}, ours)
+        self.assertIsNone(survey, 'a name that only resembles ours is still not ours')
+        survey, why = rr.crafted_survey('iMouse2-B20', 'small', set(), ours, ours)   # our own names, advertised or not, are fine
+        self.assertEqual((survey['row'], why), (1, None))
 
 
 class FakeActions:
@@ -101,10 +112,11 @@ class FakeActions:
         self.inputs.update(stopped or {})
         self.results = {b: list(r) for b, r in (results or {}).items()}
         self.calls = []
+        self.foreign = set()   # AirPlay names on the network that are not this kernel's.
 
     def receivers(self): return {n: dict(live=n in self.live) for n in BOARDS.values()}
     def advertised(self): return set(self.live)
-    def browse(self): return set(self.live) | {'iMouse2-stale'}
+    def browse(self): return set(BOARDS.values()) | self.foreign   # The PC's cache keeps this kernel's withdrawn names.
     def snapshot(self): return {b: dict(s) for b, s in self.inputs.items()}
     def device_id(self, board): return 'dev-' + board
     def sleep(self, s): pass
@@ -149,6 +161,15 @@ class BringUpTests(unittest.TestCase):
         self.assertEqual([c[1] for c in fake.calls if c[0] == 'survey'], ['636D', '636D', '636D', 'C214', 'C214'])
         self.assertEqual({c[1] for c in fake.calls if c[0] == 'wake'}, {'636D', '24B7', '0C6D', '1814'})   # small phones only
         self.assertEqual(rr.summary(report)['mirroring'], 7)
+
+    def test_no_anchor_is_tapped_at_a_computed_row_while_a_foreign_receiver_is_listed(self):
+        fake = FakeActions(); fake.foreign = {'Living Room TV'}
+        report = {r['board']: r for r in rr.bring_up(self.phones, fake, self.ledger)}
+        self.assertFalse([c for c in fake.calls if c[0] in ('connect', 'crafted') and c[1] in ('636D', 'C214')])   # both anchors
+        for anchor in ('636D', 'C214'):
+            self.assertIn('Living Room TV', report[anchor]['result'])
+            self.assertEqual(len(report[anchor]['attempts']), 1, 'nothing to retry: the network has to change first')
+        self.assertFalse(rr.summary(list(report.values()))['ok'])
 
     def test_skips_live_phones_and_retries_once(self):
         fake = FakeActions(results={'24B7': ['stopped: no AirPlay query from the phone after the tile tap', 'mirroring'],

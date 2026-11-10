@@ -29,7 +29,8 @@ three rows and numeric names sort ahead of 'iMouse2-B..', so rack B goes first, 
 (crafted one-row survey) then B19 down surveyed on B20, then rack A's small phones, then A20
 (crafted XR survey, row n at cy 226 + 63(n-1)), then the XRs from 19 down surveyed on A20. A crafted
 survey's 'advertised' is the PC's Bonjour browse (its cache keeps withdrawn names), its row the
-receiver's natural-order rank among the receivers the kernel actually advertises.
+receiver's natural-order rank among the receivers the kernel actually advertises. A crafted row is
+refused while the PC's browse lists an AirPlay receiver that is not this kernel's (a TV, another PC).
 
 Input resumes only boards the ledger says we stopped and that nothing has touched since (same
 generation). 'Stopped by operator.' is never resumed. Every phone action takes its own lease.
@@ -181,11 +182,20 @@ def build_plan(plan, slots, prep, addresses=None):
     return out
 
 
-def crafted_survey(receiver, card, advertised_by_kernel, pc_browse):
+def crafted_survey(receiver, card, advertised_by_kernel, pc_browse, kernel_names):
     """The anchor phone's survey with no mirroring phone to read the card on: its row is its
     natural-order rank among what the kernel advertises; 'advertised' is the PC's browse (its
-    Bonjour cache keeps withdrawn names, and auto_connect compares against that)."""
+    Bonjour cache keeps withdrawn names, and auto_connect compares against that).
+
+    The row is computed, not seen, so it is refused when the PC's browse lists any AirPlay receiver
+    that is not one of this kernel's (`kernel_names`: all of them, advertised or not). The phone's card
+    lists that receiver too: every row below it shifts, and a tap on its row would mirror the phone
+    to it. The PC cannot see what only the phone sees, so a clean browse is necessary, not proof."""
     from farm_mirroring import natural   # The order iOS lists receivers in, as auto_connect.py reads a surveyed card.
+    foreign = sorted(set(pc_browse) - set(kernel_names))
+    if foreign:
+        return None, ('refused: the network lists %d AirPlay receiver(s) that are not this kernel\'s (%s); a computed row cannot be trusted'
+                      % (len(foreign), ', '.join(foreign[:3]) + (', ...' if len(foreign) > 3 else '')))
     listed = sorted(set(advertised_by_kernel) | {receiver}, key=natural)
     n = listed.index(receiver) + 1
     row1, pitch, rows = (SMALL_ROW1, SMALL_PITCH, SMALL_ROWS) if card == 'small' else (XR_ROW1, XR_PITCH, XR_ROWS)
@@ -310,7 +320,7 @@ def bring_up(phones, actions, ledger_path, attempts=2):
             actions.sleep(3)
             if phone['card'] == 'small': tried['wake'] = actions.wake(phone['board'])
             if phone['survey_board'] is None:
-                survey, why = crafted_survey(phone['receiver'], phone['card'], actions.advertised(), actions.browse())
+                survey, why = crafted_survey(phone['receiver'], phone['card'], actions.advertised(), actions.browse(), set(receivers))
                 path = actions.write_survey(phone['board'], survey) if survey else None
                 tried['survey'] = 'crafted row %s' % survey['row'] if survey else why
             else:

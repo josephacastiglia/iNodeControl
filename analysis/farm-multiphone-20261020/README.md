@@ -40,7 +40,9 @@ python rack_recovery.py bringup                 # connects every phone in the pl
 ```
 
 The bring-up sends input (Home, Control Center, taps). Per phone it advertises the receiver, wakes a
-Home-button phone, reads where the receiver's row is on the Screen Mirroring card and taps it. A phone
+Home-button phone, reads where the receiver's row is on the Screen Mirroring card and taps it. For the
+first phone of a group the row is computed, and that is refused while the PC sees an AirPlay receiver
+that is not the kernel's (a TV, another PC's receiver): take it off the network first. A phone
 whose input someone else stopped is skipped; it resumes only boards its own ledger says the rack
 scripts stopped. It exits 0 only when every phone in the plan mirrors and 3 when one was skipped or
 failed; `slots\bringup-<time>\report.json` says which and why.
