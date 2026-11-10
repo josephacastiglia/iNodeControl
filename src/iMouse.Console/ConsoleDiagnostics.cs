@@ -95,7 +95,7 @@ public static class ConsoleDiagnostics
 
     private static object Kernel(JsonElement data)
     {
-        var result = Pick(data, ["input", "input_protocol", "input_leases_required", "home_sequence", "receiver", "receiver_state", "receiver_message", "receiver_pid", "receiver_restarts", "frames", "live", "frame_delivery", "frame_age_ms", "frame_session", "frame_message", "frame_pipe_connected"]);
+        var result = Pick(data, ["input", "input_protocol", "input_leases_required", "home_sequence", "receiver"]);
         if (!result.ContainsKey("input") || !result.ContainsKey("receiver")) throw new InvalidDataException();
         if (data.TryGetProperty("receivers", out _)) result["receivers"] = Rows(data, "receivers", ReceiverFields);
         if (data.TryGetProperty("build_identity", out var build)) result["build_identity"] = Pick(build, BuildFields);

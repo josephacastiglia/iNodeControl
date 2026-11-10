@@ -11,7 +11,7 @@ internal sealed class KernelOptions
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
     private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid",
-        "--home-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hold-receivers", "--rack", "--stop-file", "--console-log"];
+        "--home-sequence", "--receiver", "--receivers", "--receiver-runtime", "--hold-receivers", "--rack", "--stop-file", "--console-log"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
     internal bool ValidateOnly => _flags.Contains("--validate-startup");
     internal HomeSequence Home { get; private set; }
@@ -120,14 +120,9 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         // and disposal never open transport; connections are created only on dispatch.
         using (var check = new InputRouter(store, options.Allowed, calibrations)) { }
 
-        List<ReceiverConfig> receivers;
-        if (options.Value("--receivers") is { Length: > 0 } file) receivers = ReadList<ReceiverConfig>(Path.GetFullPath(file));
-        else
-        {
-            string id = options.Value("--phone-id", "86:1D:4A:04:2F:F6");
-            var phone = phones.SingleOrDefault(p => p.deviceid == id) ?? throw new ArgumentException("Default receiver phone is missing; provide a saved receiver configuration.");
-            receivers = [new(id, phone.pid, options.Value("--cast-name", "iMouse2-C24C"), options.Value("--frame-pipe", "iMouse2-C24C-frames"), 7110, "02:49:4D:32:C2:4C")];
-        }
+        if (options.Value("--receivers") is not { Length: > 0 } file)
+            throw new ArgumentException("A saved receiver configuration is required: pass --receivers <file>.");
+        var receivers = ReadList<ReceiverConfig>(Path.GetFullPath(file));
         ReceiverFleet.Validate(receivers, phones);
         if (options.HeldReceivers.Any(pid => !receivers.Any(r => r.BoardPid.Equals(pid, StringComparison.OrdinalIgnoreCase))))
             throw new ArgumentException("Every --hold-receivers board needs a configured receiver.");

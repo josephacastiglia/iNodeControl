@@ -155,9 +155,12 @@ public static class SelfTests
         string pipeName="imouse-frame-test-"+Guid.NewGuid().ToString("N");
         using(var frames=new FrameStore(pipeName,"test-one"))
         {
-            using var api = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, frames);
+            using var api = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), router, [("fake-cast", frames)]);
             JsonElement Status() => JsonSerializer.SerializeToElement(api.KernelStatus());
             var initial = Status();
+            Check(new[] { "live", "frames", "receiver_state", "receiver_pid", "receiver_restarts", "frame_age_ms" }.All(name => !initial.TryGetProperty(name, out _))
+                && initial.GetProperty("receivers").GetArrayLength() == 1 && initial.GetProperty("receiver").GetString() == "fake-cast",
+                "Status has no first-receiver summary; each receiver reports its own state");
             int diagnosticWrites = writes.Reports.Count;
             var inputConfiguration = Status().GetProperty("input_configuration");
             Check(inputConfiguration.GetProperty("precise_movement_delay_ms").GetInt32() == InputRouter.MoveDelayMs
@@ -178,8 +181,8 @@ public static class SelfTests
             frames.Receiver = () => new("stopped", "", 0, 0);
             Check(initial.GetProperty("home_sequence").GetString() == router.HomeSequenceName,
                 "Merged status retains the configured Home sequence alongside frame metadata");
-            Check(initial.GetProperty("frame_age_ms").ValueKind == JsonValueKind.Null
-                && initial.GetProperty("frame_delivery").GetString() == "waiting",
+            Check(initial.GetProperty("receivers")[0].GetProperty("frame_age_ms").ValueKind == JsonValueKind.Null
+                && initial.GetProperty("receivers")[0].GetProperty("frame_delivery").GetString() == "waiting",
                 "Status distinguishes no frame from a fresh frame without starting a listener");
             var pump=frames.RunAsync();
             using(var client=new NamedPipeClientStream(".",pipeName,PipeDirection.Out,PipeOptions.Asynchronous))
@@ -197,20 +200,19 @@ public static class SelfTests
                 await client.WriteAsync(length);await client.WriteAsync(bmp);await client.FlushAsync();
                 await WaitFor(()=>frames.Frames==2);
                 Check(frames.State.Live,"Identical live frames remain usable");
-                var status = Status();
-                var receiver = status.GetProperty("receivers")[0];
-                Check(status.GetProperty("frames").GetInt64() == 2
-                    && status.GetProperty("frame_age_ms").GetDouble() >= 0
-                    && status.GetProperty("frame_delivery").GetString() == "flowing",
+                var receiver = Status().GetProperty("receivers")[0];
+                Check(receiver.GetProperty("frames").GetInt64() == 2
+                    && receiver.GetProperty("frame_age_ms").GetDouble() >= 0
+                    && receiver.GetProperty("frame_delivery").GetString() == "flowing",
                     "Status reports delivered sequence and monotonic age");
-                Check(receiver.GetProperty("frame_session").GetString() == status.GetProperty("frame_session").GetString()
+                Check(receiver.GetProperty("frame_session").GetString() == frames.Delivery.Session
                     && receiver.GetProperty("frame_pipe_connected").GetBoolean()
                     && receiver.GetProperty("receiver_message").ValueKind == JsonValueKind.String,
                     "Per-phone status includes delivery identity and recovery message");
                 await client.WriteAsync(new byte[4]);await client.FlushAsync();
                 await WaitFor(()=>!frames.State.Live);
                 Check(!frames.State.Live,"Receiver stop marker clears stale picture");
-                var stopped = Status();
+                var stopped = Status().GetProperty("receivers")[0];
                 Check(!stopped.GetProperty("live").GetBoolean()
                     && stopped.GetProperty("frame_delivery").GetString() == "stopped"
                     && stopped.GetProperty("frames").GetInt64() == 2,
@@ -276,14 +278,11 @@ public static class SelfTests
             Check(failing.Info.State=="failed" && launches==3 && failing.Info.Restarts==2,"Retry limit stops after initial start plus two restarts");
             using var failedFrames = new FrameStore("unused-recovery-test-" + Guid.NewGuid().ToString("N"), "test-one");
             failedFrames.Receiver = () => failing.Info;
-            using var failedApi = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, failedFrames);
-            var failureStatus = JsonSerializer.SerializeToElement(failedApi.KernelStatus());
-            var failureReceiver = failureStatus.GetProperty("receivers")[0];
-            Check(failureStatus.GetProperty("receiver_restarts").GetInt32() == 2
-                && failureReceiver.GetProperty("receiver_restarts").GetInt32() == 2
+            using var failedApi = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), router, [("fake-cast", failedFrames)]);
+            var failureReceiver = JsonSerializer.SerializeToElement(failedApi.KernelStatus()).GetProperty("receivers")[0];
+            Check(failureReceiver.GetProperty("receiver_restarts").GetInt32() == 2
                 && failureReceiver.GetProperty("receiver_state").GetString() == "failed"
-                && failureReceiver.GetProperty("receiver_message").GetString() == failing.Info.Message
-                && failureStatus.GetProperty("receiver_message").GetString() == failing.Info.Message,
+                && failureReceiver.GetProperty("receiver_message").GetString() == failing.Info.Message,
                 "Kernel diagnostics preserve exhausted retry counts and cause without a listener");
         }
         var held=new FakeReceiver(9);

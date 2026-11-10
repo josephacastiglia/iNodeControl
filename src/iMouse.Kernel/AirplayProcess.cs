@@ -18,7 +18,7 @@ public sealed class AirplayProcess : IReceiverHandle
         catch (InvalidOperationException) { return 0; }
     }
     public AirplayProcess(string executable,string runtime,string name,string pipe,string clientId,string logPath,
-        int port=7110,string mac="02:49:4D:32:C2:4C")
+        int port,string mac)
     {
         var start=new ProcessStartInfo(Path.GetFullPath(executable))
         {

@@ -369,7 +369,7 @@ internal static class InputSessionTests
             using var apiInput = new InputRouter(apiStore, ["C24C"], [new("C24C",500,1080,14,14,5,5)], _ => transport);
             using var frames = new FrameStore("unused-session-test-" + Guid.NewGuid().ToString("N"), "one");
             // Exercise actual API dispatch without opening a listener, pipe, or board.
-            using var server = new ApiServer("http://127.0.0.1:19913/api/", apiStore, "iMouse2-test", apiInput, frames);
+            using var server = new ApiServer("http://127.0.0.1:19913/api/", apiStore, apiInput, [("iMouse2-test", frames)]);
             Task<object> Request(string fun, object data) => server.Dispatch(Data(new { fun, data }));
             await Rejected(() => Request("/mouse/click", new { id = "one", x = 14, y = 14 }));
             check(transport.Reports.IsEmpty, "API cannot bypass required ownership with a legacy command");

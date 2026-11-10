@@ -86,6 +86,8 @@ internal static class KernelStartupTests
                 && !report.GetProperty("listener_started").GetBoolean() && !report.GetProperty("receivers_started").GetBoolean()
                 && original.All(p => File.ReadAllBytes(p.Key).SequenceEqual(p.Value)) && Directory.GetFiles(folder).Length == 3,
                 "Valid saved configuration is read without changing files or starting components");
+            Reject(() => KernelConfiguration.Load(KernelOptions.Parse(["--validate-startup", "--data-dir", folder])),
+                "Startup without a saved receiver configuration is refused; there is no built-in phone");
             Save(deviceFile, Array.Empty<Phone>());
             check(config.Store.All().Single().deviceid == "test-phone", "Validated device snapshot does not reread later file changes");
             var borrowed = config.Store.All(); borrowed[0].pid = "FFFF"; borrowed.Clear();

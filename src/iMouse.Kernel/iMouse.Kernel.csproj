@@ -8,7 +8,4 @@
     <RootNamespace>IMouse2.Kernel</RootNamespace>
     <Description>iMouse 2.0 kernel - HID + HTTP, no vendor license</Description>
   </PropertyGroup>
-  <ItemGroup>
-    <None Update="data\devices.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 </Project>

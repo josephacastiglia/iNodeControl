@@ -12,7 +12,6 @@ public sealed class ApiServer : IDisposable
     private readonly string _castName;
     private readonly InputRouter _input;
     private readonly InputSessions _inputSessions;
-    private readonly FrameStore _frames;
     private readonly Dictionary<string,(string Name,FrameStore Frames)> _sessions;
     // Starts one held receiver by board PID; null when the kernel holds none.
     public Func<string,object>? AdvertiseReceiver { get; init; }
@@ -20,9 +19,6 @@ public sealed class ApiServer : IDisposable
     public ReceiverFleet? Receivers { get; init; }
     // This kernel's rack label ("" for the single kernel), so a script can confirm it reached the right one.
     public string Rack { get; init; } = "";
-
-    public ApiServer(string prefix, DeviceStore store, string castName, InputRouter input, FrameStore frames)
-        : this(prefix,store,input,[(castName,frames)]) { }
 
     public ApiServer(string prefix,DeviceStore store,InputRouter input,IEnumerable<(string Name,FrameStore Frames)> sessions)
         : this(prefix,store,input,sessions,null) { }
@@ -35,7 +31,6 @@ public sealed class ApiServer : IDisposable
         _input = input;
         _inputSessions = new(store, input);
         _sessions=sessions.ToDictionary(s=>s.Frames.DeviceId);
-        _frames=_sessions.Values.First().Frames;
         _castName=string.Join(" / ",_sessions.Values.Select(s=>s.Name));
         _http.Prefixes.Add(prefix);
     }
@@ -118,21 +113,14 @@ public sealed class ApiServer : IDisposable
     }
 
     // Kept separate from HTTP so diagnostics can be checked without a listener or HID access.
+    // Every receiver reports its own state; there is no single-receiver summary at the top level.
     internal object KernelStatus()
     {
-        var rec = _frames.Receiver();
-        var delivery = _frames.Delivery;
         return new { code = 0, rack = Rack, input = "direct-hid", input_protocol = 1, input_leases_required = true,
             build_identity = KernelDiagnostics.BuildIdentity, process = KernelDiagnostics.ProcessSnapshot(),
             input_configuration = _input.DiagnosticConfiguration(),
             control_compatibility = _input.ControlCompatibility(),
             allowed = _input.Allowed, home_sequence = _input.HomeSequenceName, receiver = _castName,
-            receiver_state = VideoState(rec), receiver_message = ScreenshotMessage(),
-            receiver_pid = rec.Pid, receiver_restarts = rec.Restarts,
-            frames = delivery.Sequence, live = delivery.Available,
-            frame_delivery = delivery.Status, frame_age_ms = delivery.AgeMs,
-            frame_session = delivery.Session, frame_message = delivery.Message,
-            frame_pipe_connected = delivery.Connected,
             receivers = _sessions.Select(s =>
             {
                 var receiver = s.Value.Frames.Receiver();
@@ -188,17 +176,16 @@ public sealed class ApiServer : IDisposable
         return fun == "/device/airplay/withdraw" ? await Receivers.WithdrawAsync(pid) : await Receivers.RestartAsync(pid, hold);
     }
 
-    private string VideoState(ReceiverInfo rec,FrameStore? frames=null) =>
-        (frames??_frames).State.Live ? "mirroring" : rec.State is "restarting" or "starting" ? "restarting" : rec.State is "failed" or "held" ? rec.State : "offline";
+    private static string VideoState(ReceiverInfo rec,FrameStore frames) =>
+        frames.State.Live ? "mirroring" : rec.State is "restarting" ? "restarting" : rec.State is "failed" or "held" ? rec.State : "offline";
 
-    private string ScreenshotMessage(FrameStore? frames=null,string? name=null)
+    private static string ScreenshotMessage(FrameStore frames,string name)
     {
-        frames??=_frames;
-        var rec=frames.Receiver();
         if (frames.State.Live) return "";
-        if (rec.State is "restarting" or "starting") return "Receiver restarting";
+        var rec=frames.Receiver();
+        if (rec.State is "restarting") return "Receiver restarting";
         if (rec.State is "failed" or "held") return rec.Message;
-        return "No live frame. Select " + (name??_sessions[frames.DeviceId].Name) + " in iPhone Screen Mirroring.";
+        return "No live frame. Select " + name + " in iPhone Screen Mirroring.";
     }
 
     private List<object> DeviceList()

@@ -99,7 +99,7 @@ internal static class DiagnosticsTests
         var legacy = await ConsoleDiagnostics.CollectAsync(snapshot, api.GetAsync);
         check("Older kernel diagnostics leave unsupported build and frame details unknown", !legacy.Partial
             && !legacy.Service["kernel"].Data!.Value.TryGetProperty("build_identity", out _)
-            && !legacy.Service["kernel"].Data!.Value.TryGetProperty("frame_age_ms", out _));
+            && !legacy.Service["kernel"].Data!.Value.TryGetProperty("receivers", out _));
 
         string folder = Path.Combine(Path.GetTempPath(), "imouse-diagnostics-test-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(folder);
