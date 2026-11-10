@@ -48,7 +48,7 @@ internal sealed class InputActionQueue(Func<InputContext, bool> cancelledByUser,
             }
             catch (Exception ex)
             {
-                if (context.Api.UsesInputOwnership && ex is not InputNotSentException && !cancelledByUser(context))
+                if (ex is not InputNotSentException && !cancelledByUser(context))
                     lock (_gate) { _failedScope = context; _failure = ex; }
                 throw;
             }

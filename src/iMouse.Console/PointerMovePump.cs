@@ -50,7 +50,7 @@ internal sealed class PointerMovePump
         _start(RunAsync);
     }
 
-    // Do not cancel a dispatched hover here: in ownership mode that would pause
+    // Do not cancel a dispatched hover here: that would pause
     // input. Its call has already entered the per-phone command queue, before the
     // gesture that follows this clear. There is no fixed delay on the drag path.
     internal void ClearPending() { lock (_gate) _pending = null; }
@@ -93,7 +93,7 @@ internal sealed class PointerMovePump
                 // new scope. A failure from the old scope must not erase that new work.
                 lock (_gate)
                 {
-                    _failedScope = move.Api.UsesInputOwnership ? move : null;
+                    _failedScope = move;
                     if (_pending?.SameScope(move) == true) _pending = null;
                 }
             }

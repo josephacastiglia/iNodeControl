@@ -340,7 +340,7 @@ public partial class MainWindow
         {
             // The real preview and simulated automation are different input paths.
             // Stop only C24C on the real console, never its checked followers.
-            if (_api is { UsesInputOwnership: true } api)
+            if (_api is { } api)
             {
                 CancelLocalInput();
                 InputStateText.Text = "Stopping C24C…";

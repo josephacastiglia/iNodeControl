@@ -21,9 +21,9 @@ internal static class DragInputTests
         if (result.ReleaseFailure is not null) ExceptionDispatchInfo.Throw(result.ReleaseFailure);
     }
 
-    private sealed class Transport(bool ownership = true) : HttpMessageHandler
+    private sealed class Transport : HttpMessageHandler
     {
-        internal readonly TestHandler Model = new() { OwnershipSupported = ownership };
+        internal readonly TestHandler Model = new();
         private HttpMessageInvoker? _invoker;
         internal readonly ConcurrentQueue<(string Fun, JsonElement Data)> Inputs = new();
         internal readonly TaskCompletionSource Down = Signal();
@@ -48,7 +48,7 @@ internal static class DragInputTests
     internal static async Task RunAsync(Action<string, bool> check)
     {
         var transport = new Transport();
-        await using var api = new ApiClient("http://localhost:9923", transport, ownership: true);
+        await using var api = new ApiClient("http://localhost:9923", transport);
         using var connection = new CancellationTokenSource();
         using var control = new CancellationTokenSource();
         var context = new InputContext(api, "TEST:01,TEST:04", connection.Token, control);
@@ -130,7 +130,7 @@ internal static class DragInputTests
         // The lease client's timeout notice itself can cancel the captured token
         // before the action's catch runs. It must remain a timeout + not-sent pair.
         var faultTransport = new Transport();
-        await using var faultApi = new ApiClient("http://localhost:9923", faultTransport, ownership: true);
+        await using var faultApi = new ApiClient("http://localhost:9923", faultTransport);
         using var faultControl = new CancellationTokenSource();
         var faultContext = new InputContext(faultApi, "TEST:01", connection.Token, faultControl);
         bool cancelledByNotice = false;
@@ -154,7 +154,7 @@ internal static class DragInputTests
 
         // Verify normal hold and legacy release through the same extracted runner.
         var holdTransport = new Transport();
-        await using var holdApi = new ApiClient("http://localhost:9923", holdTransport, ownership: true);
+        await using var holdApi = new ApiClient("http://localhost:9923", holdTransport);
         var holdContext = new InputContext(holdApi, "TEST:01", connection.Token, control);
         var hold = new DragGesture(holdContext, 250, 260, true);
         var holdTask = DragInput.RunAsync(hold, default); await Bounded(holdTransport.Down.Task);
@@ -164,7 +164,7 @@ internal static class DragInputTests
             && holdTransport.Inputs.Select(c => c.Fun).SequenceEqual(["/mouse/move", "/mouse/down", "/mouse/up"]));
 
         var stopTransport = new Transport();
-        await using var stopApi = new ApiClient("http://localhost:9923", stopTransport, ownership: true);
+        await using var stopApi = new ApiClient("http://localhost:9923", stopTransport);
         using var stopControl = new CancellationTokenSource();
         var stopContext = new InputContext(stopApi, "TEST:01", connection.Token, stopControl);
         var stopQueue = new InputActionQueue(Cancelled);
@@ -184,7 +184,7 @@ internal static class DragInputTests
         check("Explicit recovery after a held Stop accepts only the newly requested position", stopTransport.Inputs.Last().Data.GetProperty("x").GetInt32() == 330);
 
         var releaseTransport = new Transport();
-        await using var releaseApi = new ApiClient("http://localhost:9923", releaseTransport, ownership: true);
+        await using var releaseApi = new ApiClient("http://localhost:9923", releaseTransport);
         releaseTransport.Model.TimeoutFun = "/mouse/up";
         var uncertainRelease = new DragGesture(new(releaseApi, "TEST:01", connection.Token, control), 350, 360, false);
         uncertainRelease.Release((370, 380));
@@ -192,20 +192,5 @@ internal static class DragInputTests
         check("An unanswered up is reported as release failure and never retried", releaseResult.Failure is null
             && releaseResult.ReleaseFailure is OperationCanceledException && !releaseResult.Released
             && releaseTransport.Inputs.Count(c => c.Fun == "/mouse/up") == 1);
-
-        var legacyTransport = new Transport(false);
-        await using var legacyApi = new ApiClient("http://localhost:9923", legacyTransport, ownership: false);
-        legacyTransport.Before = (fun, data, _) => fun == "/mouse/move" && data.GetProperty("x").GetInt32() == 290
-            ? Task.FromException(new InvalidOperationException("synthetic legacy move failure")) : Task.CompletedTask;
-        var legacy = new DragGesture(new(legacyApi, "TEST:01", connection.Token, control), 270, 280, false); legacy.Release((290, 300));
-        var legacyResult = await DragInput.RunAsync(legacy, default);
-        check("Legacy drag failure still attempts its normal button release", legacyResult.Failure is not null && legacyResult.Released
-            && legacyTransport.Inputs.Last().Fun == "/mouse/up");
-        legacyTransport.Before = (fun, data, _) => fun == "/mouse/up" ? Task.FromException(new InvalidOperationException("legacy release failed"))
-            : fun == "/mouse/move" && data.GetProperty("x").GetInt32() == 390 ? Task.FromException(new InvalidOperationException("legacy move failed")) : Task.CompletedTask;
-        var doubleFailure = new DragGesture(new(legacyApi, "TEST:01", connection.Token, control), 370, 380, false); doubleFailure.Release((390, 400));
-        var doubleResult = await DragInput.RunAsync(doubleFailure, default);
-        check("A failed legacy release preserves both the original move error and the release error",
-            doubleResult.Failure?.Message == "legacy move failed" && doubleResult.ReleaseFailure?.Message == "legacy release failed" && !doubleResult.Released);
     }
 }

@@ -47,7 +47,7 @@ public partial class MainWindow
                 _ = RequestFarmCancellationAsync();
             return;
         }
-        bool managed = !_closing && _api?.UsesInputOwnership == true;
+        bool managed = !_closing && _api is not null;
         var ids = managed ? InputTargetIds() : "";
         if (managed && (_controlApi != _api || ids != _controlScope))
         {

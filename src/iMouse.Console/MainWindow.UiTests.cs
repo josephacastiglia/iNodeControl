@@ -43,12 +43,37 @@ public partial class MainWindow
     {
         var passed = new List<string>();
         void Check(string name, bool value) { if (!value) throw new Exception("UI check failed: " + name); passed.Add(name); }
-        async Task Click(string tag)
+        static string Fun(JsonElement command) => command.GetProperty("fun").GetString() ?? "";
+        static string Ids(JsonElement command) => command.GetProperty("data").GetProperty("id").GetString() ?? "";
+        // What the console sent to phones, in order. Lease traffic (/input/acquire, /input/release,
+        // /input/renew) is left out, so a count or an index here means input commands only.
+        JsonElement[] Inputs() => handler.Commands.ToArray().Where(c => Fun(c).StartsWith("/mouse/") || Fun(c) == "/key/sendkey").ToArray();
+        // A selection change releases the old phones' leases and readies the new ones before the
+        // console accepts input again; queued input and hover moves then run off the UI thread.
+        async Task Settle()
         {
-            Action_Click(new Button { Tag = tag, Content = tag }, new RoutedEventArgs());
-            for (int i = 0; (_commandBusy || _refreshSession >= 0) && i < 100; i++) await Task.Delay(20);
-            if (_commandBusy) throw new Exception("Command did not complete during UI test.");
+            for (int i = 0; i < 300; i++)
+            {
+                await _scopeTail; await _inputActions.WhenIdle; await _pointerMoves.WhenIdle;
+                if (_scopeTail.IsCompleted && !_inputActions.IsRunning && !_pointerMoves.IsRunning && _refreshSession < 0) return;
+                await Task.Delay(10);
+            }
+            throw new Exception("Console input did not settle during UI test.");
         }
+        // Fires a button's handler without waiting for its command, for checks that hold it in flight.
+        async Task Press(string tag)
+        {
+            await _scopeTail;
+            Action_Click(new Button { Tag = tag, Content = tag }, new RoutedEventArgs());
+        }
+        // Clicks one of the window's own buttons and waits until everything it queued has been sent.
+        async Task Click(Button button)
+        {
+            await Settle();
+            Action_Click(button, new RoutedEventArgs());
+            await Settle();
+        }
+        Task ClickTag(string tag) => Click(new Button { Tag = tag, Content = tag });
         // The operator's console reads %APPDATA%\iMouse2 on every launch; a test run must not be able to change it.
         var operatorData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "iMouse2");
         Check("The test run's data folder is not the operator's %APPDATA%\\iMouse2",
@@ -92,16 +117,19 @@ public partial class MainWindow
         DeviceList.SelectedItem = _devices[0];
         Check("Default control scope is single phone", BatchMode.IsChecked != true);
         _devices[1].IsChecked = true;
-        await Click("key|Home");
-        Check("Checked phone does not change single target", handler.Commands.Count == 1 && handler.Commands[0].GetProperty("data").GetProperty("id").GetString() == "TEST:01");
-        Check("Home button uses documented hotkey", handler.Commands[0].GetProperty("fun").GetString() == "/key/sendkey" && handler.Commands[0].GetProperty("data").GetProperty("fn_key").GetString() == "Home");
+        await Click(HomeButton);
+        Check("Checked phone does not change single target", Inputs().Length == 1 && Ids(Inputs()[0]) == "TEST:01");
+        Check("Home button uses documented hotkey", Fun(Inputs()[0]) == "/key/sendkey" && Inputs()[0].GetProperty("data").GetProperty("fn_key").GetString() == "Home");
+        Check("Input is sent under the phone's own lease",
+            handler.Commands.ToArray().Count(c => Fun(c) == "/input/acquire") == 1
+            && Inputs()[0].GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString() == handler.ActiveLeases["TEST:01"]);
         BatchMode.IsChecked = true;
-        await Click("swipe|up");
+        await ClickTag("swipe|up");
         // Mirroring is master-plus-followers, so the master is always addressed; the
         // invariant worth asserting is that an offline follower never is. Checking the id
         // list beats checking a log line, which is what the previous version did.
         Check("Offline follower is not addressed by a mirrored input",
-            handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01");
+            Fun(Inputs()[^1]) == "/mouse/swipe" && Ids(Inputs()[^1]) == "TEST:01");
         // --- master / mirror ---
         // TEST:04 is online, same 500x1080 mirror geometry, board attached: a valid follower.
         // TEST:05 is online with a board but 375x812: excluded, because an identical
@@ -111,32 +139,35 @@ public partial class MainWindow
         _devices.First(d => d.Id == "TEST:04").IsChecked = true;
         BatchMode.IsChecked = true;
         UpdateControls();
-        int beforeMirror = handler.Commands.Count;
-        await Click("key|Home");
-        var mirrored = handler.Commands[^1].GetProperty("data").GetProperty("id").GetString()!;
-        Check("Mirrored input is a single request, not one per phone", handler.Commands.Count == beforeMirror + 1);
+        await Settle();
+        int beforeMirror = Inputs().Length;
+        await Click(HomeButton);
+        var mirrored = Ids(Inputs()[^1]);
+        Check("Mirrored input is a single request, not one per phone", Inputs().Length == beforeMirror + 1);
         Check("Mirrored input addresses master and follower", mirrored == "TEST:01,TEST:04");
         Check("Master is named first in the mirror target list", mirrored.StartsWith("TEST:01"));
+        Check("Mirrored input carries each phone's own lease",
+            Inputs()[^1].GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString() == handler.ActiveLeases["TEST:01"]
+            && Inputs()[^1].GetProperty("data").GetProperty("tokens").GetProperty("TEST:04").GetString() == handler.ActiveLeases["TEST:04"]);
 
         _devices.First(d => d.Id == "TEST:05").IsChecked = true;
         UpdateControls();
-        await Click("key|Home");
-        var withOdd = handler.Commands[^1].GetProperty("data").GetProperty("id").GetString()!;
+        await Click(HomeButton);
+        var withOdd = Ids(Inputs()[^1]);
         Check("A differently sized phone is excluded from mirroring", !withOdd.Contains("TEST:05"));
         Check("Excluded followers are reported, not dropped silently",
             MirrorWarning.Visibility == Visibility.Visible && MirrorWarning.Text.Contains("different screen size"));
 
         _devices.First(d => d.Id == "TEST:02").IsChecked = true;   // offline
         UpdateControls();
-        await Click("key|Home");
-        Check("An offline follower never joins the mirror set",
-            !handler.Commands[^1].GetProperty("data").GetProperty("id").GetString()!.Contains("TEST:02"));
+        await Click(HomeButton);
+        Check("An offline follower never joins the mirror set", !Ids(Inputs()[^1]).Contains("TEST:02"));
 
         BatchMode.IsChecked = false;
         UpdateControls();
-        await Click("key|Home");
-        Check("Mirroring off sends to the master alone",
-            handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01");
+        await Click(HomeButton);
+        Check("Mirroring off sends to the master alone", Ids(Inputs()[^1]) == "TEST:01");
+        Check("Leaving the mirror set releases the follower's lease", !handler.ActiveLeases.ContainsKey("TEST:04"));
 
         foreach (var d in _devices) d.IsChecked = false;
         UpdateControls();
@@ -149,61 +180,40 @@ public partial class MainWindow
         DeviceList.SelectedItem = _devices.First(d => d.Id == "TEST:01");
         BatchMode.IsChecked = false;
         UpdateControls();
-        await Click("reset|mouse");
-        Check("Strip Reset alone targets only the master",
-            handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01" &&
-            handler.Commands[^1].GetProperty("fun").GetString() == "/mouse/reset");
+        await Click(ResetButton);
+        Check("Strip Reset alone targets only the master", Ids(Inputs()[^1]) == "TEST:01" && Fun(Inputs()[^1]) == "/mouse/reset");
         Check("Strip target caption is hidden with no followers", StripTarget.Visibility != Visibility.Visible);
 
         _devices.First(d => d.Id == "TEST:04").IsChecked = true;
         BatchMode.IsChecked = true;
         UpdateControls();
-        await Click("reset|mouse");
-        Check("Strip Reset reaches every mirrored phone",
-            handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
-        await Click("key|Home");
+        await Click(ResetButton);
+        Check("Strip Reset reaches every mirrored phone", Fun(Inputs()[^1]) == "/mouse/reset" && Ids(Inputs()[^1]) == "TEST:01,TEST:04");
+        await Click(HomeButton);
         Check("Strip Home reaches every mirrored phone",
-            handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04" &&
-            handler.Commands[^1].GetProperty("data").GetProperty("fn_key").GetString() == "Home");
+            Ids(Inputs()[^1]) == "TEST:01,TEST:04" && Inputs()[^1].GetProperty("data").GetProperty("fn_key").GetString() == "Home");
         Check("Strip says how many phones it will hit", StripTarget.Visibility == Visibility.Visible && StripTarget.Text.Contains("2 phones"));
-
-        Check("Strip Restart is wired to a board restart", RestartButton.Tag as string == "usb|restart");
-        Check("Strip Ctrl Bar is wired to Control Centre", CtrlBarButton.Tag as string == "key|ControlBar");
-        Check("Strip Cast is wired to airplay connect", CastButton.Tag as string == "cast|connect");
-        Check("Strip App is wired to the app switcher", AppButton.Tag as string == "key|AppSwitch");
-        Check("Strip Disc is wired to airplay disconnect", DiscButton.Tag as string == "cast|disconnect");
-
-        await Click("usb|restart");
-        Check("Strip Restart restarts the board on every mirrored phone",
-            handler.Commands[^1].GetProperty("fun").GetString() == "/device/usb/restart" &&
-            handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
-        foreach (var (tag, fn, key) in new (string Tag, string Fun, string Key)[]
+        foreach (var (button, key) in new[] { (CtrlBarButton, "ControlBar"), (AppButton, "AppSwitch") })
         {
-            ("key|ControlBar", "/key/sendkey", "ControlBar"),
-            ("key|AppSwitch", "/key/sendkey", "AppSwitch"),
-        })
-        {
-            await Click(tag);
+            await Click(button);
             Check($"Strip {key} reaches every mirrored phone",
-                handler.Commands[^1].GetProperty("fun").GetString() == fn &&
-                handler.Commands[^1].GetProperty("data").GetProperty("fn_key").GetString() == key &&
-                handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
+                Fun(Inputs()[^1]) == "/key/sendkey" && Inputs()[^1].GetProperty("data").GetProperty("fn_key").GetString() == key
+                && Ids(Inputs()[^1]) == "TEST:01,TEST:04");
         }
-
-        // Cast and Disc cannot use the input id list: starting a mirror has to reach a
-        // phone that is not mirroring yet, and each AirPlay session is its own handshake.
-        int beforeStripCast = handler.Commands.Count;
-        await Click("cast|connect");
-        var stripCast = handler.Commands.Skip(beforeStripCast).ToList();
-        Check("Strip Cast uses documented airplay connect",
-            stripCast.Count > 0 && stripCast.All(c => c.GetProperty("fun").GetString() == "/device/airplay/connect"));
-        Check("Strip Cast is one request per phone, not a comma list",
-            stripCast.All(c => !c.GetProperty("data").GetProperty("id").GetString()!.Contains(',')));
-        int beforeStripDisc = handler.Commands.Count;
-        await Click("cast|disconnect");
-        var stripDisc = handler.Commands.Skip(beforeStripDisc).ToList();
-        Check("Strip Disc uses documented airplay disconnect",
-            stripDisc.Count > 0 && stripDisc.All(c => c.GetProperty("fun").GetString() == "/device/airplay/disconnect"));
+        // Every button the operator can click must send something the kernel accepts. A key name it
+        // refuses used to pause the phone (the five vendor buttons removed on 9 Nov). The accepted
+        // names are InputRouter.Validate's list in the kernel.
+        string[] kernelKeys = ["Home", "Enter", "ENTER", "Backspace", "BACKSPACE", "Tab", "Escape", "Up", "Down", "Left", "Right", "AppSwitch", "ControlBar"];
+        string[] kernelSwipes = ["up", "down", "left", "right"];
+        static IEnumerable<Button> Buttons(DependencyObject root) => LogicalTreeHelper.GetChildren(root).OfType<DependencyObject>()
+            .SelectMany(child => (child is Button b ? new[] { b } : []).Concat(Buttons(child)));
+        var actionTags = Buttons(ActionStrip).Concat(Buttons(ActionPanel)).Select(b => b.Tag as string).Where(t => t is not null).Select(t => t!.Split('|')).ToArray();
+        Check("The strip and the Controls drawer hold the expected action buttons",
+            Buttons(ActionStrip).Count() == 4 && actionTags.Length == 14 && actionTags.All(t => t.Length == 2));
+        Check("Every action button sends a command the kernel accepts", actionTags.All(t => t[0] switch
+        {
+            "key" => kernelKeys.Contains(t[1]), "swipe" => kernelSwipes.Contains(t[1]), "reset" => t[1] == "mouse", _ => false
+        }));
 
         foreach (var d in _devices) d.IsChecked = false;
         BatchMode.IsChecked = false;
@@ -294,42 +304,6 @@ public partial class MainWindow
         probe.Fps = 0;
         UpdateControls();
 
-        // --- a phone joining the mirror set gets its pointer reset ---
-        // Measured on the rack: a follower accepted pointer moves but ignored every click,
-        // mirrored or not, until it was sent /mouse/reset. To the operator that looks like
-        // mirroring silently skipping a phone, so joining the set now clears it.
-        foreach (var d in _devices) d.IsChecked = false;
-        SearchBox.Text = "";
-        DeviceList.SelectedItem = _devices.First(d => d.Id == "TEST:01");
-        BatchMode.IsChecked = false;
-        UpdateControls();
-        int beforeJoin = handler.Commands.Count;
-        _devices.First(d => d.Id == "TEST:04").IsChecked = true;
-        BatchMode.IsChecked = true;
-        UpdateControls();
-        for (int i = 0; handler.Commands.Count == beforeJoin && i < 100; i++) await Task.Delay(10);
-        Check("A phone joining the mirror set has its pointer reset",
-            handler.Commands[^1].GetProperty("fun").GetString() == "/mouse/reset" &&
-            handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
-
-        int afterJoin = handler.Commands.Count;
-        UpdateControls(); UpdateControls();
-        await Task.Delay(60);
-        Check("An unchanged mirror set is not reset again", handler.Commands.Count == afterJoin);
-
-        _devices.First(d => d.Id == "TEST:05").IsChecked = true;   // wrong screen size: excluded
-        UpdateControls();
-        await Task.Delay(60);
-        Check("Ticking a phone that cannot mirror does not trigger a reset", handler.Commands.Count == afterJoin);
-        _devices.First(d => d.Id == "TEST:05").IsChecked = false;
-
-        BatchMode.IsChecked = false;
-        UpdateControls();
-        await Task.Delay(60);
-        Check("Turning mirroring off does not reset anything", handler.Commands.Count == afterJoin);
-        foreach (var d in _devices) d.IsChecked = false;
-        UpdateControls();
-
         // --- taps and drags, through the real gesture path ---
         // This is the part that was broken. A tap used to be sent at the point where the
         // button came UP, and a drag that travelled past the edge of the picture stopped
@@ -342,6 +316,7 @@ public partial class MainWindow
         _devices.First(d => d.Id == "TEST:04").IsChecked = true;
         BatchMode.IsChecked = true;
         UpdateControls();
+        await Settle();
         await GrabOneAsync();
         ((FrameworkElement)Content).UpdateLayout();
         Check("Gesture test has a frame and a laid-out picture",
@@ -353,16 +328,14 @@ public partial class MainWindow
         var pressed = MapPreview(pressPoint)!.Value;
         Check("A press inside the picture maps to a coordinate", MapPreview(pressPoint) is not null);
 
-        int beforeTap = handler.Commands.Count;
+        int beforeTap = Inputs().Length;
         BeginGesture(pressPoint);
         Check("Press opens a gesture", _gesture is not null);
         await EndGestureAsync(liftPoint);
-        for (int i = 0; handler.Commands.Count == beforeTap && i < 100; i++) await Task.Delay(10);
-        var tap = handler.Commands[^1];
-        Check("A tap is one mirrored click, not one request per phone", handler.Commands.Count == beforeTap + 1);
-        Check("A tap reaches master and follower together",
-            tap.GetProperty("fun").GetString() == "/mouse/click" &&
-            tap.GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
+        await Settle();
+        var tap = Inputs()[^1];
+        Check("A tap is one mirrored click, not one request per phone", Inputs().Length == beforeTap + 1);
+        Check("A tap reaches master and follower together", Fun(tap) == "/mouse/click" && Ids(tap) == "TEST:01,TEST:04");
         Check("A tap lands where the button went down, not where it came up",
             tap.GetProperty("data").GetProperty("x").GetInt32() == pressed.X &&
             tap.GetProperty("data").GetProperty("y").GetInt32() == pressed.Y);
@@ -372,26 +345,25 @@ public partial class MainWindow
         var outside = new Point(pw + 60, ph * 0.30);
         Check("The stroke really does leave the picture", MapPreview(outside) is null);
         var edge = MapPreviewClamped(outside)!.Value;
-        int beforeDrag = handler.Commands.Count;
+        int beforeDrag = Inputs().Length;
         BeginGesture(pressPoint);
         TrackGesture(new Point(pw * 0.30 + 30, ph * 0.30), true);
         for (int i = 0; !_dragStarted && i < 100; i++) await Task.Delay(10);
         Check("Moving past the threshold starts a drag", _dragStarted);
         TrackGesture(outside, true);
-        for (int i = 0; !handler.Commands.Skip(beforeDrag).Any(c => c.GetProperty("fun").GetString() == "/mouse/down") && i < 100; i++) await Task.Delay(10);
+        for (int i = 0; !Inputs().Skip(beforeDrag).Any(c => Fun(c) == "/mouse/down") && i < 100; i++) await Task.Delay(10);
         await EndGestureAsync(outside);
-        for (int i = 0; _inputActions.IsRunning && i < 200; i++) await Task.Delay(10);
+        await Settle();
         Check("The drag loop finishes", !_inputActions.IsRunning && !_dragStarted);
 
-        var stroke = handler.Commands.Skip(beforeDrag).ToList();
-        var down = stroke.Where(c => c.GetProperty("fun").GetString() == "/mouse/down").ToList();
-        var up = stroke.Where(c => c.GetProperty("fun").GetString() == "/mouse/up").ToList();
-        var moves = stroke.Where(c => c.GetProperty("fun").GetString() == "/mouse/move").ToList();
+        var stroke = Inputs().Skip(beforeDrag).ToList();
+        var down = stroke.Where(c => Fun(c) == "/mouse/down").ToList();
+        var up = stroke.Where(c => Fun(c) == "/mouse/up").ToList();
+        var moves = stroke.Where(c => Fun(c) == "/mouse/move").ToList();
         Check("A drag presses once and releases once", down.Count == 1 && up.Count == 1);
         Check("The button goes down before it comes up",
             stroke.IndexOf(down[0]) < stroke.IndexOf(up[0]));
-        Check("Every part of the stroke addresses master and follower",
-            stroke.All(c => c.GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04"));
+        Check("Every part of the stroke addresses master and follower", stroke.All(c => Ids(c) == "TEST:01,TEST:04"));
         Check("The stroke starts at the press point",
             moves.Count > 0 && moves[0].GetProperty("data").GetProperty("x").GetInt32() == pressed.X
                             && moves[0].GetProperty("data").GetProperty("y").GetInt32() == pressed.Y);
@@ -407,97 +379,88 @@ public partial class MainWindow
         // its own long-press timer and show the icon context menu - and come up only on
         // release, with no click ever sent. Compare the tap above: same press point, but
         // released at once, and that one must stay an atomic click.
-        int beforeHold = handler.Commands.Count;
+        int beforeHold = Inputs().Length;
         BeginGesture(pressPoint);
         Check("A hold starts as an ordinary press", _gesture is not null && !_dragStarted);
         for (int i = 0; !_dragStarted && i < 100; i++) await Task.Delay(10);
         Check("Holding still past the threshold presses the button", _dragStarted && _holdGesture);
-        for (int i = 0; !handler.Commands.Skip(beforeHold).Any(c => c.GetProperty("fun").GetString() == "/mouse/down") && i < 100; i++) await Task.Delay(10);
+        for (int i = 0; !Inputs().Skip(beforeHold).Any(c => Fun(c) == "/mouse/down") && i < 100; i++) await Task.Delay(10);
         Check("The button is down before the mouse is released",
-            handler.Commands.Skip(beforeHold).Any(c => c.GetProperty("fun").GetString() == "/mouse/down") &&
-            !handler.Commands.Skip(beforeHold).Any(c => c.GetProperty("fun").GetString() == "/mouse/up"));
+            Inputs().Skip(beforeHold).Any(c => Fun(c) == "/mouse/down") && !Inputs().Skip(beforeHold).Any(c => Fun(c) == "/mouse/up"));
         await Task.Delay(300);
         await EndGestureAsync(new Point(pressPoint.X + 1, pressPoint.Y + 1));
-        for (int i = 0; _inputActions.IsRunning && i < 200; i++) await Task.Delay(10);
-        var holdCmds = handler.Commands.Skip(beforeHold).ToList();
+        await Settle();
+        var holdCmds = Inputs().Skip(beforeHold).ToList();
         Check("A long press is one press and one release and never a click",
-            holdCmds.Count(c => c.GetProperty("fun").GetString() == "/mouse/down") == 1 &&
-            holdCmds.Count(c => c.GetProperty("fun").GetString() == "/mouse/up") == 1 &&
-            !holdCmds.Any(c => c.GetProperty("fun").GetString() == "/mouse/click"));
+            holdCmds.Count(c => Fun(c) == "/mouse/down") == 1 &&
+            holdCmds.Count(c => Fun(c) == "/mouse/up") == 1 &&
+            !holdCmds.Any(c => Fun(c) == "/mouse/click"));
         Check("A long press stays where it was pressed",
-            holdCmds.Where(c => c.GetProperty("fun").GetString() == "/mouse/move")
+            holdCmds.Where(c => Fun(c) == "/mouse/move")
                     .All(c => c.GetProperty("data").GetProperty("x").GetInt32() == pressed.X
                            && c.GetProperty("data").GetProperty("y").GetInt32() == pressed.Y));
-        Check("A long press addresses master and follower",
-            holdCmds.All(c => c.GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04"));
+        Check("A long press addresses master and follower", holdCmds.All(c => Ids(c) == "TEST:01,TEST:04"));
         for (int i = 0; !_activity.Any(s => s.Contains("Long press")) && i < 100; i++) await Task.Delay(10);
         Check("A long press is logged with its duration", _activity.Any(s => s.Contains("Long press (")));
 
         // A flick so quick that it leaves the picture before the drag threshold is crossed
         // used to send nothing whatsoever: no drag started, and the tap path then rejected
         // the outside release point.
-        int beforeFlick = handler.Commands.Count;
+        int beforeFlick = Inputs().Length;
         BeginGesture(pressPoint);
         TrackGesture(outside, true);
         for (int i = 0; !_dragStarted && i < 100; i++) await Task.Delay(10);
         await EndGestureAsync(outside);
-        for (int i = 0; _inputActions.IsRunning && i < 200; i++) await Task.Delay(10);
-        Check("A flick straight out of the picture still sends a gesture", handler.Commands.Count > beforeFlick);
+        await Settle();
+        Check("A flick straight out of the picture still sends a gesture", Inputs().Length > beforeFlick);
 
         // Hover tracking moves the phone's own pointer. It has to move every mirrored
         // phone's pointer, or the followers are in a different state when the click lands.
-        int beforeHover = handler.Commands.Count;
+        int beforeHover = Inputs().Length;
         TrackPointer.IsChecked = true;
         TrackGesture(new Point(pw * 0.6, ph * 0.6), false);
-        for (int i = 0; handler.Commands.Count == beforeHover && i < 100; i++) await Task.Delay(10);
+        for (int i = 0; Inputs().Length == beforeHover && i < 100; i++) await Task.Delay(10);
         Check("Hover tracking moves the pointer on every mirrored phone",
-            handler.Commands[^1].GetProperty("fun").GetString() == "/mouse/move" &&
-            handler.Commands[^1].GetProperty("data").GetProperty("id").GetString() == "TEST:01,TEST:04");
-        for (int i = 0; _pointerMoves.IsRunning && i < 100; i++) await Task.Delay(10);
+            Inputs().Length > beforeHover && Fun(Inputs()[^1]) == "/mouse/move" && Ids(Inputs()[^1]) == "TEST:01,TEST:04");
+        await Settle();
 
         // And it must stay out of the way once a gesture owns the pointer.
         BeginGesture(pressPoint);
-        int beforeGuard = handler.Commands.Count;
+        int beforeGuard = Inputs().Length;
         TrackPointerTo((7, 9));
         await Task.Delay(60);
-        Check("Hover tracking yields to a gesture in progress", handler.Commands.Count == beforeGuard);
+        Check("Hover tracking yields to a gesture in progress", Inputs().Length == beforeGuard);
         await EndGestureAsync(pressPoint);
-        for (int i = 0; _commandBusy && i < 100; i++) await Task.Delay(10);
+        await Settle();
 
         foreach (var d in _devices) d.IsChecked = false;
         BatchMode.IsChecked = false;
         UpdateControls();
+        await Settle();
 
-        BatchMode.IsChecked = true;
-        _devices[0].IsChecked = true; _devices[1].IsChecked = true; _devices[2].IsChecked = true;
-        int beforeCast = handler.Commands.Count;
-        await Click("cast|connect");
-        var castCommands = handler.Commands.Skip(beforeCast).ToList();
-        // Casting stays one request per phone even though input is now mirrored in a single
-        // request: each phone negotiates its own AirPlay session, so the two are not the
-        // same kind of operation and must not be collapsed into an id list.
-        Check("Explicit batch casting uses each checked device",
-            castCommands.Select(c => c.GetProperty("data").GetProperty("id").GetString()).SequenceEqual(new[] { "TEST:01", "TEST:02", "TEST:03" }));
-        Check("Casting uses documented function", castCommands.All(c => c.GetProperty("fun").GetString() == "/device/airplay/connect"));
-        BatchMode.IsChecked = false;
-        int beforeText = handler.Commands.Count;
+        int beforeText = Inputs().Length;
         SendTextBox.Text = "not ASCII: é"; SendText_Click(this, new RoutedEventArgs());
-        Check("Unsupported text is blocked before transmission", handler.Commands.Count == beforeText);
+        Check("Unsupported text is blocked before transmission", Inputs().Length == beforeText);
         SendTextBox.Text = "hello"; SendText_Click(this, new RoutedEventArgs());
-        for (int i = 0; (_commandBusy || _sendingText) && i < 100; i++) await Task.Delay(20);
-        Check("Send text transmits explicit field", handler.Commands.Count == beforeText + 1 && handler.Commands[^1].GetProperty("data").GetProperty("key").GetString() == "hello");
+        for (int i = 0; _sendingText && i < 100; i++) await Task.Delay(20);
+        Check("Send text transmits explicit field", Inputs().Length == beforeText + 1 && Inputs()[^1].GetProperty("data").GetProperty("key").GetString() == "hello");
         SearchBox.Text = "does-not-match";
-        int beforeNone = handler.Commands.Count;
-        await Click("key|Home");
-        Check("No selected phone means no command", Selected is null && handler.Commands.Count == beforeNone);
+        await Settle();
+        int beforeNone = Inputs().Length;
+        await Click(HomeButton);
+        Check("No selected phone means no command", Selected is null && Inputs().Length == beforeNone);
         Check("Empty search has explanatory state", EmptyList.Visibility == Visibility.Visible);
         SearchBox.Text = "";
         DeviceList.SelectedItem = _devices[1];
         Check("Switching to offline phone clears previous image", _frame is null && PhoneImage.Source is null);
         DeviceList.SelectedItem = _devices[0];
+        await Settle();
         handler.ErrorCode = 25; int attempts = handler.PostAttempts;
-        await Click("key|Home");
+        await Click(HomeButton);
+        // The one request is the lease for the newly selected phone; its refusal ends the command.
         Check("Failed commands are attempted once without retries", handler.PostAttempts == attempts + 1);
+        for (int i = 0; _controlReady && i < 100; i++) await Task.Delay(10);   // the pause notice is posted to the UI thread
+        Check("A failed command pauses input and offers Resume", !_controlReady && ResumeInputButton.IsEnabled && InputStateText.Text.StartsWith("Input paused"));
         // Input no longer re-reads the whole device list after every command - a tap is far
         // too frequent to pay for that. The five-second poll is what notices an outage, so
         // drive it here rather than asserting an immediate reaction to one failed tap.
@@ -515,11 +478,10 @@ public partial class MainWindow
         Disconnect_Click(this, new RoutedEventArgs());
         Check("Disconnect clears images and control state", !_connected && _frame is null && !ActionPanel.IsEnabled);
 
-        // --- Ownership UI checks with ownership enabled ---
-        handler.OwnershipSupported = true;
+        // --- Stop, Resume, long text and timeouts, with a fast renewal heartbeat ---
         handler.ErrorCode = 0;
         handler.EmptyList = false;
-        _factory = address => new ApiClient(address, handler, ownership: true, renewalInterval: TimeSpan.FromMilliseconds(50));
+        _factory = address => new ApiClient(address, handler, renewalInterval: TimeSpan.FromMilliseconds(50));
         await ConnectAsync();
         UpdateControls();
         DeviceList.SelectedItem = _devices.First(d => d.Id == "TEST:01");
@@ -529,22 +491,8 @@ public partial class MainWindow
         UpdateControls();
 
         Check("Stop button enabled under ownership", StopInputButton.IsEnabled);
-        Check("Ownership connection disables every live binding control", !BindButton.IsEnabled
-            && !UnbindButton.IsEnabled && !AutoBindButton.IsEnabled && !BoardPicker.IsEnabled);
         Check("Read-only assignment still identifies the selected board and maintenance requirement",
-            BindStatus.Text.Contains("TEST-BOARD-01") && BindStatus.Text.Contains(ApiClient.LiveBindingUnavailable));
-        int beforeUnsupportedBinding = handler.PostAttempts;
-        bool? previewBeforeBinding = AutoPreview.IsChecked;
-        AutoBind_Click(this, new RoutedEventArgs());
-        Check("Queued Auto-bind cannot send commands or interrupt preview under ownership",
-            handler.PostAttempts == beforeUnsupportedBinding && !_autoBinding && AutoPreview.IsChecked == previewBeforeBinding
-            && _activity[0].Contains(ApiClient.LiveBindingUnavailable));
-        Check("Unsupported remote mirroring and board restart controls are disabled in both locations",
-            !CastButton.IsEnabled && !DiscButton.IsEnabled && !RestartButton.IsEnabled
-            && !StartCastingButton.IsEnabled && !StopCastingButton.IsEnabled && !RecoveryRestartButton.IsEnabled);
-        Check("Unsupported service actions show actionable help", MirroringActionHelp.Visibility == Visibility.Visible
-            && BoardRestartHelp.Visibility == Visibility.Visible && MirroringActionHelp.Text == ApiClient.MirroringActionUnavailable
-            && BoardRestartHelp.Text == ApiClient.BoardRestartUnavailable);
+            BindStatus.Text.Contains("TEST-BOARD-01") && BindStatus.Text.Contains(ApiClient.AssignmentsViewOnly));
         // Send text runs from the Controls drawer, so Stop must take the first click while it
         // is open. On the rack the drawer's scrim swallowed that click and typing carried on.
         // Geometric hit test: the test window is never shown, and InputHitTest skips
@@ -600,7 +548,6 @@ public partial class MainWindow
         }
         JsonElement[] KeysSince(int index) => handler.Commands.ToArray().Skip(index).Where(c => c.GetProperty("fun").GetString() == "/key/sendkey").ToArray();
         string text = SelfTests.LongText;
-        Check("Send text cap is the documented 200 characters", MaxSendText == 200);
         Check("The text box never truncates, so paste cannot shorten text silently", SendTextBox.MaxLength == 0);
 
         int beforeLong = handler.Commands.Count;
@@ -654,7 +601,7 @@ public partial class MainWindow
         Check("Resume after the failed chunk leaves input ready", _controlReady && InputStateText.Text.Contains("ready"));
         int beforeTimeout = handler.Commands.Count;
         handler.TimeoutSendKeyNumber = handler.SendKeyCount + 1;
-        await Click("key|Home");
+        await Press("key|Home");
         await WaitFor(() => InputStateText.Text.StartsWith("Input paused") && _activity.Any(s => s.Contains("key|Home failed")));
         Check("A timed-out key was sent once and not retried", KeysSince(beforeTimeout).Length == 1);
         Check("A timed-out key shows input paused and offers Resume",
@@ -663,7 +610,7 @@ public partial class MainWindow
 
         await ResumeAndWait();
         int beforeRecovered = handler.Commands.Count;
-        await Click("key|Home");
+        await Press("key|Home");
         await WaitFor(() => KeysSince(beforeRecovered).Length > 0);
         Check("Resume after a timed-out key restores input", _controlReady && InputStateText.Text.Contains("ready") && KeysSince(beforeRecovered).Length == 1);
 
@@ -684,9 +631,9 @@ public partial class MainWindow
         int KeyTimeouts() => _activity.Count(s => s.Contains("key|Home failed: Request timed out"));
         int timeoutsBefore = KeyTimeouts();
         var hung = handler.HangNext("/key/sendkey");
-        await Click("key|Home");
+        await Press("key|Home");
         await hung.WaitAsync(TimeSpan.FromSeconds(5));
-        await Click("key|Home");
+        await Press("key|Home");
         handler.EndHang();
         await WaitFor(() => _activity.Any(s => s.Contains("key|Home: Not sent")) && KeyTimeouts() > timeoutsBefore);
         Check("A key queued behind a timed-out key never reaches the service", KeysSince(beforeQueue).Length == 1);

@@ -48,7 +48,7 @@ internal static class DiagnosticsTests
         var snapshot = JsonSerializer.SerializeToElement(new { observed_utc = DateTimeOffset.UtcNow,
             build_identity = ConsoleBuildInfo.Current, selected_device = "TEST:01", activity = new[] { "Input paused" } });
         var h = new Handler();
-        using var api = new ApiClient("http://localhost:9913", h, ownership: true);
+        using var api = new ApiClient("http://localhost:9913", h);
         var report = await ConsoleDiagnostics.CollectAsync(snapshot, api.GetAsync);
         check("Diagnostics read only the four status routes without acquiring or changing input", h.Calls.Order().SequenceEqual(new[] {
             "GET /config/usb/get", "GET /device/get", "GET /input/status", "GET /kernel/status" }));

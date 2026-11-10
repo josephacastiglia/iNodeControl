@@ -91,10 +91,9 @@ internal static class DragInput
         catch (Exception ex) { failure = ex; }
         finally
         {
-            // A failed owned command already triggers lease-scoped cleanup in the
+            // A failed command already triggers lease-scoped cleanup in the
             // client/kernel. An extra up would only be refused and double-log it.
-            // Legacy mode retains its best-effort release after a move failure.
-            if (pressed && !ct.IsCancellationRequested && (failure is null || !api.UsesInputOwnership))
+            if (pressed && !ct.IsCancellationRequested && failure is null)
             {
                 try
                 {

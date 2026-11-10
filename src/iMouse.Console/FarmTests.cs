@@ -122,7 +122,7 @@ public partial class MainWindow
             try
             {
                 check("Recovered live job leaves manual input paused", livePending._farmOwnsInput && !livePending._controlReady);
-                livePending._api = new ApiClient("http://localhost:9923", handler, ownership: true);
+                livePending._api = new ApiClient("http://localhost:9923", handler);
                 livePending._connected = true;
                 livePending._devices = [c24c];
                 livePending.DeviceList.ItemsSource = livePending._devices;

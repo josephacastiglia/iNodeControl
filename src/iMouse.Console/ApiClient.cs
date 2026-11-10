@@ -94,18 +94,14 @@ public sealed class Device : INotifyPropertyChanged
     public string Name { get; init; } = "";
     public string Model { get; init; } = "";
     public string Group { get; init; } = "Ungrouped";
-    public string Ip { get; init; } = "";
     public string Os { get; init; } = "";
     public string Hardware { get; init; } = "";
     public bool Online { get; init; }
     public int Width { get; init; }
     public int Height { get; init; }
-    public int Rotation { get; init; }
     /// <summary>Mirror stream size in pixels. Screenshots and input use this space.</summary>
     public int ImageWidth { get; init; }
     public int ImageHeight { get; init; }
-    /// <summary>Process id of the AirPlay session; non-zero proves the video channel is live.</summary>
-    public int AirPid { get; init; }
     /// <summary>mirroring, restarting, failed, or offline. Independent kernel video channel.</summary>
     public string VideoState { get; init; } = "offline";
     public string ReceiverName { get; init; } = "";
@@ -134,21 +130,18 @@ public sealed class Device : INotifyPropertyChanged
     public string ChannelSummary => ControlStatus + "  ·  " + VideoStatus;
 
     public string Status => Online ? "Online" : "Offline";
-    public string Subtitle => Model + "  ·  " + Group;
     public string DisplayName => string.IsNullOrWhiteSpace(Name) ? Model + " · " + Id[^Math.Min(5, Id.Length)..] : Name;
     private bool _isChecked;
     public bool IsChecked { get => _isChecked; set { _isChecked = value; Notify(nameof(IsChecked)); } }
-    /// <summary>The kernel returns its default group name in Chinese regardless of console language.</summary>
-    private static string Translate(string group) => group is "未分组" or "" ? "Ungrouped" : group;
     private void Notify(string name) => PropertyChanged?.Invoke(this, new(name));
     public event PropertyChangedEventHandler? PropertyChanged;
     public static Device FromJson(JsonElement row) => new()
     {
         Id = JsonValue.Text(row, "deviceid"), Name = JsonValue.Text(row, "name", JsonValue.Text(row, "user_name")),
-        Model = JsonValue.Text(row, "device_name", "iPhone"), Group = Translate(JsonValue.Text(row, "gname", "Ungrouped")),
-        Ip = JsonValue.Text(row, "ip"), Os = JsonValue.Text(row, "version"), Hardware = JsonValue.Text(row, "uid"),
-        Online = JsonValue.Int(row, "state") != 0, Width = JsonValue.Int(row, "width"), Height = JsonValue.Int(row, "height"), Rotation = JsonValue.Int(row, "rotate"),
-        ImageWidth = JsonValue.Int(row, "imgw"), ImageHeight = JsonValue.Int(row, "imgh"), AirPid = JsonValue.Int(row, "air_pid"),
+        Model = JsonValue.Text(row, "device_name", "iPhone"), Group = JsonValue.Text(row, "gname", "Ungrouped"),
+        Os = JsonValue.Text(row, "version"), Hardware = JsonValue.Text(row, "uid"),
+        Online = JsonValue.Int(row, "state") != 0, Width = JsonValue.Int(row, "width"), Height = JsonValue.Int(row, "height"),
+        ImageWidth = JsonValue.Int(row, "imgw"), ImageHeight = JsonValue.Int(row, "imgh"),
         VideoState = JsonValue.Text(row, "video_state", JsonValue.Int(row, "state") != 0 ? "mirroring" : "offline"),
         ReceiverName = JsonValue.Text(row,"receiver_name")
     };
@@ -158,7 +151,7 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
 {
     private readonly HttpClient _http;
     private long _screenshotRequest;
-    private readonly InputLeaseClient? _input;
+    private readonly InputLeaseClient _input;
     private readonly object _closeGate = new();
     private readonly TimeSpan _closeTimeout;
     private Task<InputCloseResult>? _closeTask;
@@ -166,23 +159,10 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
     public event Action<string>? InputNotice;
     /// <summary>Raised on a pool thread when the release after an input failure has an answer.</summary>
     public event Action<InputCleanup>? InputCleaned;
-    public bool UsesInputOwnership => _input is not null;
-    // This console's ownership mode uses saved, verified phone/board/receiver
-    // assignments. Its kernel deliberately refuses live /device/set changes.
-    // This is client policy, not a capability inferred from a reachable port.
-    public bool LiveBindingEnabled => !UsesInputOwnership;
-    public const string LiveBindingUnavailable = "Board assignments are view-only for this connection. Changes require a verified setup update during maintenance.";
-    public const string MirroringActionUnavailable = "Start or stop mirroring on the iPhone using Control Center > Screen Mirroring. Choose that phone's assigned receiver.";
-    public const string BoardRestartUnavailable = "Board restart is unavailable in this version. Export diagnostics if control has stopped.";
-    public string? UnavailableCommandReason(string function) => !UsesInputOwnership ? null : function switch
-    {
-        "/device/set" => LiveBindingUnavailable,
-        "/device/airplay/connect" or "/device/airplay/disconnect" => MirroringActionUnavailable,
-        "/device/usb/restart" => BoardRestartUnavailable,
-        _ => null
-    };
+    // The kernel uses saved, verified phone/board/receiver assignments and has no command that changes them.
+    public const string AssignmentsViewOnly = "Board assignments are view-only. Changes require a verified setup update during maintenance.";
     public Uri Endpoint { get; }
-    public ApiClient(string address, HttpMessageHandler? handler = null, bool? ownership = null, TimeSpan? renewalInterval = null,
+    public ApiClient(string address, HttpMessageHandler? handler = null, TimeSpan? renewalInterval = null,
         TimeSpan? closeTimeout = null)
     {
         _closeTimeout = closeTimeout ?? TimeSpan.FromSeconds(15);
@@ -192,12 +172,9 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         _http = handler is null ? new HttpClient(new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false }) : new HttpClient(handler);
         _http.Timeout = TimeSpan.FromSeconds(8);
         _http.MaxResponseContentBufferSize = 32 * 1024 * 1024;
-        if (ownership ?? handler is null)
-        {
-            _input = new InputLeaseClient(RawCommandAsync, VerifyOwnershipAsync, renewalInterval);
-            _input.Notice += message => InputNotice?.Invoke(message);
-            _input.Cleaned += cleanup => InputCleaned?.Invoke(cleanup);
-        }
+        _input = new InputLeaseClient(RawCommandAsync, VerifyOwnershipAsync, renewalInterval);
+        _input.Notice += message => InputNotice?.Invoke(message);
+        _input.Cleaned += cleanup => InputCleaned?.Invoke(cleanup);
     }
     public static Uri NormalizeEndpoint(string address)
     {
@@ -228,13 +205,13 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
             throw new ApiException("This console needs the ownership-enabled kernel. Input was not sent; keep using the validated desktop app until paired validation.");
         _ownershipVerified = true;
     }
-    public Task<JsonElement> CommandAsync(string function, Dictionary<string, object> data, CancellationToken ct = default)
-    {
-        if (UnavailableCommandReason(function) is { } reason)
-            return Task.FromException<JsonElement>(new ApiException(reason, 41));
-        return _input is not null && (function.StartsWith("/mouse/") || function == "/key/sendkey")
-            ? _input.CommandAsync(function, data, ct) : RawCommandAsync(function, data, ct);
-    }
+    /// <summary>Sends one input command (/mouse/* or /key/sendkey) under the target phones' leases.
+    /// Nothing else is a console command: status is read with <see cref="GetAsync"/>, and Stop, Resume
+    /// and release have their own methods.</summary>
+    public Task<JsonElement> CommandAsync(string function, Dictionary<string, object> data, CancellationToken ct = default) =>
+        function.StartsWith("/mouse/") || function == "/key/sendkey"
+            ? _input.CommandAsync(function, data, ct)
+            : Task.FromException<JsonElement>(new ApiException("Not an input command: " + function, 41));
     private async Task<JsonElement> RawCommandAsync(string function, Dictionary<string, object> data, CancellationToken ct)
     {
         using var body = new StringContent(JsonSerializer.Serialize(new { fun = function, data }), Encoding.UTF8, "application/json");
@@ -269,32 +246,21 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         TextDelivery Result(InputEnd end, Exception? failure) => new(end, characters, text.Length, sent, confirmed, chunks.Count, failure);
         try
         {
-            if (_input is not null)
-            {
-                var (end, failure) = await _input.SequenceAsync("/key/sendkey", steps, i => sent = i + 1, (i, _) => Confirm(i), ct).ConfigureAwait(false);
-                return Result(end, failure);
-            }
-            for (int i = 0; i < steps.Count; i++)
-            {
-                ct.ThrowIfCancellationRequested();
-                sent = i + 1;
-                await RawCommandAsync("/key/sendkey", steps[i], ct).ConfigureAwait(false);
-                Confirm(i);
-            }
-            return Result(InputEnd.Completed, null);
+            var (end, failure) = await _input.SequenceAsync("/key/sendkey", steps, i => sent = i + 1, (i, _) => Confirm(i), ct).ConfigureAwait(false);
+            return Result(end, failure);
         }
         catch (Exception ex)
         {
-            // The raw path, or a refusal before the lease client sent anything. As there, a
-            // cancellation our token did not request is HttpClient's timeout.
+            // A refusal before the lease client sent anything. As there, a cancellation our
+            // token did not request is HttpClient's timeout.
             return Result(ex is not OperationCanceledException ? InputEnd.Failed
                 : ct.IsCancellationRequested ? InputEnd.Cancelled : InputEnd.TimedOut, ex);
         }
     }
-    public Task StopInputAsync(string ids) => _input?.StopAsync(ids) ?? Task.CompletedTask;
-    public Task ResumeInputAsync(string ids) => _input?.ResumeAsync(ids) ?? Task.CompletedTask;
-    public Task ReleaseInputAsync(string ids) => _input?.ReleaseAsync(ids) ?? Task.CompletedTask;
-    public void ReadyInputScope(string ids) => _input?.ReadyScope(ids);
+    public Task StopInputAsync(string ids) => _input.StopAsync(ids);
+    public Task ResumeInputAsync(string ids) => _input.ResumeAsync(ids);
+    public Task ReleaseInputAsync(string ids) => _input.ReleaseAsync(ids);
+    public void ReadyInputScope(string ids) => _input.ReadyScope(ids);
     public async Task<List<Device>> DevicesAsync(CancellationToken ct = default)
     {
         var data = await GetAsync("/device/get", ct);
@@ -308,48 +274,18 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         return rows.EnumerateArray().Select(Board.FromJson).Where(x => x.Uid.Length > 0).ToList();
     }
 
-    /// <summary>
-    /// Ties a phone to a control board. vid, pid and the hardware id must all be sent
-    /// together, and the kernel only accepts one device at a time for this.
-    /// </summary>
-    public Task<JsonElement> BindAsync(string deviceId, Board board, CancellationToken ct = default) =>
-        CommandAsync("/device/set", new() { ["id"] = deviceId, ["vid"] = board.Vid, ["pid"] = board.Pid, ["uid"] = board.Uid }, ct);
-
-    /// <summary>Clears a phone's board binding, freeing that board for another phone.</summary>
-    public Task<JsonElement> UnbindAsync(string deviceId, CancellationToken ct = default) =>
-        CommandAsync("/device/set", new() { ["id"] = deviceId, ["vid"] = "", ["pid"] = "", ["uid"] = "" }, ct);
-
     /// <summary>Moves the pointer. deviceIds may be a comma-separated list; every input
     /// endpoint accepts one, so a mirrored gesture is a single round trip.</summary>
     public Task<JsonElement> MoveAsync(string deviceIds, int x, int y, CancellationToken ct = default) =>
         CommandAsync("/mouse/move", new() { ["id"] = deviceIds, ["x"] = x, ["y"] = y }, ct);
 
-    /// <summary>
-    /// Fetches one frame. Raw (uncompressed BMP) is the fast path the live view
-    /// uses: the service returns it in about 2 ms versus roughly 40 ms for JPEG,
-    /// because no encode step is involved. JPEG stays available for saving and
-    /// for slow or remote links where bandwidth matters more than latency.
-    /// </summary>
-    public async Task<byte[]> ScreenshotAsync(string id, bool jpeg = false, CancellationToken ct = default)
-    {
-        var url = Endpoint.AbsoluteUri.TrimEnd('/') + "/pic/screenshot?id=" + Uri.EscapeDataString(id) + "&binary=true" + (jpeg ? "&jpg=true" : "");
-        using var response = await _http.GetAsync(url, ct);
-        response.EnsureSuccessStatusCode();
-        var bytes = await response.Content.ReadAsByteArrayAsync(ct);
-        if (IsImage(bytes)) return bytes;
-        var data = ReadResult(Encoding.UTF8.GetString(bytes));
-        var encoded = JsonValue.Text(data, "image");
-        try { bytes = Convert.FromBase64String(encoded); } catch (FormatException) { throw new ApiException("The service did not return an image. Start mirroring in iMouse first."); }
-        if (!IsImage(bytes)) throw new ApiException("No screen image is available. Start mirroring on the phone.");
-        return bytes;
-    }
     public const int MaxScreenshotBytes = 64 * 1024 * 1024;
     /// <summary>
-    /// Fetches one frame into a reusable buffer instead of a fresh array. Same contract as
-    /// <see cref="ScreenshotAsync"/>; see <see cref="FrameBuffer"/> for why it matters.
-    /// The full response has one eight-second deadline and a 64 MiB byte limit.
+    /// Fetches one frame, the kernel's raw uncompressed BMP, into a reusable buffer instead of a
+    /// fresh array; see <see cref="FrameBuffer"/> for why it matters. The full response has one
+    /// deadline (the HTTP timeout) and a 64 MiB byte limit.
     /// </summary>
-    public async Task ScreenshotIntoAsync(string id, bool jpeg, FrameBuffer buffer, CancellationToken ct = default)
+    public async Task ScreenshotIntoAsync(string id, FrameBuffer buffer, CancellationToken ct = default)
     {
         buffer.RequestSerial = Interlocked.Increment(ref _screenshotRequest);
         buffer.Length = 0;
@@ -361,7 +297,7 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(ct);
         deadline.CancelAfter(_http.Timeout);
         var token = deadline.Token;
-        var url = Endpoint.AbsoluteUri.TrimEnd('/') + "/pic/screenshot?id=" + Uri.EscapeDataString(id) + "&binary=true" + (jpeg ? "&jpg=true" : "");
+        var url = Endpoint.AbsoluteUri.TrimEnd('/') + "/pic/screenshot?id=" + Uri.EscapeDataString(id) + "&binary=true";
         // ResponseHeadersRead, so HttpClient does not buffer the body into an array of its
         // own before handing it over - that would put the allocation straight back.
         using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, token);
@@ -395,15 +331,9 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
             token.ThrowIfCancellationRequested();
             if (!IsImage(buffer.Span))
             {
-                // JSON/base64 is a legacy fallback, outside the hot path.
-                var data = ReadResult(Encoding.UTF8.GetString(buffer.Data, 0, total));
-                byte[] decoded;
-                try { decoded = Convert.FromBase64String(JsonValue.Text(data, "image")); }
-                catch (FormatException) { throw new ApiException("The service did not return an image. Start mirroring in iMouse first."); }
-                if (!IsImage(decoded)) throw new ApiException("No screen image is available. Start mirroring on the phone.");
-                buffer.Ensure(decoded.Length);
-                decoded.CopyTo(buffer.Data, 0);
-                buffer.Length = decoded.Length;
+                // Not a picture: the kernel's JSON refusal (no live frame, unknown phone). ReadResult throws its reason.
+                ReadResult(Encoding.UTF8.GetString(buffer.Data, 0, total));
+                throw new ApiException("The kernel did not return an image.");
             }
             token.ThrowIfCancellationRequested();
             buffer.Metadata = ScreenshotMetadata.Parse(response.Headers,
@@ -435,12 +365,9 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
     }
     private static string ErrorDescription(int code) => code switch
     {
-        1 or 7 => "Device not found.", 2 or 23 => "Bind this phone to its control board in iMouse.",
-        3 or 13 or 24 => "Check the phone, board and PC connection.", 11 => "Set mouse parameters in iMouse.",
-        25 => "Device is offline. Start screen mirroring.", 26 => "Screen capture failed.",
-        28 or 29 => "Required phone shortcut/plugin is unavailable.", 30 => "The operation timed out.",
-        36 => "Invalid parameters.", 37 => "Sign in through the existing iMouse console.",
-        41 => "This command is not supported by the installed service.", _ => "The operation did not complete."
+        1 => "Device not found.", 25 => "Device is offline. Start screen mirroring.",
+        36 => "Invalid parameters.", 41 => "This command is not supported by the kernel.",
+        _ => "The operation did not complete."
     };
     public void Dispose()
     {
@@ -460,8 +387,7 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
         InputCloseResult result;
         try
         {
-            result = _input is null ? new([])
-                : await _input.CloseAsync().WaitAsync(_closeTimeout).ConfigureAwait(false);
+            result = await _input.CloseAsync().WaitAsync(_closeTimeout).ConfigureAwait(false);
         }
         catch (TimeoutException)
         {

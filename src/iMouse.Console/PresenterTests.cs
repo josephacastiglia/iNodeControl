@@ -12,8 +12,8 @@ public partial class MainWindow
         string folder = Path.Combine(Path.GetTempPath(), "imouse-presenter-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "settings.json"), "{\"address\":\"http://localhost:9923\",\"trackPointer\":false}");
-        var handler = new TestHandler { OwnershipSupported = true };
-        var window = new MainWindow(address => new ApiClient(address, handler, ownership: true), folder);
+        var handler = new TestHandler();
+        var window = new MainWindow(address => new ApiClient(address, handler), folder);
         try
         {
             window.AutoPreview.IsChecked = false;

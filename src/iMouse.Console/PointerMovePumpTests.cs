@@ -20,7 +20,7 @@ internal static class PointerMovePumpTests
     // move's response, so ordering is checked in the real lease client, without a server.
     private sealed class MoveGateHandler : HttpMessageHandler
     {
-        private readonly HttpMessageInvoker _mock = new(new TestHandler { OwnershipSupported = true });
+        private readonly HttpMessageInvoker _mock = new(new TestHandler());
         internal readonly TaskCompletionSource Entered = Signal(), Release = Signal();
         internal readonly ConcurrentQueue<string> Inputs = new();
         private int _moves;
@@ -44,8 +44,8 @@ internal static class PointerMovePumpTests
 
     internal static async Task RunAsync(Action<string, bool> check)
     {
-        await using var api = new ApiClient("http://localhost:9923", new TestHandler { OwnershipSupported = true }, ownership: true);
-        await using var otherApi = new ApiClient("http://localhost:9923", new TestHandler { OwnershipSupported = true }, ownership: true);
+        await using var api = new ApiClient("http://localhost:9923", new TestHandler());
+        await using var otherApi = new ApiClient("http://localhost:9923", new TestHandler());
         using var connection = new CancellationTokenSource();
         using var control = new CancellationTokenSource();
         PointerMove Move(int x, string ids = "TEST:01") => new(api, ids, x, x + 1, connection.Token, control.Token);
@@ -116,15 +116,8 @@ internal static class PointerMovePumpTests
         pump.Post(Move(1) with { Connection = disconnected.Token }); pump.Post(Move(2, ""));
         check("Disconnected and empty scopes do not start pointer work", scheduler.Work.Count == 0);
 
-        await using var legacy = new ApiClient("http://localhost:9923", new TestHandler(), ownership: false);
-        scheduler = new(); sent.Clear();
-        pump = new((move, _) => { sent.Add(move); throw new InvalidOperationException("synthetic synchronous failure"); }, scheduler.Start);
-        pump.Post(Move(50) with { Api = legacy }); await Bounded(scheduler.Run());
-        pump.Post(Move(51) with { Api = legacy }); await Bounded(scheduler.Run());
-        check("Legacy hover can accept a new position after failure without replay", sent.Select(m => m.X).SequenceEqual([50, 51]));
-
         var transport = new MoveGateHandler();
-        await using var owned = new ApiClient("http://localhost:9923", transport, ownership: true);
+        await using var owned = new ApiClient("http://localhost:9923", transport);
         scheduler = new(); pump = new(start: scheduler.Start);
         pump.Post(Move(60) with { Api = owned }); worker = scheduler.Run();
         await Bounded(transport.Entered.Task);

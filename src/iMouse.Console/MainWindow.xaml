@@ -155,24 +155,18 @@
                 </Grid>
 
                 <!-- The original console keeps its actions in a narrow strip against the
-                     master rather than in a distant panel. Input buttons follow the mirror
-                     set; Cast and Disc are per-phone AirPlay and may target a phone that
-                     is not yet mirroring. -->
+                     master rather than in a distant panel. Every button here is an input
+                     command and follows the mirror set. Mirroring itself is started and
+                     stopped on the iPhone. -->
                 <StackPanel x:Name="ActionStrip" Grid.Column="1" Margin="7,0,0,0" VerticalAlignment="Top">
                   <Button x:Name="ResetButton" Content="Reset" Tag="reset|mouse" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Re-centre the phone pointer so it lines up with the mouse again"/>
                   <Button x:Name="HomeButton" Content="Home" Tag="key|Home" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Send the phone to its home screen"/>
-                  <Button x:Name="RestartButton" Content="Restart" Tag="usb|restart" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Restart this phone's control board. Control drops for a few seconds."/>
                   <Button x:Name="CtrlBarButton" Content="Ctrl Bar" Tag="key|ControlBar" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30" Padding="4,5" FontSize="12"
                           ToolTip="Open Control Centre"/>
-                  <Button x:Name="CastButton" Content="Cast" Tag="cast|connect" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Ask this phone to start screen mirroring"/>
                   <Button x:Name="AppButton" Content="App" Tag="key|AppSwitch" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Open the app switcher using the phone's Full Keyboard Access shortcut. With Full Keyboard Access off, use the phone's physical app-switching gesture."/>
-                  <Button x:Name="DiscButton" Content="Disc" Tag="cast|disconnect" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Stop this phone's screen mirroring"/>
                   <!-- Says out loud how many phones the strip is about to hit. Input
                        buttons follow the mirror set, so with Mirror to all on, one click
                        is a rack-wide action - that should never be a surprise. -->
@@ -455,12 +449,6 @@
                     <Button Content="Enter" Tag="key|ENTER" Click="Action_Click"/><Button Content="Bksp" Tag="key|BACKSPACE" Click="Action_Click"/>
                   </UniformGrid>
 
-                  <TextBlock Text="SCREEN MIRRORING" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
-                  <UniformGrid Columns="2">
-                    <Button x:Name="StartCastingButton" Content="Start casting" Tag="cast|connect" Click="Action_Click"/><Button x:Name="StopCastingButton" Content="Stop casting" Tag="cast|disconnect" Click="Action_Click"/>
-                  </UniformGrid>
-                  <TextBlock x:Name="MirroringActionHelp" Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Visibility="Collapsed"/>
-
                   <TextBlock Text="POINTER" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
                   <CheckBox x:Name="PointerEnabled" IsChecked="True" Unchecked="PointerTrackingDisabled"><TextBlock Text="Click / drag to control" TextWrapping="Wrap"/></CheckBox>
                   <CheckBox x:Name="TrackPointer" IsChecked="True" Unchecked="PointerTrackingDisabled" Margin="0,3,0,0"><TextBlock Text="Move phone pointer with mouse" TextWrapping="Wrap"/></CheckBox>
@@ -484,21 +472,12 @@
 
                 <TextBlock Text="CONTROL BOARD" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>
                 <TextBlock x:Name="BindStatus" Text="Select a phone" Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                <ComboBox x:Name="BoardPicker" AutomationProperties.Name="Control board to bind to this phone" Margin="0,0,0,6"/>
-                <UniformGrid Columns="2">
-                  <Button x:Name="BindButton" Content="Bind board" Click="Bind_Click"/><Button x:Name="UnbindButton" Content="Unbind" Click="Unbind_Click"/>
-                </UniformGrid>
-                <Button x:Name="AutoBindButton" Content="Auto-bind unbound phones" Click="AutoBind_Click" HorizontalAlignment="Stretch"/>
-                <TextBlock Text="Where supported, Auto-bind moves a pointer to look for a matching phone. Verify the physical phone before using a new assignment."
-                           Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap"/>
 
-                <TextBlock Text="RECOVERY" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>
+                <TextBlock Text="DIAGNOSTICS" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>
                 <UniformGrid Columns="2">
-                  <Button x:Name="RecoveryRestartButton" Content="Restart board" Tag="usb|restart" Click="Action_Click"/>
                   <Button x:Name="SaveFrameButton" Content="Save image" Click="SaveImage_Click"/>
+                  <Button Content="Export diagnostics" Click="Export_Click"/>
                 </UniformGrid>
-                <TextBlock x:Name="BoardRestartHelp" Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Visibility="Collapsed"/>
-                <Button Content="Export diagnostics" Click="Export_Click" HorizontalAlignment="Stretch"/>
 
                 <TextBlock Text="DEVICE LIST" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>
                 <WrapPanel>

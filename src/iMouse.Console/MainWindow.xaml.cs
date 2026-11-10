@@ -19,7 +19,7 @@ public partial class MainWindow : Window
     private CancellationTokenSource _lifetime = new();
     private int _session;
     private int _refreshSession = -1;
-    private bool _commandBusy, _connected, _closing, _filtering;
+    private bool _connected, _closing, _filtering;
     private List<Device> _devices = [];
     private readonly ObservableCollection<string> _activity = [];
     private readonly DispatcherTimer _refreshTimer = new() { Interval = TimeSpan.FromSeconds(5) };
@@ -29,7 +29,6 @@ public partial class MainWindow : Window
     private readonly LiveFrame _live = new();
     private readonly RateMeter _rate = new();
     private List<Board> _boards = [];
-    private bool _autoBinding;
     private (string Id, int Session, int X, int Y, Point View, int W, int H)? _gesture;
     private string _lastPreviewError = "";
     private readonly string _dataPath;
@@ -100,7 +99,7 @@ public partial class MainWindow : Window
 
     public async Task ConnectAsync()
     {
-        if (_commandBusy || _closing) return;
+        if (_closing) return;
         ApiClient next;
         try { next = _factory(AddressBox.Text.Trim()); }
         catch (Exception ex) { Log(ex.Message, true); return; }
@@ -114,7 +113,6 @@ public partial class MainWindow : Window
         _pendingConnection = null;
         _lifetime.Dispose(); _lifetime = new();
         _api = next;
-        if (!next.UsesInputOwnership) { _controlCancellation = new(); _controlReady = true; }
         next.InputNotice += message => Dispatcher.BeginInvoke(() =>
         {
             if (_closing || _api != next) return;
@@ -317,7 +315,7 @@ public partial class MainWindow : Window
         // a support detail, not something to keep on screen while driving the phone; it
         // lives in Settings, where binding is done.
         SelectedDetails.Text = device is null ? ""
-            : $"iOS {device.Os}   ·   {device.Ip}   ·   {device.VideoStatus}   ·   {device.ControlStatus}";
+            : $"iOS {device.Os}   ·   {device.VideoStatus}   ·   {device.ControlStatus}";
         UpdateFarmSelectedHeader();
     }
 
@@ -348,7 +346,7 @@ public partial class MainWindow : Window
     private async void Connect_Click(object sender, RoutedEventArgs e) => await ConnectAsync();
     private async void Disconnect_Click(object sender, RoutedEventArgs e)
     {
-        if (_commandBusy || _closing) return;
+        if (_closing) return;
         DetachConnection();
         int session = _session;
         ConnectionStatus.Text = "Disconnecting · releasing input…";
@@ -434,7 +432,7 @@ public partial class MainWindow : Window
         }
         finally { if (_refreshSession == session) _refreshSession = -1; }
     }
-    private static string Signature(IEnumerable<Device> items) => JsonSerializer.Serialize(items.Select(x => new { x.Id, x.Name, x.Model, x.Group, x.Ip, x.Os, x.Hardware, x.Online, x.VideoState, x.ReceiverName, x.Width, x.Height, x.Rotation }));
+    private static string Signature(IEnumerable<Device> items) => JsonSerializer.Serialize(items.Select(x => new { x.Id, x.Name, x.Model, x.Group, x.Os, x.Hardware, x.Online, x.VideoState, x.ReceiverName, x.Width, x.Height }));
 
     private void Filter_Changed(object sender, RoutedEventArgs e) { if (IsInitialized && !_filtering) ApplyFilter(Selected?.Id); }
     private void Group_Changed(object sender, SelectionChangedEventArgs e) { if (IsInitialized && !_filtering) ApplyFilter(Selected?.Id); }
@@ -444,7 +442,7 @@ public partial class MainWindow : Window
         var query = SearchBox.Text.Trim(); var group = GroupFilter.SelectedItem as string;
         var visible = _devices.Where(d => (OnlineOnly.IsChecked != true || d.Online) &&
             (group is null or "All groups" || d.Group == group) &&
-            (query.Length == 0 || string.Join(" ", d.DisplayName, d.Model, d.Id, d.Ip, d.Group).Contains(query, StringComparison.OrdinalIgnoreCase))).ToList();
+            (query.Length == 0 || string.Join(" ", d.DisplayName, d.Model, d.Id, d.Group).Contains(query, StringComparison.OrdinalIgnoreCase))).ToList();
         DeviceList.ItemsSource = visible;
         // Keep the caller's selection if it survived the filter; otherwise fall to the
         // first mirroring phone so the console shows a live screen on open rather than
@@ -508,16 +506,13 @@ public partial class MainWindow : Window
             MirrorWarning.Foreground = (Brush)FindResource("WarnBrush");
             MirrorWarning.Visibility = reasons.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
-        ActionPanel.IsEnabled = _connected && !_commandBusy && !_autoBinding && (BatchMode.IsChecked == true ? count > 0 : Selected is not null);
-        ConnectButton.IsEnabled = !_commandBusy;
-        DisconnectButton.IsEnabled = !_commandBusy && (_api is not null || _pendingConnection is not null);
+        ActionPanel.IsEnabled = _connected && (BatchMode.IsChecked == true ? count > 0 : Selected is not null);
+        DisconnectButton.IsEnabled = _api is not null || _pendingConnection is not null;
         RefreshButton.IsEnabled = _api is not null;
-        AddressBox.IsEnabled = !_commandBusy;
         SaveFrameButton.IsEnabled = _frame is not null && _frameId == Selected?.Id;
         SyncPumpTarget();
         SyncWall();
         RefreshBindingUi();
-        RefreshServiceActionUi();
         SyncSelectAll();
         UpdateStripTarget();
         UpdateSelectedHeader();
@@ -538,6 +533,12 @@ public partial class MainWindow : Window
     ///
     /// The set only changes when a phone is ticked, unticked or made master, so this
     /// costs one request at those moments and nothing at all while working.
+    ///
+    /// Known gap (audit, 9 Nov 2026): under the lease protocol this reset is normally NOT sent.
+    /// The same change of mirror set starts a change of input scope first, which marks input not
+    /// ready, and SendInputAsync drops the reset while it is not ready; the set is still recorded
+    /// as reset. It is sent only when the change is noticed later, after an input action or
+    /// gesture that was in progress. Left as it is until the reset can be checked on a rack.
     /// </summary>
     private void ResetJoinedPointers()
     {
@@ -633,7 +634,7 @@ public partial class MainWindow : Window
     {
         var device = Selected;
         _activeDeviceId = device is { Online: true } ? device.Id : null;
-        _pumpEnabled = AutoPreview?.IsChecked == true && !_autoBinding && _connected && WindowState != WindowState.Minimized;
+        _pumpEnabled = AutoPreview?.IsChecked == true && _connected && WindowState != WindowState.Minimized;
     }
 
     // Windows' default timer granularity is about 15.6 ms, so a Task.Delay(6) really
@@ -676,7 +677,7 @@ public partial class MainWindow : Window
                 if (epoch != _frameEpoch) { epoch = _frameEpoch; previous.Length = 0; }
                 try
                 {
-                    await api.ScreenshotIntoAsync(id, false, fetch, _lifetime.Token).ConfigureAwait(false);
+                    await api.ScreenshotIntoAsync(id, fetch, _lifetime.Token).ConfigureAwait(false);
                     if (session != _session || _closing) break;
                     if (epoch != _frameEpoch || _activeDeviceId != id) continue;
                     _errorStreak = 0;
@@ -828,7 +829,7 @@ public partial class MainWindow : Window
         int epoch = _frameEpoch;
         try
         {
-            await api.ScreenshotIntoAsync(device.Id, false, _grabBuffer, _lifetime.Token);
+            await api.ScreenshotIntoAsync(device.Id, _grabBuffer, _lifetime.Token);
             if (_closing || Selected?.Id != device.Id || epoch != _frameEpoch) return;
             var stamp = _previewFreshness.Observe(epoch, false, _grabBuffer.Metadata, "manual", _grabBuffer.RequestSerial);
             if (stamp is null) return;
@@ -1122,182 +1123,16 @@ public partial class MainWindow : Window
         if (PointerReadout is not null) PointerReadout.Text = "Hover the screen to see tap coordinates";
     }
 
-    // ---- control-board binding ----
 
-    private void RefreshServiceActionUi()
-    {
-        if (StartCastingButton is null || RecoveryRestartButton is null || BoardRestartHelp is null) return;
-        void Update(Button button, string function, string normalTip)
-        {
-            var reason = _api?.UnavailableCommandReason(function);
-            button.IsEnabled = _connected && !_commandBusy && reason is null;
-            button.ToolTip = reason ?? normalTip;
-            ToolTipService.SetShowOnDisabled(button, true);
-        }
-        Update(CastButton, "/device/airplay/connect", "Ask this phone to start screen mirroring");
-        Update(StartCastingButton, "/device/airplay/connect", "Ask the target phones to start screen mirroring");
-        Update(DiscButton, "/device/airplay/disconnect", "Stop this phone's screen mirroring");
-        Update(StopCastingButton, "/device/airplay/disconnect", "Stop the target phones' screen mirroring");
-        Update(RestartButton, "/device/usb/restart", "Restart this phone's control board. Control drops for a few seconds.");
-        Update(RecoveryRestartButton, "/device/usb/restart", "Restart the target phones' control boards");
-        bool independent = _connected && _api?.UsesInputOwnership == true;
-        MirroringActionHelp.Text = ApiClient.MirroringActionUnavailable;
-        BoardRestartHelp.Text = ApiClient.BoardRestartUnavailable;
-        MirroringActionHelp.Visibility = BoardRestartHelp.Visibility = independent ? Visibility.Visible : Visibility.Collapsed;
-    }
-
-    private sealed record BoardOption(Board Board, string Label)
-    {
-        public override string ToString() => Label;
-    }
-
-    /// <summary>A board is a candidate only if no other phone already claims it.</summary>
-    private List<Board> FreeBoards(Device? forDevice)
-    {
-        var claimed = _devices.Where(d => d.Id != forDevice?.Id && d.Hardware.Length > 0).Select(d => d.Hardware).ToHashSet();
-        return _boards.Where(b => !claimed.Contains(b.Uid)).OrderByDescending(b => b.PhoneAttached).ThenBy(b => b.Uid).ToList();
-    }
+    // ---- control-board assignment (read-only) ----
 
     private void RefreshBindingUi()
     {
-        if (BoardPicker is null) return;
+        if (BindStatus is null) return;
         var device = Selected;
-        if (_api?.LiveBindingEnabled != true || !_connected)
-        {
-            BoardPicker.IsEnabled = BindButton.IsEnabled = UnbindButton.IsEnabled = AutoBindButton.IsEnabled = false;
-            BoardPicker.IsDropDownOpen = false;
-            BoardPicker.ItemsSource = null;
-            BindStatus.Text = !_connected ? "Connect to view phone and board assignments."
-                : (device is null ? "" : device.Hardware.Length == 0 ? "No board assigned. " : $"Bound to {device.Hardware} · {device.ControlStatus}. ")
-                    + ApiClient.LiveBindingUnavailable;
-            return;
-        }
-        // Rebuilding an enabled picker while it is open would snap it shut.
-        BoardPicker.IsEnabled = !_commandBusy && !_autoBinding;
-        if (BoardPicker.IsDropDownOpen) return;
-        if (device is null)
-        {
-            BindStatus.Text = "Select a phone to bind it to a control board.";
-            BoardPicker.ItemsSource = null;
-            BindButton.IsEnabled = UnbindButton.IsEnabled = false;
-            AutoBindButton.IsEnabled = false;
-            return;
-        }
-        var free = FreeBoards(device);
-        var options = free.Select(b => new BoardOption(b, b.Uid + (b.PhoneAttached ? "  (phone attached)" : "  (no phone)"))).ToList();
-        var keep = (BoardPicker.SelectedItem as BoardOption)?.Board.Uid;
-        BoardPicker.ItemsSource = options;
-        BoardPicker.SelectedItem = options.FirstOrDefault(o => o.Board.Uid == keep)
-            ?? options.FirstOrDefault(o => o.Board.Uid == device.Hardware)
-            ?? options.FirstOrDefault(o => o.Board.PhoneAttached);
-        BindStatus.Text = device.Hardware.Length == 0
-            ? $"Not bound. {options.Count(o => o.Board.PhoneAttached)} board(s) with a phone are free."
-            : $"Bound to {device.Hardware} · {device.ControlStatus}";
-        bool idle = _connected && !_commandBusy && !_autoBinding;
-        BindButton.IsEnabled = idle && BoardPicker.SelectedItem is not null;
-        UnbindButton.IsEnabled = idle && device.Hardware.Length > 0;
-        AutoBindButton.IsEnabled = idle && _devices.Any(d => d.Online && d.Hardware.Length == 0);
-    }
-
-    private async void Bind_Click(object sender, RoutedEventArgs e)
-    {
-        if (Selected is not { } device || BoardPicker.SelectedItem is not BoardOption option || _api is null) return;
-        await ExecuteAsync("Bind board", "/device/set",
-            new() { ["vid"] = option.Board.Vid, ["pid"] = option.Board.Pid, ["uid"] = option.Board.Uid }, [device], true);
-    }
-
-    private async void Unbind_Click(object sender, RoutedEventArgs e)
-    {
-        if (Selected is not { } device || _api is null) return;
-        await ExecuteAsync("Unbind board", "/device/set",
-            new() { ["vid"] = "", ["pid"] = "", ["uid"] = "" }, [device], true);
-    }
-
-    /// <summary>
-    /// Works out which board drives which phone instead of guessing. With several free
-    /// boards there is nothing in the data that links a board to a phone, and a wrong
-    /// guess would send that phone's taps to a different handset. So each candidate is
-    /// bound in turn, the pointer is moved to a known coordinate, and the phone's own
-    /// screen is checked for the pointer appearing there. Only a board that visibly
-    /// moves this phone's pointer is kept. Pointer moves are harmless: nothing is tapped.
-    /// </summary>
-    private async void AutoBind_Click(object sender, RoutedEventArgs e)
-    {
-        if (_api is null || _autoBinding || _commandBusy) return;
-        // Guard the handler as well as its button: stale queued UI actions must
-        // not stop video, probe boards or misdiagnose a refused binding as wiring.
-        if (!_api.LiveBindingEnabled) { Log(ApiClient.LiveBindingUnavailable, true); RefreshBindingUi(); return; }
-        var api = _api; var ct = _lifetime.Token; int session = _session;
-        var pending = _devices.Where(d => d.Online && d.Hardware.Length == 0).ToList();
-        if (pending.Count == 0) { Log("Every mirroring phone already has a board bound."); return; }
-
-        _autoBinding = true; UpdateControls(); RefreshBindingUi();
-        bool wasLive = AutoPreview.IsChecked == true;
-        AutoPreview.IsChecked = false;   // the probe needs the frames, not the live loop
-        int bound = 0, failed = 0;
-        try
-        {
-            foreach (var device in pending)
-            {
-                if (ct.IsCancellationRequested || session != _session) break;
-                var candidates = FreeBoards(device).Where(b => b.PhoneAttached).ToList();
-                Log($"Auto-bind {device.DisplayName}: testing {candidates.Count} board(s)…");
-                Board? found = null;
-                foreach (var board in candidates)
-                {
-                    if (ct.IsCancellationRequested || session != _session) break;
-                    try
-                    {
-                        await api.BindAsync(device.Id, board, ct);
-                        if (await ReactsToPointerAsync(api, device, ct)) { found = board; break; }
-                    }
-                    catch (OperationCanceledException) when (ct.IsCancellationRequested) { break; }
-                    catch { /* A board that refuses the probe simply is not this phone's. */ }
-                }
-                if (found is not null)
-                {
-                    bound++;
-                    Log($"Auto-bind: {device.DisplayName} → board {found.Uid}. Verified by pointer response.");
-                }
-                else
-                {
-                    failed++;
-                    try { await api.UnbindAsync(device.Id, ct); } catch { }
-                    Log($"Auto-bind: no board moved {device.DisplayName}'s pointer. Check its cable, and that AssistiveTouch is on.", true);
-                }
-            }
-            Log($"Auto-bind finished. {bound} bound, {failed} unresolved.", failed > 0);
-        }
-        finally
-        {
-            _autoBinding = false;
-            AutoPreview.IsChecked = wasLive;
-            if (!_closing) { await RefreshDevicesAsync(); UpdateControls(); RefreshBindingUi(); }
-        }
-    }
-
-    /// <summary>Moves the pointer between two points and reports whether this phone's screen showed it.</summary>
-    private static async Task<bool> ReactsToPointerAsync(ApiClient api, Device device, CancellationToken ct)
-    {
-        int w = device.ImageWidth > 0 ? device.ImageWidth : 500;
-        int h = device.ImageHeight > 0 ? device.ImageHeight : 1080;
-        int ax = (int)(w * 0.25), ay = (int)(h * 0.30);
-        int bx = (int)(w * 0.75), by = (int)(h * 0.70);
-        int radius = Math.Max(12, w / 20);
-
-        await api.MoveAsync(device.Id, ax, ay, ct);
-        await Task.Delay(450, ct);
-        var before = await api.ScreenshotAsync(device.Id, false, ct);
-        await api.MoveAsync(device.Id, bx, by, ct);
-        await Task.Delay(450, ct);
-        var after = await api.ScreenshotAsync(device.Id, false, ct);
-
-        // The pointer must have left A and arrived at B. Requiring both rules out a
-        // phone whose screen merely changed on its own while the probe was running.
-        double left = FrameRegion.MeanDifference(before, after, ax, ay, radius);
-        double arrived = FrameRegion.MeanDifference(before, after, bx, by, radius);
-        double control = FrameRegion.MeanDifference(before, after, w / 2, (int)(h * 0.92), radius);
-        return left > 1.0 && arrived > 1.0 && Math.Min(left, arrived) > control * 1.6;
+        BindStatus.Text = !_connected ? "Connect to view phone and board assignments."
+            : (device is null ? "" : device.Hardware.Length == 0 ? "No board assigned. " : $"Bound to {device.Hardware} · {device.ControlStatus}. ")
+                + ApiClient.AssignmentsViewOnly;
     }
 
     // ---- master / mirror ----
@@ -1483,7 +1318,7 @@ public partial class MainWindow : Window
                 try
                 {
                     var result = await _tileFetchScheduler.FetchAsync(
-                        ct => api.ScreenshotIntoAsync(stream.Id, false, fetch, ct), stream.Token).ConfigureAwait(false);
+                        ct => api.ScreenshotIntoAsync(stream.Id, fetch, ct), stream.Token).ConfigureAwait(false);
                     if (result.Cancelled || !Current()) break;
                     if (!result.Success) throw new IOException("Tile screenshot unavailable.");
                     Interlocked.Increment(ref _tileFetches);
@@ -1581,10 +1416,8 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Sends one input to the master and every follower in a single request. Kept separate
-    /// from ExecuteAsync, which loops per device - that is right for casting (each phone
-    /// negotiates its own AirPlay session) but wrong for input, where the whole point is
-    /// that every phone receives the same event as close to simultaneously as possible.
+    /// Sends one input to the master and every follower in a single request, so every phone
+    /// receives the same event as close to simultaneously as possible.
     /// </summary>
     private async Task SendInputAsync(string label, string function, Dictionary<string, object> data, bool quiet = false)
     {
@@ -1594,7 +1427,6 @@ public partial class MainWindow : Window
         var lifetime = _lifetime.Token; var control = _controlCancellation;
         var api = _api;
         if (api is null || !_connected || ids.Length == 0) return;
-        if (api.UnavailableCommandReason(function) is { } reason) { Log(reason, true); return; }
         int count = ids.Count(c => c == ',') + 1;
         try
         {
@@ -1612,22 +1444,18 @@ public partial class MainWindow : Window
         catch (Exception ex) { LogAsync($"{label} failed: {Friendly(ex)}", true); }
     }
 
-    private List<Device> Targets() => BatchMode.IsChecked == true ? _devices.Where(x => x.IsChecked).ToList() : Selected is { } d ? [d] : [];
     private async void Action_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button button || button.Tag is not string tag) return;
-        var parts = tag.Split('|'); var targets = Targets();
+        var parts = tag.Split('|');
         var data = new Dictionary<string, object>(); string function;
         switch (parts[0])
         {
-            case "cast": function = "/device/airplay/" + parts[1]; break;
             case "swipe": function = "/mouse/swipe"; data["direction"] = parts[1]; data["len"] = 0.75; break;
             case "key": function = "/key/sendkey"; data["fn_key"] = parts[1]; break;
             case "reset": function = "/mouse/reset"; break;
-            case "usb": function = "/device/usb/restart"; break;
             default: return;
         }
-        if (parts[0] == "cast") { await ExecuteAsync(button.Content.ToString()!, function, data, targets, true); return; }
         await SendInputAsync(button.Content.ToString()!, function, data);
     }
     /// <summary>
@@ -1690,30 +1518,6 @@ public partial class MainWindow : Window
         catch (InputNotSentException ex) { Log($"{label}: {ex.Message}", true); }
         catch (Exception ex) { Log($"{label} failed: {Friendly(ex)}", true); }
         finally { _sendingText = false; }
-    }
-    private async Task ExecuteAsync(string label, string function, Dictionary<string, object> data, List<Device> targets, bool allowOffline)
-    {
-        if (_commandBusy || !_connected || _api is null || targets.Count == 0) return;
-        if (_api.UnavailableCommandReason(function) is { } reason) { Log(reason, true); return; }
-        _commandBusy = true; UpdateControls();
-        var api = _api; var ct = _lifetime.Token; int session = _session;
-        int success = 0, failed = 0, skipped = 0;
-        Log($"{label}: working on {targets.Count} phone(s)…");
-        try
-        {
-            foreach (var device in targets)
-            {
-                if (ct.IsCancellationRequested || session != _session) break;
-                if (!allowOffline && !device.Online) { skipped++; continue; }
-                var payload = new Dictionary<string, object>(data) { ["id"] = device.Id };
-                try { await api.CommandAsync(function, payload, ct); success++; }
-                catch (OperationCanceledException) when (ct.IsCancellationRequested) { break; }
-                catch (Exception ex) { failed++; Log($"{label}, target {success + failed + skipped}/{targets.Count}: {Friendly(ex)}", true); }
-            }
-            if (!_closing && session == _session) Log($"{label}: {success} succeeded, {failed} failed, {skipped} offline skipped.", failed > 0 || skipped > 0);
-        }
-        finally { _commandBusy = false; if (!_closing) UpdateControls(); }
-        if (!_closing && session == _session) { await RefreshDevicesAsync(); }
     }
     private void SaveImage_Click(object sender, RoutedEventArgs e)
     {

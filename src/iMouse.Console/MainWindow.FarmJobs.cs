@@ -47,7 +47,7 @@ public partial class MainWindow
             FarmRecovery.Save(new(_farmJobId, _farmJobMode!, action, liveInput));
             if (liveInput)
             {
-                if (_api is not { UsesInputOwnership: true } api || !FarmTargetPolicy.IsC24C(InputTargetIds()))
+                if (_api is not { } api || !FarmTargetPolicy.IsC24C(InputTargetIds()))
                     throw new InvalidOperationException("Select only C24C and disable followers before starting live automation.");
                 await _scopeTail;
                 _farmOwnsInput = true;

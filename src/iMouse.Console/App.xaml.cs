@@ -195,7 +195,9 @@ public partial class App : Application
             {
                 bool fake = e.Args.Contains("--ui-test");
                 var handler = fake ? new TestHandler() : null;
-                var window = CreateTestWindow(e.Args, live: !fake, handler is null ? null : address => new ApiClient(address, handler));
+                // The first connection renews leases rarely, so its request counts are exact; the phase
+                // reconnects with a 50 ms heartbeat for its Stop, Resume and timeout checks.
+                var window = CreateTestWindow(e.Args, live: !fake, handler is null ? null : address => new ApiClient(address, handler, renewalInterval: TimeSpan.FromMinutes(10)));
                 await window.RunSmokeAsync(fake, handler);
                 await FinishTestWindowAsync();
                 Shutdown(0);
