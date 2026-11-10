@@ -24,11 +24,15 @@ creation config is accepted only with --mode live. Neither mode simulates anythi
 from __future__ import annotations
 
 import argparse
+import ast
 import base64
+import functools
+import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
 import random
+import re
 import socket
 import sys
 import threading
@@ -80,6 +84,43 @@ class FarmControlServer(ThreadingHTTPServer):
         super().server_bind()
 
 
+def source_files(folder=HERE):
+    """Every file this backend's behaviour comes from, as {name: bytes} in name order: this file, every module
+    beside it that it imports directly or through another (imports inside functions count), and the data files
+    beside them that those modules name (control templates, the OCR bridge). Read from the files themselves, so
+    a module added to any creation route is covered the moment it is imported."""
+    folder = Path(folder)
+    found, waiting = {}, ['imouse_farm_server.py']
+    while waiting:
+        name = waiting.pop()
+        if name in found: continue
+        found[name] = raw = (folder / name).read_bytes()
+        if not name.endswith('.py'): continue
+        for node in ast.walk(ast.parse(raw, name)):
+            if isinstance(node, ast.Import): modules = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom): modules = [node.module] if node.module and not node.level else []
+            elif isinstance(node, ast.Constant) and isinstance(node.value, str) and re.fullmatch(r'[\w.-]+\.(json|ps1)', node.value):
+                modules = []
+                if (folder / node.value).is_file(): waiting.append(node.value)
+            else: continue
+            waiting += [module.split('.')[0] + '.py' for module in modules if (folder / (module.split('.')[0] + '.py')).is_file()]
+    return dict(sorted(found.items()))
+
+
+def compute_source_hash(folder=HERE):
+    """SHA-256 over source_files(): each name, its length and its bytes, in name order."""
+    digest = hashlib.sha256()
+    for name, raw in source_files(folder).items():
+        digest.update(name.encode('utf-8') + b'\0' + str(len(raw)).encode('ascii') + b'\0' + raw)
+    return digest.hexdigest()
+
+
+@functools.lru_cache(maxsize=None)
+def source_hash():
+    """This process's own fingerprint, computed once: what /health reports and a prepared window pins."""
+    return compute_source_hash()
+
+
 class FarmBackendRuntime:
     """One backend's stores and services, all under one data folder."""
 
@@ -96,9 +137,7 @@ class FarmBackendRuntime:
         self.execution_mode = execution_mode
         create_config = creation_config(draft_creation_config, execution_mode)
         self.operation_lock = threading.RLock()
-        source = Path(__file__).resolve().parent
-        import hashlib
-        self.source_hash = hashlib.sha256(b"".join((source / name).read_bytes() for name in ("imouse_farm_server.py", "imouse_social_automation.py", "farm_jobs.py", "farm_drafts.py", "farm_media_transfer.py", "farm_transfers.py", "farm_video.py", "farm_image.py", "farm_observations.py", "Read-FarmImageText.ps1", "farm_preparation_schedule.py", "farm_frame_evidence.py", "farm_draft_verification.py", "farm_draft_media.py", "farm_owned_capture.py", "farm_screen_layout.py", "farm_transitions.py", "farm_live_verification.py", "farm_draft_transport.py", "farm_draft_workflow.py", "farm_draft_runs.py", "farm_draft_anchors.json", "farm_draft_creation.py", "farm_creation_runs.py", "farm_creation_layout.py", "farm_home_edit.py", "farm_creation_badges.json", "farm_creation_browser.json", "farm_creation_controls.json", "farm_reel_layout.py", "farm_reel_controls.json", "farm_reel_creation.py", "farm_reel_runs.py", "farm_tiktok_layout.py", "farm_tiktok_controls.json", "farm_tiktok_creation.py", "farm_tiktok_runs.py", "farm_permission_prompts.py", "farm_x_layout.py", "farm_x_creation.py", "farm_x_runs.py", "farm_youtube_layout.py", "farm_youtube_controls.json", "farm_youtube_creation.py", "farm_youtube_runs.py"))).hexdigest()
+        self.source_hash = source_hash()
         db_path = db_path or Path("output/farm-data/v2") / execution_mode / "imouse_farm.db"
         stage_root = stage_root or Path("output/media-stage/v2") / execution_mode
         self.db = engine.FarmDatabase(db_path=db_path)
