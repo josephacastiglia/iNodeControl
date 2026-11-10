@@ -1,10 +1,14 @@
 using System.Diagnostics;
+using System.IO;
 using System.Net;
-using IMouse2;
+using System.Net.Http;
 
-// Uses the production API reader with synthetic response streams. No sockets,
-// windows or ownership clients; every handler refuses non-screenshot requests.
-static class ScreenshotTransferTests
+namespace IMouse2;
+
+// Moved on 9 Nov 2026 from the stand-alone project tools/preview_tests, which is deleted.
+// Uses the production API reader with synthetic response streams. No sockets or windows;
+// every handler refuses non-screenshot requests.
+internal static class ScreenshotTransferTests
 {
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
@@ -16,6 +20,7 @@ static class ScreenshotTransferTests
         yield return ("unadvertised oversized body stops at limit and clears partial evidence", UnadvertisedLimit);
         yield return ("body I/O failure clears partial evidence and disposes response", BodyFailure);
         yield return ("exact image byte limit accepts end of stream", ExactLimit);
+        yield return ("a frame fetch is one GET of the kernel's screenshot route for that phone", RequestLine);
     }
 
     static void Check(bool condition, string message) { if (!condition) throw new Exception(message); }
@@ -34,7 +39,7 @@ static class ScreenshotTransferTests
     static HttpResponseMessage Good() => Response(new MemoryStream(Small));
     static async Task Recover(ApiClient api, FrameBuffer buffer)
     {
-        await api.ScreenshotIntoAsync("fake", false, buffer);
+        await api.ScreenshotIntoAsync("fake", buffer);
         Check(buffer.Span.SequenceEqual(Small) && buffer.Metadata is not null, "Next screenshot did not recover");
     }
     static async Task StalledBody()
@@ -46,7 +51,7 @@ static class ScreenshotTransferTests
         var buffer = new FrameBuffer(); await Recover(api, buffer);
         using var escape = new CancellationTokenSource(TimeSpan.FromSeconds(13));
         bool cancelled = false; var watch = Stopwatch.StartNew();
-        try { await api.ScreenshotIntoAsync("fake", false, buffer, escape.Token); }
+        try { await api.ScreenshotIntoAsync("fake", buffer, escape.Token); }
         catch (OperationCanceledException) { cancelled = true; }
         Console.WriteLine($"  stalled body ended after {watch.Elapsed.TotalMilliseconds:0} ms; caller cancelled={escape.IsCancellationRequested}");
         Check(cancelled && !escape.IsCancellationRequested, "Only the test escape cancelled the stalled body");
@@ -66,7 +71,7 @@ static class ScreenshotTransferTests
         }));
         using var escape = new CancellationTokenSource(TimeSpan.FromSeconds(13));
         bool cancelled = false; var watch = Stopwatch.StartNew(); var buffer = new FrameBuffer();
-        try { await api.ScreenshotIntoAsync("fake", false, buffer, escape.Token); }
+        try { await api.ScreenshotIntoAsync("fake", buffer, escape.Token); }
         catch (OperationCanceledException) { cancelled = true; }
         Console.WriteLine($"  headers/body ended after {watch.Elapsed.TotalMilliseconds:0} ms; body delivered={delivered}");
         Check(cancelled && !escape.IsCancellationRequested && !delivered, "Header completion reset or ended the request deadline");
@@ -79,7 +84,7 @@ static class ScreenshotTransferTests
         int requests = 0;
         using var api = new ApiClient("http://offline.invalid", new Handler((_, _) => Task.FromResult(++requests == 1 ? Response(body) : Good())));
         using var stop = new CancellationTokenSource(); var buffer = new FrameBuffer();
-        var fetch = api.ScreenshotIntoAsync("fake", false, buffer, stop.Token);
+        var fetch = api.ScreenshotIntoAsync("fake", buffer, stop.Token);
         try { await reading.Task.WaitAsync(TimeSpan.FromSeconds(2)); }
         finally { stop.Cancel(); }
         bool cancelled = false;
@@ -92,7 +97,7 @@ static class ScreenshotTransferTests
         int size = 3 * 1024 * 1024 + 13;
         using var body = Generated(size);
         using var api = new ApiClient("http://offline.invalid", new Handler((_, _) => Task.FromResult(Response(body))));
-        var buffer = new FrameBuffer(); await api.ScreenshotIntoAsync("fake", false, buffer);
+        var buffer = new FrameBuffer(); await api.ScreenshotIntoAsync("fake", buffer);
         Check(buffer.Length == size && buffer.Metadata is not null, "Unknown-length image not accepted");
         Check(body.Disposed && body.Bytes == size, "Image not read/disposed completely");
         for (int i = 0; i < size; i++) Check(buffer.Data[i] == Pixel(i), "Lost image prefix or bytes while growing at " + i);
@@ -102,7 +107,7 @@ static class ScreenshotTransferTests
         using var body = Generated(10);
         using var api = new ApiClient("http://offline.invalid", new Handler((_, _) => Task.FromResult(Response(body, Limit + 1L))));
         var buffer = new FrameBuffer(); bool refused = false;
-        try { await api.ScreenshotIntoAsync("fake", false, buffer); } catch (ApiException) { refused = true; }
+        try { await api.ScreenshotIntoAsync("fake", buffer); } catch (ApiException) { refused = true; }
         Check(refused && body.Bytes == 0 && body.Disposed, "Oversized advertised body was read or accepted");
         Check(buffer.Length == 0 && buffer.Metadata is null, "Oversized response retained evidence");
     }
@@ -112,7 +117,7 @@ static class ScreenshotTransferTests
         int requests = 0;
         using var api = new ApiClient("http://offline.invalid", new Handler((_, _) => Task.FromResult(++requests == 1 ? Response(body) : Good())));
         var buffer = new FrameBuffer(); bool refused = false;
-        try { await api.ScreenshotIntoAsync("fake", false, buffer); } catch (ApiException) { refused = true; }
+        try { await api.ScreenshotIntoAsync("fake", buffer); } catch (ApiException) { refused = true; }
         Check(refused && body.Bytes <= Limit + 1 && buffer.Data.Length <= Limit, "Unknown-size body bypassed the bounded read");
         Check(body.Disposed && buffer.Length == 0 && buffer.Metadata is null, "Oversized partial body retained evidence");
         await Recover(api, buffer);
@@ -126,16 +131,28 @@ static class ScreenshotTransferTests
         });
         using var api = new ApiClient("http://offline.invalid", new Handler((_, _) => Task.FromResult(Response(body))));
         var buffer = new FrameBuffer(); bool failed = false;
-        try { await api.ScreenshotIntoAsync("fake", false, buffer); } catch (IOException) { failed = true; }
+        try { await api.ScreenshotIntoAsync("fake", buffer); } catch (IOException) { failed = true; }
         Check(failed && body.Disposed && buffer.Length == 0 && buffer.Metadata is null, "Partial failed frame remained publishable");
     }
     static async Task ExactLimit()
     {
         using var body = Generated(Limit);
         using var api = new ApiClient("http://offline.invalid", new Handler((_, _) => Task.FromResult(Response(body))));
-        var buffer = new FrameBuffer(); await api.ScreenshotIntoAsync("fake", false, buffer);
+        var buffer = new FrameBuffer(); await api.ScreenshotIntoAsync("fake", buffer);
         Check(buffer.Length == Limit && buffer.Data.Length <= Limit && buffer.Metadata is not null, "Exact limit rejected or grew beyond limit");
         Check(buffer.Data[0] == 'B' && buffer.Data[^1] == Pixel(Limit - 1) && body.Disposed, "Exact-limit bytes not preserved");
+    }
+    // The request line the former loopback socket probe pinned, checked at the handler instead.
+    static async Task RequestLine()
+    {
+        var seen = new List<string>();
+        using var api = new ApiClient("http://offline.invalid", new Handler((request, _) =>
+        {
+            seen.Add(request.Method + " " + request.RequestUri!.PathAndQuery);
+            return Task.FromResult(Good());
+        }));
+        await api.ScreenshotIntoAsync("synthetic phone/1", new FrameBuffer());
+        Check(seen.SequenceEqual(new[] { "GET /api/pic/screenshot?id=synthetic%20phone%2F1&binary=true" }), "Unexpected screenshot request: " + string.Join(" | ", seen));
     }
     static byte Pixel(long position) => position == 0 ? (byte)'B' : position == 1 ? (byte)'M' : (byte)(position % 251);
     static Body Generated(int size)

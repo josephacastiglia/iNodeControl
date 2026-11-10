@@ -1,14 +1,37 @@
 using System.Diagnostics;
-using IMouse2.Kernel;
 
-// Explicit opt-in. Only hidden copies of this test executable are launched.
-// There is no kernel listener, UxPlay, hardware transport or phone interaction.
+namespace IMouse2.Kernel;
+
+// Moved on 9 Nov 2026 from the stand-alone project tools/receiver_process_tests, which is deleted.
+// These cases start real child processes to exercise the real kill and exit-confirmation path.
+// The only thing launched is a hidden batch file written for the run (two echo lines, then a
+// 25-second ping to 127.0.0.1 as a failsafe), through cmd.exe: no UxPlay, listener, hardware
+// transport or phone interaction. Every child is confirmed gone from a retained process handle.
 internal static class RealProcessTests
 {
-    private static readonly string Executable = Path.Combine(AppContext.BaseDirectory, "ReceiverProcessTests.exe");
+    private static string Executable = "";
     private static readonly HashSet<int> Created = [];
     private static readonly HashSet<int> Confirmed = [];
-    public static async Task<int> RunAsync()
+    internal static async Task RunAsync(Func<string, Func<Task>, Task> record)
+    {
+        string home = Path.Combine(Path.GetTempPath(), "imouse-child-fixture-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(home);
+        Executable = Path.Combine(home, "fixture.cmd");
+        File.WriteAllText(Executable, "@echo off\r\necho fixture-ready\r\necho fixture-stderr 1>&2\r\nping -n 25 127.0.0.1 >nul\r\n");
+        try
+        {
+            var cases = Cases();
+            foreach (var (name, run) in cases) await record(name, run);
+            await record("every helper process these cases started was confirmed to have exited", () =>
+            {
+                Check(Created.Count == cases.Length && Created.SetEquals(Confirmed), $"{Confirmed.Count}/{Created.Count} helper exits confirmed");
+                return Task.CompletedTask;
+            });
+        }
+        finally { try { Directory.Delete(home, true); } catch (IOException) { } catch (UnauthorizedAccessException) { } }
+    }
+
+    private static (string Name, Func<Task> Run)[] Cases()
     {
         var tests = new (string Name, Func<Task> Run)[] {
             ("production AirplayProcess attaches both logs and confirms exit", async () => {
@@ -18,7 +41,7 @@ internal static class RealProcessTests
                 try {
                     string log = Path.Combine(folder, "receiver.log");
                     using var receiver = new AirplayProcess(Executable, folder, "offline-receiver-fixture-" + Guid.NewGuid().ToString("N"),
-                        "unused-fixture-pipe", "fixture-client", log);
+                        "unused-fixture-pipe", "fixture-client", log, 7110, "02:00:00:00:00:01");
                     observer = Observe(receiver.Id);
                     await Until(() => File.Exists(log) && ReadShared(log).Contains("fixture-ready") && ReadShared(log).Contains("fixture-stderr"));
                     receiver.Dispose(); receiver.Dispose();
@@ -35,7 +58,7 @@ internal static class RealProcessTests
                 using var supervisor = new AirplaySupervisor(() => {
                     if (++starts == 1) return new ReceiverProcessLifetime(f);
                     exitedBeforeReplacement = f.Observer!.WaitForExit(0);
-                    cancel.Cancel(); return new ReceiverProcessLifetime(new FakeProcess());
+                    cancel.Cancel(); return new ReceiverProcessLifetime(new Idle());
                 }, 1, TimeSpan.Zero);
                 var run = Task.Run(() => supervisor.RunAsync(cancel.Token));
                 await run.WaitAsync(TimeSpan.FromSeconds(8));
@@ -68,16 +91,7 @@ internal static class RealProcessTests
                 Check(f.Observer!.WaitForExit(0) && supervisor.Info.State == "stopped", "shutdown left the child alive");
             }))
         };
-        int passed = 0;
-        foreach (var (name, run) in tests)
-        {
-            try { await run(); Console.WriteLine("PASS " + name); passed++; }
-            catch (Exception ex) { Console.WriteLine("FAIL " + name + ": " + ex); }
-        }
-        bool cleaned = Created.Count == tests.Length && Created.SetEquals(Confirmed);
-        Console.WriteLine($"{Confirmed.Count}/{Created.Count} created helper exits confirmed from retained process handles.");
-        Console.WriteLine($"{passed}/{tests.Length} real child-process checks passed; own hidden helpers only; no rack or UI.");
-        return passed == tests.Length && cleaned ? 0 : 1;
+        return tests;
     }
 
     private static async Task WithFixture(Fixture fixture, Func<Fixture, Task> run)
@@ -115,13 +129,28 @@ internal static class RealProcessTests
         } finally { observer.Dispose(); }
     }
 
+    // A replacement that never runs anything, for the case that only needs "a second child".
+    private sealed class Idle : IReceiverProcess
+    {
+        private readonly ManualResetEventSlim _exit = new();
+        public int Id => 1;
+        public bool HasExited => _exit.IsSet;
+        public bool Start() => true;
+        public void BeginOutputReadLine() { }
+        public void BeginErrorReadLine() { }
+        public Task WaitForExitAsync(CancellationToken ct) => Task.Delay(Timeout.Infinite, ct);
+        public bool WaitForExit(int milliseconds) => _exit.Wait(milliseconds);
+        public void KillTree() => _exit.Set();
+        public void Dispose() { }
+    }
+
     private sealed class Fixture : IReceiverProcess
     {
         private readonly Process _process = new() {
-            StartInfo = new ProcessStartInfo(Executable, "--child") {
+            StartInfo = new ProcessStartInfo(Executable) {
                 UseShellExecute = false, CreateNoWindow = true,
                 RedirectStandardOutput = true, RedirectStandardError = true,
-                WorkingDirectory = AppContext.BaseDirectory
+                WorkingDirectory = Path.GetDirectoryName(Executable)!
             }
         };
         public Process? Observer { get; private set; }

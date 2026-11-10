@@ -305,6 +305,19 @@ public static class SelfTests
             once.Cancel();
             await run;
         }
+        // Suites moved in from the former stand-alone test projects: one check per named case.
+        async Task Case(string name, Func<Task> run)
+        {
+            string? failure = null;
+            try { await run().WaitAsync(TimeSpan.FromSeconds(30)); }
+            catch (Exception ex) { failure = ex.GetType().Name + ": " + ex.Message; }
+            Check(failure is null, failure is null ? name : name + " -> " + failure);
+        }
+        await FrameStoreTests.RunAsync(Case);
+        await ReceiverLifetimeTests.RunAsync(Case);
+        await SupervisorTests.RunAsync(Case);
+        await FleetShutdownTests.RunAsync(Case);
+        await RealProcessTests.RunAsync(Case);
         await ReceiverFleetTests.RunAsync(Check, file, router, validBmp);
         await InputSessionTests.RunAsync(Check);
         await InputSessionTests.HomeSequenceAsync(Check);

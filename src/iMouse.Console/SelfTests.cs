@@ -609,6 +609,17 @@ public static class SelfTests
         await CleanupDiagnosticsTests.RunAsync(Check);
         await MainWindow.CheckCleanupDiagnosticWindowAsync(Check);
         await MainWindow.CheckPresenterAsync(Check);
+        // Suites moved in from the former stand-alone test projects: one check per named case.
+        async Task Case(string name, Func<Task> run)
+        {
+            string? failure = null;
+            try { await run().WaitAsync(TimeSpan.FromSeconds(40)); }
+            catch (Exception ex) { failure = ex.GetType().Name + ": " + ex.Message; }
+            Check(failure is null ? name : name + " -> " + failure, failure is null);
+        }
+        await FrameMetricsTests.RunAsync(Case);
+        await TileStreamTests.RunAsync(Case);
+        await PreviewFreshnessTests.RunAsync(Case);
         SettingsPersistenceTests.Run(Check);
         await PointerMovePumpTests.RunAsync(Check);
         await DragInputTests.RunAsync(Check);
