@@ -51,7 +51,6 @@ XR_ROW1, XR_PITCH, XR_ROWS = 226, 63, 9               # The XR card, unscrolled.
 
 def utc(): return datetime.now(timezone.utc).isoformat()
 def stamp(): return datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
-def natural(name): return [int(p) if p.isdigit() else p for p in re.split(r'(\d+)', name.casefold())]
 def load(path): return json.loads(Path(path).read_text(encoding='utf-8-sig'))
 
 
@@ -161,13 +160,14 @@ def crafted_survey(receiver, card, advertised_by_kernel, pc_browse):
     """The anchor phone's survey with no mirroring phone to read the card on: its row is its
     natural-order rank among what the kernel advertises; 'advertised' is the PC's browse (its
     Bonjour cache keeps withdrawn names, and auto_connect compares against that)."""
+    from farm_mirroring import natural   # The order iOS lists receivers in, as auto_connect.py reads a surveyed card.
     listed = sorted(set(advertised_by_kernel) | {receiver}, key=natural)
     n = listed.index(receiver) + 1
     row1, pitch, rows = (SMALL_ROW1, SMALL_PITCH, SMALL_ROWS) if card == 'small' else (XR_ROW1, XR_PITCH, XR_ROWS)
     if n > rows: return None, f'{receiver} would be row {n}; the unscrolled card shows {rows}.'
     lines = [dict(text=receiver, cy=row1 + pitch * (n - 1))]
     lines.append(dict(text='Stop Mirroring', cy=729) if card == 'small' else dict(text='Screen Mirroring', cy=162))
-    return dict(advertised=sorted(set(pc_browse)), scroll=False, small=card == 'small', lines=lines, crafted=True, row=n), None
+    return dict(advertised=sorted(set(pc_browse)), small=card == 'small', lines=lines, crafted=True, row=n), None
 
 
 # ---------------------------------------------------------------- bring-up run
@@ -180,7 +180,8 @@ def last_json(text):
 
 
 class Actions:
-    """Real phone actions: release through the kernel, wake/survey/connect through the existing tools."""
+    """Real phone actions, each through the one tool that does it: Release-Receiver.ps1, card_survey.py,
+    auto_connect.py. `folder` is this bring-up's own folder inside the kernel's."""
 
     def __init__(self, kernel, folder):
         self.kernel, self.folder = kernel, Path(folder)
@@ -190,7 +191,17 @@ class Actions:
         return {r['name'] for r in self.kernel.status()['receivers'] if r['receiver_pid'] > 0}
 
     def receivers(self): return {r['name']: r for r in self.kernel.status()['receivers']}
-    def release(self, board): return self.kernel.post('/device/airplay/connect', dict(pid=board))
+    def release(self, board):
+        """Advertises the board's receiver through Release-Receiver.ps1: it checks that the prepared kernel is
+        the one running, waits for the receiver process and records the outcome in releases.jsonl, which is
+        read back here (no parsing of what the script printed)."""
+        releases = self.folder.parent / 'releases.jsonl'
+        before = len(read_ledger(releases))
+        code = powershell('Release-Receiver.ps1', '-Board', board, log=self.folder / 'release-output.txt')
+        if code == 0: return dict(code=0)
+        mine = [r for r in read_ledger(releases)[before:] if r.get('board') == board]
+        return dict(code=code, message=(mine[-1].get('problem') if mine else '') or 'Release-Receiver.ps1 failed; see release-output.txt')
+
     def resume(self, board, generation, device_id):
         return self.kernel.post('/input/resume', dict(id=device_id, expected_generations={device_id: generation}))
     def device_id(self, board): return next(d for d, b in self.kernel.devices().items() if b == board)
@@ -206,18 +217,22 @@ class Actions:
         return run.stdout
 
     def wake(self, board):
-        """Home, pause, Home: wakes a passcode-less Home-button phone and opens it (spaced so two
-        presses are never read as a double press). One lease, released at the end."""
+        """Home, pause, Home (card_survey.home_twice): wakes a passcode-less Home-button phone and opens
+        it. One lease, renewed before each key and released at the end."""
+        from card_survey import home_twice
         device = self.device_id(board)
         lease = self.kernel.post('/input/acquire', dict(id=device, lease_ms=15000))
         if lease.get('code') != 0: return f"wake refused: {lease.get('message')}"
         token = lease['leases'][0]['token']
+        answers = []
+
+        def send(fun, purpose, **data):
+            self.kernel.post('/input/renew', dict(id=device, token=token))
+            answers.append(self.kernel.post(fun, dict(id=device, token=token, **data)))
+
         try:
-            for _ in (1, 2):
-                self.kernel.post('/input/renew', dict(id=device, token=token))
-                got = self.kernel.post('/key/sendkey', dict(id=device, token=token, fn_key='Home'))
-                time.sleep(1.8)
-            return f"woken ({got.get('code')})"
+            home_twice(send, 'wake', 'open the home screen', pause=1.8)
+            return f"woken ({answers[-1].get('code')})"
         finally:
             self.kernel.post('/input/release', dict(id=device, token=token))
 
@@ -287,6 +302,31 @@ def bring_up(phones, actions, ledger_path, attempts=2):
             if not retryable(tried['result']): break
             actions.sleep(3)
     return report
+
+
+def planned_phones(folder, plan_path):
+    """(preparation, ordered phones) for the kernel this folder prepares."""
+    prep = load(Path(folder) / 'preparation.json')
+    learned = Path(prep['runDirectory']) / 'learned-addresses.json'
+    # The slot maps are this PC's private state: beside this script in a checkout, in the data folder when installed.
+    return prep, build_plan(load(plan_path), slot_boards(load(STATE / 'phone-slots.json'), load(STATE / 'rack-b-slots.json')), prep,
+                            load(learned) if learned.exists() else None)
+
+
+def run_bringup(folder, plan_path, attempts=2):
+    """The ordered reconnect against the kernel this folder records. Writes bringup-<time>/report.json and
+    returns its path with the summary."""
+    folder = Path(folder)
+    prep, phones = planned_phones(folder, plan_path)
+    record = load(folder / 'processes.json') if (folder / 'processes.json').exists() else {}
+    api = record.get('api') or prep['arguments'][0].rstrip('/')
+    kernel = Kernel(api)
+    if not kernel.alive(): raise SystemExit(f'No kernel answers on {api}.')
+    run = folder / f'bringup-{stamp()}'; run.mkdir()
+    report = bring_up(phones, Actions(kernel, run), folder / 'input-stops.jsonl', attempts)
+    result = dict(utc=utc(), api=api, summary=summary(report), phones=[{k: v for k, v in r.items() if k != 'phone_ip'} for r in report])
+    (run / 'report.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
+    return dict(report=str(run / 'report.json'), **result['summary'])
 
 
 def survey_retry(message): return message.startswith('survey failed')
@@ -387,8 +427,8 @@ def watch(folder, interval, bringup, once, max_restarts=3, window=3600):
             entry['start'] = powershell('Start-Multiphone.ps1', log=folder / 'watchdog-start.txt')
             if entry['start'] == 0: pending.unlink(missing_ok=True)
             if entry['start'] == 0 and bringup:
-                entry['bringup'] = subprocess.run([sys.executable, str(HERE / 'rack_recovery.py'), 'bringup'],
-                                                  stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=7200).returncode
+                try: entry['bringup'] = run_bringup(folder, HERE / 'bringup-plan.json')
+                except (Exception, SystemExit) as error: entry['bringup'] = dict(error=str(error)[-300:])   # noqa: BLE001 - the watchdog keeps watching
         if action != 'healthy' or once:
             with open(log, 'a', encoding='utf-8') as f: f.write(json.dumps(entry) + '\n')
             print(json.dumps(entry), flush=True)
@@ -417,22 +457,9 @@ def main():
     folder = kernel_folder()
     if args.command == 'watch':
         watch(folder, args.interval, not args.no_bringup, args.once, args.max_restarts); return
-    prep = load(folder / 'preparation.json')
-    record = load(folder / 'processes.json') if (folder / 'processes.json').exists() else {}
-    api = record.get('api') or prep['arguments'][0].rstrip('/')
-    learned = Path(prep['runDirectory']) / 'learned-addresses.json'
-    # The slot maps are this PC's private state: beside this script in a checkout, in the data folder when installed.
-    phones = build_plan(load(args.plan), slot_boards(load(STATE / 'phone-slots.json'), load(STATE / 'rack-b-slots.json')), prep,
-                        load(learned) if learned.exists() else None)
     if args.plan_only:
-        print(json.dumps([{k: v for k, v in p.items() if k != 'phone_ip'} for p in phones], indent=2)); return
-    kernel = Kernel(api)
-    if not kernel.alive(): raise SystemExit(f'No kernel answers on {api}.')
-    run = folder / f'bringup-{stamp()}'; run.mkdir()
-    report = bring_up(phones, Actions(kernel, run), folder / 'input-stops.jsonl', args.attempts)
-    result = dict(utc=utc(), api=api, summary=summary(report), phones=[{k: v for k, v in r.items() if k != 'phone_ip'} for r in report])
-    (run / 'report.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
-    print(json.dumps(dict(report=str(run / 'report.json'), **result['summary'])))
+        print(json.dumps([{k: v for k, v in p.items() if k != 'phone_ip'} for p in planned_phones(folder, args.plan)[1]], indent=2)); return
+    print(json.dumps(run_bringup(folder, args.plan, args.attempts)))
 
 
 if __name__ == '__main__':

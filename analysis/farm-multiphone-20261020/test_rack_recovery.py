@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import rack_recovery as rr  # noqa: E402
@@ -178,6 +179,58 @@ class BringUpTests(unittest.TestCase):
         self.assertEqual(report['24B7']['result'], 'mirroring')
         self.assertEqual([e['by'] for e in rr.read_ledger(self.ledger)], ['bringup'])
         self.assertIn(('resume', '24B7', 1), fake.calls)
+
+
+class FakeKernel:
+    """Answers the kernel calls Actions makes; `codes` maps a function to the codes it returns in turn."""
+    api = 'http://127.0.0.1:1/api'
+
+    def __init__(self, codes=None):
+        self.codes = {k: list(v) for k, v in (codes or {}).items()}
+        self.posts = []
+
+    def devices(self): return {'dev-0F01': '0F01'}
+
+    def post(self, fun, data, timeout=30):
+        self.posts.append((fun, {k: v for k, v in data.items() if k not in ('id', 'token')}))
+        if fun == '/input/acquire': return dict(code=0, leases=[dict(token='t')])
+        code = self.codes[fun].pop(0) if self.codes.get(fun) else 0
+        return dict(code=code, message='' if code == 0 else 'refused by the fake')
+
+
+class ActionsTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        self.state = Path(self.tmp.name); self.run = self.state / 'bringup-x'; self.run.mkdir()
+
+    def test_release_runs_the_one_script_and_reads_its_record(self):
+        calls, outcome = [], {}
+
+        def script(name, *args, log=None):
+            calls.append((name, args, Path(log).name))
+            if outcome:
+                with open(self.state / 'releases.jsonl', 'a', encoding='utf-8') as f: f.write(json.dumps(outcome) + '\n')
+            return 1 if outcome.get('problem', 'no record') else 0
+
+        actions = rr.Actions(FakeKernel(), self.run)
+        with mock.patch.object(rr, 'powershell', script):
+            outcome.update(board='0F01', code=0, problem='')
+            self.assertEqual(actions.release('0F01'), dict(code=0))
+            outcome.update(code=409, problem='Kernel refused: iMouse2-Z1 is restarting; wait for it to finish.')
+            self.assertEqual(actions.release('0F01'), dict(code=1, message=outcome['problem']))
+            outcome.clear()   # The script stopped before it asked the kernel: no record to read.
+            got = actions.release('0F01')
+            self.assertEqual(got['code'], 1); self.assertIn('release-output.txt', got['message'])
+        self.assertEqual(calls[0], ('Release-Receiver.ps1', ('-Board', '0F01'), 'release-output.txt'))
+        self.assertFalse(actions.kernel.posts, 'the bring-up itself never posts /device/airplay/connect')
+
+    def test_wake_is_home_twice_under_one_renewed_lease(self):
+        kernel = FakeKernel()
+        with mock.patch('time.sleep') as sleep:
+            rr.Actions(kernel, self.run).wake('0F01')
+        self.assertEqual([p[0] for p in kernel.posts], ['/input/acquire', '/input/renew', '/key/sendkey', '/input/renew', '/key/sendkey', '/input/release'])
+        self.assertEqual([p[1] for p in kernel.posts if p[0] == '/key/sendkey'], [dict(fn_key='Home')] * 2)
+        self.assertEqual([c.args for c in sleep.call_args_list], [(1.8,), (1.8,)])
 
 
 class WatchdogTests(unittest.TestCase):
