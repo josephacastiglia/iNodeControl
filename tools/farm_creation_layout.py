@@ -271,13 +271,9 @@ def home_search(frame,text):
 
 
 def pill_word(frame):
-    from PIL import ImageOps
-    from farm_observations import WindowsOcr
+    from farm_reel_layout import band_words   # Imported here: that module builds on this one.
     left,top,right,bottom=HOME_SEARCH_BOX
-    with Image.open(io.BytesIO(frame)) as image:
-        crop=ImageOps.autocontrast(image.convert('L').crop((left-10,top-8,right+10,bottom+4)).resize(((right-left+20)*3,(bottom-top+12)*3),Image.Resampling.LANCZOS))
-    out=io.BytesIO(); crop.convert('RGB').save(out,'BMP')
-    words=[w['text'].casefold() for line in WindowsOcr().read(out.getvalue()).get('lines',[]) for w in line.get('words',[])]
+    words=[word.casefold() for word,*_ in band_words(frame,(left-10,top-8,right+10,bottom+4),3)]
     return 'search' if words[-1:]==['search'] else (words[-1] if words else '')
 
 

@@ -47,7 +47,7 @@ from farm_drafts import CarouselDrafts, DraftConflict
 from farm_transfers import CarouselTransfers, TransferConflict
 from farm_video import VideoDrafts
 from farm_image import ImageDrafts
-from farm_observations import ObservationStore
+from farm_observations import ObservationStore, WindowsOcr
 from farm_draft_verification import DraftVerifications
 from farm_draft_runs import phone_of
 from farm_creation_runs import CreationRuns, creation_config
@@ -108,7 +108,8 @@ class FarmBackendRuntime:
         self.videos = VideoDrafts(db_path.parent / "video-drafts.db", stage_root, phone_of(create_config).board if create_config else "C24C")
         # Image drafts (X image, TikTok photo) are staged and stamped for the window's phone the same way.
         self.images = ImageDrafts(db_path.parent / "image-drafts.db", stage_root, phone_of(create_config).board if create_config else "C24C")
-        self.observations = ObservationStore(db_path.parent / 'observations.db')
+        # The carousel's reviews read the editor's Next label from its own crop, as its creation flow does.
+        self.observations = ObservationStore(db_path.parent / 'observations.db', WindowsOcr(next_control=True))
         self.verifications = DraftVerifications(db_path.parent / 'draft-verifications.db', self.observations, self.drafts)
         self.draft_creations = CreationRuns(db_path.parent / 'draft-creations', self.drafts, self.jobs, create_config)
         # Same explicit isolated kernel/media configuration as carousel creation.
