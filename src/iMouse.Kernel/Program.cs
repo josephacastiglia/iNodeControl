@@ -6,14 +6,14 @@ _ = KernelDiagnostics.BuildIdentity; // Capture before any listener or hardware 
 if (args.Contains("--self-test")) return await SelfTests.RunAsync();
 
 KernelOptions options;
-KernelConfiguration? configuration = null;
+KernelConfiguration config;
 try
 {
     options = KernelOptions.Parse(args);
-    if (options.HardwareMode is null) configuration = KernelConfiguration.Load(options);
+    config = KernelConfiguration.Load(options);
     if (options.ValidateOnly)
     {
-        Console.WriteLine(JsonSerializer.Serialize(configuration!.ValidationReport(), new JsonSerializerOptions { WriteIndented = true }));
+        Console.WriteLine(JsonSerializer.Serialize(config.ValidationReport(), new JsonSerializerOptions { WriteIndented = true }));
         return 0;
     }
 }
@@ -27,77 +27,24 @@ using var cts = new CancellationTokenSource();
 using var timerResolution = new TimerResolution();
 Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
 
-// Raw hardware tools remain explicit modes; normal service startup binds first.
-if (options.HardwareMode == "--hid-send")
-{
-    byte[] report = Convert.FromHexString(options.HardwareArguments[1]);
-    if (report.Length != 8 || report[0] is not (0xA1 or 0xA2))
-        throw new ArgumentException("Only the observed eight-byte mouse/keyboard report families are accepted.");
-    using var board = new HidConnection(options.HardwareArguments[0]);
-    await board.SendAsync(report, cts.Token);
-    Console.WriteLine("Output completed on " + options.HardwareArguments[0] + ": " + Convert.ToHexString(report));
-    return 0;
-}
-if (options.HardwareMode == "--hid-replay")
-{
-    var sequence = System.Text.Json.JsonSerializer.Deserialize<List<ReplayReport>>(File.ReadAllText(options.HardwareArguments[1]))!;
-    var validated = sequence.Select(step => (Bytes: Convert.FromHexString(step.Hex), step.DelayMs)).ToArray();
-    if (validated.Any(step => step.Bytes.Length != 8 || step.Bytes[0] is not (0xA1 or 0xA2)
-        || step.DelayMs is < 0 or > 5000) || validated.Length > 5000)
-        throw new ArgumentException("Invalid observed report sequence.");
-    using var board = new HidConnection(options.HardwareArguments[0]);
-    try
-    {
-        foreach (var step in validated)
-        {
-            await board.SendAsync(step.Bytes, cts.Token);
-            if (step.DelayMs > 0) await Task.Delay(step.DelayMs, cts.Token);
-        }
-    }
-    finally
-    {
-        await board.SendAsync([0xA1,0,0,0,0,0,0,0], CancellationToken.None);
-        await board.SendAsync([0xA2,0,0,0,0,0,0,0], CancellationToken.None);
-    }
-    Console.WriteLine($"Completed {validated.Length} reports on {options.HardwareArguments[0]}; buttons and keys released.");
-    return 0;
-}
-if (options.HardwareMode == "--hid-caps")
-{
-    var boards = HidHost.Enumerate();
-    foreach (var b in boards)
-    {
-        var c = HidHost.Describe(b);
-        Console.WriteLine($"{c.Pid}  {c.Open}  page=0x{c.UsagePage:X4} usage=0x{c.Usage:X4}  in={c.InputLen} out={c.OutputLen} feat={c.FeatureLen}");
-        if (c.OutputFields.Length > 0) Console.WriteLine("    out: " + c.OutputFields);
-        if (c.ReportDescriptorHex.Length > 0) Console.WriteLine("    desc: " + c.ReportDescriptorHex);
-    }
-    return 0;
-}
-
-var config = configuration!;
 if (options.ConsoleLog is { } consoleLog)
 {
     // Detached (WMI) launch has no redirected console: write what the console would show to a file.
-    var log = new StreamWriter(new FileStream(consoleLog, FileMode.Append, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete)) { AutoFlush = true };
+    var log = new ConsoleLogFile(consoleLog);
     Console.SetOut(log); Console.SetError(log);
 }
 Console.WriteLine("Kernel pid " + Environment.ProcessId + " started " + DateTime.UtcNow.ToString("o") + ".");
 Directory.CreateDirectory(options.DataDir);
-using var input = new InputRouter(config.Store, options.Allowed, config.Calibrations, preciseDelayMs: options.PreciseDelayMs,
-    replyBoards: options.ReplyBoards, absoluteProbeBoard: options.AbsoluteProbeBoard)
-    { Home = options.Home, Navigation = options.Navigation };
+using var input = new InputRouter(config.Store, options.Allowed, config.Calibrations)
+    { Home = options.Home };
 Console.WriteLine("Direct HID input enabled only for: " + string.Join(",", input.Allowed));
-Console.WriteLine("HID reply diagnostics: " + (options.ReplyBoards.Length == 0 ? "off" : string.Join(",", options.ReplyBoards) + " (observation only)"));
+if (!options.LoopbackOnly) Console.WriteLine("WARNING: --allow-network: " + options.Prefix + " can be reached from other machines, and this API has no login.");
 Console.WriteLine("Home sequence: " + input.HomeSequenceName + (options.Home == HomeSequence.Vendor ? "" : " (test option; not the release default)"));
-Console.WriteLine("Navigation sequence: " + input.NavigationSequenceName + (options.Navigation == NavigationSequence.Vendor ? "" : " (test option; phone compatibility unverified)"));
-if (options.AbsoluteProbeBoard is not null) Console.WriteLine("EXPERIMENTAL absolute probe on " + options.AbsoluteProbeBoard + ": moves only; clicks, drags and keys refused.");
-Console.WriteLine("Pointer movement pacing: " + (options.PreciseDelayMs > 0 ? $"high-resolution {options.PreciseDelayMs} ms; reset/drag/settle unchanged" : "legacy Task.Delay"));
+Console.WriteLine($"Pointer movement pacing: high-resolution {InputRouter.MoveDelayMs} ms; reset/drag/settle unchanged");
 Console.WriteLine("Video waits on an independent AirPlay receiver.");
 var fleet = new ReceiverFleet(config.Receivers, config.Store, config.ReceiverPath, config.RuntimePath, options.DataDir);
 var server = new ApiServer(options.Prefix, config.Store, input, fleet.Sessions.Select(s => (s.Config.Name, s.Frames)))
-    { AdvertiseReceiver = fleet.Advertise, Receivers = fleet, Rack = options.Rack };
-if (options.Rack.Length > 0) Console.WriteLine("Rack " + options.Rack + ": this kernel serves only the boards and receivers in its configuration.");
+    { Receivers = fleet };
 if (options.HeldReceivers.Length > 0) Console.WriteLine("Receivers held until released: " + string.Join(",", options.HeldReceivers));
 if (options.StopFile is { } stopFile) Console.WriteLine("Graceful stop: write this PID to " + stopFile + ".");
 var stopWatch = options.StopFile is { } watched ? new KernelStopFile(watched, Environment.ProcessId).WatchAsync(cts) : Task.CompletedTask;
@@ -106,6 +53,10 @@ try
 {
     await server.RunAsync(cts.Token, () =>
     {
+        // The listener is claimed, so no other kernel serves this address, and no request is read
+        // until this returns: let go of anything a killed kernel left held before input is accepted.
+        foreach (var released in input.ReleaseAtStartupAsync().GetAwaiter().GetResult())
+            Console.WriteLine("Start-up release " + released.Pid + ": " + released.Message);
         var boards = HidHost.Enumerate();
         Console.WriteLine($"iMouse 2.0 kernel. {boards.Count} WCH boards (VID_{HidHost.VendorId}).");
         fleet.Start(cts.Token, options.HeldReceivers);
@@ -133,5 +84,3 @@ finally
     }
 }
 return exitCode;
-
-record ReplayReport(string Hex, int DelayMs);

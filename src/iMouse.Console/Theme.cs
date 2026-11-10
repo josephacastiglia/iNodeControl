@@ -36,7 +36,6 @@ public static class Theme
         // The stage sits behind a letterboxed phone. Light grey rather than white so the
         // phone's own white screens still read as a distinct object.
         ("StageBrush",       "#EDEFF2", "#06080B"),
-        ("WallBrush",        "#FAFBFC", "#12151A"),
         ("TileBrush",        "#FFFFFF", "#1A1E25"),
         ("ItemBrush",        "#FFFFFF", "#1A1E25"),
         ("ItemHoverBrush",   "#F2F5FA", "#232932"),

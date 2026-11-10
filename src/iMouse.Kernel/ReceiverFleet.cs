@@ -46,7 +46,7 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
         if(configs.Count is <1 or >40) throw new ArgumentException("This test build requires one to forty receivers.");
         foreach(var c in configs)
         {
-            if(c is null || c.BoardPid is null || !System.Text.RegularExpressions.Regex.IsMatch(c.BoardPid,@"^[0-9A-Fa-f]{4}$") || c.Name is null || c.Pipe is null || c.Mac is null)
+            if(c is null || !KernelOptions.BoardId(c.BoardPid) || c.Name is null || c.Pipe is null || c.Mac is null)
                 throw new ArgumentException("Invalid receiver record or board PID.");
             var discovery=c.DeviceId is "*" or "";
             if((!discovery && string.IsNullOrWhiteSpace(c.DeviceId)) || !c.Name.StartsWith("iMouse2-") ||
@@ -81,11 +81,7 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
         {
             var session=new Session(c,new FrameStore(c.Pipe,c.DeviceId));
             var entry=new Entry(session);
-            if(receiver is not null)
-            {
-                session.Frames.ReceiverPid=()=>Info(entry).Pid;
-                session.Frames.Receiver=()=>Info(entry);
-            }
+            if(receiver is not null) session.Frames.Receiver=()=>Info(entry);
             Sessions.Add(session);
             _entries.Add(entry);
         }
@@ -108,9 +104,6 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
             return info with { Restarts = restarts, Generation = entry.Generation };
         }
     }
-
-    // A held receiver is not started, so no phone can list it until it is released.
-    public bool IsHeld(string boardPid) { lock (_gate) return Find(boardPid)?.Held == true; }
 
     private Entry? Find(string boardPid) => _entries.FirstOrDefault(e => e.Session.Config.BoardPid.Equals(boardPid, StringComparison.OrdinalIgnoreCase));
 

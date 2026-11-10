@@ -3,6 +3,19 @@ using System.Text.Json;
 namespace IMouse2.Kernel;
 
 /// <summary>
+/// The values of stop_reason in /input/status: why a phone is stopped, as a fixed word. Empty while
+/// it is not stopped. An operator's Stop always becomes the reason; otherwise the first cause since
+/// the last resume is kept. release_failed is the reason only when the failed release is itself what
+/// stopped the phone; the release_failed flag is true whenever a release failed.
+/// </summary>
+internal static class StopReasons
+{
+    public const string Operator = "operator_stop", LeaseExpired = "lease_expired", ReleaseFailed = "release_failed",
+        BoardUnavailable = "board_unavailable", KernelShutdown = "kernel_shutdown",
+        CommandTimeout = "command_timeout", CommandFailed = "command_failed";
+}
+
+/// <summary>
 /// A lease spans commands (including down/move/up), while each board has at most
 /// one active command and no hidden input backlog. Tokens are coordination
 /// capabilities, not a substitute for HTTP authentication.
@@ -18,12 +31,13 @@ public sealed class InputSessions : IAsyncDisposable
     }
     private sealed class Slot(Phone phone)
     {
-        public readonly string Id = phone.deviceid, Pid = phone.pid, Uid = phone.uid;
+        public readonly string Id = phone.deviceid, Pid = phone.pid;
         public Lease? Owner;
         public TaskCompletionSource? Active;
         public TaskCompletionSource? Cleaning;
         public bool Stopped;
         public string Message = "";
+        public string StopReason = "";
         public bool ReleaseFailed;
         public long Generation;
     }
@@ -42,10 +56,9 @@ public sealed class InputSessions : IAsyncDisposable
         _watch = WatchAsync();
     }
     private static TaskCompletionSource Completion() => new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private static string Text(JsonElement data, string name) => data.ValueKind == JsonValueKind.Object && data.TryGetProperty(name, out var value) ? value.ToString() : "";
     private Phone[] Targets(JsonElement data)
     {
-        var ids = Text(data, "id").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToArray();
+        var ids = InputRouter.Text(data, "id").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToArray();
         if (ids.Length == 0) throw new ArgumentException("id required");
         var all = _store.All();
         var phones = ids.Select(id => all.SingleOrDefault(p => p.deviceid == id) ?? throw new KeyNotFoundException(id)).ToArray();
@@ -57,18 +70,13 @@ public sealed class InputSessions : IAsyncDisposable
     private Slot Get(Phone phone)
     {
         if (!_slots.TryGetValue(phone.pid, out var slot)) _slots[phone.pid] = slot = new(phone);
-        if (slot.Id != phone.deviceid || slot.Uid != phone.uid)
-        {
-            BeginClose(slot, true, "Binding changed; restart the kernel after verifying configuration.");
-            throw new InvalidOperationException("Binding changed; previous input ownership is invalid.");
-        }
         return slot;
     }
     private string Token(JsonElement data, string id)
     {
         if (data.TryGetProperty("tokens", out var tokens) && tokens.ValueKind == JsonValueKind.Object && tokens.TryGetProperty(id, out var token))
             return token.ToString();
-        return Text(data, "token");
+        return InputRouter.Text(data, "token");
     }
     private void ValidateOwner(Slot slot, JsonElement data)
     {
@@ -76,7 +84,7 @@ public sealed class InputSessions : IAsyncDisposable
         if (slot.Owner is null || slot.Owner.Token != Token(data, slot.Id)) throw new InvalidOperationException("A valid per-phone input lease is required.");
         if (_clock() >= slot.Owner.Deadline)
         {
-            BeginClose(slot, true, "Controller lease expired.");
+            BeginClose(slot, true, "Controller lease expired.", StopReasons.LeaseExpired);
             throw new InvalidOperationException("Controller lease expired; input stopped.");
         }
     }
@@ -93,14 +101,14 @@ public sealed class InputSessions : IAsyncDisposable
     public object Acquire(JsonElement data)
     {
         var phones = Targets(data);
-        int duration = int.TryParse(Text(data, "lease_ms"), out var value) ? value : 30_000;
+        int duration = int.TryParse(InputRouter.Text(data, "lease_ms"), out var value) ? value : 30_000;
         if (duration is < 1000 or > 120_000) throw new ArgumentException("lease_ms must be 1000–120000.");
         lock (_sync)
         {
             var slots = phones.Select(Get).ToArray();
             foreach (var slot in slots)
             {
-                if (slot.Owner is not null && _clock() >= slot.Owner.Deadline) BeginClose(slot, true, "Controller lease expired.");
+                if (slot.Owner is not null && _clock() >= slot.Owner.Deadline) BeginClose(slot, true, "Controller lease expired.", StopReasons.LeaseExpired);
                 if (_closed || slot.Stopped || slot.Cleaning is not null || slot.Owner is not null || slot.Active is not null)
                     return new { code = 409, message = "A target is owned, stopped, or recovering. No leases acquired." };
             }
@@ -131,7 +139,7 @@ public sealed class InputSessions : IAsyncDisposable
                 expected.ValueKind != JsonValueKind.Object || !expected.TryGetProperty(s.Id, out var value) ||
                 !value.TryGetInt64(out var generation) || generation != s.Generation))
                 return new { code = 409, message = "Input state changed; inspect status before resuming." };
-            foreach (var slot in slots) { slot.Stopped = false; slot.Message = ""; }
+            foreach (var slot in slots) { slot.Stopped = false; slot.Message = ""; slot.StopReason = ""; }
             return new { code = 0, message = "Input ready for a new lease. Old tokens remain invalid." };
         }
     }
@@ -144,7 +152,8 @@ public sealed class InputSessions : IAsyncDisposable
                 stopped = s?.Stopped ?? false, releasing = s?.Cleaning is not null,
                 release_failed = s?.ReleaseFailed ?? false, message = s?.Message ?? "",
                 generation = s?.Generation ?? 0,
-                lease_remaining_ms = s?.Owner is { } lease ? Math.Max(0, lease.Deadline - _clock()) : 0 };
+                lease_remaining_ms = s?.Owner is { } lease ? Math.Max(0, lease.Deadline - _clock()) : 0,
+                stop_reason = s?.StopReason ?? "" };
         }).ToArray() };
     }
     public async Task<object> StopAsync(JsonElement data, bool release = false)
@@ -155,16 +164,19 @@ public sealed class InputSessions : IAsyncDisposable
         {
             slots = phones.Select(Get).ToArray();
             if (release) foreach (var slot in slots) ValidateOwner(slot, data);
-            tasks = slots.Select(s => BeginClose(s, !release, release ? "Controller released." : "Stopped by operator.")).ToArray();
+            tasks = slots.Select(s => BeginClose(s, !release, release ? "Controller released." : "Stopped by operator.", release ? "" : StopReasons.Operator)).ToArray();
         }
         await Task.WhenAll(tasks);
         lock (_sync) return new { code = slots.Any(s => s.ReleaseFailed) ? 33 : 0,
             message = slots.Any(s => s.ReleaseFailed) ? "Release failed; input remains stopped. Check the board." : "Input released; previous tokens revoked." };
     }
     // Called with _sync held. Cleanup yields before cancellation or HID operations.
-    private Task BeginClose(Slot slot, bool stop, string message)
+    private Task BeginClose(Slot slot, bool stop, string message, string reason)
     {
         slot.Stopped |= stop; slot.Message = message;
+        // The command a stop interrupts closes again with "Input cancelled"; that replaces the
+        // message, as it always has, but not the reason. Only an operator's Stop replaces a reason.
+        if (stop && (reason == StopReasons.Operator || slot.StopReason.Length == 0)) slot.StopReason = reason;
         slot.Generation++;
         if (slot.Cleaning is not null) return slot.Cleaning.Task;
         var lease = slot.Owner; slot.Owner = null;
@@ -189,7 +201,11 @@ public sealed class InputSessions : IAsyncDisposable
             lease?.Cancel.Dispose();
             lock (_sync)
             {
-                if (failure is not null) { slot.Stopped = true; slot.ReleaseFailed = true; slot.Message = failure; }
+                if (failure is not null)
+                {
+                    slot.Stopped = true; slot.ReleaseFailed = true; slot.Message = failure;
+                    if (slot.StopReason.Length == 0) slot.StopReason = StopReasons.ReleaseFailed;
+                }
                 slot.Cleaning = null;
                 finished.TrySetResult();
             }
@@ -216,11 +232,11 @@ public sealed class InputSessions : IAsyncDisposable
     private sealed record CommandResult(string id, int code, string message);
     private async Task<CommandResult> ExecuteAsync(Slot slot, Lease lease, string fun, JsonElement data)
     {
-        int code = 33; string message = "Input failed.";
+        int code = 33; string message = "Input failed.", reason = StopReasons.CommandFailed;
         try
         {
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(lease.Cancel.Token);
-            deadline.CancelAfter(TimeSpan.FromSeconds(8));
+            deadline.CancelAfter(InputRouter.CommandDeadline);
             var values = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(data.GetRawText())!;
             values["id"] = JsonSerializer.SerializeToElement(slot.Id);
             var result = JsonSerializer.SerializeToElement(await _input.DispatchAsync(fun, JsonSerializer.SerializeToElement(values), deadline.Token));
@@ -228,6 +244,11 @@ public sealed class InputSessions : IAsyncDisposable
             if (result.TryGetProperty("results", out var details))
             {
                 var detail = details[0]; code = detail.GetProperty("code").GetInt32(); message = detail.GetProperty("message").GetString() ?? "";
+                // The router's "cancelled" is this command's own deadline, or a stop, expiry or
+                // shutdown that cancelled the lease and has already recorded its reason.
+                string why = detail.GetProperty("reason").GetString() ?? "";
+                if (why != "cancelled") reason = why;
+                else if (!lease.Cancel.IsCancellationRequested) reason = StopReasons.CommandTimeout;
             }
             else message = result.ToString();
         }
@@ -236,7 +257,7 @@ public sealed class InputSessions : IAsyncDisposable
         lock (_sync)
         {
             slot.Active!.TrySetResult(); slot.Active = null;
-            if (code != 0) cleanup = BeginClose(slot, true, message);
+            if (code != 0) cleanup = BeginClose(slot, true, message, reason);
         }
         await cleanup;
         return new(slot.Id, code, message);
@@ -249,7 +270,7 @@ public sealed class InputSessions : IAsyncDisposable
             while (await timer.WaitForNextTickAsync(_shutdown.Token))
                 lock (_sync)
                     foreach (var slot in _slots.Values)
-                        if (slot.Owner is { } lease && _clock() >= lease.Deadline) BeginClose(slot, true, "Controller lease expired.");
+                        if (slot.Owner is { } lease && _clock() >= lease.Deadline) BeginClose(slot, true, "Controller lease expired.", StopReasons.LeaseExpired);
         }
         catch (OperationCanceledException) { }
     }
@@ -260,7 +281,7 @@ public sealed class InputSessions : IAsyncDisposable
     private async Task DisposeCoreAsync()
     {
         Task[] tasks;
-        lock (_sync) { _closed = true; tasks = _slots.Values.Select(s => BeginClose(s, true, "Kernel shutting down.")).ToArray(); }
+        lock (_sync) { _closed = true; tasks = _slots.Values.Select(s => BeginClose(s, true, "Kernel shutting down.", StopReasons.KernelShutdown)).ToArray(); }
         _shutdown.Cancel();
         await _watch;
         await Task.WhenAll(tasks);

@@ -61,12 +61,6 @@ public partial class MainWindow
             window._devices = [c24c, other];
             window.DeviceList.ItemsSource = window._devices;
             window.DeviceList.SelectedItem = c24c;
-            window._farmExecutionMode = "simulate";
-            window.DeviceList.SelectedItem = null;
-            check("Farm simulation targets its C24C profile without selecting a real phone", window.FarmAutomationTarget() == "C24C");
-            window._farmExecutionMode = "live";
-            check("Farm live actions require a selected C24C", window.FarmAutomationTarget() is null);
-            window.DeviceList.SelectedItem = c24c;
             window.BatchMode.IsChecked = true;
             window._controlReady = true;
             window._controlCancellation = new();
@@ -95,7 +89,7 @@ public partial class MainWindow
             check("Farm manual command failures propagate to stop multi-step work", failure is not null);
             check("Farm checks use no desktop window or native handle", !window.IsVisible && new WindowInteropHelper(window).Handle == IntPtr.Zero);
             var recovery = new FarmJobRecovery(folder);
-            var bookmark = new FarmJobBookmark(Guid.NewGuid().ToString(), "simulate", "create-content", false);
+            var bookmark = new FarmJobBookmark(Guid.NewGuid().ToString(), "simulate", "create-content");
             recovery.Save(bookmark);
             int beforeRestore = handler.PostAttempts;
             var resumed = new MainWindow(address => new ApiClient(address, handler), folder);
@@ -117,21 +111,6 @@ public partial class MainWindow
                 check("Damaged farm recovery record refuses new work without losing evidence", !resumed.FarmAutomationModeKnown() && File.ReadAllText(Path.Combine(folder, "farm-pending-job.json")) == "{broken");
             }
             finally { resumed._farmJobId = null; await resumed.CloseSafelyAsync(); }
-            recovery.Save(bookmark with { Mode = "live", OwnsInput = true });
-            var livePending = new MainWindow(address => new ApiClient(address, handler), folder);
-            try
-            {
-                check("Recovered live job leaves manual input paused", livePending._farmOwnsInput && !livePending._controlReady);
-                livePending._api = new ApiClient("http://localhost:9923", handler, ownership: true);
-                livePending._connected = true;
-                livePending._devices = [c24c];
-                livePending.DeviceList.ItemsSource = livePending._devices;
-                livePending.DeviceList.SelectedItem = c24c;
-                livePending.FinishFarmJob();
-                await livePending._scopeTail;
-                check("Recovered job completion requires explicit Resume", !livePending._controlReady && livePending.ResumeInputButton.IsEnabled);
-            }
-            finally { livePending._farmJobId = null; await livePending.CloseSafelyAsync(); }
         }
         finally
         {

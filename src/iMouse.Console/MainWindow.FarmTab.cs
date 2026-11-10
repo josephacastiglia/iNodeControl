@@ -1,6 +1,6 @@
 // File: src/iMouse.Console/MainWindow.FarmTab.cs
-// Partial class for MainWindow implementing the "Marketing Farm (Test Tab)" interface,
-// live AirPlay frame synchronization, and 1-Click marketing automation.
+// Partial class for MainWindow implementing the "Marketing Farm (Test Tab)" interface:
+// the farm backend connection, content creation and the draft windows, and manual C24C input.
 
 using System;
 using System.Collections.Generic;
@@ -25,9 +25,6 @@ public partial class MainWindow
     private const string FarmServerUrl = "http://127.0.0.1:9915";
     private string? _farmExecutionMode;
     private bool _farmManualSequence;
-    private bool _farmPersonaLoaded;
-
-    private string? FarmAutomationTarget() => _farmExecutionMode == "simulate" ? "C24C" : SelectedFarmInputPhone()?.Id;
 
     private Brush BrushOr(string key, Brush fallback) => (TryFindResource(key) as Brush) ?? fallback;
 
@@ -144,7 +141,7 @@ public partial class MainWindow
         catch { }
 
         // Resolve and start if not running
-        string? scriptPath = IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath();
+        string? scriptPath = InstallLayout.ResolveFarmServerScriptPath();
         if (scriptPath != null && File.Exists(scriptPath))
         {
             try
@@ -174,144 +171,20 @@ public partial class MainWindow
             string mode = doc.RootElement.TryGetProperty("executionMode", out var modeValue) ? modeValue.GetString() ?? "" : "";
             _farmExecutionMode = mode is "simulate" or "live" ? mode : null;
             _farmProtocolVersion = doc.RootElement.TryGetProperty("protocolVersion", out var protocol) ? protocol.GetInt32() : 0;
-            _farmLiveAutomationReady = doc.RootElement.TryGetProperty("liveAutomationReady", out var ready) && ready.GetBoolean();
             FarmExecutionModeText.Text = mode switch
             {
-                "simulate" => "Automation: SIMULATION · manual preview taps still control C24C",
-                "live" => "Live connection · automated app actions await validation",
-                _ => "Automation mode unknown · older backend"
+                "simulate" => "Farm backend: simulation mode · manual preview taps still control C24C",
+                "live" => "Farm backend: live mode",
+                _ => "Farm backend mode unknown · older backend"
             };
-            if (!doc.RootElement.TryGetProperty("personas", out var personas)) return;
-
-            FarmPhoneListPanel.Children.Clear();
-            foreach (var p in personas.EnumerateArray())
-            {
-                string id = p.GetProperty("device_id").GetString() ?? "";
-                int cohort = p.GetProperty("cohort").GetInt32();
-                int day = p.GetProperty("account_day").GetInt32();
-                string niche = p.GetProperty("niche").GetString() ?? "";
-                string kw = p.GetProperty("cta_keyword").GetString() ?? "";
-                if (id == "C24C" && !_farmPersonaLoaded)
-                {
-                    FarmNicheBox.Text = niche;
-                    FarmKeywordBox.Text = kw;
-                    _farmPersonaLoaded = true;
-                }
-                bool paused = p.GetProperty("paused_zero_view").GetInt32() != 0;
-
-                // Match with actual connected device
-                Device? matchDev = _devices.Find(d => d.Id.Equals(id, StringComparison.OrdinalIgnoreCase) ||
-                                                      (id == "C24C" && FarmTargetPolicy.IsC24C(d.Id)));
-
-                string liveState = matchDev != null ? (matchDev.Online ? "MIRRORING" : "NOT MIRRORING") : "PROFILE ONLY · NO VERIFIED PHONE";
-
-                var card = new Border
-                {
-                    Background = (Brush)FindResource("RaisedBrush"),
-                    BorderBrush = paused ? (Brush)FindResource("BadBrush") : (Brush)FindResource("EdgeBrush"),
-                    BorderThickness = new Thickness(1),
-                    CornerRadius = new CornerRadius(6),
-                    Padding = new Thickness(10, 8, 10, 8),
-                    Margin = new Thickness(0, 0, 0, 8)
-                };
-
-                var cardGrid = new Grid();
-                cardGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                cardGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(85) });
-
-                var infoStack = new StackPanel();
-                var headerLine = new StackPanel { Orientation = Orientation.Horizontal };
-                headerLine.Children.Add(new TextBlock { Text = id, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 8, 0) });
-                headerLine.Children.Add(new TextBlock
-                {
-                    Text = $"[Cohort {cohort} · Day {day}]",
-                    Foreground = (Brush)FindResource("MutedBrush"),
-                    FontSize = 11,
-                    VerticalAlignment = VerticalAlignment.Center
-                });
-                headerLine.Children.Add(new TextBlock
-                {
-                    Text = $" · {liveState}",
-                    Foreground = matchDev?.Online == true ? (Brush)FindResource("OkBrush") : (Brush)FindResource("MutedBrush"),
-                    FontSize = 11,
-                    FontWeight = FontWeights.SemiBold,
-                    VerticalAlignment = VerticalAlignment.Center
-                });
-                infoStack.Children.Add(headerLine);
-
-                infoStack.Children.Add(new TextBlock
-                {
-                    Text = $"{niche} | CTA: '{kw}' " + (paused ? "(0-VIEW PAUSED)" : ""),
-                    Foreground = (Brush)FindResource("TextBrush"),
-                    FontSize = 11.5,
-                    Margin = new Thickness(0, 3, 0, 0)
-                });
-                Grid.SetColumn(infoStack, 0);
-                cardGrid.Children.Add(infoStack);
-
-                var deployBtn = new Button
-                {
-                    Content = mode == "simulate" ? "Simulate" : "Deploy",
-                    Padding = new Thickness(6, 4, 6, 4),
-                    FontSize = 11,
-                    MinHeight = 26,
-                    Background = (Brush)FindResource("AccentBrush"),
-                    Foreground = (Brush)FindResource("OnAccentBrush"),
-                    Tag = id
-                };
-                deployBtn.IsEnabled = id == "C24C" && (mode == "simulate" || _farmLiveAutomationReady);
-                deployBtn.ToolTip = id == "C24C" ? "Run in the displayed automation mode" : "This profile is outside the current C24C test scope";
-                deployBtn.Click += async (s, _) =>
-                {
-                    if (s is Button b && b.Tag is string devId)
-                    {
-                        await TriggerSingleUploadAsync(devId, "instagram", "ig_reel");
-                    }
-                };
-                Grid.SetColumn(deployBtn, 1);
-                cardGrid.Children.Add(deployBtn);
-
-                card.Child = cardGrid;
-                card.MouseLeftButtonUp += (_, _) =>
-                {
-                    if (id != "C24C") { AppendFarmLog("Only the C24C profile is editable in this test build."); return; }
-                    if (FarmNicheBox is not null) FarmNicheBox.Text = niche;
-                    if (FarmKeywordBox is not null) FarmKeywordBox.Text = kw;
-                    AppendFarmLog($"Selected persona profile for {id}: {niche}");
-                };
-                FarmPhoneListPanel.Children.Add(card);
-            }
         }
         catch (Exception ex)
         {
             _farmExecutionMode = null;
             _farmProtocolVersion = 0;
-            FarmExecutionModeText.Text = "Automation backend unavailable";
+            FarmExecutionModeText.Text = "Farm backend unavailable";
             AppendFarmLog("State refresh note: " + ex.Message);
         }
-    }
-
-    private async void FarmAutoCreate_Click(object sender, RoutedEventArgs e)
-    {
-        if (FarmAutomationTarget() is not { } deviceId) return;
-        await RunFarmJobAsync("auto-create-and-deploy", new { device_id = deviceId });
-    }
-
-    private async void FarmCohortWarmup_Click(object sender, RoutedEventArgs e)
-    {
-        if (FarmAutomationTarget() is not { } deviceId) return;
-        await RunFarmJobAsync("warmup-wave", new { device_id = deviceId, clips = 2, time_scale = 0.5 });
-    }
-
-    private async void FarmSchedulerTick_Click(object sender, RoutedEventArgs e)
-    {
-        await RunFarmJobAsync("scheduler-tick", new { cohort = 1, execute_actions = false });
-    }
-
-    private async void FarmFunnel_Click(object sender, RoutedEventArgs e)
-    {
-        if (FarmAutomationTarget() is not { } deviceId) return;
-        await RunFarmJobAsync("funnel-action", new { device_id = deviceId, action = "comment_to_dm" });
     }
 
     private async void FarmSpotlightTest_Click(object sender, RoutedEventArgs e)
@@ -338,9 +211,8 @@ public partial class MainWindow
         var cancellation = RequestFarmCancellationAsync();
         try
         {
-            // The real preview and simulated automation are different input paths.
-            // Stop only C24C on the real console, never its checked followers.
-            if (_api is { UsesInputOwnership: true } api)
+            // Stop only C24C on the console, never its checked followers.
+            if (_api is { } api)
             {
                 CancelLocalInput();
                 InputStateText.Text = "Stopping C24C…";
@@ -356,24 +228,6 @@ public partial class MainWindow
         catch (Exception ex) { AppendFarmLog("Stop not confirmed: " + ex.Message); }
     }
 
-    private async void FarmDeploySingle_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is not Button btn || btn.Tag is not string tag) return;
-        string[] parts = tag.Split('|');
-        if (parts.Length != 2) return;
-        string platform = parts[0];
-        string format = parts[1];
-
-        if (FarmAutomationTarget() is not { } deviceId) return;
-        await TriggerSingleUploadAsync(deviceId, platform, format);
-    }
-
-    private async Task TriggerSingleUploadAsync(string deviceId, string platform, string uploadFormat)
-    {
-        if (!FarmTargetPolicy.IsC24C(deviceId)) { AppendFarmLog("Only C24C is enabled for farm testing."); return; }
-        await RunFarmJobAsync("single-upload", new { device_id = deviceId, platform, format = uploadFormat });
-    }
-
     private async void FarmPreview_Down(object sender, MouseButtonEventArgs e)
     {
         if (_farmManualSequence) return;
@@ -381,7 +235,7 @@ public partial class MainWindow
             SelectedFarmInputPhone() is not { Online: true } device || _frameId != device.Id ||
             (DateTime.UtcNow - _frameAt).TotalSeconds > 10) return;
         var pt = e.GetPosition(FarmTapCanvas);
-        var size = TargetSize(device, image);
+        var size = TargetSize(image);
         var mapped = CoordinateMapper.Map(pt.X, pt.Y, FarmTapCanvas.ActualWidth, FarmTapCanvas.ActualHeight,
             image.PixelWidth, image.PixelHeight, size.W, size.H);
         if (mapped is not { } position) return;

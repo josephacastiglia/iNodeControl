@@ -15,13 +15,13 @@ public sealed class TestHandler : HttpMessageHandler
     public int PostAttempts { get; private set; }
     public int ErrorCode { get; set; }
     public bool BrokenJson { get; set; }
-    public bool Base64Image { get; set; }
     public bool EmptyList { get; set; }
     public bool FailHttp { get; set; }
     public int DelayMs { get; set; }
 
     // --- Ownership protocol simulation ---
-    public bool OwnershipSupported { get; set; }
+    /// <summary>False makes this a service that is not the lease-enforcing kernel: /kernel/status answers 404.</summary>
+    public bool OwnershipSupported { get; set; } = true;
     public Dictionary<string, string> ActiveLeases { get; } = new();
     public HashSet<string> ExpiredLeases { get; } = new();
     public HashSet<string> StoppedPhones { get; } = new();
@@ -42,6 +42,9 @@ public sealed class TestHandler : HttpMessageHandler
     public int FailSendKeyNumber { get; set; }
     /// <summary>This sendkey gets no answer, which HttpClient reports as its own timeout.</summary>
     public int TimeoutSendKeyNumber { get; set; }
+    /// <summary>Every command with this function is answered only after this long, as a kernel that
+    /// used its whole command deadline answers: code 33, lease revoked, phone stopped.</summary>
+    public (string Fun, TimeSpan After)? DeadlineAnswer { get; set; }
     /// <summary>Every command with this function gets no answer, like <see cref="TimeoutSendKeyNumber"/>.</summary>
     public string? TimeoutFun { get; set; }
     private string? _hangFun;
@@ -235,11 +238,18 @@ public sealed class TestHandler : HttpMessageHandler
                 }
                 return Json("{\"status\":200,\"data\":{\"code\":0}}");
             }
-            if (OwnershipSupported && (fun.StartsWith("/mouse/") || fun == "/key/sendkey"))
+            if (fun.StartsWith("/mouse/") || fun == "/key/sendkey")
             {
                 string idStr = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
                 var ids = idStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
                 if (ids.Length == 0) return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 36, message = "No target" } }));
+                // The kernel validates the command before the lease and answers a bad one with code 36:
+                // nothing is written to a board, and the lease and the phone's state are untouched.
+                if (Refusal(fun, data) is { } refusal)
+                {
+                    Refused++;
+                    return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 36, message = refusal } }));
+                }
                 if (data.TryGetProperty("tokens", out var tokensProp) && tokensProp.ValueKind == JsonValueKind.Object)
                 {
                     foreach (var id in ids)
@@ -277,6 +287,14 @@ public sealed class TestHandler : HttpMessageHandler
                 throw new TaskCanceledException("Simulated: no answer before the HTTP timeout.");
             }
             if (fun == TimeoutFun) throw new TaskCanceledException("Simulated: no answer before the HTTP timeout.");
+            if (DeadlineAnswer is { } late && fun == late.Fun)
+            {
+                await Task.Delay(late.After, ct);
+                string idStr = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
+                var ids = idStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                foreach (var id in ids) { ActiveLeases.Remove(id); StoppedPhones.Add(id); PhoneGenerations[id] = PhoneGenerations.GetValueOrDefault(id, 1) + 1; }
+                return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 33, results = ids.Select(id => new { id, code = 499, message = "Input cancelled" }) } }));
+            }
             if (fun == FailFun)
             {
                 // The kernel releases the board itself, revokes the lease and stops the phone.
@@ -318,12 +336,29 @@ public sealed class TestHandler : HttpMessageHandler
             return Json("{\"status\":200,\"data\":{\"code\":0,\"air_play_name\":\"iMouse2-C214\"}}");
         if (request.RequestUri.AbsolutePath.EndsWith("/pic/screenshot"))
         {
-            byte[] png = TestImage();
-            return Base64Image ? Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 0, image = Convert.ToBase64String(png) } })) : new(HttpStatusCode.OK) { Content = new ByteArrayContent(png) };
+            return new(HttpStatusCode.OK) { Content = new ByteArrayContent(TestImage()) };
         }
         return new(HttpStatusCode.NotFound);
     }
     private static HttpResponseMessage Json(string text) => new(HttpStatusCode.OK) { Content = new StringContent(text, Encoding.UTF8, "application/json") };
+    /// <summary>How many input commands this handler refused as the kernel would (code 36, nothing sent).</summary>
+    public int Refused { get; private set; }
+    /// <summary>The mirror image size the mock validates pointer coordinates against, like a kernel calibration.</summary>
+    public (int Width, int Height) Calibrated { get; set; } = (4096, 4096);
+    // InputRouter.Validate's rules that matter to the console: verified key names and in-image points.
+    private static readonly string[] KernelKeys = ["Home", "Enter", "ENTER", "Backspace", "BACKSPACE", "Tab", "Escape", "Up", "Down", "Left", "Right", "AppSwitch", "ControlBar"];
+    private string? Refusal(string fun, JsonElement data)
+    {
+        if (fun == "/key/sendkey" && data.TryGetProperty("fn_key", out var key) && key.GetString() is { Length: > 0 } name && !KernelKeys.Contains(name))
+            return "Function key has not been verified: " + name;
+        if (fun == "/key/sendkey" && data.TryGetProperty("key", out var typed) && typed.GetString() is { } value
+            && value.Sum(ch => ch == ' ' ? 170 : 140) > 8000)
+            return "Text of " + value.Length + " characters cannot be typed inside the 8 s command deadline.";
+        if (fun is "/mouse/move" or "/mouse/click" && data.TryGetProperty("x", out var x) && data.TryGetProperty("y", out var y)
+            && (x.GetInt32() < 0 || y.GetInt32() < 0 || x.GetInt32() >= Calibrated.Width || y.GetInt32() >= Calibrated.Height))
+            return "Coordinates outside calibrated image.";
+        return null;
+    }
     private static byte[] TestImage()
     {
         var visual = new DrawingVisual();
@@ -354,7 +389,12 @@ public static class SelfTests
         void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
         async Task Reject(string name, Func<Task> action) { try { await action(); } catch (Exception ex) when (ex is ApiException or HttpRequestException or OperationCanceledException or ArgumentException) { passed.Add(name); return; } throw new Exception("Expected failure: " + name); }
         RunInstallLayoutTests(Check);
-        Check("Default service endpoint", ApiClient.NormalizeEndpoint("localhost").ToString() == "http://localhost:9911/api");
+        // The kernel's own default is http://127.0.0.1:9913/api/ (KernelOptions.Prefix). 9911 was the vendor service.
+        Check("An address without a port gets the kernel's default port", ApiClient.NormalizeEndpoint("localhost").ToString() == "http://localhost:9913/api");
+        Check("The address offered first reaches the kernel's default endpoint", ApiClient.NormalizeEndpoint(ApiClient.DefaultAddress).ToString() == "http://127.0.0.1:9913/api");
+        string addressHint = "";
+        try { ApiClient.NormalizeEndpoint("ftp://127.0.0.1"); } catch (ArgumentException ex) { addressHint = ex.Message; }
+        Check("A refused address suggests the kernel's default address, not the vendor port", addressHint.Contains(ApiClient.DefaultAddress) && !addressHint.Contains("9911"));
         Check("Explicit custom port", ApiClient.NormalizeEndpoint("http://localhost:1234/api").Port == 1234);
         Check("Explicit standard port retained", ApiClient.NormalizeEndpoint("http://localhost:80").Port == 80);
         await Reject("Reject credentials in endpoint", () => { ApiClient.NormalizeEndpoint("http://name:secret@localhost"); return Task.CompletedTask; });
@@ -372,15 +412,15 @@ public static class SelfTests
         Check("Respect offline state", devices.Count(d => d.Online) == 3);
         Check("Accept numeric and string dimensions", devices[0].Width == 414 && devices[1].Width == 390);
         Check("Group and binding parsed", devices[0].Group == "Test devices" && devices[0].Hardware == "TEST-BOARD-01");
-        Check("Binary screenshot accepted", ApiClient.IsImage(await api.ScreenshotAsync("TEST:01")));
-        handler.Base64Image = true;
-        Check("Base64 screenshot accepted", ApiClient.IsImage(await api.ScreenshotAsync("TEST:01")));
         await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["key"] = "a\"b\\c" });
-        Check("Command JSON correctly escapes typed text", handler.Commands[0].GetProperty("data").GetProperty("key").GetString() == "a\"b\\c");
-        Check("Command target explicit", handler.Commands[0].GetProperty("data").GetProperty("id").GetString() == "TEST:01");
+        var typed = handler.Commands.Single(c => c.GetProperty("fun").GetString() == "/key/sendkey").GetProperty("data");
+        Check("Command JSON correctly escapes typed text", typed.GetProperty("key").GetString() == "a\"b\\c");
+        Check("Command target explicit", typed.GetProperty("id").GetString() == "TEST:01");
+        int beforeOther = handler.PostAttempts;
+        await Reject("Only input commands go through the command path", () => api.CommandAsync("/device/set", new() { ["id"] = "TEST:01", ["uid"] = "TEST-BOARD-02" }));
+        Check("A refused non-input command sends no request", handler.PostAttempts == beforeOther);
         handler.ErrorCode = 25;
         await Reject("HTTP 200 with operation failure rejected", () => api.DevicesAsync());
-        await Reject("Screenshot JSON error not treated as image", () => api.ScreenshotAsync("TEST:01"));
         handler.ErrorCode = 0; handler.BrokenJson = true;
         await Reject("Malformed response rejected", () => api.DevicesAsync());
         handler.BrokenJson = false; handler.FailHttp = true;
@@ -396,7 +436,6 @@ public static class SelfTests
         Check("Board state 2 means a phone is attached", boards[0].PhoneAttached && !boards[1].PhoneAttached);
         var withBoard = (await api.DevicesAsync())[0];
         Check("Mirror geometry parsed separately from logical size", withBoard.ImageWidth == 500 && withBoard.ImageHeight == 1080 && withBoard.Width == 414);
-        Check("AirPlay session id parsed", withBoard.AirPid == 4321);
         withBoard.BoardState = 2;
         Check("Both channels ready reports control and video", withBoard.ControlReady && withBoard.VideoReady);
         withBoard.BoardState = 1;
@@ -433,15 +472,6 @@ public static class SelfTests
         Check("Different-sized frames are never treated as equal", !LiveFrame.SameAsPrevious(sample, Bmp(32, 32, true)));
         Check("No previous frame counts as changed", !LiveFrame.SameAsPrevious(null, sample));
 
-        // Auto-bind depends on this telling a moved pointer apart from an unchanged screen.
-        var blank = Bmp(64, 64, true);
-        var dotted = (byte[])blank.Clone();
-        int stride64 = (64 * 3 + 3) & ~3;
-        for (int y = 30; y < 34; y++)
-            for (int x = 30; x < 34; x++)
-            { int i = 54 + y * stride64 + x * 3; dotted[i] = dotted[i + 1] = dotted[i + 2] = 255; }
-        Check("Region diff sees a local change", FrameRegion.MeanDifference(blank, dotted, 32, 32, 6) > 1.0);
-        Check("Region diff ignores an untouched area", FrameRegion.MeanDifference(blank, dotted, 8, 8, 4) == 0);
         Check("Image-space taps map to mirror pixels", CoordinateMapper.Map(200, 400, 400, 800, 500, 1000, 500, 1000) == (250, 500));
 
         // Enlarging the master view must not move where a tap lands. The wall layout lets
@@ -469,19 +499,16 @@ public static class SelfTests
         // gen-2 collections in eight seconds with a single phone on screen.
         var reuse = new FrameBuffer();
         var firstArray = reuse.Data;
-        await api.ScreenshotIntoAsync("TEST:01", false, reuse);
+        await api.ScreenshotIntoAsync("TEST:01", reuse);
         Check("Pooled fetch fills the buffer with an image", ApiClient.IsImage(reuse.Span));
         Check("Pooled fetch records the real length", reuse.Length > 8 && reuse.Length <= reuse.Data.Length);
         int firstLength = reuse.Length;
-        await api.ScreenshotIntoAsync("TEST:01", false, reuse);
+        await api.ScreenshotIntoAsync("TEST:01", reuse);
         Check("A second fetch reuses the same array", ReferenceEquals(reuse.Data, firstArray));
         Check("A second fetch does not leave stale length behind", reuse.Length == firstLength);
-        handler.Base64Image = true;
-        await api.ScreenshotIntoAsync("TEST:01", false, reuse);
-        Check("Pooled fetch still handles a base64 JSON reply", ApiClient.IsImage(reuse.Span));
-        handler.Base64Image = false;
         handler.ErrorCode = 25;
-        await Reject("Pooled fetch rejects a service error", () => api.ScreenshotIntoAsync("TEST:01", false, reuse));
+        await Reject("Pooled fetch rejects a service error", () => api.ScreenshotIntoAsync("TEST:01", reuse));
+        Check("A refused fetch leaves no stale image in the buffer", reuse.Length == 0 && reuse.Metadata is null);
         handler.ErrorCode = 0;
 
         var grow = new FrameBuffer();
@@ -618,19 +645,30 @@ public static class SelfTests
         Check("Wall rate labels bitmap updates per second", tile.RateText == "12/s");
 
         await RunOwnershipTestsAsync(passed);
+        await RunRefusalTestsAsync(passed);
+        await RunCommandDeadlineTestsAsync(passed);
         await RunTextChunkTestsAsync(passed);
         await DiagnosticsTests.RunAsync(Check);
         await CleanupDiagnosticsTests.RunAsync(Check);
         await MainWindow.CheckCleanupDiagnosticWindowAsync(Check);
-        ResponseTimingTests.Register((name, run) => { run(); Check(name, true); });
-        await MainWindow.CheckResponseTimingAsync(Check);
+        await MainWindow.CheckPresenterAsync(Check);
+        // Suites moved in from the former stand-alone test projects: one check per named case.
+        async Task Case(string name, Func<Task> run)
+        {
+            string? failure = null;
+            try { await run().WaitAsync(TimeSpan.FromSeconds(40)); }
+            catch (Exception ex) { failure = ex.GetType().Name + ": " + ex.Message; }
+            Check(failure is null ? name : name + " -> " + failure, failure is null);
+        }
+        await FrameMetricsTests.RunAsync(Case);
+        await TileStreamTests.RunAsync(Case);
+        await PreviewFreshnessTests.RunAsync(Case);
         SettingsPersistenceTests.Run(Check);
-        await ServicePolicyTests.RunAsync(Check);
         await PointerMovePumpTests.RunAsync(Check);
         await DragInputTests.RunAsync(Check);
         await ConnectionCleanupTests.RunAsync(Check);
         await MainWindow.CheckConnectionLifecycleAsync(Check);
-        RunFarmAutomationWindowTests(Check);
+        RunFarmTargetTests(Check);
         await FarmApiTests.RunAsync(Check);
         await MainWindow.CheckFarmHeadlessAsync(Check);
         await CarouselDraftWindow.CheckHeadlessAsync(Check);
@@ -638,7 +676,6 @@ public static class SelfTests
         await VideoDraftWindow.CheckHeadlessAsync(Check);
         await FarmObservationWindow.CheckHeadlessAsync(Check);
         await FarmDraftVerificationWindow.CheckHeadlessAsync(Check);
-        await FarmDraftRehearsalWindow.CheckHeadlessAsync(Check);
         await FarmDraftRunWindow.CheckHeadlessAsync(Check);
         await FarmPreparationWindow.CheckHeadlessAsync(Check);
         await FarmScheduleQueueWindow.CheckHeadlessAsync(Check);
@@ -673,9 +710,38 @@ public static class SelfTests
             check("Installed: run files in the data folder, never the version folder",
                 InstallLayout.RunFiles == Path.Combine(data, "console") && Directory.Exists(Path.Combine(data, "console")));
             check("Installed: the current version's farm server", InstallLayout.InstalledFarmServer == Path.Combine(home, "tools", "imouse_farm_server.py")
-                && IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath(Path.GetTempPath()) == InstallLayout.InstalledFarmServer);
+                && InstallLayout.ResolveFarmServerScriptPath(Path.GetTempPath()) == InstallLayout.InstalledFarmServer);
             check("Installed: the recorded Python", InstallLayout.Python == @"C:\Python311\python.exe");
             check("Installed: farm state in the data folder", InstallLayout.FarmStateRoot(InstallLayout.InstalledFarmServer!) == data);
+
+            // The account label is per-machine private data, in the file tools/farm_paths.py account_label reads.
+            void Accounts(string archive, string json)
+            {
+                Directory.CreateDirectory(Path.Combine(archive, "privacy"));
+                File.WriteAllText(Path.Combine(archive, "privacy", "farm-accounts.json"), json);
+            }
+            Accounts(Path.Combine(data, "evidence-archive"), "{\"v1CandidateAccount\":\"installed.account\",\"other\":\"second.account\"}");
+            check("Installed: the account label comes from <data>\\evidence-archive\\privacy\\farm-accounts.json",
+                InstallLayout.FarmAccountLabel() == "installed.account" && InstallLayout.FarmAccountLabel("other") == "second.account");
+            foreach (var n in names) Environment.SetEnvironmentVariable(n, null);
+            string Checkout(string folder)
+            {
+                Directory.CreateDirectory(Path.Combine(folder, "tools", "deeper"));
+                File.WriteAllText(Path.Combine(folder, "tools", "imouse_farm_server.py"), "# stand-in");
+                return Path.Combine(folder, "tools", "deeper");
+            }
+            string main = Checkout(Path.Combine(root, "dev", "Product-2.0"));
+            string lane = Checkout(Path.Combine(root, "dev", "Product-2.0.worktrees", "lane-a"));
+            string alone = Checkout(Path.Combine(root, "elsewhere", "Product-2.0"));
+            Accounts(Path.Combine(root, "dev", "iMouseXP-2.0-evidence-archive"), "{\"v1CandidateAccount\":\"checkout.account\"}");
+            check("Checkout: the account label comes from the evidence archive beside the main folder", InstallLayout.FarmAccountLabel(startDirectory: main) == "checkout.account");
+            check("Checkout: a lane's worktree reads the main folder's archive", InstallLayout.FarmAccountLabel(startDirectory: lane) == "checkout.account");
+            check("A PC with no account file has no account label", InstallLayout.FarmAccountLabel(startDirectory: alone) == "");
+            check("A key the file does not hold has no label", InstallLayout.FarmAccountLabel("absent", main) == "");
+            Accounts(Path.Combine(root, "elsewhere", "iMouseXP-2.0-evidence-archive"), "{broken");
+            check("A damaged account file has no account label", InstallLayout.FarmAccountLabel(startDirectory: alone) == "");
+            Accounts(Path.Combine(root, "elsewhere", "iMouseXP-2.0-evidence-archive"), "{\"v1CandidateAccount\":12}");
+            check("A label that is not text is not used", InstallLayout.FarmAccountLabel(startDirectory: alone) == "");
         }
         finally
         {
@@ -684,31 +750,16 @@ public static class SelfTests
         }
     }
 
-    private static void RunFarmAutomationWindowTests(Action<string, bool> check)
+    private static void RunFarmTargetTests(Action<string, bool> check)
     {
         check("Farm controls accept the explicit C24C identity",
             FarmTargetPolicy.IsC24C("C24C") && FarmTargetPolicy.IsC24C(FarmTargetPolicy.DeviceId.ToLowerInvariant()));
         check("Farm controls refuse protected, unknown and grouped identities",
             new string?[] { null, "", "C241", "FE:A9:BC:D7:A0:44", "RACK-03", "XR C24C", "C24C,C241" }
                 .All(id => !FarmTargetPolicy.IsC24C(id)));
-        check("FarmAutomationWindow normalizes kernel address to /api on port 9913",
-            IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl("localhost:9913") == "http://localhost:9913/api" &&
-            IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl(null) == "http://127.0.0.1:9913/api");
-
-        bool refused9911 = false;
-        try { _ = IMouse2.ConsoleApp.FarmAutomationWindow.NormalizeKernelApiUrl("http://127.0.0.1:9911"); }
-        catch (InvalidOperationException) { refused9911 = true; }
-        check("FarmAutomationWindow refuses vendor port 9911", refused9911);
-
-        string? resolvedScript = IMouse2.ConsoleApp.FarmAutomationWindow.ResolveFarmServerScriptPath();
-        check("FarmAutomationWindow resolves tools/imouse_farm_server.py from parent directories",
+        string? resolvedScript = InstallLayout.ResolveFarmServerScriptPath();
+        check("The farm server script resolves to tools/imouse_farm_server.py from parent directories",
             !string.IsNullOrWhiteSpace(resolvedScript) && File.Exists(resolvedScript));
-
-        var farmWin = new IMouse2.ConsoleApp.FarmAutomationWindow("http://127.0.0.1:9914", "http://127.0.0.1:9913/api");
-        check("FarmAutomationWindow constructs layout offline with port 9913 and 9914 endpoints",
-            farmWin.FarmServerUrl == "http://127.0.0.1:9914" &&
-            farmWin.KernelApiUrl == "http://127.0.0.1:9913/api" &&
-            farmWin.Content is not null);
     }
 
     public static async Task RunOwnershipTestsAsync(List<string> passed)
@@ -727,20 +778,21 @@ public static class SelfTests
 
         // 1. Unsupported kernel refused: explicit refusal, notice banner, 0 mouse/key commands sent
         var hUnsupported = new TestHandler { OwnershipSupported = false };
-        using (var apiUnsupported = new ApiClient("localhost", hUnsupported, ownership: true))
+        using (var apiUnsupported = new ApiClient("localhost", hUnsupported))
         {
             string notice = "";
             apiUnsupported.InputNotice += m => notice = m;
             await Reject("Unsupported kernel refused before sending input", () =>
                 apiUnsupported.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 100, ["y"] = 200 }));
-            Check("Unsupported kernel refusal provides explanatory message", notice.Contains("ownership-enabled kernel"));
+            Check("Unsupported kernel refusal provides explanatory message", notice.Contains("kernel with input leases") && notice.Contains("Input was not sent"));
+            Check("That message no longer points at the vendor's desktop app", !notice.Contains("validated desktop app") && !notice.Contains("paired validation"));
             Check("Unsupported kernel sends zero mouse or key requests",
                 !hUnsupported.Commands.Any(c => c.GetProperty("fun").GetString()!.StartsWith("/mouse/") || c.GetProperty("fun").GetString() == "/key/sendkey"));
         }
 
         // 2. Automatic lease acquisition before input
-        var h = new TestHandler { OwnershipSupported = true };
-        using (var api = new ApiClient("localhost", h, ownership: true))
+        var h = new TestHandler();
+        using (var api = new ApiClient("localhost", h))
         {
             await api.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 100, ["y"] = 200 });
             Check("Acquires lease before sending mouse click",
@@ -766,7 +818,7 @@ public static class SelfTests
                 gestureCommands.All(c => c.GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString() == firstToken));
 
             // 4. Independent client identities
-            using (var api2 = new ApiClient("localhost", h, ownership: true))
+            using (var api2 = new ApiClient("localhost", h))
             {
                 await api2.CommandAsync("/mouse/click", new() { ["id"] = "TEST:04", ["x"] = 50, ["y"] = 50 });
                 var api2Acquires = h.Commands.Where(c => c.GetProperty("fun").GetString() == "/input/acquire" && c.GetProperty("data").GetProperty("id").GetString() == "TEST:04").ToList();
@@ -806,8 +858,8 @@ public static class SelfTests
         }
 
         // 6. Fast background renewal during work (injectable 40ms interval)
-        var hRenew = new TestHandler { OwnershipSupported = true };
-        using (var apiRenew = new ApiClient("localhost", hRenew, ownership: true, renewalInterval: TimeSpan.FromMilliseconds(40)))
+        var hRenew = new TestHandler();
+        using (var apiRenew = new ApiClient("localhost", hRenew, renewalInterval: TimeSpan.FromMilliseconds(40)))
         {
             await apiRenew.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 });
             await Task.Delay(130);
@@ -816,8 +868,8 @@ public static class SelfTests
         }
 
         // 9. Group membership and atomic token map
-        var hGroup = new TestHandler { OwnershipSupported = true };
-        using (var apiGroup = new ApiClient("localhost", hGroup, ownership: true))
+        var hGroup = new TestHandler();
+        using (var apiGroup = new ApiClient("localhost", hGroup))
         {
             await apiGroup.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01,TEST:04", ["fn_key"] = "Home" });
             Check("Group input preflights and acquires both phones together",
@@ -830,8 +882,8 @@ public static class SelfTests
         }
 
         // 10. Expiry handling with controllable mock clock
-        var hExpire = new TestHandler { OwnershipSupported = true };
-        using (var apiExpire = new ApiClient("localhost", hExpire, ownership: true))
+        var hExpire = new TestHandler();
+        using (var apiExpire = new ApiClient("localhost", hExpire))
         {
             await apiExpire.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 100, ["y"] = 200 });
             hExpire.ExpireLease("TEST:01");
@@ -844,8 +896,8 @@ public static class SelfTests
         }
 
         // 11. Stop during drag: exactly one Stop, zero /mouse/up, zero /mouse/move, zero error logged
-        var hDrag = new TestHandler { OwnershipSupported = true };
-        using (var apiDrag = new ApiClient("localhost", hDrag, ownership: true))
+        var hDrag = new TestHandler();
+        using (var apiDrag = new ApiClient("localhost", hDrag))
         {
             await apiDrag.CommandAsync("/mouse/down", new() { ["id"] = "TEST:01", ["button"] = "1" });
             int countBeforeStop = hDrag.Commands.Count;
@@ -858,8 +910,8 @@ public static class SelfTests
         }
 
         // 12. Stop scope is deliberately broader than lease scope
-        var hScopeDev = new TestHandler { OwnershipSupported = true };
-        using (var apiScopeDev = new ApiClient("localhost", hScopeDev, ownership: true))
+        var hScopeDev = new TestHandler();
+        using (var apiScopeDev = new ApiClient("localhost", hScopeDev))
         {
             var devList = await apiScopeDev.DevicesAsync();
             var master = devList.First(d => d.Id == "TEST:01");
@@ -874,8 +926,8 @@ public static class SelfTests
         }
 
         // 13. Scope change releases old lease and acquires fresh lease
-        var hScope = new TestHandler { OwnershipSupported = true };
-        using (var apiScope = new ApiClient("localhost", hScope, ownership: true))
+        var hScope = new TestHandler();
+        using (var apiScope = new ApiClient("localhost", hScope))
         {
             await apiScope.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 });
             Check("Controlled phone one acquires lease", hScope.ActiveLeases.ContainsKey("TEST:01"));
@@ -892,8 +944,8 @@ public static class SelfTests
         }
 
         // 14. Disconnect releases all active leases
-        var hDisc = new TestHandler { OwnershipSupported = true };
-        var apiDisc = new ApiClient("localhost", hDisc, ownership: true);
+        var hDisc = new TestHandler();
+        var apiDisc = new ApiClient("localhost", hDisc);
         await apiDisc.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 });
         await apiDisc.CommandAsync("/mouse/click", new() { ["id"] = "TEST:04", ["x"] = 30, ["y"] = 40 });
         Check("Two active leases before disconnect", hDisc.ActiveLeases.Count == 2);
@@ -904,8 +956,8 @@ public static class SelfTests
 
         // 15. A tap with no answer is HttpClient's timeout. It pauses the phone like a failed
         // command, and must say so: silence left the console reading ready on a paused phone.
-        var hClick = new TestHandler { OwnershipSupported = true, TimeoutFun = "/mouse/click" };
-        using (var apiClick = new ApiClient("localhost", hClick, ownership: true))
+        var hClick = new TestHandler { TimeoutFun = "/mouse/click" };
+        using (var apiClick = new ApiClient("localhost", hClick))
         {
             string clickNotice = "";
             apiClick.InputNotice += m => clickNotice = m;
@@ -927,8 +979,8 @@ public static class SelfTests
         }
 
         // 16. A command its caller cancels in flight (Stop, a selection change, disconnect) stays silent.
-        var hCancel = new TestHandler { OwnershipSupported = true, HoldSendKeyNumber = 1 };
-        using (var apiCancel = new ApiClient("localhost", hCancel, ownership: true))
+        var hCancel = new TestHandler { HoldSendKeyNumber = 1 };
+        using (var apiCancel = new ApiClient("localhost", hCancel))
         {
             string cancelNotice = "";
             apiCancel.InputNotice += m => cancelNotice = m;
@@ -953,8 +1005,8 @@ public static class SelfTests
 
         // 17. A tap queued behind one that times out never goes out, and says so. It used to end
         // as a bare cancellation that the console could only report as another timeout.
-        var hQueue = new TestHandler { OwnershipSupported = true };
-        using (var apiQueue = new ApiClient("localhost", hQueue, ownership: true))
+        var hQueue = new TestHandler();
+        using (var apiQueue = new ApiClient("localhost", hQueue))
         {
             var hung = hQueue.HangNext("/mouse/click");
             var first = apiQueue.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 });
@@ -971,8 +1023,8 @@ public static class SelfTests
         }
 
         // Stop is not a failure: a tap queued when the operator stops stays a plain cancellation.
-        var hQueueStop = new TestHandler { OwnershipSupported = true };
-        using (var apiQueueStop = new ApiClient("localhost", hQueueStop, ownership: true))
+        var hQueueStop = new TestHandler();
+        using (var apiQueueStop = new ApiClient("localhost", hQueueStop))
         {
             var hung = hQueueStop.HangNext("/mouse/click");
             var first = apiQueueStop.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 10, ["y"] = 20 });
@@ -1005,8 +1057,8 @@ public static class SelfTests
         // 18. A drag whose move times out may leave the button down. The console sends no /mouse/up
         // (that is refused while paused) but releases its own lease at once, instead of letting the
         // kernel's expiry lift the button 20-30 s later. Nothing is replayed and nothing resumes.
-        var hHeld = new TestHandler { OwnershipSupported = true, StrictRelease = true };
-        using (var apiHeld = new ApiClient("localhost", hHeld, ownership: true, renewalInterval: TimeSpan.FromMilliseconds(40)))
+        var hHeld = new TestHandler { StrictRelease = true };
+        using (var apiHeld = new ApiClient("localhost", hHeld, renewalInterval: TimeSpan.FromMilliseconds(40)))
         {
             var cleaned = Cleanups(apiHeld);
             string heldToken = await Press(apiHeld, hHeld);
@@ -1034,8 +1086,8 @@ public static class SelfTests
 
         // 20. The kernel failed the move itself: it already lifted the button and closed the lease.
         // The console's release is refused (409), so it asks /input/status how that close ended.
-        var hKernelFail = new TestHandler { OwnershipSupported = true, StrictRelease = true };
-        using (var api = new ApiClient("localhost", hKernelFail, ownership: true))
+        var hKernelFail = new TestHandler { StrictRelease = true };
+        using (var api = new ApiClient("localhost", hKernelFail))
         {
             var cleaned = Cleanups(api);
             string heldToken = await Press(api, hKernelFail);
@@ -1051,8 +1103,8 @@ public static class SelfTests
 
         // 21. The release gets no answer. That is attempted, not confirmed: the token is kept, the
         // phone stays paused, and the operator's Resume tries the release again before resuming.
-        var hNoAnswer = new TestHandler { OwnershipSupported = true, StrictRelease = true, ReleaseTimeout = true };
-        using (var api = new ApiClient("localhost", hNoAnswer, ownership: true, renewalInterval: TimeSpan.FromMilliseconds(40)))
+        var hNoAnswer = new TestHandler { StrictRelease = true, ReleaseTimeout = true };
+        using (var api = new ApiClient("localhost", hNoAnswer, renewalInterval: TimeSpan.FromMilliseconds(40)))
         {
             var cleaned = Cleanups(api);
             string heldToken = await Press(api, hNoAnswer);
@@ -1078,8 +1130,8 @@ public static class SelfTests
         }
 
         // 22. The kernel answers that its button-up write failed on the board.
-        var hBoard = new TestHandler { OwnershipSupported = true, StrictRelease = true };
-        using (var api = new ApiClient("localhost", hBoard, ownership: true))
+        var hBoard = new TestHandler { StrictRelease = true };
+        using (var api = new ApiClient("localhost", hBoard))
         {
             var cleaned = Cleanups(api);
             await Press(api, hBoard);
@@ -1093,8 +1145,8 @@ public static class SelfTests
 
         // 23. A stale release: before it arrives, the kernel has closed this lease and another
         // controller owns the phone. The kernel refuses the old token, the newer lease is untouched.
-        var hStale = new TestHandler { OwnershipSupported = true, StrictRelease = true };
-        using (var api = new ApiClient("localhost", hStale, ownership: true))
+        var hStale = new TestHandler { StrictRelease = true };
+        using (var api = new ApiClient("localhost", hStale))
         {
             var cleaned = Cleanups(api);
             string heldToken = await Press(api, hStale);
@@ -1113,8 +1165,8 @@ public static class SelfTests
         }
 
         // 24. Resume waits for a release still on its way, then does not release the same lease again.
-        var hWait = new TestHandler { OwnershipSupported = true, StrictRelease = true };
-        using (var api = new ApiClient("localhost", hWait, ownership: true))
+        var hWait = new TestHandler { StrictRelease = true };
+        using (var api = new ApiClient("localhost", hWait))
         {
             var cleaned = Cleanups(api);
             string heldToken = await Press(api, hWait);
@@ -1138,8 +1190,8 @@ public static class SelfTests
 
         // 25. An operator Stop while the release is on its way: the result is logged but no longer
         // current, so it cannot overwrite the Stop on the panel.
-        var hStopped = new TestHandler { OwnershipSupported = true, StrictRelease = true };
-        using (var api = new ApiClient("localhost", hStopped, ownership: true))
+        var hStopped = new TestHandler { StrictRelease = true };
+        using (var api = new ApiClient("localhost", hStopped))
         {
             var cleaned = Cleanups(api);
             await Press(api, hStopped);
@@ -1157,8 +1209,8 @@ public static class SelfTests
         // 19. A renewal already on its way when a failure pauses the phone comes back refused,
         // because the kernel revoked the lease with the failure. It must not replace that
         // failure's notice: the phone is paused either way, and the operator needs the cause.
-        var hRace = new TestHandler { OwnershipSupported = true, FailSendKeyNumber = 1 };
-        using (var apiRace = new ApiClient("localhost", hRace, ownership: true, renewalInterval: TimeSpan.FromMilliseconds(20)))
+        var hRace = new TestHandler { FailSendKeyNumber = 1 };
+        using (var apiRace = new ApiClient("localhost", hRace, renewalInterval: TimeSpan.FromMilliseconds(20)))
         {
             var notices = new List<string>();
             apiRace.InputNotice += m => { lock (notices) notices.Add(m); };
@@ -1183,6 +1235,125 @@ public static class SelfTests
     /// 8 s command deadline cancelled it after about 50 characters, left the rest untyped and
     /// latched Stop. It now goes out in ApiClient.TextChunk-character chunks inside one lease.
     /// </summary>
+    /// <summary>
+    /// Kernel code 36 or 41 means the request was refused before anything was written to a board.
+    /// The operator must hear about it, but the phone is not in an unknown state: it must not be
+    /// paused, its lease must keep being renewed, and the next command must simply work.
+    /// </summary>
+    public static async Task RunRefusalTestsAsync(List<string> passed)
+    {
+        void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
+        static string Fun(JsonElement c) => c.GetProperty("fun").GetString() ?? "";
+        var h = new TestHandler();
+        await using var api = new ApiClient("localhost", h, renewalInterval: TimeSpan.FromMilliseconds(40));
+        var notices = new List<string>(); api.InputNotice += notices.Add;
+        await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" });
+        string lease = h.ActiveLeases["TEST:01"];
+
+        ApiException? refused = null;
+        try { await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "TAB+l" }); }
+        catch (ApiException ex) { refused = ex; }
+        Check("A key the kernel refuses is reported to the caller with the kernel's reason",
+            refused is { Code: 36, IsRefusal: true } && refused.Message.Contains("has not been verified: TAB+l") && h.Refused == 1);
+        Check("A refusal raises no pause notice", notices.Count == 0);
+
+        await api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" });
+        var commands = h.Commands.ToArray();
+        Check("After a refusal the next command is sent under the same lease, with no new acquisition",
+            commands.Count(c => Fun(c) == "/input/acquire") == 1 && h.ActiveLeases["TEST:01"] == lease
+            && commands.Last(c => Fun(c) == "/key/sendkey").GetProperty("data").GetProperty("tokens").GetProperty("TEST:01").GetString() == lease);
+        Check("A refusal releases nothing and stops nothing", !commands.Any(c => Fun(c) is "/input/release" or "/input/stop"));
+
+        int renewals = h.Commands.ToArray().Count(c => Fun(c) == "/input/renew");
+        for (int i = 0; i < 100 && h.Commands.ToArray().Count(c => Fun(c) == "/input/renew") < renewals + 2; i++) await Task.Delay(20);
+        Check("The lease is still renewed after a refusal", h.Commands.ToArray().Count(c => Fun(c) == "/input/renew") >= renewals + 2 && notices.Count == 0);
+
+        // A refused pointer command is the same: coordinates outside the calibrated image.
+        h.Calibrated = (500, 1080);
+        refused = null;
+        try { await api.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 500, ["y"] = 20 }); }
+        catch (ApiException ex) { refused = ex; }
+        await api.CommandAsync("/mouse/click", new() { ["id"] = "TEST:01", ["x"] = 499, ["y"] = 20 });
+        Check("A refused tap is reported and the next tap goes out", refused is { Code: 36 } && notices.Count == 0
+            && h.Commands.ToArray().Count(c => Fun(c) == "/input/acquire") == 1);
+
+        // Text: a refused chunk ends the send as Refused, not Failed, and leaves input usable.
+        h.Calibrated = (4096, 4096);
+        var text = await api.SendTextAsync("TEST:01", "ok");
+        Check("Text still types after refusals", text.End == InputEnd.Completed && notices.Count == 0);
+
+        // The action queue must not latch a refusal: it latches failures so that queued input
+        // behind a failed command is not sent blind, and a refusal leaves nothing unknown.
+        using var connection = new CancellationTokenSource(); using var control = new CancellationTokenSource();
+        var context = new InputContext(api, "TEST:01", connection.Token, control);
+        var queue = new InputActionQueue(c => c.Connection.IsCancellationRequested || c.ControlToken.IsCancellationRequested);
+        Exception? first = null;
+        try { await queue.Enqueue(context, ct => api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "SwitchIme" }, ct)); }
+        catch (Exception ex) { first = ex; }
+        Exception? second = null;
+        try { await queue.Enqueue(context, ct => api.CommandAsync("/key/sendkey", new() { ["id"] = "TEST:01", ["fn_key"] = "Home" }, ct)); }
+        catch (Exception ex) { second = ex; }
+        Check("A refused action does not block the next action in the same scope", first is ApiException { IsRefusal: true } && second is null);
+
+        // A drag whose move is refused still holds the button on the phone and still owns its
+        // lease, so the runner must lift the button itself; no cleanup will do it for it.
+        h.Calibrated = (500, 1080);
+        var drag = new DragGesture(context, 100, 100, false);
+        drag.Move((900, 100));          // outside the calibrated image: refused
+        drag.Release();
+        int before = h.Commands.ToArray().Length;
+        var result = await DragInput.RunAsync(drag, CancellationToken.None);
+        var stroke = h.Commands.ToArray().Skip(before).Select(Fun).Where(f => f.StartsWith("/mouse/")).ToArray();
+        Check("A drag whose move is refused lifts the button with /mouse/up", result.Failure is ApiException { IsRefusal: true } && result.Released
+            && result.ReleaseFailure is null && stroke.SequenceEqual(new[] { "/mouse/move", "/mouse/down", "/mouse/move", "/mouse/up" }));
+        Check("The whole refusal sequence never paused the phone", notices.Count == 0 && h.ActiveLeases["TEST:01"] == lease
+            && !h.Commands.ToArray().Any(c => Fun(c) is "/input/release" or "/input/stop"));
+
+        // The hover pump likewise: a refused position does not end hover for the scope.
+        var pump = new PointerMovePump();
+        pump.Post(new(api, "TEST:01", 900, 100, connection.Token, control.Token)); await pump.WhenIdle;
+        int moves = h.Commands.ToArray().Count(c => Fun(c) == "/mouse/move");
+        pump.Post(new(api, "TEST:01", 120, 100, connection.Token, control.Token)); await pump.WhenIdle;
+        Check("Hover continues after a refused position", h.Commands.ToArray().Count(c => Fun(c) == "/mouse/move") == moves + 1);
+    }
+
+    /// <summary>
+    /// The kernel gives a command 8 s, then cancels it, releases the board and answers. With the
+    /// console's HTTP timeout also at 8 s that answer never arrived: the operator saw "request timed
+    /// out; the outcome is unknown" for a command whose outcome the kernel had just stated.
+    /// </summary>
+    public static async Task RunCommandDeadlineTestsAsync(List<string> passed)
+    {
+        void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
+        var h = new TestHandler { DeadlineAnswer = ("/mouse/swipe", TimeSpan.FromSeconds(8.5)) };
+        await using var api = new ApiClient("localhost", h);
+        var notices = new List<string>(); api.InputNotice += notices.Add;
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        Exception? outcome = null;
+        try { await api.CommandAsync("/mouse/swipe", new() { ["id"] = "TEST:01", ["direction"] = "up" }); }
+        catch (Exception ex) { outcome = ex; }
+        Check("A command the kernel answers at its own 8 s deadline is received, not timed out",
+            outcome is ApiException { Code: 33 } && clock.Elapsed >= TimeSpan.FromSeconds(8.4));
+        Check("The pause notice then states the kernel's answer instead of an unknown outcome",
+            notices.Count == 1 && notices[0].StartsWith("Input paused: Code 33") && notices[0] != InputLeaseClient.TimedOutNotice);
+
+        // Reads keep the shorter limit: the same late answer a command now waits for still fails a read at 8 s.
+        var hRead = new TestHandler { DelayMs = 8500 };
+        await using var reading = new ApiClient("localhost", hRead);
+        var readClock = System.Diagnostics.Stopwatch.StartNew();
+        Exception? readOutcome = null;
+        try { await reading.DevicesAsync(); } catch (Exception ex) { readOutcome = ex; }
+        Check("A device read still gives up at 8 s, so a kernel that stops answering is noticed as fast as before",
+            readOutcome is OperationCanceledException && readClock.Elapsed >= TimeSpan.FromSeconds(7.5) && readClock.Elapsed < TimeSpan.FromSeconds(8.4));
+
+        // What Send text sends in one request stays far inside what the kernel will accept.
+        var hText = new TestHandler();
+        await using var typing = new ApiClient("localhost", hText);
+        var whole = await typing.SendTextAsync("TEST:01", new string(' ', 60));
+        Check("Sixty spaces, more than the kernel accepts in one request, are typed as accepted chunks",
+            whole.End == InputEnd.Completed && hText.Refused == 0 && whole.Chunks == 60 / ApiClient.TextChunk);
+    }
+
     public static async Task RunTextChunkTestsAsync(List<string> passed)
     {
         void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
@@ -1204,8 +1375,8 @@ public static class SelfTests
             text.Length == 200 && chunks.Count == n && chunks.All(c => c.Length <= ApiClient.TextChunk) && string.Concat(chunks) == text);
 
         // 1. The whole text, one lease, one chunk at a time.
-        var h = new TestHandler { OwnershipSupported = true, DelayMs = 5 };
-        await using (var api = new ApiClient("localhost", h, ownership: true))
+        var h = new TestHandler { DelayMs = 5 };
+        await using (var api = new ApiClient("localhost", h))
         {
             var r = await api.SendTextAsync("TEST:01", text);
             var keys = Keys(h);
@@ -1222,8 +1393,8 @@ public static class SelfTests
         }
 
         // 2. A failure on chunk 3 stops there: later chunks never leave, chunk 3 is not retried.
-        var hFail = new TestHandler { OwnershipSupported = true, FailSendKeyNumber = 3 };
-        await using (var api = new ApiClient("localhost", hFail, ownership: true))
+        var hFail = new TestHandler { FailSendKeyNumber = 3 };
+        await using (var api = new ApiClient("localhost", hFail))
         {
             string notice = "";
             api.InputNotice += m => notice = m;
@@ -1242,8 +1413,8 @@ public static class SelfTests
         }
 
         // 3. Stop while chunk 3 is in flight: it is cut short, nothing after it is sent.
-        var hStop = new TestHandler { OwnershipSupported = true, HoldSendKeyNumber = 3 };
-        await using (var api = new ApiClient("localhost", hStop, ownership: true))
+        var hStop = new TestHandler { HoldSendKeyNumber = 3 };
+        await using (var api = new ApiClient("localhost", hStop))
         {
             string notice = "";
             api.InputNotice += m => notice = m;
@@ -1262,8 +1433,8 @@ public static class SelfTests
 
         // 4. A timeout is told apart from a Stop by whether this console cancelled, not by the
         // exception's shape. HttpClient reports a handler's unrequested cancellation as its timeout.
-        var hTime = new TestHandler { OwnershipSupported = true, TimeoutSendKeyNumber = 2 };
-        await using (var api = new ApiClient("localhost", hTime, ownership: true))
+        var hTime = new TestHandler { TimeoutSendKeyNumber = 2 };
+        await using (var api = new ApiClient("localhost", hTime))
         {
             string notice = "";
             api.InputNotice += m => notice = m;
@@ -1278,8 +1449,8 @@ public static class SelfTests
         }
 
         // 5. Cancelled before anything left: nothing is reported as possibly partly typed.
-        var hEarly = new TestHandler { OwnershipSupported = true };
-        await using (var api = new ApiClient("localhost", hEarly, ownership: true))
+        var hEarly = new TestHandler();
+        await using (var api = new ApiClient("localhost", hEarly))
         {
             using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
             var r = await api.SendTextAsync("TEST:01", text, cancelled.Token);
@@ -1289,8 +1460,8 @@ public static class SelfTests
         }
 
         // 6. Mirrored typing: one lease covers every phone, and every chunk carries both tokens.
-        var hGroup = new TestHandler { OwnershipSupported = true };
-        await using (var api = new ApiClient("localhost", hGroup, ownership: true))
+        var hGroup = new TestHandler();
+        await using (var api = new ApiClient("localhost", hGroup))
         {
             var r = await api.SendTextAsync("TEST:01,TEST:04", text);
             var keys = Keys(hGroup);
@@ -1301,22 +1472,9 @@ public static class SelfTests
                 keys.All(k => Token(k, "TEST:01") == Token(keys[0], "TEST:01") && Token(k, "TEST:04") == Token(keys[0], "TEST:04")));
         }
 
-        // 7. Without the ownership protocol the chunks are still sequential and stop at a failure.
-        var hRaw = new TestHandler { DelayMs = 5 };
-        await using (var api = new ApiClient("localhost", hRaw, ownership: false))
-        {
-            var r = await api.SendTextAsync("TEST:01", text);
-            Check($"Unowned text is {n} sequential chunks rebuilding the text",
-                r.End == InputEnd.Completed && Keys(hRaw).Length == n && string.Concat(Keys(hRaw).Select(Key)) == text && hRaw.PeakPostsInFlight == 1);
-            hRaw.FailSendKeyNumber = hRaw.SendKeyCount + 3;
-            var failed = await api.SendTextAsync("TEST:01", text);
-            Check("Unowned text stops at a failed chunk 3",
-                failed.End == InputEnd.Failed && failed.Sent == 3 && failed.ConfirmedCharacters == 2 * C && Keys(hRaw).Length == n + 3);
-        }
-
-        // 8. Single commands keep their exceptions: taps and keys still see HttpClient's own type.
-        var hLegacy = new TestHandler { OwnershipSupported = true, TimeoutSendKeyNumber = 1 };
-        await using (var api = new ApiClient("localhost", hLegacy, ownership: true))
+        // 7. Single commands keep their exceptions: taps and keys still see HttpClient's own type.
+        var hLegacy = new TestHandler { TimeoutSendKeyNumber = 1 };
+        await using (var api = new ApiClient("localhost", hLegacy))
         {
             string notice = "";
             api.InputNotice += m => notice = m;

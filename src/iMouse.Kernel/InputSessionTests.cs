@@ -5,11 +5,12 @@ namespace IMouse2.Kernel;
 
 internal static class InputSessionTests
 {
-    private sealed class Transport : IHidTransport
+    internal sealed class Transport : IHidTransport
     {
         public ConcurrentQueue<string> Reports = new();
         public Func<string, bool>? Block;
         public Func<string, bool>? Fail;
+        public Func<string, Exception?>? Throw;
         public TaskCompletionSource Entered = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public TaskCompletionSource Unblock = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public bool Disposed;
@@ -19,6 +20,7 @@ internal static class InputSessionTests
             string hex = Convert.ToHexString(data);
             Reports.Enqueue(hex);
             if (Fail?.Invoke(hex) == true) throw new IOException("Test release failure");
+            if (Throw?.Invoke(hex) is { } failure) throw failure;
             if (Block?.Invoke(hex) == true) { Entered.TrySetResult(); await Unblock.Task.WaitAsync(ct); }
         }
         public void Dispose() => Disposed = true;
@@ -37,6 +39,171 @@ internal static class InputSessionTests
         throw new Exception("Expected ownership rejection");
     }
     /// <summary>
+    /// Start-up release: a kernel that is killed cannot lift a button or key it was holding. The next
+    /// kernel sends every enabled board the two release reports once, before it accepts input.
+    /// </summary>
+    public static async Task StartupReleaseAsync(Action<bool, string> check)
+    {
+        var store = new DeviceStore([new Phone { deviceid = "one", pid = "C24C" }, new Phone { deviceid = "two", pid = "C241" },
+            new Phone { deviceid = "three", pid = "C242" }, new Phone { deviceid = "four", pid = "C243" }]);
+        PointerCalibration Calibration(string pid) => new(pid, 500, 1080, 14, 14, 5, 5);
+        string[] release = ["A100000000000000", "A200000000000000"];
+        check(release.SequenceEqual(new[] { Convert.ToHexString(HidProtocol.Mouse()), Convert.ToHexString(HidProtocol.Key()) }),
+            "The release reports are the protocol's button-up and key-up: A100000000000000, A200000000000000");
+        {
+            // C242 is allowed but has no calibration, C243 is calibrated but not allowed: neither is enabled.
+            var boards = new ConcurrentDictionary<string, Transport>(); var opened = new ConcurrentQueue<string>();
+            using var input = new InputRouter(store, ["C24C", "C241", "C242"], [Calibration("C24C"), Calibration("C241"), Calibration("C243")],
+                pid => { opened.Enqueue(pid); return boards[pid] = new Transport(); });
+            var results = await input.ReleaseAtStartupAsync();
+            check(opened.OrderBy(p => p, StringComparer.Ordinal).SequenceEqual(new[] { "C241", "C24C" }), "Start-up release opens each enabled board once and no board that is not enabled");
+            check(boards.Count == 2 && boards.Values.All(t => t.Reports.SequenceEqual(release)), "Each enabled board is sent exactly button-up then key-up, and nothing else");
+            check(boards.Values.All(t => t.Disposed), "Each board is closed again after its start-up release");
+            check(results.Select(r => r.Pid).SequenceEqual(new[] { "C241", "C24C" }) && results.All(r => r.Sent), "Every enabled board is reported as released");
+
+            // What a normal release sends, for comparison, and input afterwards is as it was.
+            await using var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            await sessions.DispatchAsync("/mouse/down", Data(new { id = "one", token }));
+            var live = boards["C24C"];
+            await sessions.StopAsync(Data(new { id = "one", token }), release: true);
+            check(live.Reports.TakeLast(2).SequenceEqual(release) && opened.Count(p => p == "C24C") == 2 && opened.Count == 3,
+                "They are the same two reports every release sends, and the first command afterwards opens its board as before");
+        }
+        {
+            // A board that is absent, or fails, is reported and holds up nothing.
+            var good = new Transport(); var bad = new Transport { Fail = hex => hex == "A100000000000000" };
+            using var input = new InputRouter(store, ["C24C", "C241", "C243"], [Calibration("C24C"), Calibration("C241"), Calibration("C243")],
+                pid => pid switch { "C24C" => good, "C241" => bad, _ => throw new KeyNotFoundException("Board " + pid) });
+            var results = (await input.ReleaseAtStartupAsync()).ToDictionary(r => r.Pid);
+            check(results.Count == 3 && good.Reports.SequenceEqual(release) && results["C24C"].Sent, "A working board is released when others are absent or failing");
+            check(bad.Reports.SequenceEqual(release) && bad.Disposed && !results["C241"].Sent && results["C241"].Message.Contains("not confirmed"),
+                "A board whose button-up fails is still sent key-up, is closed, and is reported as not confirmed");
+            check(!results["C243"].Sent && results["C243"].Message.Contains("not present"), "A board that is not plugged in is reported as not present");
+        }
+        {
+            using var none = new InputRouter(store, [], [Calibration("C24C")], _ => throw new Exception("Unexpected HID access"));
+            check((await none.ReleaseAtStartupAsync()).Length == 0, "With no enabled board the start-up release opens nothing");
+        }
+    }
+    /// <summary>
+    /// /input/status says why each phone stopped in a fixed word a script can branch on, beside the
+    /// existing stopped flag and message, which keep their values.
+    /// </summary>
+    public static async Task StopReasonAsync(Action<bool, string> check)
+    {
+        var store = new DeviceStore([new Phone { deviceid = "one", pid = "C24C" }, new Phone { deviceid = "two", pid = "C241" }]);
+        PointerCalibration[] calibrations = [new("C24C", 500, 1080, 14, 14, 5, 5), new("C241", 500, 1080, 14, 14, 5, 5)];
+        static JsonElement Row(InputSessions s, string id) => Data(s.Status()).GetProperty("phones").EnumerateArray().Single(p => p.GetProperty("id").GetString() == id);
+        static string Reason(InputSessions s, string id) => Row(s, id).GetProperty("stop_reason").GetString()!;
+        static bool Is(InputSessions s, string id, string reason, string message, bool releaseFailed = false)
+        {
+            var row = Row(s, id);
+            return row.GetProperty("stop_reason").GetString() == reason && row.GetProperty("stopped").GetBoolean() == (reason.Length > 0)
+                && row.GetProperty("message").GetString() == message && row.GetProperty("release_failed").GetBoolean() == releaseFailed;
+        }
+        const string mouseUp = "A100000000000000";
+
+        {
+            var one = new Transport(); var two = new Transport(); long now = 0;
+            using var input = new InputRouter(store, ["C24C", "C241"], calibrations, pid => pid == "C24C" ? one : two);
+            await using var sessions = new InputSessions(store, input, () => Interlocked.Read(ref now));
+            check(Row(sessions, "one").EnumerateObject().Select(p => p.Name).SequenceEqual(new[] { "id", "owned", "active", "stopped", "releasing",
+                    "release_failed", "message", "generation", "lease_remaining_ms", "stop_reason" }),
+                "Status keeps every existing field in place and adds stop_reason after them");
+            check(Is(sessions, "one", "", ""), "A phone that has not stopped has an empty stop_reason");
+
+            string token = Lease(sessions, "one");
+            check(Is(sessions, "one", "", ""), "A leased, running phone has an empty stop_reason");
+            await sessions.StopAsync(Data(new { id = "one" }));
+            check(Is(sessions, "one", "operator_stop", "Stopped by operator."), "Stop is reported as operator_stop, with its message unchanged");
+            check(Code(sessions.Resume(Data(new { id = "one" }))) == 0 && Is(sessions, "one", "", ""), "Resume clears stop_reason with the stopped flag");
+
+            token = Lease(sessions, "one");
+            check(Code(await sessions.StopAsync(Data(new { id = "one", token }), release: true)) == 0 && Is(sessions, "one", "", "Controller released."),
+                "A clean release is not a stop and has no stop_reason");
+
+            // Stop while a command is running: the command then reports "Input cancelled", which
+            // replaces the message as it always did. The reason must still say who stopped it.
+            token = Lease(sessions, "one");
+            one.Block = hex => hex == "A200040000000000";
+            var held = sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, key = "a" }));
+            await one.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            await sessions.StopAsync(Data(new { id = "one" })).WaitAsync(TimeSpan.FromSeconds(2));
+            check(Code(await held) != 0 && Is(sessions, "one", "operator_stop", "Input cancelled"),
+                "Stop during a running command stays operator_stop after the command reports its cancellation");
+            one.Block = null; sessions.Resume(Data(new { id = "one" }));
+
+            // Lease expiry, noticed by the watchdog with no further request.
+            token = Lease(sessions, "two");
+            Interlocked.Exchange(ref now, 31_000);
+            for (int n = 0; n < 200 && Reason(sessions, "two").Length == 0; n++) await Task.Delay(10);
+            check(Is(sessions, "two", "lease_expired", "Controller lease expired."), "An expired lease is reported as lease_expired");
+            // An operator's Stop is a deliberate hands-off and always becomes the reason.
+            await sessions.StopAsync(Data(new { id = "two" }));
+            check(Is(sessions, "two", "operator_stop", "Stopped by operator."), "Stop pressed on a phone that had already stopped replaces the earlier reason");
+
+            // Any other later cause leaves the first one standing.
+            token = Lease(sessions, "one");
+            Interlocked.Exchange(ref now, 62_000);
+            for (int n = 0; n < 200 && Reason(sessions, "one").Length == 0; n++) await Task.Delay(10);
+            await sessions.DisposeAsync();
+            check(Is(sessions, "one", "lease_expired", "Kernel shutting down."), "Shutdown after an expiry keeps lease_expired as the reason");
+        }
+        {
+            var one = new Transport();
+            using var input = new InputRouter(store, ["C24C"], calibrations, _ => one);
+            var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            await sessions.DispatchAsync("/mouse/down", Data(new { id = "one", token }));
+            await sessions.DisposeAsync();
+            check(Is(sessions, "one", "kernel_shutdown", "Kernel shutting down."), "A phone stopped by kernel shutdown is reported as kernel_shutdown");
+        }
+        {
+            // The release reports themselves fail.
+            var one = new Transport(); var two = new Transport();
+            using var input = new InputRouter(store, ["C24C", "C241"], calibrations, pid => pid == "C24C" ? one : two);
+            await using var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            await sessions.DispatchAsync("/mouse/down", Data(new { id = "one", token }));
+            one.Fail = hex => hex == mouseUp;
+            check(Code(await sessions.StopAsync(Data(new { id = "one", token }), release: true)) == 33
+                && Is(sessions, "one", "release_failed", "Input release could not be confirmed.", releaseFailed: true),
+                "A release whose reports fail stops the phone with release_failed");
+            token = Lease(sessions, "two");
+            await sessions.DispatchAsync("/mouse/down", Data(new { id = "two", token }));
+            two.Fail = hex => hex == mouseUp;
+            check(Code(await sessions.StopAsync(Data(new { id = "two" }))) == 33
+                && Is(sessions, "two", "operator_stop", "Input release could not be confirmed.", releaseFailed: true),
+                "Stop whose release fails stays operator_stop; release_failed is still true beside it");
+        }
+        // The board is not there, cannot be opened, or does not take a report.
+        foreach (var (label, opening, writing) in new (string, Exception?, Exception?)[] {
+            ("is not plugged in (not enumerated)", new KeyNotFoundException("Board C24C"), null),
+            ("cannot be opened", new System.ComponentModel.Win32Exception(5), null),
+            ("fails a write", null, new IOException("The device is not connected.")),
+            ("does not take a report within the transport's own two seconds", null, new OperationCanceledException()) })
+        {
+            var one = new Transport { Throw = _ => writing };
+            using var input = new InputRouter(store, ["C24C"], calibrations, _ => opening is null ? one : throw opening);
+            await using var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            var result = Data(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Enter" })));
+            // When the writes fail the release reports fail too: release_failed is set beside the reason.
+            check(result.GetProperty("code").GetInt32() == 33 && Reason(sessions, "one") == "board_unavailable" && Row(sessions, "one").GetProperty("stopped").GetBoolean()
+                && Row(sessions, "one").GetProperty("release_failed").GetBoolean() == (writing is not null),
+                "A board that " + label + " is reported as board_unavailable");
+        }
+        {
+            var one = new Transport { Throw = _ => new InvalidOperationException("Unexpected") };
+            using var input = new InputRouter(store, ["C24C"], calibrations, _ => one);
+            await using var sessions = new InputSessions(store, input);
+            string token = Lease(sessions, "one");
+            await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Enter" }));
+            check(Reason(sessions, "one") == "command_failed", "Any other command failure is reported as command_failed");
+        }
+    }
+    /// <summary>
     /// --home-sequence: each option's exact reports, and that every option still needs the phone's
     /// lease, runs under its write gate, and is cancelled by Stop with keys and buttons released.
     /// </summary>
@@ -47,18 +214,16 @@ internal static class InputSessionTests
         string file = Path.Combine(directory, "devices.json");
         File.WriteAllText(file, JsonSerializer.Serialize(new[] { new Phone { deviceid = "one", pid = "C24C", uid = "A" } }));
         var store = new DeviceStore(file);
-        const string release = "A200000000000000", tab = "A2002B0000000000", gui = "A208000000000000", guiH = "A2080B0000000000";
+        const string release = "A200000000000000", tab = "A2002B0000000000", guiH = "A2080B0000000000";
         var expected = new Dictionary<HomeSequence, string[]>
         {
             [HomeSequence.Vendor] = [release, tab, release, release, guiH, release],
             [HomeSequence.CommandH] = [release, guiH, release],
-            [HomeSequence.CommandWake] = [release, gui, release, release, guiH, release],
-            [HomeSequence.FnH] = ["A200000000000002", "A2000B0000000002", release],
         };
         try
         {
             check(new InputRouter(store, [], []).Home == HomeSequence.Vendor, "Home sequence defaults to the vendor sequence");
-            foreach (string bad in new[] { "", "Vendor", "command_h", "tab" })
+            foreach (string bad in new[] { "", "Vendor", "command_h", "tab", "command-wake", "fn-h" })
             {
                 bool threw = false;
                 try { InputRouter.ParseHomeSequence(bad); } catch (ArgumentException) { threw = true; }
@@ -96,7 +261,7 @@ internal static class InputSessionTests
         finally { try { Directory.Delete(directory, true); } catch { } }
     }
 
-    public static async Task NavigationAndProbeAsync(Action<bool, string> check)
+    public static async Task NavigationAsync(Action<bool, string> check)
     {
         string directory = Path.Combine(Path.GetTempPath(), "imouse-control-protocol-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
@@ -110,35 +275,32 @@ internal static class InputSessionTests
         {
             check(Convert.ToHexString(HidProtocol.FnKey(0x52)) == "A200520000000002"
                 && Convert.ToHexString(HidProtocol.FnKey(6)) == "A200060000000002", "Fn uses the separate vendor field, never Left Shift");
-            foreach (var sequence in Enum.GetValues<NavigationSequence>())
             foreach (string key in new[] { "AppSwitch", "ControlBar" })
             {
                 var t = new Transport();
-                using var input = new InputRouter(store, ["C24C"], [calibration], _ => t) { Navigation = sequence };
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => t);
                 await using var sessions = new InputSessions(store, input);
                 await Rejected(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", fn_key = key })));
-                check(t.Reports.IsEmpty, $"{sequence} {key} needs ownership before any report");
+                check(t.Reports.IsEmpty, $"Vendor {key} needs ownership before any report");
                 string token = Lease(sessions, "one");
-                string[] chord = [fn, key == "AppSwitch" ? "A200520000000002" : "A200060000000002", release];
-                string[] expected = sequence == NavigationSequence.Vendor ? new[] { release, tab, release }.Concat(chord).ToArray() : chord;
+                string[] expected = [release, tab, release, fn, key == "AppSwitch" ? "A200520000000002" : "A200060000000002", release];
                 check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = key }))) == 0
-                    && t.Reports.SequenceEqual(expected), $"{sequence} {key} exact reports preserve its selected prelude");
+                    && t.Reports.SequenceEqual(expected), $"Vendor {key} exact reports preserve its selected prelude");
             }
-            foreach (string blockedReport in new[] { fn, "A200520000000002", "A2000B0000000002" })
+            // The Fn chord has its own release path: Stop during the held prefix or chord must still lift it.
+            foreach (string blockedReport in new[] { fn, "A200520000000002" })
             {
                 var held = new Transport { Block = hex => hex == blockedReport };
-                using var input = new InputRouter(store, ["C24C"], [calibration], _ => held)
-                    { Home = HomeSequence.FnH, Navigation = NavigationSequence.DirectFn };
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => held);
                 await using var sessions = new InputSessions(store, input);
                 string token = Lease(sessions, "one");
-                var command = sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token,
-                    fn_key = blockedReport.Contains("0B") ? "Home" : "AppSwitch" }));
+                var command = sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "AppSwitch" }));
                 await held.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
                 check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Enter" }))) == 409,
                     "Fn navigation cannot interleave another command: " + blockedReport);
                 check(Code(await sessions.StopAsync(Data(new { id = "one" })).WaitAsync(TimeSpan.FromSeconds(2))) == 0
-                    && Code(await command) != 0 && held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release })
-                    && !held.Reports.Contains(tab), "Stop releases a held Fn prefix/chord without inserting Tab: " + blockedReport);
+                    && Code(await command) != 0 && held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release }),
+                    "Stop releases a held Fn prefix/chord: " + blockedReport);
             }
             // Arrow keys (5 Nov): plain usages through Stroke, the Tab/Escape path, with no Fn field.
             foreach (var (arrow, report) in new[] { ("Right", "A2004F0000000000"), ("Left", "A200500000000000"),
@@ -167,6 +329,27 @@ internal static class InputSessionTests
                     && Code(await command) != 0 && held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release }),
                     "Stop during a held " + arrow + " still sends the key release");
             }
+            // Text is typed at a fixed 140 ms a character (170 ms a space). A request that cannot
+            // finish inside the 8 s command deadline used to be accepted, typed until the deadline
+            // cut it part-way and stopped the phone. It is refused whole instead.
+            {
+                var t = new Transport();
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => t);
+                await using var sessions = new InputSessions(store, input);
+                string token = Lease(sessions, "one");
+                var clock = System.Diagnostics.Stopwatch.StartNew();
+                bool refused = false; string reason = "";
+                try { await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, key = new string('a', 58) })); }
+                catch (ArgumentException ex) { refused = true; reason = ex.Message; }
+                check(refused && t.Reports.IsEmpty && clock.Elapsed < TimeSpan.FromSeconds(1) && reason.Contains("58") && reason.Contains("57"),
+                    "Text that cannot be typed inside the command deadline is refused at once and types nothing");
+                check(Code(sessions.Renew(Data(new { id = "one", token }))) == 0 && !JsonSerializer.Serialize(sessions.Status()).Contains("\"stopped\":true"),
+                    "Refused long text leaves the lease valid and the phone not stopped");
+                bool Accepts(string text) { try { input.ValidateCommand("/key/sendkey", Data(new { id = "one", key = text }), "C24C"); return true; } catch (ArgumentException) { return false; } }
+                check(Accepts(new string('a', 57)) && !Accepts(new string('a', 58)), "The text limit is the last length whose scheduled typing time fits the deadline");
+                check(Accepts(new string(' ', 47)) && !Accepts(new string(' ', 48)), "Spaces are held longer, so fewer of them fit");
+                check(!Accepts(new string('a', 1000)), "A thousand characters are refused, not accepted and cut");
+            }
             foreach (string wrong in new[] { "UP", "down", "ArrowDown", "PageDown" })
             {
                 var t = new Transport();
@@ -177,59 +360,11 @@ internal static class InputSessionTests
                 try { await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = wrong })); }
                 catch (ArgumentException) { refused = true; }
                 check(refused && t.Reports.IsEmpty, "Unverified key name is refused and sends nothing: " + wrong);
-            }
-            check(Convert.ToHexString(HidProtocol.AbsoluteProbe(0, 0, 500, 1080)) == "A000000000000000"
-                && Convert.ToHexString(HidProtocol.AbsoluteProbe(250, 540, 500, 1080)) == "A000FF3FFF3F0000"
-                && Convert.ToHexString(HidProtocol.AbsoluteProbe(499, 1079, 500, 1080)) == "A000BD7FE07F0000",
-                "Static A0 probe vectors use little-endian 15-bit axes and zero buttons");
-            foreach (var point in new[] { (-1, 0, 500, 1080), (500, 0, 500, 1080), (0, 1080, 500, 1080), (0, 0, 1, 1080), (0, 0, 65536, 1080) })
-            {
-                bool refused = false;
-                try { HidProtocol.AbsoluteProbe(point.Item1, point.Item2, point.Item3, point.Item4); } catch (ArgumentException) { refused = true; }
-                check(refused, "A0 probe refuses invalid points/dimensions: " + point);
-            }
-            var probe = new Transport(); int opens = 0;
-            using (var input = new InputRouter(store, ["C24C"], [calibration], _ => { opens++; return probe; },
-                replyBoards: ["C24C"], absoluteProbeBoard: "C24C"))
-            await using (var sessions = new InputSessions(store, input))
-            {
-                await Rejected(() => sessions.DispatchAsync("/mouse/move", Data(new { id = "one", x = 250, y = 540 })));
-                check(opens == 0, "Absolute probe still requires the phone lease");
-                string token = Lease(sessions, "one");
-                foreach (string operation in new[] { "/mouse/click", "/mouse/down", "/mouse/up", "/mouse/swipe", "/key/sendkey" })
-                {
-                    bool refused = false;
-                    try { await sessions.DispatchAsync(operation, Data(new { id = "one", token, x = 250, y = 540, fn_key = "Home" })); }
-                    catch (ArgumentException ex) { refused = ex.Message.Contains("moves and reset only"); }
-                    check(refused && opens == 0, "Absolute probe refuses activation before transport: " + operation);
-                }
-                check(Code(await input.DispatchAsync("/mouse/move", Data(new { id = "one,two", x = 250, y = 540 }))) == 41 && opens == 0,
-                    "Absolute probe cannot address an additional board, even in a batch");
-                await sessions.DispatchAsync("/mouse/move", Data(new { id = "one", token, x = 250, y = 540 }));
-                await sessions.DispatchAsync("/mouse/reset", Data(new { id = "one", token }));
-                check(probe.Reports.SequenceEqual(new[] { "A000FF3FFF3F0000", "A000000000000000" }),
-                    "Probe sends one zero-button report per requested move or reset, with no relative fallback");
-                await sessions.StopAsync(Data(new { id = "one" }));
-                check(probe.Reports.Count == 3 && probe.Reports.Last() == release && probe.Disposed,
-                    "Probe Stop closes transport and releases keys without replaying an A0 move");
-            }
-            foreach (bool fail in new[] { false, true })
-            {
-                var held = new Transport { Block = hex => !fail && hex.StartsWith("A0"), Fail = hex => fail && hex.StartsWith("A0") };
-                using var input = new InputRouter(store, ["C24C"], [calibration], _ => held,
-                    replyBoards: ["C24C"], absoluteProbeBoard: "C24C");
-                await using var sessions = new InputSessions(store, input);
-                string token = Lease(sessions, "one");
-                var command = sessions.DispatchAsync("/mouse/move", Data(new { id = "one", token, x = 250, y = 540 }));
-                if (!fail)
-                {
-                    await held.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
-                    check(Code(await sessions.DispatchAsync("/mouse/reset", Data(new { id = "one", token }))) == 409,
-                        "Absolute probe write is serialized with reset");
-                    await sessions.StopAsync(Data(new { id = "one" })).WaitAsync(TimeSpan.FromSeconds(2));
-                }
-                check(Code(await command) != 0 && held.Disposed && held.Reports.SequenceEqual(new[] { "A000FF3FFF3F0000", release }),
-                    "Failed or cancelled A0 probe is not retried or switched to A1: " + fail);
+                // A refusal is not a failure: the kernel stops nothing and the lease goes on working.
+                check(Code(sessions.Renew(Data(new { id = "one", token }))) == 0
+                    && Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Enter" }))) == 0
+                    && !JsonSerializer.Serialize(sessions.Status()).Contains("\"stopped\":true"),
+                    "A refused key leaves the lease valid and the phone not stopped: " + wrong);
             }
         }
         finally { try { Directory.Delete(directory, true); } catch { } }
@@ -281,8 +416,11 @@ internal static class InputSessionTests
             check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "two", token = second, fn_key = "Enter" }))) == 0,
                 "Stopping one phone preserves other phone ownership");
             check(Code(sessions.Resume(Data(new { id = "one" }))) == 0, "Explicit resume allows fresh ownership");
-            await Rejected(() => sessions.DispatchAsync("/mouse/click", Data(new { id = "one", token = first, x = 14, y = 14 })));
-            check(true, "Old tokens cannot replay input after resume");
+            int replayOpened = opened, replayReports = a.Reports.Count;
+            bool replayRefused = false;
+            try { await sessions.DispatchAsync("/mouse/click", Data(new { id = "one", token = first, x = 14, y = 14 })); }
+            catch (InvalidOperationException) { replayRefused = true; }
+            check(replayRefused && opened == replayOpened && a.Reports.Count == replayReports, "Old tokens cannot replay input after resume");
 
             a.Block = null; a.Reports.Clear();
             first = Lease(sessions, "one");
@@ -311,12 +449,6 @@ internal static class InputSessionTests
             await Rejected(() => Task.FromResult(sessions.Renew(Data(new { id = "one", token = first }))));
             await sessions.StopAsync(Data(new { id = "one,two" }));
             check(Code(sessions.Acquire(Data(new { id = "one" }))) == 409, "Expired lease cannot be revived and requires explicit resume");
-            sessions.Resume(Data(new { id = "one,two" }));
-            first = Lease(sessions, "one");
-            // Simulate a saved binding changing outside the API. No old lease may survive.
-            store.Bind("one", "", "C24C", "CHANGED");
-            await Rejected(() => sessions.DispatchAsync("/mouse/reset", Data(new { id = "one", token = first })));
-            check(true, "Changed board UID invalidates existing lease");
         }
         finally { await sessions.DisposeAsync(); File.Delete(file); Directory.Delete(directory); }
 
@@ -378,6 +510,10 @@ internal static class InputSessionTests
             check(Code(await cut.WaitAsync(TimeSpan.FromSeconds(12))) != 0 && two.Reports.TakeLast(2).SequenceEqual(lifted) && two.Disposed,
                 "A drag move cut by the 8 s command deadline lifts the held button without /mouse/up");
             check(Code(drag.Acquire(Data(new { id = "two" }))) == 409, "A drag move cut by the deadline latches Stop until Resume");
+            static string Why(InputSessions s, string id) => Data(s.Status()).GetProperty("phones").EnumerateArray()
+                .Single(p => p.GetProperty("id").GetString() == id).GetProperty("stop_reason").GetString()!;
+            check(Why(drag, "two") == "command_timeout" && Why(drag, "one") == "board_unavailable",
+                "A command cut by the 8 s deadline is reported as command_timeout, a failed write as board_unavailable");
 
             check(Code(drag.Resume(Data(new { id = "one,two" }))) == 0, "Both phones resume after cleanup");
             Reset(one); Reset(two);
@@ -433,7 +569,7 @@ internal static class InputSessionTests
             using var apiInput = new InputRouter(apiStore, ["C24C"], [new("C24C",500,1080,14,14,5,5)], _ => transport);
             using var frames = new FrameStore("unused-session-test-" + Guid.NewGuid().ToString("N"), "one");
             // Exercise actual API dispatch without opening a listener, pipe, or board.
-            using var server = new ApiServer("http://127.0.0.1:19913/api/", apiStore, "iMouse2-test", apiInput, frames);
+            using var server = new ApiServer("http://127.0.0.1:19913/api/", apiStore, apiInput, [("iMouse2-test", frames)]);
             Task<object> Request(string fun, object data) => server.Dispatch(Data(new { fun, data }));
             await Rejected(() => Request("/mouse/click", new { id = "one", x = 14, y = 14 }));
             check(transport.Reports.IsEmpty, "API cannot bypass required ownership with a legacy command");
@@ -442,7 +578,12 @@ internal static class InputSessionTests
             check(Code(await Request("/input/renew", new { id = "one", token })) == 0 &&
                 Code(await Request("/mouse/down", new { id = "one", token })) == 0, "API acquisition and renewal reach owned HID dispatch");
             check(Code(await Request("/device/set", new { id = "one", pid = "C241", uid = "wrong" })) == 41 &&
-                apiStore.All()[0].pid == "C24C", "API forbids live rebinding under active input");
+                apiStore.All()[0].pid == "C24C", "API has no live rebinding: /device/set is refused and the assignment stands");
+            int beforeVendor = transport.Reports.Count;
+            check(Code(await Request("/device/usb/restart", new { id = "one", token })) == 41 &&
+                Code(await Request("/device/airplay/disconnect", new { id = "one" })) == 41 &&
+                Code(await Request("/device/airplay/connect", new { pid = "C24C" })) == 41 && transport.Reports.Count == beforeVendor,
+                "Vendor board-restart and remote mirroring commands are not implemented and write nothing");
             check(Code(await Request("/input/stop", new { id = "one" })) == 0 &&
                 Code(await Request("/input/resume", new { id = "one" })) == 0, "API Stop and Resume use the ownership boundary");
             token = Data(await Request("/input/acquire", new { id = "one" })).GetProperty("leases")[0].GetProperty("token").GetString()!;

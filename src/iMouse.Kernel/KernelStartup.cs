@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -11,21 +10,16 @@ internal sealed class KernelOptions
 {
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private readonly HashSet<string> _flags = new(StringComparer.Ordinal);
-    private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid", "--precise-delay",
-        "--home-sequence", "--navigation-sequence", "--cast-name", "--phone-id", "--frame-pipe", "--receiver", "--receivers", "--receiver-runtime", "--hid-replies-pid", "--absolute-probe-pid", "--hold-receivers", "--rack", "--stop-file", "--console-log"];
+    private static readonly HashSet<string> Valued = ["--data-dir", "--input-pid",
+        "--home-sequence", "--receiver", "--receivers", "--receiver-runtime", "--hold-receivers", "--stop-file", "--console-log"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
-    internal string? HardwareMode { get; private set; }
-    internal string[] HardwareArguments { get; private set; } = [];
     internal bool ValidateOnly => _flags.Contains("--validate-startup");
+    /// <summary>True when the listener address can only be reached from this PC: localhost or a
+    /// loopback IP. A wildcard, 0.0.0.0, a LAN address or a machine name is not.</summary>
+    internal bool LoopbackOnly => IsLoopback(Prefix);
     internal HomeSequence Home { get; private set; }
-    internal NavigationSequence Navigation { get; private set; }
-    internal string? AbsoluteProbeBoard { get; private set; }
-    internal int PreciseDelayMs { get; private set; } = 7;
     internal string[] Allowed { get; private set; } = [];
-    internal string[] ReplyBoards { get; private set; } = [];
     internal string[] HeldReceivers { get; private set; } = [];
-    // A label for one rack's kernel ("A", "B"); empty for the single kernel. Reported in status only.
-    internal string Rack { get; private set; } = "";
     // Detached launch (Start-Multiphone through WMI): a stop request file and a console log file.
     internal string? StopFile { get; private set; }
     internal string? ConsoleLog { get; private set; }
@@ -52,37 +46,14 @@ internal sealed class KernelOptions
                 if (string.IsNullOrWhiteSpace(value) || value.StartsWith("--")) throw new ArgumentException(name + " needs a value.");
                 result._values.Add(name, value); continue;
             }
-            if (item is "--legacy" or "--validate-startup")
+            if (item is "--validate-startup" or "--allow-network")
             {
                 if (!result._flags.Add(item)) throw new ArgumentException("Repeated option: " + item);
                 continue;
             }
-            if (item is "--hid-send" or "--hid-replay" or "--hid-caps")
-            {
-                if (result.HardwareMode is not null) throw new ArgumentException("Choose only one hardware command.");
-                result.HardwareMode = item;
-                int count = item == "--hid-caps" ? 0 : 2;
-                if (args.Length - i - 1 < count) throw new ArgumentException(item + " needs a board PID and payload.");
-                result.HardwareArguments = args.Skip(i + 1).Take(count).ToArray(); i += count;
-                if (count > 0 && (!BoardId(result.HardwareArguments[0]) || string.IsNullOrWhiteSpace(result.HardwareArguments[1]) || result.HardwareArguments[1].StartsWith("--")))
-                    throw new ArgumentException("Invalid hardware command arguments.");
-                continue;
-            }
-            throw new ArgumentException(item == "--precise-movement"
-                ? "--precise-movement is deprecated. Use --precise-delay <ms> or default."
-                : "Unknown kernel option: " + item);
+            throw new ArgumentException("Unknown kernel option: " + item);
         }
-        if (result.ValidateOnly && result.HardwareMode is not null) throw new ArgumentException("Startup validation cannot include a hardware command.");
         result.Home = InputRouter.ParseHomeSequence(result.Value("--home-sequence", "vendor"));
-        result.Navigation = InputRouter.ParseNavigationSequence(result.Value("--navigation-sequence", "vendor"));
-        if (result._values.TryGetValue("--precise-delay", out string? timing))
-        {
-            if (result._flags.Contains("--legacy")) throw new ArgumentException("Choose --precise-delay or --legacy, not both.");
-            if (!int.TryParse(timing, NumberStyles.None, CultureInfo.InvariantCulture, out int delay) || delay is < 1 or > 15)
-                throw new ArgumentException("--precise-delay must be an integer from 1 through 15 milliseconds.");
-            result.PreciseDelayMs = delay;
-        }
-        else if (result._flags.Contains("--legacy")) result.PreciseDelayMs = 0;
         if (result._values.TryGetValue("--input-pid", out string? ids))
         {
             result.Allowed = ids.Split(',', StringSplitOptions.TrimEntries);
@@ -92,20 +63,13 @@ internal sealed class KernelOptions
         if (result._values.TryGetValue("--hold-receivers", out string? held))
         {
             result.HeldReceivers = held.Split(',', StringSplitOptions.TrimEntries);
-            if (result.HardwareMode is not null || result.HeldReceivers.Any(id => !BoardId(id))
+            if (result.HeldReceivers.Any(id => !BoardId(id))
                 || result.HeldReceivers.Distinct(StringComparer.OrdinalIgnoreCase).Count() != result.HeldReceivers.Length)
-                throw new ArgumentException("--hold-receivers needs distinct four-digit hexadecimal board IDs and normal service mode.");
-        }
-        if (result._values.TryGetValue("--rack", out string? rack))
-        {
-            if (result.HardwareMode is not null || !Regex.IsMatch(rack, "^[A-Za-z0-9]{1,8}$"))
-                throw new ArgumentException("--rack needs a short letters-and-digits label and normal service mode.");
-            result.Rack = rack.ToUpperInvariant();
+                throw new ArgumentException("--hold-receivers needs distinct four-digit hexadecimal board IDs.");
         }
         foreach (var (name, set) in new (string, Action<string>)[] { ("--stop-file", v => result.StopFile = v), ("--console-log", v => result.ConsoleLog = v) })
             if (result._values.TryGetValue(name, out string? file))
             {
-                if (result.HardwareMode is not null) throw new ArgumentException(name + " needs normal service mode.");
                 string full;
                 try { full = Path.GetFullPath(file); } catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException) { throw new ArgumentException(name + " is not a valid path."); }
                 if (!Directory.Exists(Path.GetDirectoryName(full))) throw new ArgumentException(name + " needs an existing folder.");
@@ -113,24 +77,18 @@ internal sealed class KernelOptions
             }
         if (result.StopFile is not null && result.StopFile.Equals(result.ConsoleLog, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("--stop-file and --console-log must be different files.");
-        _ = result.DataDir; // Check path syntax before any hardware work.
-        if (result._values.TryGetValue("--hid-replies-pid", out string? replyIds))
-        {
-            result.ReplyBoards = replyIds.Split(',', StringSplitOptions.TrimEntries);
-            if (result.HardwareMode is not null || result.ReplyBoards.Any(id => !BoardId(id))
-                || result.ReplyBoards.Distinct(StringComparer.OrdinalIgnoreCase).Count() != result.ReplyBoards.Length
-                || result.ReplyBoards.Any(id => !result.Allowed.Contains(id, StringComparer.OrdinalIgnoreCase)))
-                throw new ArgumentException("--hid-replies-pid requires distinct enabled input board IDs and normal service mode.");
-        }
-        if (result._values.TryGetValue("--absolute-probe-pid", out string? probe))
-        {
-            if (result.HardwareMode is not null || !BoardId(probe) || result.Allowed.Length != 1
-                || !result.Allowed.Contains(probe, StringComparer.OrdinalIgnoreCase)
-                || !result.ReplyBoards.Contains(probe, StringComparer.OrdinalIgnoreCase))
-                throw new ArgumentException("--absolute-probe-pid requires exactly one enabled board with --hid-replies-pid in normal service mode.");
-            result.AbsoluteProbeBoard = probe;
-        }
+        _ = result.DataDir; // Check path syntax before anything is opened.
+        // The API has no login: whoever can reach the listener can drive the phones.
+        if (!result.LoopbackOnly && !result._flags.Contains("--allow-network"))
+            throw new ArgumentException("Listener address " + result.Prefix + " can be reached from other machines, and this API has no login. "
+                + "Use http://127.0.0.1:<port>/api/ to stay on this PC, or add --allow-network to accept that.");
         return result;
+    }
+
+    private static bool IsLoopback(string prefix)
+    {
+        string host = Regex.Match(prefix, @"^https?://(\[[^\]]+\]|[^/:]+)", RegexOptions.IgnoreCase).Groups[1].Value.Trim('[', ']');
+        return host.Equals("localhost", StringComparison.OrdinalIgnoreCase) || (IPAddress.TryParse(host, out var address) && IPAddress.IsLoopback(address));
     }
 
     private static string ValidatePrefix(string value)
@@ -159,23 +117,17 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
         if (phones.Select(p => p.deviceid).Distinct(StringComparer.OrdinalIgnoreCase).Count() != phones.Count
             || phones.Where(p => p.pid.Length > 0).Select(p => p.pid).Distinct(StringComparer.OrdinalIgnoreCase).Count() != phones.Count(p => p.pid.Length > 0))
             throw new ArgumentException("Saved phone identities and bound board PIDs must be unique.");
-        var store = new DeviceStore(devicesPath, phones);
+        var store = new DeviceStore(phones);
         string calibrationFile = Path.Combine(options.DataDir, "pointer-calibration.json");
         var calibrations = File.Exists(calibrationFile) ? ReadList<PointerCalibration>(calibrationFile) : [];
         if (calibrations.Any(c => !KernelOptions.BoardId(c.Pid))) throw new ArgumentException("Invalid calibration board PID.");
         // Reuse the router's arithmetic and duplicate-calibration checks. Its constructor
         // and disposal never open transport; connections are created only on dispatch.
-        using (var check = new InputRouter(store, options.Allowed, calibrations, preciseDelayMs: options.PreciseDelayMs,
-            replyBoards: options.ReplyBoards, absoluteProbeBoard: options.AbsoluteProbeBoard)) { }
+        using (var check = new InputRouter(store, options.Allowed, calibrations)) { }
 
-        List<ReceiverConfig> receivers;
-        if (options.Value("--receivers") is { Length: > 0 } file) receivers = ReadList<ReceiverConfig>(Path.GetFullPath(file));
-        else
-        {
-            string id = options.Value("--phone-id", "86:1D:4A:04:2F:F6");
-            var phone = phones.SingleOrDefault(p => p.deviceid == id) ?? throw new ArgumentException("Default receiver phone is missing; provide a saved receiver configuration.");
-            receivers = [new(id, phone.pid, options.Value("--cast-name", "iMouse2-C24C"), options.Value("--frame-pipe", "iMouse2-C24C-frames"), 7110, "02:49:4D:32:C2:4C")];
-        }
+        if (options.Value("--receivers") is not { Length: > 0 } file)
+            throw new ArgumentException("A saved receiver configuration is required: pass --receivers <file>.");
+        var receivers = ReadList<ReceiverConfig>(Path.GetFullPath(file));
         ReceiverFleet.Validate(receivers, phones);
         if (options.HeldReceivers.Any(pid => !receivers.Any(r => r.BoardPid.Equals(pid, StringComparison.OrdinalIgnoreCase))))
             throw new ArgumentException("Every --hold-receivers board needs a configured receiver.");
@@ -203,12 +155,9 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
     {
         valid = true, scope = "saved configuration only", hardware_accessed = false, listener_started = false,
         receivers_started = false, settings_written = false, build = KernelDiagnostics.BuildIdentity,
-        data_directory = Options.DataDir, address = Options.Prefix, allowed = Options.Allowed,
-        hid_reply_boards = Options.ReplyBoards,
-        absolute_probe_board = Options.AbsoluteProbeBoard,
-        navigation_sequence = Options.Value("--navigation-sequence", "vendor"),
-        precise_delay_ms = Options.PreciseDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
-        rack = Options.Rack, stop_file = Options.StopFile, console_log = Options.ConsoleLog, receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
+        data_directory = Options.DataDir, address = Options.Prefix, listener_loopback_only = Options.LoopbackOnly, allowed = Options.Allowed,
+        precise_delay_ms = InputRouter.MoveDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
+        stop_file = Options.StopFile, console_log = Options.ConsoleLog, receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
         bindings_complete = Receivers.All(r => r.DeviceId is not ("*" or "") && !r.DeviceId.StartsWith("unbound-", StringComparison.OrdinalIgnoreCase)),
         limitations = new[] { "Physical bindings, targeting and mirroring are not assessed.",
             "Available ports, URL permissions and dependency loading are not tested.",

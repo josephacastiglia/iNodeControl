@@ -26,8 +26,7 @@ internal static class DiagnosticsTests
         {"code":0,"input":"direct-hid","receiver":"fake-cast","home_sequence":"vendor",
          "build_identity":{"sha256":"test-hash","module_id":"test-module","secret":"HIDDEN"},
          "process":{"pid":123,"working_set_bytes":2048},
-         "control_compatibility":{"home_sequence":"command-h","home_sends_tab":false,"navigation_sequence":"direct-fn","navigation_sends_tab":false,"phone_setting_detection":false,"secret":"HIDDEN"},
-         "hid_replies":{"mode":"observation only","boards":[{"pid":"C24C","observation":{"State":"receiving","Reports":25,"MovementSignals":23,"StatusReports":2,"LastFamily":"AF","LastReportAgeMs":10,"raw":"HIDDEN","Identifier":"HIDDEN"},"token":"HIDDEN"}]},
+         "control_compatibility":{"home_sequence":"command-h","home_sends_tab":false,"phone_setting_detection":false,"secret":"HIDDEN"},
          "input_configuration":{"precise_movement_delay_ms":0,"calibrations":[{"pid":"PID","width":500,"height":1080,"pixels_per_unit_x":5.12,"token":"HIDDEN"}]},
          "receivers":[{"deviceid":"TEST:01","name":"fake-cast","receiver_restarts":3,"receiver_state":"failed",
            "receiver_message":"Restart limit reached","frame_age_ms":null,"live":false,"token":"HIDDEN"}],"password":"HIDDEN"}
@@ -49,7 +48,7 @@ internal static class DiagnosticsTests
         var snapshot = JsonSerializer.SerializeToElement(new { observed_utc = DateTimeOffset.UtcNow,
             build_identity = ConsoleBuildInfo.Current, selected_device = "TEST:01", activity = new[] { "Input paused" } });
         var h = new Handler();
-        using var api = new ApiClient("http://localhost:9913", h, ownership: true);
+        using var api = new ApiClient("http://localhost:9913", h);
         var report = await ConsoleDiagnostics.CollectAsync(snapshot, api.GetAsync);
         check("Diagnostics read only the four status routes without acquiring or changing input", h.Calls.Order().SequenceEqual(new[] {
             "GET /config/usb/get", "GET /device/get", "GET /input/status", "GET /kernel/status" }));
@@ -68,9 +67,6 @@ internal static class DiagnosticsTests
         string json = JsonSerializer.Serialize(report, ConsoleDiagnostics.JsonOptions);
         check("Diagnostics retain selected shortcuts without claiming phone settings detection", kernel.GetProperty("control_compatibility").GetProperty("home_sequence").GetString() == "command-h"
             && !kernel.GetProperty("control_compatibility").GetProperty("phone_setting_detection").GetBoolean());
-        check("Diagnostics retain board reply counts and age without treating status as failure", kernel.GetProperty("hid_replies").GetProperty("boards")[0]
-            .GetProperty("observation").GetProperty("StatusReports").GetInt32() == 2
-            && kernel.GetProperty("hid_replies").GetProperty("boards")[0].GetProperty("observation").GetProperty("LastReportAgeMs").GetInt32() == 10);
         check("Diagnostics exclude unknown credential, serial and nested fields", !json.Contains("HIDDEN") && !json.Contains("serial_number") && !json.Contains("tokens"));
         check("Diagnostics identify both console and service builds", kernel.GetProperty("build_identity").GetProperty("sha256").GetString() == "test-hash"
             && report.Console.GetProperty("build_identity").GetProperty("Sha256").GetString() == ConsoleBuildInfo.Current.Sha256);
@@ -103,7 +99,7 @@ internal static class DiagnosticsTests
         var legacy = await ConsoleDiagnostics.CollectAsync(snapshot, api.GetAsync);
         check("Older kernel diagnostics leave unsupported build and frame details unknown", !legacy.Partial
             && !legacy.Service["kernel"].Data!.Value.TryGetProperty("build_identity", out _)
-            && !legacy.Service["kernel"].Data!.Value.TryGetProperty("frame_age_ms", out _));
+            && !legacy.Service["kernel"].Data!.Value.TryGetProperty("receivers", out _));
 
         string folder = Path.Combine(Path.GetTempPath(), "imouse-diagnostics-test-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(folder);

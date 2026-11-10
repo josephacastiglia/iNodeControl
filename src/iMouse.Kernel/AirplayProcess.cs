@@ -10,15 +10,8 @@ public sealed class AirplayProcess : IReceiverHandle
     /// <summary>0 if the child has exited. Status used to keep advertising a dead PID.</summary>
     public int Id => _lifetime.Id;
     public Task WaitForExitAsync(CancellationToken ct) => _lifetime.WaitForExitAsync(ct);
-
-    public static int LivePid(Process? process)
-    {
-        if (process is null) return 0;
-        try { return process.HasExited ? 0 : process.Id; }
-        catch (InvalidOperationException) { return 0; }
-    }
     public AirplayProcess(string executable,string runtime,string name,string pipe,string clientId,string logPath,
-        int port=7110,string mac="02:49:4D:32:C2:4C")
+        int port,string mac)
     {
         var start=new ProcessStartInfo(Path.GetFullPath(executable))
         {

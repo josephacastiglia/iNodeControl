@@ -150,7 +150,7 @@ internal sealed partial class VideoDraftWindow
             await reel.RunAsync(reel.PrepareAsync);
             var candidate = reel.ReelWindow();
             check("A saved Instagram Reel copy enables only the bounded Reel candidate window", reel._reel.IsEnabled && candidate is not null && candidate.Route == "/api/farm/reel-creations"
-                && candidate.Capability == "reelCreation" && candidate.BookmarkPath.EndsWith("farm-pending-reel-creation.json") && candidate.DraftId == reelHandler.CreatedId && !candidate.InspectAvailable);
+                && candidate.Capability == "reelCreation" && candidate.BookmarkPath.EndsWith("farm-pending-reel-creation.json") && candidate.DraftId == reelHandler.CreatedId);
             check("Opening the Reel candidate sends no phone, transfer or creation request", reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
             candidate?.Close();
             reel._caption.Text = "Edited caption";
@@ -161,7 +161,7 @@ internal sealed partial class VideoDraftWindow
             var tiktok = reel.TikTokWindow();
             check("A saved TikTok video copy enables only the bounded TikTok candidate window", reel._tiktok.IsEnabled && tiktok is not null
                 && tiktok.Route == "/api/farm/tiktok-creations" && tiktok.Capability == "tiktokCreation" && tiktok.BookmarkPath.EndsWith("farm-pending-tiktok-creation.json")
-                && tiktok.DraftId == reelHandler.CreatedId && !tiktok.InspectAvailable && reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
+                && tiktok.DraftId == reelHandler.CreatedId && reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
             tiktok?.Close();
             plain._draft = reel._draft; reelHandler.Format = "ig_reel";
             check("Without a candidate data folder the Reel action is absent", !plain._reel.IsEnabled && plain.ReelWindow() is null);
@@ -173,7 +173,7 @@ internal sealed partial class VideoDraftWindow
             var xWindow = reel.XWindow();
             check("A saved X video copy enables only the bounded X candidate window", reel._x.IsEnabled && !reel._tiktok.IsEnabled && !reel._reel.IsEnabled && xWindow is not null
                 && xWindow.Route == "/api/farm/x-creations" && xWindow.Capability == "xCreation" && xWindow.BookmarkPath.EndsWith("farm-pending-x-creation.json")
-                && xWindow.DraftId == reelHandler.CreatedId && !xWindow.InspectAvailable && reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
+                && xWindow.DraftId == reelHandler.CreatedId && reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
             check("An X copy never offers the YouTube draft action", !reel._youtube.IsEnabled && reel.YouTubeWindow() is null);
             xWindow?.Close();
             plain._draft = reel._draft;
@@ -185,7 +185,7 @@ internal sealed partial class VideoDraftWindow
             var youtube = reel.YouTubeWindow();
             check("A saved YouTube Short copy enables only the bounded YouTube candidate window", (reel._youtube.Content as string) == "Create YouTube Short draft…" && reel._youtube.IsEnabled && !reel._x.IsEnabled && !reel._tiktok.IsEnabled && !reel._reel.IsEnabled
                 && youtube is not null && youtube.Route == "/api/farm/youtube-creations" && youtube.Capability == "youtubeCreation"
-                && youtube.BookmarkPath.EndsWith("farm-pending-youtube-creation.json") && youtube.DraftId == reelHandler.CreatedId && !youtube.InspectAvailable
+                && youtube.BookmarkPath.EndsWith("farm-pending-youtube-creation.json") && youtube.DraftId == reelHandler.CreatedId
                 && reelHandler.Routes.All(p => p.StartsWith("/api/farm/video-drafts")));
             youtube?.Close();
             plain._draft = reel._draft;

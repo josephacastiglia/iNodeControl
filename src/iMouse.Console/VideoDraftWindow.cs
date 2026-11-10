@@ -171,28 +171,28 @@ internal sealed partial class VideoDraftWindow : Window
     {
         if (!IsReel(_draft) || _draft is not { } draft) return null;
         return new FarmDraftRunWindow(_api, _dataFolder!, draft.GetProperty("id").GetString()!, draft.GetProperty("revision").GetInt32(),
-            draft.GetProperty("title").GetString() ?? "Reel draft", createNew: true, reel: true);
+            draft.GetProperty("title").GetString() ?? "Reel draft", DraftRunKind.Reel);
     }
 
     private FarmDraftRunWindow? TikTokWindow()
     {
         if (!IsTikTok(_draft) || _draft is not { } draft) return null;
         return new FarmDraftRunWindow(_api, _dataFolder!, draft.GetProperty("id").GetString()!, draft.GetProperty("revision").GetInt32(),
-            draft.GetProperty("title").GetString() ?? "TikTok draft", createNew: true, tiktok: true);
+            draft.GetProperty("title").GetString() ?? "TikTok draft", DraftRunKind.TikTok);
     }
 
     private FarmDraftRunWindow? XWindow()
     {
         if (!IsX(_draft) || _draft is not { } draft) return null;
         return new FarmDraftRunWindow(_api, _dataFolder!, draft.GetProperty("id").GetString()!, draft.GetProperty("revision").GetInt32(),
-            draft.GetProperty("title").GetString() ?? "X draft", createNew: true, x: true);
+            draft.GetProperty("title").GetString() ?? "X draft", DraftRunKind.X);
     }
 
     private FarmDraftRunWindow? YouTubeWindow()
     {
         if (!IsYouTube(_draft) || _draft is not { } draft) return null;
         return new FarmDraftRunWindow(_api, _dataFolder!, draft.GetProperty("id").GetString()!, draft.GetProperty("revision").GetInt32(),
-            draft.GetProperty("title").GetString() ?? "YouTube draft", createNew: true, youtube: true);
+            draft.GetProperty("title").GetString() ?? "YouTube draft", DraftRunKind.YouTube);
     }
 
     private async Task RefreshSavedAsync()

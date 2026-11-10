@@ -33,7 +33,6 @@ public sealed class FrameStore : IDisposable
     public const double QuietAfterMs = 2000;
     public static readonly TimeSpan ScreenshotTimeout = TimeSpan.FromSeconds(5);
     public string DeviceId { get; }
-    public Func<int> ReceiverPid { get; set; } = () => 0;
     public Func<ReceiverInfo> Receiver { get; set; } = () => new("stopped", "", 0, 0);
     public long Frames { get { lock (_gate) return _frames; } }
     public FrameStore(string pipeName, string deviceId, TimeProvider? clock = null)

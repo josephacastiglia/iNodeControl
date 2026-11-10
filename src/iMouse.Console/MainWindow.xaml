@@ -22,7 +22,7 @@
             <Button x:Name="RackViewTabButton" Content="Rack View" Click="RackViewTab_Click" Margin="0,0,4,0" MinHeight="28" Padding="12,5"
                     Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}"/>
             <Button x:Name="FarmTabButton" Content="Marketing Farm (Test Tab)" Click="FarmTab_Click" Margin="0,0,8,0" MinHeight="28" Padding="12,5"
-                    ToolTip="Switch to 19-iPhone Marketing Farm &amp; Social Automation Test Tab"/>
+                    ToolTip="Marketing Farm: content, drafts, the schedule and the C24C test phone"/>
             <Rectangle Width="1" Height="20" Fill="{DynamicResource EdgeBrush}" Margin="4,0,8,0"/>
             <Button x:Name="ControlsButton" Content="Controls" Click="OpenControls_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
             <Button x:Name="SettingsButton" Content="Settings" Click="OpenSettings_Click" Margin="0,0,6,0" MinHeight="28" Padding="12,5"/>
@@ -67,7 +67,6 @@
               <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <TextBox x:Name="SearchBox" TextChanged="Filter_Changed" AutomationProperties.Name="Search devices" MinHeight="26" Padding="6,3" FontSize="12"/>
               <CheckBox x:Name="OnlineOnly" Grid.Column="1" Content="Online" Checked="Filter_Changed" Unchecked="Filter_Changed" Margin="7,0,0,0" FontSize="11.5" VerticalAlignment="Center"/>
-              <ComboBox x:Name="GroupFilter" SelectionChanged="Group_Changed" AutomationProperties.Name="Filter by group" Visibility="Collapsed"/>
             </Grid>
             <!-- One switch that puts every phone under the master. Unticking it releases
                  them again, which is the fast way out if a mirrored action goes wrong. -->
@@ -155,30 +154,18 @@
                 </Grid>
 
                 <!-- The original console keeps its actions in a narrow strip against the
-                     master rather than in a distant panel. Input buttons follow the mirror
-                     set; Cast and Disc are per-phone AirPlay and may target a phone that
-                     is not yet mirroring. -->
+                     master rather than in a distant panel. Every button here is an input
+                     command and follows the mirror set. Mirroring itself is started and
+                     stopped on the iPhone. -->
                 <StackPanel x:Name="ActionStrip" Grid.Column="1" Margin="7,0,0,0" VerticalAlignment="Top">
                   <Button x:Name="ResetButton" Content="Reset" Tag="reset|mouse" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Re-centre the phone pointer so it lines up with the mouse again"/>
                   <Button x:Name="HomeButton" Content="Home" Tag="key|Home" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Send the phone to its home screen"/>
-                  <Button x:Name="RestartButton" Content="Restart" Tag="usb|restart" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Restart this phone's control board. Control drops for a few seconds."/>
-                  <Button x:Name="LockButton" Content="Lock" Tag="key|TAB+l" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Lock the phone screen"/>
                   <Button x:Name="CtrlBarButton" Content="Ctrl Bar" Tag="key|ControlBar" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30" Padding="4,5" FontSize="12"
                           ToolTip="Open Control Centre"/>
-                  <Button x:Name="KeyboardButton" Content="KB" Tag="key|OPENKeyboard" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Open the on-screen keyboard"/>
-                  <Button x:Name="CastButton" Content="Cast" Tag="cast|connect" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Ask this phone to start screen mirroring"/>
                   <Button x:Name="AppButton" Content="App" Tag="key|AppSwitch" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
                           ToolTip="Open the app switcher using the phone's Full Keyboard Access shortcut. With Full Keyboard Access off, use the phone's physical app-switching gesture."/>
-                  <Button x:Name="ImeButton" Content="IME" Tag="key|SwitchIme" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Switch the phone input method"/>
-                  <Button x:Name="DiscButton" Content="Disc" Tag="cast|disconnect" Click="Action_Click" Width="76" Margin="0,0,0,5" MinHeight="30"
-                          ToolTip="Stop this phone's screen mirroring"/>
                   <!-- Says out loud how many phones the strip is about to hit. Input
                        buttons follow the mirror set, so with Mirror to all on, one click
                        is a rack-wide action - that should never be a surprise. -->
@@ -253,7 +240,6 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="300" MinWidth="260"/>
           <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="380" MinWidth="320"/>
         </Grid.ColumnDefinitions>
 
         <!-- 1. Left Column: Live Screen & Jitter Touch Inspector -->
@@ -286,17 +272,10 @@
           </DockPanel>
         </Border>
 
-        <!-- 2. Middle Column: 1-Click Pipeline, Actions & Phone Wall Cards -->
-        <Border Grid.Column="1" Style="{StaticResource Panel}" Padding="12" Margin="0,0,8,0">
-          <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- Action Buttons Strip -->
-            <WrapPanel Grid.Row="0" Margin="0,0,0,10">
+        <!-- 2. Right: content and draft windows, then the job and activity log -->
+        <Border Grid.Column="1" Style="{StaticResource Panel}" Padding="12">
+          <DockPanel LastChildFill="True">
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
               <Button Content="Create content only" Click="FarmCreateContent_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Review content" Click="FarmOpenContent_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Instagram carousel drafts" Click="FarmCarouselDraft_Click" MinHeight="30" Padding="10,5"/>
@@ -304,77 +283,14 @@
               <Button Content="Read C24C screen" Click="FarmObservation_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Preparation schedule" Click="FarmPreparation_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Review queue" Click="FarmScheduleQueue_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Feature readiness" Click="FarmReadiness_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Check job" Click="FarmCheckJob_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Resume simulation" Click="FarmResumeSimulation_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Create &amp; deploy C24C" Click="FarmAutoCreate_Click" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}" MinHeight="30" Padding="10,5"/>
-              <Button Content="Run C24C warmup" Click="FarmCohortWarmup_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Preview schedule" Click="FarmSchedulerTick_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Check keyword replies" Click="FarmFunnel_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="🔍 Test C24C Spotlight &amp; Notes" Click="FarmSpotlightTest_Click" MinHeight="30" Padding="10,5" ToolTip="Runs live Spotlight Search pill click &amp; types Notes"/>
               <Button Content="Stop C24C + cancel job" Click="FarmEmergencyStop_Click" Foreground="#C62828" MinHeight="30" Padding="10,5"/>
             </WrapPanel>
-
-            <!-- 5-Stage Pipeline Indicator Strip -->
-            <Border Grid.Row="1" Background="{DynamicResource TargetBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,0,0,10">
-              <UniformGrid Columns="5">
-                <StackPanel Margin="4,0"><TextBlock Text="1. DRAFT STUDIO" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Local templates" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-                <StackPanel Margin="4,0"><TextBlock Text="2. ASSETS" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="JPEG + MP4" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-                <StackPanel Margin="4,0"><TextBlock Text="3. REVIEW" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Preview before use" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-                <StackPanel Margin="4,0"><TextBlock Text="4. KERNEL 9913" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Scoped input" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-                <StackPanel Margin="4,0"><TextBlock Text="5. REPLIES" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Observation required" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-              </UniformGrid>
-            </Border>
-
-            <!-- Phone Wall Cards List -->
-            <DockPanel Grid.Row="2" LastChildFill="True">
-              <TextBlock DockPanel.Dock="Top" Text="MARKETING PROFILES · ONLY C24C ENABLED FOR TESTING" Style="{StaticResource SectionLabel}" Margin="0,0,0,6"/>
-              <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel x:Name="FarmPhoneListPanel"/>
-              </ScrollViewer>
-            </DockPanel>
-          </Grid>
-        </Border>
-
-        <!-- 3. Right Column: Persona Profile, Content Slate & Live RPC Log -->
-        <Border Grid.Column="2" Style="{StaticResource Panel}" Padding="12">
-          <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- Persona Profile Editor -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,8">
-              <TextBlock Text="C24C MARKETING PROFILE" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
-              <TextBlock Text="Niche / Offer Title:" FontSize="11" Style="{StaticResource Muted}"/>
-              <TextBox x:Name="FarmNicheBox" Text="AI Workflow &amp; SaaS Clips" MinHeight="26" Margin="0,2,0,6" FontSize="12"/>
-              <TextBlock Text="CTA Keyword Trigger:" FontSize="11" Style="{StaticResource Muted}"/>
-              <TextBox x:Name="FarmKeywordBox" Text="SYSTEM" MinHeight="26" Margin="0,2,0,6" FontSize="12"/>
-              <Button Content="Save C24C profile" Click="FarmSavePersona_Click" MinHeight="26" Margin="0,0,0,6"/>
-            </StackPanel>
-
-            <!-- Content Slate Actions -->
-            <StackPanel Grid.Row="1" Margin="0,0,0,8">
-              <TextBlock Text="CONTENT WORKFLOWS" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
-              <UniformGrid Columns="2" Margin="0,0,0,4">
-                <Button Content="Instagram draft editor" Click="FarmCarouselDraft_Click" FontSize="11" Padding="4,4"/>
-                <Button Content="🎵 TikTok Video" Tag="tiktok|tt_video" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
-              </UniformGrid>
-              <UniformGrid Columns="2">
-                <Button Content="𝕏 Video" Tag="x|x_video" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
-                <Button Content="▶️ YouTube Short" Tag="youtube|yt_short" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
-              </UniformGrid>
-            </StackPanel>
-
-            <!-- Live Kernel JSON-RPC & Activity Log -->
-            <DockPanel Grid.Row="2" LastChildFill="True">
-              <TextBlock DockPanel.Dock="Top" Text="JOB STATUS &amp; ACTIVITY" Style="{StaticResource SectionLabel}" Margin="0,4,0,4"/>
-              <TextBox x:Name="FarmLogBox" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LogBrush}"
-                       Foreground="{DynamicResource TextBrush}" FontFamily="Consolas" FontSize="10.5" TextWrapping="Wrap"/>
-            </DockPanel>
-          </Grid>
+            <TextBlock DockPanel.Dock="Top" Text="JOB STATUS &amp; ACTIVITY" Style="{StaticResource SectionLabel}" Margin="0,4,0,4"/>
+            <TextBox x:Name="FarmLogBox" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LogBrush}"
+                     Foreground="{DynamicResource TextBrush}" FontFamily="Consolas" FontSize="10.5" TextWrapping="Wrap"/>
+          </DockPanel>
         </Border>
       </Grid>
 
@@ -437,7 +353,7 @@
                 <StackPanel x:Name="ActionPanel">
                   <TextBlock Text="NAVIGATION" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
                   <UniformGrid Columns="2">
-                    <Button Content="Home" Tag="key|Home" Click="Action_Click"/><Button Content="Back" Tag="key|TAB+b" Click="Action_Click"/>
+                    <Button Content="Home" Tag="key|Home" Click="Action_Click"/>
                     <Button Content="App switcher" Tag="key|AppSwitch" Click="Action_Click"
                             ToolTip="Uses the phone's Full Keyboard Access shortcut; it may do nothing with Full Keyboard Access off."/><Button Content="Control centre" Tag="key|ControlBar" Click="Action_Click"/>
                   </UniformGrid>
@@ -457,30 +373,21 @@
                   <TextBlock x:Name="SendTextCount" Text="0 / 200" Style="{StaticResource Muted}" FontSize="11" HorizontalAlignment="Right" Margin="0,3,0,0"
                              AutomationProperties.Name="Characters in the text box and the Send text limit"/>
                   <Button Content="Send text" Click="SendText_Click" Style="{StaticResource Primary}" HorizontalAlignment="Stretch" Margin="0,6,0,0"/>
-                  <UniformGrid Columns="3">
-                    <Button Content="Enter" Tag="key|ENTER" Click="Action_Click"/><Button Content="Bksp" Tag="key|BACKSPACE" Click="Action_Click"/><Button Content="Paste" Tag="key|WIN+v" Click="Action_Click"/>
-                  </UniformGrid>
-
-                  <TextBlock Text="SCREEN MIRRORING" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
                   <UniformGrid Columns="2">
-                    <Button x:Name="StartCastingButton" Content="Start casting" Tag="cast|connect" Click="Action_Click"/><Button x:Name="StopCastingButton" Content="Stop casting" Tag="cast|disconnect" Click="Action_Click"/>
+                    <Button Content="Enter" Tag="key|ENTER" Click="Action_Click"/><Button Content="Bksp" Tag="key|BACKSPACE" Click="Action_Click"/>
                   </UniformGrid>
-                  <TextBlock x:Name="MirroringActionHelp" Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Visibility="Collapsed"/>
 
                   <TextBlock Text="POINTER" Style="{StaticResource SectionLabel}" Margin="0,8,0,7"/>
                   <CheckBox x:Name="PointerEnabled" IsChecked="True" Unchecked="PointerTrackingDisabled"><TextBlock Text="Click / drag to control" TextWrapping="Wrap"/></CheckBox>
                   <CheckBox x:Name="TrackPointer" IsChecked="True" Unchecked="PointerTrackingDisabled" Margin="0,3,0,0"><TextBlock Text="Move phone pointer with mouse" TextWrapping="Wrap"/></CheckBox>
                   <CheckBox x:Name="AutoPreview" IsChecked="True" Margin="0,3,0,0" Checked="Live_Changed" Unchecked="Live_Changed"><TextBlock Text="Live view" TextWrapping="Wrap"/></CheckBox>
-                  <ComboBox x:Name="CoordSpace" SelectedIndex="0" Margin="0,6,0,0" AutomationProperties.Name="Coordinate space used for taps">
-                    <ComboBoxItem Content="Taps: image pixels" Tag="image"/><ComboBoxItem Content="Taps: iOS points" Tag="points"/>
-                  </ComboBox>
                   <Button Content="Reset pointer" Tag="reset|mouse" Click="Action_Click" HorizontalAlignment="Stretch" Margin="0,6,0,0"/>
                 </StackPanel>
               </StackPanel>
 
               <StackPanel x:Name="SettingsPane" Visibility="Collapsed">
                 <TextBlock Text="SERVICE" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
-                <TextBox x:Name="AddressBox" Text="http://127.0.0.1:9911" AutomationProperties.Name="iMouse service address"/>
+                <TextBox x:Name="AddressBox" Text="http://127.0.0.1:9913" AutomationProperties.Name="iMouse service address"/>
                 <WrapPanel Margin="0,6,0,0">
                   <Button x:Name="ConnectButton" Content="_Connect" Click="Connect_Click" Style="{StaticResource Primary}"/>
                   <Button x:Name="DisconnectButton" Content="Disconnect" Click="Disconnect_Click"/>
@@ -490,21 +397,12 @@
 
                 <TextBlock Text="CONTROL BOARD" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>
                 <TextBlock x:Name="BindStatus" Text="Select a phone" Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                <ComboBox x:Name="BoardPicker" AutomationProperties.Name="Control board to bind to this phone" Margin="0,0,0,6"/>
-                <UniformGrid Columns="2">
-                  <Button x:Name="BindButton" Content="Bind board" Click="Bind_Click"/><Button x:Name="UnbindButton" Content="Unbind" Click="Unbind_Click"/>
-                </UniformGrid>
-                <Button x:Name="AutoBindButton" Content="Auto-bind unbound phones" Click="AutoBind_Click" HorizontalAlignment="Stretch"/>
-                <TextBlock Text="Where supported, Auto-bind moves a pointer to look for a matching phone. Verify the physical phone before using a new assignment."
-                           Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap"/>
 
-                <TextBlock Text="RECOVERY" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>
+                <TextBlock Text="DIAGNOSTICS" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>
                 <UniformGrid Columns="2">
-                  <Button x:Name="RecoveryRestartButton" Content="Restart board" Tag="usb|restart" Click="Action_Click"/>
                   <Button x:Name="SaveFrameButton" Content="Save image" Click="SaveImage_Click"/>
+                  <Button Content="Export diagnostics" Click="Export_Click"/>
                 </UniformGrid>
-                <TextBlock x:Name="BoardRestartHelp" Style="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Visibility="Collapsed"/>
-                <Button Content="Export diagnostics" Click="Export_Click" HorizontalAlignment="Stretch"/>
 
                 <TextBlock Text="DEVICE LIST" Style="{StaticResource SectionLabel}" Margin="0,14,0,7"/>
                 <WrapPanel>

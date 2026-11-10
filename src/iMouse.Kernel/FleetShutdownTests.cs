@@ -1,10 +1,17 @@
-using IMouse2.Kernel;
+namespace IMouse2.Kernel;
 
-// The fleet uses actual private frame pipes and fake receiver handles. No
-// receiver executable is configured and no board or network listener is opened.
-static class FleetShutdownTests
+// Moved on 9 Nov 2026 from the stand-alone project tools/recovery_tests, which is deleted (it had
+// stopped compiling). The fleet uses actual private frame pipes and fake receiver handles through
+// the same factory seam as ReceiverFleetTests. No receiver executable is configured and no board
+// or network listener is opened.
+internal static class FleetShutdownTests
 {
-    public static IEnumerable<(string Name, Func<Task> Run)> Cases()
+    internal static async Task RunAsync(Func<string, Func<Task>, Task> record)
+    {
+        foreach (var (name, run) in Cases()) await record(name, run);
+    }
+
+    private static IEnumerable<(string Name, Func<Task> Run)> Cases()
     {
         yield return ("fleet shutdown joins a receiver cleanup already in progress", DrainsExistingCleanup);
         yield return ("fleet shutdown starts all child cleanup before waiting for one", StopsPeersTogether);
@@ -24,23 +31,24 @@ static class FleetShutdownTests
     }
     static void Check(bool value, string message) { if (!value) throw new Exception(message); }
     static TaskCompletionSource Signal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
-    static ReceiverFleet Fleet(params Child[] children)
+    private sealed class NoWithdrawal : IReceiverWithdrawal
     {
-        var configs = children.Select((_, i) => new ReceiverConfig("fixture-" + i, (0xAB00 + i).ToString("X4"),
+        public IReadOnlyList<string> Withdraw(ReceiverConfig receiver) => ["192.0.2.1"];
+    }
+    // factory(i) makes receiver i's child; null gives a fleet that only hosts frame pipes.
+    static ReceiverFleet Fleet(Func<int, IReceiverHandle>? factory, int count, int maxRestarts = AirplaySupervisor.DefaultMaxRestarts)
+    {
+        var configs = Enumerable.Range(0, count).Select(i => new ReceiverConfig("fixture-" + i, (0xAB00 + i).ToString("X4"),
             "iMouse2-fixture-" + i, "imouse-fleet-" + Guid.NewGuid().ToString("N"), 7200 + i * 3,
             "02:11:22:33:44:" + i.ToString("X2"))).ToArray();
-        var store = new DeviceStore(Path.Combine(Path.GetTempPath(), "unused-fleet-" + Guid.NewGuid().ToString("N")),
-            configs.Select(c => new Phone { deviceid = c.DeviceId, pid = c.BoardPid }));
-        var fleet = new ReceiverFleet(configs, store, "", "", "");
-        for (int i = 0; i < children.Length; i++)
-        {
-            var child = children[i];
-            fleet.Sessions[i] = fleet.Sessions[i] with { Supervisor = new AirplaySupervisor(() => {
-                child.Started.TrySetResult(); return child;
-            }, delay: TimeSpan.Zero) };
-        }
-        return fleet;
+        var store = new DeviceStore(configs.Select(c => new Phone { deviceid = c.DeviceId, pid = c.BoardPid }));
+        return new ReceiverFleet(configs, store,
+            factory is null ? null : c => factory(Array.FindIndex(configs, x => x.BoardPid == c.BoardPid)),
+            new NoWithdrawal(), maxRestarts, TimeSpan.Zero);
     }
+    static ReceiverFleet Fleet(params Child[] children) =>
+        Fleet(i => { children[i].Started.TrySetResult(); return children[i]; }, children.Length);
+    static string State(ReceiverFleet fleet, int index) => fleet.Sessions[index].Frames.Receiver().State;
     static async Task Start(ReceiverFleet fleet, params Child[] children)
     {
         fleet.Start(CancellationToken.None);
@@ -137,19 +145,18 @@ static class FleetShutdownTests
     {
         await using var child = new Child(); child.AllowCleanup.Set();
         using var allowStart = new ManualResetEventSlim(false);
-        var fleet = Fleet(child);
-        fleet.Sessions[0] = fleet.Sessions[0] with { Supervisor = new AirplaySupervisor(() => {
+        var fleet = Fleet(_ => {
             child.Started.TrySetResult();
             if (!allowStart.Wait(TimeSpan.FromSeconds(10))) throw new TimeoutException("Fixture startup gate timed out");
             return child;
-        }) };
+        }, 1);
         Task? close = null;
         try
         {
             await Start(fleet, child); close = fleet.ShutdownAsync();
             await Task.Delay(150); Check(!close.IsCompleted, "Shutdown abandoned a factory in progress");
             allowStart.Set(); await close.WaitAsync(TimeSpan.FromSeconds(2));
-            Check(child.Cleaned && child.Disposals == 1 && fleet.Sessions[0].Supervisor!.Info.State == "stopped",
+            Check(child.Cleaned && child.Disposals == 1 && State(fleet, 0) == "stopped",
                 "Unpublished child escaped cleanup");
         }
         finally { allowStart.Set(); await (close ?? fleet.ShutdownAsync()).WaitAsync(TimeSpan.FromSeconds(12)); }
@@ -161,13 +168,11 @@ static class FleetShutdownTests
     }
     static async Task PartialStartFailure()
     {
-        await using var unused = new Child(); var fleet = Fleet(unused);
-        fleet.Sessions[0] = fleet.Sessions[0] with { Supervisor = new AirplaySupervisor(() =>
-            throw new ReceiverCleanupException(456, "fixture partial-start cleanup", new IOException("fixture"))) };
+        var fleet = Fleet(_ => throw new ReceiverCleanupException(456, "fixture partial-start cleanup", new IOException("fixture")), 1);
         try
         {
             fleet.Start(CancellationToken.None);
-            await Until(() => fleet.Sessions[0].Supervisor!.Info.State == "failed");
+            await Until(() => State(fleet, 0) == "failed");
             Exception? failure = null;
             try { await fleet.ShutdownAsync(); } catch (Exception ex) { failure = ex; }
             Check(failure is not null && failure.ToString().Contains("456") && failure.ToString().Contains("iMouse2-fixture-0"),
@@ -177,22 +182,19 @@ static class FleetShutdownTests
     }
     static async Task ExhaustedRetries()
     {
-        await using var unused = new Child(); var fleet = Fleet(unused);
-        fleet.Sessions[0] = fleet.Sessions[0] with { Supervisor = new AirplaySupervisor(() =>
-            throw new IOException("fixture launch failure before a child exists"), 0, TimeSpan.Zero) };
+        var fleet = Fleet(_ => throw new IOException("fixture launch failure before a child exists"), 1, maxRestarts: 0);
         try
         {
             fleet.Start(CancellationToken.None);
-            await Until(() => fleet.Sessions[0].Supervisor!.Info.State == "failed");
+            await Until(() => State(fleet, 0) == "failed");
             await fleet.ShutdownAsync();
-            Check(fleet.Sessions[0].Supervisor!.Info.State == "failed", "Historical startup failure erased");
+            Check(State(fleet, 0) == "failed", "Historical startup failure erased");
         }
         finally { await fleet.ShutdownAsync(); }
     }
     static async Task ReleasesFramePipe()
     {
-        await using var unused = new Child(); var fleet = Fleet(unused); var session = fleet.Sessions[0];
-        fleet.Sessions[0] = session with { Supervisor = null };
+        var fleet = Fleet(null, 1); var session = fleet.Sessions[0];
         try
         {
             fleet.Start(CancellationToken.None);
@@ -232,12 +234,12 @@ static class FleetShutdownTests
         {
             fleet.Start(CancellationToken.None, [held.ToLowerInvariant()]);
             await first.Started.Task.WaitAsync(TimeSpan.FromSeconds(2)); await Task.Delay(150);
-            Check(!second.Started.Task.IsCompleted && fleet.IsHeld(held) && !fleet.IsHeld(fleet.Sessions[0].Config.BoardPid),
+            Check(!second.Started.Task.IsCompleted && State(fleet, 1) == "held" && State(fleet, 0) != "held",
                 "A held receiver started before release");
             Check(fleet.Advertise("FFFF").ToString()!.Contains("code = 36"), "Unknown board was accepted");
             Check(fleet.Advertise(held).ToString()!.Contains("started = True"), "Release did not report a start");
             await second.Started.Task.WaitAsync(TimeSpan.FromSeconds(2));
-            Check(!fleet.IsHeld(held) && fleet.Advertise(held).ToString()!.Contains("started = False"), "Second release restarted it");
+            Check(State(fleet, 1) != "held" && fleet.Advertise(held).ToString()!.Contains("started = False"), "Second release restarted it");
         }
         finally { await fleet.ShutdownAsync(); }
         Check(first.Disposals == 1 && second.Disposals == 1, "Released receiver missed cleanup or was started twice");
@@ -248,7 +250,7 @@ static class FleetShutdownTests
         string held = fleet.Sessions[0].Config.BoardPid;
         fleet.Start(CancellationToken.None, [held]);
         await fleet.ShutdownAsync().WaitAsync(TimeSpan.FromSeconds(2));
-        Check(fleet.Advertise(held).ToString()!.Contains("code = 42") && !fleet.IsHeld(held), "Release after shutdown was accepted");
+        Check(fleet.Advertise(held).ToString()!.Contains("code = 42"), "Release after shutdown was accepted");
         await Task.Delay(100);
         Check(!child.Started.Task.IsCompleted && child.Disposals == 0, "A held receiver was started");
     }

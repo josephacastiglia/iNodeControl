@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Diagnostics;
 using System.IO.Pipes;
 using System.Text.Json;
 namespace IMouse2.Kernel;
@@ -31,8 +30,6 @@ public static class SelfTests
     {
         int passed=0;
         void Check(bool ok,string message) { if(!ok) throw new Exception(message);passed++;Console.WriteLine("PASS "+message); }
-        HidInputReportTests.Run(Check);
-        await HidReplyMonitorTests.RunAsync(Check);
         int Code(object response)=>JsonSerializer.SerializeToElement(response).GetProperty("code").GetInt32();
         string testDir=Path.Combine(Path.GetTempPath(),"imouse-kernel-test-"+Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(testDir);
@@ -88,34 +85,29 @@ public static class SelfTests
         writes.FailAt=2;
         Check(Code(await router.DispatchAsync("/mouse/reset",Data(new{id="test-one"})))==33,"Transport failure is reported");
         Check(writes.Disposed && writes.Reports.TakeLast(2).SequenceEqual(new[]{"A100000000000000","A200000000000000"}),"Failure releases inputs and discards handle");
-        foreach (bool precise in new[]{false,true})
         {
             var firstTransport=new RecordingTransport();var recoveredTransport=new RecordingTransport();
             int opened=0;
             using var recovery=new InputRouter(new DeviceStore(file),["C24C"],
-                [new("C24C",500,1080,14,14,5.12,5.09)],_=>++opened==1?firstTransport:recoveredTransport,preciseDelayMs: precise ? 7 : 0);
+                [new("C24C",500,1080,14,14,5.12,5.09)],_=>++opened==1?firstTransport:recoveredTransport);
             await recovery.DispatchAsync("/mouse/move",Data(new{id="test-one",x=14,y=14}));
             firstTransport.FailAt=firstTransport.Reports.Count+2;
             Check(Code(await recovery.DispatchAsync("/mouse/move",Data(new{id="test-one",x=40,y=40})))==33,
-                $"Movement failure is surfaced (precise={precise})");
+                "Movement failure is surfaced");
             await recovery.DispatchAsync("/mouse/move",Data(new{id="test-one",x=24,y=14}));
             Check(opened==2 && recoveredTransport.Reports.Take(6).Count(r=>r=="A100818100000000")==4,
-                $"Movement failure forces a new connection and corner reset (precise={precise})");
+                "Movement failure forces a new connection and corner reset");
         }
-        var legacyPackets=new RecordingTransport();var precisePackets=new RecordingTransport();
-        foreach(var setting in new[]{(Precise:false,Transport:legacyPackets),(Precise:true,Transport:precisePackets)})
+        var cornerResets=new RecordingTransport();
+        using(var sample=new InputRouter(new DeviceStore(file),["C24C"],[new("C24C",500,1080,14,14,5.12,5.09)],_=>cornerResets))
         {
-            using var sample=new InputRouter(new DeviceStore(file),["C24C"],
-                [new("C24C",500,1080,14,14,5.12,5.09)],_=>setting.Transport,preciseDelayMs: setting.Precise ? 7 : 0);
             await sample.DispatchAsync("/mouse/click",Data(new{id="test-one",x=100,y=200}));
             await sample.DispatchAsync("/key/sendkey",Data(new{id="test-one",fn_key="Home"}));
             await sample.DispatchAsync("/mouse/click",Data(new{id="test-one",x=100,y=200}));
             await sample.DispatchAsync("/mouse/swipe",Data(new{id="test-one",x1=100,y1=200,x2=120,y2=200,duration=100}));
         }
-        Check(legacyPackets.Reports.SequenceEqual(precisePackets.Reports),
-            "Precise pacing preserves all reset, movement, keyboard, click and swipe packets");
-        Check(precisePackets.Reports.Count(r=>r=="A100818100000000")==8,
-            "Precise clicks retain both cold-start and post-Home corner resets");
+        Check(cornerResets.Reports.Count(r=>r=="A100818100000000")==8,
+            "Clicks retain both cold-start and post-Home corner resets");
         // Lower-screen reach (27 Sep): the emitted movement must cover the whole calibrated
         // height, from a corner reset and from a known position. Sums the relative steps
         // after the last corner-reset report; says nothing about where iOS puts the pointer.
@@ -162,14 +154,15 @@ public static class SelfTests
         string pipeName="imouse-frame-test-"+Guid.NewGuid().ToString("N");
         using(var frames=new FrameStore(pipeName,"test-one"))
         {
-            using var api = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, frames);
+            using var api = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), router, [("fake-cast", frames)]);
             JsonElement Status() => JsonSerializer.SerializeToElement(api.KernelStatus());
             var initial = Status();
-            Check(initial.GetProperty("hid_replies").GetProperty("boards").GetArrayLength() == 0,
-                "Kernel reply diagnostics are empty when observation is not enabled");
+            Check(new[] { "live", "frames", "receiver_state", "receiver_pid", "receiver_restarts", "frame_age_ms" }.All(name => !initial.TryGetProperty(name, out _))
+                && initial.GetProperty("receivers").GetArrayLength() == 1 && initial.GetProperty("receiver").GetString() == "fake-cast",
+                "Status has no first-receiver summary; each receiver reports its own state");
             int diagnosticWrites = writes.Reports.Count;
             var inputConfiguration = Status().GetProperty("input_configuration");
-            Check(inputConfiguration.GetProperty("precise_movement_delay_ms").GetInt32() == 0
+            Check(inputConfiguration.GetProperty("precise_movement_delay_ms").GetInt32() == InputRouter.MoveDelayMs
                 && inputConfiguration.GetProperty("calibrations")[0].GetProperty("pixels_per_unit_x").GetDouble() == 5.12
                 && inputConfiguration.GetProperty("calibrations")[0].GetProperty("enabled").GetBoolean()
                 && writes.Reports.Count == diagnosticWrites,
@@ -187,8 +180,8 @@ public static class SelfTests
             frames.Receiver = () => new("stopped", "", 0, 0);
             Check(initial.GetProperty("home_sequence").GetString() == router.HomeSequenceName,
                 "Merged status retains the configured Home sequence alongside frame metadata");
-            Check(initial.GetProperty("frame_age_ms").ValueKind == JsonValueKind.Null
-                && initial.GetProperty("frame_delivery").GetString() == "waiting",
+            Check(initial.GetProperty("receivers")[0].GetProperty("frame_age_ms").ValueKind == JsonValueKind.Null
+                && initial.GetProperty("receivers")[0].GetProperty("frame_delivery").GetString() == "waiting",
                 "Status distinguishes no frame from a fresh frame without starting a listener");
             var pump=frames.RunAsync();
             using(var client=new NamedPipeClientStream(".",pipeName,PipeDirection.Out,PipeOptions.Asynchronous))
@@ -206,20 +199,19 @@ public static class SelfTests
                 await client.WriteAsync(length);await client.WriteAsync(bmp);await client.FlushAsync();
                 await WaitFor(()=>frames.Frames==2);
                 Check(frames.State.Live,"Identical live frames remain usable");
-                var status = Status();
-                var receiver = status.GetProperty("receivers")[0];
-                Check(status.GetProperty("frames").GetInt64() == 2
-                    && status.GetProperty("frame_age_ms").GetDouble() >= 0
-                    && status.GetProperty("frame_delivery").GetString() == "flowing",
+                var receiver = Status().GetProperty("receivers")[0];
+                Check(receiver.GetProperty("frames").GetInt64() == 2
+                    && receiver.GetProperty("frame_age_ms").GetDouble() >= 0
+                    && receiver.GetProperty("frame_delivery").GetString() == "flowing",
                     "Status reports delivered sequence and monotonic age");
-                Check(receiver.GetProperty("frame_session").GetString() == status.GetProperty("frame_session").GetString()
+                Check(receiver.GetProperty("frame_session").GetString() == frames.Delivery.Session
                     && receiver.GetProperty("frame_pipe_connected").GetBoolean()
                     && receiver.GetProperty("receiver_message").ValueKind == JsonValueKind.String,
                     "Per-phone status includes delivery identity and recovery message");
                 await client.WriteAsync(new byte[4]);await client.FlushAsync();
                 await WaitFor(()=>!frames.State.Live);
                 Check(!frames.State.Live,"Receiver stop marker clears stale picture");
-                var stopped = Status();
+                var stopped = Status().GetProperty("receivers")[0];
                 Check(!stopped.GetProperty("live").GetBoolean()
                     && stopped.GetProperty("frame_delivery").GetString() == "stopped"
                     && stopped.GetProperty("frames").GetInt64() == 2,
@@ -229,8 +221,9 @@ public static class SelfTests
         }
         var twoConfigs=new[]{new ReceiverConfig("test-one","C24C","iMouse2-C24C","test-pipe-one",7110,"02:49:4D:32:C2:4C"),
             new ReceiverConfig("test-two","C214","iMouse2-C214","test-pipe-two",7120,"02:49:4D:32:C2:14")};
-        ReceiverFleet.Validate(twoConfigs,new DeviceStore(file).All());
-        Check(true,"Two receivers accept distinct bindings, ports and identities");
+        bool twoAccepted=true;
+        try {ReceiverFleet.Validate(twoConfigs,new DeviceStore(file).All());}catch(ArgumentException){twoAccepted=false;}
+        Check(twoAccepted,"Two receivers accept distinct bindings, ports and identities");
         foreach(var badConfig in new[]{twoConfigs[1] with {Port=7111},twoConfigs[1] with {Pipe="test-pipe-one"},
             twoConfigs[1] with {Mac=twoConfigs[0].Mac},twoConfigs[1] with {BoardPid="C241"}})
         {
@@ -272,12 +265,6 @@ public static class SelfTests
         bmp[28]=32;invalid=false;
         try{FrameStore.ValidateBmp(bmp);}catch(InvalidDataException){invalid=true;}
         Check(invalid,"Unexpected pixel format rejected");
-        Check(AirplayProcess.LivePid(null)==0,"Missing receiver process reports pid 0");
-        using(var dead=Process.Start(new ProcessStartInfo("cmd.exe","/c exit"){CreateNoWindow=true,UseShellExecute=false}))
-        {
-            dead!.WaitForExit(5000);
-            Check(AirplayProcess.LivePid(dead)==0,"Exited receiver process reports pid 0");
-        }
         int launches=0;
         using(var failing=new AirplaySupervisor(() => { launches++; var fake=new FakeReceiver(launches); fake.Exit.TrySetResult(); return fake; }, 2, TimeSpan.FromMilliseconds(1)))
         {
@@ -285,14 +272,11 @@ public static class SelfTests
             Check(failing.Info.State=="failed" && launches==3 && failing.Info.Restarts==2,"Retry limit stops after initial start plus two restarts");
             using var failedFrames = new FrameStore("unused-recovery-test-" + Guid.NewGuid().ToString("N"), "test-one");
             failedFrames.Receiver = () => failing.Info;
-            using var failedApi = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), "fake-cast", router, failedFrames);
-            var failureStatus = JsonSerializer.SerializeToElement(failedApi.KernelStatus());
-            var failureReceiver = failureStatus.GetProperty("receivers")[0];
-            Check(failureStatus.GetProperty("receiver_restarts").GetInt32() == 2
-                && failureReceiver.GetProperty("receiver_restarts").GetInt32() == 2
+            using var failedApi = new ApiServer("http://127.0.0.1:1/api/", new DeviceStore(file), router, [("fake-cast", failedFrames)]);
+            var failureReceiver = JsonSerializer.SerializeToElement(failedApi.KernelStatus()).GetProperty("receivers")[0];
+            Check(failureReceiver.GetProperty("receiver_restarts").GetInt32() == 2
                 && failureReceiver.GetProperty("receiver_state").GetString() == "failed"
-                && failureReceiver.GetProperty("receiver_message").GetString() == failing.Info.Message
-                && failureStatus.GetProperty("receiver_message").GetString() == failing.Info.Message,
+                && failureReceiver.GetProperty("receiver_message").GetString() == failing.Info.Message,
                 "Kernel diagnostics preserve exhausted retry counts and cause without a listener");
         }
         var held=new FakeReceiver(9);
@@ -322,12 +306,29 @@ public static class SelfTests
             once.Cancel();
             await run;
         }
+        // Suites moved in from the former stand-alone test projects: one check per named case.
+        async Task Case(string name, Func<Task> run)
+        {
+            string? failure = null;
+            try { await run().WaitAsync(TimeSpan.FromSeconds(30)); }
+            catch (Exception ex) { failure = ex.GetType().Name + ": " + ex.Message; }
+            Check(failure is null, failure is null ? name : name + " -> " + failure);
+        }
+        await FrameStoreTests.RunAsync(Case);
+        await ReceiverLifetimeTests.RunAsync(Case);
+        await SupervisorTests.RunAsync(Case);
+        await FleetShutdownTests.RunAsync(Case);
+        await RealProcessTests.RunAsync(Case);
         await ReceiverFleetTests.RunAsync(Check, file, router, validBmp);
         await InputSessionTests.RunAsync(Check);
+        await InputSessionTests.StopReasonAsync(Check);
+        await InputSessionTests.StartupReleaseAsync(Check);
         await InputSessionTests.HomeSequenceAsync(Check);
-        await InputSessionTests.NavigationAndProbeAsync(Check);
+        await InputSessionTests.NavigationAsync(Check);
         await KernelStartupTests.RunAsync(Check);
-        DeviceStoreTests.Run(Check);
+        await ConsoleLogTests.RunAsync(Check);
+        await ApiHttpTests.RunAsync(Check);
+        await ApiHttpTests.StartupOrderAsync(Check);
         File.Delete(file);Directory.Delete(testDir);
         Console.WriteLine($"{passed} tests passed; no real HID transport opened.");
         return 0;

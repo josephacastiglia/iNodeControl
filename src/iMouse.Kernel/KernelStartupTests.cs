@@ -15,8 +15,7 @@ internal static class KernelStartupTests
             check(refused, label);
         }
         var defaults = KernelOptions.Parse([]);
-        check(defaults.Rack == "" && KernelOptions.Parse(["--rack", "b"]).Rack == "B", "--rack labels one rack's kernel; the single kernel has none");
-        Reject(() => KernelOptions.Parse(["--rack", "A B"]), "--rack refuses labels with spaces or symbols");
+        Reject(() => KernelOptions.Parse(["--rack", "A"]), "--rack is not a kernel option: one kernel serves every configured board");
         string tmpFolder = Path.GetTempPath();
         var detached = KernelOptions.Parse(["--stop-file", Path.Combine(tmpFolder, "stop.txt"), "--console-log", Path.Combine(tmpFolder, "kernel.log")]);
         check(detached.StopFile == Path.Combine(Path.GetFullPath(tmpFolder), "stop.txt") && detached.ConsoleLog!.EndsWith("kernel.log"),
@@ -44,59 +43,49 @@ internal static class KernelStartupTests
             await watch.WaitAsync(TimeSpan.FromSeconds(5));
             check(watched.IsCancellationRequested, "The stop watcher cancels the kernel exactly as Ctrl+C does");
         }
-        Reject(() => KernelOptions.Parse(["--rack", "A", "--hid-caps"]), "--rack is refused with a raw hardware command");
-        check(defaults.ReplyBoards.Length == 0, "HID reply observation is off unless explicitly scoped at startup");
-        check(defaults.AbsoluteProbeBoard is null && defaults.Navigation == NavigationSequence.Vendor,
-            "Experimental absolute/navigation options do not change normal startup");
-        check(KernelOptions.Parse(["--home-sequence", "fn-h", "--navigation-sequence", "direct-fn"]).Home == HomeSequence.FnH
-            && KernelOptions.Parse(["--navigation-sequence", "direct-fn"]).Navigation == NavigationSequence.DirectFn,
-            "Direct Fn navigation is explicitly selected without claiming phone settings detection");
-        check(KernelOptions.Parse(["--input-pid", "C24C", "--hid-replies-pid", "C24C", "--absolute-probe-pid", "c24c"]).AbsoluteProbeBoard == "c24c",
-            "A move-only absolute probe can select one enabled observed board");
-        foreach (var args in new[] {
-            new[] { "--navigation-sequence", "auto" },
-            new[] { "--absolute-probe-pid", "C24C" },
-            new[] { "--input-pid", "C24C", "--absolute-probe-pid", "C24C" },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C", "--absolute-probe-pid", "C241" },
-            new[] { "--input-pid", "C24C,C241", "--hid-replies-pid", "C24C", "--absolute-probe-pid", "C24C" },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C", "--absolute-probe-pid", "C24C", "--hid-caps" } })
-            Reject(() => KernelOptions.Parse(args), "Unsafe experimental control configuration refused: " + string.Join(' ', args));
-        check(KernelOptions.Parse(["--input-pid", "C24C,C241", "--hid-replies-pid", "c24c"]).ReplyBoards.SequenceEqual(new[] { "c24c" }),
-            "Reply observation can select a subset of enabled boards");
-        foreach (var args in new[] {
-            new[] { "--hid-replies-pid", "C24C" },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C241" },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C,c24c" },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C," },
-            new[] { "--input-pid", "C24C", "--hid-replies-pid", "C24C", "--hid-caps" } })
-            Reject(() => KernelOptions.Parse(args), "Unsafe reply diagnostic scope refused: " + string.Join(' ', args));
         check(defaults.HeldReceivers.Length == 0 && KernelOptions.Parse(["--hold-receivers", "C214, 724e"]).HeldReceivers.SequenceEqual(new[] { "C214", "724e" }),
             "Receivers start advertised unless explicitly held");
         foreach (var args in new[] {
             new[] { "--hold-receivers", "C214,c214" },
             new[] { "--hold-receivers", "C214," },
-            new[] { "--hold-receivers", "Phone5" },
-            new[] { "--hold-receivers", "C214", "--hid-caps" } })
+            new[] { "--hold-receivers", "Phone5" } })
             Reject(() => KernelOptions.Parse(args), "Invalid receiver hold refused: " + string.Join(' ', args));
-        check(defaults.PreciseDelayMs == 7 && defaults.Home == HomeSequence.Vendor && defaults.Allowed.Length == 0
-            && defaults.Prefix == "http://127.0.0.1:9913/api/", "Startup defaults retain pacing, Home and no enabled boards");
-        check(KernelOptions.Parse(["--legacy"]).PreciseDelayMs == 0, "Legacy timing requires its explicit flag");
-        var explicitOptions = KernelOptions.Parse(["http://localhost:12345/api", @"--data-dir=C:\candidate with spaces", "--precise-delay", "12", "--input-pid=C24C, C241", "--home-sequence", "command-h"]);
-        check(explicitOptions.PreciseDelayMs == 12 && explicitOptions.DataDir == @"C:\candidate with spaces"
+        check(defaults.Home == HomeSequence.Vendor && defaults.Allowed.Length == 0
+            && defaults.Prefix == "http://127.0.0.1:9913/api/", "Startup defaults retain Home and no enabled boards");
+        var explicitOptions = KernelOptions.Parse(["http://localhost:12345/api", @"--data-dir=C:\candidate with spaces", "--input-pid=C24C, C241", "--home-sequence", "command-h"]);
+        check(explicitOptions.DataDir == @"C:\candidate with spaces"
             && explicitOptions.Allowed.SequenceEqual(new[] { "C24C", "C241" }) && explicitOptions.Home == HomeSequence.CommandH,
             "Explicit startup values and paths with spaces are retained");
         foreach (var invalid in new[] {
-            new[] { "--precise-delay", "0" }, new[] { "--precise-delay", "16" }, new[] { "--precise-delay", "bad" },
-            new[] { "--precise-delay", "1.5" }, new[] { "--precise-delay", "999999999999" },
-            new[] { "--precise-delay" }, new[] { "--precise-delay", "--legacy" }, new[] { "--precise-delay", "7", "--legacy" },
             new[] { "--data-dir=" }, new[] { "--data-dir", "one", "--data-dir=two" }, new[] { "--recievers", "file" },
             new[] { "--input-pid", "C24C," }, new[] { "--input-pid", "C24C,c24c" }, new[] { "--input-pid", "../" },
-            new[] { "--home-sequence", "bad" }, new[] { "--precise-movement" },
+            new[] { "--home-sequence", "bad" },
             new[] { "http://localhost/api" }, new[] { "http://localhost:0/api/" }, new[] { "http://localhost:9913/api/?secret=x" },
-            new[] { "http://localhost:9913/api/", "http://localhost:9914/api/" },
-            new[] { "--validate-startup", "--hid-caps" }, new[] { "--hid-send", "C24C" },
-            new[] { "--hid-caps", "--hid-replay", "C24C", "file" } })
+            new[] { "http://localhost:9913/api/", "http://localhost:9914/api/" } })
             Reject(() => KernelOptions.Parse(invalid), "Invalid startup arguments refused: " + string.Join(' ', invalid));
+        // The API has no login, so the listener stays on this PC unless the operator asks otherwise in words.
+        foreach (string local in new[] { "http://127.0.0.1:12345/api/", "http://localhost:12345/api/", "http://LOCALHOST:12345/api/",
+            "http://[::1]:12345/api/", "http://127.0.0.2:12345/api/" })
+            check(KernelOptions.Parse([local]).Prefix == local, "A loopback listener address needs no extra flag: " + local);
+        foreach (string wildcard in new[] { "http://+:12345/api/", "http://*:12345/api/" })
+        {
+            Reject(() => KernelOptions.Parse([wildcard]), "A wildcard listener address is refused: " + wildcard);
+            Reject(() => KernelOptions.Parse([wildcard, "--allow-network"]), "A wildcard listener address is refused even with --allow-network: " + wildcard);
+        }
+        foreach (string open in new[] { "http://0.0.0.0:12345/api/", "http://192.168.1.20:12345/api/",
+            "http://[::]:12345/api/", "http://rack-pc:12345/api/", "http://localhost.example.com:12345/api/", "http://127.0.0.1.example.com:12345/api/" })
+        {
+            string refusal = "";
+            try { KernelOptions.Parse([open]); } catch (ArgumentException ex) { refusal = ex.Message; }
+            check(refusal.Contains("--allow-network") && refusal.Contains("127.0.0.1"), "A listener other machines could reach is refused unless explicitly allowed: " + open);
+            check(KernelOptions.Parse(["--allow-network", open]).Prefix == open && KernelOptions.Parse([open, "--allow-network"]).Prefix == open,
+                "The same address is accepted with --allow-network: " + open);
+        }
+        Reject(() => KernelOptions.Parse(["--allow-network", "--allow-network"]), "Repeated --allow-network is refused");
+        Reject(() => KernelOptions.Parse(["--allow-network=yes"]), "--allow-network takes no value");
+        // The kernel executable has no way to write to a board outside the leased API.
+        foreach (var raw in new[] { new[] { "--hid-send", "C24C", "A100000000000000" }, new[] { "--hid-replay", "C24C", "file.json" }, new[] { "--hid-caps" } })
+            Reject(() => KernelOptions.Parse(raw), "Raw board commands are not kernel options: " + raw[0]);
 
         string folder = Path.Combine(Path.GetTempPath(), "imouse-startup-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(folder);
@@ -116,8 +105,16 @@ internal static class KernelStartupTests
                 && !report.GetProperty("listener_started").GetBoolean() && !report.GetProperty("receivers_started").GetBoolean()
                 && original.All(p => File.ReadAllBytes(p.Key).SequenceEqual(p.Value)) && Directory.GetFiles(folder).Length == 3,
                 "Valid saved configuration is read without changing files or starting components");
+            check(report.GetProperty("listener_loopback_only").GetBoolean()
+                && !JsonSerializer.SerializeToElement(KernelConfiguration.Load(Options("--allow-network", "http://0.0.0.0:12345/api/")).ValidationReport())
+                    .GetProperty("listener_loopback_only").GetBoolean(),
+                "The validation report says whether the listener is confined to this PC");
+            Reject(() => KernelConfiguration.Load(KernelOptions.Parse(["--validate-startup", "--data-dir", folder])),
+                "Startup without a saved receiver configuration is refused; there is no built-in phone");
             Save(deviceFile, Array.Empty<Phone>());
             check(config.Store.All().Single().deviceid == "test-phone", "Validated device snapshot does not reread later file changes");
+            var borrowed = config.Store.All(); borrowed[0].pid = "FFFF"; borrowed.Clear();
+            check(config.Store.All().Single().pid == "ABCD", "Caller snapshots cannot change the kernel's assignments");
             Save(deviceFile, phones);
             File.WriteAllText(receiverFile, "[{\"DeviceId\":\"test-phone\",\"DeviceId\":\"other\"}]");
             Reject(() => KernelConfiguration.Load(Options()), "Duplicate JSON properties are refused before startup");
