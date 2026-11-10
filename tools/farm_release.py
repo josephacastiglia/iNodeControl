@@ -38,7 +38,10 @@ from pathlib import Path, PurePosixPath
 sys.dont_write_bytecode = True
 REPO = Path(__file__).resolve().parents[1]
 SCHEMA = 1
-DATA_SCHEMA = 1
+# The layout of the per-machine data folder (farm_install.py). A version never opens data with a higher
+# number than its own. 2: the rack scripts' state is in <data>/rack (farm_install.migrate_data moves the
+# folder an earlier version used, once).
+DATA_SCHEMA = 2
 KIND = 'imouse-marketing-farm'
 RACK_DIR = 'rack'
 

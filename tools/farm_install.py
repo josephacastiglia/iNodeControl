@@ -9,10 +9,11 @@ shortcuts. The operator does those (Preflight-Farm.ps1 prints the steps).
   <root>/versions/<version>/   a verified, never-modified copy of one package
   <root>/Farm.ps1              launcher: reads current.json, runs a command from that version
 
-  <data>/data.json             data schema and the last version that used this folder
+  <data>/data.json             data schema, the last version that used this folder, layout moves ("migrations")
   <data>/...                   private per-machine state (DATA_DIRS); never inside the install root
 
   python farm_install.py init-data --data DIR
+  python farm_install.py migrate-data --data DIR         # install, update and Farm.ps1 do this themselves
   python farm_install.py install   --package PKG --root DIR --data DIR [--python EXE]
   python farm_install.py update    --package PKG --root DIR
   python farm_install.py rollback  --root DIR
@@ -39,7 +40,11 @@ import farm_release as fr  # noqa: E402
 SCHEMA = 1
 # The rack scripts' state folder inside the data folder (farm_paths.STATE and RackState.ps1 name the same
 # place). It is not where their code is: that is farm_release.RACK_DIR, inside a version folder.
-RACK_STATE = 'analysis/farm-multiphone-20261020'
+RACK_STATE = 'rack'
+# Where versions with data schema 1 kept it. migrate_data moves that folder to RACK_STATE once; Farm.ps1
+# names it too, to catch a data folder that still has it.
+OLD_RACK_STATE = 'analysis/farm-multiphone-20261020'
+RACK_STATE_SCHEMA = 2  # the data schema from which the rack state is at RACK_STATE
 # Private state, laid out as the farm tools expect it relative to their state root (farm_paths.MAIN once
 # IMOUSE_FARM_DATA is honoured). Created empty by init-data; filled by the operator's own preparations.
 DATA_DIRS = (
@@ -111,6 +116,7 @@ def init_data(data, package_schema=fr.DATA_SCHEMA):
         if info.get('schema_version') != SCHEMA:
             raise Refused('data.json is not a Marketing Farm data folder marker')
         created = False
+        migrate_data(data, package_schema)  # before DATA_DIRS: an earlier layout is moved, never duplicated
     else:
         if data.exists() and any(data.iterdir()):
             raise Refused(f'{data} exists, is not empty and has no data.json; choose an empty or new folder')
@@ -124,12 +130,55 @@ def init_data(data, package_schema=fr.DATA_SCHEMA):
     return info
 
 
+def migrate_data(data, package_schema=fr.DATA_SCHEMA):
+    """Bring the data folder's layout up to what a version with `package_schema` reads. One move exists:
+    from data schema 2 the rack state is <data>/rack; schema 1 kept it in OLD_RACK_STATE. When the old folder
+    is there and the new one is not, it is renamed (inside the data folder: nothing is copied) and the move
+    is recorded in data.json, which then says schema 2, so an earlier version refuses the folder instead of
+    finding its rack state gone. Returns the record, or None when nothing was moved: no old folder, a
+    version that still reads the old layout, or data newer than this version (_claim_data refuses that).
+    Refuses, moving nothing, when both folders exist: which one is current is the operator's decision."""
+    data = Path(data)
+    marker = data / 'data.json'
+    if not marker.exists():
+        raise Refused(f'{data} has no data.json: not a Marketing Farm data folder')
+    info = read_json(marker)
+    if info.get('schema_version') != SCHEMA:
+        raise Refused('data.json is not a Marketing Farm data folder marker')
+    if package_schema < RACK_STATE_SCHEMA or info.get('data_schema', 0) > package_schema:
+        return None
+    old, new = data.joinpath(*OLD_RACK_STATE.split('/')), data.joinpath(*RACK_STATE.split('/'))
+    if not os.path.lexists(old):
+        return None
+    if os.path.lexists(new):
+        raise Refused(f'the data folder holds rack state in two places: {old} (where earlier versions kept it) and {new} '
+                      f'(where this version keeps it). Nothing was moved. Decide which one is current, remove the '
+                      f'other, then run this again')
+    if old.is_symlink() or not old.is_dir():
+        raise Refused(f'{old} is not a plain folder. Nothing was moved')
+    os.rename(old, new)
+    record = {'utc': now(), 'moved': OLD_RACK_STATE, 'to': RACK_STATE, 'data_schema': RACK_STATE_SCHEMA}
+    try:
+        write_json_atomic(marker, dict(info, data_schema=max(info.get('data_schema', 0), RACK_STATE_SCHEMA),
+                                       migrations=info.get('migrations', []) + [record]))
+    except BaseException:
+        os.rename(new, old)  # not recorded, so not moved: the next run finds the folder where it was
+        raise
+    try:
+        old.parent.rmdir()  # <data>/analysis, when it held nothing else
+    except OSError:
+        pass
+    return record
+
+
 def _claim_data(data, manifest):
     marker = Path(data) / 'data.json'
     info = read_json(marker)
     if info.get('data_schema', 0) > manifest['data_schema']:
         raise Refused(f"version {manifest['version']} reads data schema {manifest['data_schema']}, "
                       f"but this data folder is at schema {info['data_schema']}: an older version must not open newer data")
+    if migrate_data(data, manifest['data_schema']):
+        info = read_json(marker)
     info.update(data_schema=max(info.get('data_schema', 0), manifest['data_schema']), last_version=manifest['version'], last_used_utc=now())
     write_json_atomic(marker, info)
 
@@ -227,7 +276,7 @@ def install(package, root, data, python=None, processes=farm_processes):
         raise Refused('already installed here; use update')
     if root.exists() and any(root.iterdir()):
         raise Refused(f'{root} exists and is not empty; choose an empty or new folder')
-    manifest = fr.load_json(package / 'release.json')
+    manifest = _verified_manifest(package)  # before the data folder is made, or an earlier layout in it moved
     init_data(data, manifest.get('data_schema', fr.DATA_SCHEMA))
     root.mkdir(parents=True, exist_ok=True)
     manifest, target, _ = _copy_version(root, package)
@@ -312,7 +361,8 @@ def uninstall(root, processes=farm_processes):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='mode', required=True)
-    d = sub.add_parser('init-data'); d.add_argument('--data', type=Path, required=True)
+    for name in ('init-data', 'migrate-data'):
+        sub.add_parser(name).add_argument('--data', type=Path, required=True)
     i = sub.add_parser('install')
     for p in (i, sub.add_parser('update')):
         p.add_argument('--package', type=Path, required=True)
@@ -324,6 +374,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.mode == 'init-data': result = init_data(args.data)
+        elif args.mode == 'migrate-data': result = {'moved': migrate_data(args.data)}
         elif args.mode == 'install': result = install(args.package, args.root, args.data, args.python)
         elif args.mode == 'update': result = update(args.package, args.root)
         elif args.mode == 'rollback': result = rollback(args.root)

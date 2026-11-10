@@ -42,7 +42,7 @@ Updates and rollbacks touch only the program. Uninstall leaves your data.
 2. Copy this PC's private files into the data folder by hand, never through Git or a shared drive:
    - into `%LOCALAPPDATA%\iMouseFarm\evidence-archive\privacy\`: `withheld-candidates.txt`,
      `extra-handles.txt`, `farm-accounts.json`;
-   - into `%LOCALAPPDATA%\iMouseFarm\analysis\farm-multiphone-20261020\`: `phone-slots.json`,
+   - into `%LOCALAPPDATA%\iMouseFarm\rack\`: `phone-slots.json`,
      `rack-b-boards.json`, `rack-b-slots.json`.
 3. Write `%LOCALAPPDATA%\iMouseFarm\machine.json` with the PC's address on the farm Wi-Fi:
 
@@ -73,7 +73,7 @@ none of it has been done on a second PC yet:
   against a stand-in kernel with no phones.
 
 Does not work yet:
-- **Preparing a rack.** `start-rack` reads `analysis\farm-multiphone-20261020\slots\preparation.json`
+- **Preparing a rack.** `start-rack` reads `rack\slots\preparation.json`
   in the data folder: the kernel's arguments, this PC's paths, and the run folder in which each
   phone's device ID is bound to its board. The scripts that write one (`prepare_rack_a.py`,
   `prepare_rack_b.py`) start from
@@ -102,6 +102,12 @@ The package is for your own PCs. `uxplay.exe` comes with its licence and source 
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\Install-Farm.ps1 -Update`
 
    It refuses while any farm program is still running.
+
+   When a new version keeps something in the data folder in a different place, the update moves it
+   there once and notes the move in `data.json`. From then on an earlier version refuses that data
+   folder, so the update cannot be rolled back. If the update finds the same thing in both the old
+   place and the new one, it stops and names both folders: decide which one is current, remove the
+   other, then run the update again.
 3. Prepare every window again: a new version changes the backend's fingerprint. If the release notes
    say the kernel changed, the rack preparation has to name the new build as well (on the development
    PC: `rack_kernels.py rekernel`).
@@ -113,7 +119,8 @@ Stop the farm as for an update. Then, from any release folder, run:
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\Install-Farm.ps1 -Rollback`
 
 This switches to the previous version, which is checked file by file first. Running it again switches
-forward. Prepare windows again afterwards.
+forward. Prepare windows again afterwards. A rollback is refused when the update moved something in the
+data folder (the message names the data schema): the previous version cannot read it.
 
 ## 5. Uninstall
 

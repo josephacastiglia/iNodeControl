@@ -16,8 +16,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SCRIPTS = ('RackState.ps1', 'Start-Multiphone.ps1', 'Stop-Multiphone.ps1', 'Release-Receiver.ps1', 'Restart-Receiver.ps1',
            'Start-Window.ps1', 'Stop-Window.ps1')
-RACK = 'rack'                                     # the scripts' folder in a checkout
-DATA_STATE = 'analysis/farm-multiphone-20261020'  # their state folder inside IMOUSE_FARM_DATA
+RACK = 'rack'        # the scripts' folder in a checkout
+DATA_STATE = 'rack'  # their state folder inside IMOUSE_FARM_DATA (tools/farm_install.py RACK_STATE)
 
 
 def ps(script, *args, env=None):

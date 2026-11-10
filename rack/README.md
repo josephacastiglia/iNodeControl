@@ -16,7 +16,7 @@ a restart drops every phone's mirror (`LANES.md`).
 | `windows\<platform>-slot<N>\` | one window: its preparation, config, process record, attempts and checks |
 | `phone-slots.json`, `rack-b-slots.json`, `rack-b-boards.json` | which board sits in which slot; `bringup-plan.json`: the connect order |
 
-Installed (`docs/INSTALL-FARM.md`) the same layout sits in the data folder; `RackState.ps1` and
+Installed (`docs/INSTALL-FARM.md`) the same layout sits in the data folder's `rack\`; `RackState.ps1` and
 `tools/farm_paths.py` are the only places that decide. State is never committed: it names this PC's
 paths and phones.
 

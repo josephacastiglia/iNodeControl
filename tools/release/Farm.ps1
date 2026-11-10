@@ -40,6 +40,17 @@ if ($Command -eq 'preflight') {
 $spec = $release.commands.$Command
 if (!$spec) { throw "Unknown command '$Command'. Known: status, preflight, " + (($release.commands.PSObject.Properties | ForEach-Object Name) -join ', ') }
 if (!$spec.ready) { throw "'$Command' is not ready in version $($current.version): its code still reads the dev folder or keeps state in the install (" + (@($spec.blocked_by) -join ', ') + '). Nothing was started.' }
+# From data schema 2 the rack state is in <data>\rack. Install and update move it there from the folder
+# earlier versions used. A data folder that still has that folder (restored from an older backup, say) is
+# moved here by the same code, once; it refuses when both folders exist. Nothing starts until that is settled.
+if (Test-Path -LiteralPath (Join-Path $data 'analysis\farm-multiphone-20261020')) {
+    if (!$python) { throw 'The data folder holds rack state where earlier versions kept it, and no Python is recorded to move it; reinstall with --python. Nothing was started.' }
+    $answer = (& $python -E (Join-Path $version 'install\farm_install.py') migrate-data --data $data) -join ' '
+    if ($LASTEXITCODE -ne 0) {
+        $why = try { [string]($answer | ConvertFrom-Json).refused } catch { $answer }
+        throw "The rack state in the data folder was not moved to its new place: $why. Nothing was started."
+    }
+}
 $entry = Join-Path $version ($spec.entry -replace '/', '\')
 $env:IMOUSE_FARM_HOME = Join-Path $version 'farm'
 $env:IMOUSE_FARM_DATA = $data

@@ -27,6 +27,27 @@ def powershell(*args, cwd=None):
                           capture_output=True, text=True, timeout=120, cwd=cwd)
 
 
+def schema_1_data(data):
+    """A data folder as a version with data schema 1 left it: the rack state in the old place, none in the new."""
+    old = Path(data) / fi.OLD_RACK_STATE
+    (old / 'slots').mkdir(parents=True)
+    (old / 'windows/reel-slot18').mkdir(parents=True)
+    (old / 'slots/preparation.json').write_text('{"fake": "kernel preparation"}')
+    (old / 'windows/reel-slot18/preparation.json').write_text('{"fake": "window preparation"}')
+    (old / 'phone-slots.json').write_text('{"slots": {}}')
+    for d in fi.DATA_DIRS:
+        if not d.startswith(fi.RACK_STATE + '/'):
+            (Path(data) / d).mkdir(parents=True, exist_ok=True)
+    fi.write_json_atomic(Path(data) / 'data.json', {'schema_version': fi.SCHEMA, 'data_schema': 1, 'created_utc': fi.now(), 'last_version': '0.9.0'})
+    return old
+
+
+def snapshot(root):
+    """Every folder and file under root with its bytes: equal snapshots mean nothing was moved or changed."""
+    root = Path(root)
+    return {p.relative_to(root).as_posix(): (p.read_bytes() if p.is_file() else None) for p in sorted(root.rglob('*'))}
+
+
 class Base(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -188,6 +209,208 @@ class Lifecycle(Base):
         self.assertIn('nothing installed', json.loads(out.stdout)['refused'])
 
 
+class DataMigration(unittest.TestCase):
+    """Data schema 2 keeps the rack state in <data>/rack; a schema 1 folder is moved there once."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.data = Path(self.tmp.name) / 'pc/iMouseFarm'
+        self.old, self.new = self.data / fi.OLD_RACK_STATE, self.data / fi.RACK_STATE
+
+    def test_old_only_is_moved_once_and_recorded(self):
+        schema_1_data(self.data)
+        before = snapshot(self.old)
+        record = fi.migrate_data(self.data)
+        self.assertEqual((record['moved'], record['to'], record['data_schema']), (fi.OLD_RACK_STATE, fi.RACK_STATE, 2))
+        self.assertEqual(snapshot(self.new), before, 'the same folders and bytes, in the new place')
+        self.assertFalse(self.old.exists())
+        self.assertFalse(self.old.parent.exists(), 'the emptied parent folder goes too')
+        info = fi.read_json(self.data / 'data.json')
+        self.assertEqual((info['data_schema'], info['migrations'], info['last_version']), (2, [record], '0.9.0'))
+        after = snapshot(self.data)
+        self.assertIsNone(fi.migrate_data(self.data), 'a second run finds nothing to move')
+        self.assertEqual(snapshot(self.data), after)
+        self.assertEqual(fi.init_data(self.data)['migrations'], [record], 'and init-data adds no second record')
+        self.assertFalse(list(self.data.rglob('*.tmp')))
+
+    def test_new_only_is_untouched(self):
+        fi.init_data(self.data)
+        (self.new / 'slots/preparation.json').write_text('{"fake": true}')
+        before = snapshot(self.data)
+        self.assertIsNone(fi.migrate_data(self.data))
+        self.assertEqual(snapshot(self.data), before)
+        self.assertNotIn('migrations', fi.read_json(self.data / 'data.json'))
+
+    def test_both_places_are_refused_with_both_named_and_nothing_moves(self):
+        schema_1_data(self.data)
+        (self.new / 'slots').mkdir(parents=True)
+        (self.new / 'slots/preparation.json').write_text('{"fake": "newer"}')
+        before = snapshot(self.data)
+        for attempt in (lambda: fi.migrate_data(self.data), lambda: fi.init_data(self.data)):
+            with self.assertRaises(fi.Refused) as refused:
+                attempt()
+            message = str(refused.exception)
+            self.assertIn('rack state in two places', message)
+            self.assertIn(str(self.old), message)
+            self.assertIn(str(self.new), message)
+            self.assertIn('Nothing was moved', message)
+            self.assertEqual(snapshot(self.data), before)
+        # An empty new folder counts too: the installer never guesses which of the two is current.
+        shutil.rmtree(self.new)
+        self.new.mkdir()
+        with self.assertRaisesRegex(fi.Refused, 'two places'):
+            fi.migrate_data(self.data)
+        self.new.rmdir()
+        self.assertIsNotNone(fi.migrate_data(self.data), 'with the other one removed the move goes ahead')
+
+    def test_a_version_that_reads_the_old_layout_and_newer_data_move_nothing(self):
+        schema_1_data(self.data)
+        before = snapshot(self.data)
+        self.assertIsNone(fi.migrate_data(self.data, package_schema=1), 'a schema 1 version still reads the old place')
+        self.assertEqual(snapshot(self.data), before)
+        marker = self.data / 'data.json'
+        marker.write_text(json.dumps(dict(fi.read_json(marker), data_schema=99)))
+        before = snapshot(self.data)
+        self.assertIsNone(fi.migrate_data(self.data), 'data newer than this version is left for the schema refusal')
+        self.assertEqual(snapshot(self.data), before)
+
+    def test_a_move_that_cannot_be_recorded_is_undone(self):
+        schema_1_data(self.data)
+        before = snapshot(self.data)
+        with patch('farm_install.write_json_atomic', side_effect=OSError('disk full')):
+            with self.assertRaises(OSError):
+                fi.migrate_data(self.data)
+        self.assertEqual(snapshot(self.data), before, 'not recorded, so not moved')
+        self.assertIsNotNone(fi.migrate_data(self.data), 'a retry works')
+
+    def test_other_files_beside_the_old_folder_stay_where_they_are(self):
+        schema_1_data(self.data)
+        (self.old.parent / 'operator-notes.txt').write_text('mine')
+        fi.migrate_data(self.data)
+        self.assertEqual((self.old.parent / 'operator-notes.txt').read_text(), 'mine')
+        self.assertFalse(self.old.exists())
+        self.assertTrue((self.new / 'slots/preparation.json').is_file())
+
+    def test_a_folder_without_a_marker_or_a_file_in_the_old_place_is_refused(self):
+        self.data.mkdir(parents=True)
+        with self.assertRaisesRegex(fi.Refused, 'no data.json'):
+            fi.migrate_data(self.data)
+        schema_1_data(self.data / 'second')
+        old = self.data / 'second' / fi.OLD_RACK_STATE
+        shutil.rmtree(old)
+        old.write_text('not a folder')
+        with self.assertRaisesRegex(fi.Refused, 'not a plain folder'):
+            fi.migrate_data(self.data / 'second')
+        self.assertEqual(old.read_text(), 'not a folder')
+
+    def test_cli_moves_reports_and_refuses(self):
+        schema_1_data(self.data)
+        cli = [sys.executable, '-E', str(Path(fi.__file__)), 'migrate-data', '--data', str(self.data)]
+        out = subprocess.run(cli, capture_output=True, text=True, timeout=60)
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        self.assertEqual(json.loads(out.stdout)['moved']['to'], fi.RACK_STATE)
+        self.assertTrue((self.new / 'phone-slots.json').is_file())
+        out = subprocess.run(cli, capture_output=True, text=True, timeout=60)
+        self.assertEqual((out.returncode, json.loads(out.stdout)), (0, {'moved': None}))
+        (self.old / 'slots').mkdir(parents=True)
+        out = subprocess.run(cli, capture_output=True, text=True, timeout=60)
+        self.assertEqual(out.returncode, 2)
+        self.assertIn('two places', json.loads(out.stdout)['refused'])
+
+    def test_the_layout_names_agree_everywhere(self):
+        # One new place and one old place, named in four files: the installer, farm_paths (Python state),
+        # RackState.ps1 (PowerShell state) and the launcher's check for a data folder still in the old layout.
+        self.assertEqual(fr.DATA_SCHEMA, fi.RACK_STATE_SCHEMA)
+        self.assertEqual({d.split('/')[0] for d in fi.DATA_DIRS if 'slots' in d or 'windows' in d}, {fi.RACK_STATE})
+        launcher = (RELEASE / 'Farm.ps1').read_text(encoding='utf-8')
+        self.assertIn("(Join-Path $data '%s')" % fi.OLD_RACK_STATE.replace('/', '\\'), launcher)
+        self.assertIn("'install\\farm_install.py') migrate-data --data $data", launcher)
+        rack_state = (Path(fr.REPO) / fr.RACK_DIR / 'RackState.ps1').read_text(encoding='utf-8')
+        self.assertIn("Join-Path $env:IMOUSE_FARM_DATA '%s'" % fi.RACK_STATE, rack_state)
+        self.assertNotIn(fi.OLD_RACK_STATE.split('/')[-1], rack_state)
+
+
+class DataMigrationOnInstall(Base):
+    """The installer moves a schema 1 data folder when a schema 2 version takes it over, and only then."""
+
+    def setUp(self):
+        super().setUp()
+        with patch.object(fr, 'DATA_SCHEMA', 1):   # a package as an earlier release built it
+            _, self.pkg_old, _ = build_package(self.base, repo=self.repo, version='0.9.0')
+        self.old, self.new = self.data / fi.OLD_RACK_STATE, self.data / fi.RACK_STATE
+
+    def install_old(self):
+        """Version 0.9.0 installed and used, with the data folder laid out as that version made it."""
+        fi.install(self.pkg_old, self.root, self.data, python=sys.executable, processes=idle)
+        self.assertEqual(fi.read_json(self.data / 'data.json')['data_schema'], 1)
+        self.old.parent.mkdir()
+        self.new.rename(self.old)
+        (self.old / 'slots/preparation.json').write_text('{"fake": "kernel preparation"}')
+        (self.old / 'windows/reel-slot18').mkdir()
+        (self.old / 'windows/reel-slot18/preparation.json').write_text('{"fake": "window preparation"}')
+
+    def test_update_moves_the_rack_state_once_and_the_earlier_version_is_then_refused(self):
+        self.install_old()
+        before = snapshot(self.old)
+        state = fi.update(self.pkg_a, self.root, processes=idle)
+        self.assertEqual((state['version'], state['previous']), ('1.0.0', '0.9.0'))
+        self.assertEqual(snapshot(self.new), before)
+        self.assertFalse(self.old.parent.exists())
+        info = fi.read_json(self.data / 'data.json')
+        self.assertEqual((info['data_schema'], info['last_version'], len(info['migrations'])), (2, '1.0.0', 1))
+        self.assertEqual(info['migrations'][0]['moved'], fi.OLD_RACK_STATE)
+        with self.assertRaisesRegex(fi.Refused, 'data schema 1.*schema 2.*older version must not open newer data'):
+            fi.rollback(self.root, processes=idle)
+        self.assertEqual(fi.status(self.root)['version'], '1.0.0')
+        self.assertEqual(snapshot(self.new), before, 'the refused rollback moved nothing back')
+        fi.update(self.pkg_b, self.root, processes=idle)   # a later update finds nothing left to move
+        self.assertEqual(len(fi.read_json(self.data / 'data.json')['migrations']), 1)
+        self.assertEqual(snapshot(self.new), before)
+
+    def test_update_is_refused_while_both_places_exist_and_the_version_does_not_switch(self):
+        self.install_old()
+        (self.new / 'slots').mkdir(parents=True)
+        before = snapshot(self.data)
+        with self.assertRaisesRegex(fi.Refused, 'rack state in two places'):
+            fi.update(self.pkg_a, self.root, processes=idle)
+        self.assertEqual(fi.status(self.root)['version'], '0.9.0')
+        self.assertEqual(snapshot(self.data), before)
+        shutil.rmtree(self.new)   # the operator's decision: the old place is the current one
+        self.assertEqual(fi.update(self.pkg_a, self.root, processes=idle)['version'], '1.0.0')
+        self.assertTrue((self.new / 'slots/preparation.json').is_file())
+
+    def test_install_onto_a_schema_1_data_folder_moves_it_before_making_folders(self):
+        old = schema_1_data(self.data)
+        before = snapshot(old)
+        self.install()
+        for d in fi.DATA_DIRS:
+            self.assertTrue((self.data / d).is_dir(), d)
+        self.assertEqual(snapshot(self.new), before)
+        self.assertFalse(old.exists())
+        info = fi.read_json(self.data / 'data.json')
+        self.assertEqual((info['data_schema'], info['last_version'], len(info['migrations'])), (2, '1.0.0', 1))
+
+    def test_a_package_that_fails_verification_leaves_a_schema_1_data_folder_alone(self):
+        schema_1_data(self.data)
+        before = snapshot(self.data)
+        (self.pkg_a / 'farm/tools/farm_jobs.py').write_text('evil')
+        with self.assertRaisesRegex(fi.Refused, 'failed verification'):
+            self.install()
+        self.assertEqual(snapshot(self.data), before)
+        self.assertFalse(self.root.exists())
+
+    def test_an_earlier_version_keeps_the_layout_it_reads(self):
+        self.install_old()
+        before = snapshot(self.data / fi.OLD_RACK_STATE)
+        with patch.object(fr, 'DATA_SCHEMA', 1):
+            _, pkg_old_b, _ = build_package(self.base, repo=self.repo, version='0.9.1')
+        fi.update(pkg_old_b, self.root, processes=idle)
+        self.assertEqual(snapshot(self.old), before)
+        self.assertFalse(self.new.exists())
+        self.assertNotIn('migrations', fi.read_json(self.data / 'data.json'))
+
+
 @unittest.skipUnless(sys.platform == 'win32', 'Windows PowerShell')
 class Launcher(Base):
     def test_status_ready_command_and_blocked_command(self):
@@ -223,6 +446,39 @@ class Launcher(Base):
         self.assertEqual(seen['IMOUSE_FARM_VERSION'], '2.0.0')
         self.assertEqual(Path(seen['IMOUSE_FARM_DATA']).resolve(), self.data.resolve())
         self.assertEqual(Path(seen['IMOUSE_FARM_KERNEL']).resolve(), (self.root / 'versions/2.0.0/kernel/iMouse2.Kernel.exe').resolve())
+
+    def test_launcher_moves_a_schema_1_rack_state_before_a_command_and_refuses_two_places(self):
+        repo = make_repo(self.base / 'ran-probe')
+        (repo / 'tools/imouse_farm_server.py').write_text(
+            (repo / 'tools/imouse_farm_server.py').read_text(encoding='utf-8') +
+            'if __name__ == "__main__":\n    open("server-ran.txt", "a").write("ran\\n")\n', encoding='utf-8')
+        _, pkg, _ = build_package(self.base / 'ran-probe', repo=repo, version='2.0.0')
+        fi.install(pkg, self.root, self.data, python=sys.executable, processes=idle)
+        old, new, ran = self.data / fi.OLD_RACK_STATE, self.data / fi.RACK_STATE, self.data / 'server-ran.txt'
+        # The data folder comes back in the earlier layout (an older backup restored over it, say).
+        old.parent.mkdir()
+        new.rename(old)
+        (old / 'slots/preparation.json').write_text('{"fake": "kernel preparation"}')
+        before = snapshot(old)
+        run = powershell('-File', str(self.root / 'Farm.ps1'), 'server', cwd=self.base)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(snapshot(new), before)
+        self.assertFalse(old.parent.exists())
+        self.assertEqual(len(fi.read_json(self.data / 'data.json')['migrations']), 1)
+        self.assertEqual(ran.read_text(), 'ran\n', 'the command ran, after the move')
+        self.assertEqual(fr.verify(self.root / 'versions/2.0.0'), [], 'the move wrote nothing into the version folder')
+        # Both places: the launcher refuses, names both, and starts nothing.
+        (old / 'slots').mkdir(parents=True)
+        (old / 'slots/preparation.json').write_text('{"fake": "another"}')
+        both = snapshot(self.data)
+        run = powershell('-File', str(self.root / 'Farm.ps1'), 'server', cwd=self.base)
+        self.assertNotEqual(run.returncode, 0)
+        said = ''.join(run.stderr.split())   # PowerShell wraps long error lines at the console width
+        for need in ('rack state in two places', str(old), str(new), 'Nothing was moved', 'Nothing was started'):
+            self.assertIn(''.join(need.split()), said, run.stderr[-800:])
+        self.assertEqual(snapshot(self.data), both, 'nothing moved and the command did not run again')
+        status = powershell('-File', str(self.root / 'Farm.ps1'), 'status', cwd=self.base)
+        self.assertEqual(status.returncode, 0, 'status still answers, so the operator can see what is installed')
 
 
 class RuntimeGuard(unittest.TestCase):

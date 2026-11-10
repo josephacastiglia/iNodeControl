@@ -51,7 +51,7 @@ class RackState(unittest.TestCase):
             got = probe({'IMOUSE_FARM_DATA': str(data), 'IMOUSE_FARM_KERNEL': str(kernel), 'IMOUSE_FARM_LAN': '192.168.77.5'},
                         ['--source', str(data / 'full-rack')])
             self.assertEqual(got['prepare_window']['PC_LAN'], '192.168.77.5')
-            state = data / 'analysis' / 'farm-multiphone-20261020'
+            state = data / 'rack'
             for name, paths in got.items():
                 self.assertEqual(paths['STATE'], str(state), name)
                 if 'RUNS' in paths:

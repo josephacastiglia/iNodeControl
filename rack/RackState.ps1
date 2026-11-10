@@ -1,11 +1,11 @@
 # Where the rack keeps its state, for every rack script (dot-source this file):
 #   Get-RackState                    the state root: beside these scripts in a checkout; installed, Farm.ps1
-#                                    sets IMOUSE_FARM_DATA and it is <data>\analysis\farm-multiphone-20261020
+#                                    sets IMOUSE_FARM_DATA and it is <data>\rack
 #   Get-RackKernelFolder             the kernel's one folder: preparation, process record, logs, ledgers
 #   Get-RackState 'windows\<name>'   one window's folder
 # Python reads the same places through tools/farm_paths.py (rack_state) and rack_kernels.py (kernel_folder).
 function Get-RackState([string]$Child='') {
-    $rackRoot=if($env:IMOUSE_FARM_DATA){Join-Path $env:IMOUSE_FARM_DATA 'analysis\farm-multiphone-20261020'}else{$PSScriptRoot}
+    $rackRoot=if($env:IMOUSE_FARM_DATA){Join-Path $env:IMOUSE_FARM_DATA 'rack'}else{$PSScriptRoot}
     if($Child){Join-Path $rackRoot $Child}else{$rackRoot}
 }
 # The folder keeps the name of the stage it once was ('slots'): live state on the rack PC sits there.

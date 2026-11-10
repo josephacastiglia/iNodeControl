@@ -64,8 +64,8 @@ class FarmPaths(unittest.TestCase):
             got = load_paths(module, {'IMOUSE_FARM_DATA': str(data), 'IMOUSE_FARM_KERNEL': 'Y:/v1/kernel/k.exe'})
             self.assertEqual(got['MAIN'], str(data))
             self.assertEqual(got['ARCHIVE'], str(data / 'evidence-archive'))
-            self.assertEqual(got['STATE'], str(data / 'analysis/farm-multiphone-20261020'))
-            self.assertEqual(got['RACK'], str(data / 'analysis/farm-multiphone-20261020/slots'))
+            self.assertEqual(got['STATE'], str(data / 'rack'))
+            self.assertEqual(got['RACK'], str(data / 'rack/slots'))
             self.assertEqual(got['state_x'], got['STATE'])
             self.assertEqual(got['run_x'], str(data))
             self.assertEqual(got['kernel'], str(Path('Y:/v1/kernel/k.exe')))
@@ -109,7 +109,7 @@ class FarmPaths(unittest.TestCase):
 
     def test_data_layout_matches_the_installer(self):
         import farm_install
-        self.assertIn('analysis/farm-multiphone-20261020/slots', farm_install.DATA_DIRS)
+        self.assertIn('rack/slots', farm_install.DATA_DIRS)
         self.assertIn('evidence-archive/privacy', farm_install.DATA_DIRS)
 
 
