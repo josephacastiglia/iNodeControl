@@ -22,7 +22,7 @@ import re
 import numpy as np
 from PIL import Image
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import require, exact
 from farm_screen_layout import pixels, words_at, line_at
 from farm_reel_layout import UNIQUE_MARGIN, POINTER, band_words, no_overlay, rows_between, reel_paste_menu

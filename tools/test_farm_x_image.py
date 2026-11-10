@@ -21,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFilter
 import farm_test_network  # noqa: F401  Refuse every real socket in this process.
 import farm_paths
 import farm_reel_runs
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_jobs import FarmJobs
 import farm_x_image_creation as xic
 import farm_x_image_layout as xil

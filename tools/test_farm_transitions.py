@@ -6,7 +6,7 @@ import uuid
 
 from PIL import Image, ImageDraw
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_observations import classify
 from farm_screen_layout import create_menu_controls
 from farm_transitions import wait_for_transition

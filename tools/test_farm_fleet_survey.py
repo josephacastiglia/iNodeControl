@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 from PIL import Image
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 import farm_fleet_survey as F
 
 

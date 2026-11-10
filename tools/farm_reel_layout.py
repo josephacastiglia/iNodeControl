@@ -16,7 +16,7 @@ import tempfile
 import numpy as np
 from PIL import Image
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import require, exact, control
 from farm_screen_layout import pixels, words_at, line_at, overlay_present, create_menu_controls
 from farm_video import probe_video, run_media

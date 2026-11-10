@@ -4,7 +4,7 @@ from pathlib import Path
 import unittest
 from unittest import mock
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_home_edit import edit_mode
 import farm_start_screen as start
 from farm_start_screen import StartScreen

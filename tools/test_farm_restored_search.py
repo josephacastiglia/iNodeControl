@@ -1,7 +1,7 @@
 """A restored app-search query: the farm's own apps are recognized for clearing; anything else stops. Offline."""
 import unittest
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import RESTORED_QUERIES, restored_app_search
 
 

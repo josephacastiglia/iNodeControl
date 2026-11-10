@@ -4,7 +4,7 @@ import unittest
 
 from PIL import Image
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import HOME_SEARCH_BOX, home_search
 
 

@@ -14,7 +14,7 @@ reopens a draft: saving a reopened X draft dropped its media (23 Oct).
 """
 import numpy as np
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import require, exact, home_search, empty_search, search_clear
 from farm_draft_creation import still_compare
 from farm_draft_workflow import Workflow, centre

@@ -2,7 +2,7 @@
 import json
 import urllib.request
 from farm_live_verification import ReadOnlyKernel, NoRedirect
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_screen_layout import picker_controls, editor_controls, next_label, NEXT_BOX, words_at, save_prompt
 from imouse_social_automation import IMouseKernel, KernelSafetyError
 

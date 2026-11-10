@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw
 import farm_test_network  # noqa: F401  Refuse every real socket in this process.
 import farm_permission_prompts as prompts
 import farm_tiktok_layout as tt
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_draft_workflow import references
 from farm_observations import ObservationStore
 from farm_tiktok_creation import TikTokCreationWorkflow, TikTokVerification, COMMITTING, tiktok_guard

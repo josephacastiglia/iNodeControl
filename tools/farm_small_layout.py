@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 
 SCREEN = (0, 95, 500, 985)
 STATUS_BAR = (0, 95, 500, 120)

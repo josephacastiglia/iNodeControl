@@ -8,7 +8,7 @@ import time
 
 import numpy as np
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_frame_evidence import capture_settled
 from farm_draft_media import media_comparison
 from farm_phone_identity import LEGACY_C24C

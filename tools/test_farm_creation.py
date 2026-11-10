@@ -18,7 +18,7 @@ from PIL import Image,ImageDraw
 from farm_creation_layout import source_match, selected_badges, caption_editor, control, empty_search
 # Under another name: pytest collects a module attribute called test_* as a test of its own.
 from farm_creation_layout import test_video_preview as video_preview
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_runs import CreationRuns, creation_config
 from farm_draft_creation import CreationOwnership, CreationWorkflow
 from farm_draft_transport import CreationKernel, StepKernel

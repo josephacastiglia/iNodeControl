@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 import uuid
 from unittest.mock import patch
 

@@ -7,7 +7,7 @@ review. Nothing taps Share, publishes or messages. The verifier is a separate
 owned run that starts from the exact profile and finishes on Reels drafts.
 """
 import hashlib
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import require, safari_blank, leftover_downloads, leftover_player
 from farm_draft_creation import CreationWorkflow
 from farm_draft_transport import allowed_tap

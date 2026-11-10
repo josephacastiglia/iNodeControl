@@ -6,7 +6,7 @@ import unittest
 
 import farm_paths
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import safari_address_empty, safari_blank, safari_start_page
 
 

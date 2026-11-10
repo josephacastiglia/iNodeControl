@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from farm_carousel_inspection import InspectionStopped  # noqa: E402
+from farm_owned_capture import InspectionStopped  # noqa: E402
 import farm_creation_layout as layout  # noqa: E402
 import farm_small_layout as small  # noqa: E402
 from farm_start_screen import StartScreen  # noqa: E402

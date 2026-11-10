@@ -15,7 +15,7 @@ line more or less does not move the decision off the image. Unknown or ambiguous
 """
 import numpy as np
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 from farm_creation_layout import require, exact
 from farm_image import IMAGE_MODELS, ImageReference
 from farm_reel_layout import rows_between

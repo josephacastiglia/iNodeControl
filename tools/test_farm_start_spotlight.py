@@ -8,7 +8,7 @@ from unittest import mock
 
 from PIL import Image, ImageDraw
 
-from farm_carousel_inspection import InspectionStopped
+from farm_owned_capture import InspectionStopped
 import farm_start_screen as start
 from farm_start_screen import StartScreen, result_band
 
