@@ -3,6 +3,8 @@ decision. Fake kernel and phone actions; no kernel, phone, socket or subprocess.
 
   python -m unittest test_rack_recovery    (from this folder)
 """
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -231,6 +233,73 @@ class ActionsTests(unittest.TestCase):
         self.assertEqual([p[0] for p in kernel.posts], ['/input/acquire', '/input/renew', '/key/sendkey', '/input/renew', '/key/sendkey', '/input/release'])
         self.assertEqual([p[1] for p in kernel.posts if p[0] == '/key/sendkey'], [dict(fn_key='Home')] * 2)
         self.assertEqual([c.args for c in sleep.call_args_list], [(1.8,), (1.8,)])
+
+    def test_a_wake_whose_key_was_refused_is_reported_as_failed(self):
+        with mock.patch('time.sleep'):
+            self.assertEqual(rr.Actions(FakeKernel(), self.run).wake('0F01'), 'woken')
+            for codes in ([41, 0], [0, 41]):   # either Home refused: the phone may still be dark
+                got = rr.Actions(FakeKernel({'/key/sendkey': codes}), self.run).wake('0F01')
+                self.assertTrue(got.startswith('wake failed'), got)
+                self.assertIn('41', got)
+
+
+def row(result, slot='B1'): return dict(slot=slot, board='0F01', result=result)
+
+
+class ExitCodeTests(unittest.TestCase):
+    """A caller that only looks at the exit code must learn that a phone is not connected."""
+
+    def main(self, *argv, **patched):
+        with tempfile.TemporaryDirectory() as d, contextlib.ExitStack() as stack:
+            stack.enter_context(mock.patch.object(sys, 'argv', ['rack_recovery.py', *argv]))
+            stack.enter_context(mock.patch.object(rr, 'kernel_folder', return_value=Path(d)))
+            for name, value in patched.items(): stack.enter_context(mock.patch.object(rr, name, value))
+            stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+            try: rr.main()
+            except SystemExit as stop: return stop.code
+            return 0
+
+    def test_the_summary_says_whether_every_phone_in_the_plan_mirrors(self):
+        self.assertTrue(rr.summary([row('mirroring'), row('already mirroring'), row('mirroring; Control Center did not close')])['ok'])
+        self.assertFalse(rr.summary([row('mirroring'), row('stopped: receiver did not go live within 10 s')])['ok'])
+        self.assertFalse(rr.summary([row('mirroring'), row('skipped: input stopped by someone else (Stopped by operator.)')])['ok'])
+        self.assertFalse(rr.summary([row('mirroring'), dict(slot='B2', board='0F02')])['ok'])   # never got a result
+
+    def test_bringup_exits_non_zero_unless_every_phone_mirrors(self):
+        for report, code in (([row('mirroring'), row('already mirroring')], 0),
+                             ([row('mirroring'), row('stopped: no AirPlay query from the phone after the tile tap')], 3),
+                             ([row('skipped: release refused (x)')], 3)):
+            result = dict(report='report.json', **rr.summary(report))
+            self.assertEqual(self.main('bringup', run_bringup=lambda *a, **k: result), code, report)
+
+    def test_one_watchdog_check_exits_non_zero_when_it_ended_badly(self):
+        good = dict(report='r', **rr.summary([row('mirroring')]))
+        bad = dict(report='r', **rr.summary([row('mirroring'), row('stopped: receiver did not go live within 10 s')]))
+        for entry, code in ((dict(action='healthy'), 0), (dict(action='idle'), 0), (dict(action='paused'), 0), (dict(action='unresponsive'), 0),
+                            (dict(action='restart', start=0), 0),                    # --no-bringup
+                            (dict(action='restart', start=0, bringup=good), 0),
+                            (dict(action='restart', start=0, bringup=bad), 3),       # a phone did not come back
+                            (dict(action='restart', start=0, bringup=dict(error='No kernel answers')), 3),
+                            (dict(action='restart', start=1), 3),                    # the kernel did not start again
+                            (dict(action='give-up'), 3)):
+            self.assertEqual(self.main('watch', '--once', watch=lambda *a, **k: entry), code, entry)
+
+    def test_the_watchdog_records_a_bring_up_that_fell_short(self):
+        bad = dict(report='r', **rr.summary([row('mirroring'), row('stopped: receiver did not go live within 10 s')]))
+        with tempfile.TemporaryDirectory() as d, contextlib.ExitStack() as stack:
+            folder = Path(d)
+            (folder / 'preparation.json').write_text(json.dumps(dict(arguments=['http://127.0.0.1:1/api/'], runDirectory=d,
+                                                                      receivers=[dict(board='0F01', name='iMouse2-Z1', port=7900)])), encoding='utf-8')
+            (folder / 'processes.json').write_text(json.dumps(dict(kernel=dict(pid=4000000, path='k.exe'), api='http://127.0.0.1:1/api')), encoding='utf-8')
+            for name, value in (('processes', lambda exe: []), ('powershell', lambda *a, **k: 0), ('run_bringup', lambda *a, **k: bad)):
+                stack.enter_context(mock.patch.object(rr, name, value))
+            stack.enter_context(mock.patch.object(rr.subprocess, 'run', return_value=mock.Mock(returncode=0)))
+            stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+            entry = rr.watch(folder, 0, True, True)
+            logged = json.loads((folder / 'watchdog.jsonl').read_text(encoding='utf-8').splitlines()[-1])
+        self.assertEqual((entry['action'], entry['start'], entry['ok']), ('restart', 0, False))
+        self.assertEqual(logged['bringup']['failed'], [dict(slot='B1', result='stopped: receiver did not go live within 10 s')])
+        self.assertFalse(logged['ok'])
 
 
 class WatchdogTests(unittest.TestCase):

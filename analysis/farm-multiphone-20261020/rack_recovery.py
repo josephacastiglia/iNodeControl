@@ -8,7 +8,8 @@
   python rack_recovery.py bringup [--plan bringup-plan.json] [--plan-only] [--attempts 2]
       The ordered reconnect of the rack's phones. Wakes Home-button phones, retries once, and writes
       bringup-<time>/report.json beside the preparation. Drives phones (taps, Home): run it only when
-      no lane is on a phone.
+      no lane is on a phone. Exit 0 only when every phone in the plan mirrors; 3 when one was
+      skipped or failed (the printed summary and the report say which).
   python rack_recovery.py watch [--interval 30] [--no-bringup] [--once] [--max-restarts 3]
       The watchdog, for the operator to leave running. Every interval it checks the kernel in
       processes.json. When that kernel has died it stops the receivers it left (useless without it and
@@ -17,6 +18,8 @@
       reports that), and never restarts a kernel stopped on purpose (Stop-Multiphone.ps1 renames its
       record). At most --max-restarts an hour, then it stops and says so. Pause it without stopping
       it: create watchdog-pause beside the preparation. Log: watchdog.jsonl beside the preparation.
+      Exit 3 when it gives up, or when a --once check restarted the kernel and the start or the
+      bring-up fell short ('ok': false in the log line).
 
 Bring-up order (5 Nov, the orchestrator's live findings; bringup-plan.json): the 4.7-inch card shows
 three rows and numeric names sort ahead of 'iMouse2-B..', so rack B goes first, from B20 alone
@@ -232,7 +235,8 @@ class Actions:
 
         try:
             home_twice(send, 'wake', 'open the home screen', pause=1.8)
-            return f"woken ({answers[-1].get('code')})"
+            refused = [f"code {a.get('code')}: {a.get('message') or 'no message'}" for a in answers if a.get('code') != 0]
+            return 'woken' if not refused else 'wake failed (' + '; '.join(refused) + ')'
         finally:
             self.kernel.post('/input/release', dict(id=device, token=token))
 
@@ -338,8 +342,10 @@ def retryable(result):
 
 
 def summary(report):
+    """Counts for a caller; 'ok' only when every phone in the plan mirrors (a skipped phone is not connected either)."""
     done = [r for r in report if r.get('result', '').startswith('mirroring') or r.get('result') == 'already mirroring']
-    return dict(phones=len(report), mirroring=len(done), skipped=sum(1 for r in report if r.get('result', '').startswith('skipped')),
+    return dict(ok=len(done) == len(report), phones=len(report), mirroring=len(done),
+                skipped=sum(1 for r in report if r.get('result', '').startswith('skipped')),
                 failed=[dict(slot=r['slot'], result=r.get('result', '')) for r in report if r not in done and not r.get('result', '').startswith('skipped')])
 
 
@@ -353,6 +359,14 @@ def decide(record, kernel_alive, api_alive, paused, recent_restarts, max_restart
     if kernel_alive: return 'healthy' if api_alive else 'unresponsive'
     if recent_restarts >= max_restarts: return 'give-up'
     return 'restart'
+
+
+def tick_ok(entry):
+    """False when a watchdog check ended badly: it gave up, the kernel did not start again, or the bring-up
+    after the restart left a phone unconnected (or could not run)."""
+    if entry['action'] == 'give-up': return False
+    if entry['action'] != 'restart': return True
+    return entry.get('start') == 0 and ('bringup' not in entry or bool(entry['bringup'].get('ok')))
 
 
 def receiver_exe(prep):
@@ -429,10 +443,11 @@ def watch(folder, interval, bringup, once, max_restarts=3, window=3600):
             if entry['start'] == 0 and bringup:
                 try: entry['bringup'] = run_bringup(folder, HERE / 'bringup-plan.json')
                 except (Exception, SystemExit) as error: entry['bringup'] = dict(error=str(error)[-300:])   # noqa: BLE001 - the watchdog keeps watching
+        entry['ok'] = tick_ok(entry)
         if action != 'healthy' or once:
             with open(log, 'a', encoding='utf-8') as f: f.write(json.dumps(entry) + '\n')
             print(json.dumps(entry), flush=True)
-        if once or action == 'give-up': return action
+        if once or action == 'give-up': return entry
         time.sleep(interval)
 
 
@@ -456,10 +471,13 @@ def main():
         append_ledger(args.ledger, entries); print(json.dumps(dict(recorded=[e['board'] for e in entries]))); return
     folder = kernel_folder()
     if args.command == 'watch':
-        watch(folder, args.interval, not args.no_bringup, args.once, args.max_restarts); return
+        if not tick_ok(watch(folder, args.interval, not args.no_bringup, args.once, args.max_restarts)): raise SystemExit(3)
+        return
     if args.plan_only:
         print(json.dumps([{k: v for k, v in p.items() if k != 'phone_ip'} for p in planned_phones(folder, args.plan)[1]], indent=2)); return
-    print(json.dumps(run_bringup(folder, args.plan, args.attempts)))
+    result = run_bringup(folder, args.plan, args.attempts)
+    print(json.dumps(result))
+    if not result['ok']: raise SystemExit(3)   # A phone in the plan is not mirroring: say so to whoever only reads the exit code.
 
 
 if __name__ == '__main__':

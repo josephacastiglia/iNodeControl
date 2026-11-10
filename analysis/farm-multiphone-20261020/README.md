@@ -42,7 +42,8 @@ python rack_recovery.py bringup                 # connects every phone in the pl
 The bring-up sends input (Home, Control Center, taps). Per phone it advertises the receiver, wakes a
 Home-button phone, reads where the receiver's row is on the Screen Mirroring card and taps it. A phone
 whose input someone else stopped is skipped; it resumes only boards its own ledger says the rack
-scripts stopped. Read `slots\bringup-<time>\report.json` afterwards.
+scripts stopped. It exits 0 only when every phone in the plan mirrors and 3 when one was skipped or
+failed; `slots\bringup-<time>\report.json` says which and why.
 
 One phone by hand: `.\Release-Receiver.ps1 -Board <board>` advertises its receiver;
 `.\Restart-Receiver.ps1 -Board <board>` restarts it without touching the others (the phone must choose
@@ -50,7 +51,8 @@ the receiver again; `-Hold` leaves it withdrawn).
 
 Leave `python rack_recovery.py watch` running to have a dead kernel restarted and the phones brought
 up again. It never touches a running kernel and never restarts one stopped on purpose. A file named
-`slots\watchdog-pause` pauses it.
+`slots\watchdog-pause` pauses it. Each check is a line in `slots\watchdog.jsonl`; `"ok": false` marks
+a restart whose kernel start or bring-up fell short.
 
 ## 3. Run a window
 
