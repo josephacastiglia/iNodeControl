@@ -1,14 +1,15 @@
 """Reads the Screen Mirroring card on a phone that is already mirroring: where each receiver's row
-sits and in which order iOS lists them, with more receivers advertised than the four rows
-auto_connect.py was calibrated for (29 Oct, 16 rack A receivers). No row is tapped.
+sits and in which order iOS lists them (29 Oct, 16 rack A receivers). No row is tapped.
 
 Home, ControlBar (Fn+C), the Screen Mirroring tile, one frame, then Home and the close tap below
 Control Center's grid, as auto_connect.py does after a connection. One lease, released at the end.
+auto_connect.py takes this module's card geometry and screen checks; nothing here imports it.
 
-  python card_survey.py --board C24C
+  python card_survey.py --board C24C [--small]
 """
 import argparse
 import json
+import os
 import sys
 import time
 import urllib.request
@@ -19,13 +20,13 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / 'tools'))
 import farm_paths  # noqa: E402
 STATE = farm_paths.rack_state(HERE)  # windows/, identify/ ...: beside this script in a checkout, the data folder when installed
-from auto_connect import BASE, OCR, control_center, read_screen  # noqa: E402
 from farm_mirroring import CLOSE, TILE, browse  # noqa: E402
+from farm_observations import WindowsOcr  # noqa: E402
 from identify_phone import acquire, post, request  # noqa: E402
 
-# A long slow swipe up inside the card: the list stops at its end, so the result does not depend on
-# how far the swipe carried (shared with auto_connect.py --survey).
-SCROLL = dict(x1=250, y1=880, x2=250, y2=260, duration=600)
+# The rack kernel; rack_recovery.py's bring-up sets IMOUSE_RACK_API for the kernel it is bringing up.
+BASE = os.environ.get('IMOUSE_RACK_API') or 'http://127.0.0.1:9916/api'
+OCR = WindowsOcr()
 
 # Aim for a 4.7-inch phone (6s, 7, 8: rack A slots 2, 5-8, all of rack B) driven on the placeholder
 # calibration (origin 14, 5.1 px per unit): its 375x667 screen is letterboxed in the 500x1080 frame
@@ -33,21 +34,31 @@ SCROLL = dict(x1=250, y1=880, x2=250, y2=260, duration=600)
 # 30 Oct: five clean dots within 8 px). to_send turns a frame point into the point to send.
 SMALL = dict(ox=0, oy=95, ppu=5.61)
 SMALL_TILE = (194, 566)   # Control Center's Screen Mirroring tile on a 4.7-inch phone, frame pixels.
-# The 4.7-inch card shows three name rows (69 px apart from y 483) and scrolls inside. A slow drag
-# (500 ms: a 1500 ms drag did not scroll, 30 Oct) up by two rows brings rows 4-5 into view at the same place on every phone.
-NUDGE = dict(x1=250, y1=640, x2=250, y2=501, duration=500)
-
-
-def nudge(send, aim):
-    (x1, y1), (x2, y2) = to_send((NUDGE['x1'], NUDGE['y1']), aim), to_send((NUDGE['x2'], NUDGE['y2']), aim)
-    send('/mouse/reset', 'nudge (reset)')
-    send('/mouse/swipe', 'drag the card up two rows', x1=x1, y1=y1, x2=x2, y2=y2, duration=NUDGE['duration'])
-    time.sleep(1.5)
 
 
 def to_send(point, aim=None):
     if aim is None: return point
     return (round(14 + (point[0] - aim['ox']) / aim['ppu'] * 5.1), round(14 + (point[1] - aim['oy']) / aim['ppu'] * 5.1))
+
+
+def read_screen(device_id):
+    return OCR.read(urllib.request.urlopen(f'{BASE}/pic/screenshot?id={device_id}', timeout=8).read())
+
+
+def control_center(text):
+    """Control Center: its Focus tile and the battery percentage in the status row (as farm_start_screen)."""
+    rows = [(line['text'].strip().casefold(), min(w['y'] for w in line['words'])) for line in text.get('lines', []) if line.get('words')]
+    # The status row shows the battery percentage or, on the other rack phones, 'SOS only' / 'No SIM'.
+    return (any(t.split()[:1] == ['focus'] and 480 < y < 580 for t, y in rows)
+            and any(('%' in t or 'sos only' in t or 'no sim' in t) and y < 170 for t, y in rows))
+
+
+def home_twice(send, first, second, pause=1.5):
+    """Home, a pause, Home, on a Home-button phone: from the card the first closes it and the second
+    closes Control Center (no tap near its bottom tiles; slot 2, 30 Oct); on a dark phone the first wakes
+    it and the second opens it. The pause keeps the two from being read as a double press."""
+    for purpose in (first, second):
+        send('/key/sendkey', purpose, fn_key='Home'); time.sleep(pause)
 
 
 def find_line(text, words):
@@ -62,11 +73,8 @@ def find_line(text, words):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--board', required=True)
-    # --scroll: read the card scrolled to its end, for rows below the fold (slots 17-20 of 16 listed).
-    parser.add_argument('--scroll', action='store_true')
     # --small: a 4.7-inch phone (6s/7/8) on the placeholder calibration; taps go through SMALL.
     parser.add_argument('--small', action='store_true')
-    parser.add_argument('--nudge', action='store_true', help='with --small: read the card dragged up two rows (NUDGE)')
     args = parser.parse_args()
     board = args.board.upper()
     device = next(d for d in request(BASE, 'GET', '/device/get', timeout=8)['list'] if d.get('pid', '').upper() == board)
@@ -74,7 +82,7 @@ def main():
     if not status['live']: raise SystemExit(f"{status['name']} is not mirroring; its card cannot be read.")
     folder = STATE / 'card-survey' / f"{board}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}"; folder.mkdir(parents=True)
     # The card's layout depends on how many receivers it lists, so the advertised set is kept with it.
-    record = dict(board=board, advertised=sorted(browse()[0]), scroll=args.scroll, small=args.small, nudge=args.nudge, steps=[])
+    record = dict(board=board, advertised=sorted(browse()[0]), small=args.small, steps=[])
     token = acquire(BASE, device['deviceid'])
 
     def send(fun, purpose, **data):
@@ -103,22 +111,19 @@ def main():
             tile = find_line(OCR.read(raw), 'Screen Mirroring') or SMALL_TILE
             record['tile'] = tile
         tap(tile, 'Screen Mirroring tile'); time.sleep(2.5)
-        if record['scroll']:
-            send('/mouse/reset', 'scroll (reset)'); send('/mouse/swipe', 'scroll the card to its end', **SCROLL); time.sleep(1.5)
-        if record['nudge']: nudge(send, aim)
         raw = urllib.request.urlopen(f"{BASE}/pic/screenshot?id={device['deviceid']}", timeout=8).read()
         (folder / 'card.bmp').write_bytes(raw)
         text = OCR.read(raw)
-        # cy: the line's vertical centre, where auto_connect.py --survey taps that row.
+        # cy: the line's vertical centre, where auto_connect.py taps that row.
         record['lines'] = [dict(text=l['text'], y=min(w['y'] for w in l['words']), x=min(w['x'] for w in l['words']),
                                 cy=round(sum(w['y'] + w['height'] / 2 for w in l['words']) / len(l['words'])))
                            for l in text.get('lines', []) if l.get('words')]
-        send('/key/sendkey', 'home closes the card', fn_key='Home'); time.sleep(1.5)
         if args.small:
-            # A Home button phone: a second Home closes Control Center (no tap near its bottom tiles).
-            send('/key/sendkey', 'home closes Control Center', fn_key='Home'); time.sleep(1.5)
-        elif control_center(read_screen(device['deviceid'])):
-            tap(CLOSE, 'close Control Center below its grid'); time.sleep(1.5)
+            home_twice(send, 'home closes the card', 'home closes Control Center')
+        else:
+            send('/key/sendkey', 'home closes the card', fn_key='Home'); time.sleep(1.5)
+            if control_center(read_screen(device['deviceid'])):
+                tap(CLOSE, 'close Control Center below its grid'); time.sleep(1.5)
         record['controlCenterClosed'] = not control_center(read_screen(device['deviceid']))
     finally:
         record['release'] = post(BASE, '/input/release', dict(id=device['deviceid'], token=token)).get('code')
