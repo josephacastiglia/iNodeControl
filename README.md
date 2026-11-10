@@ -9,12 +9,6 @@ clone needs the build dependencies and a new build before the launch scripts can
 **Definition of finished:** see [Completion criteria](FINISH-CRITERIA.md).
 The build and launch notes below describe earlier project stages.
 
-## Working console: `console/`
-
-**Start it by double-clicking `console/Start iMouse 2.0.cmd`.** Live phone screen at 30 fps,
-click to tap, drag to swipe, navigation, typing. Runs in the browser, nothing to install, and
-the original iMouse XP window does not need to be open. See [`console/README.md`](console/README.md).
-
 ## Native app: `release/iMouse2/iMouse2.exe`
 
 Rebuilt on 8 September 2026 with the same live pipeline as the browser console: raw BMP frames,
@@ -31,15 +25,9 @@ Test suites, all passing: `iMouse2.exe --self-test` (40 checks, mock transport),
 `--ui-test` (17 interaction checks, mock transport), `--smoke-test` (live, read-only).
 Results land in `qa/` next to the executable.
 
-`build-console.ps1` is obsolete. It existed only to compile without an SDK, using the Roslyn
-compiler bundled with PowerShell 7; both are gone from this machine and `dotnet build` replaces it.
-
-
 **Test build 1 is implemented and compiled.** Launch `release/iMouse2/iMouse2.exe` on this PC. The editable WPF/C# source is in `src/iMouse.Console/`. Read `TESTING.md` for setup, features, and known limits.
 
 This new console connects to the existing iMouse XP service. It provides device search/group filtering, single and explicit batch controls, screen-cast commands, screenshot-based previews, mouse click/drag, navigation, and ASCII text entry. It is an initial working console, not full feature parity with the original application.
-
-Build locally with PowerShell 7: `./build-console.ps1`. This machine's build uses its bundled Roslyn compiler and .NET 8.0.14 runtime assemblies because no SDK is installed. A standard `net8.0-windows` WPF project is also supplied for future SDK builds.
 
 Validation: 26 transport/coordinate checks, 17 interface interaction checks, rendered UI inspection, and a read-only live service smoke test. At the live check, the service returned 12 saved phones and 0 online. Hardware inputs and real phone previews still need the user's online-device test.
 
