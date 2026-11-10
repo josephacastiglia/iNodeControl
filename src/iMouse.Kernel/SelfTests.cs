@@ -321,7 +321,7 @@ public static class SelfTests
         await ReceiverFleetTests.RunAsync(Check, file, router, validBmp);
         await InputSessionTests.RunAsync(Check);
         await InputSessionTests.HomeSequenceAsync(Check);
-        await InputSessionTests.NavigationAndProbeAsync(Check);
+        await InputSessionTests.NavigationAsync(Check);
         await KernelStartupTests.RunAsync(Check);
         DeviceStoreTests.Run(Check);
         File.Delete(file);Directory.Delete(testDir);

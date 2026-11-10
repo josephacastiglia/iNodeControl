@@ -26,7 +26,7 @@ internal static class DiagnosticsTests
         {"code":0,"input":"direct-hid","receiver":"fake-cast","home_sequence":"vendor",
          "build_identity":{"sha256":"test-hash","module_id":"test-module","secret":"HIDDEN"},
          "process":{"pid":123,"working_set_bytes":2048},
-         "control_compatibility":{"home_sequence":"command-h","home_sends_tab":false,"navigation_sequence":"direct-fn","navigation_sends_tab":false,"phone_setting_detection":false,"secret":"HIDDEN"},
+         "control_compatibility":{"home_sequence":"command-h","home_sends_tab":false,"phone_setting_detection":false,"secret":"HIDDEN"},
          "input_configuration":{"precise_movement_delay_ms":0,"calibrations":[{"pid":"PID","width":500,"height":1080,"pixels_per_unit_x":5.12,"token":"HIDDEN"}]},
          "receivers":[{"deviceid":"TEST:01","name":"fake-cast","receiver_restarts":3,"receiver_state":"failed",
            "receiver_message":"Restart limit reached","frame_age_ms":null,"live":false,"token":"HIDDEN"}],"password":"HIDDEN"}

@@ -47,18 +47,16 @@ internal static class InputSessionTests
         string file = Path.Combine(directory, "devices.json");
         File.WriteAllText(file, JsonSerializer.Serialize(new[] { new Phone { deviceid = "one", pid = "C24C", uid = "A" } }));
         var store = new DeviceStore(file);
-        const string release = "A200000000000000", tab = "A2002B0000000000", gui = "A208000000000000", guiH = "A2080B0000000000";
+        const string release = "A200000000000000", tab = "A2002B0000000000", guiH = "A2080B0000000000";
         var expected = new Dictionary<HomeSequence, string[]>
         {
             [HomeSequence.Vendor] = [release, tab, release, release, guiH, release],
             [HomeSequence.CommandH] = [release, guiH, release],
-            [HomeSequence.CommandWake] = [release, gui, release, release, guiH, release],
-            [HomeSequence.FnH] = ["A200000000000002", "A2000B0000000002", release],
         };
         try
         {
             check(new InputRouter(store, [], []).Home == HomeSequence.Vendor, "Home sequence defaults to the vendor sequence");
-            foreach (string bad in new[] { "", "Vendor", "command_h", "tab" })
+            foreach (string bad in new[] { "", "Vendor", "command_h", "tab", "command-wake", "fn-h" })
             {
                 bool threw = false;
                 try { InputRouter.ParseHomeSequence(bad); } catch (ArgumentException) { threw = true; }
@@ -96,7 +94,7 @@ internal static class InputSessionTests
         finally { try { Directory.Delete(directory, true); } catch { } }
     }
 
-    public static async Task NavigationAndProbeAsync(Action<bool, string> check)
+    public static async Task NavigationAsync(Action<bool, string> check)
     {
         string directory = Path.Combine(Path.GetTempPath(), "imouse-control-protocol-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
@@ -110,35 +108,32 @@ internal static class InputSessionTests
         {
             check(Convert.ToHexString(HidProtocol.FnKey(0x52)) == "A200520000000002"
                 && Convert.ToHexString(HidProtocol.FnKey(6)) == "A200060000000002", "Fn uses the separate vendor field, never Left Shift");
-            foreach (var sequence in Enum.GetValues<NavigationSequence>())
             foreach (string key in new[] { "AppSwitch", "ControlBar" })
             {
                 var t = new Transport();
-                using var input = new InputRouter(store, ["C24C"], [calibration], _ => t) { Navigation = sequence };
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => t);
                 await using var sessions = new InputSessions(store, input);
                 await Rejected(() => sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", fn_key = key })));
-                check(t.Reports.IsEmpty, $"{sequence} {key} needs ownership before any report");
+                check(t.Reports.IsEmpty, $"Vendor {key} needs ownership before any report");
                 string token = Lease(sessions, "one");
-                string[] chord = [fn, key == "AppSwitch" ? "A200520000000002" : "A200060000000002", release];
-                string[] expected = sequence == NavigationSequence.Vendor ? new[] { release, tab, release }.Concat(chord).ToArray() : chord;
+                string[] expected = [release, tab, release, fn, key == "AppSwitch" ? "A200520000000002" : "A200060000000002", release];
                 check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = key }))) == 0
-                    && t.Reports.SequenceEqual(expected), $"{sequence} {key} exact reports preserve its selected prelude");
+                    && t.Reports.SequenceEqual(expected), $"Vendor {key} exact reports preserve its selected prelude");
             }
-            foreach (string blockedReport in new[] { fn, "A200520000000002", "A2000B0000000002" })
+            // The Fn chord has its own release path: Stop during the held prefix or chord must still lift it.
+            foreach (string blockedReport in new[] { fn, "A200520000000002" })
             {
                 var held = new Transport { Block = hex => hex == blockedReport };
-                using var input = new InputRouter(store, ["C24C"], [calibration], _ => held)
-                    { Home = HomeSequence.FnH, Navigation = NavigationSequence.DirectFn };
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => held);
                 await using var sessions = new InputSessions(store, input);
                 string token = Lease(sessions, "one");
-                var command = sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token,
-                    fn_key = blockedReport.Contains("0B") ? "Home" : "AppSwitch" }));
+                var command = sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "AppSwitch" }));
                 await held.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
                 check(Code(await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, fn_key = "Enter" }))) == 409,
                     "Fn navigation cannot interleave another command: " + blockedReport);
                 check(Code(await sessions.StopAsync(Data(new { id = "one" })).WaitAsync(TimeSpan.FromSeconds(2))) == 0
-                    && Code(await command) != 0 && held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release })
-                    && !held.Reports.Contains(tab), "Stop releases a held Fn prefix/chord without inserting Tab: " + blockedReport);
+                    && Code(await command) != 0 && held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release }),
+                    "Stop releases a held Fn prefix/chord: " + blockedReport);
             }
             // Arrow keys (5 Nov): plain usages through Stroke, the Tab/Escape path, with no Fn field.
             foreach (var (arrow, report) in new[] { ("Right", "A2004F0000000000"), ("Left", "A200500000000000"),

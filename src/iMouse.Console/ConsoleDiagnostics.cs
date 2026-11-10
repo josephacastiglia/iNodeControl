@@ -101,11 +101,9 @@ public static class ConsoleDiagnostics
         if (data.TryGetProperty("build_identity", out var build)) result["build_identity"] = Pick(build, BuildFields);
         if (data.TryGetProperty("process", out var process)) result["process"] = Pick(process, ProcessFields);
         if (data.TryGetProperty("control_compatibility", out var controls))
-            result["control_compatibility"] = Pick(controls, ["home_sequence", "home_sends_tab", "navigation_sequence",
-                "navigation_sends_tab", "app_switcher", "absolute_probe_board", "absolute_probe", "phone_setting_detection"]);
+            result["control_compatibility"] = Pick(controls, ["home_sequence", "home_sends_tab", "app_switcher", "phone_setting_detection"]);
         if (data.TryGetProperty("input_configuration", out var input))
             result["input_configuration"] = new { precise_movement_delay_ms = Optional(input, "precise_movement_delay_ms"),
-                absolute_probe_board = Optional(input, "absolute_probe_board"), navigation_sequence = Optional(input, "navigation_sequence"),
                 calibrations = Rows(input, "calibrations", ["pid", "enabled", "width", "height", "origin_x", "origin_y", "pixels_per_unit_x", "pixels_per_unit_y"]) };
         return result;
     }

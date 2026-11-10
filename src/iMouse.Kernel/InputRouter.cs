@@ -9,12 +9,11 @@ public sealed record PointerCalibration(string Pid, int Width, int Height, doubl
 
 /// <summary>
 /// What fn_key=Home sends. Vendor is the sequence observed from IMService on 14 Sep (Tab, then
-/// Left GUI+H) and stays the default. Its Tab is typed into a focused text field. The other two
-/// are for a phone comparison only, chosen once at kernel startup with --home-sequence; each
-/// still goes through the per-phone lease, the board's write gate, Stop and key release.
+/// Left GUI+H) and stays the default. Its Tab is typed into a focused text field. CommandH sends
+/// Left GUI+H alone; it is chosen once at kernel startup with --home-sequence and still goes
+/// through the per-phone lease, the board's write gate, Stop and key release.
 /// </summary>
-public enum HomeSequence { Vendor, CommandH, CommandWake, FnH }
-public enum NavigationSequence { Vendor, DirectFn }
+public enum HomeSequence { Vendor, CommandH }
 
 public sealed class InputRouter : IDisposable
 {
@@ -66,19 +65,15 @@ public sealed class InputRouter : IDisposable
     internal object DiagnosticConfiguration() => new
     {
         precise_movement_delay_ms = _preciseDelayMs,
-        navigation_sequence = NavigationSequenceName,
         calibrations = _calibrations.Values.Select(c => new { pid = c.Pid, enabled = Enabled(c.Pid),
             width = c.Width, height = c.Height, origin_x = c.OriginX, origin_y = c.OriginY,
             pixels_per_unit_x = c.PixelsPerUnitX, pixels_per_unit_y = c.PixelsPerUnitY }).ToArray()
     };
     public HomeSequence Home { get; init; } = HomeSequence.Vendor;
-    public NavigationSequence Navigation { get; init; } = NavigationSequence.Vendor;
-    public string HomeSequenceName => Home switch { HomeSequence.CommandH => "command-h", HomeSequence.CommandWake => "command-wake", HomeSequence.FnH => "fn-h", _ => "vendor" };
-    public string NavigationSequenceName => Navigation == NavigationSequence.DirectFn ? "direct-fn" : "vendor";
+    public string HomeSequenceName => Home == HomeSequence.CommandH ? "command-h" : "vendor";
     internal object ControlCompatibility() => new
     {
         home_sequence = HomeSequenceName, home_sends_tab = Home == HomeSequence.Vendor,
-        navigation_sequence = NavigationSequenceName, navigation_sends_tab = Navigation == NavigationSequence.Vendor,
         app_switcher = "Fn+Up; uses the phone's Full Keyboard Access assignment. FKA-Off support is not established.",
         phone_setting_detection = false
     };
@@ -86,15 +81,7 @@ public sealed class InputRouter : IDisposable
     {
         "vendor" => HomeSequence.Vendor,
         "command-h" => HomeSequence.CommandH,
-        "command-wake" => HomeSequence.CommandWake,
-        "fn-h" => HomeSequence.FnH,
-        _ => throw new ArgumentException($"--home-sequence must be vendor, command-h, command-wake or fn-h, not \"{value}\"."),
-    };
-    public static NavigationSequence ParseNavigationSequence(string value) => value switch
-    {
-        "vendor" => NavigationSequence.Vendor,
-        "direct-fn" => NavigationSequence.DirectFn,
-        _ => throw new ArgumentException("--navigation-sequence must be vendor or direct-fn.")
+        _ => throw new ArgumentException($"--home-sequence must be vendor or command-h, not \"{value}\"."),
     };
 
     public async Task<object> DispatchAsync(string fun, JsonElement data, CancellationToken cancellation = default)
@@ -219,18 +206,13 @@ public sealed class InputRouter : IDisposable
                     string fn=Text(data,"fn_key");
                     if (fn=="Home")
                     {
-                        if (Home == HomeSequence.FnH) await FnStroke(state,11);
-                        else
-                        {
-                            if (Home == HomeSequence.Vendor) await Stroke(state,0,43);          // Tab: typed into a focused text field
-                            else if (Home == HomeSequence.CommandWake) await Stroke(state,8,0); // Left GUI alone: types nothing
-                            await Stroke(state,8,11);                                            // Left GUI+H
-                        }
+                        if (Home == HomeSequence.Vendor) await Stroke(state,0,43);   // Tab: typed into a focused text field
+                        await Stroke(state,8,11);                                    // Left GUI+H
                         state.Known=false;
                     }
                     else if(fn is "AppSwitch" or "ControlBar")
                     {
-                        if (Navigation == NavigationSequence.Vendor) await Stroke(state,0,43);
+                        await Stroke(state,0,43);
                         await FnStroke(state,(byte)(fn=="AppSwitch"?0x52:6));
                         state.Known=false;
                     }
