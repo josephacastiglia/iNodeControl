@@ -140,7 +140,7 @@ def close(config, folder, app, purpose='close-stuck-app'):
             found = card_by_content(text, a.app); s.record['foundBy'] = 'card content' if found else None
         if len(found) != 1: raise InspectionStopped(f'{a.app} is not one switcher card ({s.record["labels"]}); nothing was swiped.')
         # On slot 16 (26 Oct) about half the swipes left the switcher frame unchanged, the card untouched,
-        # with or without a pointer reset first (switcher_probe.py swipe-1..4). An unchanged card is swiped
+        # with or without a pointer reset first (four probe swipes that day). An unchanged card is swiped
         # again, at most SWIPES times, each on the app's own card found again in a fresh frame.
         evidence = s.record.setdefault('cardEvidence', [])
         for attempt in range(1, SWIPES + 1):

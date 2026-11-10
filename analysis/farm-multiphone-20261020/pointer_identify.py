@@ -83,7 +83,7 @@ def watch(board, device_id, home=False):
     folder.mkdir(parents=True)
     record = dict(board=board, mode='watch', moves=[], phoneInput='pointer moves only')
     # An added board stopped by an earlier timed-out move (never an operator stop: these phones
-    # carry no farm work yet) is resumed, generation-checked, as board_probe.py does.
+    # carry no farm work yet) is resumed, generation-checked.
     row = next(p for p in request(BASE, 'GET', '/input/status', timeout=5)['phones'] if p['id'] == device_id)
     if row['stopped'] and device_id.startswith('pending-'):
         post(BASE, '/input/resume', dict(id=device_id, expected_generations={device_id: row['generation']}))

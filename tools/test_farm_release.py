@@ -47,7 +47,7 @@ def make_repo(base):
     (rack / 'rack_kernels.py').write_text('import json\nSLOTS = "phone-slots.json"\n', encoding='utf-8')
     for name in ('prepare_window.py', 'run_window.py', 'verify_window.py'):
         (rack / name).write_text('from pathlib import Path\nHERE = Path(__file__).resolve().parent\nW = HERE / "windows"\n', encoding='utf-8')
-    (rack / 'connect_xr.ps1').write_text('# dev-only probe with phone addresses\n', encoding='utf-8')
+    (rack / 'one_tap.py').write_text('# dev-only supervised helper\n', encoding='utf-8')
     (rack / 'test_rack_kernels.py').write_text('import rack_kernels\n', encoding='utf-8')
     (rack / 'phone-slots.json').write_text('{"slots": {"18": {"board": "C24C"}}}', encoding='utf-8')
     (rack / 'preparation.json').write_text('{"kernel": "C:\\\\dev\\\\kernel.exe"}', encoding='utf-8')
@@ -102,7 +102,7 @@ class FarmFileSet(Base):
         self.assertNotIn('tools/old_tool.py', names, 'a docstring mention must not pull a file in')
         self.assertNotIn('tools/test_farm_jobs.py', names)
         self.assertNotIn(f'{RACK}/test_rack_kernels.py', names)
-        self.assertNotIn(f'{RACK}/connect_xr.ps1', names, 'dev-only probes stay out')
+        self.assertNotIn(f'{RACK}/one_tap.py', names, 'dev-only helpers stay out')
         self.assertIn(f'{RACK}/phone-slots.json', private)
         self.assertFalse(any(fr.is_private(n) for n in files))
 

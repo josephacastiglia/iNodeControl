@@ -50,12 +50,8 @@ RECEIVER_RUNTIME_REQUIRED = ('libexec/gstreamer-1.0/gst-plugin-scanner.exe',)
 ENTRIES = ('tools/imouse_farm_server.py', 'tools/farm_schedule_cli.py', 'tools/farm_schedule_runner.py',
            'tools/farm_photos_cleanup.py', 'tools/mdns_goodbye.py', 'tools/requirements-farm.txt')
 RACK_SCRIPT_GLOBS = ('*.py', '*.ps1')
-# One-off rack probes and bring-up helpers with machine-specific values (phone IPs, a fixed path): not
-# packaged unless an operator script names them.
-DEV_ONLY = {'identify_rack_b.py', 'connect_xr.ps1', 'connect_small.ps1', 'learn_rack_b.ps1', 'board_probe.py',
-            'one_tap.py', 'switcher_probe.py', 'open_app_look.py',
-            # 20 Oct one-shot preparations: fixed run names, they refuse to run again (superseded by prepare_rack_a/b, rack_kernels).
-            'prepare_multiphone.py', 'prepare_slots.py'}
+# Supervised one-off helpers a developer runs by hand: not packaged unless an operator script names them.
+DEV_ONLY = {'one_tap.py'}
 
 # Never packaged, whatever references them. Matched against the package-relative path (case-insensitive).
 PRIVATE_PATTERNS = (

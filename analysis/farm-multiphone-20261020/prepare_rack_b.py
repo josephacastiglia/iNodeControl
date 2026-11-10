@@ -3,9 +3,10 @@ were (28 Oct). Starts nothing.
 
   python prepare_rack_b.py pending slots/preparation-racka-<date>.json
       Each rack B board bound to a placeholder phone 'pending-<board>': its pointer moves
-      (identify_rack_b.py names its slot) and its receiver 'iMouse2-<board>', locked to the
+      (pointer_identify.py --watch names its slot) and its receiver 'iMouse2-<board>', locked to the
       placeholder, refuses every phone but logs the one that tries (device ID, model, address);
-      learn_rack_b.py makes each phone try. Console 'Board <board>' in group 'Rack B', ports from
+      a connect attempt from the board (auto_connect.py) makes its phone try. Console 'Board <board>'
+      in group 'Rack B', ports from
       7300, calibration rack A's placeholder.
   python prepare_rack_b.py bound slots/preparation-racksab-pending-<date>.json
       Each rack B board bound to the one phone its receiver logged, named 'Phone B<slot>' /
