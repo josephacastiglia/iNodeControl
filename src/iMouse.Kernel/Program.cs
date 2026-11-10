@@ -38,6 +38,7 @@ Directory.CreateDirectory(options.DataDir);
 using var input = new InputRouter(config.Store, options.Allowed, config.Calibrations)
     { Home = options.Home };
 Console.WriteLine("Direct HID input enabled only for: " + string.Join(",", input.Allowed));
+if (!options.LoopbackOnly) Console.WriteLine("WARNING: --allow-network: " + options.Prefix + " can be reached from other machines, and this API has no login.");
 Console.WriteLine("Home sequence: " + input.HomeSequenceName + (options.Home == HomeSequence.Vendor ? "" : " (test option; not the release default)"));
 Console.WriteLine($"Pointer movement pacing: high-resolution {InputRouter.MoveDelayMs} ms; reset/drag/settle unchanged");
 Console.WriteLine("Video waits on an independent AirPlay receiver.");

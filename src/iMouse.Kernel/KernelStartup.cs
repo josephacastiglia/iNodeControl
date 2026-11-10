@@ -14,6 +14,9 @@ internal sealed class KernelOptions
         "--home-sequence", "--receiver", "--receivers", "--receiver-runtime", "--hold-receivers", "--stop-file", "--console-log"];
     internal string Prefix { get; private set; } = "http://127.0.0.1:9913/api/";
     internal bool ValidateOnly => _flags.Contains("--validate-startup");
+    /// <summary>True when the listener address can only be reached from this PC: localhost or a
+    /// loopback IP. A wildcard, 0.0.0.0, a LAN address or a machine name is not.</summary>
+    internal bool LoopbackOnly => IsLoopback(Prefix);
     internal HomeSequence Home { get; private set; }
     internal string[] Allowed { get; private set; } = [];
     internal string[] HeldReceivers { get; private set; } = [];
@@ -43,7 +46,7 @@ internal sealed class KernelOptions
                 if (string.IsNullOrWhiteSpace(value) || value.StartsWith("--")) throw new ArgumentException(name + " needs a value.");
                 result._values.Add(name, value); continue;
             }
-            if (item is "--validate-startup")
+            if (item is "--validate-startup" or "--allow-network")
             {
                 if (!result._flags.Add(item)) throw new ArgumentException("Repeated option: " + item);
                 continue;
@@ -75,7 +78,17 @@ internal sealed class KernelOptions
         if (result.StopFile is not null && result.StopFile.Equals(result.ConsoleLog, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("--stop-file and --console-log must be different files.");
         _ = result.DataDir; // Check path syntax before anything is opened.
+        // The API has no login: whoever can reach the listener can drive the phones.
+        if (!result.LoopbackOnly && !result._flags.Contains("--allow-network"))
+            throw new ArgumentException("Listener address " + result.Prefix + " can be reached from other machines, and this API has no login. "
+                + "Use http://127.0.0.1:<port>/api/ to stay on this PC, or add --allow-network to accept that.");
         return result;
+    }
+
+    private static bool IsLoopback(string prefix)
+    {
+        string host = Regex.Match(prefix, @"^https?://(\[[^\]]+\]|[^/:]+)", RegexOptions.IgnoreCase).Groups[1].Value.Trim('[', ']');
+        return host.Equals("localhost", StringComparison.OrdinalIgnoreCase) || (IPAddress.TryParse(host, out var address) && IPAddress.IsLoopback(address));
     }
 
     private static string ValidatePrefix(string value)
@@ -142,7 +155,7 @@ internal sealed record KernelConfiguration(KernelOptions Options, DeviceStore St
     {
         valid = true, scope = "saved configuration only", hardware_accessed = false, listener_started = false,
         receivers_started = false, settings_written = false, build = KernelDiagnostics.BuildIdentity,
-        data_directory = Options.DataDir, address = Options.Prefix, allowed = Options.Allowed,
+        data_directory = Options.DataDir, address = Options.Prefix, listener_loopback_only = Options.LoopbackOnly, allowed = Options.Allowed,
         precise_delay_ms = InputRouter.MoveDelayMs, home_sequence = Options.Value("--home-sequence", "vendor"),
         stop_file = Options.StopFile, console_log = Options.ConsoleLog, receiver_count = Receivers.Count, held_receivers = Options.HeldReceivers, receiver_executable = ReceiverPath, receiver_runtime = RuntimePath,
         bindings_complete = Receivers.All(r => r.DeviceId is not ("*" or "") && !r.DeviceId.StartsWith("unbound-", StringComparison.OrdinalIgnoreCase)),

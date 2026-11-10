@@ -63,6 +63,26 @@ internal static class KernelStartupTests
             new[] { "http://localhost/api" }, new[] { "http://localhost:0/api/" }, new[] { "http://localhost:9913/api/?secret=x" },
             new[] { "http://localhost:9913/api/", "http://localhost:9914/api/" } })
             Reject(() => KernelOptions.Parse(invalid), "Invalid startup arguments refused: " + string.Join(' ', invalid));
+        // The API has no login, so the listener stays on this PC unless the operator asks otherwise in words.
+        foreach (string local in new[] { "http://127.0.0.1:12345/api/", "http://localhost:12345/api/", "http://LOCALHOST:12345/api/",
+            "http://[::1]:12345/api/", "http://127.0.0.2:12345/api/" })
+            check(KernelOptions.Parse([local]).Prefix == local, "A loopback listener address needs no extra flag: " + local);
+        foreach (string wildcard in new[] { "http://+:12345/api/", "http://*:12345/api/" })
+        {
+            Reject(() => KernelOptions.Parse([wildcard]), "A wildcard listener address is refused: " + wildcard);
+            Reject(() => KernelOptions.Parse([wildcard, "--allow-network"]), "A wildcard listener address is refused even with --allow-network: " + wildcard);
+        }
+        foreach (string open in new[] { "http://0.0.0.0:12345/api/", "http://192.168.1.20:12345/api/",
+            "http://[::]:12345/api/", "http://rack-pc:12345/api/", "http://localhost.example.com:12345/api/", "http://127.0.0.1.example.com:12345/api/" })
+        {
+            string refusal = "";
+            try { KernelOptions.Parse([open]); } catch (ArgumentException ex) { refusal = ex.Message; }
+            check(refusal.Contains("--allow-network") && refusal.Contains("127.0.0.1"), "A listener other machines could reach is refused unless explicitly allowed: " + open);
+            check(KernelOptions.Parse(["--allow-network", open]).Prefix == open && KernelOptions.Parse([open, "--allow-network"]).Prefix == open,
+                "The same address is accepted with --allow-network: " + open);
+        }
+        Reject(() => KernelOptions.Parse(["--allow-network", "--allow-network"]), "Repeated --allow-network is refused");
+        Reject(() => KernelOptions.Parse(["--allow-network=yes"]), "--allow-network takes no value");
         // The kernel executable has no way to write to a board outside the leased API.
         foreach (var raw in new[] { new[] { "--hid-send", "C24C", "A100000000000000" }, new[] { "--hid-replay", "C24C", "file.json" }, new[] { "--hid-caps" } })
             Reject(() => KernelOptions.Parse(raw), "Raw board commands are not kernel options: " + raw[0]);
@@ -85,6 +105,10 @@ internal static class KernelStartupTests
                 && !report.GetProperty("listener_started").GetBoolean() && !report.GetProperty("receivers_started").GetBoolean()
                 && original.All(p => File.ReadAllBytes(p.Key).SequenceEqual(p.Value)) && Directory.GetFiles(folder).Length == 3,
                 "Valid saved configuration is read without changing files or starting components");
+            check(report.GetProperty("listener_loopback_only").GetBoolean()
+                && !JsonSerializer.SerializeToElement(KernelConfiguration.Load(Options("--allow-network", "http://0.0.0.0:12345/api/")).ValidationReport())
+                    .GetProperty("listener_loopback_only").GetBoolean(),
+                "The validation report says whether the listener is confined to this PC");
             Reject(() => KernelConfiguration.Load(KernelOptions.Parse(["--validate-startup", "--data-dir", folder])),
                 "Startup without a saved receiver configuration is refused; there is no built-in phone");
             Save(deviceFile, Array.Empty<Phone>());
