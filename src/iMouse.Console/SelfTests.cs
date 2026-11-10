@@ -622,7 +622,6 @@ public static class SelfTests
         await VideoDraftWindow.CheckHeadlessAsync(Check);
         await FarmObservationWindow.CheckHeadlessAsync(Check);
         await FarmDraftVerificationWindow.CheckHeadlessAsync(Check);
-        await FarmDraftRehearsalWindow.CheckHeadlessAsync(Check);
         await FarmDraftRunWindow.CheckHeadlessAsync(Check);
         await FarmPreparationWindow.CheckHeadlessAsync(Check);
         await FarmScheduleQueueWindow.CheckHeadlessAsync(Check);

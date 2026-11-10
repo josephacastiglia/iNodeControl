@@ -197,22 +197,9 @@ public partial class CarouselDraftWindow : Window
     {
         await SaveBeforeLeavingAsync();
         if (_draft is null) return;
-        new FarmDraftRunWindow(_api, _dataFolder, _draft.Id, _draft.Revision, _draft.Title, createNew: true) { Owner = this }.ShowDialog();
+        new FarmDraftRunWindow(_api, _dataFolder, _draft.Id, _draft.Revision, _draft.Title, DraftRunKind.Carousel) { Owner = this }.ShowDialog();
     }, phoneWorkflow: true);
 
-    private async void PhoneDraft_Click(object sender, RoutedEventArgs e) => await RunAsync(async () =>
-    {
-        await SaveBeforeLeavingAsync();
-        if (_draft is null) return;
-        new FarmDraftRunWindow(_api, _dataFolder, _draft.Id, _draft.Revision, _draft.Title) { Owner = this }.ShowDialog();
-    }, phoneWorkflow: true);
-
-    private async void Rehearsal_Click(object sender, RoutedEventArgs e) => await RunAsync(async () =>
-    {
-        if (_draft is null) throw new InvalidOperationException("Open a local draft first.");
-        await SaveBeforeLeavingAsync();
-        new FarmDraftRehearsalWindow(_api, _draft.Id, _draft.Revision, _draft.Title) { Owner = this }.ShowDialog();
-    });
     private async void Verification_Click(object sender, RoutedEventArgs e) => await RunAsync(async () =>
     {
         if (_draft is null) throw new InvalidOperationException("Open a local draft first.");
