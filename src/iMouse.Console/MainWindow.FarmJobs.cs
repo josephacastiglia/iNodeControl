@@ -6,7 +6,6 @@ public partial class MainWindow
 {
     private string? _farmJobId;
     private string? _farmJobMode, _farmJobRecoveryError;
-    private bool _farmOwnsInput, _farmLiveAutomationReady;
     private int _farmProtocolVersion;
     private FarmApiClient FarmApi => new(FarmHttp, FarmServerUrl);
     private FarmJobRecovery FarmRecovery => new(_dataPath);
@@ -18,8 +17,6 @@ public partial class MainWindow
             if (FarmRecovery.Load() is not { } bookmark) return;
             _farmJobId = bookmark.Id;
             _farmJobMode = bookmark.Mode;
-            _farmOwnsInput = bookmark.OwnsInput;
-            if (_farmOwnsInput) CancelLocalInput();
             AppendFarmLog("Recovered pending " + bookmark.Action + ". Choose Check job to retrieve its outcome. No action was replayed.");
         }
         catch (Exception ex)
@@ -32,33 +29,13 @@ public partial class MainWindow
     private async Task RunFarmJobAsync(string action, object payload)
     {
         if (!FarmAutomationModeKnown()) return;
-        bool liveInput = _farmExecutionMode == "live" && action is not ("create-content" or "scan-profile-views" or "scheduler-tick");
-        if (liveInput && !_farmLiveAutomationReady)
-        {
-            AppendFarmLog("Live automation is unavailable until app observations and the account workflow are validated. You can create content now.");
-            return;
-        }
         // Set before the first await; repeated button presses cannot launch a second job.
         _farmJobId = Guid.NewGuid().ToString();
         bool submitted = false;
         try
         {
             _farmJobMode = _farmExecutionMode;
-            FarmRecovery.Save(new(_farmJobId, _farmJobMode!, action, liveInput));
-            if (liveInput)
-            {
-                if (_api is not { } api || !FarmTargetPolicy.IsC24C(InputTargetIds()))
-                    throw new InvalidOperationException("Select only C24C and disable followers before starting live automation.");
-                await _scopeTail;
-                _farmOwnsInput = true;
-                ++_controlRevision;
-                CancelLocalInput();
-                InputStateText.Text = "Releasing C24C to the farm job…";
-                RefreshInputOwnershipUi();
-                await api.ReleaseInputAsync(FarmTargetPolicy.DeviceId);
-                if (_closing || _api != api || !FarmTargetPolicy.IsC24C(InputTargetIds()))
-                    throw new InvalidOperationException("Control selection changed during handover; no job sent.");
-            }
+            FarmRecovery.Save(new(_farmJobId, _farmJobMode!, action));
             AppendFarmLog($"Starting {action} ({_farmExecutionMode})…");
             // If this response is lost, query the same ID. Never resubmit the action.
             submitted = true;
@@ -123,11 +100,6 @@ public partial class MainWindow
         }
         catch (Exception ex) { AppendFarmLog("Video drafts: " + ex.Message); }
     }
-    private async void FarmReadiness_Click(object sender, RoutedEventArgs e)
-    {
-        try { new FarmReadinessWindow(await FarmApi.SendAsync("/api/farm/capabilities")) { Owner = this }.ShowDialog(); }
-        catch (Exception ex) { AppendFarmLog("Feature readiness unavailable: " + ex.Message); }
-    }
     private async void FarmCarouselDraft_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -182,17 +154,6 @@ public partial class MainWindow
         FarmRecovery.Save(null); // Clear durably before allowing another submission.
         _farmJobId = null;
         _farmJobMode = null;
-        if (_farmOwnsInput)
-        {
-            _farmOwnsInput = false;
-            CancelLocalInput();
-            // A reopened console has no remembered selection scope yet. Avoid
-            // treating completion as a new selection that automatically readies it.
-            _controlApi = _api;
-            _controlScope = InputTargetIds();
-            InputStateText.Text = "Farm job ended · inspect C24C, then choose Resume input";
-            RefreshInputOwnershipUi(); // Explicit Resume; no takeover or replay.
-        }
     }
 
     private async Task RequestFarmCancellationAsync()
@@ -215,30 +176,6 @@ public partial class MainWindow
 
     private async void FarmCreateContent_Click(object sender, RoutedEventArgs e) =>
         await RunFarmJobAsync("create-content", new { device_id = "C24C" });
-
-    private async void FarmResumeSimulation_Click(object sender, RoutedEventArgs e)
-    {
-        if (!FarmAutomationModeKnown()) return;
-        try
-        {
-            await FarmApi.SendAsync("/api/farm/resume-simulation", new { });
-            AppendFarmLog("Simulation resumed. Real C24C input is unchanged.");
-        }
-        catch (Exception ex) { AppendFarmLog(ex.Message); }
-    }
-
-    private async void FarmSavePersona_Click(object sender, RoutedEventArgs e)
-    {
-        if (!FarmAutomationModeKnown()) return;
-        try
-        {
-            await FarmApi.SendAsync("/api/farm/update-persona", new { device_id = "C24C", niche = FarmNicheBox.Text, cta_keyword = FarmKeywordBox.Text });
-            _farmPersonaLoaded = false;
-            AppendFarmLog("C24C persona saved.");
-            await RefreshFarmStateAsync();
-        }
-        catch (Exception ex) { AppendFarmLog("Persona not saved: " + ex.Message); }
-    }
 
     private void FarmOpenContent_Click(object sender, RoutedEventArgs e)
     {

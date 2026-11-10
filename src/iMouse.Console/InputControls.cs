@@ -39,14 +39,6 @@ public partial class MainWindow
     private void RefreshInputOwnershipUi()
     {
         if (StopInputButton is null || ResumeInputButton is null || InputStateText is null) return;
-        if (_farmOwnsInput)
-        {
-            ResumeInputButton.IsEnabled = false;
-            StopInputButton.IsEnabled = !_stopPending;
-            if (_closing || !_connected || !FarmTargetPolicy.IsC24C(InputTargetIds()))
-                _ = RequestFarmCancellationAsync();
-            return;
-        }
         bool managed = !_closing && _api is not null;
         var ids = managed ? InputTargetIds() : "";
         if (managed && (_controlApi != _api || ids != _controlScope))
@@ -83,7 +75,6 @@ public partial class MainWindow
     }
     private async void StopInput_Click(object sender, RoutedEventArgs e)
     {
-        if (_farmOwnsInput) { FarmEmergencyStop_Click(sender, e); return; }
         if (_farmJobId is not null) _ = RequestFarmCancellationAsync();
         var api = _api; string ids = StopTargetIds();
         if (api is null || ids.Length == 0 || _stopPending) return;
@@ -102,7 +93,6 @@ public partial class MainWindow
     }
     private async void ResumeInput_Click(object sender, RoutedEventArgs e)
     {
-        if (_farmOwnsInput) { AppendFarmLog("Wait for the farm job's cleanup before resuming input."); return; }
         var api = _api; string ids = StopTargetIds();
         if (api is null || ids.Length == 0 || _stopPending || _resumePending) return;
         long revision = ++_controlRevision;

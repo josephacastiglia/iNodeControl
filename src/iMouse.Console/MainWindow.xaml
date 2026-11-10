@@ -241,7 +241,6 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="300" MinWidth="260"/>
           <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="380" MinWidth="320"/>
         </Grid.ColumnDefinitions>
 
         <!-- 1. Left Column: Live Screen & Jitter Touch Inspector -->
@@ -274,17 +273,10 @@
           </DockPanel>
         </Border>
 
-        <!-- 2. Middle Column: 1-Click Pipeline, Actions & Phone Wall Cards -->
-        <Border Grid.Column="1" Style="{StaticResource Panel}" Padding="12" Margin="0,0,8,0">
-          <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- Action Buttons Strip -->
-            <WrapPanel Grid.Row="0" Margin="0,0,0,10">
+        <!-- 2. Right: content and draft windows, then the job and activity log -->
+        <Border Grid.Column="1" Style="{StaticResource Panel}" Padding="12">
+          <DockPanel LastChildFill="True">
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
               <Button Content="Create content only" Click="FarmCreateContent_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Review content" Click="FarmOpenContent_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Instagram carousel drafts" Click="FarmCarouselDraft_Click" MinHeight="30" Padding="10,5"/>
@@ -292,77 +284,14 @@
               <Button Content="Read C24C screen" Click="FarmObservation_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Preparation schedule" Click="FarmPreparation_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Review queue" Click="FarmScheduleQueue_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Feature readiness" Click="FarmReadiness_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="Check job" Click="FarmCheckJob_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Resume simulation" Click="FarmResumeSimulation_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Create &amp; deploy C24C" Click="FarmAutoCreate_Click" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentBrush}" MinHeight="30" Padding="10,5"/>
-              <Button Content="Run C24C warmup" Click="FarmCohortWarmup_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Preview schedule" Click="FarmSchedulerTick_Click" MinHeight="30" Padding="10,5"/>
-              <Button Content="Check keyword replies" Click="FarmFunnel_Click" MinHeight="30" Padding="10,5"/>
               <Button Content="🔍 Test C24C Spotlight &amp; Notes" Click="FarmSpotlightTest_Click" MinHeight="30" Padding="10,5" ToolTip="Runs live Spotlight Search pill click &amp; types Notes"/>
               <Button Content="Stop C24C + cancel job" Click="FarmEmergencyStop_Click" Foreground="#C62828" MinHeight="30" Padding="10,5"/>
             </WrapPanel>
-
-            <!-- 5-Stage Pipeline Indicator Strip -->
-            <Border Grid.Row="1" Background="{DynamicResource TargetBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,0,0,10">
-              <UniformGrid Columns="5">
-                <StackPanel Margin="4,0"><TextBlock Text="1. DRAFT STUDIO" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Local templates" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-                <StackPanel Margin="4,0"><TextBlock Text="2. ASSETS" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="JPEG + MP4" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-                <StackPanel Margin="4,0"><TextBlock Text="3. REVIEW" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Preview before use" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-                <StackPanel Margin="4,0"><TextBlock Text="4. KERNEL 9913" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Scoped input" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-                <StackPanel Margin="4,0"><TextBlock Text="5. REPLIES" FontWeight="Bold" FontSize="10.5"/><TextBlock Text="Observation required" FontSize="9.5" Style="{StaticResource Muted}"/></StackPanel>
-              </UniformGrid>
-            </Border>
-
-            <!-- Phone Wall Cards List -->
-            <DockPanel Grid.Row="2" LastChildFill="True">
-              <TextBlock DockPanel.Dock="Top" Text="MARKETING PROFILES · ONLY C24C ENABLED FOR TESTING" Style="{StaticResource SectionLabel}" Margin="0,0,0,6"/>
-              <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel x:Name="FarmPhoneListPanel"/>
-              </ScrollViewer>
-            </DockPanel>
-          </Grid>
-        </Border>
-
-        <!-- 3. Right Column: Persona Profile, Content Slate & Live RPC Log -->
-        <Border Grid.Column="2" Style="{StaticResource Panel}" Padding="12">
-          <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- Persona Profile Editor -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,8">
-              <TextBlock Text="C24C MARKETING PROFILE" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
-              <TextBlock Text="Niche / Offer Title:" FontSize="11" Style="{StaticResource Muted}"/>
-              <TextBox x:Name="FarmNicheBox" Text="AI Workflow &amp; SaaS Clips" MinHeight="26" Margin="0,2,0,6" FontSize="12"/>
-              <TextBlock Text="CTA Keyword Trigger:" FontSize="11" Style="{StaticResource Muted}"/>
-              <TextBox x:Name="FarmKeywordBox" Text="SYSTEM" MinHeight="26" Margin="0,2,0,6" FontSize="12"/>
-              <Button Content="Save C24C profile" Click="FarmSavePersona_Click" MinHeight="26" Margin="0,0,0,6"/>
-            </StackPanel>
-
-            <!-- Content Slate Actions -->
-            <StackPanel Grid.Row="1" Margin="0,0,0,8">
-              <TextBlock Text="CONTENT WORKFLOWS" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
-              <UniformGrid Columns="2" Margin="0,0,0,4">
-                <Button Content="Instagram draft editor" Click="FarmCarouselDraft_Click" FontSize="11" Padding="4,4"/>
-                <Button Content="🎵 TikTok Video" Tag="tiktok|tt_video" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
-              </UniformGrid>
-              <UniformGrid Columns="2">
-                <Button Content="𝕏 Video" Tag="x|x_video" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
-                <Button Content="▶️ YouTube Short" Tag="youtube|yt_short" Click="FarmDeploySingle_Click" FontSize="11" Padding="4,4"/>
-              </UniformGrid>
-            </StackPanel>
-
-            <!-- Live Kernel JSON-RPC & Activity Log -->
-            <DockPanel Grid.Row="2" LastChildFill="True">
-              <TextBlock DockPanel.Dock="Top" Text="JOB STATUS &amp; ACTIVITY" Style="{StaticResource SectionLabel}" Margin="0,4,0,4"/>
-              <TextBox x:Name="FarmLogBox" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LogBrush}"
-                       Foreground="{DynamicResource TextBrush}" FontFamily="Consolas" FontSize="10.5" TextWrapping="Wrap"/>
-            </DockPanel>
-          </Grid>
+            <TextBlock DockPanel.Dock="Top" Text="JOB STATUS &amp; ACTIVITY" Style="{StaticResource SectionLabel}" Margin="0,4,0,4"/>
+            <TextBox x:Name="FarmLogBox" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LogBrush}"
+                     Foreground="{DynamicResource TextBrush}" FontFamily="Consolas" FontSize="10.5" TextWrapping="Wrap"/>
+          </DockPanel>
         </Border>
       </Grid>
 
