@@ -1,13 +1,23 @@
 # HID protocol — WCH boards (VID 720A)
 
-**14 October 2026 update:** static analysis of the original vendor DLL now
-identifies the separate Fn field, the shortcut Tab prelude, movement reply
-handlers and an unvalidated alternate absolute mode. Read
-[the vendor protocol report](vendor-protocol-rea-20261014/REPORT.md).
-Those findings extend the historical capture below; they do not establish new
-phone-side acceptance. The saved-byte decoder is `tools/vendor_hid_decode.py`.
+**14 October 2026 update:** static analysis of the original vendor DLL identified
+the separate Fn field, the shortcut Tab prelude, movement reply handlers and an
+unvalidated alternate absolute mode. Its findings are recorded under
+[What the vendor library does](#what-the-vendor-library-does-static-analysis-14-oct-2026)
+below. They extend the historical capture; they do not establish new phone-side
+acceptance.
 
-Captured 13 Sep 2026 23:43:51–23:45:42 local, Windows USB ETW (`tools/hid-capture.ps1`),
+The capture, decoding and replay tools this document was written from (the ETW
+capture script, the Frida `WriteFile` observer, the saved-byte decoder and the
+reply-capture harness) were removed from the tip on 9 Nov 2026: each was pinned to
+one build or one phone. They and the full reports are in Git history at tag
+`evidence-20261109` (`docs/EVIDENCE.md`): `tools/hid-capture.ps1`,
+`tools/observe-hid.py`, `tools/parse_hid_xml.py`, `tools/vendor_hid_decode.py`,
+`tools/capture_c24c_replies.py`, `tools/analyze_hid_reply_capture.py`,
+`analysis/vendor-protocol-rea-20261014/REPORT.md`,
+`analysis/hid-input-replies-20261014/REPORT.md`.
+
+Captured 13 Sep 2026 23:43:51–23:45:42 local, Windows USB ETW,
 19 boards present, IMService still running. File: `analysis/hid-captures/vid720a-20260913-234351`.
 
 ## What is solid
@@ -56,8 +66,8 @@ inside the running IMService process with Frida. This observes existing calls;
 the hook does not replace buffers, returns, or license behavior. No second USB
 ETW capture and no random command guesses were needed.
 
-User-approved target: `86:1D:4A:04:2F:F6`, current board **C24C**, UID
-`C24CBFBD`. The old copied device file incorrectly maps this phone to 724E.
+User-approved target: the phone on board **C24C** (UID `C24CBFBD`). The old
+copied device file incorrectly maps this phone to 724E.
 Use `analysis/single-phone-config/devices.json`, which records the live binding.
 No direct output was sent to the other 18 boards.
 
@@ -105,6 +115,51 @@ screen scaling, orientation, or another controller's pointer position requires
 reset/recalibration. The software refuses boards without explicit enablement
 and a calibration entry.
 
+## What the vendor library does (static analysis, 14 Oct 2026)
+
+From decompiling the vendor's `MouseKeyItem.dll` (27 functions, key paths checked
+against instructions). Nothing in this section was sent to a board or seen on a
+phone; a board's reply is never proof of what iOS did.
+
+**Framing.** A USB payload is 8 bytes out and 16 bytes in. Windows adds report
+ID 0 in front (9 and 17 bytes); the vendor's reader strips it before dispatch.
+
+**Outgoing reports, by first payload byte**
+
+| Family | Layout | Status |
+|---|---|---|
+| A1 relative mouse | `A1 buttons dx dy` + 4 bytes; dx, dy signed 8-bit | observed and replayed (table above); bytes 4-7 unknown |
+| A2 keyboard | `A2 modifier usage0 usage1 usage2 usage3 00 fn` | four usage slots; byte 6 unassigned; byte 7 is the vendor Fn field: `00` or `02`, other values unknown |
+| A0 absolute mouse | `A0 buttons x-low x-high y-low y-high 00 00`, x and y scaled to 0-32767 | exists in the library when its mode field is 1 (`HT_SetIOSVer`); never sent here; board support, orientation and accuracy untested |
+
+Vendor Fn is separate from Left Shift (modifier byte 1). `A2 00 52 00 00 00 00 02`
+(AppSwitch) is Fn+Up; ControlBar is Fn+C. Four Fn reports in the September
+keyboard capture agree.
+
+**Incoming reports, by first payload byte**
+
+| Family | What the vendor library does with it | Limit |
+|---|---|---|
+| A0 / A1 | sets a completion flag and signals the event its movement waits use (up to 100 ms) | no sequence ID decoded: never match one to a command by timing alone; says nothing about position or iOS |
+| A5 | copies six identifier bytes (payload bytes 1-6), which `HT_GetUID` formats | not proven equal to our device store's UID |
+| A6 / AF | changes recovery and pacing counters and forwards the event | physical cause unknown; AF also appeared during successful moves (14 Oct capture below), so it is not an error |
+| other | forwarded to a callback | no proof of keyboard completion |
+
+**The Tab before Home is host policy, not packet format.** The vendor's shortcut
+wrapper (`CusKeyInput_Union_KeyEx`) prepends Tab and release to most multi-key
+shortcuts (exceptions: `win+c`, `win+x`, `win+v`, `win+a`, `ctrl+` space and a
+`CTRL+ALT+SHIFT` prefix), with 30-35 ms prelude delays, a 50-80 ms chord hold
+and a 30 ms minimum write interval. That is why the saved Home is Tab, release,
+Command+H, release. Whether Home without the Tab is reliable on iOS is a
+separate, still open, physical question.
+
+**Position and reset are host state.** `HT_GetCurrMousePos` returns cached
+coordinates, not a measured position. The vendor's relative reset sends repeated
+`(-127, -127)` moves, 30 by default (configurable; the September capture had
+four): keep the measured profile. `HT_OpenEx` writes A5 and A3 initialisation
+reports and waits; these are static observations, not approved probes. Do not
+send speculative queries to the rack.
+
 ## Direct validation and evidence
 
 - `hid-observation-20260914.jsonl` / `hid-command-markers.jsonl`: mouse reports.
@@ -147,14 +202,12 @@ modulo 256`; this remains an observation, not an enforced checksum. Trailing
 bytes varied. Report timing/counts cannot establish USB round-trip latency,
 one response per write or accurate phone positioning. No typing was performed.
 
-The combined candidate source now offers optional `--hid-replies-pid` diagnostics
-for enabled input boards. It defaults off and never waits for a reply before a
-write. Status exposes bounded observations rather than acknowledgements. The
-final complete kernel has only offline validation; installed software and the
-prior packaged candidate are unchanged. See
-`hid-input-replies-20261014/REPORT.md` for provenance, raw capture locations,
-restoration and limitations. Earlier observations above retain their original
-dates/scopes; this addendum does not retroactively validate them.
+From 14 Oct the kernel had an optional `--hid-replies-pid` diagnostic that read
+these reports for enabled boards (off by default, never waiting for a reply
+before a write). No launcher enabled it and the 9 Nov audit removed it; the
+kernel writes and flushes and has no incoming-report reader. Earlier observations
+above retain their original dates and scopes; this addendum does not
+retroactively validate them.
 
 ### Earlier capture environment
 

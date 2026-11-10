@@ -1,4 +1,4 @@
-"""Offline tests for gate4_suite.py against mock_kernel.py. No phone, board or kernel needed.
+"""Offline tests for tools/gate4_1000_tap_suite.py against mock_kernel.py. No phone, board or kernel needed.
 
     python tools/gate4_v2/test_gate4_v2.py
 
@@ -17,9 +17,10 @@ from pathlib import Path
 
 SCALE = 0.05
 os.environ["GATE4_TIME_SCALE"] = str(SCALE)
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))       # mock_kernel.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # the suite itself
 
-import gate4_suite as g          # noqa: E402  (must follow the environment variable)
+import gate4_1000_tap_suite as g          # noqa: E402  (must follow the environment variable)
 from unittest.mock import patch
 from mock_kernel import MockKernel, offline_request  # noqa: E402
 

@@ -1,6 +1,6 @@
-# Gate 4 targeting suite: tests and compatibility entry point
+# Gate 4 targeting suite: tests and mock kernel
 
-The implementation is now consolidated in `tools/gate4_1000_tap_suite.py`, using this previously prepared v2 work. `tools/gate4_v2/gate4_suite.py` is only a compatibility shim; it imports the same module and maintains no second implementation. The suite targets the Gate 4 criterion as written in `FINISH-CRITERIA.md`. **It has not been run on a phone.** Every claim below about its behaviour comes from offline tests against `mock_kernel.py`.
+The implementation is `tools/gate4_1000_tap_suite.py`, consolidated from the v2 work that started in this folder; this folder holds its tests and the mock kernel they run against. The suite targets the Gate 4 criterion as written in `FINISH-CRITERIA.md`. **It has not been run on a phone.** Every claim below about its behaviour comes from offline tests against `mock_kernel.py`.
 
 ## Why a version 2
 
