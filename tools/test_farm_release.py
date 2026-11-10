@@ -384,6 +384,17 @@ class OperatorInstructions(unittest.TestCase):
             for path in re.findall(r'(?<![\w.-])(tools[\\/][\w./\\-]+\.(?:ps1|py|txt|json))', text):
                 self.assertIn(path.replace('\\', '/'), shipped, f'{doc} names {path}, which a package does not contain')
 
+    def test_the_guide_names_only_launcher_commands_that_exist_and_says_what_a_new_pc_cannot_do(self):
+        guide = (fr.REPO / 'docs/INSTALL-FARM.md').read_text(encoding='utf-8')
+        named = set(re.findall(r'`([a-z]+(?:-[a-z]+)+)`', guide))
+        self.assertTrue({'start-rack', 'stop-rack', 'prepare-window', 'run-window'} <= named)
+        self.assertEqual(named - set(fr.COMMANDS) - {'status', 'preflight'}, set())
+        for removed in ('-Stage', '-Rack'):
+            self.assertNotIn(removed, guide)
+        # No rack preparation tool is a launcher command, so the guide may not send a new PC's operator to one.
+        self.assertFalse([c for c in fr.COMMANDS if 'rack' in c and 'prepare' in c])
+        self.assertIn('cannot make one yet', guide)
+
 
 class ThisCheckout(unittest.TestCase):
     def test_no_packaged_file_reads_state_from_the_code_folder(self):
