@@ -372,20 +372,9 @@ class FleetSurvey:
         self.record['state'] = 'done'
 
 
+# The survey's lease. StartScreen.command renews it before every input while under 20 s remain (a survey outlasts
+# one lease: A11, 5 Nov 17:28, it expired at the Instagram step and the kernel stopped that phone's input).
 LEASE_MS = 30000
-RENEW_BELOW_MS = 20000
-
-
-def renewing(screen):
-    """StartScreen sends on one 30 s lease and never renews it: enough for one start screen, not for a survey
-    (A11, 5 Nov 17:28: the lease expired at the Instagram step and the kernel stopped that phone's input).
-    Every command renews first while less than 20 s remain."""
-    send = screen.command
-    def command(fun, purpose, **data):
-        screen.kernel.renew_if_needed(screen.tokens, RENEW_BELOW_MS)
-        return send(fun, purpose, **data)
-    screen.command = command
-    return screen
 
 
 def pointer_landing(screen, point, record):
@@ -465,7 +454,6 @@ def main():
     label, model = FLEET[board]
     folder = ROOT / (a.run or f'survey-{label}-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}')
     screen = StartScreen(folder, phone=phone)
-    renewing(screen)
     survey = FleetSurvey(screen, label, model)
     screen.tokens = screen.kernel.acquire([board], LEASE_MS)
     try:
