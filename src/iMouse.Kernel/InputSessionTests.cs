@@ -162,6 +162,27 @@ internal static class InputSessionTests
                     && Code(await command) != 0 && held.Reports.TakeLast(2).SequenceEqual(new[] { "A100000000000000", release }),
                     "Stop during a held " + arrow + " still sends the key release");
             }
+            // Text is typed at a fixed 140 ms a character (170 ms a space). A request that cannot
+            // finish inside the 8 s command deadline used to be accepted, typed until the deadline
+            // cut it part-way and stopped the phone. It is refused whole instead.
+            {
+                var t = new Transport();
+                using var input = new InputRouter(store, ["C24C"], [calibration], _ => t);
+                await using var sessions = new InputSessions(store, input);
+                string token = Lease(sessions, "one");
+                var clock = System.Diagnostics.Stopwatch.StartNew();
+                bool refused = false; string reason = "";
+                try { await sessions.DispatchAsync("/key/sendkey", Data(new { id = "one", token, key = new string('a', 58) })); }
+                catch (ArgumentException ex) { refused = true; reason = ex.Message; }
+                check(refused && t.Reports.IsEmpty && clock.Elapsed < TimeSpan.FromSeconds(1) && reason.Contains("58") && reason.Contains("57"),
+                    "Text that cannot be typed inside the command deadline is refused at once and types nothing");
+                check(Code(sessions.Renew(Data(new { id = "one", token }))) == 0 && !JsonSerializer.Serialize(sessions.Status()).Contains("\"stopped\":true"),
+                    "Refused long text leaves the lease valid and the phone not stopped");
+                bool Accepts(string text) { try { input.ValidateCommand("/key/sendkey", Data(new { id = "one", key = text }), "C24C"); return true; } catch (ArgumentException) { return false; } }
+                check(Accepts(new string('a', 57)) && !Accepts(new string('a', 58)), "The text limit is the last length whose scheduled typing time fits the deadline");
+                check(Accepts(new string(' ', 47)) && !Accepts(new string(' ', 48)), "Spaces are held longer, so fewer of them fit");
+                check(!Accepts(new string('a', 1000)), "A thousand characters are refused, not accepted and cut");
+            }
             foreach (string wrong in new[] { "UP", "down", "ArrowDown", "PageDown" })
             {
                 var t = new Transport();

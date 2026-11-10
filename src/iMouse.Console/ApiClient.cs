@@ -154,7 +154,9 @@ public sealed class Device : INotifyPropertyChanged
 
 public sealed class ApiClient : IDisposable, IAsyncDisposable
 {
-    private readonly HttpClient _http;
+    private readonly HttpMessageHandler _handler;
+    private readonly HttpClient _http;       // status, device and frame reads: ReadTimeout
+    private readonly HttpClient _commands;   // every POST: CommandTimeout
     private long _screenshotRequest;
     private readonly InputLeaseClient _input;
     private readonly object _closeGate = new();
@@ -166,17 +168,27 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
     public event Action<InputCleanup>? InputCleaned;
     // The kernel uses saved, verified phone/board/receiver assignments and has no command that changes them.
     public const string AssignmentsViewOnly = "Board assignments are view-only. Changes require a verified setup update during maintenance.";
+    /// <summary>How long a status, device or frame read waits. A hung kernel is noticed in this time.</summary>
+    public static readonly TimeSpan ReadTimeout = TimeSpan.FromSeconds(8);
+    /// <summary>
+    /// How long a command waits for its answer. The kernel cancels a command at its own 8 s deadline
+    /// (InputRouter.CommandDeadline), then releases the board, two writes of up to 2 s each, and only
+    /// then answers. Waiting 8 s here, as this client used to, gave up just before that answer and
+    /// reported an unknown outcome for a command whose outcome the kernel was about to state.
+    /// </summary>
+    public static readonly TimeSpan CommandTimeout = TimeSpan.FromSeconds(15);
     public Uri Endpoint { get; }
     public ApiClient(string address, HttpMessageHandler? handler = null, TimeSpan? renewalInterval = null,
         TimeSpan? closeTimeout = null)
     {
-        _closeTimeout = closeTimeout ?? TimeSpan.FromSeconds(15);
+        // A release sent while closing is a command, so closing waits a little longer than one.
+        _closeTimeout = closeTimeout ?? TimeSpan.FromSeconds(20);
         if (_closeTimeout <= TimeSpan.Zero || _closeTimeout > TimeSpan.FromSeconds(30))
             throw new ArgumentOutOfRangeException(nameof(closeTimeout), "Cleanup timeout must be positive and no more than 30 seconds.");
         Endpoint = NormalizeEndpoint(address);
-        _http = handler is null ? new HttpClient(new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false }) : new HttpClient(handler);
-        _http.Timeout = TimeSpan.FromSeconds(8);
-        _http.MaxResponseContentBufferSize = 32 * 1024 * 1024;
+        _handler = handler ?? new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false };
+        _http = new HttpClient(_handler, disposeHandler: false) { Timeout = ReadTimeout, MaxResponseContentBufferSize = 32 * 1024 * 1024 };
+        _commands = new HttpClient(_handler, disposeHandler: false) { Timeout = CommandTimeout, MaxResponseContentBufferSize = 32 * 1024 * 1024 };
         _input = new InputLeaseClient(RawCommandAsync, VerifyOwnershipAsync, renewalInterval);
         _input.Notice += message => InputNotice?.Invoke(message);
         _input.Cleaned += cleanup => InputCleaned?.Invoke(cleanup);
@@ -220,14 +232,15 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
     private async Task<JsonElement> RawCommandAsync(string function, Dictionary<string, object> data, CancellationToken ct)
     {
         using var body = new StringContent(JsonSerializer.Serialize(new { fun = function, data }), Encoding.UTF8, "application/json");
-        using var response = await _http.PostAsync(Endpoint, body, ct);
+        using var response = await _commands.PostAsync(Endpoint, body, ct);
         response.EnsureSuccessStatusCode();
         return ReadResult(await response.Content.ReadAsStringAsync(ct));
     }
     /// <summary>
     /// Most characters one /key/sendkey carries. The kernel schedules 140 ms of HID timing per
     /// character (170 ms per space) and cancels any command after 8 s, which also stops the phone
-    /// until Resume; this client's HTTP timeout is 8 s as well. Under CPU load its delays stretch:
+    /// until Resume. It refuses outright text whose schedule alone exceeds 8 s (58 characters or
+    /// more), so this must stay far below that. Under CPU load the kernel's delays stretch:
     /// a 32-character chunk ran 8,021 ms live on 26 Sep and was cut, and the kernel's own timing
     /// reached 371 ms a character under oversubscribed load in analysis/input-timeout-candidate-20260925.
     /// 12 characters is about 2 s idle and 4.5 s at that worst rate. No size guarantees completion
@@ -401,7 +414,7 @@ public sealed class ApiClient : IDisposable, IAsyncDisposable
             result = new([], $"cleanup did not finish within {_closeTimeout.TotalSeconds:0.###} seconds");
         }
         catch (Exception ex) { result = new([], "cleanup failed (" + ex.Message + ")"); }
-        try { _http.Dispose(); }
+        try { _http.Dispose(); _commands.Dispose(); _handler.Dispose(); }
         catch (Exception ex) { result = result with { Failure = "HTTP cleanup failed (" + ex.Message + ")" }; }
         return result;
     }

@@ -24,6 +24,13 @@ public sealed class InputRouter : IDisposable
     /// <summary>Delay per one-unit step of a plain pointer move, on a high-resolution timer.
     /// Task.Delay(3) rounds near 15 ms on Windows. Reset, held-button movement and settle keep their own timing.</summary>
     internal const int MoveDelayMs = 7;
+    /// <summary>How long one command may run before the kernel cancels it, releases the board and
+    /// answers. The console waits longer than this for the answer (ApiClient.CommandTimeout).</summary>
+    public static readonly TimeSpan CommandDeadline = TimeSpan.FromSeconds(8);
+    // One typed character: keys up, wait, key down, hold (longer for space), keys up, wait.
+    private const int KeyLeadMs = 45, KeyHoldMs = 60, SpaceHoldMs = 90, KeyGapMs = 35;
+    /// <summary>The time the waits alone take to type this text; the HID writes come on top.</summary>
+    internal static int TypingMs(string text) => text.Sum(ch => KeyLeadMs + (ch == ' ' ? SpaceHoldMs : KeyHoldMs) + KeyGapMs);
     private readonly ConcurrentDictionary<string, BoardState> _states = new(StringComparer.OrdinalIgnoreCase);
     private sealed class BoardState
     {
@@ -157,8 +164,14 @@ public sealed class InputRouter : IDisposable
             string key = Text(data,"fn_key"), value = Text(data,"key");
             if (key.Length > 0 && key is not ("Home" or "Enter" or "ENTER" or "Backspace" or "BACKSPACE" or "Tab" or "Escape" or "Up" or "Down" or "Left" or "Right" or "AppSwitch" or "ControlBar"))
                 throw new ArgumentException("Function key has not been verified: " + key);
-            if (value.Length > 1000 || (key.Length == 0 && value.Length == 0)) throw new ArgumentException("Provide a key or 1–1000 ASCII characters.");
+            if (key.Length == 0 && value.Length == 0) throw new ArgumentException("Provide a key or ASCII text to type.");
             foreach (char ch in value) _ = HidProtocol.Ascii(ch);
+            // Text that cannot finish inside the command deadline would be typed part-way, cut and
+            // the phone stopped. Refuse it whole. Text near the limit can still be cut under load,
+            // so clients send short chunks (the console sends 12 characters).
+            if (TypingMs(value) > CommandDeadline.TotalMilliseconds)
+                throw new ArgumentException($"Text of {value.Length} characters takes {TypingMs(value) / 1000.0:0.#} s to type, longer than the {CommandDeadline.TotalSeconds:0} s one command may run. "
+                    + $"Nothing was typed. Send at most {(int)(CommandDeadline.TotalMilliseconds / (KeyLeadMs + KeyHoldMs + KeyGapMs))} characters at a time, fewer with spaces.");
         }
     }
     private static void ValidatePoint(JsonElement d, string x, string y, PointerCalibration c)
@@ -260,10 +273,10 @@ public sealed class InputRouter : IDisposable
     }
     private static async Task Stroke(BoardState state,byte modifier,byte usage)
     {
-        await Send(state,HidProtocol.Key()); await Task.Delay(45, state.Cancellation);
-        try { await Send(state,HidProtocol.Key(modifier,usage)); await Task.Delay(usage == 44 ? 90 : 60, state.Cancellation); }
+        await Send(state,HidProtocol.Key()); await Task.Delay(KeyLeadMs, state.Cancellation);
+        try { await Send(state,HidProtocol.Key(modifier,usage)); await Task.Delay(usage == 44 ? SpaceHoldMs : KeyHoldMs, state.Cancellation); }
         finally { await Send(state,HidProtocol.Key()); }
-        await Task.Delay(35, state.Cancellation);
+        await Task.Delay(KeyGapMs, state.Cancellation);
     }
     private static async Task FnStroke(BoardState state, byte usage)
     {

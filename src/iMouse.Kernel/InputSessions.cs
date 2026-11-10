@@ -215,7 +215,7 @@ public sealed class InputSessions : IAsyncDisposable
         try
         {
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(lease.Cancel.Token);
-            deadline.CancelAfter(TimeSpan.FromSeconds(8));
+            deadline.CancelAfter(InputRouter.CommandDeadline);
             var values = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(data.GetRawText())!;
             values["id"] = JsonSerializer.SerializeToElement(slot.Id);
             var result = JsonSerializer.SerializeToElement(await _input.DispatchAsync(fun, JsonSerializer.SerializeToElement(values), deadline.Token));

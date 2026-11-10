@@ -42,6 +42,9 @@ public sealed class TestHandler : HttpMessageHandler
     public int FailSendKeyNumber { get; set; }
     /// <summary>This sendkey gets no answer, which HttpClient reports as its own timeout.</summary>
     public int TimeoutSendKeyNumber { get; set; }
+    /// <summary>Every command with this function is answered only after this long, as a kernel that
+    /// used its whole command deadline answers: code 33, lease revoked, phone stopped.</summary>
+    public (string Fun, TimeSpan After)? DeadlineAnswer { get; set; }
     /// <summary>Every command with this function gets no answer, like <see cref="TimeoutSendKeyNumber"/>.</summary>
     public string? TimeoutFun { get; set; }
     private string? _hangFun;
@@ -284,6 +287,14 @@ public sealed class TestHandler : HttpMessageHandler
                 throw new TaskCanceledException("Simulated: no answer before the HTTP timeout.");
             }
             if (fun == TimeoutFun) throw new TaskCanceledException("Simulated: no answer before the HTTP timeout.");
+            if (DeadlineAnswer is { } late && fun == late.Fun)
+            {
+                await Task.Delay(late.After, ct);
+                string idStr = data.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
+                var ids = idStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                foreach (var id in ids) { ActiveLeases.Remove(id); StoppedPhones.Add(id); PhoneGenerations[id] = PhoneGenerations.GetValueOrDefault(id, 1) + 1; }
+                return Json(JsonSerializer.Serialize(new { status = 200, data = new { code = 33, results = ids.Select(id => new { id, code = 499, message = "Input cancelled" }) } }));
+            }
             if (fun == FailFun)
             {
                 // The kernel releases the board itself, revokes the lease and stops the phone.
@@ -340,6 +351,9 @@ public sealed class TestHandler : HttpMessageHandler
     {
         if (fun == "/key/sendkey" && data.TryGetProperty("fn_key", out var key) && key.GetString() is { Length: > 0 } name && !KernelKeys.Contains(name))
             return "Function key has not been verified: " + name;
+        if (fun == "/key/sendkey" && data.TryGetProperty("key", out var typed) && typed.GetString() is { } value
+            && value.Sum(ch => ch == ' ' ? 170 : 140) > 8000)
+            return "Text of " + value.Length + " characters cannot be typed inside the 8 s command deadline.";
         if (fun is "/mouse/move" or "/mouse/click" && data.TryGetProperty("x", out var x) && data.TryGetProperty("y", out var y)
             && (x.GetInt32() < 0 || y.GetInt32() < 0 || x.GetInt32() >= Calibrated.Width || y.GetInt32() >= Calibrated.Height))
             return "Coordinates outside calibrated image.";
@@ -627,6 +641,7 @@ public static class SelfTests
 
         await RunOwnershipTestsAsync(passed);
         await RunRefusalTestsAsync(passed);
+        await RunCommandDeadlineTestsAsync(passed);
         await RunTextChunkTestsAsync(passed);
         await DiagnosticsTests.RunAsync(Check);
         await CleanupDiagnosticsTests.RunAsync(Check);
@@ -1265,6 +1280,39 @@ public static class SelfTests
         int moves = h.Commands.ToArray().Count(c => Fun(c) == "/mouse/move");
         pump.Post(new(api, "TEST:01", 120, 100, connection.Token, control.Token)); await pump.WhenIdle;
         Check("Hover continues after a refused position", h.Commands.ToArray().Count(c => Fun(c) == "/mouse/move") == moves + 1);
+    }
+
+    /// <summary>
+    /// The kernel gives a command 8 s, then cancels it, releases the board and answers. With the
+    /// console's HTTP timeout also at 8 s that answer never arrived: the operator saw "request timed
+    /// out; the outcome is unknown" for a command whose outcome the kernel had just stated.
+    /// </summary>
+    public static async Task RunCommandDeadlineTestsAsync(List<string> passed)
+    {
+        void Check(string name, bool ok) { if (!ok) throw new Exception("Failed: " + name); passed.Add(name); }
+        var h = new TestHandler { DeadlineAnswer = ("/mouse/swipe", TimeSpan.FromSeconds(8.5)) };
+        await using var api = new ApiClient("localhost", h);
+        var notices = new List<string>(); api.InputNotice += notices.Add;
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        Exception? outcome = null;
+        try { await api.CommandAsync("/mouse/swipe", new() { ["id"] = "TEST:01", ["direction"] = "up" }); }
+        catch (Exception ex) { outcome = ex; }
+        Check("A command the kernel answers at its own 8 s deadline is received, not timed out",
+            outcome is ApiException { Code: 33 } && clock.Elapsed >= TimeSpan.FromSeconds(8.4));
+        Check("The pause notice then states the kernel's answer instead of an unknown outcome",
+            notices.Count == 1 && notices[0].StartsWith("Input paused: Code 33") && notices[0] != InputLeaseClient.TimedOutNotice);
+
+        // Reads keep their shorter deadline: a hung status or device request is noticed in 8 s.
+        Check("Commands are given longer than the kernel's command deadline plus its release; reads are not",
+            ApiClient.CommandTimeout >= TimeSpan.FromSeconds(12) && ApiClient.ReadTimeout == TimeSpan.FromSeconds(8)
+            && ApiClient.CommandTimeout > ApiClient.ReadTimeout);
+
+        // What Send text sends in one request stays far inside what the kernel will accept.
+        var hText = new TestHandler();
+        await using var typing = new ApiClient("localhost", hText);
+        var whole = await typing.SendTextAsync("TEST:01", new string(' ', 60));
+        Check("Sixty spaces, more than the kernel accepts in one request, are typed as accepted chunks",
+            whole.End == InputEnd.Completed && hText.Refused == 0 && whole.Chunks == 60 / ApiClient.TextChunk);
     }
 
     public static async Task RunTextChunkTestsAsync(List<string> passed)

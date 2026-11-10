@@ -451,8 +451,8 @@ internal sealed class InputLeaseClient : IAsyncDisposable
         await DrainAsync(ids).ConfigureAwait(false);
         Task[] cleanups; lock (_sync) cleanups = ids.Select(id => Get(id).Cleanup).ToArray();
         await Task.WhenAll(cleanups).ConfigureAwait(false);
-        // Independent phone releases run together, instead of taking up to eight
-        // seconds per phone. Every request still carries only that phone's own token.
+        // Independent phone releases run together, instead of taking up to one command
+        // timeout per phone. Every request still carries only that phone's own token.
         var results = await Task.WhenAll(ids.Select(async id =>
         {
             string? token; PhoneCleanup? previous; bool buttonMaybeDown;
