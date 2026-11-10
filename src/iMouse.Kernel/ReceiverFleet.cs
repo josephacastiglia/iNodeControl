@@ -46,7 +46,7 @@ public sealed class ReceiverFleet : IDisposable, IAsyncDisposable
         if(configs.Count is <1 or >40) throw new ArgumentException("This test build requires one to forty receivers.");
         foreach(var c in configs)
         {
-            if(c is null || c.BoardPid is null || !System.Text.RegularExpressions.Regex.IsMatch(c.BoardPid,@"^[0-9A-Fa-f]{4}$") || c.Name is null || c.Pipe is null || c.Mac is null)
+            if(c is null || !KernelOptions.BoardId(c.BoardPid) || c.Name is null || c.Pipe is null || c.Mac is null)
                 throw new ArgumentException("Invalid receiver record or board PID.");
             var discovery=c.DeviceId is "*" or "";
             if((!discovery && string.IsNullOrWhiteSpace(c.DeviceId)) || !c.Name.StartsWith("iMouse2-") ||

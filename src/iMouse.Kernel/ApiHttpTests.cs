@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
@@ -13,19 +12,6 @@ namespace IMouse2.Kernel;
 /// </summary>
 internal static class ApiHttpTests
 {
-    private sealed class Board : IHidTransport
-    {
-        public readonly ConcurrentQueue<string> Reports = new();
-        /// <summary>When set, every write waits for it: a board that is slow to take a report.</summary>
-        public Task? Gate;
-        public async Task SendAsync(byte[] data, CancellationToken ct)
-        {
-            ct.ThrowIfCancellationRequested(); Reports.Enqueue(Convert.ToHexString(data));
-            if (Gate is not null) await Gate;
-        }
-        public void Dispose() { }
-    }
-
     /// <summary>
     /// The kernel runs its start-up release in the step between claiming the listener and reading
     /// the first request (Program.cs). This is that step over a real listener: a request that arrives
@@ -33,8 +19,8 @@ internal static class ApiHttpTests
     /// </summary>
     public static async Task StartupOrderAsync(Action<bool, string> check)
     {
-        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var board = new Board { Gate = gate.Task };
+        // Every write waits until the test lets it go: a board that is slow to take a report.
+        var board = new InputSessionTests.Transport { Block = _ => true };
         var store = new DeviceStore([new Phone { deviceid = "one", pid = "C24C", uid = "A" }]);
         using var input = new InputRouter(store, ["C24C"], [new PointerCalibration("C24C", 500, 1080, 14, 14, 5, 5)], _ => board);
         using var frames = new FrameStore("api-startup-tests-never-opened", "one");
@@ -58,7 +44,7 @@ internal static class ApiHttpTests
             await Task.Delay(300);
             check(!early.IsCompleted && board.Reports.SequenceEqual(new[] { "A100000000000000" }),
                 "A request that arrives during the start-up release is not answered while the release is being written");
-            gate.SetResult();
+            board.Unblock.SetResult();
             using var answer = await early;
             using var doc = JsonDocument.Parse(await answer.Content.ReadAsStringAsync());
             check(doc.RootElement.GetProperty("data").GetProperty("code").GetInt32() == 0
@@ -67,7 +53,7 @@ internal static class ApiHttpTests
         }
         finally
         {
-            gate.TrySetResult(); stop.Cancel();
+            board.Unblock.TrySetResult(); stop.Cancel();
             try { await run; } catch (OperationCanceledException) { }
         }
     }
@@ -90,7 +76,7 @@ internal static class ApiHttpTests
 
     public static async Task RunAsync(Action<bool, string> check)
     {
-        var board = new Board();
+        var board = new InputSessionTests.Transport();
         var store = new DeviceStore([new Phone { deviceid = "one", pid = "C24C", uid = "A" }]);
         using var input = new InputRouter(store, ["C24C"], [new PointerCalibration("C24C", 500, 1080, 14, 14, 5, 5)], _ => board);
         using var frames = new FrameStore("api-http-tests-never-opened", "one");

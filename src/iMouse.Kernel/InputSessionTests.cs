@@ -5,7 +5,7 @@ namespace IMouse2.Kernel;
 
 internal static class InputSessionTests
 {
-    private sealed class Transport : IHidTransport
+    internal sealed class Transport : IHidTransport
     {
         public ConcurrentQueue<string> Reports = new();
         public Func<string, bool>? Block;

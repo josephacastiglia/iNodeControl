@@ -171,7 +171,7 @@ public sealed class ApiServer : IDisposable
     private object Advertise(JsonElement data)
     {
         if (Receivers is null) return new { code = 41, message = "This kernel runs no receivers." };
-        string pid = Str(data, "pid");
+        string pid = InputRouter.Text(data, "pid");
         return KernelOptions.BoardId(pid) ? Receivers.Advertise(pid) : new { code = 36, message = "pid must be a four-digit hexadecimal board ID." };
     }
 
@@ -180,12 +180,12 @@ public sealed class ApiServer : IDisposable
     private async Task<object> ChangeReceiver(string fun, JsonElement data)
     {
         if (Receivers is null) return new { code = 41, message = "This kernel runs no receivers." };
-        string pid = Str(data, "pid");
+        string pid = InputRouter.Text(data, "pid");
         if (!KernelOptions.BoardId(pid)) return new { code = 36, message = "pid must be a four-digit hexadecimal board ID." };
         pid = pid.ToUpperInvariant();
-        if (_inputSessions.LeasedByOther(pid, Str(data, "token")))
+        if (_inputSessions.LeasedByOther(pid, InputRouter.Text(data, "token")))
             return new { code = 409, message = "Board " + pid + "'s phone has an active input lease. Wait for it to end, or pass that lease's token. Nothing was stopped." };
-        bool hold = Str(data, "hold") is var h && (h.Equals("true", StringComparison.OrdinalIgnoreCase) || h == "1");
+        bool hold = InputRouter.Text(data, "hold") is var h && (h.Equals("true", StringComparison.OrdinalIgnoreCase) || h == "1");
         return fun == "/device/airplay/withdraw" ? await Receivers.WithdrawAsync(pid) : await Receivers.RestartAsync(pid, hold);
     }
 
@@ -243,9 +243,6 @@ public sealed class ApiServer : IDisposable
             state = _input.Enabled(b.Pid) && stored.ContainsKey(b.Pid) ? 2 : 1
         }).ToList();
     }
-
-    private static string Str(JsonElement obj, string name) =>
-        obj.ValueKind == JsonValueKind.Object && obj.TryGetProperty(name, out var v) && v.ValueKind != JsonValueKind.Null ? v.ToString() : "";
 
     /// <summary>
     /// What is turned away before anything is read or done. This API has no login: the lease tokens

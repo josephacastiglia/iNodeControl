@@ -360,7 +360,8 @@ public sealed class InputRouter : IDisposable
         }
         return (resetMs, steps, sendMs, delayMs);
     }
-    private static string Text(JsonElement d,string key) => d.ValueKind==JsonValueKind.Object && d.TryGetProperty(key,out var v)?v.ToString():"";
+    /// <summary>A request field as text: "" when the data is not an object, the field is absent or it is null.</summary>
+    internal static string Text(JsonElement d,string key) => d.ValueKind==JsonValueKind.Object && d.TryGetProperty(key,out var v)?v.ToString():"";
     private static (int X1,int Y1,int X2,int Y2) SwipePoints(JsonElement data,PointerCalibration c)
     {
         string direction=Text(data,"direction").ToLowerInvariant();

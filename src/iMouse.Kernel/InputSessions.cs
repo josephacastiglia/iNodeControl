@@ -56,10 +56,9 @@ public sealed class InputSessions : IAsyncDisposable
         _watch = WatchAsync();
     }
     private static TaskCompletionSource Completion() => new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private static string Text(JsonElement data, string name) => data.ValueKind == JsonValueKind.Object && data.TryGetProperty(name, out var value) ? value.ToString() : "";
     private Phone[] Targets(JsonElement data)
     {
-        var ids = Text(data, "id").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToArray();
+        var ids = InputRouter.Text(data, "id").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToArray();
         if (ids.Length == 0) throw new ArgumentException("id required");
         var all = _store.All();
         var phones = ids.Select(id => all.SingleOrDefault(p => p.deviceid == id) ?? throw new KeyNotFoundException(id)).ToArray();
@@ -77,7 +76,7 @@ public sealed class InputSessions : IAsyncDisposable
     {
         if (data.TryGetProperty("tokens", out var tokens) && tokens.ValueKind == JsonValueKind.Object && tokens.TryGetProperty(id, out var token))
             return token.ToString();
-        return Text(data, "token");
+        return InputRouter.Text(data, "token");
     }
     private void ValidateOwner(Slot slot, JsonElement data)
     {
@@ -102,7 +101,7 @@ public sealed class InputSessions : IAsyncDisposable
     public object Acquire(JsonElement data)
     {
         var phones = Targets(data);
-        int duration = int.TryParse(Text(data, "lease_ms"), out var value) ? value : 30_000;
+        int duration = int.TryParse(InputRouter.Text(data, "lease_ms"), out var value) ? value : 30_000;
         if (duration is < 1000 or > 120_000) throw new ArgumentException("lease_ms must be 1000–120000.");
         lock (_sync)
         {
